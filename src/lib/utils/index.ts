@@ -1,8 +1,26 @@
 /**
- * @hyzer-labs/ui utility functions — placeholder for Sprint 1.
- * cx, uid, contrastRatio, meetsContrast, hexToRgb will be defined here.
+ * @hyzer-labs/ui utility functions.
  */
-export const utils = {
-	/** Utility namespace placeholder */
-	name: '@hyzer-labs/ui/utils'
-} as const;
+
+/**
+ * Compose CSS class names, filtering out all falsy values.
+ *
+ * @example
+ * cx('hz-button', isActive && 'is-active', undefined) // → 'hz-button is-active'
+ */
+export function cx(...classes: (string | undefined | null | false)[]): string {
+	return classes.filter(Boolean).join(' ');
+}
+
+let _counter = 0;
+
+/**
+ * Generate a unique, stable ID string with an optional prefix.
+ * Counter-based so it is deterministic in tests and safe in SSR.
+ *
+ * @example
+ * uid('hz') // → 'hz-1', 'hz-2', …
+ */
+export function uid(prefix = 'hz'): string {
+	return `${prefix}-${++_counter}`;
+}

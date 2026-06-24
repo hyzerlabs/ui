@@ -1,5 +1,4 @@
 /**
- * @hyzer-labs/ui icon components — placeholder for Sprint 1.
- * SVG Svelte icon components will be exported from this module.
+ * @hyzer-labs/ui icon components.
  */
-export const ICONS_PLACEHOLDER = 'placeholder' as const;
+export { default as IconLoader } from './IconLoader.svelte';

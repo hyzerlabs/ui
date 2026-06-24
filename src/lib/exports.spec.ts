@@ -1,14 +1,13 @@
 import { describe, it, expect } from 'vitest';
 
 /**
- * R5: importing from each subpath returns the expected placeholder export.
- * Tests use $lib/* aliases which map to src/lib/* — same seams as the
- * published dist/ entries, tested at source level.
+ * Verifies every subpath export resolves and exposes its public API.
  */
-describe('subpath exports — R5', () => {
-	it('$lib (.) — exports Placeholder component', async () => {
+describe('subpath exports', () => {
+	it('$lib (.) — exports Placeholder and Button components', async () => {
 		const mod = await import('$lib');
 		expect(mod.Placeholder).toBeDefined();
+		expect(mod.Button).toBeDefined();
 	});
 
 	it('$lib/tokens — exports tokens object', async () => {
@@ -17,28 +16,27 @@ describe('subpath exports — R5', () => {
 		expect(mod.tokens.prefix).toBe('--hz');
 	});
 
-	it('$lib/icons — exports ICONS_PLACEHOLDER', async () => {
+	it('$lib/icons — exports IconLoader component', async () => {
 		const mod = await import('$lib/icons');
-		expect(mod.ICONS_PLACEHOLDER).toBeDefined();
+		expect(mod.IconLoader).toBeDefined();
 	});
 
-	it('$lib/utils — exports utils object', async () => {
+	it('$lib/utils — exports cx and uid functions', async () => {
 		const mod = await import('$lib/utils');
-		expect(mod.utils).toBeDefined();
+		expect(typeof mod.cx).toBe('function');
+		expect(typeof mod.uid).toBe('function');
 	});
 
-	it('$lib/types — exports NavItem, FooterColumn, Size, Intent, Variant as types (module imports)', async () => {
-		// Type-only exports have no runtime value; we verify the module loads without error.
+	it('$lib/types — module is importable (type-only exports have no runtime value)', async () => {
 		const mod = await import('$lib/types');
-		// The module should exist and be importable
 		expect(mod).toBeDefined();
 	});
 });
 
 /**
- * R4: package.json name is @hyzer-labs/ui and exports keys match the architecture list.
+ * Sanity-checks on package.json metadata.
  */
-describe('package.json metadata — R4', () => {
+describe('package.json metadata', () => {
 	it('package name is @hyzer-labs/ui', async () => {
 		const pkg = await import('../../package.json', { with: { type: 'json' } });
 		expect(pkg.default.name).toBe('@hyzer-labs/ui');
