@@ -1,0 +1,35 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+/dist
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Playwright
+test-results
+playwright-report
+/e2e
+
+# Changesets (keep config; ignore generated files in CI)
+# .changeset/ is tracked (config + pending changesets)
+
+# Vitest browser cache
+.vitest-cache
