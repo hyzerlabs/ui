@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Placeholder } from '$lib';
+	import { Button } from '$lib';
 </script>
 
 <svelte:head>
@@ -20,10 +20,10 @@
 
 <section aria-labelledby="usage-heading">
 	<h2 id="usage-heading">Usage</h2>
-	<pre><code>import {'{ Button }'} from '@hyzer-labs/ui';</code></pre>
+	<pre><code>import {'{ Button, Link }'} from '@hyzer-labs/ui';</code></pre>
 </section>
 
 <section aria-labelledby="demo-heading">
-	<h2 id="demo-heading">Package resolves</h2>
-	<Placeholder label="$lib resolves correctly" />
+	<h2 id="demo-heading">Components</h2>
+	<Button>Button</Button>
 </section>
