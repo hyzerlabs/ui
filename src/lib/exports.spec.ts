@@ -4,10 +4,15 @@ import { describe, it, expect } from 'vitest';
  * Verifies every subpath export resolves and exposes its public API.
  */
 describe('subpath exports', () => {
-	it('$lib (.) — exports Button and Link components', async () => {
+	it('$lib (.) — exports Button, Link, and layout primitives', async () => {
 		const mod = await import('$lib');
 		expect(mod.Button).toBeDefined();
 		expect(mod.Link).toBeDefined();
+		expect(mod.Container).toBeDefined();
+		expect(mod.Stack).toBeDefined();
+		expect(mod.Cluster).toBeDefined();
+		expect(mod.Grid).toBeDefined();
+		expect(mod.Split).toBeDefined();
 	});
 
 	it('$lib/tokens — exports tokens object', async () => {
