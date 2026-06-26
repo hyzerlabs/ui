@@ -12,3 +12,5 @@ export { default as Nav } from './Nav.svelte';
 export { default as Footer } from './Footer.svelte';
 export { default as Image } from './Image.svelte';
 export { default as Video } from './Video.svelte';
+export { default as Card } from './Card.svelte';
+export { default as Hero } from './Hero.svelte';
