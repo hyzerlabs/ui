@@ -1,5 +1,5 @@
 <script lang="ts">
-	// Source: Lucide (ISC) — https://lucide.dev/icons/chevron-down
+	// Source: Lucide (ISC) — https://lucide.dev/icons/chevron-left
 	import type { IconProps } from './types.js';
 	import { cx } from '$lib/utils';
 
@@ -24,5 +24,5 @@
 	role={decorative ? undefined : 'img'}
 	aria-label={decorative ? undefined : ariaLabel}
 >
-	<polyline points="6 9 12 15 18 9" />
+	<polyline points="15 18 9 12 15 6" />
 </svg>

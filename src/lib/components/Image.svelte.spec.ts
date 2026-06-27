@@ -447,7 +447,6 @@ describe('IMG-R14 — rest forwarding', () => {
 
 	it('rest cannot overwrite managed src', async () => {
 		const { container } = render(Image, {
-			src: DATA_URI,
 			alt: 'test',
 			// attempt to overwrite via rest — managed wins
 			src: DATA_URI

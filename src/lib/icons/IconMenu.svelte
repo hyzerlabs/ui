@@ -1,27 +1,28 @@
 <script lang="ts">
-	interface Props {
-		/** Accessible label. When absent the icon is hidden from assistive technology. */
-		ariaLabel?: string;
-		/** Icon size in px (applied to both width and height). Default: 24. */
-		size?: number;
-	}
+	// Source: Lucide (ISC) — https://lucide.dev/icons/menu
+	import type { IconProps } from './types.js';
+	import { cx } from '$lib/utils';
 
-	let { ariaLabel, size = 24 }: Props = $props();
+	let { size = 24, strokeWidth = 2, class: className, ariaLabel, ...rest }: IconProps = $props();
+
+	const decorative = $derived(!ariaLabel);
 </script>
 
 <svg
 	xmlns="http://www.w3.org/2000/svg"
+	fill="none"
+	stroke="currentColor"
+	{...rest}
+	class={cx('hz-icon', className)}
 	width={size}
 	height={size}
 	viewBox="0 0 24 24"
-	fill="none"
-	stroke="currentColor"
-	stroke-width="2"
+	stroke-width={strokeWidth}
 	stroke-linecap="round"
 	stroke-linejoin="round"
-	aria-hidden={ariaLabel ? undefined : 'true'}
-	aria-label={ariaLabel}
-	role={ariaLabel ? 'img' : undefined}
+	aria-hidden={decorative ? 'true' : undefined}
+	role={decorative ? undefined : 'img'}
+	aria-label={decorative ? undefined : ariaLabel}
 >
 	<line x1="3" y1="6" x2="21" y2="6" />
 	<line x1="3" y1="12" x2="21" y2="12" />

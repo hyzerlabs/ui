@@ -331,7 +331,7 @@ describe('R12 — icon-only dev warning', () => {
 
 describe('R13 — onclick and rest attribute forwarding', () => {
 	it('invokes onclick on a normal click', async () => {
-		const handler = vi.fn();
+		const handler = vi.fn((e: MouseEvent) => e.preventDefault());
 		render(Link, { href: '/x', onclick: handler, children: childrenSnippet });
 		await page.getByRole('link').click();
 		expect(handler).toHaveBeenCalledOnce();

@@ -57,7 +57,7 @@
 	);
 
 	// IMG-R8 — load state machine
-	let state = $state<LoadState>('loading');
+	let loadState: LoadState = $state('loading');
 
 	// IMG-R12 — prefers-reduced-motion
 	const reducedMotion = $derived(
@@ -74,7 +74,7 @@
 
 	// IMG-R10 — background-color while loading (color placeholder)
 	const bgColorStyle = $derived(
-		effectivePlaceholder === 'color' && state === 'loading'
+		effectivePlaceholder === 'color' && loadState === 'loading'
 			? `background-color: ${placeholderColor}`
 			: undefined
 	);
@@ -84,26 +84,26 @@
 		[aspectRatioStyle, bgColorStyle].filter(Boolean).join('; ') || undefined
 	);
 
-	let imgEl = $state<HTMLImageElement | undefined>(undefined);
+	let imgEl: HTMLImageElement | undefined = $state(undefined);
 
 	// IMG-R8 — check for cached/SSR images after mount
 	$effect(() => {
 		if (!imgEl) return;
 		if (imgEl.complete) {
 			if (imgEl.naturalWidth > 0) {
-				state = 'loaded';
+				loadState = 'loaded';
 			} else {
-				state = 'error';
+				loadState = 'error';
 			}
 		}
 	});
 
 	function onLoad() {
-		state = 'loaded';
+		loadState = 'loaded';
 	}
 
 	function onError() {
-		state = 'error';
+		loadState = 'error';
 	}
 </script>
 
@@ -113,7 +113,7 @@
 -->
 <div
 	class={cx('hz-image', className)}
-	data-state={state}
+	data-state={loadState}
 	data-loading={loading}
 	data-aspect-ratio={aspectRatio}
 	data-fit={fit}

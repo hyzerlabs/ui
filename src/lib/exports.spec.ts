@@ -27,9 +27,31 @@ describe('subpath exports', () => {
 		expect(mod.tokens.prefix).toBe('--hz');
 	});
 
-	it('$lib/icons — exports IconLoader component', async () => {
+	it('$lib/icons — exports all 21 icon components (R10)', async () => {
 		const mod = await import('$lib/icons');
+		// UI icons (R7)
+		expect(mod.IconChevronDown).toBeDefined();
+		expect(mod.IconChevronRight).toBeDefined();
+		expect(mod.IconChevronUp).toBeDefined();
+		expect(mod.IconChevronLeft).toBeDefined();
+		expect(mod.IconX).toBeDefined();
+		expect(mod.IconMenu).toBeDefined();
+		expect(mod.IconExternalLink).toBeDefined();
+		expect(mod.IconCheck).toBeDefined();
+		expect(mod.IconMinus).toBeDefined();
+		expect(mod.IconPlus).toBeDefined();
+		expect(mod.IconSearch).toBeDefined();
 		expect(mod.IconLoader).toBeDefined();
+		expect(mod.IconArrowLeft).toBeDefined();
+		expect(mod.IconArrowRight).toBeDefined();
+		// Brand icons (R8)
+		expect(mod.IconGithub).toBeDefined();
+		expect(mod.IconLinkedin).toBeDefined();
+		expect(mod.IconTwitterX).toBeDefined();
+		expect(mod.IconFacebook).toBeDefined();
+		expect(mod.IconInstagram).toBeDefined();
+		expect(mod.IconYoutube).toBeDefined();
+		expect(mod.IconRss).toBeDefined();
 	});
 
 	it('$lib/utils — exports cx and uid functions', async () => {
