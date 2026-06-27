@@ -15,3 +15,4 @@ export { default as Video } from './Video.svelte';
 export { default as Card } from './Card.svelte';
 export { default as Hero } from './Hero.svelte';
 export { default as Modal } from './Modal.svelte';
+export { default as Accordion } from './Accordion.svelte';
