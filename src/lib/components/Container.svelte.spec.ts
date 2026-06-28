@@ -136,9 +136,9 @@ describe('R2 — max prop', () => {
 describe('R3 — padding prop', () => {
 	const paddingEntries: Array<{ padding: 'none' | 'sm' | 'md' | 'lg'; expectedLeft: string }> = [
 		{ padding: 'none', expectedLeft: '0px' },
-		{ padding: 'sm', expectedLeft: '8px' }, // 0.5rem = 8px at default 16px root font-size
-		{ padding: 'md', expectedLeft: '16px' }, // 1rem
-		{ padding: 'lg', expectedLeft: '24px' } // 1.5rem
+		{ padding: 'sm', expectedLeft: '16px' }, // 1rem = 16px at default 16px root font-size
+		{ padding: 'md', expectedLeft: '32px' }, // 2rem
+		{ padding: 'lg', expectedLeft: '64px' } // 4rem
 	];
 
 	for (const { padding, expectedLeft } of paddingEntries) {

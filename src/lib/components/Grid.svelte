@@ -98,13 +98,13 @@
 		gap: 0;
 	}
 	.hz-grid[data-gap='sm'] {
-		gap: var(--hz-space-sm, 0.5rem);
+		gap: var(--hz-space-sm, 1rem);
 	}
 	.hz-grid[data-gap='md'] {
-		gap: var(--hz-space-md, 1rem);
+		gap: var(--hz-space-md, 2rem);
 	}
 	.hz-grid[data-gap='lg'] {
-		gap: var(--hz-space-lg, 1.5rem);
+		gap: var(--hz-space-lg, 4rem);
 	}
 
 	/* align-items per data-align */

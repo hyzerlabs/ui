@@ -195,9 +195,9 @@ describe('R12 — columns (object)', () => {
 describe('R13 — gap prop', () => {
 	const gapEntries: Array<{ gap: 'none' | 'sm' | 'md' | 'lg'; expectedPx: string }> = [
 		{ gap: 'none', expectedPx: '0px' },
-		{ gap: 'sm', expectedPx: '8px' }, // 0.5rem
-		{ gap: 'md', expectedPx: '16px' }, // 1rem
-		{ gap: 'lg', expectedPx: '24px' } // 1.5rem
+		{ gap: 'sm', expectedPx: '16px' }, // 1rem
+		{ gap: 'md', expectedPx: '32px' }, // 2rem
+		{ gap: 'lg', expectedPx: '64px' } // 4rem
 	];
 
 	for (const { gap, expectedPx } of gapEntries) {

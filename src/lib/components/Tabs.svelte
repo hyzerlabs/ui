@@ -254,7 +254,9 @@
 	.hz-tabs-list {
 		display: flex;
 		flex-direction: row;
-		gap: var(--hz-space-xs, 0.25rem);
+		gap: var(--hz-space-xs, 0.5rem);
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	/* Tabs-R2: tablist as a flex column (vertical orientation). */

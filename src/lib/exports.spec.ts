@@ -33,12 +33,6 @@ describe('subpath exports', () => {
 		expect(mod.Form).toBeDefined();
 	});
 
-	it('$lib/tokens — exports tokens object', async () => {
-		const mod = await import('$lib/tokens');
-		expect(mod.tokens).toBeDefined();
-		expect(mod.tokens.prefix).toBe('--hz');
-	});
-
 	it('$lib/icons — exports all 21 icon components (R10)', async () => {
 		const mod = await import('$lib/icons');
 		// UI icons (R7)
@@ -91,7 +85,6 @@ describe('package.json metadata', () => {
 		const pkg = await import('../../package.json', { with: { type: 'json' } });
 		const exports = pkg.default.exports as Record<string, unknown>;
 		expect(exports['.']).toBeDefined();
-		expect(exports['./tokens']).toBeDefined();
 		expect(exports['./tokens.css']).toBeDefined();
 		expect(exports['./icons']).toBeDefined();
 		expect(exports['./utils']).toBeDefined();

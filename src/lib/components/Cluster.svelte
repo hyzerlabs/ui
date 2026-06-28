@@ -64,16 +64,16 @@
 		gap: 0;
 	}
 	.hz-cluster[data-gap='xs'] {
-		gap: var(--hz-space-xs, 0.25rem);
+		gap: var(--hz-space-xs, 0.5rem);
 	}
 	.hz-cluster[data-gap='sm'] {
-		gap: var(--hz-space-sm, 0.5rem);
+		gap: var(--hz-space-sm, 1rem);
 	}
 	.hz-cluster[data-gap='md'] {
-		gap: var(--hz-space-md, 1rem);
+		gap: var(--hz-space-md, 2rem);
 	}
 	.hz-cluster[data-gap='lg'] {
-		gap: var(--hz-space-lg, 1.5rem);
+		gap: var(--hz-space-lg, 4rem);
 	}
 
 	/* justify-content per data-justify */

@@ -298,22 +298,22 @@ describe('Card-R8 — padding', () => {
 		expect(getComputedStyle(content).padding).toBe('0px');
 	});
 
-	it('padding="sm" → .hz-card-content has non-zero padding (0.5rem / 8px)', () => {
+	it('padding="sm" → .hz-card-content has non-zero padding (1rem / 16px)', () => {
 		const { container } = render(Card, { padding: 'sm', children: bodySnippet });
-		const content = container.querySelector('.hz-card-content') as HTMLElement;
-		expect(getComputedStyle(content).padding).toBe('8px');
-	});
-
-	it('padding="md" → .hz-card-content has 1rem (16px) padding', () => {
-		const { container } = render(Card, { padding: 'md', children: bodySnippet });
 		const content = container.querySelector('.hz-card-content') as HTMLElement;
 		expect(getComputedStyle(content).padding).toBe('16px');
 	});
 
-	it('padding="lg" → .hz-card-content has 1.5rem (24px) padding', () => {
+	it('padding="md" → .hz-card-content has 2rem (32px) padding', () => {
+		const { container } = render(Card, { padding: 'md', children: bodySnippet });
+		const content = container.querySelector('.hz-card-content') as HTMLElement;
+		expect(getComputedStyle(content).padding).toBe('32px');
+	});
+
+	it('padding="lg" → .hz-card-content has 4rem (64px) padding', () => {
 		const { container } = render(Card, { padding: 'lg', children: bodySnippet });
 		const content = container.querySelector('.hz-card-content') as HTMLElement;
-		expect(getComputedStyle(content).padding).toBe('24px');
+		expect(getComputedStyle(content).padding).toBe('64px');
 	});
 
 	it('data-padding attribute reflects the padding prop', () => {

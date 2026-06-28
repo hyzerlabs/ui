@@ -60,10 +60,10 @@ describe('R5 — default render', () => {
 		expect(getComputedStyle(el).flexDirection).toBe('column');
 	});
 
-	it('has computed row-gap matching the md fallback (1rem = 16px)', () => {
+	it('has computed row-gap matching the md fallback (2rem = 32px)', () => {
 		const { container } = render(Stack);
 		const el = container.querySelector('.hz-stack') as HTMLElement;
-		expect(getComputedStyle(el).rowGap).toBe('16px');
+		expect(getComputedStyle(el).rowGap).toBe('32px');
 	});
 
 	it('has computed align-items: stretch', () => {
@@ -92,11 +92,11 @@ describe('R6 — gap prop', () => {
 	const gapEntries: Array<{ gap: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'; expectedPx: string }> =
 		[
 			{ gap: 'none', expectedPx: '0px' },
-			{ gap: 'xs', expectedPx: '4px' }, // 0.25rem
-			{ gap: 'sm', expectedPx: '8px' }, // 0.5rem
-			{ gap: 'md', expectedPx: '16px' }, // 1rem
-			{ gap: 'lg', expectedPx: '24px' }, // 1.5rem
-			{ gap: 'xl', expectedPx: '32px' } // 2rem
+			{ gap: 'xs', expectedPx: '8px' }, // 0.5rem
+			{ gap: 'sm', expectedPx: '16px' }, // 1rem
+			{ gap: 'md', expectedPx: '32px' }, // 2rem
+			{ gap: 'lg', expectedPx: '64px' }, // 4rem
+			{ gap: 'xl', expectedPx: '128px' } // 8rem
 		];
 
 	for (const { gap, expectedPx } of gapEntries) {

@@ -93,7 +93,7 @@
 		flex-direction: row;
 		align-items: center;
 		flex-wrap: wrap;
-		gap: var(--hz-space-xs, 0.25rem);
+		gap: var(--hz-space-xs, 0.5rem);
 	}
 
 	/* Description and error break to a new row below the input+label pair. */

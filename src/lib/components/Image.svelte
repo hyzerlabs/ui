@@ -36,7 +36,7 @@
 		rounded = false,
 		placeholder = 'none',
 		placeholderSrc,
-		placeholderColor = 'var(--hz-color-gray-200)',
+		placeholderColor = 'var(--hz-color-gray)',
 		class: className,
 		...rest
 	}: Props = $props();

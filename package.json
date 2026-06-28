@@ -35,10 +35,6 @@
 			"svelte": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
-		"./tokens": {
-			"types": "./dist/tokens/index.d.ts",
-			"default": "./dist/tokens/index.js"
-		},
 		"./tokens.css": "./dist/tokens/tokens.css",
 		"./icons": {
 			"types": "./dist/icons/index.d.ts",

@@ -427,7 +427,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		gap: var(--hz-space-md, 1rem);
+		gap: var(--hz-space-md, 2rem);
 	}
 
 	.hz-nav-logo {
@@ -438,7 +438,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		gap: var(--hz-space-sm, 0.5rem);
+		gap: var(--hz-space-sm, 1rem);
 		list-style: none;
 		margin: 0;
 		padding: 0;
@@ -464,7 +464,7 @@
 		z-index: 200;
 		list-style: none;
 		margin: 0;
-		padding: var(--hz-space-xs, 0.25rem) 0;
+		padding: var(--hz-space-xs, 0.5rem) 0;
 		min-width: max-content;
 	}
 
@@ -499,7 +499,7 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: var(--hz-space-xs, 0.25rem);
+		gap: var(--hz-space-xs, 0.5rem);
 	}
 
 	.hz-nav-mobile-section {
@@ -509,7 +509,7 @@
 	.hz-nav-mobile-section summary {
 		display: flex;
 		align-items: center;
-		gap: var(--hz-space-xs, 0.25rem);
+		gap: var(--hz-space-xs, 0.5rem);
 		cursor: pointer;
 		list-style: none;
 	}
@@ -519,7 +519,7 @@
 	}
 
 	.hz-nav-mobile-actions {
-		margin-top: var(--hz-space-sm, 0.5rem);
+		margin-top: var(--hz-space-sm, 1rem);
 	}
 
 	/* ------------------------------------------------------------------ */

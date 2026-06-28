@@ -263,20 +263,20 @@
 
 	dialog[data-size='sm'][open] {
 		width: var(--hz-modal-width, 30rem);
-		max-width: calc(100% - var(--hz-space-xl, 2rem));
-		max-height: calc(100dvh - var(--hz-space-xl, 2rem));
+		max-width: calc(100% - var(--hz-space-xl, 8rem));
+		max-height: calc(100dvh - var(--hz-space-xl, 8rem));
 	}
 
 	dialog[data-size='md'][open] {
 		width: var(--hz-modal-width, 40rem);
-		max-width: calc(100% - var(--hz-space-xl, 2rem));
-		max-height: calc(100dvh - var(--hz-space-xl, 2rem));
+		max-width: calc(100% - var(--hz-space-xl, 8rem));
+		max-height: calc(100dvh - var(--hz-space-xl, 8rem));
 	}
 
 	dialog[data-size='lg'][open] {
 		width: var(--hz-modal-width, 52rem);
-		max-width: calc(100% - var(--hz-space-xl, 2rem));
-		max-height: calc(100dvh - var(--hz-space-xl, 2rem));
+		max-width: calc(100% - var(--hz-space-xl, 8rem));
+		max-height: calc(100dvh - var(--hz-space-xl, 8rem));
 	}
 
 	/* Modal-R6 / Responsive: full fills the entire viewport. */
@@ -297,7 +297,7 @@
 		flex-direction: row;
 		align-items: center;
 		flex-shrink: 0;
-		gap: var(--hz-space-sm, 0.5rem);
+		gap: var(--hz-space-sm, 1rem);
 	}
 
 	/* Title grows to fill the row; close button sits at the end. */

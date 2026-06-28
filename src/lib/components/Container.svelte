@@ -69,13 +69,13 @@
 		padding-inline: 0;
 	}
 	.hz-container[data-padding='sm'] {
-		padding-inline: var(--hz-space-sm, 0.5rem);
+		padding-inline: var(--hz-space-sm, 1rem);
 	}
 	.hz-container[data-padding='md'] {
-		padding-inline: var(--hz-space-md, 1rem);
+		padding-inline: var(--hz-space-md, 2rem);
 	}
 	.hz-container[data-padding='lg'] {
-		padding-inline: var(--hz-space-lg, 1.5rem);
+		padding-inline: var(--hz-space-lg, 4rem);
 	}
 
 	/* centering */

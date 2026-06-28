@@ -314,7 +314,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: flex-start;
-		gap: var(--hz-space-sm, 0.5rem);
+		gap: var(--hz-space-sm, 1rem);
 		list-style: none;
 		cursor: pointer;
 	}

@@ -121,13 +121,13 @@
 		padding: 0;
 	}
 	.hz-card[data-padding='sm'] .hz-card-content {
-		padding: var(--hz-space-sm, 0.5rem);
+		padding: var(--hz-space-sm, 1rem);
 	}
 	.hz-card[data-padding='md'] .hz-card-content {
-		padding: var(--hz-space-md, 1rem);
+		padding: var(--hz-space-md, 2rem);
 	}
 	.hz-card[data-padding='lg'] .hz-card-content {
-		padding: var(--hz-space-lg, 1.5rem);
+		padding: var(--hz-space-lg, 4rem);
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -150,7 +150,7 @@
 			flex: 1;
 			display: flex;
 			flex-direction: column;
-			gap: var(--hz-space-md, 1rem);
+			gap: var(--hz-space-md, 2rem);
 		}
 
 		/* Card-R6: actions pin to the bottom of the content column. */

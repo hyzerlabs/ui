@@ -50,19 +50,19 @@
 		gap: 0;
 	}
 	.hz-stack[data-gap='xs'] {
-		gap: var(--hz-space-xs, 0.25rem);
+		gap: var(--hz-space-xs, 0.5rem);
 	}
 	.hz-stack[data-gap='sm'] {
-		gap: var(--hz-space-sm, 0.5rem);
+		gap: var(--hz-space-sm, 1rem);
 	}
 	.hz-stack[data-gap='md'] {
-		gap: var(--hz-space-md, 1rem);
+		gap: var(--hz-space-md, 2rem);
 	}
 	.hz-stack[data-gap='lg'] {
-		gap: var(--hz-space-lg, 1.5rem);
+		gap: var(--hz-space-lg, 4rem);
 	}
 	.hz-stack[data-gap='xl'] {
-		gap: var(--hz-space-xl, 2rem);
+		gap: var(--hz-space-xl, 8rem);
 	}
 
 	/* align-items per data-align */

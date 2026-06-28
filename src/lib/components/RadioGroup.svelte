@@ -128,7 +128,7 @@
 	.hz-field--radio-group[data-orientation='horizontal'] .hz-radio-options {
 		flex-direction: row;
 		flex-wrap: wrap;
-		gap: var(--hz-space-sm, 0.5rem);
+		gap: var(--hz-space-sm, 1rem);
 	}
 
 	/* RadioGroup-R2: each option pair as an inline row. */
@@ -136,6 +136,6 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		gap: var(--hz-space-xs, 0.25rem);
+		gap: var(--hz-space-xs, 0.5rem);
 	}
 </style>

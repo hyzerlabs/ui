@@ -72,10 +72,10 @@ describe('R7 — default render', () => {
 		expect(getComputedStyle(el).flexWrap).toBe('wrap');
 	});
 
-	it('has computed row-gap matching the sm fallback (0.5rem = 8px)', () => {
+	it('has computed row-gap matching the sm fallback (1rem = 16px)', () => {
 		const { container } = render(Cluster);
 		const el = container.querySelector('.hz-cluster') as HTMLElement;
-		expect(getComputedStyle(el).rowGap).toBe('8px');
+		expect(getComputedStyle(el).rowGap).toBe('16px');
 	});
 
 	it('has computed justify-content: flex-start', () => {
@@ -109,10 +109,10 @@ describe('R7 — default render', () => {
 describe('R8 — gap prop', () => {
 	const gapEntries: Array<{ gap: 'none' | 'xs' | 'sm' | 'md' | 'lg'; expectedPx: string }> = [
 		{ gap: 'none', expectedPx: '0px' },
-		{ gap: 'xs', expectedPx: '4px' }, // 0.25rem
-		{ gap: 'sm', expectedPx: '8px' }, // 0.5rem
-		{ gap: 'md', expectedPx: '16px' }, // 1rem
-		{ gap: 'lg', expectedPx: '24px' } // 1.5rem
+		{ gap: 'xs', expectedPx: '8px' }, // 0.5rem
+		{ gap: 'sm', expectedPx: '16px' }, // 1rem
+		{ gap: 'md', expectedPx: '32px' }, // 2rem
+		{ gap: 'lg', expectedPx: '64px' } // 4rem
 	];
 
 	for (const { gap, expectedPx } of gapEntries) {

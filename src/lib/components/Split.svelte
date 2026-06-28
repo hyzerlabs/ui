@@ -80,13 +80,13 @@
 		gap: 0;
 	}
 	.hz-split[data-gap='sm'] {
-		gap: var(--hz-space-sm, 0.5rem);
+		gap: var(--hz-space-sm, 1rem);
 	}
 	.hz-split[data-gap='md'] {
-		gap: var(--hz-space-md, 1rem);
+		gap: var(--hz-space-md, 2rem);
 	}
 	.hz-split[data-gap='lg'] {
-		gap: var(--hz-space-lg, 1.5rem);
+		gap: var(--hz-space-lg, 4rem);
 	}
 
 	/*

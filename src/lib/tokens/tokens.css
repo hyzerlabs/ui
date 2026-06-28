@@ -1,7 +1,108 @@
 /**
  * @hyzer-labs/ui design tokens
- * Placeholder for Sprint 1 — CSS custom properties will be defined here.
+ * CSS custom properties — the primary token format.
+ * Two-layer color model: palette (Layer 1) + semantic roles (Layer 2).
  */
 :root {
-	/* Token values are defined in Sprint 1 */
+	/* =====================================================================
+	 * Layer 1 — Palette
+	 * Single value per color; no per-color ramps.
+	 * ===================================================================== */
+	--hz-color-primary: #2563eb;
+	--hz-color-secondary: #7c3aed;
+	--hz-color-success: #16a34a;
+	--hz-color-warning: #d97706;
+	--hz-color-error: #dc2626;
+	--hz-color-info: #0891b2;
+	--hz-color-black: #000000;
+	--hz-color-white: #ffffff;
+	--hz-color-gray: #6b7280;
+
+	/* =====================================================================
+	 * Layer 2 — Semantic roles (light defaults)
+	 * Reference the palette via var(); these are the only tokens the dark
+	 * block overrides — the single indirection point for theming.
+	 * ===================================================================== */
+	--hz-color-surface: var(--hz-color-white);
+	--hz-color-text: var(--hz-color-black);
+	--hz-color-text-muted: var(--hz-color-gray);
+	--hz-color-border: var(--hz-color-gray);
+
+	/* =====================================================================
+	 * Type scale — five steps
+	 * ===================================================================== */
+	--hz-font-size-sm: 0.875rem;
+	--hz-font-size-base: 1rem;
+	--hz-font-size-lg: 1.4rem;
+	--hz-font-size-xl: 1.65rem;
+	--hz-font-size-2xl: 2.75rem;
+
+	/* Supporting type tokens */
+	--hz-font-family-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--hz-font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+	--hz-font-weight-normal: 400;
+	--hz-font-weight-medium: 500;
+	--hz-font-weight-semibold: 600;
+	--hz-font-weight-bold: 700;
+
+	/* =====================================================================
+	 * Spacing — backs existing component fallbacks (values are fixed)
+	 * ===================================================================== */
+	--hz-space-none: 0;
+	--hz-space-xs: 0.5rem;
+	--hz-space-sm: 1rem;
+	--hz-space-md: 2rem;
+	--hz-space-lg: 4rem;
+	--hz-space-xl: 8rem;
+
+	/* =====================================================================
+	 * Sizing / width — backs existing component fallbacks (values are fixed)
+	 * Note: @media thresholds stay literal in components (CSS limitation).
+	 * ===================================================================== */
+	--hz-width-sm: 640px;
+	--hz-width-md: 968px;
+	--hz-width-lg: 1200px;
+	--hz-width-xl: 1440px;
+	--hz-width-full: 100%;
+
+	/* =====================================================================
+	 * Radius
+	 * ===================================================================== */
+	--hz-radius-none: 0;
+	--hz-radius-sm: 0.25rem;
+	--hz-radius-md: 0.5rem;
+	--hz-radius-lg: 1rem;
+	--hz-radius-full: 9999px;
+
+	/* =====================================================================
+	 * Border width
+	 * ===================================================================== */
+	--hz-border-width-thin: 1px;
+	--hz-border-width-thick: 2px;
+
+	/* =====================================================================
+	 * Elevation
+	 * ===================================================================== */
+	--hz-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.05);
+	--hz-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+	--hz-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+	/* =====================================================================
+	 * Z-index
+	 * ===================================================================== */
+	--hz-z-base: 0;
+	--hz-z-dropdown: 10;
+	--hz-z-overlay: 1000;
+	--hz-z-modal: 1100;
+}
+
+/* ==========================================================================
+ * Dark theme — semantic role overrides only.
+ * Only --hz-color-surface and --hz-color-text flip; all other tokens remain
+ * unchanged. Setting data-theme="dark" on any ancestor activates this block
+ * for that subtree via normal CSS cascade.
+ * ========================================================================== */
+[data-theme='dark'] {
+	--hz-color-surface: var(--hz-color-black);
+	--hz-color-text: var(--hz-color-white);
 }

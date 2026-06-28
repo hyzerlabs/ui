@@ -177,7 +177,7 @@
 	/* ------------------------------------------------------------------ */
 
 	.hz-hero[data-layout='center'] {
-		gap: var(--hz-space-lg, 1.5rem);
+		gap: var(--hz-space-lg, 4rem);
 	}
 
 	.hz-hero[data-layout='center'][data-align='start'] {
