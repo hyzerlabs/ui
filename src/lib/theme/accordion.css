@@ -1,0 +1,52 @@
+/**
+ * @hyzer-labs/ui reference theme — Accordion
+ */
+@layer hz-theme {
+	.hz-accordion {
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		overflow: hidden;
+	}
+
+	.hz-accordion-item + .hz-accordion-item {
+		border-top: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+	}
+
+	.hz-accordion-trigger {
+		padding: 0.875rem 1rem;
+		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-accordion-trigger:where(:hover) {
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 8%, transparent);
+	}
+
+	.hz-accordion-trigger:where([aria-disabled='true']) {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	.hz-accordion-trigger:where([aria-disabled='true']:hover) {
+		background-color: transparent;
+	}
+
+	.hz-accordion-heading {
+		font-size: var(--hz-font-size-base, 1rem);
+		font-weight: var(--hz-font-weight-medium, 500);
+	}
+
+	.hz-accordion-icon {
+		color: var(--hz-color-text-muted, #6b7280);
+		transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-accordion-item:where([data-state='open']) .hz-accordion-icon {
+		transform: rotate(180deg);
+	}
+
+	.hz-accordion-panel {
+		padding: 0 1rem 1rem;
+	}
+}

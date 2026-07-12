@@ -96,6 +96,24 @@ describe('R6 — type scale token resolves on :root', () => {
 	it('--hz-font-size-2xl resolves to "2.75rem"', () => {
 		expect(rootVar('--hz-font-size-2xl')).toBe('2.75rem');
 	});
+
+	it('--hz-line-height-base resolves to "1.5"', () => {
+		expect(rootVar('--hz-line-height-base')).toBe('1.5');
+	});
+});
+
+describe('R6 — motion tokens resolve on :root', () => {
+	it('--hz-duration-base resolves to "250ms"', () => {
+		expect(rootVar('--hz-duration-base')).toBe('250ms');
+	});
+
+	it('--hz-ease-standard resolves to the standard cubic-bezier', () => {
+		expect(rootVar('--hz-ease-standard')).toBe('cubic-bezier(0.2, 0, 0, 1)');
+	});
+
+	it('--hz-z-toast resolves to "1200"', () => {
+		expect(rootVar('--hz-z-toast')).toBe('1200');
+	});
 });
 
 // ---------------------------------------------------------------------------

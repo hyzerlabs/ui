@@ -20,6 +20,12 @@
 		cssVar: `--hz-font-family-${key}`,
 		value
 	}));
+
+	const lineHeights = Object.entries(typography.lineHeight).map(([key, value]) => ({
+		key,
+		cssVar: `--hz-line-height-${key}`,
+		value
+	}));
 </script>
 
 <svelte:head>
@@ -62,6 +68,28 @@
 							<td><code>{token.cssVar}</code></td>
 							<td><code>{token.value}</code></td>
 							<td style="font-weight: {token.value};">Typography preview</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<section aria-labelledby="line-heights-heading">
+		<h2 id="line-heights-heading">Line heights</h2>
+		<div class="token-table-wrapper">
+			<table class="token-table">
+				<thead>
+					<tr>
+						<th scope="col">Token</th>
+						<th scope="col">Value</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each lineHeights as token (token.cssVar)}
+						<tr>
+							<td><code>{token.cssVar}</code></td>
+							<td><code>{token.value}</code></td>
 						</tr>
 					{/each}
 				</tbody>

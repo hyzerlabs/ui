@@ -1,0 +1,177 @@
+/**
+ * @hyzer-labs/ui reference theme — field family
+ * Covers the shared Field scaffold (label/description/error), TextInput
+ * (.hz-input-wrapper), Select, Textarea, Checkbox, RadioGroup, and Toggle.
+ * The universal state hook is .hz-field[data-state="error"|"disabled"].
+ */
+@layer hz-theme {
+	.hz-field-label {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-medium, 500);
+		color: var(--hz-color-text, #000);
+		margin-bottom: 0.375rem;
+	}
+
+	/* Label-after controls (checkbox/toggle rows) need no label offset. */
+	.hz-field:where(.hz-field--checkbox, .hz-field--toggle) .hz-field-label {
+		margin-bottom: 0;
+	}
+
+	.hz-field-required {
+		color: var(--hz-color-error, #dc2626);
+		margin-inline-start: 0.125rem;
+	}
+
+	.hz-field-description {
+		margin: 0.25rem 0 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-field-error {
+		margin: 0.25rem 0 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-medium, 500);
+		color: var(--hz-color-error, #dc2626);
+	}
+
+	/* Text-like controls: bare select/textarea, and the TextInput wrapper
+	 * (which carries the border so prefix/suffix sit inside the box). */
+	.hz-field :where(select, textarea),
+	.hz-input-wrapper {
+		box-sizing: border-box;
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 60%, transparent);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		background-color: var(--hz-color-surface, #fff);
+		color: var(--hz-color-text, #000);
+		font-family: inherit;
+		font-size: var(--hz-font-size-base, 1rem);
+		transition:
+			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+			box-shadow var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-field :where(select, textarea) {
+		padding: 0.5rem 0.75rem;
+	}
+
+	.hz-field :where(select:focus-visible, textarea:focus-visible) {
+		outline: none;
+		border-color: var(--hz-color-primary, #2563eb);
+		box-shadow: 0 0 0 1px var(--hz-color-primary, #2563eb);
+	}
+
+	.hz-input-wrapper {
+		padding-inline: 0.75rem;
+		gap: 0.5rem;
+	}
+
+	.hz-input-wrapper input {
+		border: none;
+		outline: none;
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		padding-block: 0.5rem;
+	}
+
+	.hz-input-wrapper:where(:focus-within) {
+		border-color: var(--hz-color-primary, #2563eb);
+		box-shadow: 0 0 0 1px var(--hz-color-primary, #2563eb);
+	}
+
+	.hz-input-prefix,
+	.hz-input-suffix {
+		color: var(--hz-color-text-muted, #6b7280);
+		flex-shrink: 0;
+	}
+
+	.hz-field :where(input::placeholder, textarea::placeholder) {
+		color: var(--hz-color-text-muted, #6b7280);
+		opacity: 0.8;
+	}
+
+	/* Checkbox / radio */
+	.hz-field :where(input[type='checkbox'], input[type='radio']) {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin: 0;
+		accent-color: var(--hz-color-primary, #2563eb);
+		flex-shrink: 0;
+	}
+
+	.hz-radio-option label,
+	.hz-field--checkbox .hz-field-label {
+		font-weight: var(--hz-font-weight-normal, 400);
+		font-size: var(--hz-font-size-base, 1rem);
+	}
+
+	/* Error state — the control shows it, the message is already red. */
+	.hz-field:where([data-state='error']) :where(select, textarea),
+	.hz-field:where([data-state='error']) .hz-input-wrapper {
+		border-color: var(--hz-color-error, #dc2626);
+	}
+
+	/* Disabled state */
+	.hz-field:where([data-state='disabled']) :where(select, textarea),
+	.hz-field:where([data-state='disabled']) .hz-input-wrapper {
+		background-color: color-mix(
+			in srgb,
+			var(--hz-color-gray, #6b7280) 10%,
+			var(--hz-color-surface, #fff)
+		);
+		cursor: not-allowed;
+	}
+
+	.hz-field:where([data-state='disabled']) {
+		opacity: 0.7;
+	}
+}
+
+/*
+ * Toggle track & thumb — deliberately UNLAYERED.
+ * The component ships a scoped structural reset (`.hz-toggle { background:
+ * none; ... }`) that is unlayered and hash-qualified (0-2-0); layered rules
+ * can never beat it, so these selectors carry 0-2-1 specificity instead.
+ * Override hooks: --hz-toggle-width / --hz-toggle-height.
+ */
+.hz-field--toggle button.hz-toggle {
+	--hz-toggle-width: 2.5rem;
+	--hz-toggle-height: 1.5rem;
+
+	box-sizing: border-box;
+	width: var(--hz-toggle-width);
+	height: var(--hz-toggle-height);
+	padding: 2px;
+	border-radius: var(--hz-radius-full, 9999px);
+	background-color: color-mix(
+		in srgb,
+		var(--hz-color-gray, #6b7280) 50%,
+		var(--hz-color-surface, #fff)
+	);
+	transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	flex-shrink: 0;
+}
+
+.hz-field--toggle button.hz-toggle[data-state='on'] {
+	background-color: var(--hz-color-primary, #2563eb);
+}
+
+.hz-field--toggle button.hz-toggle:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+button.hz-toggle .hz-toggle-thumb {
+	width: calc(var(--hz-toggle-height) - 4px);
+	height: calc(var(--hz-toggle-height) - 4px);
+	border-radius: var(--hz-radius-full, 9999px);
+	background-color: var(--hz-color-white, #fff);
+	box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+	transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+}
+
+button.hz-toggle[data-state='on'] .hz-toggle-thumb {
+	transform: translateX(calc(var(--hz-toggle-width) - var(--hz-toggle-height)));
+}

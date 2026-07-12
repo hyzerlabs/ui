@@ -5,6 +5,10 @@
 	import { manifest } from '../docs/manifest';
 	import { IconChevronDown } from '$lib/icons';
 	import '$lib/tokens/tokens.css';
+	// Reference theme — the docs site is its living example. Demos render the
+	// styled starting point; the docs chrome below stays hand-rolled CSS on the
+	// same role tokens.
+	import '$lib/theme/theme.css';
 
 	interface Props {
 		children: Snippet;
@@ -27,21 +31,19 @@
 		)?.href;
 	}
 	const initial = activeSectionHref();
-	let openSections = $state(new Set<string>(initial ? [initial] : []));
+	const openSections = new SvelteSet<string>(initial ? [initial] : []);
 
 	// Auto-expand when navigating into a currently-collapsed section
 	$effect(() => {
 		const href = activeSectionHref();
 		if (href && !openSections.has(href)) {
-			openSections = new Set([...openSections, href]);
+			openSections.add(href);
 		}
 	});
 
 	function toggleSection(href: string) {
-		const next = new Set(openSections);
-		if (next.has(href)) next.delete(href);
-		else next.add(href);
-		openSections = next;
+		if (openSections.has(href)) openSections.delete(href);
+		else openSections.add(href);
 	}
 
 	// R9 — initialize from localStorage and sync to DOM

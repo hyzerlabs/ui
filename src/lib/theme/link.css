@@ -1,0 +1,53 @@
+/**
+ * @hyzer-labs/ui reference theme — Link
+ * Sizes are em-relative so links scale with their surrounding text.
+ */
+@layer hz-theme {
+	.hz-link {
+		color: var(--hz-color-primary, #2563eb);
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		transition: color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-link:where(:hover) {
+		color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 78%, var(--hz-color-black, #000));
+	}
+
+	.hz-link:where([data-size='sm']) {
+		font-size: 0.875em;
+	}
+
+	.hz-link:where([data-size='lg']) {
+		font-size: 1.125em;
+	}
+
+	/* Variant: subtle — inherits color, underline appears on hover */
+	.hz-link:where([data-variant='subtle']) {
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.hz-link:where([data-variant='subtle']:hover) {
+		color: inherit;
+		text-decoration: underline;
+	}
+
+	/* Variant: nav — quiet until hovered/current */
+	.hz-link:where([data-variant='nav']) {
+		color: inherit;
+		text-decoration: none;
+		font-weight: var(--hz-font-weight-medium, 500);
+	}
+
+	.hz-link:where([data-variant='nav']:hover),
+	.hz-link:where([data-variant='nav'][aria-current]) {
+		color: var(--hz-color-primary, #2563eb);
+	}
+
+	/* External-link icon inherits the link color via currentColor. */
+	.hz-link .hz-icon {
+		vertical-align: -0.125em;
+	}
+}

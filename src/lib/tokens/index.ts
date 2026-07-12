@@ -88,6 +88,11 @@ export const typography = {
 		medium: '500',
 		semibold: '600',
 		bold: '700'
+	},
+	lineHeight: {
+		tight: '1.2',
+		base: '1.5',
+		loose: '1.75'
 	}
 } as const;
 
@@ -132,5 +137,23 @@ export const zIndex = {
 	base: '0',
 	dropdown: '10',
 	overlay: '1000',
-	modal: '1100'
+	modal: '1100',
+	toast: '1200'
+} as const;
+
+// ---------------------------------------------------------------------------
+// Motion (R6)
+// ---------------------------------------------------------------------------
+
+export const motion = {
+	duration: {
+		fast: '150ms',
+		base: '250ms',
+		slow: '400ms'
+	},
+	ease: {
+		standard: 'cubic-bezier(0.2, 0, 0, 1)',
+		in: 'cubic-bezier(0.4, 0, 1, 1)',
+		out: 'cubic-bezier(0, 0, 0.2, 1)'
+	}
 } as const;

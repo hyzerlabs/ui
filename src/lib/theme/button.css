@@ -1,4 +1,149 @@
 /**
- * @hyzer-labs/ui Button reference theme
- * Placeholder for Sprint 4 — Button component styles will be defined here.
+ * @hyzer-labs/ui reference theme — Button
+ * Targets .hz-button + data-variant/intent/size/state. Variant/state selectors
+ * are wrapped in :where() so every rule stays at single-class specificity.
+ * Interactive-state colors are derived from the single-value palette with
+ * color-mix (the palette deliberately ships no hover ramps).
  */
+@layer hz-theme {
+	.hz-button {
+		/* Per-intent hooks — override these two to restyle every variant. */
+		--hz-button-accent: var(--hz-color-primary, #2563eb);
+		--hz-button-on-accent: var(--hz-color-white, #ffffff);
+
+		box-sizing: border-box;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5em;
+		border: var(--hz-border-width-thin, 1px) solid transparent;
+		border-radius: var(--hz-radius-md, 0.5rem);
+		font-family: inherit;
+		font-weight: var(--hz-font-weight-medium, 500);
+		line-height: var(--hz-line-height-tight, 1.2);
+		text-decoration: none;
+		cursor: pointer;
+		user-select: none;
+		transition:
+			background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+			color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-button:where([data-intent='secondary']) {
+		--hz-button-accent: var(--hz-color-secondary, #7c3aed);
+	}
+
+	.hz-button:where([data-intent='danger']) {
+		--hz-button-accent: var(--hz-color-error, #dc2626);
+	}
+
+	/* Sizes */
+	.hz-button:where([data-size='sm']) {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		padding: 0.375rem 0.75rem;
+		min-height: 2rem;
+	}
+
+	.hz-button:where([data-size='md']) {
+		font-size: var(--hz-font-size-base, 1rem);
+		padding: 0.5rem 1rem;
+		min-height: 2.5rem;
+	}
+
+	.hz-button:where([data-size='lg']) {
+		font-size: var(--hz-font-size-base, 1rem);
+		padding: 0.75rem 1.5rem;
+		min-height: 3rem;
+	}
+
+	/* Variant: solid */
+	.hz-button:where([data-variant='solid']) {
+		background-color: var(--hz-button-accent);
+		border-color: var(--hz-button-accent);
+		color: var(--hz-button-on-accent);
+	}
+
+	.hz-button:where([data-variant='solid']:hover:not([data-state])) {
+		background-color: color-mix(in srgb, var(--hz-button-accent) 88%, var(--hz-color-black, #000));
+		border-color: color-mix(in srgb, var(--hz-button-accent) 88%, var(--hz-color-black, #000));
+	}
+
+	.hz-button:where([data-variant='solid']:active:not([data-state])) {
+		background-color: color-mix(in srgb, var(--hz-button-accent) 78%, var(--hz-color-black, #000));
+		border-color: color-mix(in srgb, var(--hz-button-accent) 78%, var(--hz-color-black, #000));
+	}
+
+	/* Variant: outline */
+	.hz-button:where([data-variant='outline']) {
+		background-color: transparent;
+		border-color: var(--hz-button-accent);
+		color: var(--hz-button-accent);
+	}
+
+	.hz-button:where([data-variant='outline']:hover:not([data-state])),
+	.hz-button:where([data-variant='outline']:active:not([data-state])) {
+		background-color: color-mix(in srgb, var(--hz-button-accent) 10%, transparent);
+	}
+
+	/* Variant: ghost */
+	.hz-button:where([data-variant='ghost']) {
+		background-color: transparent;
+		color: var(--hz-button-accent);
+	}
+
+	.hz-button:where([data-variant='ghost']:hover:not([data-state])),
+	.hz-button:where([data-variant='ghost']:active:not([data-state])) {
+		background-color: color-mix(in srgb, var(--hz-button-accent) 10%, transparent);
+	}
+
+	/* Variant: soft */
+	.hz-button:where([data-variant='soft']) {
+		background-color: color-mix(in srgb, var(--hz-button-accent) 12%, transparent);
+		color: var(--hz-button-accent);
+	}
+
+	.hz-button:where([data-variant='soft']:hover:not([data-state])),
+	.hz-button:where([data-variant='soft']:active:not([data-state])) {
+		background-color: color-mix(in srgb, var(--hz-button-accent) 20%, transparent);
+	}
+
+	/* Variant: link */
+	.hz-button:where([data-variant='link']) {
+		background-color: transparent;
+		color: var(--hz-button-accent);
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+		padding-inline: 0;
+		min-height: auto;
+	}
+
+	.hz-button:where([data-variant='link']:hover:not([data-state])) {
+		color: color-mix(in srgb, var(--hz-button-accent) 78%, var(--hz-color-black, #000));
+	}
+
+	/* States */
+	.hz-button:where([data-state='disabled']) {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.hz-button:where([data-state='loading']) {
+		cursor: progress;
+	}
+
+	.hz-button:where([data-state='loading']) .hz-icon {
+		animation: hz-spin 0.8s linear infinite;
+	}
+
+	.hz-button:where([data-full-width]) {
+		display: flex;
+		width: 100%;
+	}
+
+	@keyframes hz-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+}

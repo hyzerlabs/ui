@@ -1,5 +1,38 @@
 /**
  * @hyzer-labs/ui reference theme
- * Placeholder for Sprint 4 — complete component styles using design tokens will be defined here.
- * Import this file for a styled starting point.
+ *
+ * Complete, token-driven visual styles for every component. The components
+ * themselves are headless; this stylesheet is the optional "styled starting
+ * point" layer.
+ *
+ * Usage:
+ *   import '@hyzer-labs/ui/tokens.css'; // tokens first
+ *   import '@hyzer-labs/ui/theme';      // full theme
+ *   // or cherry-pick: import '@hyzer-labs/ui/theme/button.css';
+ *
+ * Every rule lives in the `hz-theme` cascade layer, so any unlayered consumer
+ * CSS — e.g. a class passed through a component's `class` prop — overrides the
+ * theme without specificity fights. The one documented exception is the Toggle
+ * track/thumb (see field.css), which must out-compete the component's own
+ * scoped structural reset.
+ *
+ * All colors resolve through the semantic role tokens (--hz-color-surface,
+ * --hz-color-text, --hz-color-border, ...), so the [data-theme="dark"] hook
+ * and any palette-override theme (see the variant stylesheets) restyle the
+ * whole theme automatically.
  */
+@layer hz-theme;
+
+@import './base.css';
+@import './button.css';
+@import './link.css';
+@import './field.css';
+@import './form.css';
+@import './card.css';
+@import './accordion.css';
+@import './tabs.css';
+@import './modal.css';
+@import './nav.css';
+@import './footer.css';
+@import './hero.css';
+@import './media.css';

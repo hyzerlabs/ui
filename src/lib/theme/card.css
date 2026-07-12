@@ -1,0 +1,75 @@
+/**
+ * @hyzer-labs/ui reference theme — Card
+ * Padding is handled structurally by the component (data-padding);
+ * the theme owns surface, border, radius, and elevation.
+ */
+@layer hz-theme {
+	.hz-card {
+		background-color: var(--hz-color-surface, #fff);
+		transition:
+			box-shadow var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	/* Rounding — overflow keeps media flush with the corners. */
+	.hz-card:where([data-rounded='sm']) {
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		overflow: hidden;
+	}
+
+	.hz-card:where([data-rounded='md']) {
+		border-radius: var(--hz-radius-md, 0.5rem);
+		overflow: hidden;
+	}
+
+	.hz-card:where([data-rounded='lg']) {
+		border-radius: var(--hz-radius-lg, 1rem);
+		overflow: hidden;
+	}
+
+	/* Variants */
+	.hz-card:where([data-variant='outlined']) {
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+	}
+
+	.hz-card:where([data-variant='elevated']) {
+		box-shadow: var(--hz-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+	}
+
+	.hz-card:where([data-variant='filled']) {
+		background-color: color-mix(
+			in srgb,
+			var(--hz-color-gray, #6b7280) 8%,
+			var(--hz-color-surface, #fff)
+		);
+	}
+
+	.hz-card:where([data-variant='ghost']) {
+		background-color: transparent;
+	}
+
+	/* Clickable affordance */
+	.hz-card:where([data-clickable][data-variant='elevated']:hover) {
+		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+	}
+
+	.hz-card:where([data-clickable][data-variant='outlined']:hover),
+	.hz-card:where([data-clickable][data-variant='filled']:hover),
+	.hz-card:where([data-clickable][data-variant='ghost']:hover) {
+		border-color: color-mix(in srgb, var(--hz-color-border, #6b7280) 80%, transparent);
+		box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+	}
+
+	.hz-card-media :where(img, video) {
+		display: block;
+		width: 100%;
+	}
+
+	.hz-card-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-top: 1rem;
+	}
+}

@@ -1,0 +1,49 @@
+/**
+ * @hyzer-labs/ui reference theme — base
+ * Document defaults, focus ring, the .sr-only utility the components emit,
+ * and the reduced-motion guard.
+ */
+@layer hz-theme {
+	body {
+		margin: 0;
+		background-color: var(--hz-color-surface, #ffffff);
+		color: var(--hz-color-text, #000000);
+		font-family: var(--hz-font-family-sans, system-ui, sans-serif);
+		line-height: var(--hz-line-height-base, 1.5);
+		-webkit-font-smoothing: antialiased;
+	}
+
+	:where(:focus-visible) {
+		outline: var(--hz-border-width-thick, 2px) solid var(--hz-color-primary, #2563eb);
+		outline-offset: 2px;
+	}
+}
+
+/*
+ * Visually-hidden utility. Button (loading label), Link (external hint),
+ * Checkbox/RadioGroup/Toggle and the Field scaffold (hideLabel) all render
+ * class="sr-only" but no component ships the rule — the theme must.
+ * Unlayered so it applies even when a consumer layer reorders the cascade.
+ */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	@layer hz-theme {
+		*,
+		*::before,
+		*::after {
+			transition-duration: 0.01ms !important;
+			animation-duration: 0.01ms !important;
+		}
+	}
+}

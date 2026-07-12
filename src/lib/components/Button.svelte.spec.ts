@@ -48,6 +48,12 @@ describe('R1 — default render', () => {
 		await expect.element(btn).not.toHaveAttribute('data-state');
 		await expect.element(btn).not.toHaveAttribute('data-full-width');
 	});
+
+	it('merges a consumer class after hz-button', async () => {
+		render(Button, { class: 'my-button' });
+		const btn = page.getByRole('button');
+		await expect.element(btn).toHaveAttribute('class', 'hz-button my-button');
+	});
 });
 
 // ---------------------------------------------------------------------------

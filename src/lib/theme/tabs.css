@@ -1,0 +1,65 @@
+/**
+ * @hyzer-labs/ui reference theme — Tabs
+ * Underline-style triggers; the component ships no button reset, so the
+ * theme resets appearance itself.
+ */
+@layer hz-theme {
+	.hz-tabs-list {
+		border-bottom: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+	}
+
+	.hz-tabs-trigger {
+		appearance: none;
+		background: none;
+		border: none;
+		margin-bottom: calc(-1 * var(--hz-border-width-thin, 1px));
+		padding: 0.625rem 1rem;
+		font: inherit;
+		font-weight: var(--hz-font-weight-medium, 500);
+		color: var(--hz-color-text-muted, #6b7280);
+		border-bottom: var(--hz-border-width-thick, 2px) solid transparent;
+		cursor: pointer;
+		white-space: nowrap;
+		transition:
+			color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-tabs-trigger:where(:hover) {
+		color: var(--hz-color-text, #000);
+	}
+
+	.hz-tabs-trigger:where([data-state='active']) {
+		color: var(--hz-color-primary, #2563eb);
+		border-bottom-color: var(--hz-color-primary, #2563eb);
+	}
+
+	.hz-tabs-trigger:where([data-disabled]) {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	/* Vertical orientation: the indicator moves to the inline edge. */
+	.hz-tabs:where([data-orientation='vertical']) .hz-tabs-list {
+		border-bottom: none;
+		border-inline-end: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+	}
+
+	.hz-tabs:where([data-orientation='vertical']) .hz-tabs-trigger {
+		margin-bottom: 0;
+		margin-inline-end: calc(-1 * var(--hz-border-width-thin, 1px));
+		border-bottom: none;
+		border-inline-end: var(--hz-border-width-thick, 2px) solid transparent;
+		text-align: start;
+	}
+
+	.hz-tabs:where([data-orientation='vertical']) .hz-tabs-trigger:where([data-state='active']) {
+		border-inline-end-color: var(--hz-color-primary, #2563eb);
+	}
+
+	.hz-tabs-panel {
+		padding-top: 1rem;
+	}
+}

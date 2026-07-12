@@ -3,6 +3,7 @@
 	import type { Snippet } from 'svelte';
 	import type { Variant } from '$lib/types';
 	import { IconLoader } from '$lib/icons';
+	import { cx } from '$lib/utils';
 
 	type ButtonIntent = 'primary' | 'secondary' | 'danger';
 	type ButtonSize = 'sm' | 'md' | 'lg';
@@ -23,6 +24,7 @@
 		children?: Snippet;
 		iconStart?: Snippet;
 		iconEnd?: Snippet;
+		class?: string;
 		[key: string]: unknown;
 	}
 
@@ -41,6 +43,7 @@
 		children,
 		iconStart,
 		iconEnd,
+		class: className,
 		...rest
 	}: Props = $props();
 
@@ -75,7 +78,7 @@
 {#if isAnchor}
 	<a
 		{...rest}
-		class="hz-button"
+		class={cx('hz-button', className)}
 		role="button"
 		href={disabled || loading ? undefined : href}
 		data-variant={variant}
@@ -99,7 +102,7 @@
 {:else}
 	<button
 		{...rest}
-		class="hz-button"
+		class={cx('hz-button', className)}
 		{type}
 		data-variant={variant}
 		data-intent={intent}

@@ -1,0 +1,71 @@
+/**
+ * @hyzer-labs/ui reference theme — Modal (native <dialog>)
+ * Sizing/scroll behavior is structural in the component; the theme owns
+ * surface, radius, elevation, backdrop, and section chrome.
+ */
+@layer hz-theme {
+	.hz-modal {
+		border: none;
+		border-radius: var(--hz-radius-lg, 1rem);
+		background-color: var(--hz-color-surface, #fff);
+		color: var(--hz-color-text, #000);
+		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+	}
+
+	.hz-modal:where([data-size='full']) {
+		border-radius: 0;
+	}
+
+	.hz-modal::backdrop {
+		background-color: rgb(0 0 0 / 0.5);
+	}
+
+	.hz-modal-header {
+		padding: 1rem 1.5rem;
+		border-bottom: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 40%, transparent);
+	}
+
+	.hz-modal-title {
+		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		line-height: var(--hz-line-height-tight, 1.2);
+	}
+
+	.hz-modal-description {
+		margin: 0.25rem 0 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-modal-body {
+		padding: 1.25rem 1.5rem;
+	}
+
+	.hz-modal-footer {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 0.5rem;
+		padding: 1rem 1.5rem;
+		border-top: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 40%, transparent);
+	}
+
+	/* The built-in close control is a default (solid/primary) Button —
+	 * restyle it as a quiet icon button. Loaded after button.css, so these
+	 * equal-specificity declarations win by order. */
+	.hz-button:where([data-modal-close]) {
+		background-color: transparent;
+		border-color: transparent;
+		color: var(--hz-color-text-muted, #6b7280);
+		padding: 0.375rem;
+		min-height: auto;
+	}
+
+	.hz-button:where([data-modal-close]:hover) {
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 12%, transparent);
+		border-color: transparent;
+		color: var(--hz-color-text, #000);
+	}
+}

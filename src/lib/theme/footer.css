@@ -1,0 +1,64 @@
+/**
+ * @hyzer-labs/ui reference theme — Footer
+ */
+@layer hz-theme {
+	.hz-footer {
+		padding: 3rem 1.5rem 2rem;
+		background-color: color-mix(
+			in srgb,
+			var(--hz-color-gray, #6b7280) 6%,
+			var(--hz-color-surface, #fff)
+		);
+		color: var(--hz-color-text, #000);
+	}
+
+	.hz-footer:where([data-variant='minimal']) {
+		padding: 2rem 1.5rem;
+		background-color: transparent;
+	}
+
+	.hz-footer:where([data-variant='bordered']) {
+		background-color: transparent;
+		border-top: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+	}
+
+	.hz-footer-logo {
+		margin-bottom: 1.5rem;
+	}
+
+	.hz-footer-heading {
+		margin: 0 0 0.75rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-footer-column :where(ul) {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.hz-footer-column :where(li) {
+		margin-block: 0.5rem;
+	}
+
+	.hz-footer-social {
+		display: flex;
+		gap: 0.75rem;
+		margin-top: 1.5rem;
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-footer-bottom {
+		margin-top: 2rem;
+		padding-top: 1rem;
+		border-top: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 35%, transparent);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+}

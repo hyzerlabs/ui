@@ -44,6 +44,9 @@
 	--hz-font-weight-medium: 500;
 	--hz-font-weight-semibold: 600;
 	--hz-font-weight-bold: 700;
+	--hz-line-height-tight: 1.2;
+	--hz-line-height-base: 1.5;
+	--hz-line-height-loose: 1.75;
 
 	/* =====================================================================
 	 * Spacing — backs existing component fallbacks (values are fixed)
@@ -94,6 +97,17 @@
 	--hz-z-dropdown: 10;
 	--hz-z-overlay: 1000;
 	--hz-z-modal: 1100;
+	--hz-z-toast: 1200;
+
+	/* =====================================================================
+	 * Motion
+	 * ===================================================================== */
+	--hz-duration-fast: 150ms;
+	--hz-duration-base: 250ms;
+	--hz-duration-slow: 400ms;
+	--hz-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+	--hz-ease-in: cubic-bezier(0.4, 0, 1, 1);
+	--hz-ease-out: cubic-bezier(0, 0, 0.2, 1);
 }
 
 /* ==========================================================================

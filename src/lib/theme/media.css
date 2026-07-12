@@ -1,0 +1,38 @@
+/**
+ * @hyzer-labs/ui reference theme — Image & Video
+ * data-rounded is a bare attribute for the boolean form (maps to md) and a
+ * value for the explicit steps; the valued rules follow so they win by order.
+ */
+@layer hz-theme {
+	.hz-image:where([data-rounded]) {
+		border-radius: var(--hz-radius-md, 0.5rem);
+		overflow: hidden;
+	}
+
+	.hz-image:where([data-rounded='sm']) {
+		border-radius: var(--hz-radius-sm, 0.25rem);
+	}
+
+	.hz-image:where([data-rounded='lg']) {
+		border-radius: var(--hz-radius-lg, 1rem);
+	}
+
+	.hz-image:where([data-rounded='full']) {
+		border-radius: var(--hz-radius-full, 9999px);
+	}
+
+	.hz-image:where([data-state='error']) {
+		background-color: color-mix(
+			in srgb,
+			var(--hz-color-gray, #6b7280) 12%,
+			var(--hz-color-surface, #fff)
+		);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-video {
+		background-color: var(--hz-color-black, #000);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		overflow: hidden;
+	}
+}

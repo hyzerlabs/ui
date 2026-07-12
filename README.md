@@ -31,16 +31,63 @@ pnpm add @hyzer-labs/ui
 
 ### Subpath imports
 
-| Import                            | Description                   |
-| --------------------------------- | ----------------------------- |
-| `@hyzer-labs/ui`                  | All components                |
-| `@hyzer-labs/ui/tokens`           | Token names & metadata (JS)   |
-| `@hyzer-labs/ui/tokens.css`       | CSS custom property tokens    |
-| `@hyzer-labs/ui/icons`            | SVG icon components           |
-| `@hyzer-labs/ui/utils`            | Utility functions             |
-| `@hyzer-labs/ui/types`            | Shared TypeScript types       |
-| `@hyzer-labs/ui/theme`            | Reference theme (full CSS)    |
-| `@hyzer-labs/ui/theme/button.css` | Per-component theme overrides |
+| Import                            | Description                     |
+| --------------------------------- | ------------------------------- |
+| `@hyzer-labs/ui`                  | All components                  |
+| `@hyzer-labs/ui/tokens`           | Token names & metadata (JS)     |
+| `@hyzer-labs/ui/tokens.css`       | CSS custom property tokens      |
+| `@hyzer-labs/ui/icons`            | SVG icon components             |
+| `@hyzer-labs/ui/utils`            | Utility functions               |
+| `@hyzer-labs/ui/types`            | Shared TypeScript types         |
+| `@hyzer-labs/ui/theme`            | Reference theme (full CSS)      |
+| `@hyzer-labs/ui/theme/button.css` | Individual per-component styles |
+| `@hyzer-labs/ui/theme/ocean.css`  | Theme variant (token overrides) |
+| `@hyzer-labs/ui/theme/sunset.css` | Theme variant (token overrides) |
+
+## Styling
+
+The library ships in opt-in tiers — take as much or as little as you want:
+
+1. **Headless (default).** Components ship structure, behavior, and a11y only.
+   Style them yourself via the stable `hz-*` classes and `data-*` attributes
+   (`data-variant`, `data-intent`, `data-size`, `data-state`).
+2. **Tokens.** `@hyzer-labs/ui/tokens.css` defines the `--hz-*` custom
+   properties (palette, semantic roles, type, spacing, radius, elevation,
+   motion). Includes the `[data-theme="dark"]` role hook.
+3. **Reference theme.** `@hyzer-labs/ui/theme` is a complete, token-driven
+   visual layer — or cherry-pick per-component files
+   (`@hyzer-labs/ui/theme/button.css`).
+4. **Theme variants.** `ocean.css` / `sunset.css` restyle both tiers purely by
+   overriding tokens. Import one **after** `tokens.css`.
+
+```svelte
+<script>
+	import '@hyzer-labs/ui/tokens.css'; // 1. tokens
+	import '@hyzer-labs/ui/theme'; // 2. reference theme (optional)
+	import '@hyzer-labs/ui/theme/ocean.css'; // 3. variant (optional)
+</script>
+```
+
+### Overriding styles
+
+Every component accepts a `class` prop, merged after its `hz-*` class. The
+reference theme lives in the `hz-theme` cascade layer, so **any unlayered
+consumer CSS wins** — a plain single-class selector is enough, no specificity
+fights or `!important`:
+
+```svelte
+<Button class="cta">Ship it</Button>
+
+<style>
+	:global(.cta) {
+		border-radius: 9999px; /* beats the theme */
+	}
+</style>
+```
+
+For theme-wide tweaks, override tokens instead — set `--hz-color-primary` on
+`:root` (or any subtree) and every component follows. Dark mode: set
+`data-theme="dark"` on any ancestor element.
 
 ## Development
 
