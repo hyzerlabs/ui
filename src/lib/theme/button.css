@@ -97,17 +97,6 @@
 		background-color: color-mix(in srgb, var(--hz-button-accent) 10%, transparent);
 	}
 
-	/* Variant: soft */
-	.hz-button:where([data-variant='soft']) {
-		background-color: color-mix(in srgb, var(--hz-button-accent) 12%, transparent);
-		color: var(--hz-button-accent);
-	}
-
-	.hz-button:where([data-variant='soft']:hover:not([data-state])),
-	.hz-button:where([data-variant='soft']:active:not([data-state])) {
-		background-color: color-mix(in srgb, var(--hz-button-accent) 20%, transparent);
-	}
-
 	/* Variant: link */
 	.hz-button:where([data-variant='link']) {
 		background-color: transparent;

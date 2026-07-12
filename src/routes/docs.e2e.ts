@@ -113,6 +113,36 @@ test.describe('R5/R6 — real components render on component pages', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Example code blocks — usage code visible below demos, reactive to variant
+// ---------------------------------------------------------------------------
+
+test.describe('Example code blocks', () => {
+	test('/components/button shows example code below the demo', async ({ page }) => {
+		await page.goto('/components/button');
+		const code = page.locator('.doc-example pre code').first();
+		await expect(code).toBeVisible();
+		await expect(code).toContainText('<Button');
+	});
+
+	test('selecting a variant sub-tab updates the visible example code', async ({ page }) => {
+		await page.goto('/components/button');
+		// Tabs keeps inactive panels in the DOM (hidden), so assert on the
+		// visible code block only.
+		const visibleCode = page.locator('.doc-example pre code').filter({ visible: true }).first();
+		await expect(visibleCode).toContainText('variant="solid"');
+
+		await page.getByRole('tab', { name: 'outline' }).click();
+		await expect(visibleCode).toContainText('variant="outline"');
+		await expect(visibleCode).not.toContainText('variant="solid"');
+	});
+
+	test('example code block has a copy button', async ({ page }) => {
+		await page.goto('/components/button');
+		await expect(page.getByRole('button', { name: 'Copy' }).first()).toBeVisible();
+	});
+});
+
+// ---------------------------------------------------------------------------
 // Modal demo edge case
 // ---------------------------------------------------------------------------
 
