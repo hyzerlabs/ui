@@ -3,13 +3,11 @@
 	import type { Snippet } from 'svelte';
 	import { cx } from '$lib/utils';
 
-	type CardVariant = 'elevated' | 'outlined' | 'filled' | 'ghost';
 	type CardPadding = 'none' | 'sm' | 'md' | 'lg';
 	type CardRounded = 'none' | 'sm' | 'md' | 'lg';
 	type CardMediaPosition = 'start' | 'end';
 
 	interface Props {
-		variant?: CardVariant;
 		padding?: CardPadding;
 		rounded?: CardRounded;
 		href?: string;
@@ -24,7 +22,6 @@
 	}
 
 	let {
-		variant = 'outlined',
 		padding = 'md',
 		rounded = 'md',
 		href,
@@ -58,10 +55,13 @@
 	Card-R1: root div with hz-card class and data-* attributes.
 	Card-R14: {...rest} spread first so managed attrs (class, data-*) win.
 -->
+<!--
+	No variant prop by design: visual treatments are theme classes
+	(hz-card--outlined, hz-card--elevated) applied via `class`.
+-->
 <div
 	{...rest}
 	class={cx('hz-card', className)}
-	data-variant={variant}
 	data-padding={padding}
 	data-rounded={rounded}
 	data-media-position={mediaPosition}
@@ -140,9 +140,18 @@
 			flex-direction: row;
 		}
 
-		/* Media track: fixed size, consumer-tunable via --hz-card-media-size. */
+		/* Media track: fixed size, consumer-tunable via --hz-card-media-size.
+		 * The track is itself a flex container so the snippet's content
+		 * stretches to the full card height — media and content sit truly
+		 * side-by-side regardless of which column is taller. */
 		.hz-card[data-horizontal] .hz-card-media {
 			flex: 0 0 var(--hz-card-media-size, 40%);
+			display: flex;
+		}
+
+		.hz-card[data-horizontal] .hz-card-media > :global(*) {
+			flex: 1;
+			min-width: 0;
 		}
 
 		/* Content fills the remaining space as a column so actions can pin to bottom. */
@@ -185,12 +194,16 @@
 	/*
 	 * Card-R10: inner interactive elements (from consumer snippets) remain
 	 * independently clickable and focusable above the overlay (z-index: 0).
-	 * :where() keeps the selector's own specificity at 0,0,0; the full compiled
-	 * rule is .hz-card.svelte-HASH[data-clickable] :where(…) = 0,3,0.
-	 * :global() is required so the rule matches consumer snippet elements that
-	 * do not carry the component's Svelte scope class.
+	 * :where() keeps the selector's own specificity at 0,0,0; :global() is
+	 * required so the rule matches consumer snippet elements that do not carry
+	 * the component's Svelte scope class. The overlay link itself is an <a>
+	 * inside the clickable card, so it must be excluded — Svelte 5 scopes with
+	 * specificity-neutral :where(.svelte-HASH), which made this rule tie with
+	 * the R9 overlay rule and win on source order, collapsing the overlay to
+	 * zero height (position: relative on the link).
 	 */
-	.hz-card[data-clickable] :global(:where(a, button, input, select, textarea, [tabindex])) {
+	.hz-card[data-clickable]
+		:global(:where(a, button, input, select, textarea, [tabindex]):not(.hz-card-link)) {
 		position: relative;
 		z-index: 1;
 	}

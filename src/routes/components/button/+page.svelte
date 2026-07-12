@@ -96,7 +96,7 @@
 	description="A versatile button component supporting solid, outline, ghost, and link variants with intent colors, sizes, loading, and icon slots."
 	importLine={'import {Button} from "@hyzer-labs/ui"'}
 	{props}
-	a11yNote={'Use `ariaLabel` for icon-only buttons (no visible text). The loading state sets `aria-busy="true"` and renders a screen-reader-only "Loading" label. Disabled state sets `aria-disabled="true"`.'}
+	a11yNote="Use `ariaLabel` for icon-only buttons (no visible text). The loading state sets `aria-busy=&quot;true&quot;` and renders a screen-reader-only &quot;Loading&quot; label. Disabled state sets `aria-disabled=&quot;true&quot;`."
 >
 	<Tabs items={demoTabs} ariaLabel="Button demos" defaultTab="variants">
 		{#snippet panel(item)}

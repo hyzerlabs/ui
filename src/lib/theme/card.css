@@ -1,7 +1,14 @@
 /**
  * @hyzer-labs/ui reference theme — Card
- * Padding is handled structurally by the component (data-padding);
- * the theme owns surface, border, radius, and elevation.
+ * Padding is handled structurally by the component (data-padding); the theme
+ * owns surface, radius, and elevation.
+ *
+ * Card has no variant prop: visual treatments are opt-in modifier classes
+ * applied via the `class` prop —
+ *   <Card class="hz-card--outlined">  flat with a border
+ *   <Card class="hz-card--elevated">  shadow-raised
+ * Both are plain classes, so they compose with and are overridden by any
+ * unlayered consumer CSS as usual.
  */
 @layer hz-theme {
 	.hz-card {
@@ -27,43 +34,35 @@
 		overflow: hidden;
 	}
 
-	/* Variants */
-	.hz-card:where([data-variant='outlined']) {
+	/* Treatments — opt-in modifier classes */
+	.hz-card:where(.hz-card--outlined) {
 		border: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
 	}
 
-	.hz-card:where([data-variant='elevated']) {
+	.hz-card:where(.hz-card--elevated) {
 		box-shadow: var(--hz-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
 	}
 
-	.hz-card:where([data-variant='filled']) {
-		background-color: color-mix(
-			in srgb,
-			var(--hz-color-gray, #6b7280) 8%,
-			var(--hz-color-surface, #fff)
-		);
-	}
-
-	.hz-card:where([data-variant='ghost']) {
-		background-color: transparent;
-	}
-
 	/* Clickable affordance */
-	.hz-card:where([data-clickable][data-variant='elevated']:hover) {
-		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
-	}
-
-	.hz-card:where([data-clickable][data-variant='outlined']:hover),
-	.hz-card:where([data-clickable][data-variant='filled']:hover),
-	.hz-card:where([data-clickable][data-variant='ghost']:hover) {
+	.hz-card:where(.hz-card--outlined[data-clickable]:hover) {
 		border-color: color-mix(in srgb, var(--hz-color-border, #6b7280) 80%, transparent);
 		box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+	}
+
+	.hz-card:where(.hz-card--elevated[data-clickable]:hover) {
+		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
 	}
 
 	.hz-card-media :where(img, video) {
 		display: block;
 		width: 100%;
+	}
+
+	/* Horizontal cards: media fills the full card height without distortion. */
+	.hz-card:where([data-horizontal]) .hz-card-media :where(img, video) {
+		height: 100%;
+		object-fit: cover;
 	}
 
 	.hz-card-actions {

@@ -17,7 +17,7 @@
 
 	<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
 		{#each section.children ?? [] as p (p.href)}
-			<Card variant="outlined" padding="md" rounded="md">
+			<Card class="hz-card--outlined" padding="md" rounded="md">
 				<a href={p.href} class="component-link">
 					<h2 class="component-name">{p.label}</h2>
 				</a>

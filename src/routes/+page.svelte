@@ -33,7 +33,7 @@ import '@hyzer-labs/ui/tokens.css';</code
 		<h2 id="sections-heading">Browse the docs</h2>
 		<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
 			{#each manifest as section (section.href)}
-				<Card variant="outlined" padding="md" rounded="md">
+				<Card class="hz-card--outlined" padding="md" rounded="md">
 					<a href={section.href} class="section-link">
 						<h3 class="section-title">{section.label}</h3>
 						<p class="section-count">

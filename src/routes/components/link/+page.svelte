@@ -59,7 +59,7 @@
 	description="An accessible anchor component with variant styles, external link support, and icon slots. Links inherit the surrounding text size."
 	importLine={'import {Link} from "@hyzer-labs/ui"'}
 	{props}
-	a11yNote={'External links automatically add `target="_blank"`, `rel="noopener noreferrer"`, a decorative external glyph, and a visually-hidden "(opens in new tab)" string. `ariaCurrent` sets `aria-current` on the anchor for nav links.'}
+	a11yNote="External links automatically add `target=&quot;_blank&quot;`, `rel=&quot;noopener noreferrer&quot;`, a decorative external glyph, and a visually-hidden &quot;(opens in new tab)&quot; string. `ariaCurrent` sets `aria-current` on the anchor for nav links."
 >
 	<Tabs items={demoTabs} ariaLabel="Link demos" defaultTab="variants">
 		{#snippet panel(item)}
@@ -85,7 +85,7 @@
 						<Link href="https://github.com/hyzerlabs/ui" external>View on GitHub</Link>
 						&nbsp;·&nbsp;
 						<Link href="https://github.com/hyzerlabs/ui" external externalIcon={false}>
-							No glyph
+							View on GitHub
 						</Link>
 					</Example>
 				{:else}

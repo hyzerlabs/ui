@@ -40,7 +40,6 @@ ships **no** visual opinions (no colors, borders, shadows, radius, fonts).
 
 | Prop            | Type                                              | Default      |
 | --------------- | ------------------------------------------------- | ------------ |
-| `variant`       | `'elevated' \| 'outlined' \| 'filled' \| 'ghost'` | `'outlined'` |
 | `padding`       | `'none' \| 'sm' \| 'md' \| 'lg'`                  | `'md'`       |
 | `rounded`       | `'none' \| 'sm' \| 'md' \| 'lg'`                  | `'md'`       |
 | `href`          | `string \| undefined`                             | —            |
@@ -61,10 +60,12 @@ rendered.
 
 **Structure & regions**
 
-1. **Card-R1 — Root.** Renders `<div class="hz-card">`. Reflects `data-variant`,
-   `data-padding`, `data-rounded`, `data-media-position` verbatim for every enum
-   value (defaults `outlined`/`md`/`md`/`start`). `data-horizontal` is present when
-   `horizontal`, absent otherwise.
+1. **Card-R1 — Root.** Renders `<div class="hz-card">`. Reflects `data-padding`,
+   `data-rounded`, `data-media-position` verbatim for every enum value (defaults
+   `md`/`md`/`start`). `data-horizontal` is present when `horizontal`, absent
+   otherwise. There is **no** `variant` prop and **no** `data-variant` attribute
+   (removed 2026-07): visual treatments are opt-in reference-theme classes
+   (`hz-card--outlined`, `hz-card--elevated`) applied via `class`.
 2. **Card-R2 — Media region.** When the `media` snippet is provided, renders
    `<div class="hz-card-media">` around it; when absent, **no** `hz-card-media`
    element and no error.
@@ -87,10 +88,13 @@ rendered.
    `"end"`, below — achieved by R4 DOM order.
 6. **Card-R6 — Horizontal.** When `horizontal`, media and content sit side by side
    at ≥640px; the content block flexes to fill remaining space and the media track
-   width is a tunable hook `--hz-card-media-size` (fallback `40%`). `mediaPosition`
-   controls which side media is on (via R4 DOM order). `actions` pins to the bottom
-   of the content column (content is a column; the body/actions gap uses
-   `--hz-space-*`).
+   width is a tunable hook `--hz-card-media-size` (fallback `40%`). The media
+   track is a flex container and the snippet's root element stretches to the
+   full card height (added 2026-07), so both columns are always equal height;
+   sizing an `img` to the track (`object-fit`) is the theme's concern.
+   `mediaPosition` controls which side media is on (via R4 DOM order). `actions`
+   pins to the bottom of the content column (content is a column; the
+   body/actions gap uses `--hz-space-*`).
 7. **Card-R7 — Mobile stacking.** Below 640px, horizontal cards stack vertically
    (column). `mediaPosition` still controls order — `start` = media first (top),
    `end` = content first (top) — via the same R4 DOM order (no media query
@@ -125,12 +129,12 @@ rendered.
 
 **Hooks-only (no shipped visual CSS)**
 
-12. **Card-R12 — variant / rounded are hooks only.** `data-variant` and
-    `data-rounded` reflect verbatim but Card ships **no** shadow (`elevated`),
-    border (`outlined`), background (`filled`), `border-radius`, or `overflow` for
-    them — identical precedent to `Image`'s `rounded` (`specs/06-media.md` IMG-R7)
-    and `Footer`'s `variant`. Radius **and** the clipping it needs
-    (`overflow: hidden`) are entirely a theme concern off the `data-rounded` hook.
+12. **Card-R12 — rounded is a hook only.** `data-rounded` reflects verbatim but
+    Card ships **no** shadow, border, background, `border-radius`, or `overflow`
+    — identical precedent to `Image`'s `rounded` (`specs/06-media.md` IMG-R7).
+    Radius **and** the clipping it needs (`overflow: hidden`) are entirely a
+    theme concern off the `data-rounded` hook; the outlined/elevated treatments
+    are theme modifier classes (Card-R1).
 
 **Cross-cutting**
 
@@ -183,7 +187,7 @@ rendered.
 | `href` set, no `ariaLabel`                      | Overlay still rendered & clickable; dev `console.warn` fires once (Card-R11).                 |
 | Clickable card with inner `<a>`/`<button>`      | Inner element clickable & focusable above overlay; overlay covers the rest (Card-R10).       |
 | `padding="none"`                                | `hz-card-content` padding is `0` (Card-R8).                                                   |
-| `rounded`/`variant` any value                   | Only `data-*` reflects; no shipped radius/overflow/shadow/border/bg (Card-R12).              |
+| `rounded` any value                             | Only `data-*` reflects; no shipped radius/overflow/shadow/border/bg (Card-R12).              |
 | Very long body / many actions                  | No truncation; content wraps/overflows per normal flow (consumer concern).                   |
 | `...rest` attempts `class` / a managed `data-*` | Component-managed value wins (Card-R14).                                                      |
 
@@ -200,8 +204,8 @@ rendered.
 - **Tokens:** `--hz-space-*` with literal fallbacks per the Shared Scale in
   `specs/03-layout.md`.
 - **Headless conventions / structural-CSS exception:**
-  `original-specs/00-architecture.md`; precedent for hook-only `rounded`/`variant`
-  is `specs/06-media.md` (IMG-R7) and `specs/05-footer.md`.
+  `original-specs/00-architecture.md`; precedent for hook-only `rounded`
+  is `specs/06-media.md` (IMG-R7).
 - **Barrel + export test:** `src/lib/components/index.ts` and
   `src/lib/exports.spec.ts` (extend the `$lib (.)` assertion to include `Card`).
 - **Test harness:** `Button.svelte.spec.ts` / `Nav.svelte.spec.ts` /
@@ -224,8 +228,8 @@ styles asserted with viewport resize + `getComputedStyle(el)`.
 
 **Unit / component (browser):**
 
-- Card-R1: defaults → `data-variant="outlined"`/`data-padding="md"`/
-  `data-rounded="md"`/`data-media-position="start"`, no `data-horizontal`; each
+- Card-R1: defaults → `data-padding="md"`/`data-rounded="md"`/
+  `data-media-position="start"`, no `data-horizontal`, no `data-variant`; each
   enum parametrized; `horizontal` → `data-horizontal` present; assert no `role`.
 - Card-R2/R3: `media` present → `hz-card-media`; absent → none. `children`/`actions`
   combos → correct presence of `hz-card-content`/`hz-card-body`/`hz-card-actions`
@@ -244,13 +248,13 @@ styles asserted with viewport resize + `getComputedStyle(el)`.
   handler (not navigation).
 - Card-R11: `href` without `ariaLabel` → `console.warn` spy fires; with `ariaLabel`
   → no warn and overlay `aria-label` set.
-- Card-R12: `variant`/`rounded` values → only `data-*`; assert **no** computed
+- Card-R12: `rounded` values → only `data-*`; assert **no** computed
   `box-shadow`/`border`/`background`/`border-radius`/`overflow` shipped by the
   component.
 - Card-R13: no `class` → exactly `hz-card`; `class="foo bar"` → `hz-card foo bar`
   (order).
 - Card-R14: `...rest` (e.g. `data-testid`) forwarded; override attempt on
-  `class`/`data-variant` → managed wins.
+  `class`/`data-padding` → managed wins.
 - Card-R15: extend `exports.spec.ts` to assert `Card` resolves from `$lib`, plus
   smoke render.
 

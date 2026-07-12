@@ -36,10 +36,10 @@ describe('Card-R1 — root', () => {
 		expect(card.getAttribute('role')).toBeNull();
 	});
 
-	it('default: data-variant="outlined"', () => {
+	it('no data-variant emitted — treatments are theme classes, not a prop', () => {
 		const { container } = render(Card, {});
 		const card = container.querySelector('.hz-card') as HTMLElement;
-		expect(card.getAttribute('data-variant')).toBe('outlined');
+		expect(card.hasAttribute('data-variant')).toBe(false);
 	});
 
 	it('default: data-padding="md"', () => {
@@ -72,15 +72,6 @@ describe('Card-R1 — root', () => {
 		expect(card.hasAttribute('data-horizontal')).toBe(true);
 		expect(card.getAttribute('data-horizontal')).toBe('');
 	});
-
-	it.each(['elevated', 'outlined', 'filled', 'ghost'] as const)(
-		'variant="%s" → data-variant="%s"',
-		(variant) => {
-			const { container } = render(Card, { variant });
-			const card = container.querySelector('.hz-card') as HTMLElement;
-			expect(card.getAttribute('data-variant')).toBe(variant);
-		}
-	);
 
 	it.each(['none', 'sm', 'md', 'lg'] as const)('padding="%s" → data-padding="%s"', (padding) => {
 		const { container } = render(Card, { padding });
@@ -369,6 +360,25 @@ describe('Card-R9 — overlay link', () => {
 		expect(getComputedStyle(span).position).toBe('absolute');
 	});
 
+	// Regression: the R10 inner-interactive rule (position: relative) used to tie
+	// with the R9 overlay rule under Svelte's :where() scoping and win on source
+	// order, collapsing the overlay link to zero height — clicks never navigated.
+	it('overlay link itself is position: absolute and covers the full card', () => {
+		const { container } = render(Card, {
+			href: '/destination',
+			ariaLabel: 'View details',
+			children: bodySnippet
+		});
+		const card = container.querySelector('.hz-card') as HTMLElement;
+		const link = container.querySelector('a.hz-card-link') as HTMLElement;
+		expect(getComputedStyle(link).position).toBe('absolute');
+		const cardBox = card.getBoundingClientRect();
+		const linkBox = link.getBoundingClientRect();
+		expect(cardBox.height).toBeGreaterThan(0);
+		expect(linkBox.height).toBe(cardBox.height);
+		expect(linkBox.width).toBe(cardBox.width);
+	});
+
 	it('href="" (empty) → no data-clickable, no overlay link', () => {
 		const { container } = render(Card, { href: '' });
 		const card = container.querySelector('.hz-card') as HTMLElement;
@@ -455,24 +465,24 @@ describe('Card-R11 — accessible name warning', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Card-R12 — variant / rounded are hooks only (no visual CSS shipped)
+// Card-R12 — rounded is a hook only (no visual CSS shipped)
 // ---------------------------------------------------------------------------
 
-describe('Card-R12 — variant and rounded are hooks only', () => {
-	it('variant="elevated" → no box-shadow shipped by component', () => {
-		const { container } = render(Card, { variant: 'elevated' });
+describe('Card-R12 — rounded is a hook only', () => {
+	it('no box-shadow shipped by component', () => {
+		const { container } = render(Card, {});
 		const card = container.querySelector('.hz-card') as HTMLElement;
 		expect(getComputedStyle(card).boxShadow).toBe('none');
 	});
 
-	it('variant="outlined" → no border shipped by component', () => {
-		const { container } = render(Card, { variant: 'outlined' });
+	it('no border shipped by component', () => {
+		const { container } = render(Card, {});
 		const card = container.querySelector('.hz-card') as HTMLElement;
 		expect(getComputedStyle(card).borderWidth).toBe('0px');
 	});
 
-	it('variant="filled" → no background-color shipped by component', () => {
-		const { container } = render(Card, { variant: 'filled' });
+	it('no background-color shipped by component', () => {
+		const { container } = render(Card, {});
 		const card = container.querySelector('.hz-card') as HTMLElement;
 		expect(getComputedStyle(card).backgroundColor).toBe('rgba(0, 0, 0, 0)');
 	});
@@ -487,13 +497,6 @@ describe('Card-R12 — variant and rounded are hooks only', () => {
 		const { container } = render(Card, { rounded: 'lg' });
 		const card = container.querySelector('.hz-card') as HTMLElement;
 		expect(getComputedStyle(card).overflow).toBe('visible');
-	});
-
-	it('data-variant reflects verbatim for all enum values', () => {
-		(['elevated', 'outlined', 'filled', 'ghost'] as const).forEach((v) => {
-			const { container } = render(Card, { variant: v });
-			expect(container.querySelector(`.hz-card[data-variant="${v}"]`)).not.toBeNull();
-		});
 	});
 
 	it('data-rounded reflects verbatim for all enum values', () => {
@@ -539,13 +542,13 @@ describe('Card-R14 — rest forwarding', () => {
 		expect(card.getAttribute('data-testid')).toBe('my-card');
 	});
 
-	it('rest override attempt on data-variant → managed value wins', () => {
+	it('rest override attempt on data-padding → managed value wins', () => {
 		const { container } = render(Card, {
-			'data-variant': 'ghost'
+			'data-padding': 'lg'
 		} as Record<string, unknown>);
 		const card = container.querySelector('.hz-card') as HTMLElement;
-		// default variant is 'outlined'; the rest override is discarded
-		expect(card.getAttribute('data-variant')).toBe('outlined');
+		// default padding is 'md'; the rest override is discarded
+		expect(card.getAttribute('data-padding')).toBe('md');
 	});
 
 	it('hz-card class always present even when class is overridden via prop', () => {
