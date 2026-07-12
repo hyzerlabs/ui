@@ -8,14 +8,14 @@
 
 Ship a headless, accessible Svelte 5 `Link` that always renders a native `<a>`,
 handles external-tab semantics behind an explicit `external` prop, and exposes
-variant/size and active state via data/ARIA attributes with zero visual CSS, so
+variant and active state via data/ARIA attributes with zero visual CSS, so
 any consuming site styles it via the documented hooks.
 
 ### Context & Conventions
 
 - Svelte 5 **runes mode** is forced project-wide; component is TypeScript.
 - Headless contract (`original-specs/00-architecture.md`): root element gets
-  `class="hz-link"`, `data-variant`, `data-size`, and state hooks; **no
+  `class="hz-link"`, `data-variant`, and state hooks; **no
   colors/spacing/borders/fonts/animation/underline** ship in the component.
   Visual styling lives in the Sprint-4 theme (`src/lib/theme/link.css`) — out of
   scope.
@@ -31,8 +31,8 @@ any consuming site styles it via the documented hooks.
 | ----------- | ------------------------------------------ | ----------- |
 | href        | `string`                                   | _required_  |
 | external    | `boolean`                                  | `false`     |
+| externalIcon | `boolean`                                 | `true`      |
 | variant     | `'default' \| 'subtle' \| 'nav'`           | `'default'` |
-| size        | `'sm' \| 'md' \| 'lg'`                     | `'md'`      |
 | ariaCurrent | `'page' \| 'step' \| 'true' \| undefined`  | —           |
 | ariaLabel   | `string \| undefined`                      | —           |
 | class       | `string \| undefined`                      | —           |
@@ -47,17 +47,17 @@ as a named prop (`class: className`) — it does **not** flow through `...rest`.
 Each is a testable assertion.
 
 1. **R1 — Default render.** With `href="/x"` and no other props, renders an
-   `<a>` with `class="hz-link"`, `href="/x"`, `data-variant="default"`,
-   `data-size="md"`, and **no** `data-external`, **no** `target`/`rel`, **no**
+   `<a>` with `class="hz-link"`, `href="/x"`, `data-variant="default"`, and
+   **no** `data-size`, **no** `data-external`, **no** `target`/`rel`, **no**
    `aria-current`.
 2. **R2 — Children.** Renders the `children` snippet as the link content.
 3. **R3 — Variant.** `variant` accepts the local literal union
    `'default' | 'subtle' | 'nav'`, defaults `'default'`, reflected verbatim in
    `data-variant`. (The shared `Variant` type has different values and is
    intentionally not used here.)
-4. **R4 — Size.** `size` accepts the local literal union `'sm' | 'md' | 'lg'`,
-   defaults `'md'`, reflected in `data-size`. (Narrower than the shared `Size`
-   type, which is intentionally not used here.)
+4. **R4 — No size prop.** Link deliberately has **no** `size` prop and emits
+   **no** `data-size` attribute: a link inherits the surrounding text size.
+   (Removed 2026-07 — links are inline text, not sized controls.)
 5. **R5 — href verbatim.** `href` is rendered exactly as provided onto the `<a>`,
    **including the empty string** (`href=""`). The component always renders an
    `<a>`; there is **no** fallback element (no `<span>`), **no** href default,
@@ -69,11 +69,14 @@ Each is a testable assertion.
    (default), **none** of these are present. External behavior is driven
    **exclusively** by the `external` prop — the component performs **no**
    auto-detection from the `href` scheme, host, or protocol.
-7. **R7 — No visible external icon.** The component renders **no**
-   `IconExternalLink` and no other automatic visible external indicator. The
-   only built-in external affordance is the `sr-only` announcement from R6.
-   A visible external glyph is a consumer concern, supplied via the `iconEnd`
-   snippet (R10).
+7. **R7 — Automatic external icon (overrideable).** When `external` is `true`
+   and no `iconEnd` snippet is supplied, the component renders a decorative
+   (`aria-hidden`) `IconExternalLink` with class `hz-link-external-icon` in the
+   `iconEnd` position, before the `sr-only` announcement (R6). A supplied
+   `iconEnd` **replaces** the automatic glyph; `externalIcon={false}` suppresses
+   it entirely. The component ships no icon sizing — the reference theme scales
+   it to `1em` so it follows the surrounding text size. (Changed 2026-07 from
+   the original no-automatic-icon rule.)
 8. **R8 — aria-current (no data-current).** When `ariaCurrent` is set, it is
    applied verbatim as the `aria-current` attribute on the `<a>`; absent when
    `undefined`. The component emits **no** `data-current` attribute — themes
@@ -98,8 +101,8 @@ Each is a testable assertion.
 13. **R13 — onclick + attribute forwarding.** Accepts an `onclick` handler prop
     and forwards arbitrary extra HTML attributes (`...rest`) onto the root `<a>`.
     Forwarded attributes must **not** overwrite component-managed attributes
-    (`class`, `href`, `data-variant`, `data-size`, `data-external`, `target`,
-    `rel`, `aria-current`, `aria-label`).
+    (`class`, `href`, `data-variant`, `data-external`, `target`, `rel`,
+    `aria-current`, `aria-label`).
 14. **R14 — Barrel export.** `Link` is exported from
     `src/lib/components/index.ts` and resolvable via
     `import { Link } from '$lib'`.
@@ -155,9 +158,9 @@ The component ships no layout CSS; responsiveness is structural only.
   composition (`cx('hz-link', className)`). Do **not** inline a duplicate. `uid`
   is not required (the `sr-only` text lives inside the `<a>` and contributes to
   the accessible name directly).
-- **Types:** `src/lib/types/index.ts` — `variant` and `size` use local literal
-  unions (values differ from / are narrower than the shared `Variant`/`Size`
-  types), mirroring how `Button` declares `ButtonIntent`/`ButtonSize` locally.
+- **Types:** `src/lib/types/index.ts` — `variant` uses a local literal union
+  (values differ from the shared `Variant` type), mirroring how `Button`
+  declares `ButtonIntent`/`ButtonSize` locally.
   Reuse `ariaCurrent`'s value union (`'page' | 'step' | 'true'`) consistent with
   `NavItem.ariaCurrent`.
 - **Component pattern:** mirror `src/lib/components/Button.svelte` for `$props()`
@@ -185,15 +188,18 @@ Component test file: `src/lib/components/Link.svelte.spec.ts` (the
 **Unit / component (browser):**
 
 - R1: `href="/x"` default render → tag is `A`, `class="hz-link"`, `href="/x"`,
-  `data-variant="default"`, `data-size="md"`; absence of `data-external`,
+  `data-variant="default"`; absence of `data-size`, `data-external`,
   `target`, `rel`, `aria-current`.
 - R2: `children` snippet → content text present.
 - R3: each variant value (`default`/`subtle`/`nav`) → corresponding
   `data-variant` (parametrized).
-- R4: each size value (`sm`/`md`/`lg`) → corresponding `data-size`
-  (parametrized).
+- R4: no `data-size` attribute is emitted (covered by the R1 default-render
+  assertions).
 - R5: `href=""` → `<a>` rendered with `href` attribute equal to `""`; no warning
   spy fired; tag is `A`.
+- R7: `external` → `svg.hz-link-external-icon` present with `aria-hidden="true"`;
+  `externalIcon={false}` or a supplied `iconEnd` → no automatic glyph;
+  non-external default → no svg (parametrized).
 - R6: `external: true` → `target="_blank"`, `rel="noopener noreferrer"`,
   `data-external` present, `sr-only` span text equals `(opens in new tab)`.
   `external: false`/default → none of those present.

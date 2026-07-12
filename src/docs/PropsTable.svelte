@@ -3,7 +3,8 @@
 		name: string;
 		type: string;
 		default: string;
-		description?: string;
+		/** Optional extra context — most props are self-explanatory; use sparingly. */
+		note?: string;
 	}
 
 	interface Props {
@@ -20,8 +21,8 @@
 				<th scope="col">Name</th>
 				<th scope="col">Type</th>
 				<th scope="col">Default</th>
-				{#if props.some((p) => p.description)}
-					<th scope="col">Description</th>
+				{#if props.some((p) => p.note)}
+					<th scope="col">Note</th>
 				{/if}
 			</tr>
 		</thead>
@@ -31,8 +32,8 @@
 					<td><code>{row.name}</code></td>
 					<td><code class="type">{row.type}</code></td>
 					<td><code>{row.default}</code></td>
-					{#if props.some((p) => p.description)}
-						<td class="desc">{row.description ?? ''}</td>
+					{#if props.some((p) => p.note)}
+						<td class="note">{row.note ?? ''}</td>
 					{/if}
 				</tr>
 			{/each}
@@ -74,7 +75,7 @@
 		color: var(--hz-color-primary, #2563eb);
 	}
 
-	.desc {
+	.note {
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text, inherit);
 	}

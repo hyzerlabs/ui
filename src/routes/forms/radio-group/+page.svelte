@@ -5,9 +5,9 @@
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
-		{ name: 'name', type: 'string', default: '—', description: 'Required.' },
-		{ name: 'label', type: 'string', default: '—', description: 'Required.' },
-		{ name: 'options', type: 'RadioOption[]', default: '—', description: 'Required.' },
+		{ name: 'name', type: 'string', default: '—', note: 'Required.' },
+		{ name: 'label', type: 'string', default: '—', note: 'Required.' },
+		{ name: 'options', type: 'RadioOption[]', default: '—', note: 'Required.' },
 		{ name: 'value', type: 'string', default: "''" },
 		{ name: 'description', type: 'string', default: '—' },
 		{ name: 'error', type: 'string', default: '—' },

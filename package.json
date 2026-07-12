@@ -11,10 +11,10 @@
 	"homepage": "https://design.hyzer.sh",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/hyzer-labs/ui.git"
+		"url": "git+https://github.com/hyzerlabs/ui.git"
 	},
 	"bugs": {
-		"url": "https://github.com/hyzer-labs/ui/issues"
+		"url": "https://github.com/hyzerlabs/ui/issues"
 	},
 	"publishConfig": {
 		"access": "public"

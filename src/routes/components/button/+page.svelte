@@ -15,22 +15,22 @@
 			name: 'loadingLabel',
 			type: 'string',
 			default: "'Loading'",
-			description: 'Screen-reader-only text announced while loading; not rendered visually.'
+			note: 'Screen-reader-only text announced while loading; not rendered visually.'
 		},
 		{ name: 'fullWidth', type: 'boolean', default: 'false' },
-		{ name: 'href', type: 'string', default: '—', description: 'Renders as <a> when set.' },
+		{ name: 'href', type: 'string', default: '—', note: 'Renders as <a> when set.' },
 		{ name: 'type', type: "'button' | 'submit' | 'reset'", default: "'button'" },
 		{
 			name: 'ariaLabel',
 			type: 'string',
 			default: '—',
-			description: 'Required for icon-only buttons.'
+			note: 'Required for icon-only buttons.'
 		},
 		{
 			name: 'class',
 			type: 'string',
 			default: '—',
-			description: 'Merged after the hz-button class.'
+			note: 'Merged after the hz-button class.'
 		},
 		{ name: 'children', type: 'Snippet', default: '—' },
 		{ name: 'iconStart', type: 'Snippet', default: '—' },
@@ -96,7 +96,7 @@
 	description="A versatile button component supporting solid, outline, ghost, and link variants with intent colors, sizes, loading, and icon slots."
 	importLine={'import {Button} from "@hyzer-labs/ui"'}
 	{props}
-	a11yNote="Use ariaLabel for icon-only buttons (no visible text). The loading state sets aria-busy='true' and renders a screen-reader-only 'Loading' label. Disabled state sets aria-disabled='true'."
+	a11yNote={'Use `ariaLabel` for icon-only buttons (no visible text). The loading state sets `aria-busy="true"` and renders a screen-reader-only "Loading" label. Disabled state sets `aria-disabled="true"`.'}
 >
 	<Tabs items={demoTabs} ariaLabel="Button demos" defaultTab="variants">
 		{#snippet panel(item)}

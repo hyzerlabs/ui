@@ -9,7 +9,7 @@
 			name: 'items',
 			type: 'NavItem[]',
 			default: '—',
-			description: 'Required. Array of nav items.'
+			note: 'Required. Array of nav items.'
 		},
 		{ name: 'sticky', type: 'boolean', default: 'false' },
 		{ name: 'variant', type: "'default' | 'transparent' | 'bordered'", default: "'default'" },

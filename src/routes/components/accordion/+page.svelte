@@ -8,7 +8,7 @@
 			name: 'items',
 			type: 'AccordionItem[]',
 			default: '—',
-			description: 'Required. Each item: { id, title, disabled? }.'
+			note: 'Required. Each item: { id, title, disabled? }.'
 		},
 		{ name: 'type', type: "'single' | 'multiple'", default: "'single'" },
 		{ name: 'defaultOpen', type: 'string | string[]', default: '[]' },
@@ -18,7 +18,7 @@
 			name: 'panel',
 			type: 'Snippet<[AccordionItem]>',
 			default: '—',
-			description: 'Required. Renders each panel.'
+			note: 'Required. Renders each panel.'
 		},
 		{ name: 'icon', type: 'Snippet', default: '—' },
 		{ name: 'onToggle', type: '(openIds: string[]) => void', default: '—' }

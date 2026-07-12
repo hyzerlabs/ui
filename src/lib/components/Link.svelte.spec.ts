@@ -37,7 +37,8 @@ describe('R1 — default render', () => {
 		const el = page.getByRole('link');
 		await expect.element(el).toHaveAttribute('class', 'hz-link');
 		await expect.element(el).toHaveAttribute('data-variant', 'default');
-		await expect.element(el).toHaveAttribute('data-size', 'md');
+		// No size prop by design — a link inherits the surrounding text size.
+		await expect.element(el).not.toHaveAttribute('data-size');
 	});
 
 	it('has the correct href', async () => {
@@ -77,21 +78,6 @@ describe('R3 — variant prop', () => {
 		it(`variant="${variant}" is reflected in data-variant`, async () => {
 			render(Link, { href: '/x', variant });
 			await expect.element(page.getByRole('link')).toHaveAttribute('data-variant', variant);
-		});
-	}
-});
-
-// ---------------------------------------------------------------------------
-// R4 — Size
-// ---------------------------------------------------------------------------
-
-describe('R4 — size prop', () => {
-	const sizes = ['sm', 'md', 'lg'] as const;
-
-	for (const size of sizes) {
-		it(`size="${size}" is reflected in data-size`, async () => {
-			render(Link, { href: '/x', size });
-			await expect.element(page.getByRole('link')).toHaveAttribute('data-size', size);
 		});
 	}
 });
@@ -174,14 +160,31 @@ describe('R6 — external prop', () => {
 });
 
 // ---------------------------------------------------------------------------
-// R7 — No visible external icon
+// R7 — Automatic external icon (overrideable)
 // ---------------------------------------------------------------------------
 
-describe('R7 — no automatic visible external icon', () => {
-	it('external=true renders no svg by the component', () => {
+describe('R7 — automatic external icon', () => {
+	it('external=true renders the default decorative external glyph', () => {
 		const { container } = render(Link, { href: '/x', external: true });
-		const svg = container.querySelector('svg');
-		expect(svg).toBeNull();
+		const svg = container.querySelector('svg.hz-link-external-icon');
+		expect(svg).not.toBeNull();
+		expect(svg?.getAttribute('aria-hidden')).toBe('true');
+	});
+
+	it('external=false renders no svg by the component', () => {
+		const { container } = render(Link, { href: '/x' });
+		expect(container.querySelector('svg')).toBeNull();
+	});
+
+	it('externalIcon=false suppresses the automatic glyph', () => {
+		const { container } = render(Link, { href: '/x', external: true, externalIcon: false });
+		expect(container.querySelector('svg')).toBeNull();
+	});
+
+	it('a supplied iconEnd replaces the automatic glyph', () => {
+		const { container } = render(Link, { href: '/x', external: true, iconEnd: iconEndSnippet });
+		expect(container.querySelector('[data-testid="icon-end"]')).not.toBeNull();
+		expect(container.querySelector('svg.hz-link-external-icon')).toBeNull();
 	});
 
 	it('iconEnd snippet renders when supplied', () => {

@@ -8,19 +8,19 @@
 			name: 'items',
 			type: 'TabItem[]',
 			default: '—',
-			description: 'Required. Each item: { id, label, disabled? }.'
+			note: 'Required. Each item: { id, label, disabled? }.'
 		},
 		{
 			name: 'ariaLabel',
 			type: 'string',
 			default: '—',
-			description: 'Required. Labels the tablist.'
+			note: 'Required. Labels the tablist.'
 		},
 		{
 			name: 'defaultTab',
 			type: 'string',
 			default: '—',
-			description: 'ID of initially active tab.'
+			note: 'ID of initially active tab.'
 		},
 		{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'" },
 		{ name: 'activation', type: "'auto' | 'manual'", default: "'auto'" },
@@ -28,7 +28,7 @@
 			name: 'panel',
 			type: 'Snippet<[TabItem]>',
 			default: '—',
-			description: 'Required. Renders each panel.'
+			note: 'Required. Renders each panel.'
 		},
 		{ name: 'onChange', type: '(activeId: string) => void', default: '—' }
 	];

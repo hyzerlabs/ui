@@ -9,6 +9,7 @@
 		description: string;
 		importLine: string;
 		props?: PropRow[];
+		/** Backtick-wrapped segments render as inline <code>, e.g. "sets `aria-busy`". */
 		a11yNote?: string;
 		children?: Snippet;
 	}
@@ -48,7 +49,11 @@
 	{#if a11yNote}
 		<section aria-labelledby="a11y-heading" class="doc-section">
 			<h2 id="a11y-heading">Accessibility</h2>
-			<p>{a11yNote}</p>
+			<p>
+				<!-- Backtick-split: odd segments are inline code. -->
+				{#each a11yNote.split('`') as segment, i (i)}{#if i % 2 === 1}<code>{segment}</code
+						>{:else}{segment}{/if}{/each}
+			</p>
 		</section>
 	{/if}
 </Stack>

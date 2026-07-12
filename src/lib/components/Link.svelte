@@ -2,15 +2,16 @@
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
 	import { cx } from '$lib/utils';
+	import { IconExternalLink } from '$lib/icons';
 
 	type LinkVariant = 'default' | 'subtle' | 'nav';
-	type LinkSize = 'sm' | 'md' | 'lg';
 
 	interface Props {
 		href: string;
 		external?: boolean;
+		/** Render the default external glyph when `external`. A supplied `iconEnd` replaces it. */
+		externalIcon?: boolean;
 		variant?: LinkVariant;
-		size?: LinkSize;
 		ariaCurrent?: 'page' | 'step' | 'true';
 		ariaLabel?: string;
 		class?: string;
@@ -24,8 +25,8 @@
 	let {
 		href,
 		external = false,
+		externalIcon = true,
 		variant = 'default',
-		size = 'md',
 		ariaCurrent,
 		ariaLabel,
 		class: className,
@@ -51,16 +52,17 @@
 
 <!--
 	R13: {…rest} is spread first so that every subsequently-listed attribute
-	(class, href, data-variant, data-size, data-external, target, rel,
-	aria-current, aria-label) is applied after and wins over any conflicting
-	key that a consumer accidentally passes through rest.
+	(class, href, data-variant, data-external, target, rel, aria-current,
+	aria-label) is applied after and wins over any conflicting key that a
+	consumer accidentally passes through rest.
+
+	No size prop by design: a link inherits the surrounding text size.
 -->
 <a
 	{...rest}
 	class={cx('hz-link', className)}
 	{href}
 	data-variant={variant}
-	data-size={size}
 	data-external={external ? '' : undefined}
 	target={external ? '_blank' : undefined}
 	rel={external ? 'noopener noreferrer' : undefined}
@@ -70,6 +72,9 @@
 >
 	{#if iconStart}{@render iconStart()}{/if}
 	{#if children}{@render children()}{/if}
-	{#if iconEnd}{@render iconEnd()}{/if}
+	{#if iconEnd}{@render iconEnd()}{:else if external && externalIcon}
+		<!-- Decorative by default (no ariaLabel → aria-hidden); the sr-only span below announces. -->
+		<IconExternalLink class="hz-link-external-icon" />
+	{/if}
 	{#if external}<span class="sr-only">(opens in new tab)</span>{/if}
 </a>

@@ -12,7 +12,7 @@
 		{ name: 'focusTarget', type: "'summary' | 'firstField'", default: "'summary'" },
 		{ name: 'novalidate', type: 'boolean', default: 'false' },
 		{ name: 'ariaLabel', type: 'string', default: '—' },
-		{ name: 'children', type: 'Snippet', default: '—', description: 'Required. Form content.' }
+		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. Form content.' }
 	];
 
 	// Demo state

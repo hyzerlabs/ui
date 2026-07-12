@@ -4,8 +4,8 @@
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
-		{ name: 'src', type: 'string', default: '—', description: 'Required. URL or embed URL.' },
-		{ name: 'title', type: 'string', default: '—', description: 'Required for accessibility.' },
+		{ name: 'src', type: 'string', default: '—', note: 'Required. URL or embed URL.' },
+		{ name: 'title', type: 'string', default: '—', note: 'Required for accessibility.' },
 		{ name: 'aspectRatio', type: "'16/9' | '4/3' | '1/1' | '9/16'", default: "'16/9'" },
 		{ name: 'autoplay', type: 'boolean', default: 'false' },
 		{ name: 'muted', type: 'boolean', default: 'false' },

@@ -1,6 +1,6 @@
 /**
  * @hyzer-labs/ui reference theme — Link
- * Sizes are em-relative so links scale with their surrounding text.
+ * No font-size rules: a link inherits the surrounding text size.
  */
 @layer hz-theme {
 	.hz-link {
@@ -13,14 +13,6 @@
 
 	.hz-link:where(:hover) {
 		color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 78%, var(--hz-color-black, #000));
-	}
-
-	.hz-link:where([data-size='sm']) {
-		font-size: 0.875em;
-	}
-
-	.hz-link:where([data-size='lg']) {
-		font-size: 1.125em;
 	}
 
 	/* Variant: subtle — inherits color, underline appears on hover */
@@ -49,5 +41,11 @@
 	/* External-link icon inherits the link color via currentColor. */
 	.hz-link .hz-icon {
 		vertical-align: -0.125em;
+	}
+
+	/* The automatic external glyph scales with the surrounding text. */
+	.hz-link .hz-link-external-icon {
+		width: 1em;
+		height: 1em;
 	}
 }

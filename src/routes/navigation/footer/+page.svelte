@@ -9,7 +9,7 @@
 			name: 'columns',
 			type: 'FooterColumn[]',
 			default: '—',
-			description: 'Required. Column groups.'
+			note: 'Required. Column groups.'
 		},
 		{ name: 'variant', type: "'default' | 'minimal' | 'bordered'", default: "'default'" },
 		{ name: 'linkVariant', type: "'default' | 'subtle' | 'nav'", default: "'subtle'" },
@@ -31,7 +31,7 @@
 		{
 			title: 'Resources',
 			links: [
-				{ label: 'GitHub', href: 'https://github.com/hyzer-labs/ui', external: true },
+				{ label: 'GitHub', href: 'https://github.com/hyzerlabs/ui', external: true },
 				{ label: 'Changelog', href: '#' }
 			]
 		}

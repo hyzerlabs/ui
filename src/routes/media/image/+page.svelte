@@ -4,12 +4,12 @@
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
-		{ name: 'src', type: 'string', default: '—', description: 'Required.' },
+		{ name: 'src', type: 'string', default: '—', note: 'Required.' },
 		{
 			name: 'alt',
 			type: 'string',
 			default: '—',
-			description: 'Required. Empty string for decorative.'
+			note: 'Required. Empty string for decorative.'
 		},
 		{ name: 'width', type: 'number', default: '—' },
 		{ name: 'height', type: 'number', default: '—' },

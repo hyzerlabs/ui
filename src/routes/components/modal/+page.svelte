@@ -4,8 +4,8 @@
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
-		{ name: 'title', type: 'string', default: '—', description: 'Required for accessibility.' },
-		{ name: 'open', type: 'boolean', default: 'false', description: '$bindable.' },
+		{ name: 'title', type: 'string', default: '—', note: 'Required for accessibility.' },
+		{ name: 'open', type: 'boolean', default: 'false', note: '$bindable.' },
 		{ name: 'description', type: 'string', default: '—' },
 		{ name: 'size', type: "'sm' | 'md' | 'lg' | 'full'", default: "'md'" },
 		{ name: 'closeOnOverlay', type: 'boolean', default: 'true' },
