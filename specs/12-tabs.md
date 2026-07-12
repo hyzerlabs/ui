@@ -52,7 +52,9 @@ opinions (no colors, borders, shadows, radius, fonts, or animation).
 | `class`       | `string` (optional → `cx`)                   | —                              |
 
 `TabItem` (declared **locally**, no new shared type):
-`{ id: string; label: string; disabled?: boolean }`.
+`{ id: string; label: string | Snippet; disabled?: boolean }`. `label` accepts a
+plain string for the common case or a Snippet when inner markup is needed
+(changed 2026-07, mirroring Hero/Accordion text slots).
 
 Plus arbitrary `...rest` HTML attributes forwarded to the root `<div>`.
 
@@ -65,7 +67,9 @@ Boolean `data-*` "present" = empty-valued attribute exists; "absent" = not rende
 1. **Tabs-R1 — Root.** Renders `<div class="hz-tabs">` carrying `data-orientation`
    reflecting `orientation` verbatim (`"horizontal"` | `"vertical"`). Contains
    exactly one tablist `<div>` (R2) followed by one panel per item (R5), in array
-   order.
+   order. Horizontal is a stack (list above panels); vertical is a **split**
+   (added 2026-07): the root becomes a flex row, the rail keeps its intrinsic
+   width, and the active panel fills the remaining space beside it.
 2. **Tabs-R2 — Tablist.** A `<div class="hz-tabs-list" role="tablist">` carrying
    `aria-orientation={orientation}` and `aria-label={ariaLabel}`. Contains one
    `<button class="hz-tabs-trigger" role="tab">` per `items` entry, in array
@@ -74,15 +78,20 @@ Boolean `data-*` "present" = empty-valued attribute exists; "absent" = not rende
    `id="hz-tab-{baseId}-{item.id}"`, `aria-controls="hz-tabpanel-{baseId}-{item.id}"`,
    `aria-selected="true"|"false"`, `data-state="active"|"inactive"`, and
    `type="button"`. At most one trigger is `active` at a time (the active tab,
-   R7). Trigger text content is `item.label`.
+   R7). Trigger content is `item.label` — the string verbatim, or the snippet's
+   markup (inline content only).
 4. **Tabs-R4 — Roving tabindex.** Only the active trigger has `tabindex="0"`;
    every other trigger (including disabled ones) has `tabindex="-1"`. This yields
    a single tab stop in the tablist; arrow keys navigate within (R10). When no
    tab is active (all disabled, R8), every trigger is `tabindex="-1"`.
 5. **Tabs-R5 — Panels (all rendered, APG reference).** One
    `<div class="hz-tabs-panel" role="tabpanel">` is rendered per item, in array
-   order, each carrying `id="hz-tabpanel-{baseId}-{item.id}"`,
-   `aria-labelledby="hz-tab-{baseId}-{item.id}"`, and `tabindex="0"`. The active
+   order, each carrying `id="hz-tabpanel-{baseId}-{item.id}"` and
+   `aria-labelledby="hz-tab-{baseId}-{item.id}"`. Per the APG recommendation,
+   a panel carries `tabindex="0"` **only when it contains no focusable
+   elements** (checked after mount and re-checked on tab change, 2026-07);
+   panels with interactive content get `tabindex="-1"` so they are not extra
+   tab stops. The active
    item's panel carries `data-state="active"` and is visible; every inactive
    panel carries `data-state="inactive"` **and** the native `hidden` attribute
    (removed from layout and the tab order). The required `panel` snippet is
@@ -140,10 +149,10 @@ Boolean `data-*` "present" = empty-valued attribute exists; "absent" = not rende
     trigger activates it.
 12. **Tabs-R12 — Tab key into panel.** Roving tabindex (R4) means the Tab key
     from the active trigger moves focus past the inactive triggers and into the
-    active panel, which is focusable via `tabindex="0"` (R5) even when it has no
-    focusable content. Inactive panels carry `hidden` so they are not in the tab
-    order. This is native browser behavior given DOM order tablist → panels; no
-    JS handling required.
+    active panel's content — or onto the panel itself (`tabindex="0"`, R5) when
+    it has no focusable content. Inactive panels carry `hidden` so they are not
+    in the tab order. This is native browser behavior given DOM order tablist →
+    panels; the only JS involvement is the R5 focusable-content check.
 
 **Composition**
 

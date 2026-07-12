@@ -1,96 +1,213 @@
 <script lang="ts">
 	import { Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
-		{
-			name: 'items',
-			type: 'TabItem[]',
-			default: '—',
-			note: 'Required. Each item: { id, label, disabled? }.'
-		},
-		{
-			name: 'ariaLabel',
-			type: 'string',
-			default: '—',
-			note: 'Required. Labels the tablist.'
-		},
-		{
-			name: 'defaultTab',
-			type: 'string',
-			default: '—',
-			note: 'ID of initially active tab.'
-		},
+		{ name: 'items', type: 'TabItem[]', default: '—', note: 'Required. See TabItem below.' },
+		{ name: 'ariaLabel', type: 'string', default: '—', note: 'Required. Labels the tablist.' },
+		{ name: 'defaultTab', type: 'string', default: '—', note: 'ID of the initially active tab.' },
 		{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'" },
-		{ name: 'activation', type: "'auto' | 'manual'", default: "'auto'" },
+		{
+			name: 'activation',
+			type: "'auto' | 'manual'",
+			default: "'auto'",
+			note: 'auto activates on arrow-key focus; manual waits for Enter/Space.'
+		},
 		{
 			name: 'panel',
 			type: 'Snippet<[TabItem]>',
 			default: '—',
 			note: 'Required. Renders each panel.'
 		},
-		{ name: 'onChange', type: '(activeId: string) => void', default: '—' }
+		{ name: 'onChange', type: '(activeId: string) => void', default: '—' },
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-tabs class.' }
 	];
 
-	const basicTabs = [
+	const itemType = [
+		{ name: 'id', type: 'string', default: '—', note: 'Required. Must be unique.' },
+		{
+			name: 'label',
+			type: 'string | Snippet',
+			default: '—',
+			note: 'Required. String for plain text; snippet for inner markup.'
+		},
+		{ name: 'disabled', type: 'boolean', default: 'false' }
+	];
+
+	const discTabs = [
 		{ id: 'overview', label: 'Overview' },
-		{ id: 'api', label: 'API' },
-		{ id: 'examples', label: 'Examples' },
-		{ id: 'disabled', label: 'Disabled', disabled: true }
+		{ id: 'flight', label: 'Flight numbers' },
+		{ id: 'reviews', label: 'Reviews' },
+		{ id: 'compare', label: 'Compare', disabled: true }
 	];
 
-	const verticalTabs = [
-		{ id: 'v1', label: 'Tab 1' },
-		{ id: 'v2', label: 'Tab 2' },
-		{ id: 'v3', label: 'Tab 3' }
-	];
+	const discContent: Record<string, string> = {
+		overview:
+			'A stable distance driver for windy rounds — predictable fade without fighting you on hyzer lines.',
+		flight: 'Speed 12 · Glide 5 · Turn −1 · Fade 3. Best for arm speeds above 350 ft.',
+		reviews: '"Handles headwinds beautifully — my new go-to off the tee." · 4.8/5 from 212 rounds',
+		compare: 'Comparison view is coming soon.'
+	};
+
+	const orientations = ['horizontal', 'vertical'] as const;
+	const activations = ['auto', 'manual'] as const;
+
+	let activeId = $state('overview');
 
 	const demoTabs = [
-		{ id: 'horizontal', label: 'Horizontal (default)' },
-		{ id: 'vertical', label: 'Vertical' },
-		{ id: 'manual', label: 'Manual activation' }
+		{ id: 'orientation', label: 'Orientation' },
+		{ id: 'activation', label: 'Activation' },
+		{ id: 'rich-labels', label: 'Rich labels' },
+		{ id: 'onchange', label: 'onChange' }
 	];
+
+	// Example-code builders — derived from the selected sub-tab so the code
+	// pane updates live with the demo.
+	function orientationCode(orientation: string): string {
+		return [
+			'<!-- The panel snippet receives the item — render per-item content -->',
+			orientation === 'horizontal'
+				? '<Tabs items={discTabs} ariaLabel="Disc details">'
+				: '<Tabs items={discTabs} orientation="vertical" ariaLabel="Disc details">',
+			'\t{#snippet panel(item)}',
+			'\t\t<p>{discContent[item.id]}</p>',
+			'\t{/snippet}',
+			'</Tabs>'
+		].join('\n');
+	}
+
+	function activationCode(activation: string): string {
+		return [
+			activation === 'auto'
+				? '<Tabs items={discTabs} ariaLabel="Disc details">'
+				: '<Tabs items={discTabs} activation="manual" ariaLabel="Disc details">',
+			'\t{#snippet panel(item)}',
+			'\t\t<p>{discContent[item.id]}</p>',
+			'\t{/snippet}',
+			'</Tabs>'
+		].join('\n');
+	}
+
+	const richLabelsCode = [
+		'<!-- label accepts string | Snippet — use a snippet for inner markup -->',
+		'{#snippet reviewsLabel()}',
+		'\tReviews <span class="badge">212</span>',
+		'{/snippet}',
+		'',
+		`<Tabs items={[{ id: 'overview', label: 'Overview' }, { id: 'reviews', label: reviewsLabel }]} ariaLabel="Disc details">`,
+		'\t{#snippet panel(item)}…{/snippet}',
+		'</Tabs>'
+	].join('\n');
+
+	const onchangeCode = [
+		'<Tabs items={discTabs} onChange={(id) => (activeId = id)} ariaLabel="Disc details">',
+		'\t{#snippet panel(item)}…{/snippet}',
+		'</Tabs>'
+	].join('\n');
 </script>
 
 <DocPage
 	name="Tabs"
-	description="A fully accessible tabbed interface with roving focus, automatic or manual activation, and horizontal or vertical orientation."
+	description="An accessible tab interface with roving tabindex, arrow-key navigation, and horizontal or vertical orientation. Tab labels accept plain strings or snippets."
 	importLine={'import {Tabs} from "@hyzer-labs/ui"'}
 	{props}
-	a11yNote="Implements the ARIA tabs pattern: role='tablist', role='tab', role='tabpanel'. Roving tabindex: only the active tab is in the tab order. Arrow keys navigate between tabs; Enter/Space activates in manual mode."
+	types={[{ name: 'TabItem', props: itemType }]}
+	a11yNote="Implements the WAI-ARIA tabs pattern: `role='tablist'/'tab'/'tabpanel'`, `aria-selected`, and roving `tabindex` — Tab is one stop for the whole tablist; arrow keys move between triggers, Home/End jump to first/last. Panels are only their own tab stop when they contain no focusable content. `ariaLabel` is required to name the tablist. Disabled tabs stay focusable via arrows but carry `aria-disabled='true'` and never activate."
 >
-	<Tabs items={demoTabs} ariaLabel="Tabs component demos" defaultTab="horizontal">
+	<Tabs items={demoTabs} ariaLabel="Tabs demos" defaultTab="orientation">
 		{#snippet panel(item)}
 			<div class="tab-content">
-				{#if item.id === 'horizontal'}
-					<Tabs items={basicTabs} ariaLabel="Horizontal example" defaultTab="overview">
-						{#snippet panel(t)}
-							<div class="panel-body">
-								<p>Panel content for <strong>{t.label}</strong> tab.</p>
+				{#if item.id === 'orientation'}
+					<Tabs
+						items={orientations.map((o) => ({ id: o, label: o }))}
+						ariaLabel="Tabs orientation"
+						defaultTab="horizontal"
+					>
+						{#snippet panel(oItem)}
+							<div class="inner-tab">
+								<Example code={orientationCode(oItem.id)}>
+									<Tabs
+										items={discTabs}
+										orientation={oItem.id as (typeof orientations)[number]}
+										ariaLabel="Disc details ({oItem.id})"
+									>
+										{#snippet panel(dItem)}
+											<div class="panel-content">
+												<p>{discContent[dItem.id]}</p>
+											</div>
+										{/snippet}
+									</Tabs>
+								</Example>
 							</div>
 						{/snippet}
 					</Tabs>
-				{:else if item.id === 'vertical'}
-					<Tabs items={verticalTabs} orientation="vertical" ariaLabel="Vertical example">
-						{#snippet panel(t)}
-							<div class="panel-body">
-								<p>Content for {t.label}.</p>
+				{:else if item.id === 'activation'}
+					<p class="tab-note">
+						With <code>auto</code> (default), arrow keys activate tabs as focus moves. With
+						<code>manual</code>, arrows only move focus — <kbd>Enter</kbd>/<kbd>Space</kbd>
+						activates. Try arrowing through both with the keyboard.
+					</p>
+					<Tabs
+						items={activations.map((a) => ({ id: a, label: a }))}
+						ariaLabel="Tabs activation"
+						defaultTab="auto"
+					>
+						{#snippet panel(actItem)}
+							<div class="inner-tab">
+								<Example code={activationCode(actItem.id)}>
+									<Tabs
+										items={discTabs}
+										activation={actItem.id as (typeof activations)[number]}
+										ariaLabel="Disc details ({actItem.id} activation)"
+									>
+										{#snippet panel(dItem)}
+											<div class="panel-content">
+												<p>{discContent[dItem.id]}</p>
+											</div>
+										{/snippet}
+									</Tabs>
+								</Example>
 							</div>
 						{/snippet}
 					</Tabs>
+				{:else if item.id === 'rich-labels'}
+					{#snippet reviewsLabel()}
+						Reviews <span class="badge">212</span>
+					{/snippet}
+					<Example code={richLabelsCode}>
+						<Tabs
+							items={[
+								{ id: 'overview', label: 'Overview' },
+								{ id: 'reviews', label: reviewsLabel }
+							]}
+							ariaLabel="Disc details (rich labels)"
+						>
+							{#snippet panel(dItem)}
+								<div class="panel-content">
+									<p>{discContent[dItem.id]}</p>
+								</div>
+							{/snippet}
+						</Tabs>
+					</Example>
 				{:else}
-					<Tabs items={basicTabs} activation="manual" ariaLabel="Manual activation example">
-						{#snippet panel(t)}
-							<div class="panel-body">
-								<p>
-									Manual: focus with arrows, activate with Enter/Space. Active: <strong
-										>{t.label}</strong
-									>.
-								</p>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Example code={onchangeCode}>
+						<p class="active-readout" aria-live="polite">
+							Active: <code>{activeId}</code>
+						</p>
+						<Tabs
+							items={discTabs}
+							onChange={(id) => (activeId = id)}
+							ariaLabel="Disc details (onChange)"
+						>
+							{#snippet panel(dItem)}
+								<div class="panel-content">
+									<p>{discContent[dItem.id]}</p>
+								</div>
+							{/snippet}
+						</Tabs>
+					</Example>
 				{/if}
 			</div>
 		{/snippet}
@@ -101,13 +218,35 @@
 	.tab-content {
 		padding-top: 1rem;
 	}
-	.panel-body {
-		padding: 1rem;
-		border: 1px solid var(--hz-color-border, #6b7280);
-		border-top: none;
+	.inner-tab {
+		padding-top: 0.5rem;
+	}
+	.tab-note {
+		margin: 0 0 1rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+	.tab-note code,
+	.tab-note kbd {
+		font-family: var(--hz-font-family-mono, monospace);
+	}
+	.panel-content p {
+		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
-	.panel-body p {
-		margin: 0;
+	.badge {
+		display: inline-block;
+		margin-inline-start: 0.375rem;
+		padding: 0.1em 0.5em;
+		border-radius: var(--hz-radius-full, 9999px);
+		background: color-mix(in srgb, var(--hz-color-primary, #2563eb) 14%, transparent);
+		color: var(--hz-color-primary, #2563eb);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+	.active-readout {
+		margin: 0 0 0.75rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
 	}
 </style>

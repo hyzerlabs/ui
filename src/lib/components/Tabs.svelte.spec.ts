@@ -2,6 +2,7 @@ import { page, userEvent } from 'vitest/browser';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
+import type { Snippet } from 'svelte';
 import Tabs from './Tabs.svelte';
 
 // ---------------------------------------------------------------------------
@@ -10,7 +11,7 @@ import Tabs from './Tabs.svelte';
 
 interface TabItem {
 	id: string;
-	label: string;
+	label: string | Snippet;
 	disabled?: boolean;
 }
 
@@ -185,7 +186,7 @@ describe('Tabs-R3 — trigger attributes', () => {
 		expect(triggers.length).toBe(3);
 	});
 
-	it('trigger text content is item.label', () => {
+	it('trigger text content is item.label (string form)', () => {
 		const { container } = render(Tabs, {
 			items: threeItems,
 			ariaLabel: 'Test tabs',
@@ -195,6 +196,20 @@ describe('Tabs-R3 — trigger attributes', () => {
 		expect(triggers[0].textContent?.trim()).toBe('Tab A');
 		expect(triggers[1].textContent?.trim()).toBe('Tab B');
 		expect(triggers[2].textContent?.trim()).toBe('Tab C');
+	});
+
+	it('label as a Snippet renders its markup inside the trigger', () => {
+		const richLabel = createRawSnippet(() => ({
+			render: () => `<span data-testid="rich-label">Rich <em>label</em></span>`
+		}));
+		const { container } = render(Tabs, {
+			items: [{ id: 'r', label: richLabel }],
+			ariaLabel: 'Test tabs',
+			panel: panelSnippet
+		});
+		const trigger = container.querySelector('[role="tab"]') as HTMLElement;
+		expect(trigger.querySelector('[data-testid="rich-label"]')).not.toBeNull();
+		expect(trigger.querySelector('em')).not.toBeNull();
 	});
 
 	it('exactly one trigger has aria-selected="true" (the active tab)', () => {
@@ -337,7 +352,7 @@ describe('Tabs-R5 — panels', () => {
 		expect(panels.length).toBe(3);
 	});
 
-	it('each panel has tabindex="0"', () => {
+	it('panels without focusable content have tabindex="0"', () => {
 		const { container } = render(Tabs, {
 			items: threeItems,
 			ariaLabel: 'Test tabs',
@@ -345,6 +360,23 @@ describe('Tabs-R5 — panels', () => {
 		});
 		const panels = Array.from(container.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
 		panels.forEach((p) => expect(p.getAttribute('tabindex')).toBe('0'));
+	});
+
+	// APG recommendation: a tabpanel is only its own tab stop when it contains
+	// no focusable elements — panels with interactive content get tabindex=-1.
+	it('panels containing focusable content have tabindex="-1"', async () => {
+		const focusablePanel = createRawSnippet<[TabItem]>((getItem) => ({
+			render: () => `<div><button type="button">Action for ${getItem().id}</button></div>`
+		}));
+		const { container } = render(Tabs, {
+			items: threeItems,
+			ariaLabel: 'Test tabs',
+			panel: focusablePanel
+		});
+		// The focusable check runs in an effect after mount.
+		await new Promise((r) => setTimeout(r, 0));
+		const panels = Array.from(container.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
+		panels.forEach((p) => expect(p.getAttribute('tabindex')).toBe('-1'));
 	});
 
 	it('active panel has data-state="active" and no hidden attribute', () => {

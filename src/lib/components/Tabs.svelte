@@ -9,7 +9,8 @@
 
 	interface TabItem {
 		id: string;
-		label: string;
+		/** Plain string for the common case; a Snippet when inner markup is needed. */
+		label: string | Snippet;
 		disabled?: boolean;
 	}
 
@@ -97,6 +98,26 @@
 	// ---------------------------------------------------------------------------
 
 	let triggerEls = $state<(HTMLButtonElement | null)[]>([]);
+	let panelEls = $state<(HTMLElement | null)[]>([]);
+
+	// ---------------------------------------------------------------------------
+	// Tabs-R6 — panel tab stop, per the APG recommendation: a tabpanel is only
+	// focusable itself (tabindex 0) when it contains NO focusable elements, so
+	// keyboard users can still reach/scroll text-only panels. Panels with
+	// interactive content are not extra tab stops.
+	// ---------------------------------------------------------------------------
+
+	const FOCUSABLE_SELECTOR =
+		'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), ' +
+		'textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+	let panelHasFocusable = $state<boolean[]>([]);
+
+	$effect(() => {
+		// Re-evaluate when the active tab flips (panel content may differ).
+		void activeTab;
+		panelHasFocusable = panelEls.map((el) => !!el?.querySelector(FOCUSABLE_SELECTOR));
+	});
 
 	// ---------------------------------------------------------------------------
 	// Tabs-R7 / Tabs-R9 — Internal activation helper
@@ -212,7 +233,7 @@
 				onclick={() => handleTriggerClick(item)}
 				onkeydown={(e) => handleTriggerKeydown(e, i)}
 			>
-				{item.label}
+				{#if typeof item.label === 'string'}{item.label}{:else}{@render item.label()}{/if}
 			</button>
 		{/each}
 	</div>
@@ -225,11 +246,12 @@
 	-->
 	{#each items as item, i (i)}
 		<div
+			bind:this={panelEls[i]}
 			class="hz-tabs-panel"
 			role="tabpanel"
 			id={panelId(item.id)}
 			aria-labelledby={tabId(item.id)}
-			tabindex={0}
+			tabindex={panelHasFocusable[i] ? -1 : 0}
 			data-state={activeTab === item.id ? 'active' : 'inactive'}
 			hidden={activeTab !== item.id}
 		>
@@ -262,6 +284,20 @@
 	/* Tabs-R2: tablist as a flex column (vertical orientation). */
 	.hz-tabs[data-orientation='vertical'] .hz-tabs-list {
 		flex-direction: column;
+		overflow-x: visible;
+		flex-shrink: 0;
+	}
+
+	/* Tabs-R1: vertical orientation is a split layout — the rail sits beside
+	   the active panel, not above it. */
+	.hz-tabs[data-orientation='vertical'] {
+		display: flex;
+		flex-direction: row;
+	}
+
+	.hz-tabs[data-orientation='vertical'] .hz-tabs-panel {
+		flex: 1;
+		min-width: 0;
 	}
 
 	/*

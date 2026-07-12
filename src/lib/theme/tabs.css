@@ -63,4 +63,10 @@
 	.hz-tabs-panel {
 		padding-top: 1rem;
 	}
+
+	/* Vertical split layout: space the panel from the rail, not from above. */
+	.hz-tabs:where([data-orientation='vertical']) .hz-tabs-panel {
+		padding-top: 0;
+		padding-inline-start: 1.5rem;
+	}
 }
