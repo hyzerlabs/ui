@@ -15,12 +15,13 @@
 		reverseOnMobile?: boolean;
 		headingLevel?: HeroHeadingLevel;
 		ariaLabel?: string;
-		eyebrow?: Snippet;
-		title?: Snippet;
-		subtitle?: Snippet;
+		/** Plain string for the common case; a Snippet when inner markup is needed. */
+		eyebrow?: string | Snippet;
+		title?: string | Snippet;
+		subtitle?: string | Snippet;
 		actions?: Snippet;
+		/** In center/split layouts renders beside/below content; in overlay it becomes the full-bleed background. */
 		media?: Snippet;
-		background?: Snippet;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -37,7 +38,6 @@
 		subtitle,
 		actions,
 		media,
-		background,
 		class: className,
 		...rest
 	}: Props = $props();
@@ -55,6 +55,27 @@
 	Hero-R7: aria-labelledby when title provided; aria-label when no title but ariaLabel set;
 	         neither when both absent; aria-labelledby wins when both supplied.
 -->
+{#snippet heroContent()}
+	<div class="hz-hero-content">
+		{#if eyebrow}
+			<div class="hz-hero-eyebrow">
+				{#if typeof eyebrow === 'string'}{eyebrow}{:else}{@render eyebrow()}{/if}
+			</div>
+		{/if}
+		{#if title}
+			<svelte:element this={`h${headingLevel}`} class="hz-hero-title" id={titleId}>
+				{#if typeof title === 'string'}{title}{:else}{@render title()}{/if}
+			</svelte:element>
+		{/if}
+		{#if subtitle}
+			<div class="hz-hero-subtitle">
+				{#if typeof subtitle === 'string'}{subtitle}{:else}{@render subtitle()}{/if}
+			</div>
+		{/if}
+		{#if actions}<div class="hz-hero-actions">{@render actions()}</div>{/if}
+	</div>
+{/snippet}
+
 <section
 	{...rest}
 	class={cx('hz-hero', className)}
@@ -65,9 +86,9 @@
 	aria-labelledby={title ? titleId : undefined}
 	aria-label={!title && ariaLabel ? ariaLabel : undefined}
 >
-	{#if background}
-		<!-- Hero-R4: background div is the first child of the root. -->
-		<div class="hz-hero-background">{@render background()}</div>
+	{#if layout === 'overlay' && media}
+		<!-- Hero-R4: in overlay layout, media IS the background — first child of the root. -->
+		<div class="hz-hero-background">{@render media()}</div>
 	{/if}
 
 	{#if layout === 'split'}
@@ -79,16 +100,7 @@
 		-->
 		<Split fraction="1/2" gap="lg" stackBelow="md">
 			{#if hasContent}
-				<div class="hz-hero-content">
-					{#if eyebrow}<div class="hz-hero-eyebrow">{@render eyebrow()}</div>{/if}
-					{#if title}
-						<svelte:element this={`h${headingLevel}`} class="hz-hero-title" id={titleId}>
-							{@render title()}
-						</svelte:element>
-					{/if}
-					{#if subtitle}<div class="hz-hero-subtitle">{@render subtitle()}</div>{/if}
-					{#if actions}<div class="hz-hero-actions">{@render actions()}</div>{/if}
-				</div>
+				{@render heroContent()}
 			{/if}
 			{#if media}
 				<div class="hz-hero-media">{@render media()}</div>
@@ -96,22 +108,14 @@
 		</Split>
 	{:else}
 		<!--
-			Hero-R8 (center) / Hero-R12 (overlay): content then media as flex siblings
-			in the root flex column. DOM order is fixed; CSS handles alignment and z-order.
+			Hero-R8 (center) / Hero-R12 (overlay): content in the root flex column;
+			center-layout media renders after it. DOM order is fixed; CSS handles
+			alignment and z-order.
 		-->
 		{#if hasContent}
-			<div class="hz-hero-content">
-				{#if eyebrow}<div class="hz-hero-eyebrow">{@render eyebrow()}</div>{/if}
-				{#if title}
-					<svelte:element this={`h${headingLevel}`} class="hz-hero-title" id={titleId}>
-						{@render title()}
-					</svelte:element>
-				{/if}
-				{#if subtitle}<div class="hz-hero-subtitle">{@render subtitle()}</div>{/if}
-				{#if actions}<div class="hz-hero-actions">{@render actions()}</div>{/if}
-			</div>
+			{@render heroContent()}
 		{/if}
-		{#if media}
+		{#if media && layout !== 'overlay'}
 			<div class="hz-hero-media">{@render media()}</div>
 		{/if}
 	{/if}

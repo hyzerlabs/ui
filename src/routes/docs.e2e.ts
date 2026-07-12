@@ -103,7 +103,8 @@ test.describe('R5/R6 — real components render on component pages', () => {
 
 	test('/components/card renders .hz-card', async ({ page }) => {
 		await page.goto('/components/card');
-		await expect(page.locator('.hz-card').first()).toBeVisible();
+		// Tabs keeps inactive panels in the DOM (hidden) — assert the visible card.
+		await expect(page.locator('.hz-card').filter({ visible: true }).first()).toBeVisible();
 	});
 
 	test('/components/tabs renders .hz-tabs', async ({ page }) => {

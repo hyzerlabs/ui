@@ -28,9 +28,8 @@ const mediaSnippet = createRawSnippet(() => ({
 	render: () => `<img data-testid="media-content" src="" alt="hero media" />`
 }));
 
-const backgroundSnippet = createRawSnippet(() => ({
-	render: () => `<img data-testid="bg-content" src="" alt="" />`
-}));
+// The background is no longer its own prop: in overlay layout the media
+// snippet renders into .hz-hero-background instead of .hz-hero-media.
 
 // ---------------------------------------------------------------------------
 // Hero-R1 — Root
@@ -125,10 +124,9 @@ describe('Hero-R2 — content region', () => {
 		expect(container.querySelector('.hz-hero-content')).toBeNull();
 	});
 
-	it('media + background only (no content snippets) → no .hz-hero-content', () => {
+	it('media only (no content snippets) → no .hz-hero-content', () => {
 		const { container } = render(Hero, {
-			media: mediaSnippet,
-			background: backgroundSnippet
+			media: mediaSnippet
 		});
 		expect(container.querySelector('.hz-hero-content')).toBeNull();
 	});
@@ -189,12 +187,12 @@ describe('Hero-R3 — media region', () => {
 		expect(mediaEl.querySelector('[data-testid="media-content"]')).not.toBeNull();
 	});
 
-	it('media is independent of background (both render when both provided)', () => {
+	it('overlay: media renders as the background, not as .hz-hero-media', () => {
 		const { container } = render(Hero, {
-			media: mediaSnippet,
-			background: backgroundSnippet
+			layout: 'overlay',
+			media: mediaSnippet
 		});
-		expect(container.querySelector('.hz-hero-media')).not.toBeNull();
+		expect(container.querySelector('.hz-hero-media')).toBeNull();
 		expect(container.querySelector('.hz-hero-background')).not.toBeNull();
 	});
 });
@@ -203,21 +201,29 @@ describe('Hero-R3 — media region', () => {
 // Hero-R4 — Background region
 // ---------------------------------------------------------------------------
 
-describe('Hero-R4 — background region', () => {
-	it('background provided → .hz-hero-background rendered', () => {
-		const { container } = render(Hero, { background: backgroundSnippet });
+describe('Hero-R4 — background region (overlay media)', () => {
+	it('overlay + media → .hz-hero-background rendered', () => {
+		const { container } = render(Hero, { layout: 'overlay', media: mediaSnippet });
 		expect(container.querySelector('.hz-hero-background')).not.toBeNull();
 	});
 
-	it('background absent → no .hz-hero-background element', () => {
-		const { container } = render(Hero, {});
+	it('media absent → no .hz-hero-background element (overlay)', () => {
+		const { container } = render(Hero, { layout: 'overlay' });
 		expect(container.querySelector('.hz-hero-background')).toBeNull();
 	});
 
-	it('background content renders inside .hz-hero-background', () => {
-		const { container } = render(Hero, { background: backgroundSnippet });
+	it('non-overlay layouts never render .hz-hero-background', () => {
+		for (const layout of ['center', 'split'] as const) {
+			const { container } = render(Hero, { layout, media: mediaSnippet });
+			expect(container.querySelector('.hz-hero-background')).toBeNull();
+			expect(container.querySelector('.hz-hero-media')).not.toBeNull();
+		}
+	});
+
+	it('media content renders inside .hz-hero-background (overlay)', () => {
+		const { container } = render(Hero, { layout: 'overlay', media: mediaSnippet });
 		const bgEl = container.querySelector('.hz-hero-background') as HTMLElement;
-		expect(bgEl.querySelector('[data-testid="bg-content"]')).not.toBeNull();
+		expect(bgEl.querySelector('[data-testid="media-content"]')).not.toBeNull();
 	});
 });
 
@@ -226,9 +232,9 @@ describe('Hero-R4 — background region', () => {
 // ---------------------------------------------------------------------------
 
 describe('Hero-R5 — DOM order', () => {
-	it('background is the first child of the root when present', () => {
+	it('background is the first child of the root (overlay + media)', () => {
 		const { container } = render(Hero, {
-			background: backgroundSnippet,
+			layout: 'overlay',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
@@ -252,21 +258,19 @@ describe('Hero-R5 — DOM order', () => {
 		expect(contentIdx).toBeLessThan(mediaIdx);
 	});
 
-	it('overlay layout: content precedes media in DOM', () => {
+	it('overlay layout: background precedes content in DOM; no .hz-hero-media', () => {
 		const { container } = render(Hero, {
 			layout: 'overlay',
 			title: titleSnippet,
-			media: mediaSnippet,
-			background: backgroundSnippet
+			media: mediaSnippet
 		});
 		const hero = container.querySelector('.hz-hero') as HTMLElement;
 		const kids = Array.from(hero.children);
-		// background is first; among the rest content should precede media
+		const bgIdx = kids.findIndex((el) => el.classList.contains('hz-hero-background'));
 		const contentIdx = kids.findIndex((el) => el.classList.contains('hz-hero-content'));
-		const mediaIdx = kids.findIndex((el) => el.classList.contains('hz-hero-media'));
-		expect(contentIdx).toBeGreaterThanOrEqual(0);
-		expect(mediaIdx).toBeGreaterThanOrEqual(0);
-		expect(contentIdx).toBeLessThan(mediaIdx);
+		expect(bgIdx).toBe(0);
+		expect(container.querySelector('.hz-hero-media')).toBeNull();
+		expect(contentIdx).toBeGreaterThan(bgIdx);
 	});
 
 	it('split layout: content precedes media inside .hz-split in DOM', () => {
@@ -705,7 +709,7 @@ describe('Hero-R12 — overlay layout', () => {
 	it('overlay: root has computed position: relative', () => {
 		const { container } = render(Hero, {
 			layout: 'overlay',
-			background: backgroundSnippet,
+			media: mediaSnippet,
 			title: titleSnippet
 		});
 		const hero = container.querySelector('.hz-hero') as HTMLElement;
@@ -715,7 +719,7 @@ describe('Hero-R12 — overlay layout', () => {
 	it('overlay: .hz-hero-background has computed position: absolute', () => {
 		const { container } = render(Hero, {
 			layout: 'overlay',
-			background: backgroundSnippet,
+			media: mediaSnippet,
 			title: titleSnippet
 		});
 		const bg = container.querySelector('.hz-hero-background') as HTMLElement;
@@ -725,7 +729,7 @@ describe('Hero-R12 — overlay layout', () => {
 	it('overlay: .hz-hero-background has computed inset: 0 (top/right/bottom/left = 0)', () => {
 		const { container } = render(Hero, {
 			layout: 'overlay',
-			background: backgroundSnippet,
+			media: mediaSnippet,
 			title: titleSnippet
 		});
 		const bg = container.querySelector('.hz-hero-background') as HTMLElement;
@@ -739,7 +743,7 @@ describe('Hero-R12 — overlay layout', () => {
 	it('overlay: .hz-hero-background has computed z-index: 0', () => {
 		const { container } = render(Hero, {
 			layout: 'overlay',
-			background: backgroundSnippet,
+			media: mediaSnippet,
 			title: titleSnippet
 		});
 		const bg = container.querySelector('.hz-hero-background') as HTMLElement;
@@ -749,17 +753,52 @@ describe('Hero-R12 — overlay layout', () => {
 	it('overlay: .hz-hero-content has computed z-index: 1', () => {
 		const { container } = render(Hero, {
 			layout: 'overlay',
-			background: backgroundSnippet,
+			media: mediaSnippet,
 			title: titleSnippet
 		});
 		const content = container.querySelector('.hz-hero-content') as HTMLElement;
 		expect(getComputedStyle(content).zIndex).toBe('1');
 	});
 
-	it('overlay without background: content renders normally, no .hz-hero-background', () => {
+	it('overlay without media: content renders normally, no .hz-hero-background', () => {
 		const { container } = render(Hero, { layout: 'overlay', title: titleSnippet });
 		expect(container.querySelector('.hz-hero-content')).not.toBeNull();
 		expect(container.querySelector('.hz-hero-background')).toBeNull();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Text slots accept string | Snippet
+// ---------------------------------------------------------------------------
+
+describe('string | Snippet text slots', () => {
+	it('title as a plain string renders inside the heading', () => {
+		const { container } = render(Hero, { title: 'Plain string title' });
+		const heading = container.querySelector('.hz-hero-title') as HTMLElement;
+		expect(heading.textContent?.trim()).toBe('Plain string title');
+	});
+
+	it('string title still wires aria-labelledby', () => {
+		const { container } = render(Hero, { title: 'Named by string' });
+		const hero = container.querySelector('.hz-hero') as HTMLElement;
+		const heading = container.querySelector('.hz-hero-title') as HTMLElement;
+		expect(hero.getAttribute('aria-labelledby')).toBe(heading.id);
+	});
+
+	it('eyebrow and subtitle as plain strings render their text', () => {
+		const { container } = render(Hero, {
+			eyebrow: 'Eyebrow string',
+			subtitle: 'Subtitle string'
+		});
+		expect(container.querySelector('.hz-hero-eyebrow')?.textContent?.trim()).toBe('Eyebrow string');
+		expect(container.querySelector('.hz-hero-subtitle')?.textContent?.trim()).toBe(
+			'Subtitle string'
+		);
+	});
+
+	it('snippet form still renders markup (title span preserved)', () => {
+		const { container } = render(Hero, { title: titleSnippet });
+		expect(container.querySelector('.hz-hero-title [data-testid="title-content"]')).not.toBeNull();
 	});
 });
 

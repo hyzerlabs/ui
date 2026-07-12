@@ -7,7 +7,7 @@
 ### Goal
 
 Ship one headless Svelte 5 `Hero` component — a full-width landing `<section>` with
-`eyebrow` / `title` / `subtitle` / `actions` / `media` / `background` regions, three
+`eyebrow` / `title` / `subtitle` / `actions` / `media` regions, three
 layout modes (`center`, `split`, `overlay`), height and alignment options, and
 responsive stacking — that exposes its state through stable `hz-*` classes and
 `data-*` hooks, ships only the **structural** CSS needed to lay out the regions and
@@ -30,8 +30,13 @@ gradients, scrims, borders, shadows, radius, fonts).
   (Shared Scale in `specs/03-layout.md`), e.g. `gap: var(--hz-space-lg, 1.5rem)`.
 - Mirror `Link.svelte` / `Card.svelte` for `$props()` destructuring, `class: className`
   via `cx`, and `...rest`-first spread order (managed attributes win).
-- "Slots" are Svelte 5 **snippet props**: `eyebrow`, `title`, `subtitle`, `actions`,
-  `media`, `background`. Prop unions are declared **locally** (no new shared types).
+- "Slots": `actions` and `media` are Svelte 5 **snippet props**. The text slots
+  `eyebrow` / `title` / `subtitle` accept `string | Snippet` (changed 2026-07) —
+  a plain string for the common case, a snippet when inner markup is needed
+  (e.g. a highlighted span in the title). There is **no** `background` prop
+  (removed 2026-07): in the `overlay` layout the `media` snippet renders into
+  the background region. Prop unions are declared **locally** (no new shared
+  types).
 - **Hero composes the existing `Split` component** (`import Split from './Split.svelte'`)
   for the `split` layout only (Hero-R9). It does **not** import `Button` / `Image` /
   `Container` / `Cluster` — those regions are consumer snippet content.
@@ -48,12 +53,11 @@ gradients, scrims, borders, shadows, radius, fonts).
 | `reverseOnMobile` | `boolean`                             | `false`    |
 | `headingLevel`    | `1 \| 2 \| 3 \| 4 \| 5 \| 6`          | `1`        |
 | `ariaLabel`       | `string \| undefined`                 | —          |
-| `eyebrow`         | `Snippet` (optional)                  | —          |
-| `title`           | `Snippet` (optional)                  | —          |
-| `subtitle`        | `Snippet` (optional)                  | —          |
+| `eyebrow`         | `string \| Snippet` (optional)        | —          |
+| `title`           | `string \| Snippet` (optional)        | —          |
+| `subtitle`        | `string \| Snippet` (optional)        | —          |
 | `actions`         | `Snippet` (optional)                  | —          |
 | `media`           | `Snippet` (optional)                  | —          |
-| `background`      | `Snippet` (optional)                  | —          |
 | `class`           | `string` (optional, → `cx`)           | —          |
 
 Plus arbitrary `...rest` HTML attributes forwarded to the root `<section>`.
@@ -76,16 +80,19 @@ Boolean `data-*` "present" = empty-valued attribute exists; "absent" = not rende
    `<div class="hz-hero-actions">`. Each region wrapper renders **only** when its
    snippet is provided. The `hz-hero-content` wrapper renders whenever any of
    eyebrow/title/subtitle/actions is present; if none are present it is omitted.
-3. **Hero-R3 — Media region.** When `media` is provided, renders
-   `<div class="hz-hero-media">` around it; when absent, no `hz-hero-media` element
-   and no error. The media region is independent of `background` (Hero-R4).
-4. **Hero-R4 — Background region.** When `background` is provided, renders
-   `<div class="hz-hero-background">` as the **first** child of the root, behind the
-   content (Hero-R12 positioning). When absent, no `hz-hero-background` element. The
-   background is a decorative host only: Hero adds no `alt` / `aria-hidden` (the
-   consumer owns the contents).
+3. **Hero-R3 — Media region.** In `center`/`split` layouts, when `media` is
+   provided, renders `<div class="hz-hero-media">` around it; when absent, no
+   `hz-hero-media` element and no error. In `overlay` layout the media renders
+   into the background region instead (Hero-R4) and no `hz-hero-media` element
+   exists.
+4. **Hero-R4 — Background region (overlay).** In `layout="overlay"`, when `media`
+   is provided it renders inside `<div class="hz-hero-background">` as the
+   **first** child of the root, behind the content (Hero-R12 positioning). When
+   media is absent — or in any other layout — no `hz-hero-background` element.
+   The background is a decorative host only: Hero adds no `alt` / `aria-hidden`
+   (the consumer owns the contents).
 5. **Hero-R5 — DOM order (reading order == visual order).** Region order in the DOM
-   is fixed: `background` (if any) first, then the content/media flow. `split`
+   is fixed: the background (overlay media, if any) first, then the content/media flow. `split`
    desktop side-by-side (Hero-R9) and `reverseOnMobile` stacking (Hero-R10) are
    achieved with CSS only; the DOM / reading / focus order never changes across
    breakpoints — **except** the single mobile-only CSS-`order` reverse of Hero-R10,
@@ -95,8 +102,8 @@ Boolean `data-*` "present" = empty-valued attribute exists; "absent" = not rende
 
 6. **Hero-R6 — Title heading.** When `title` is provided, Hero renders the heading
    element `<h{headingLevel} class="hz-hero-title" id="hz-hero-title-{uid}">`
-   containing the `title` snippet (inline content only — the consumer's snippet must
-   not nest its own heading). `headingLevel` defaults to `1` and accepts `1`–`6`,
+   containing the title — the string verbatim, or the snippet's markup (inline
+   content only — a snippet must not nest its own heading). `headingLevel` defaults to `1` and accepts `1`–`6`,
    rendered via `<svelte:element this={`h${headingLevel}`}>` (mirrors `Split.svelte`'s
    `<svelte:element>` use). Default `1` covers the typical top-of-page hero; lower
    levels are available for a hero placed further down a page.
@@ -150,9 +157,9 @@ Boolean `data-*` "present" = empty-valued attribute exists; "absent" = not rende
     `hz-hero-background` is absolutely positioned to cover the section (`inset: 0`,
     `z-index: 0`) and `hz-hero-content` sits above it (`position: relative`,
     `z-index: 1`). Hero ships **no** overlay color, gradient, scrim, or contrast
-    treatment — the consumer owns contrast (per `original-specs/10-hero.md`). A
-    provided `background` in `center`/`split` layouts renders behind content with the
-    same positioning; the primary layout there remains the content/media flow.
+    treatment — the consumer owns contrast (per `original-specs/10-hero.md`).
+    The background region exists only in `overlay` (fed by `media`, Hero-R4);
+    `center`/`split` have no background element.
 
 **Hooks-only (no shipped visual CSS)**
 
@@ -221,7 +228,7 @@ Boolean `data-*` "present" = empty-valued attribute exists; "absent" = not rende
 | `title` set + `ariaLabel` set                           | `aria-labelledby` wins; `aria-label` not rendered (Hero-R7).                                        |
 | `eyebrow`/`subtitle`/`actions` without `title`          | Their wrappers render inside `hz-hero-content`; no heading; labelling falls to `ariaLabel` / none.  |
 | `media` absent in `split`                               | The internal `Split` has a single child (`hz-hero-content`); fills available space; no empty track. |
-| `background` absent in `overlay`                        | Content renders normally over nothing; no `hz-hero-background`; consumer-owned contrast moot.       |
+| `media` absent in `overlay`                             | Content renders normally over nothing; no `hz-hero-background`; consumer-owned contrast moot.       |
 | `reverseOnMobile` in `center` / `overlay`               | `data-reverse-on-mobile` reflects; no visual effect (split-only) (Hero-R10).                        |
 | `height="screen"` on mobile                             | `min-height: 100dvh` override prevents 100vh chrome clipping; content vertically centered (Hero-R11).|
 | `headingLevel` = 2–6                                    | Heading renders as `<h2>`…`<h6>` with same `id`/class; `aria-labelledby` still resolves (Hero-R6).  |
@@ -269,12 +276,14 @@ viewport resize + `getComputedStyle(el)`.
 - Hero-R1: defaults → `data-layout="center"` / `data-height="auto"` /
   `data-align="center"`, no `data-reverse-on-mobile`; each enum parametrized;
   `reverseOnMobile` → attribute present; assert no `role`.
-- Hero-R2/R3/R4: each snippet present/absent → correct presence of
-  `hz-hero-content` / `-eyebrow` / `-subtitle` / `-actions` / `-media` / `-background`;
+- Hero-R2/R3/R4: each slot present/absent → correct presence of
+  `hz-hero-content` / `-eyebrow` / `-subtitle` / `-actions` / `-media`;
   `hz-hero-content` omitted when none of eyebrow/title/subtitle/actions present;
-  `hz-hero-background` is the first child when present.
-- Hero-R5: with `background` + content + `media`, assert `hz-hero-background` is the
-  first DOM child and content precedes media regardless of layout.
+  overlay + `media` → `hz-hero-background` rendered (first child, no
+  `hz-hero-media`); non-overlay layouts never render `hz-hero-background`.
+  Text slots parametrized over both string and Snippet forms.
+- Hero-R5: overlay with `media` + content: `hz-hero-background` is the first DOM
+  child, content follows; in `center`/`split`, content precedes media.
 - Hero-R6: `title` → `<h1 class="hz-hero-title" id=…>`; `headingLevel={3}` → `<h3>`
   with same class/id pattern; no `title` → no heading element.
 - Hero-R7: `title` → root `aria-labelledby` matches the heading `id`; no title +
