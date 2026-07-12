@@ -9,7 +9,7 @@
 		{ name: 'reverse', type: 'boolean', default: 'false' },
 		{ name: 'stackBelow', type: "'sm' | 'md' | 'lg'", default: "'md'" },
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-split class.' }
 	];
 
 	const fractionValues = ['1/4', '1/3', '1/2', '2/3', '3/4'] as const;

@@ -16,7 +16,7 @@
 		{ name: 'variant', type: "'default' | 'subtle' | 'nav'", default: "'default'" },
 		{ name: 'ariaCurrent', type: "'page' | 'step' | 'true'", default: '—' },
 		{ name: 'ariaLabel', type: 'string', default: '—' },
-		{ name: 'class', type: 'string', default: '—' },
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-link class.' },
 		{ name: 'children', type: 'Snippet', default: '—' },
 		{ name: 'iconStart', type: 'Snippet', default: '—' },
 		{ name: 'iconEnd', type: 'Snippet', default: '—' }

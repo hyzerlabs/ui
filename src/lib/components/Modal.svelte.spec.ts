@@ -310,8 +310,8 @@ describe('Modal-R9 — two-way bind:open', () => {
 		expect(dialog.getAttribute('data-state')).toBe('closed');
 	});
 
-	it('Escape (cancel event) sets open to false when closeOnEscape=true', async () => {
-		const { container } = render(Modal, { title: 'Test', open: true, closeOnEscape: true });
+	it('Escape (cancel event) sets open to false', async () => {
+		const { container } = render(Modal, { title: 'Test', open: true });
 		await tick();
 		const dialog = container.querySelector('dialog.hz-modal') as HTMLDialogElement;
 		dialog.dispatchEvent(new Event('cancel', { cancelable: true, bubbles: false }));
@@ -368,12 +368,11 @@ describe('Modal-R10 — onclose callback', () => {
 		expect(onclose).toHaveBeenCalledOnce();
 	});
 
-	it('onclose fires exactly once on Escape (closeOnEscape=true)', async () => {
+	it('onclose fires exactly once on Escape', async () => {
 		const onclose = vi.fn();
 		const { container } = render(Modal, {
 			title: 'Test',
 			open: true,
-			closeOnEscape: true,
 			onclose
 		});
 		await tick();
@@ -476,12 +475,13 @@ describe('Modal-R13 — Escape (cancel event) handling', () => {
 		document.body.style.overflow = '';
 	});
 
-	it('closeOnEscape=true → Escape (cancel) closes the modal', async () => {
+	// Escape ALWAYS closes — the WAI-ARIA dialog pattern requires it, so the
+	// former closeOnEscape opt-out was removed (2026-07).
+	it('Escape (cancel) closes the modal', async () => {
 		const onclose = vi.fn();
 		const { container } = render(Modal, {
 			title: 'Test',
 			open: true,
-			closeOnEscape: true,
 			onclose
 		});
 		await tick();
@@ -492,21 +492,20 @@ describe('Modal-R13 — Escape (cancel event) handling', () => {
 		expect(onclose).toHaveBeenCalledOnce();
 	});
 
-	it('closeOnEscape=false → Escape (cancel) is prevented; modal stays open; onclose does not fire', async () => {
+	it('Escape closes even when overlay dismissal is disabled (no Esc opt-out exists)', async () => {
 		const onclose = vi.fn();
 		const { container } = render(Modal, {
 			title: 'Test',
 			open: true,
-			closeOnEscape: false,
+			closeOnOverlay: false,
 			onclose
 		});
 		await tick();
 		const dialog = container.querySelector('dialog.hz-modal') as HTMLDialogElement;
-		const evt = new Event('cancel', { cancelable: true });
-		dialog.dispatchEvent(evt);
+		dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
 		await tick();
-		expect(dialog.open).toBe(true);
-		expect(onclose).not.toHaveBeenCalled();
+		expect(dialog.open).toBe(false);
+		expect(onclose).toHaveBeenCalledOnce();
 	});
 });
 
@@ -806,22 +805,6 @@ describe('Edge cases', () => {
 		expect(dialog.hasAttribute('aria-describedby')).toBe(false);
 	});
 
-	it('closeOnEscape=false → Escape keeps modal open; onclose does not fire', async () => {
-		const onclose = vi.fn();
-		const { container } = render(Modal, {
-			title: 'Test',
-			open: true,
-			closeOnEscape: false,
-			onclose
-		});
-		await tick();
-		const dialog = container.querySelector('dialog.hz-modal') as HTMLDialogElement;
-		dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
-		await tick();
-		expect(dialog.open).toBe(true);
-		expect(onclose).not.toHaveBeenCalled();
-	});
-
 	it('closeOnOverlay=false → backdrop clicks are ignored', async () => {
 		const { container } = render(Modal, { title: 'Test', open: true, closeOnOverlay: false });
 		await tick();
@@ -929,7 +912,6 @@ describe('Integration — open/dismiss round-trips', () => {
 		const { container } = render(Modal, {
 			title: 'Test',
 			open: true,
-			closeOnEscape: true,
 			onclose
 		});
 		await tick();

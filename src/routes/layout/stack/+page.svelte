@@ -7,7 +7,7 @@
 		{ name: 'gap', type: "'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'", default: "'md'" },
 		{ name: 'align', type: "'start' | 'center' | 'end' | 'stretch'", default: "'stretch'" },
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-stack class.' }
 	];
 
 	const gapValues = ['none', 'xs', 'sm', 'md', 'lg', 'xl'] as const;

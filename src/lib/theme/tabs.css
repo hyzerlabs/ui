@@ -2,6 +2,11 @@
  * @hyzer-labs/ui reference theme — Tabs
  * Underline-style triggers; the component ships no button reset, so the
  * theme resets appearance itself.
+ *
+ * The active indicator is an inset box-shadow, NOT a border + negative
+ * margin: the tab list has overflow-x: auto, and any layout-size overlap
+ * trick makes the triggers 1px taller than the list, producing a phantom
+ * scrollbar. Inset shadows add no layout size.
  */
 @layer hz-theme {
 	.hz-tabs-list {
@@ -13,17 +18,15 @@
 		appearance: none;
 		background: none;
 		border: none;
-		margin-bottom: calc(-1 * var(--hz-border-width-thin, 1px));
 		padding: 0.625rem 1rem;
 		font: inherit;
 		font-weight: var(--hz-font-weight-medium, 500);
 		color: var(--hz-color-text-muted, #6b7280);
-		border-bottom: var(--hz-border-width-thick, 2px) solid transparent;
 		cursor: pointer;
 		white-space: nowrap;
 		transition:
 			color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
-			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+			box-shadow var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-tabs-trigger:where(:hover) {
@@ -32,7 +35,8 @@
 
 	.hz-tabs-trigger:where([data-state='active']) {
 		color: var(--hz-color-primary, #2563eb);
-		border-bottom-color: var(--hz-color-primary, #2563eb);
+		box-shadow: inset 0 calc(-1 * var(--hz-border-width-thick, 2px)) 0
+			var(--hz-color-primary, #2563eb);
 	}
 
 	.hz-tabs-trigger:where([data-disabled]) {
@@ -40,7 +44,7 @@
 		opacity: 0.5;
 	}
 
-	/* Vertical orientation: the indicator moves to the inline edge. */
+	/* Vertical orientation: the indicator moves to the end edge. */
 	.hz-tabs:where([data-orientation='vertical']) .hz-tabs-list {
 		border-bottom: none;
 		border-inline-end: var(--hz-border-width-thin, 1px) solid
@@ -48,15 +52,12 @@
 	}
 
 	.hz-tabs:where([data-orientation='vertical']) .hz-tabs-trigger {
-		margin-bottom: 0;
-		margin-inline-end: calc(-1 * var(--hz-border-width-thin, 1px));
-		border-bottom: none;
-		border-inline-end: var(--hz-border-width-thick, 2px) solid transparent;
 		text-align: start;
 	}
 
 	.hz-tabs:where([data-orientation='vertical']) .hz-tabs-trigger:where([data-state='active']) {
-		border-inline-end-color: var(--hz-color-primary, #2563eb);
+		box-shadow: inset calc(-1 * var(--hz-border-width-thick, 2px)) 0 0
+			var(--hz-color-primary, #2563eb);
 	}
 
 	.hz-tabs-panel {

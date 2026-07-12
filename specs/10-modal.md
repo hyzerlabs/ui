@@ -47,7 +47,6 @@ opinions (no colors, borders, shadows, radius, fonts, animation).
 | `description`    | `string \| undefined`            | —                |
 | `size`           | `'sm' \| 'md' \| 'lg' \| 'full'` | `'md'`           |
 | `closeOnOverlay` | `boolean`                        | `true`           |
-| `closeOnEscape`  | `boolean`                        | `true`           |
 | `showClose`      | `boolean`                        | `true`           |
 | `preventScroll`  | `boolean`                        | `true`           |
 | `closeLabel`     | `string`                         | `'Close dialog'` |
@@ -77,8 +76,10 @@ rendered.
    element is a fixed `<h2>` (no configurable heading level). When `showClose`
    (R15), the header also contains the close control.
 3. **Modal-R3 — Description.** When `description` is a non-empty string, renders
-   `<p id="{descId}" class="hz-modal-description">{description}</p>`; absent
-   otherwise. The id is referenced by `aria-describedby` (R1).
+   `<p id="{descId}" class="hz-modal-description">{description}</p>` **inside the
+   header**, on its own full-width row under the title (moved 2026-07 so the body
+   region holds nothing but consumer content); absent otherwise. The id is
+   referenced by `aria-describedby` (R1).
 4. **Modal-R4 — Body.** Renders `<div class="hz-modal-body">` wrapping the
    `children` snippet. The wrapper renders even when `children` is absent (stable
    scroll region for R6/R16) and produces no error when empty.
@@ -114,10 +115,11 @@ rendered.
 12. **Modal-R12 — Focus return.** The element that was `document.activeElement`
     immediately before opening is captured and re-focused on close (if still in
     the DOM).
-13. **Modal-R13 — Escape.** Escape is handled by the native `<dialog>`. When
-    `closeOnEscape` is false, the component intercepts the dialog's `cancel`
-    event and calls `preventDefault()` so the modal stays open; when true, the
-    resulting close runs through R9/R10.
+13. **Modal-R13 — Escape always closes.** Escape is handled by the native
+    `<dialog>`; the component intercepts the `cancel` event only to re-route the
+    close through R9/R10. There is deliberately **no** opt-out prop (the former
+    `closeOnEscape` was removed 2026-07): the WAI-ARIA dialog pattern requires
+    Escape to dismiss.
 14. **Modal-R14 — Backdrop click.** When `closeOnOverlay` is true, a click whose
     `event.target` is the `<dialog>` element itself (i.e. the backdrop region,
     not an inner child) closes the modal via R9/R10. When false, backdrop clicks
@@ -174,7 +176,7 @@ rendered.
   (4.1.2, 1.3.1).
 - Focus moves into the dialog on open (R11) and returns to the trigger on close
   (R12) (2.4.3).
-- Escape dismisses unless `closeOnEscape={false}` (R13) (2.1.2); keyboard users
+- Escape always dismisses (R13, no opt-out) (2.1.2); keyboard users
   can always reach and operate the close control.
 - The icon-only close control (a `Button`) has an accessible name via
   `closeLabel` (default `"Close dialog"`); `IconX` is `aria-hidden` (4.1.2,
@@ -197,7 +199,7 @@ rendered.
 | No `description`                                  | No `hz-modal-description`; no `aria-describedby` (R1, R3).                                |
 | `description=""` (empty)                          | Treated as absent (no element, no `aria-describedby`).                                   |
 | `showClose={false}`                               | No close control; focus fallback chain still resolves (R11).                            |
-| `closeOnEscape={false}`                           | Escape `cancel` is prevented; modal stays open; `onclose` does not fire (R13).           |
+| Escape with `closeOnOverlay={false}`              | Still closes — overlay opt-out never disables Escape (R13).                              |
 | `closeOnOverlay={false}`                          | Backdrop clicks ignored; only button/Escape/programmatic close (R14).                    |
 | Click on inner content                            | Never closes (target is not the `<dialog>`) (R14).                                       |
 | Dismissed by any method                           | `open` set false **and** `onclose` fires once (R9, R10).                                 |
@@ -256,8 +258,8 @@ top-layer behavior is asserted via real `showModal()` in the browser env.
 - Modal-R11: focus on open lands on first focusable / close control / dialog per
   the fallback chain (three cases).
 - Modal-R12: pre-open `activeElement` (a trigger button) regains focus after close.
-- Modal-R13: `closeOnEscape=false` → Escape keeps it open, no `onclose`; `true` →
-  closes.
+- Modal-R13: Escape (cancel) always closes and fires `onclose`, including with
+  `closeOnOverlay={false}`.
 - Modal-R14: click on `<dialog>` backdrop closes when `closeOnOverlay`; inner-content
   click never closes; ignored when false.
 - Modal-R15: `showClose` → close control is a `Button` with `aria-label={closeLabel}`,

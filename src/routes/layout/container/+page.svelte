@@ -8,7 +8,7 @@
 		{ name: 'padding', type: "'none' | 'sm' | 'md' | 'lg'", default: "'md'" },
 		{ name: 'center', type: 'boolean', default: 'true' },
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-container class.' }
 	];
 
 	const maxValues = ['sm', 'md', 'lg', 'xl'] as const;

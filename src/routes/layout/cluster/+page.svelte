@@ -9,7 +9,7 @@
 		{ name: 'align', type: "'start' | 'center' | 'end' | 'baseline'", default: "'center'" },
 		{ name: 'wrap', type: 'boolean', default: 'true' },
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-cluster class.' }
 	];
 
 	const demoTabs = [

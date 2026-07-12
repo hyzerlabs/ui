@@ -13,7 +13,6 @@
 		description?: string;
 		size?: ModalSize;
 		closeOnOverlay?: boolean;
-		closeOnEscape?: boolean;
 		showClose?: boolean;
 		preventScroll?: boolean;
 		closeLabel?: string;
@@ -30,7 +29,6 @@
 		description,
 		size = 'md',
 		closeOnOverlay = true,
-		closeOnEscape = true,
 		showClose = true,
 		preventScroll = true,
 		closeLabel = 'Close dialog',
@@ -159,12 +157,12 @@
 	// -------------------------------------------------------------------------
 
 	// Modal-R13: intercept the native cancel event (fired by Escape).
-	// Always preventDefault to suppress native close; re-route through R9/R10.
+	// preventDefault suppresses the native close so dismissal is re-routed
+	// through R9/R10. Escape ALWAYS closes — the WAI-ARIA dialog pattern
+	// requires it, so there is deliberately no opt-out prop.
 	function handleCancel(e: Event) {
 		e.preventDefault();
-		if (closeOnEscape) {
-			open = false;
-		}
+		open = false;
 	}
 
 	// Modal-R14: close when the backdrop (dialog element itself) is clicked.
@@ -199,7 +197,9 @@
 	oncancel={handleCancel}
 	onclick={handleDialogClick}
 >
-	<!-- Modal-R2: Header — always rendered, contains title + optional close control. -->
+	<!-- Modal-R2: Header — always rendered, contains title + optional close control,
+	     plus the optional description on its own row (Modal-R3) so the body region
+	     holds nothing but consumer content. -->
 	<div class="hz-modal-header">
 		<h2 id={titleId} class="hz-modal-title">{title}</h2>
 
@@ -212,12 +212,12 @@
 				{/snippet}
 			</Button>
 		{/if}
-	</div>
 
-	<!-- Modal-R3: Description — rendered only when description is a non-empty string. -->
-	{#if description}
-		<p id={descId} class="hz-modal-description">{description}</p>
-	{/if}
+		<!-- Modal-R3: Description — rendered only when description is a non-empty string. -->
+		{#if description}
+			<p id={descId} class="hz-modal-description">{description}</p>
+		{/if}
+	</div>
 
 	<!-- Modal-R4: Body — always rendered; stable scroll region even when empty. -->
 	<div class="hz-modal-body">
@@ -292,17 +292,25 @@
 	/* Modal-R2: Header — pinned (flex-shrink: 0), row layout.            */
 	/* ------------------------------------------------------------------ */
 
+	/* No gap: the title flexes so the close control already pins to the end,
+	 * and the description row spaces itself via the theme. */
 	.hz-modal-header {
 		display: flex;
 		flex-direction: row;
+		flex-wrap: wrap;
 		align-items: center;
 		flex-shrink: 0;
-		gap: var(--hz-space-sm, 1rem);
 	}
 
 	/* Title grows to fill the row; close button sits at the end. */
 	.hz-modal-title {
 		flex: 1;
+		margin: 0;
+	}
+
+	/* Description breaks onto its own full-width row under the title. */
+	.hz-modal-description {
+		flex-basis: 100%;
 		margin: 0;
 	}
 

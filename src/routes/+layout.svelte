@@ -526,6 +526,18 @@
 		outline-offset: 2px;
 	}
 
+	/* Docs chrome (not a base-level style): inline code in running text gets a
+	   subtle chip treatment. Scoped to paragraph/list context so pre blocks and
+	   props-table cells stay plain. */
+	:global(p code),
+	:global(li code) {
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 14%, transparent);
+		padding: 0.125em 0.375em;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		font-family: var(--hz-font-family-mono, monospace);
+		font-size: 0.875em;
+	}
+
 	/* Utility: visually-hidden text for screen readers */
 	:global(.sr-only) {
 		position: absolute;

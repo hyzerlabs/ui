@@ -12,7 +12,7 @@
 		{ name: 'gap', type: "'none' | 'sm' | 'md' | 'lg'", default: "'md'" },
 		{ name: 'align', type: "'start' | 'center' | 'end' | 'stretch'", default: "'stretch'" },
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-grid class.' }
 	];
 
 	const gapValues = ['none', 'sm', 'md', 'lg'] as const;

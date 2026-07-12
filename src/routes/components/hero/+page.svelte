@@ -21,7 +21,7 @@
 			default: '—',
 			note: 'Accessible name when no title is provided.'
 		},
-		{ name: 'class', type: 'string', default: '—' },
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-hero class.' },
 		{
 			name: 'eyebrow',
 			type: 'string | Snippet',
