@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { HTMLInputAttributes } from 'svelte/elements';
 	import type { FieldBase } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
 	import Field from './Field.svelte';
@@ -8,10 +9,10 @@
 		type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'search' | 'number';
 		value?: string;
 		placeholder?: string;
-		autocomplete?: string;
+		autocomplete?: HTMLInputAttributes['autocomplete'];
 		maxlength?: number;
 		pattern?: string;
-		inputmode?: string;
+		inputmode?: HTMLInputAttributes['inputmode'];
 		prefix?: Snippet;
 		suffix?: Snippet;
 		class?: string;

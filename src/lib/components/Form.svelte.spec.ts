@@ -155,7 +155,7 @@ describe('Form-R2 — submit handling', () => {
 		submitForm(container);
 		await tick();
 		expect(captured).not.toBeNull();
-		expect(captured instanceof SubmitEvent).toBe(true);
+		expect(captured).toBeInstanceOf(SubmitEvent);
 	});
 
 	it('no onSubmit: submit does not throw', async () => {

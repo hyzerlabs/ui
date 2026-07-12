@@ -60,7 +60,7 @@
 		<div>
 			<h3>Rounded corners</h3>
 			<Grid columns={{ sm: 2, md: 4 }} gap="md">
-				{#each [false, 'sm', 'md', 'lg', 'full'] as rounded (String(rounded))}
+				{#each [false, 'sm', 'md', 'lg', 'full'] as const as rounded (String(rounded))}
 					<div>
 						<Image
 							src={placeholderSvg}
@@ -78,7 +78,7 @@
 		<div>
 			<h3>Object-fit modes</h3>
 			<Grid columns={{ sm: 2, md: 4 }} gap="md">
-				{#each ['cover', 'contain', 'fill', 'none'] as fit (fit)}
+				{#each ['cover', 'contain', 'fill', 'none'] as const as fit (fit)}
 					<div>
 						<Image
 							src={placeholderSvg}

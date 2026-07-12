@@ -38,7 +38,11 @@
 					>
 						{#snippet panel(maxItem)}
 							<div class="inner-tab">
-								<Container max={maxItem.id} padding="sm" class="demo-container">
+								<Container
+									max={maxItem.id as (typeof maxValues)[number]}
+									padding="sm"
+									class="demo-container"
+								>
 									<code>max="{maxItem.id}"</code>
 								</Container>
 							</div>
@@ -52,7 +56,11 @@
 					>
 						{#snippet panel(padItem)}
 							<div class="inner-tab">
-								<Container max="md" padding={padItem.id} class="demo-container">
+								<Container
+									max="md"
+									padding={padItem.id as (typeof paddingValues)[number]}
+									class="demo-container"
+								>
 									<code>padding="{padItem.id}"</code>
 								</Container>
 							</div>

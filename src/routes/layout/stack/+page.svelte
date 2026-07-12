@@ -36,7 +36,7 @@
 						defaultTab="md"
 					>
 						{#snippet panel(gapItem)}
-							<Stack gap={gapItem.id} class="demo-stack">
+							<Stack gap={gapItem.id as (typeof gapValues)[number]} class="demo-stack">
 								<div class="demo-box">Item 1</div>
 								<div class="demo-box">Item 2</div>
 								<div class="demo-box">Item 3</div>
@@ -52,7 +52,7 @@
 						defaultTab="stretch"
 					>
 						{#snippet panel(alignItem)}
-							<Stack align={alignItem.id} class="demo-stack">
+							<Stack align={alignItem.id as (typeof alignValues)[number]} class="demo-stack">
 								<div class="demo-box demo-box--narrow">Short</div>
 								<div class="demo-box">Medium width item</div>
 							</Stack>

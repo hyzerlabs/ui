@@ -48,7 +48,7 @@
 					>
 						{#snippet panel(vItem)}
 							<div class="inner-tab">
-								<Card variant={vItem.id}>
+								<Card variant={vItem.id as (typeof cardVariants)[number]}>
 									<p class="card-body">{vItem.id} card</p>
 								</Card>
 							</div>

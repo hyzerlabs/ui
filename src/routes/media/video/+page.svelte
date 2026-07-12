@@ -46,7 +46,7 @@
 		<div>
 			<h3>Aspect ratio variants</h3>
 			<div class="aspect-grid">
-				{#each ['16/9', '4/3', '1/1'] as ratio (ratio)}
+				{#each ['16/9', '4/3', '1/1'] as const as ratio (ratio)}
 					<div>
 						<Video
 							src={blankSrc}

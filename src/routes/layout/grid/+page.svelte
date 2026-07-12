@@ -55,7 +55,7 @@
 					>
 						{#snippet panel(gapItem)}
 							<div class="inner-tab">
-								<Grid columns={3} gap={gapItem.id}>
+								<Grid columns={3} gap={gapItem.id as (typeof gapValues)[number]}>
 									{#each Array.from({ length: 3 }, (_, k) => k) as i (i)}
 										<div class="demo-cell">Cell {i + 1}</div>
 									{/each}

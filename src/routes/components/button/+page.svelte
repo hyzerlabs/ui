@@ -59,7 +59,10 @@
 							<div class="inner-tab">
 								<Cluster gap="sm">
 									{#each intents as intent (intent)}
-										<Button variant={vItem.id} {intent}>{intent} {vItem.id}</Button>
+										<Button variant={vItem.id as (typeof variants)[number]} {intent}>
+											{intent}
+											{vItem.id}
+										</Button>
 									{/each}
 								</Cluster>
 							</div>
@@ -75,7 +78,7 @@
 							<div class="inner-tab">
 								<Cluster gap="sm" align="center">
 									{#each intents as intent (intent)}
-										<Button size={sItem.id} {intent}>{intent}</Button>
+										<Button size={sItem.id as (typeof sizes)[number]} {intent}>{intent}</Button>
 									{/each}
 								</Cluster>
 							</div>

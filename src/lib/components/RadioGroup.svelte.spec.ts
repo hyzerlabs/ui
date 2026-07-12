@@ -101,14 +101,19 @@ describe('Field-R1 — fieldset root', () => {
 
 describe('Field-R2 — legend', () => {
 	it('legend.hz-field-label always in DOM', () => {
-		const { container } = render(RadioGroup, { name: 'x', label: 'Favourite' });
+		const { container } = render(RadioGroup, { name: 'x', label: 'Favourite', options: [] });
 		const legend = container.querySelector('legend.hz-field-label') as HTMLElement;
 		expect(legend).not.toBeNull();
 		expect(legend.textContent?.trim()).toContain('Favourite');
 	});
 
 	it('hideLabel adds sr-only to legend', () => {
-		const { container } = render(RadioGroup, { name: 'x', label: 'X', hideLabel: true });
+		const { container } = render(RadioGroup, {
+			name: 'x',
+			label: 'X',
+			options: [],
+			hideLabel: true
+		});
 		expect((container.querySelector('legend') as HTMLElement).classList.contains('sr-only')).toBe(
 			true
 		);
@@ -137,6 +142,7 @@ describe('Field scaffold', () => {
 		const { container } = render(RadioGroup, {
 			name: 'x',
 			label: 'X',
+			options: [],
 			description: 'Help'
 		});
 		expect((container.querySelector('.hz-field-description') as HTMLElement).id).toMatch(
@@ -145,20 +151,20 @@ describe('Field scaffold', () => {
 	});
 
 	it('error renders with role="alert"', () => {
-		const { container } = render(RadioGroup, { name: 'x', label: 'X', error: 'Pick' });
+		const { container } = render(RadioGroup, { name: 'x', label: 'X', options: [], error: 'Pick' });
 		expect((container.querySelector('.hz-field-error') as HTMLElement).getAttribute('role')).toBe(
 			'alert'
 		);
 	});
 
 	it('error: aria-invalid on the radiogroup', () => {
-		const { container } = render(RadioGroup, { name: 'x', label: 'X', error: 'Pick' });
+		const { container } = render(RadioGroup, { name: 'x', label: 'X', options: [], error: 'Pick' });
 		const rg = container.querySelector('[role="radiogroup"]') as HTMLElement;
 		expect(rg.getAttribute('aria-invalid')).toBe('true');
 	});
 
 	it('no error: aria-invalid absent', () => {
-		const { container } = render(RadioGroup, { name: 'x', label: 'X' });
+		const { container } = render(RadioGroup, { name: 'x', label: 'X', options: [] });
 		const rg = container.querySelector('[role="radiogroup"]') as HTMLElement;
 		expect(rg.hasAttribute('aria-invalid')).toBe(false);
 	});
@@ -167,6 +173,7 @@ describe('Field scaffold', () => {
 		const { container } = render(RadioGroup, {
 			name: 'x',
 			label: 'X',
+			options: [],
 			description: 'Help',
 			error: 'Bad'
 		});
@@ -177,7 +184,7 @@ describe('Field scaffold', () => {
 	});
 
 	it('neither desc nor error: aria-describedby absent on radiogroup', () => {
-		const { container } = render(RadioGroup, { name: 'x', label: 'X' });
+		const { container } = render(RadioGroup, { name: 'x', label: 'X', options: [] });
 		const rg = container.querySelector('[role="radiogroup"]') as HTMLElement;
 		expect(rg.hasAttribute('aria-describedby')).toBe(false);
 	});
@@ -343,7 +350,7 @@ describe('Structural CSS — orientation', () => {
 
 describe('Forms-R1 — class composition', () => {
 	it('no class: root has hz-field and hz-field--radio-group', () => {
-		const { container } = render(RadioGroup, { name: 'x', label: 'X' });
+		const { container } = render(RadioGroup, { name: 'x', label: 'X', options: [] });
 		const root = container.querySelector('fieldset') as HTMLElement;
 		const classes = [...root.classList].filter((c) => !c.startsWith('svelte-'));
 		expect(classes).toContain('hz-field');
@@ -351,7 +358,7 @@ describe('Forms-R1 — class composition', () => {
 	});
 
 	it('class="foo": hz-field hz-field--radio-group foo', () => {
-		const { container } = render(RadioGroup, { name: 'x', label: 'X', class: 'foo' });
+		const { container } = render(RadioGroup, { name: 'x', label: 'X', options: [], class: 'foo' });
 		const root = container.querySelector('fieldset') as HTMLElement;
 		const classes = [...root.classList].filter((c) => !c.startsWith('svelte-'));
 		expect(classes[0]).toBe('hz-field');
