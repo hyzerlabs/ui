@@ -10,7 +10,8 @@
 
 	interface AccordionItem {
 		id: string;
-		title: string;
+		/** Plain string for the common case; a Snippet when inner markup is needed. */
+		title: string | Snippet;
 		disabled?: boolean;
 	}
 
@@ -264,7 +265,7 @@
 					Accordion-R3: heading element via svelte:element; icon is a sibling.
 				-->
 				<svelte:element this={'h' + headingLevel} class="hz-accordion-heading">
-					{item.title}
+					{#if typeof item.title === 'string'}{item.title}{:else}{@render item.title()}{/if}
 				</svelte:element>
 
 				<!--

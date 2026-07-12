@@ -58,7 +58,9 @@ animation).
 | `class`        | `string` (optional → `cx`)              | —          |
 
 `AccordionItem` (declared **locally**, no new shared type):
-`{ id: string; title: string; disabled?: boolean }`.
+`{ id: string; title: string | Snippet; disabled?: boolean }`. `title` accepts a
+plain string for the common case or a Snippet when inner markup is needed
+(changed 2026-07, mirroring Hero's text slots).
 
 Plus arbitrary `...rest` HTML attributes forwarded to the root `<div>`.
 
@@ -80,7 +82,8 @@ Boolean `data-*` "present" = empty-valued attribute exists; "absent" = not rende
    or sizes the panel itself (Theming Hooks).
 3. **Accordion-R3 — Heading.** The summary contains a heading element whose tag
    is `h{headingLevel}` (default `h3`), `class="hz-accordion-heading"`, wrapping
-   `item.title`. The chevron icon is a **sibling** of the heading
+   `item.title` — the string verbatim, or the snippet's markup (inline content
+   only). The chevron icon is a **sibling** of the heading
    (`<span class="hz-accordion-icon" aria-hidden="true">`), outside the heading,
    for clean screen-reader output. The dynamic tag is rendered via
    `<svelte:element this={...}>`.
@@ -287,7 +290,8 @@ routes to the browser `client` project in `vite.config.ts`). Native `<details>`
   `<details.hz-accordion-item>` per item, each containing a
   `summary.hz-accordion-trigger` and `div.hz-accordion-panel`.
 - Accordion-R3: heading tag equals `h{headingLevel}` for each of `2..6`; heading
-  text is `item.title`; the icon span is a sibling (not a child) of the heading.
+  content is `item.title` (string verbatim; Snippet markup rendered inside the
+  heading); the icon span is a sibling (not a child) of the heading.
 - Accordion-R4: `panel` snippet receives the item — assert per-item branched
   content renders in the correct panel.
 - Accordion-R5: default → `IconChevronDown` present and `aria-hidden`; with an

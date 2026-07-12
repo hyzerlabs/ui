@@ -2,6 +2,7 @@ import { page, userEvent } from 'vitest/browser';
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
+import type { Snippet } from 'svelte';
 import Accordion from './Accordion.svelte';
 
 // ---------------------------------------------------------------------------
@@ -10,7 +11,7 @@ import Accordion from './Accordion.svelte';
 
 interface AccordionItem {
 	id: string;
-	title: string;
+	title: string | Snippet;
 	disabled?: boolean;
 }
 
@@ -138,10 +139,23 @@ describe('Accordion-R3 — heading element', () => {
 		expect(h3).not.toBeNull();
 	});
 
-	it('heading text is item.title', () => {
+	it('heading text is item.title (string form)', () => {
 		const { container } = render(Accordion, { items: [itemA], panel: panelSnippet });
 		const h3 = container.querySelector('h3.hz-accordion-heading') as HTMLElement;
 		expect(h3.textContent?.trim()).toBe('Item A');
+	});
+
+	it('title as a Snippet renders its markup inside the heading', () => {
+		const richTitle = createRawSnippet(() => ({
+			render: () => `<span data-testid="rich-title">Rich <em>title</em></span>`
+		}));
+		const { container } = render(Accordion, {
+			items: [{ id: 'r', title: richTitle }],
+			panel: panelSnippet
+		});
+		const heading = container.querySelector('.hz-accordion-heading') as HTMLElement;
+		expect(heading.querySelector('[data-testid="rich-title"]')).not.toBeNull();
+		expect(heading.querySelector('em')).not.toBeNull();
 	});
 
 	it('icon span is a sibling of the heading, not a child', () => {

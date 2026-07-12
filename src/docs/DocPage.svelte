@@ -4,17 +4,33 @@
 	import PropsTable from './PropsTable.svelte';
 	import type { PropRow } from './PropsTable.svelte';
 
+	/** A named supporting type (e.g. AccordionItem) shown as its own table under Props. */
+	interface TypeTable {
+		name: string;
+		props: PropRow[];
+	}
+
 	interface Props {
 		name: string;
 		description: string;
 		importLine: string;
 		props?: PropRow[];
+		/** Supporting item/option types rendered as sub-tables in the Props section. */
+		types?: TypeTable[];
 		/** Backtick-wrapped segments render as inline <code>, e.g. "sets `aria-busy`". */
 		a11yNote?: string;
 		children?: Snippet;
 	}
 
-	let { name, description, importLine, props = [], a11yNote, children }: Props = $props();
+	let {
+		name,
+		description,
+		importLine,
+		props = [],
+		types = [],
+		a11yNote,
+		children
+	}: Props = $props();
 </script>
 
 <svelte:head>
@@ -43,6 +59,10 @@
 		<section aria-labelledby="props-heading" class="doc-section">
 			<h2 id="props-heading">Props</h2>
 			<PropsTable {props} />
+			{#each types as t (t.name)}
+				<h3 class="type-heading"><code>{t.name}</code></h3>
+				<PropsTable props={t.props} />
+			{/each}
 		</section>
 	{/if}
 
@@ -76,6 +96,12 @@
 	.doc-section h2 {
 		margin: 0 0 1rem;
 		font-size: var(--hz-font-size-xl, 1.65rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.type-heading {
+		margin: 1.5rem 0 0.75rem;
+		font-size: var(--hz-font-size-base, 1rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
