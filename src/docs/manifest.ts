@@ -1,27 +1,29 @@
 /**
  * Docs nav manifest — single source of truth.
  *
- * Expressed as NavItem[] so the data model is identical to what the Nav and
- * Footer components consume. `href` is required on every entry (all manifest
- * pages have URLs). No docs-specific fields; add a page by adding an entry
- * here and creating the corresponding +page.svelte.
+ * Expressed in NavItem terms so the tree feeds the dogfooded sidebar Nav
+ * directly. Sections are label-only toggles (no cover pages — no href);
+ * every leaf page has a URL. Add a page by adding an entry here and creating
+ * the corresponding +page.svelte.
  */
 import type { NavItem } from '$lib/types';
 
-/**
- * NavItem with `href` required — every manifest entry has a URL.
- * `children` is narrowed to the same type so the tree is fully typed.
- */
-export interface ManifestItem extends NavItem {
+/** A leaf docs page — always has a URL. */
+export interface ManifestPage extends NavItem {
 	href: string;
-	children?: ManifestItem[];
+	children?: never;
+}
+
+/** A sidebar section — a label-only toggle wrapping its pages. */
+export interface ManifestSection {
+	label: string;
+	children: ManifestPage[];
 }
 
 /** Complete information architecture. Top-level entries are sections. */
-export const manifest: ManifestItem[] = [
+export const manifest: ManifestSection[] = [
 	{
 		label: 'Foundation',
-		href: '/foundation',
 		children: [
 			{ label: 'Colors', href: '/foundation/colors' },
 			{ label: 'Typography', href: '/foundation/typography' },
@@ -34,7 +36,6 @@ export const manifest: ManifestItem[] = [
 	},
 	{
 		label: 'Layout',
-		href: '/layout',
 		children: [
 			{ label: 'Container', href: '/layout/container' },
 			{ label: 'Stack', href: '/layout/stack' },
@@ -45,15 +46,14 @@ export const manifest: ManifestItem[] = [
 	},
 	{
 		label: 'Navigation',
-		href: '/navigation',
 		children: [
 			{ label: 'Nav', href: '/navigation/nav' },
+			{ label: 'Breadcrumbs', href: '/navigation/breadcrumbs' },
 			{ label: 'Footer', href: '/navigation/footer' }
 		]
 	},
 	{
 		label: 'Forms',
-		href: '/forms',
 		children: [
 			{ label: 'Form', href: '/forms/form' },
 			{ label: 'TextInput', href: '/forms/text-input' },
@@ -66,7 +66,6 @@ export const manifest: ManifestItem[] = [
 	},
 	{
 		label: 'Media',
-		href: '/media',
 		children: [
 			{ label: 'Image', href: '/media/image' },
 			{ label: 'Video', href: '/media/video' }
@@ -74,7 +73,6 @@ export const manifest: ManifestItem[] = [
 	},
 	{
 		label: 'Components',
-		href: '/components',
 		children: [
 			{ label: 'Button', href: '/components/button' },
 			{ label: 'Link', href: '/components/link' },
@@ -87,8 +85,5 @@ export const manifest: ManifestItem[] = [
 	}
 ];
 
-/** Flat list of every manifest route (sections + leaf pages). */
-export const allRoutes: string[] = [
-	'/',
-	...manifest.flatMap((s) => [s.href, ...(s.children ?? []).map((p) => p.href)])
-];
+/** Flat list of every routable page (sections have no routes of their own). */
+export const allRoutes: string[] = ['/', ...manifest.flatMap((s) => s.children.map((p) => p.href))];

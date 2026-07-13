@@ -23,9 +23,9 @@
 		{
 			title: 'Product',
 			links: [
-				{ label: 'Components', href: '/components' },
-				{ label: 'Foundation', href: '/foundation' },
-				{ label: 'Layout', href: '/layout' }
+				{ label: 'Components', href: '#' },
+				{ label: 'Foundation', href: '#' },
+				{ label: 'Layout', href: '#' }
 			]
 		},
 		{

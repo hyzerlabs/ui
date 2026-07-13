@@ -70,22 +70,23 @@ test.describe('R2 — docs shell structure', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('R4 — nav links and aria-current', () => {
-	test('clicking a section nav link navigates to that page', async ({ page }) => {
+	test('expanding a section toggle reveals its pages; clicking one navigates', async ({
+		page
+	}) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/');
-		// Click the Foundation section link in the sidebar
-		await page
-			.getByRole('navigation', { name: 'Docs navigation' })
-			.getByRole('link', { name: 'Foundation' })
-			.first()
-			.click();
-		await expect(page).toHaveURL('/foundation');
+		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
+		// Sections are label-only toggles (no cover pages) — expand Foundation…
+		await sidebar.getByRole('button', { name: 'Foundation' }).click();
+		// …then click a page link inside it.
+		await sidebar.getByRole('link', { name: 'Colors' }).click();
+		await expect(page).toHaveURL('/foundation/colors');
 	});
 
 	test('active nav link exposes aria-current="page"', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/foundation');
-		// A link in the sidebar should have aria-current="page"
+		await page.goto('/foundation/colors');
+		// The active page's sidebar link should carry aria-current="page"
 		const navLinks = page.locator('#docs-sidebar a[aria-current="page"]');
 		await expect(navLinks.first()).toBeVisible();
 	});

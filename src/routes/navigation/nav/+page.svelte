@@ -28,9 +28,9 @@
 		},
 		{
 			name: 'mobileBreakpoint',
-			type: "'sm' | 'md' | 'lg'",
+			type: "'sm' | 'md' | 'lg' | 'none'",
 			default: "'md'",
-			note: 'Collapse threshold (640/968/1200px). Horizontal bars measure their own width (container query); vertical sidebars measure the viewport — their own width is always narrow.'
+			note: 'Collapse threshold (640/968/1200px). Horizontal bars measure their own width (container query); vertical sidebars measure the viewport — their own width is always narrow. none never collapses (for shells that own their responsive behavior).'
 		},
 		{ name: 'ariaLabel', type: 'string', default: "'Main navigation'" },
 		{ name: 'logo', type: 'Snippet', default: '—' },
@@ -65,6 +65,12 @@
 			type: "'page' | 'step' | 'true'",
 			default: '—',
 			note: 'Set on the active item.'
+		},
+		{
+			name: 'defaultOpen',
+			type: 'boolean',
+			default: '—',
+			note: 'Vertical only: the section starts open, and re-opens when items is rebuilt (e.g. on navigation).'
 		}
 	];
 
@@ -268,7 +274,8 @@
 						<div class="nav-demo-wrap">
 							<Nav items={barItems} mobileBreakpoint="sm" ariaLabel="Demo navigation (slots)">
 								{#snippet logo()}
-									<a href="/" class="demo-logo">Hyzer Labs</a>
+									<!-- svelte-ignore a11y_invalid_attribute — deliberate # so demos don't navigate -->
+									<a href="#" class="demo-logo">Hyzer Labs</a>
 								{/snippet}
 								{#snippet actions()}
 									<Button size="sm">Sign in</Button>
@@ -291,7 +298,8 @@
 								<div class="nav-demo-wrap">
 									<Nav items={demoItems} ariaLabel="Demo navigation (mobile)">
 										{#snippet logo()}
-											<a href="/" class="demo-logo">Hyzer Labs</a>
+											<!-- svelte-ignore a11y_invalid_attribute — deliberate # so demos don't navigate -->
+											<a href="#" class="demo-logo">Hyzer Labs</a>
 										{/snippet}
 										{#snippet actions()}
 											<Button size="sm">Sign in</Button>

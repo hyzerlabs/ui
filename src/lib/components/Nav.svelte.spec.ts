@@ -984,3 +984,47 @@ describe('orientation', () => {
 		await page.viewport(1024, 768);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Collapse opt-out, defaultOpen, bar distribution
+// ---------------------------------------------------------------------------
+
+describe('mobileBreakpoint="none" and defaultOpen', () => {
+	it('the bar distributes its regions with space-between', () => {
+		const { container } = render(Nav, { items: [linkItem] });
+		const inner = container.querySelector('.hz-nav-inner') as HTMLElement;
+		expect(getComputedStyle(inner).justifyContent).toBe('space-between');
+	});
+
+	it('mobileBreakpoint="none" never collapses: links visible, toggle and mobile menu off', () => {
+		const { container } = render(Nav, { items: [linkItem], mobileBreakpoint: 'none' });
+		const nav = container.querySelector('.hz-nav') as HTMLElement;
+		nav.style.width = '400px'; // far below every threshold
+		expect(getComputedStyle(container.querySelector('.hz-nav-links') as HTMLElement).display).toBe(
+			'flex'
+		);
+		expect(getComputedStyle(container.querySelector('.hz-nav-toggle') as HTMLElement).display).toBe(
+			'none'
+		);
+		expect(getComputedStyle(container.querySelector('.hz-nav-mobile') as HTMLElement).display).toBe(
+			'none'
+		);
+	});
+
+	it('vertical sections flagged defaultOpen start open', async () => {
+		const { container } = render(Nav, {
+			items: [{ ...triggerItem, defaultOpen: true }],
+			orientation: 'vertical'
+		});
+		await tick();
+		const trigger = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
+		expect(trigger.getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('defaultOpen is ignored on horizontal bars', async () => {
+		const { container } = render(Nav, { items: [{ ...triggerItem, defaultOpen: true }] });
+		await tick();
+		const trigger = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
+		expect(trigger.getAttribute('aria-expanded')).toBe('false');
+	});
+});

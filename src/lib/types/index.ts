@@ -8,7 +8,15 @@ export interface NavItem {
 	children?: NavItem[];
 	external?: boolean;
 	ariaCurrent?: 'page' | 'step' | 'true';
+	/**
+	 * Vertical Nav only: the section starts open, and re-opens whenever the
+	 * items array is rebuilt (additive — never closes user-opened sections).
+	 */
+	defaultOpen?: boolean;
 }
+
+/** A single crumb for Breadcrumbs — the linkable subset of NavItem. */
+export type BreadcrumbItem = Pick<NavItem, 'label' | 'href' | 'external' | 'ariaCurrent'>;
 
 /** Footer column grouping */
 export interface FooterColumn {

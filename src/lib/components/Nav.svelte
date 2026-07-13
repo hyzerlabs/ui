@@ -8,7 +8,7 @@
 	import IconChevronDown from '$lib/icons/IconChevronDown.svelte';
 
 	type NavVariant = 'default' | 'transparent' | 'bordered';
-	type NavBreakpoint = 'sm' | 'md' | 'lg';
+	type NavBreakpoint = 'sm' | 'md' | 'lg' | 'none';
 	type NavOrientation = 'horizontal' | 'vertical';
 
 	interface Props {
@@ -68,6 +68,16 @@
 
 	// Vertical sidebars are multi-open: any number of sections at once.
 	const openSections = new SvelteSet<number>();
+
+	// Sections flagged defaultOpen start open — and re-open whenever `items`
+	// is rebuilt (e.g. a docs shell recomputing the active section on
+	// navigation). Additive only: it never closes what the user opened.
+	$effect(() => {
+		if (!isVertical) return;
+		items.forEach((item, i) => {
+			if (item.defaultOpen && item.children) openSections.add(i);
+		});
+	});
 
 	function isOpen(index: number): boolean {
 		return isVertical ? openSections.has(index) : openIndex === index;
@@ -463,6 +473,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		justify-content: space-between;
 		gap: var(--hz-space-md, 2rem);
 	}
 
@@ -587,6 +598,14 @@
 	.hz-nav[data-mobile-breakpoint='md'] .hz-nav-toggle,
 	.hz-nav[data-mobile-breakpoint='lg'] .hz-nav-toggle {
 		display: flex;
+	}
+
+	/* 'none' — never collapses (e.g. embedded in a shell that owns its own
+	 * responsive behavior). No collapse rule matches, so links stay visible;
+	 * the toggle and mobile menu are simply off. */
+	.hz-nav[data-mobile-breakpoint='none'] .hz-nav-toggle,
+	.hz-nav[data-mobile-breakpoint='none'] .hz-nav-mobile {
+		display: none;
 	}
 
 	/* sm — 640px */

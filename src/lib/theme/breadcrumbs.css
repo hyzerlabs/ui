@@ -1,0 +1,30 @@
+/**
+ * @hyzer-labs/ui reference theme — Breadcrumbs
+ * Trail typography, muted separators, and the current-page emphasis.
+ */
+@layer hz-theme {
+	.hz-breadcrumbs {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.hz-breadcrumbs :where(.hz-breadcrumbs-separator) {
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-breadcrumbs :where(.hz-breadcrumbs-separator .hz-icon) {
+		width: 1em;
+		height: 1em;
+	}
+
+	/* Ancestor crumbs read muted (hover keeps the nav-link primary from
+	 * link.css — this file imports later, so exclude :hover from the tie). */
+	.hz-breadcrumbs :where(.hz-link:not([aria-current]):not(:hover)) {
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-breadcrumbs :where(.hz-breadcrumbs-current),
+	.hz-breadcrumbs :where(.hz-link[aria-current]) {
+		color: var(--hz-color-text, #000);
+		font-weight: var(--hz-font-weight-medium, 500);
+	}
+}

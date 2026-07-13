@@ -32,21 +32,20 @@ import '@hyzer-labs/ui/tokens.css';</code
 	<section aria-labelledby="sections-heading">
 		<h2 id="sections-heading">Browse the docs</h2>
 		<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
-			{#each manifest as section (section.href)}
+			{#each manifest as section (section.label)}
 				<Card class="hz-card--outlined" padding="md" rounded="md">
-					<a href={section.href} class="section-link">
+					<!-- Sections have no cover pages — the card opens the first page. -->
+					<a href={section.children[0].href} class="section-link">
 						<h3 class="section-title">{section.label}</h3>
 						<p class="section-count">
-							{(section.children ?? []).length} page{(section.children ?? []).length !== 1
-								? 's'
-								: ''}
+							{section.children.length} page{section.children.length !== 1 ? 's' : ''}
 						</p>
 						<ul class="section-pages" aria-label="{section.label} pages">
-							{#each (section.children ?? []).slice(0, 4) as p (p.href)}
+							{#each section.children.slice(0, 4) as p (p.href)}
 								<li>{p.label}</li>
 							{/each}
-							{#if (section.children ?? []).length > 4}
-								<li>+{(section.children ?? []).length - 4} more</li>
+							{#if section.children.length > 4}
+								<li>+{section.children.length - 4} more</li>
 							{/if}
 						</ul>
 					</a>

@@ -88,7 +88,7 @@
 
 	const fullWidthCode = '<Button fullWidth>Full width button</Button>';
 
-	const anchorCode = '<Button href="/components">Link button (renders as <a>)</Button>';
+	const anchorCode = '<Button href="/pricing">Link button (renders as <a>)</Button>';
 </script>
 
 <DocPage
@@ -183,7 +183,7 @@
 						it navigates <em>and</em> should look like a text link, use the Link component instead.
 					</p>
 					<Example code={anchorCode}>
-						<Button href="/components">Link button (renders as &lt;a&gt;)</Button>
+						<Button href="#">Link button (renders as &lt;a&gt;)</Button>
 					</Example>
 				{/if}
 			</div>

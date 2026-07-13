@@ -1,9 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
+	import { Nav } from '$lib';
 	import { manifest } from '../docs/manifest';
-	import { IconChevronDown } from '$lib/icons';
 	import '$lib/theme/reset.css';
 	import '$lib/tokens/tokens.css';
 	// Reference theme — the docs site is its living example. Demos render the
@@ -24,28 +23,24 @@
 	// Mobile nav open state
 	let mobileNavOpen = $state(false);
 
-	// Collapsible sidebar sections — start with the active section expanded
-	function activeSectionHref(): string | undefined {
-		return manifest.find(
-			(s) =>
-				page.url.pathname === s.href || (s.children ?? []).some((p) => page.url.pathname === p.href)
-		)?.href;
+	function activeSectionLabel(): string | undefined {
+		return manifest.find((s) => s.children.some((p) => page.url.pathname === p.href))?.label;
 	}
-	const initial = activeSectionHref();
-	const openSections = new SvelteSet<string>(initial ? [initial] : []);
 
-	// Auto-expand when navigating into a currently-collapsed section
-	$effect(() => {
-		const href = activeSectionHref();
-		if (href && !openSections.has(href)) {
-			openSections.add(href);
-		}
-	});
-
-	function toggleSection(href: string) {
-		if (openSections.has(href)) openSections.delete(href);
-		else openSections.add(href);
-	}
+	// Dogfood: the sidebar is the library's vertical Nav. Sections are
+	// label-only toggles (no cover pages). Rebuilding items on navigation
+	// re-marks aria-current and (via defaultOpen) auto-expands the active
+	// section; Nav keeps user-opened sections open.
+	const sidebarNavItems = $derived(
+		manifest.map((section) => ({
+			label: section.label,
+			defaultOpen: section.label === activeSectionLabel(),
+			children: section.children.map((p) => ({
+				...p,
+				ariaCurrent: isActive(p.href) ? ('page' as const) : undefined
+			}))
+		}))
+	);
 
 	// R9 — initialize from localStorage and sync to DOM
 	$effect(() => {
@@ -136,50 +131,27 @@
 				</button>
 			</div>
 
-			<!-- Nav tree — sections are collapsible -->
-			<nav aria-label="Docs navigation">
-				<ul class="sidebar-sections" role="list">
-					{#each manifest as section (section.href)}
-						<li class="sidebar-section">
-							<div class="sidebar-section-header">
-								<a
-									href={section.href}
-									class="sidebar-section-label"
-									aria-current={isActive(section.href) ? 'page' : undefined}
-									onclick={closeMobileNav}
-								>
-									{section.label}
-								</a>
-								<button
-									type="button"
-									class="sidebar-section-toggle"
-									aria-expanded={openSections.has(section.href) ? 'true' : 'false'}
-									aria-label="Toggle {section.label}"
-									onclick={() => toggleSection(section.href)}
-								>
-									<IconChevronDown size={14} />
-								</button>
-							</div>
-							{#if openSections.has(section.href)}
-								<ul class="sidebar-pages" role="list">
-									{#each section.children ?? [] as p (p.href)}
-										<li>
-											<a
-												href={p.href}
-												class="sidebar-page-link"
-												aria-current={isActive(p.href) ? 'page' : undefined}
-												onclick={closeMobileNav}
-											>
-												{p.label}
-											</a>
-										</li>
-									{/each}
-								</ul>
-							{/if}
-						</li>
-					{/each}
-				</ul>
-			</nav>
+			<!-- Nav tree — the library's vertical Nav, dogfooded as the docs
+			     sidebar. mobileBreakpoint="none": this shell owns the mobile
+			     drawer, so the Nav itself must never grow a second hamburger.
+			     The click listener closes the mobile drawer on any link click
+			     (chevron toggles are buttons, so they don't match). -->
+			<!-- svelte-ignore a11y_no_static_element_interactions, a11y_click_events_have_key_events -->
+			<div
+				class="docs-sidenav-wrap"
+				onclick={(e) => {
+					if ((e.target as HTMLElement).closest('a')) closeMobileNav();
+				}}
+			>
+				<Nav
+					items={sidebarNavItems}
+					orientation="vertical"
+					mobileBreakpoint="none"
+					variant="transparent"
+					ariaLabel="Docs navigation"
+					class="docs-side-nav"
+				/>
+			</div>
 		</aside>
 
 		<!-- Main content. The main element is a size container so Container
@@ -236,8 +208,9 @@
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
+	/* Sidebar is position: fixed (never scrolls off screen); the body just
+	 * reserves its column with a margin on desktop. */
 	.docs-body {
-		display: flex;
 		flex: 1;
 		min-height: 0;
 	}
@@ -281,15 +254,17 @@
 
 	.docs-sidebar {
 		width: 15rem;
-		flex-shrink: 0;
 		border-right: 1px solid var(--hz-color-border, #6b7280);
 		display: flex;
 		flex-direction: column;
-		position: sticky;
+		position: fixed;
 		top: 0;
+		left: 0;
+		z-index: 100;
 		height: 100dvh;
 		overflow-y: auto;
 		padding: 1.25rem 0;
+		background: var(--hz-color-surface, #fff);
 	}
 
 	.docs-sidebar-header {
@@ -343,100 +318,65 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Sidebar nav tree                                                      */
+	/* Sidebar nav — dogfooded vertical <Nav>, skinned as docs chrome.      */
+	/* Unlayered rules beat the hz-theme layer without specificity games.   */
 	/* ------------------------------------------------------------------ */
 
-	.sidebar-sections {
-		list-style: none;
-		margin: 0;
+	.docs-sidenav-wrap :global(.hz-nav-inner) {
 		padding: 0;
-		display: flex;
-		flex-direction: column;
+	}
+
+	.docs-sidenav-wrap :global(.hz-nav-links) {
 		gap: 0.25rem;
 	}
 
-	.sidebar-section {
-		padding: 0;
-	}
-
-	.sidebar-section-header {
-		display: flex;
-		align-items: center;
-	}
-
-	.sidebar-section-label {
-		flex: 1;
+	/* Section label (link) — uppercase chrome treatment */
+	.docs-sidenav-wrap :global(.hz-nav-dropdown > .hz-link) {
 		display: block;
 		padding: 0.375rem 0.5rem 0.375rem 1rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
-		text-decoration: none;
 		color: var(--hz-color-text-muted, #6b7280);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 	}
 
-	.sidebar-section-label:hover,
-	.sidebar-section-label[aria-current='page'] {
+	.docs-sidenav-wrap :global(.hz-nav-dropdown > .hz-link:hover) {
 		color: var(--hz-color-text, #000);
 	}
 
-	.sidebar-section-label[aria-current='page'] {
+	.docs-sidenav-wrap :global(.hz-nav-dropdown > .hz-link[aria-current='page']) {
 		color: var(--hz-color-primary, #2563eb);
 	}
 
-	.sidebar-section-toggle {
-		flex-shrink: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 1.75rem;
-		height: 1.75rem;
-		padding: 0;
+	.docs-sidenav-wrap :global(.hz-nav-chevron) {
 		margin-right: 0.25rem;
-		background: none;
-		border: none;
-		cursor: pointer;
 		color: var(--hz-color-text-muted, #6b7280);
-		border-radius: var(--hz-radius-sm, 0.25rem);
 	}
 
-	.sidebar-section-toggle:hover {
-		color: var(--hz-color-text, #000);
-		background-color: color-mix(in srgb, var(--hz-color-text, #000) 8%, transparent);
-	}
-
-	.sidebar-section-toggle :global(svg) {
-		transition: transform 0.15s ease;
-	}
-
-	.sidebar-section-toggle[aria-expanded='true'] :global(svg) {
-		transform: rotate(180deg);
-	}
-
-	.sidebar-pages {
-		list-style: none;
-		margin: 0;
+	/* Inline section panel — no theme indent padding; links carry it */
+	.docs-sidenav-wrap :global(.hz-nav-panel) {
 		padding: 0;
 	}
 
-	.sidebar-page-link {
+	/* Page links — active gets the right-side accent border */
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-link) {
 		display: block;
 		padding: 0.3125rem 1rem 0.3125rem 1.75rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
-		text-decoration: none;
 		color: var(--hz-color-text-muted, #6b7280);
-		border-left: 2px solid transparent;
+		border-right: 2px solid transparent;
+		border-radius: 0;
 	}
 
-	.sidebar-page-link:hover {
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-link:hover) {
 		color: var(--hz-color-text, #000);
 		background-color: color-mix(in srgb, var(--hz-color-text, #000) 5%, transparent);
 	}
 
-	.sidebar-page-link[aria-current='page'] {
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-link[aria-current='page']) {
 		color: var(--hz-color-primary, #2563eb);
-		border-left-color: var(--hz-color-primary, #2563eb);
+		border-right-color: var(--hz-color-primary, #2563eb);
 		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 8%, transparent);
 		font-weight: var(--hz-font-weight-medium, 500);
 	}
@@ -446,7 +386,7 @@
 	/* ------------------------------------------------------------------ */
 
 	.docs-main {
-		flex: 1;
+		margin-left: 15rem; /* room for the fixed sidebar */
 		min-width: 0;
 		/* 2rem inline padding keeps breakout ≥ 976px on a 1280px window —
 		 * past the 968px md threshold the split-hero demos need. */
@@ -490,12 +430,7 @@
 		}
 
 		.docs-sidebar {
-			position: fixed;
-			top: 0;
-			left: 0;
-			height: 100dvh;
 			z-index: 300;
-			background: var(--hz-color-surface, #fff);
 			transform: translateX(-100%);
 			transition: transform 0.2s ease;
 		}
@@ -505,6 +440,7 @@
 		}
 
 		.docs-main {
+			margin-left: 0;
 			padding: 1.5rem 1rem;
 		}
 	}
