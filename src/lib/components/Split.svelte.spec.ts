@@ -263,8 +263,8 @@ describe('Split gap prop', () => {
 		{ gap: 'sm', expectedPx: '16px' }, // 1rem
 		{ gap: 'md', expectedPx: '32px' }, // 2rem
 		{ gap: 'lg', expectedPx: '64px' }, // 4rem
-		{ gap: 'near', expectedPx: '32px' }, // density fallback 2rem
-		{ gap: 'away', expectedPx: '64px' } // density fallback 4rem
+		{ gap: 'near', expectedPx: '64px' }, // density fallback 4rem
+		{ gap: 'away', expectedPx: '128px' } // density fallback 8rem
 	];
 
 	for (const { gap, expectedPx } of gapEntries) {
@@ -301,8 +301,8 @@ describe('padding prop', () => {
 		{ padding: 'sm', expectedPx: '16px' }, // 1rem
 		{ padding: 'md', expectedPx: '32px' }, // 2rem
 		{ padding: 'lg', expectedPx: '64px' }, // 4rem
-		{ padding: 'near', expectedPx: '32px' }, // density fallback 2rem
-		{ padding: 'away', expectedPx: '64px' } // density fallback 4rem
+		{ padding: 'near', expectedPx: '64px' }, // density fallback 4rem
+		{ padding: 'away', expectedPx: '128px' } // density fallback 8rem
 	];
 
 	for (const { padding, expectedPx } of paddingEntries) {

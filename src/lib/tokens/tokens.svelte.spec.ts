@@ -138,36 +138,51 @@ describe('density spacing tokens', () => {
 		expect(rootVar('--hz-density')).toBe('0.4rem');
 	});
 
-	it('base level: near = 5 units, away = 10 units', () => {
-		expect(resolveLength(document.body, '--hz-space-near')).toBeCloseTo(6.4 * 5, 1);
-		expect(resolveLength(document.body, '--hz-space-away')).toBeCloseTo(6.4 * 10, 1);
+	/** Build a chain of `depth` nested data-density-shift divs; returns the innermost. */
+	function shiftChain(depth: number): { root: HTMLElement; innermost: HTMLElement } {
+		const root = document.createElement('div');
+		root.setAttribute('data-density-shift', '');
+		let innermost = root;
+		for (let i = 1; i < depth; i++) {
+			const next = document.createElement('div');
+			next.setAttribute('data-density-shift', '');
+			innermost.appendChild(next);
+			innermost = next;
+		}
+		document.body.appendChild(root);
+		return { root, innermost };
+	}
+
+	it('base level: near = 10 units, away = 20 units', () => {
+		expect(resolveLength(document.body, '--hz-space-near')).toBeCloseTo(6.4 * 10, 1);
+		expect(resolveLength(document.body, '--hz-space-away')).toBeCloseTo(6.4 * 20, 1);
 	});
 
-	it('one data-density-shift ancestor tightens to 2 / 5 units', () => {
-		const region = document.createElement('div');
-		region.setAttribute('data-density-shift', '');
-		document.body.appendChild(region);
-		expect(resolveLength(region, '--hz-space-near')).toBeCloseTo(6.4 * 2, 1);
-		expect(resolveLength(region, '--hz-space-away')).toBeCloseTo(6.4 * 5, 1);
-		region.remove();
+	it('one data-density-shift ancestor tightens to 5 / 10 units', () => {
+		const { root, innermost } = shiftChain(1);
+		expect(resolveLength(innermost, '--hz-space-near')).toBeCloseTo(6.4 * 5, 1);
+		expect(resolveLength(innermost, '--hz-space-away')).toBeCloseTo(6.4 * 10, 1);
+		root.remove();
 	});
 
-	it('two nested data-density-shift ancestors tighten to 1 / 2 units', () => {
-		const outer = document.createElement('div');
-		outer.setAttribute('data-density-shift', '');
-		const inner = document.createElement('div');
-		inner.setAttribute('data-density-shift', '');
-		outer.appendChild(inner);
-		document.body.appendChild(outer);
-		expect(resolveLength(inner, '--hz-space-near')).toBeCloseTo(6.4 * 1, 1);
-		expect(resolveLength(inner, '--hz-space-away')).toBeCloseTo(6.4 * 2, 1);
-		outer.remove();
+	it('two nested data-density-shift ancestors tighten to 2 / 5 units', () => {
+		const { root, innermost } = shiftChain(2);
+		expect(resolveLength(innermost, '--hz-space-near')).toBeCloseTo(6.4 * 2, 1);
+		expect(resolveLength(innermost, '--hz-space-away')).toBeCloseTo(6.4 * 5, 1);
+		root.remove();
+	});
+
+	it('three nested data-density-shift ancestors tighten to 1 / 2 units (the floor)', () => {
+		const { root, innermost } = shiftChain(3);
+		expect(resolveLength(innermost, '--hz-space-near')).toBeCloseTo(6.4 * 1, 1);
+		expect(resolveLength(innermost, '--hz-space-away')).toBeCloseTo(6.4 * 2, 1);
+		root.remove();
 	});
 
 	it('overriding --hz-density rescales both distances', () => {
 		document.documentElement.style.setProperty('--hz-density', '0.5rem');
-		expect(resolveLength(document.body, '--hz-space-near')).toBeCloseTo(8 * 5, 1);
-		expect(resolveLength(document.body, '--hz-space-away')).toBeCloseTo(8 * 10, 1);
+		expect(resolveLength(document.body, '--hz-space-near')).toBeCloseTo(8 * 10, 1);
+		expect(resolveLength(document.body, '--hz-space-away')).toBeCloseTo(8 * 20, 1);
 		document.documentElement.style.removeProperty('--hz-density');
 	});
 });

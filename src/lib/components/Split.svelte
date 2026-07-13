@@ -115,10 +115,10 @@
 		padding: var(--hz-space-lg, 4rem);
 	}
 	.hz-split[data-padding='near'] {
-		padding: var(--hz-space-near, 2rem);
+		padding: var(--hz-space-near, 4rem);
 	}
 	.hz-split[data-padding='away'] {
-		padding: var(--hz-space-away, 4rem);
+		padding: var(--hz-space-away, 8rem);
 	}
 
 	/* gap per spacing scale */
@@ -137,10 +137,10 @@
 
 	/* density distances — shift-aware vars from the tokens.css density block */
 	.hz-split[data-gap='near'] > .hz-split-layout {
-		gap: var(--hz-space-near, 2rem);
+		gap: var(--hz-space-near, 4rem);
 	}
 	.hz-split[data-gap='away'] > .hz-split-layout {
-		gap: var(--hz-space-away, 4rem);
+		gap: var(--hz-space-away, 8rem);
 	}
 
 	/*

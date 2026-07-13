@@ -142,8 +142,8 @@ describe('R3 — padding prop', () => {
 		{ padding: 'sm', expectedLeft: '16px' }, // 1rem = 16px at default 16px root font-size
 		{ padding: 'md', expectedLeft: '32px' }, // 2rem
 		{ padding: 'lg', expectedLeft: '64px' }, // 4rem
-		{ padding: 'near', expectedLeft: '32px' }, // density fallback 2rem
-		{ padding: 'away', expectedLeft: '64px' } // density fallback 4rem
+		{ padding: 'near', expectedLeft: '64px' }, // density fallback 4rem
+		{ padding: 'away', expectedLeft: '128px' } // density fallback 8rem
 	];
 
 	for (const { padding, expectedLeft } of paddingEntries) {

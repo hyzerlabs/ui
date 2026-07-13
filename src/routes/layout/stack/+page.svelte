@@ -62,11 +62,11 @@
 
 	const densityCode = [
 		'<Stack gap="near">',
-		'\t<div>Top-level — near = 2rem</div>',
+		'\t<div>Top-level — near = 4rem</div>',
 		'\t<Stack gap="near" data-density-shift>',
-		'\t\t<div>One shift — near = 0.8rem</div>',
+		'\t\t<div>One shift — near = 2rem</div>',
 		'\t\t<Stack gap="near" data-density-shift>',
-		'\t\t\t<div>Two shifts — near = 0.4rem</div>',
+		'\t\t\t<div>Two shifts — near = 0.8rem</div>',
 		'\t\t</Stack>',
 		'\t</Stack>',
 		'</Stack>'
@@ -172,13 +172,13 @@
 					</p>
 					<Example code={densityCode}>
 						<Stack gap="near" class="demo-stack">
-							<div class="demo-box">Top-level — near = 2rem</div>
+							<div class="demo-box">Top-level — near = 4rem</div>
 							<div class="demo-box">Top-level sibling</div>
 							<Stack gap="near" data-density-shift class="shift-region">
-								<div class="demo-box">One shift — near = 0.8rem</div>
+								<div class="demo-box">One shift — near = 2rem</div>
 								<div class="demo-box">Sibling</div>
 								<Stack gap="near" data-density-shift class="shift-region">
-									<div class="demo-box">Two shifts — near = 0.4rem</div>
+									<div class="demo-box">Two shifts — near = 0.8rem</div>
 									<div class="demo-box">Sibling</div>
 								</Stack>
 							</Stack>

@@ -70,10 +70,10 @@
 
 	/* density distances — shift-aware vars from the tokens.css density block */
 	.hz-stack[data-gap='near'] {
-		gap: var(--hz-space-near, 2rem);
+		gap: var(--hz-space-near, 4rem);
 	}
 	.hz-stack[data-gap='away'] {
-		gap: var(--hz-space-away, 4rem);
+		gap: var(--hz-space-away, 8rem);
 	}
 
 	/* padding (both axes) per spacing scale — near/away are density-shift aware */
@@ -90,10 +90,10 @@
 		padding: var(--hz-space-lg, 4rem);
 	}
 	.hz-stack[data-padding='near'] {
-		padding: var(--hz-space-near, 2rem);
+		padding: var(--hz-space-near, 4rem);
 	}
 	.hz-stack[data-padding='away'] {
-		padding: var(--hz-space-away, 4rem);
+		padding: var(--hz-space-away, 8rem);
 	}
 
 	/* align-items per data-align */

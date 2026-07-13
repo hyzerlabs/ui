@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Stack } from '$lib';
+	import { Cluster, Stack } from '$lib';
 	import { space, width, density } from '$lib/tokens';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
@@ -24,28 +24,32 @@
 		away: `${level.away} × = ${(densityUnit * level.away).toFixed(1).replace(/\.0$/, '')}rem`
 	}));
 
-	const densityUsage = `<section class="settings">
-	<h2>Settings</h2>
-	<div class="group" data-density-shift>
-		<h3>Notifications</h3>
-		<label data-density-shift>…</label>
-	</div>
-</section>
+	// Mirrors the live demo below — every distance is gap/padding="near" or
+	// "away"; only the data-density-shift nesting changes.
+	const densityUsage = `<Stack gap="away">                          <!-- sections: away = 8rem -->
+	<Stack gap="near">                         <!-- heading ↔ cards: near = 4rem -->
+		<h2>Projects</h2>
+		<Cluster gap="near" align="stretch">
+			<Stack padding="near" data-density-shift> <!-- card: 1 shift → near = 2rem -->
+				<Stack gap="near" data-density-shift>    <!-- card rhythm: 2 shifts → 0.8rem -->
+					<h3>Flight Tracker</h3>
+					<p>Round scoring and disc flight stats.</p>
+					<Cluster gap="near" data-density-shift> <!-- tags: 3 shifts → 0.4rem -->
+						<span>svelte</span>
+						<span>supabase</span>
+						<span>pwa</span>
+					</Cluster>
+				</Stack>
+			</Stack>
+			<!-- … more cards … -->
+		</Cluster>
+	</Stack>
 
-<style>
-	.settings {
-		display: flex;
-		flex-direction: column;
-		gap: var(--hz-space-near); /* related: heading ↔ groups */
-		padding-block: var(--hz-space-away); /* unrelated: section ↔ page */
-	}
-	.group,
-	.group label {
-		display: flex;
-		flex-direction: column;
-		gap: var(--hz-space-near); /* same var, tighter per level */
-	}
-</style>`;
+	<Stack gap="near">
+		<h2>Archive</h2>
+		<p>Retired experiments live here.</p>
+	</Stack>
+</Stack>`;
 </script>
 
 <svelte:head>
@@ -55,7 +59,24 @@
 <Stack gap="xl">
 	<div>
 		<h1>Spacing &amp; Sizing</h1>
-		<p>Spacing scale and breakpoint/width tokens that back component layout defaults.</p>
+		<p>Three sizing systems, each answering a different question:</p>
+		<ul class="system-list">
+			<li>
+				<strong>Spacing scale</strong> — fixed steps (<code>--hz-space-xs</code> …
+				<code>xl</code>) for explicit, context-independent distances; they back the component
+				defaults.
+			</li>
+			<li>
+				<strong>Density spacing</strong> — two context-aware distances (<code>near</code> /
+				<code>away</code>) derived from one grid unit that automatically tighten as content nests.
+				Use these for page rhythm instead of picking steps by hand.
+			</li>
+			<li>
+				<strong>Breakpoint widths</strong> — the <code>--hz-width-sm…xl</code> tokens that cap
+				<code>Container</code> and drive the <code>Grid</code>/<code>Split</code> container-query
+				thresholds.
+			</li>
+		</ul>
 	</div>
 
 	<section aria-labelledby="space-heading">
@@ -91,8 +112,9 @@
 		</p>
 		<p class="tab-note">
 			Adding <code>data-density-shift</code> to an ancestor tightens both distances one level, so
-			nested regions read denser without introducing new spacing values. Two levels of shift is the
-			floor.
+			nested regions read denser without introducing new spacing values. Three levels of shift is
+			the floor. The near multipliers walk the 1-2-5-10 ladder, so a shifted region's away always
+			equals its parent's near.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -117,19 +139,43 @@
 
 		<h3 id="density-demo-heading">Live demo</h3>
 		<p>
-			Every box uses the same two variables — <code>gap: var(--hz-space-near)</code> and
-			<code>padding: var(--hz-space-away)</code>. Only the nesting changes.
+			A real composition built from Stack and Cluster — page, sections, cards, tag rows. Every
+			distance is <code>gap="near"</code>, <code>gap="away"</code>, or
+			<code>padding="near"</code>; each nested region adds one <code>data-density-shift</code> and
+			the whole hierarchy tightens on its own.
 		</p>
-		<div class="density-box" aria-labelledby="density-demo-heading">
-			<p class="density-label">Depth 0 — near 2rem · away 4rem</p>
-			<div class="density-box" data-density-shift>
-				<p class="density-label">Depth 1 — near 0.8rem · away 2rem</p>
-				<div class="density-box" data-density-shift>
-					<p class="density-label">Depth 2 — near 0.4rem · away 0.8rem</p>
-					<p class="density-label">Siblings sit one near apart.</p>
-				</div>
-			</div>
+		<div class="density-demo" aria-labelledby="density-demo-heading">
+			<Stack gap="away">
+				<Stack gap="near">
+					<p class="demo-heading">Projects</p>
+					<Cluster gap="near" align="stretch">
+						{#each [{ title: 'Flight Tracker', desc: 'Round scoring and disc flight stats for every throw.', tags: ['svelte', 'supabase', 'pwa'] }, { title: 'Course Atlas', desc: 'Community-maintained maps of local courses.', tags: ['sveltekit', 'maplibre'] }] as project (project.title)}
+							<Stack padding="near" data-density-shift class="density-card">
+								<Stack gap="near" data-density-shift>
+									<p class="card-title">{project.title}</p>
+									<p class="card-desc">{project.desc}</p>
+									<Cluster gap="near" data-density-shift>
+										{#each project.tags as tag (tag)}
+											<span class="demo-chip">{tag}</span>
+										{/each}
+									</Cluster>
+								</Stack>
+							</Stack>
+						{/each}
+					</Cluster>
+				</Stack>
+				<Stack gap="near">
+					<p class="demo-heading">Archive</p>
+					<p class="card-desc">Retired experiments live here.</p>
+				</Stack>
+			</Stack>
 		</div>
+		<p class="tab-note">
+			Sections sit 8rem apart (<code>away</code>, no shift) and headings sit 4rem from their
+			content (<code>near</code>). Card padding is <code>near</code> at one shift = 2rem; the
+			title/description/tags rhythm is <code>near</code> at two shifts = 0.8rem; the tag gaps are
+			<code>near</code> at three shifts = 0.4rem.
+		</p>
 
 		<h3>Usage</h3>
 		<CodeBlock code={densityUsage} />
@@ -187,6 +233,14 @@
 		margin: 0 0 1rem;
 	}
 
+	.system-list {
+		margin: 0;
+		padding-left: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
@@ -228,20 +282,43 @@
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 
-	.density-box {
-		display: flex;
-		flex-direction: column;
-		gap: var(--hz-space-near, 2rem);
-		padding: var(--hz-space-away, 4rem);
+	.density-demo {
 		border: 1px dashed var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
+		padding: var(--hz-space-near, 4rem);
+		margin-bottom: 1rem;
 	}
 
-	.density-label {
+	.demo-heading {
+		margin: 0;
+		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	:global(.density-card) {
+		border: 1px solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		flex: 1 1 16rem;
+	}
+
+	.card-title {
+		margin: 0;
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.card-desc {
 		margin: 0;
 		color: var(--hz-color-text-muted, #6b7280);
-		font-family: var(--hz-font-family-mono, monospace);
 		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.demo-chip {
+		padding: 0.125rem 0.625rem;
+		background: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
+		border: 1px solid var(--hz-color-primary, #2563eb);
+		border-radius: var(--hz-radius-full, 9999px);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		white-space: nowrap;
 	}
 
 	.token-table-wrapper {

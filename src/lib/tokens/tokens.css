@@ -121,21 +121,28 @@
  * (https://blog.damato.design/posts/complementary-space/).
  * Two distances: --hz-space-near separates related things, --hz-space-away
  * separates unrelated things; both derive from the --hz-density grid unit.
- * Each data-density-shift ancestor tightens the pair one step (5/10 → 2/5 →
- * 1/2 units), so nested regions read denser without new spacing values.
- * Coexists with the fixed --hz-space-* scale above.
+ * Each data-density-shift ancestor tightens the pair one step (10/20 → 5/10
+ * → 2/5 → 1/2 units), so nested regions read denser without new spacing
+ * values. The near multipliers walk the 1-2-5-10 ladder, and a shifted
+ * region's away always equals its parent's near. Coexists with the fixed
+ * --hz-space-* scale above.
  * ========================================================================== */
 body {
+	--hz-space-near: calc(var(--hz-density) * 10);
+	--hz-space-away: calc(var(--hz-density) * 20);
+}
+
+body [data-density-shift] {
 	--hz-space-near: calc(var(--hz-density) * 5);
 	--hz-space-away: calc(var(--hz-density) * 10);
 }
 
-body [data-density-shift] {
+body [data-density-shift] [data-density-shift] {
 	--hz-space-near: calc(var(--hz-density) * 2);
 	--hz-space-away: calc(var(--hz-density) * 5);
 }
 
-body [data-density-shift] [data-density-shift] {
+body [data-density-shift] [data-density-shift] [data-density-shift] {
 	--hz-space-near: calc(var(--hz-density) * 1);
 	--hz-space-away: calc(var(--hz-density) * 2);
 }

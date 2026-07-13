@@ -87,10 +87,10 @@
 
 	/* density distances — shift-aware vars from the tokens.css density block */
 	.hz-container[data-padding='near'] {
-		padding: var(--hz-space-near, 2rem);
+		padding: var(--hz-space-near, 4rem);
 	}
 	.hz-container[data-padding='away'] {
-		padding: var(--hz-space-away, 4rem);
+		padding: var(--hz-space-away, 8rem);
 	}
 
 	/* centering */

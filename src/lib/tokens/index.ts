@@ -67,6 +67,7 @@ export const density = {
 	unit: '0.4rem',
 	/** Multipliers of --hz-density per data-density-shift nesting depth. */
 	levels: [
+		{ near: 10, away: 20 },
 		{ near: 5, away: 10 },
 		{ near: 2, away: 5 },
 		{ near: 1, away: 2 }
