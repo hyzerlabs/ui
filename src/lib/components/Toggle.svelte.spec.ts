@@ -138,22 +138,45 @@ describe('Toggle-R2 — checked state', () => {
 		expect(btn.getAttribute('data-state')).toBe('off');
 	});
 
+	/*
+	 * Focus is established by CLICKING the button, not element.focus():
+	 * userEvent.keyboard sends real CDP keys to whichever test-file iframe
+	 * holds browser-level focus, and .focus() alone doesn't claim it — under
+	 * parallel iframes the keystroke could land in another frame (same flake
+	 * as Accordion R13). The click toggles on and focuses; the keypress
+	 * asserts the toggle-off half of native button activation.
+	 */
+	/** The headless button is zero-sized without the theme's track styles —
+	 * give it a hit area so Playwright's real click can land. */
+	function makeClickable(btn: HTMLButtonElement): void {
+		btn.style.width = '44px';
+		btn.style.height = '24px';
+	}
+
 	it('Enter key on button toggles checked (native button activation)', async () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
 		const btn = container.querySelector('button') as HTMLButtonElement;
-		btn.focus();
-		await userEvent.keyboard('{Enter}');
+		makeClickable(btn);
+		await userEvent.click(btn);
 		await tick();
 		expect(btn.getAttribute('aria-checked')).toBe('true');
+		expect(document.activeElement).toBe(btn);
+		await userEvent.keyboard('{Enter}');
+		await tick();
+		expect(btn.getAttribute('aria-checked')).toBe('false');
 	});
 
 	it('Space key on button toggles checked (native button activation)', async () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
 		const btn = container.querySelector('button') as HTMLButtonElement;
-		btn.focus();
-		await userEvent.keyboard(' ');
+		makeClickable(btn);
+		await userEvent.click(btn);
 		await tick();
 		expect(btn.getAttribute('aria-checked')).toBe('true');
+		expect(document.activeElement).toBe(btn);
+		await userEvent.keyboard(' ');
+		await tick();
+		expect(btn.getAttribute('aria-checked')).toBe('false');
 	});
 });
 

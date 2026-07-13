@@ -1133,7 +1133,11 @@ describe('Tabs-R12 — Tab key into panel', () => {
 		const triggers = Array.from(container.querySelectorAll<HTMLElement>('[role="tab"]'));
 		const panels = Array.from(container.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
 
-		triggers[0].focus();
+		// Click, not .focus(): userEvent.keyboard sends real CDP keys to the
+		// iframe holding browser-level focus, which .focus() alone doesn't
+		// claim under parallel test-file iframes. Clicking the already-active
+		// trigger is selection-neutral and focuses it for real.
+		await userEvent.click(triggers[0]);
 		await userEvent.keyboard('{Tab}');
 
 		// The active panel (panel A, tabindex=0) should receive focus
@@ -1423,8 +1427,9 @@ describe('Integration', () => {
 		const triggers = Array.from(container.querySelectorAll<HTMLElement>('[role="tab"]'));
 		const panels = Array.from(container.querySelectorAll<HTMLElement>('[role="tabpanel"]'));
 
-		// Focus the active trigger (Tab A, tabindex=0)
-		triggers[0].focus();
+		// Focus the active trigger via a real click (claims iframe focus for
+		// the CDP Tab keypress; clicking the active trigger is selection-neutral)
+		await userEvent.click(triggers[0]);
 		expect(document.activeElement).toBe(triggers[0]);
 
 		// Tab into the panel
