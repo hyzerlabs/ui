@@ -18,7 +18,7 @@
 			name: 'stackBelow',
 			type: "'sm' | 'md' | 'lg'",
 			default: "'sm'",
-			note: 'Container-query threshold — the --hz-width-sm/md/lg token (640/968/1200px) of the Split’s own width.'
+			note: 'Stacks under the --hz-width-sm/md/lg token (640/968/1200px) of the Split’s own width. Resolves via var() — overriding the token retunes the threshold.'
 		},
 		{
 			name: 'padding',
@@ -123,9 +123,9 @@
 					</Tabs>
 				{:else if item.id === 'reverse'}
 					<p class="tab-note">
-						<code>reverse</code> swaps the columns with CSS <code>order</code> — the DOM is
-						untouched, so screen readers and Tab order still follow source order. Useful for
-						alternating media/text rows.
+						<code>reverse</code> swaps the columns with CSS <code>order</code> — the DOM is untouched,
+						so screen readers and Tab order still follow source order. Useful for alternating media/text
+						rows.
 					</p>
 					<Example code={reverseCode}>
 						<Split fraction="1/3" gap="md" reverse>
@@ -135,9 +135,10 @@
 					</Example>
 				{:else if item.id === 'stack'}
 					<p class="tab-note">
-						<code>stackBelow</code> is a <em>container query</em> — the Split stacks when its own
-						width drops under the chosen width token (sm 640px, md 968px, lg 1200px). Use the
-						slider to cross the threshold.
+						The Split stacks when its own width drops under the chosen width token (sm 640px, md
+						968px, lg 1200px). The threshold resolves through
+						<code>var(--hz-width-*)</code>, so overriding those tokens — globally or on any ancestor
+						— retunes when it stacks. Use the slider to cross the threshold.
 					</p>
 					<Tabs
 						items={stackValues.map((v) => ({ id: v, label: v }))}
@@ -166,8 +167,8 @@
 				{:else}
 					<p class="tab-note">
 						The tinted zone is the Split; the space between its edge and the panes is the padding,
-						applied on both axes. It sits on the split root, so <code>stackBelow</code> measures
-						the padded-down width.
+						applied on both axes. It sits on the split root, so <code>stackBelow</code> measures the padded-down
+						width.
 					</p>
 					<Tabs
 						items={paddingValues.map((v) => ({ id: v, label: v }))}

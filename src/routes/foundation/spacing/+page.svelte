@@ -184,10 +184,12 @@
 	<section aria-labelledby="width-heading">
 		<h2 id="width-heading">Width / breakpoint tokens</h2>
 		<p>
-			These values back the <code>Container</code> max-width variants and the
-			<code>Grid</code>/<code>Split</code> container-query breakpoints (sm/md/lg). Component
-			<code>@media</code>/<code>@container</code> thresholds remain literal values — CSS cannot read
-			custom properties inside media or container queries.
+			Overriding these tokens retunes <code>Container</code> max-widths, <code>Split</code>'s
+			<code>stackBelow</code> threshold, and <code>Grid</code>'s fluid
+			<code>{'{ min }'}</code> mode — they all resolve via <code>var()</code>. The one exception is
+			<code>Grid</code>'s band breakpoints (base/sm/md/lg): they mirror these values but remain
+			literal system constants, because CSS cannot read custom properties inside media or
+			container queries.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">

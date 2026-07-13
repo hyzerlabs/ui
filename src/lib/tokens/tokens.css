@@ -64,9 +64,11 @@
 
 	/* =====================================================================
 	 * Sizing / width — backs existing component fallbacks (values are fixed)
-	 * Also the Grid/Split container-query breakpoints (sm/md/lg). Note:
-	 * @media/@container thresholds stay literal in components — CSS cannot
-	 * read custom properties there.
+	 * Overriding these retunes Container max, Split's stackBelow threshold,
+	 * and Grid's fluid { min } mode — all resolve via var(). Grid's BAND
+	 * breakpoints (base/sm/md/lg) mirror these values but stay literal
+	 * system constants: CSS cannot read custom properties in media or
+	 * container queries.
 	 * ===================================================================== */
 	--hz-width-sm: 640px;
 	--hz-width-md: 968px;

@@ -8,9 +8,9 @@
 	const props: PropRow[] = [
 		{
 			name: 'columns',
-			type: 'number | { base?: number; sm?: number; md?: number; lg?: number }',
-			default: '{ base: 1, sm: 2, md: 3 }',
-			note: 'Container-query breakpoints — keys apply from the --hz-width-sm/md/lg tokens (640/968/1200px) of the grid’s own width; base below 640px.'
+			type: 'number | { sm?: number; md?: number; lg?: number; xl?: number } | { min: string }',
+			default: '{ sm: 1, md: 2, lg: 3 }',
+			note: 'Band keys name the band ending at their width token: sm below 640px, md to 968px, lg to 1200px, xl beyond — fixed system constants (queries can’t read tokens). { min } is the fluid, fully var-driven mode.'
 		},
 		{
 			name: 'gap',
@@ -41,13 +41,13 @@
 	// Active column band for the resizable demo's readout — thresholds match
 	// the component's container queries.
 	function gridBand(w: number): string {
-		if (w >= 968) return 'md band → 3 columns';
-		if (w >= 640) return 'sm band → 2 columns';
-		return 'base band → 1 column';
+		if (w >= 968) return 'lg band → 3 columns';
+		if (w >= 640) return 'md band → 2 columns';
+		return 'sm band → 1 column';
 	}
 
 	const responsiveCode = [
-		'<Grid columns={{ base: 1, sm: 2, md: 3 }}>',
+		'<Grid columns={{ sm: 1, md: 2, lg: 3 }}>',
 		'\t<Card>…</Card>',
 		'\t<!-- … -->',
 		'</Grid>'
@@ -84,8 +84,23 @@
 		].join('\n');
 	}
 
+	const fluidCode = [
+		"<Grid columns={{ min: '12rem' }}>",
+		'\t<Card>…</Card>',
+		'\t<!-- … -->',
+		'</Grid>'
+	].join('\n');
+
+	// Expected auto-fit column count for the fluid demo readout
+	// (min 12rem = 192px, gap sm = 16px).
+	function fluidBand(w: number): string {
+		const n = Math.max(1, Math.floor((w + 16) / (192 + 16)));
+		return `${n} column${n === 1 ? '' : 's'}`;
+	}
+
 	const demoTabs = [
 		{ id: 'responsive', label: 'Responsive' },
+		{ id: 'fluid', label: 'Fluid' },
 		{ id: 'fixed', label: 'Fixed columns' },
 		{ id: 'gap', label: 'Gap' },
 		{ id: 'align', label: 'Align' },
@@ -106,16 +121,35 @@
 				{#if item.id === 'responsive'}
 					<p class="tab-note">
 						Column counts are <em>container queries</em> against the Grid's own width — a Grid in a
-						sidebar and one in a hero pick their own layouts independently of the window. Keys
-						apply from the width tokens: <code>sm</code> from 640px, <code>md</code> from 968px,
-						<code>lg</code> from 1200px; <code>base</code> below. Use the slider to change the
+						sidebar and one in a hero pick their own layouts independently of the window. Each key
+						names the band ending at its width token: <code>sm</code> below 640px, <code>md</code>
+						to 968px, <code>lg</code> to 1200px, <code>xl</code> beyond. Use the slider to change the
 						grid's width.
 					</p>
 					<Container breakout padding="none">
 						<Example code={responsiveCode}>
 							<ResizableDemo initial={720} describe={gridBand}>
-								<Grid columns={{ base: 1, sm: 2, md: 3 }} gap="sm">
+								<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="sm">
 									{#each Array.from({ length: 6 }, (_, k) => k) as i (i)}
+										<div class="demo-cell">Cell {i + 1}</div>
+									{/each}
+								</Grid>
+							</ResizableDemo>
+						</Example>
+					</Container>
+				{:else if item.id === 'fluid'}
+					<p class="tab-note">
+						<code>columns={'{{ min: … }}'}</code> fits as many equal tracks as have at least
+						<code>min</code> room — no breakpoints at all. Unlike the band thresholds (fixed
+						constants), <code>min</code> is any length <em>including</em> <code>var()</code>, so
+						this mode is fully token- and override-driven. Prefer it when the real requirement is
+						"cards at least this wide".
+					</p>
+					<Container breakout padding="none">
+						<Example code={fluidCode}>
+							<ResizableDemo initial={720} describe={fluidBand}>
+								<Grid columns={{ min: '12rem' }} gap="sm">
+									{#each Array.from({ length: 8 }, (_, k) => k) as i (i)}
 										<div class="demo-cell">Cell {i + 1}</div>
 									{/each}
 								</Grid>
@@ -186,8 +220,8 @@
 											Taller cell with a second line of content to change its height.
 										</div>
 										<div class="demo-cell">
-											Tallest cell — three lines of content so the cross-axis difference between
-											the align values is easy to see in the row.
+											Tallest cell — three lines of content so the cross-axis difference between the
+											align values is easy to see in the row.
 										</div>
 									</Grid>
 								</Example>

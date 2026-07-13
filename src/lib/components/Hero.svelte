@@ -95,9 +95,9 @@
 		<!--
 			Hero-R9: split layout composes the existing Split component.
 			fraction="1/2" gives equal columns; stackBelow="md" collapses below
-			968px of the split's own width (container query). Do NOT use Split's
-			reverse prop — reverseOnMobile is handled by Hero's own scoped order
-			rules (Hero-R10).
+			--hz-width-md (968px default, var-driven) of the split's own width.
+			Do NOT use Split's reverse prop — reverseOnMobile is handled by
+			Hero's own wrap-reverse rule (Hero-R10).
 		-->
 		<Split fraction="1/2" gap="lg" stackBelow="md">
 			{#if hasContent}
@@ -237,21 +237,26 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Hero-R10: reverseOnMobile — visual-only order swap while the split  */
-	/* is stacked. A container query against the .hz-split size container, */
-	/* so it flips at exactly the width Split un-stacks (968px container   */
-	/* width, matching stackBelow="md"). DOM order is never changed (R5).  */
+	/* Hero-R10: reverseOnMobile — media above content, but only while the  */
+	/* split is stacked. wrap-reverse makes flex lines fill bottom-up: on   */
+	/* one line (side by side) the inline order is unchanged, and when the  */
+	/* switcher wraps, the second child (media) lands on the top line. No   */
+	/* threshold to keep in sync, and DOM order is never changed (R5).      */
+	/* wrap-reverse inverts the cross axis, so the start/end align rules    */
+	/* above are flipped back to keep their visual meaning side by side.    */
 	/* ------------------------------------------------------------------ */
 
-	@container (max-width: 967.98px) {
-		.hz-hero[data-layout='split'][data-reverse-on-mobile]
-			:global(.hz-split > .hz-split-layout > .hz-hero-content) {
-			order: 2;
-		}
+	.hz-hero[data-layout='split'][data-reverse-on-mobile] :global(.hz-split > .hz-split-layout) {
+		flex-wrap: wrap-reverse;
+	}
 
-		.hz-hero[data-layout='split'][data-reverse-on-mobile]
-			:global(.hz-split > .hz-split-layout > .hz-hero-media) {
-			order: 1;
-		}
+	.hz-hero[data-layout='split'][data-reverse-on-mobile][data-align='start']
+		:global(.hz-split > .hz-split-layout) {
+		align-items: flex-end;
+	}
+
+	.hz-hero[data-layout='split'][data-reverse-on-mobile][data-align='end']
+		:global(.hz-split > .hz-split-layout) {
+		align-items: flex-start;
 	}
 </style>

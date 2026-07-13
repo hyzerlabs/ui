@@ -448,7 +448,9 @@
 	.docs-main {
 		flex: 1;
 		min-width: 0;
-		padding: 2rem 2.5rem;
+		/* 2rem inline padding keeps breakout ≥ 976px on a 1280px window —
+		 * past the 968px md threshold the split-hero demos need. */
+		padding: 2rem;
 		container-type: inline-size;
 		/* Prose column is start-aligned — breakouts grow rightward only. */
 		--hz-breakout-shift: 0;

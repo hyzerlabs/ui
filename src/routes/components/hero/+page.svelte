@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Hero, Button, Tabs } from '$lib';
+	import { Container, Hero, Button, Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
+	import ResizableDemo from '../../../docs/ResizableDemo.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
@@ -12,7 +13,7 @@
 			name: 'reverseOnMobile',
 			type: 'boolean',
 			default: 'false',
-			note: 'Split layout only: media renders above content below 968px.'
+			note: 'Split layout only: media renders above content while the split is stacked.'
 		},
 		{ name: 'headingLevel', type: '1 | 2 | 3 | 4 | 5 | 6', default: '1' },
 		{
@@ -118,7 +119,7 @@
 		'<Hero',
 		'\tlayout="split"',
 		'\treverseOnMobile',
-		'\ttitle="Reversed below 968px"',
+		'\ttitle="Media leads when stacked"',
 		'\tsubtitle="Media renders above the content on small screens."',
 		'\theadingLevel={2}',
 		'>',
@@ -148,44 +149,53 @@
 					>
 						{#snippet panel(lItem)}
 							<div class="inner-tab">
-								<Example code={layoutCode(lItem.id)}>
-									<div class="demo-hero-wrap">
-										{#if lItem.id === 'center'}
-											<Hero
-												eyebrow="What's new"
-												title="Headless components for Svelte 5"
-												subtitle="Ships behavior, structure, and accessibility — not visual opinions."
-												headingLevel={2}
-											>
-												{#snippet actions()}
-													<Button>Get started</Button>
-													<Button variant="outline">Learn more</Button>
-												{/snippet}
-											</Hero>
-										{:else if lItem.id === 'split'}
-											<Hero
-												layout="split"
-												subtitle="Content on one side, media on the other."
-												headingLevel={2}
-											>
-												{#snippet title()}Split hero with <em>styled</em> media{/snippet}
-												{#snippet actions()}<Button>Get started</Button>{/snippet}
-												{#snippet media()}
-													<div class="media-block" role="img" aria-label="Media placeholder"></div>
-												{/snippet}
-											</Hero>
-										{:else}
-											<Hero
-												layout="overlay"
-												title="Overlay hero"
-												subtitle="Content sits on top of the media background."
-												headingLevel={2}
-											>
-												{#snippet media()}<div class="bg-block" aria-hidden="true"></div>{/snippet}
-											</Hero>
-										{/if}
-									</div>
-								</Example>
+								<Container breakout padding="none">
+									<Example code={layoutCode(lItem.id)}>
+										<div class="demo-hero-wrap">
+											{#if lItem.id === 'center'}
+												<Hero
+													eyebrow="What's new"
+													title="Headless components for Svelte 5"
+													subtitle="Ships behavior, structure, and accessibility — not visual opinions."
+													headingLevel={2}
+												>
+													{#snippet actions()}
+														<Button>Get started</Button>
+														<Button variant="outline">Learn more</Button>
+													{/snippet}
+												</Hero>
+											{:else if lItem.id === 'split'}
+												<Hero
+													layout="split"
+													subtitle="Content on one side, media on the other."
+													headingLevel={2}
+												>
+													{#snippet title()}Split hero with <em>styled</em> media{/snippet}
+													{#snippet actions()}<Button>Get started</Button>{/snippet}
+													{#snippet media()}
+														<div
+															class="media-block"
+															role="img"
+															aria-label="Media placeholder"
+														></div>
+													{/snippet}
+												</Hero>
+											{:else}
+												<Hero
+													layout="overlay"
+													title="Overlay hero"
+													subtitle="Content sits on top of the media background."
+													headingLevel={2}
+												>
+													{#snippet media()}<div
+															class="bg-block"
+															aria-hidden="true"
+														></div>{/snippet}
+												</Hero>
+											{/if}
+										</div>
+									</Example>
+								</Container>
 							</div>
 						{/snippet}
 					</Tabs>
@@ -239,24 +249,33 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						Only affects the split layout below 968px — narrow the window to see the media block
-						move above the content.
+						Only affects the split layout, and only while it's stacked — media moves above the
+						content, with DOM and reading order unchanged. The split stacks below 968px (<code
+							>--hz-width-md</code
+						>) of its own width; use the slider to cross the threshold.
 					</p>
-					<Example code={reverseCode}>
-						<div class="demo-hero-wrap">
-							<Hero
-								layout="split"
-								reverseOnMobile
-								title="Reversed below 968px"
-								subtitle="Media renders above the content on small screens."
-								headingLevel={2}
+					<Container breakout padding="none">
+						<Example code={reverseCode}>
+							<ResizableDemo
+								initial={720}
+								describe={(w) => (w >= 968 ? 'side by side' : 'media on top')}
 							>
-								{#snippet media()}
-									<div class="media-block" role="img" aria-label="Media placeholder"></div>
-								{/snippet}
-							</Hero>
-						</div>
-					</Example>
+								<div class="demo-hero-wrap">
+									<Hero
+										layout="split"
+										reverseOnMobile
+										title="Media leads when stacked"
+										subtitle="Media renders above the content on small screens."
+										headingLevel={2}
+									>
+										{#snippet media()}
+											<div class="media-block" role="img" aria-label="Media placeholder"></div>
+										{/snippet}
+									</Hero>
+								</div>
+							</ResizableDemo>
+						</Example>
+					</Container>
 				{/if}
 			</div>
 		{/snippet}

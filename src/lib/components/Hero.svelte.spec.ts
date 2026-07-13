@@ -532,33 +532,35 @@ describe('Hero-R9 — split layout', () => {
 		expect(getComputedStyle(split).alignItems).toBe('flex-end');
 	});
 
-	it('split layout at ≥968px: .hz-split-layout has two-column grid-template-columns', async () => {
+	it('split layout at ≥968px: content and media sit side by side on one row', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
 		await page.viewport(1200, 800);
-		const split = container.querySelector('.hz-split-layout') as HTMLElement;
-		const cols = getComputedStyle(split).gridTemplateColumns;
-		// Equal 1/2 fraction → two equal columns
-		const parts = cols.trim().split(/\s+/);
-		expect(parts).toHaveLength(2);
-		expect(parts[0]).toBe(parts[1]);
+		const content = container.querySelector('.hz-hero-content') as HTMLElement;
+		const mediaEl = container.querySelector('.hz-hero-media') as HTMLElement;
+		const c = content.getBoundingClientRect();
+		const m = mediaEl.getBoundingClientRect();
+		// Same flex line: vertical spans overlap and media is to the right
+		expect(c.top).toBeLessThan(m.bottom);
+		expect(m.top).toBeLessThan(c.bottom);
+		expect(m.left).toBeGreaterThan(c.left);
 	});
 
-	it('split layout at <968px: .hz-split-layout is single column', async () => {
+	it('split layout at <968px: content and media stack (content above media)', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
 		await page.viewport(640, 800);
-		const split = container.querySelector('.hz-split-layout') as HTMLElement;
-		const cols = getComputedStyle(split).gridTemplateColumns;
-		// Single column — only one track value
-		const parts = cols.trim().split(/\s+/);
-		expect(parts).toHaveLength(1);
+		const content = container.querySelector('.hz-hero-content') as HTMLElement;
+		const mediaEl = container.querySelector('.hz-hero-media') as HTMLElement;
+		expect(mediaEl.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+			content.getBoundingClientRect().bottom - 0.5
+		);
 	});
 
 	it('split layout with no media: .hz-split-layout has single child (hz-hero-content)', () => {
@@ -584,7 +586,7 @@ describe('Hero-R10 — reverseOnMobile', () => {
 		expect(hero.hasAttribute('data-reverse-on-mobile')).toBe(true);
 	});
 
-	it('split + reverseOnMobile at <968px: media has lower computed order than content', async () => {
+	it('split + reverseOnMobile at <968px: media renders above content (wrap-reverse)', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			reverseOnMobile: true,
@@ -594,13 +596,15 @@ describe('Hero-R10 — reverseOnMobile', () => {
 		await page.viewport(640, 800);
 		const content = container.querySelector('.hz-hero-content') as HTMLElement;
 		const mediaEl = container.querySelector('.hz-hero-media') as HTMLElement;
-		const contentOrder = parseInt(getComputedStyle(content).order, 10);
-		const mediaOrder = parseInt(getComputedStyle(mediaEl).order, 10);
-		// Media should visually appear first (lower order value)
-		expect(mediaOrder).toBeLessThan(contentOrder);
+		const layout = container.querySelector('.hz-split-layout') as HTMLElement;
+		expect(getComputedStyle(layout).flexWrap).toBe('wrap-reverse');
+		// Media should visually appear first (above content)
+		expect(mediaEl.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+			content.getBoundingClientRect().top + 0.5
+		);
 	});
 
-	it('split + reverseOnMobile at ≥968px: no order swap applied', async () => {
+	it('split + reverseOnMobile at ≥968px: columns keep content left, media right', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			reverseOnMobile: true,
@@ -610,11 +614,13 @@ describe('Hero-R10 — reverseOnMobile', () => {
 		await page.viewport(1200, 800);
 		const content = container.querySelector('.hz-hero-content') as HTMLElement;
 		const mediaEl = container.querySelector('.hz-hero-media') as HTMLElement;
-		const contentOrder = parseInt(getComputedStyle(content).order, 10);
-		const mediaOrder = parseInt(getComputedStyle(mediaEl).order, 10);
-		// At wide viewport no order override → both default (0)
-		expect(contentOrder).toBe(0);
-		expect(mediaOrder).toBe(0);
+		const c = content.getBoundingClientRect();
+		const m = mediaEl.getBoundingClientRect();
+		// Same row (wrap-reverse has no visual effect on a single line),
+		// inline order unchanged.
+		expect(c.top).toBeLessThan(m.bottom);
+		expect(m.top).toBeLessThan(c.bottom);
+		expect(m.left).toBeGreaterThan(c.left);
 	});
 
 	it('split + reverseOnMobile: DOM order unchanged (content before media) at any width', async () => {
@@ -990,27 +996,29 @@ describe('Integration — Hero-R9/R10 responsive layout', () => {
 		await page.viewport(1024, 768);
 	});
 
-	it('split hero: two equal columns at wide viewport, single column at ≤320px', async () => {
+	it('split hero: two roughly equal columns at wide viewport, stacked at ≤320px', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
-		const split = container.querySelector('.hz-split-layout') as HTMLElement;
+		const content = container.querySelector('.hz-hero-content') as HTMLElement;
+		const mediaEl = container.querySelector('.hz-hero-media') as HTMLElement;
 
 		await page.viewport(1200, 800);
-		const wideCols = getComputedStyle(split).gridTemplateColumns;
-		const wideParts = wideCols.trim().split(/\s+/);
-		expect(wideParts).toHaveLength(2);
-		expect(wideParts[0]).toBe(wideParts[1]);
+		const cWide = content.getBoundingClientRect();
+		const mWide = mediaEl.getBoundingClientRect();
+		// Same row, equal grow (1/2 fraction) → widths within a few px
+		expect(mWide.left).toBeGreaterThan(cWide.left);
+		expect(Math.abs(cWide.width - mWide.width)).toBeLessThan(4);
 
 		await page.viewport(320, 800);
-		const narrowCols = getComputedStyle(split).gridTemplateColumns;
-		const narrowParts = narrowCols.trim().split(/\s+/);
-		expect(narrowParts).toHaveLength(1);
+		expect(mediaEl.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+			content.getBoundingClientRect().bottom - 0.5
+		);
 	});
 
-	it('reverseOnMobile: order applies below 968px, DOM order preserved across switch', async () => {
+	it('reverseOnMobile: media on top only while stacked, DOM order preserved across switch', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			reverseOnMobile: true,
@@ -1028,10 +1036,10 @@ describe('Integration — Hero-R9/R10 responsive layout', () => {
 		const mediaDomIdx = kidsNarrow.findIndex((el) => el.classList.contains('hz-hero-media'));
 		expect(contentDomIdx).toBeLessThan(mediaDomIdx); // DOM order unchanged
 
-		// Visual order at narrow: media first (lower order value)
-		const mediaOrderNarrow = parseInt(getComputedStyle(mediaEl).order, 10);
-		const contentOrderNarrow = parseInt(getComputedStyle(content).order, 10);
-		expect(mediaOrderNarrow).toBeLessThan(contentOrderNarrow);
+		// Visual order at narrow: media above content (wrap-reverse lines)
+		expect(mediaEl.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+			content.getBoundingClientRect().top + 0.5
+		);
 
 		// DOM order check at wide viewport
 		await page.viewport(1200, 800);
@@ -1040,10 +1048,9 @@ describe('Integration — Hero-R9/R10 responsive layout', () => {
 		const mediaDomIdxWide = kidsWide.findIndex((el) => el.classList.contains('hz-hero-media'));
 		expect(contentDomIdxWide).toBeLessThan(mediaDomIdxWide); // DOM order still unchanged
 
-		// No order override at wide viewport
-		const mediaOrderWide = parseInt(getComputedStyle(mediaEl).order, 10);
-		const contentOrderWide = parseInt(getComputedStyle(content).order, 10);
-		expect(mediaOrderWide).toBe(0);
-		expect(contentOrderWide).toBe(0);
+		// Side by side at wide viewport: content left, media right
+		expect(mediaEl.getBoundingClientRect().left).toBeGreaterThan(
+			content.getBoundingClientRect().left
+		);
 	});
 });

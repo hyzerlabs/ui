@@ -55,52 +55,74 @@
 
 <style>
 	/*
-	 * The root is a size container so the stackBelow breakpoint responds to
-	 * the split's own available width (container queries), not the viewport.
-	 * An element cannot container-query itself, so the inner .hz-split-layout
-	 * does the actual grid layout.
-	 *
-	 * stackBelow maps to the width tokens: sm = --hz-width-sm (640px),
-	 * md = --hz-width-md (968px), lg = --hz-width-lg (1200px) of container
-	 * width. Thresholds stay literal — CSS cannot read custom properties in
-	 * container queries.
+	 * Stacking uses the flex "switcher" pattern (Every Layout) instead of a
+	 * container query, so the threshold resolves through var(): overriding
+	 * --hz-width-sm/md/lg — globally or on any ancestor — retunes when the
+	 * split stacks. Each column's flex-basis is (threshold − 100%) × 999:
+	 * hugely positive while the split is narrower than the threshold (every
+	 * column takes its own line), negative (floored to 0) once it's wider
+	 * (columns share the line at their flex-grow ratio).
 	 */
 	.hz-split {
 		display: block;
-		container-type: inline-size;
+	}
+
+	/* stackBelow → the width token the split stacks under (var-driven) */
+	.hz-split[data-stack-below='sm'] {
+		--_threshold: var(--hz-width-sm, 640px);
+	}
+	.hz-split[data-stack-below='md'] {
+		--_threshold: var(--hz-width-md, 968px);
+	}
+	.hz-split[data-stack-below='lg'] {
+		--_threshold: var(--hz-width-lg, 1200px);
 	}
 
 	.hz-split-layout {
-		display: grid;
+		display: flex;
+		flex-wrap: wrap;
+	}
+
+	.hz-split-layout > :global(*) {
+		flex-grow: 1;
+		flex-basis: calc((var(--_threshold, 640px) - 100%) * 999);
 	}
 
 	/*
-	 * Map each fraction to an internal CSS custom property --_cols.
-	 * Set on the root (stylesheet-internal, not emitted as inline style) and
-	 * inherited by the layout element, which consumes it in the container
-	 * query rules below.
+	 * fraction → flex-grow ratio of the two columns (basis floors to 0 when
+	 * side by side, so grow ratios become width ratios, subject to
+	 * min-content). 'auto' sizes the first column to its content.
 	 */
-	.hz-split[data-fraction='1/4'] {
-		--_cols: 1fr 3fr;
+	.hz-split[data-fraction='1/4'] > .hz-split-layout > :global(:first-child) {
+		flex-grow: 1;
 	}
-	.hz-split[data-fraction='1/3'] {
-		--_cols: 1fr 2fr;
+	.hz-split[data-fraction='1/4'] > .hz-split-layout > :global(:last-child) {
+		flex-grow: 3;
 	}
-	.hz-split[data-fraction='1/2'] {
-		--_cols: 1fr 1fr;
+	.hz-split[data-fraction='1/3'] > .hz-split-layout > :global(:first-child) {
+		flex-grow: 1;
 	}
-	.hz-split[data-fraction='2/3'] {
-		--_cols: 2fr 1fr;
+	.hz-split[data-fraction='1/3'] > .hz-split-layout > :global(:last-child) {
+		flex-grow: 2;
 	}
-	.hz-split[data-fraction='3/4'] {
-		--_cols: 3fr 1fr;
+	.hz-split[data-fraction='2/3'] > .hz-split-layout > :global(:first-child) {
+		flex-grow: 2;
 	}
-	.hz-split[data-fraction='auto'] {
-		--_cols: auto 1fr;
+	.hz-split[data-fraction='2/3'] > .hz-split-layout > :global(:last-child) {
+		flex-grow: 1;
+	}
+	.hz-split[data-fraction='3/4'] > .hz-split-layout > :global(:first-child) {
+		flex-grow: 3;
+	}
+	.hz-split[data-fraction='3/4'] > .hz-split-layout > :global(:last-child) {
+		flex-grow: 1;
+	}
+	.hz-split[data-fraction='auto'] > .hz-split-layout > :global(:first-child) {
+		flex: 0 1 auto;
 	}
 
-	/* padding (both axes) per spacing scale — on the root, so the container
-	 * queries measure the space actually available to the columns.
+	/* padding (both axes) per spacing scale — on the root, so the switcher's
+	 * 100% is the space actually available to the columns.
 	 * near/away are density-shift aware. */
 	.hz-split[data-padding='none'] {
 		padding: 0;
@@ -141,28 +163,6 @@
 	}
 	.hz-split[data-gap='away'] > .hz-split-layout {
 		gap: var(--hz-space-away, 8rem);
-	}
-
-	/*
-	 * Un-stack into two columns at the data-stack-below container width.
-	 * Narrow-first: single column by default (auto-flow).
-	 */
-	@container (min-width: 640px) {
-		.hz-split[data-stack-below='sm'] > .hz-split-layout {
-			grid-template-columns: var(--_cols);
-		}
-	}
-
-	@container (min-width: 968px) {
-		.hz-split[data-stack-below='md'] > .hz-split-layout {
-			grid-template-columns: var(--_cols);
-		}
-	}
-
-	@container (min-width: 1200px) {
-		.hz-split[data-stack-below='lg'] > .hz-split-layout {
-			grid-template-columns: var(--_cols);
-		}
 	}
 
 	/*

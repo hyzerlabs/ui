@@ -19,29 +19,34 @@ function consumerClasses(el: HTMLElement): string[] {
 }
 
 /**
- * Read the stylesheet-internal `--_cols` custom property set by the
- * data-fraction CSS rules. This verifies the fraction→template mapping
- * without depending on the test-environment viewport size.
- */
-function getCols(el: HTMLElement): string {
-	return getComputedStyle(el).getPropertyValue('--_cols').trim();
-}
-
-/**
  * Add two `<div>` children to the split's inner layout element (where slotted
- * children land) and return them. Used to test the CSS `order` reversal and
- * DOM-order preservation. (createRawSnippet cannot return multi-element HTML,
- * so we do this directly.)
+ * children land) and return them. Used to test the CSS `order` reversal,
+ * DOM-order preservation, and stacking geometry. Fixed height so stacked vs
+ * side-by-side is measurable via bounding rects. (createRawSnippet cannot
+ * return multi-element HTML, so we do this directly.)
  */
 function appendTwoChildren(root: HTMLElement): [HTMLElement, HTMLElement] {
 	const layout = root.querySelector('.hz-split-layout') as HTMLElement;
 	const c1 = document.createElement('div');
 	c1.setAttribute('data-child', '1');
+	c1.style.height = '10px';
 	const c2 = document.createElement('div');
 	c2.setAttribute('data-child', '2');
+	c2.style.height = '10px';
 	layout.appendChild(c1);
 	layout.appendChild(c2);
 	return [c1, c2];
+}
+
+/**
+ * With the root forced to `width`, report whether the two children sit on
+ * separate lines (stacked) or share one (side by side).
+ */
+function isStacked(root: HTMLElement, c1: HTMLElement, c2: HTMLElement, width: number): boolean {
+	root.style.width = `${width}px`;
+	const r1 = c1.getBoundingClientRect();
+	const r2 = c2.getBoundingClientRect();
+	return r2.top >= r1.bottom - 0.5;
 }
 
 // ---------------------------------------------------------------------------
@@ -86,12 +91,12 @@ describe('R14 — default render', () => {
 		expect(el.hasAttribute('data-reverse')).toBe(false);
 	});
 
-	it('root is the size container; inner .hz-split-layout has computed display: grid', () => {
+	it('inner .hz-split-layout is a wrapping flex row (the switcher)', () => {
 		const { container } = render(Split);
 		const el = container.querySelector('.hz-split') as HTMLElement;
 		const layout = el.querySelector('.hz-split-layout') as HTMLElement;
-		expect(getComputedStyle(el).containerType).toBe('inline-size');
-		expect(getComputedStyle(layout).display).toBe('grid');
+		expect(getComputedStyle(layout).display).toBe('flex');
+		expect(getComputedStyle(layout).flexWrap).toBe('wrap');
 	});
 
 	it('renders children', () => {
@@ -112,43 +117,53 @@ describe('R14 — default render', () => {
 
 describe('R15 — fraction prop', () => {
 	/**
-	 * Fractions and the grid-template-columns template they should produce.
-	 * The mapping is verified via the `--_cols` CSS custom property set by
-	 * the data-fraction attribute selectors in the shipped stylesheet.
+	 * Fractions and the flex-grow ratio they should give the two columns.
+	 * With switcher basis floored to 0 side by side, grow ratios become
+	 * width ratios.
 	 */
 	const fractionEntries: Array<{
-		fraction: '1/4' | '1/3' | '1/2' | '2/3' | '3/4' | 'auto';
-		expectedCols: string;
+		fraction: '1/4' | '1/3' | '1/2' | '2/3' | '3/4';
+		expectedGrow: [string, string];
 	}> = [
-		{ fraction: '1/4', expectedCols: '1fr 3fr' },
-		{ fraction: '1/3', expectedCols: '1fr 2fr' },
-		{ fraction: '1/2', expectedCols: '1fr 1fr' },
-		{ fraction: '2/3', expectedCols: '2fr 1fr' },
-		{ fraction: '3/4', expectedCols: '3fr 1fr' },
-		{ fraction: 'auto', expectedCols: 'auto 1fr' }
+		{ fraction: '1/4', expectedGrow: ['1', '3'] },
+		{ fraction: '1/3', expectedGrow: ['1', '2'] },
+		{ fraction: '1/2', expectedGrow: ['1', '1'] },
+		{ fraction: '2/3', expectedGrow: ['2', '1'] },
+		{ fraction: '3/4', expectedGrow: ['3', '1'] }
 	];
 
-	for (const { fraction, expectedCols } of fractionEntries) {
+	for (const { fraction, expectedGrow } of fractionEntries) {
 		it(`fraction="${fraction}" is reflected in data-fraction`, () => {
 			const { container } = render(Split, { fraction });
 			const el = container.querySelector('.hz-split') as HTMLElement;
 			expect(el.getAttribute('data-fraction')).toBe(fraction);
 		});
 
-		it(`fraction="${fraction}" → CSS --_cols template is "${expectedCols}"`, () => {
+		it(`fraction="${fraction}" → children flex-grow ${expectedGrow.join(' / ')}`, () => {
 			const { container } = render(Split, { fraction });
 			const el = container.querySelector('.hz-split') as HTMLElement;
-			// --_cols is the internal CSS variable set by the [data-fraction] rule
-			// and consumed by the breakpoint media-query rules as grid-template-columns.
-			expect(getCols(el)).toBe(expectedCols);
+			const [c1, c2] = appendTwoChildren(el);
+			expect(getComputedStyle(c1).flexGrow).toBe(expectedGrow[0]);
+			expect(getComputedStyle(c2).flexGrow).toBe(expectedGrow[1]);
 		});
 	}
 
-	it('fraction="auto" → data-fraction="auto" with --_cols "auto 1fr"', () => {
+	it('fraction="1/4" side by side → first column ≈ a quarter of the width', () => {
+		const { container } = render(Split, { fraction: '1/4', gap: 'none', stackBelow: 'sm' });
+		const el = container.querySelector('.hz-split') as HTMLElement;
+		const [c1] = appendTwoChildren(el);
+		el.style.width = '800px';
+		expect(c1.getBoundingClientRect().width).toBeCloseTo(200, 0);
+	});
+
+	it('fraction="auto" → first column is content-sized, second fills', () => {
 		const { container } = render(Split, { fraction: 'auto' });
 		const el = container.querySelector('.hz-split') as HTMLElement;
 		expect(el.getAttribute('data-fraction')).toBe('auto');
-		expect(getCols(el)).toBe('auto 1fr');
+		const [c1, c2] = appendTwoChildren(el);
+		expect(getComputedStyle(c1).flexGrow).toBe('0');
+		expect(getComputedStyle(c1).flexBasis).toBe('auto');
+		expect(getComputedStyle(c2).flexGrow).toBe('1');
 	});
 });
 
@@ -207,17 +222,6 @@ describe('R16 — reverse prop', () => {
 // ---------------------------------------------------------------------------
 
 describe('R17 — stackBelow prop', () => {
-	/**
-	 * Read the layout's grid-template-columns with the root (the size
-	 * container) forced to a given width. 'none' means stacked (single
-	 * auto-flow column); two track values mean side by side.
-	 */
-	function templateAt(root: HTMLElement, width: number): string {
-		root.style.width = `${width}px`;
-		const layout = root.querySelector('.hz-split-layout') as HTMLElement;
-		return getComputedStyle(layout).gridTemplateColumns.trim();
-	}
-
 	for (const stackBelow of ['sm', 'md', 'lg'] as const) {
 		it(`stackBelow="${stackBelow}" is reflected in data-stack-below`, () => {
 			const { container } = render(Split, { stackBelow });
@@ -233,13 +237,27 @@ describe('R17 — stackBelow prop', () => {
 	] as const;
 
 	for (const { stackBelow, px } of thresholds) {
-		it(`stackBelow="${stackBelow}" stacks below ${px}px of container width and splits at ${px}px`, () => {
-			const { container } = render(Split, { stackBelow });
+		it(`stackBelow="${stackBelow}" stacks below ${px}px of its own width and splits at ${px}px`, () => {
+			const { container } = render(Split, { stackBelow, gap: 'none' });
 			const root = container.querySelector('.hz-split') as HTMLElement;
-			expect(templateAt(root, px - 40)).toBe('none');
-			expect(templateAt(root, px).split(/\s+/).length).toBe(2);
+			const [c1, c2] = appendTwoChildren(root);
+			expect(isStacked(root, c1, c2, px - 40)).toBe(true);
+			expect(isStacked(root, c1, c2, px)).toBe(false);
 		});
 	}
+
+	it('the threshold resolves through var() — overriding --hz-width-sm retunes it', () => {
+		const { container } = render(Split, { stackBelow: 'sm', gap: 'none' });
+		const root = container.querySelector('.hz-split') as HTMLElement;
+		const [c1, c2] = appendTwoChildren(root);
+		// 700px is side by side at the 640px fallback…
+		expect(isStacked(root, c1, c2, 700)).toBe(false);
+		// …but stacked once the sm width token is raised above it.
+		root.style.setProperty('--hz-width-sm', '800px');
+		expect(isStacked(root, c1, c2, 700)).toBe(true);
+		root.style.removeProperty('--hz-width-sm');
+		expect(isStacked(root, c1, c2, 700)).toBe(false);
+	});
 
 	it('gap is retained while stacked (computed row-gap is non-zero for gap="md")', () => {
 		const { container } = render(Split, { gap: 'md', stackBelow: 'md' });

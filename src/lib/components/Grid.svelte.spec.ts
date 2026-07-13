@@ -70,13 +70,13 @@ describe('R10 — default render', () => {
 		expect(getComputedStyle(layout).display).toBe('grid');
 	});
 
-	it('default columns object → --hz-grid-cols-base/sm/md inline custom props', () => {
+	it('default columns object → --hz-grid-cols-sm/md/lg inline custom props', () => {
 		const { container } = render(Grid);
 		const el = container.querySelector('.hz-grid') as HTMLElement;
-		expect(el.style.getPropertyValue('--hz-grid-cols-base')).toBe('1');
-		expect(el.style.getPropertyValue('--hz-grid-cols-sm')).toBe('2');
-		expect(el.style.getPropertyValue('--hz-grid-cols-md')).toBe('3');
-		expect(el.style.getPropertyValue('--hz-grid-cols-lg')).toBe('');
+		expect(el.style.getPropertyValue('--hz-grid-cols-sm')).toBe('1');
+		expect(el.style.getPropertyValue('--hz-grid-cols-md')).toBe('2');
+		expect(el.style.getPropertyValue('--hz-grid-cols-lg')).toBe('3');
+		expect(el.style.getPropertyValue('--hz-grid-cols-xl')).toBe('');
 	});
 
 	it('default columns object → no flat --hz-grid-cols custom prop', () => {
@@ -143,51 +143,51 @@ describe('R11 — columns (number)', () => {
 // ---------------------------------------------------------------------------
 
 describe('R12 — columns (object)', () => {
-	it('{ base: 1, sm: 2, md: 3, lg: 4 } → per-key inline custom props', () => {
-		const { container } = render(Grid, { columns: { base: 1, sm: 2, md: 3, lg: 4 } });
+	it('{ sm: 1, md: 2, lg: 3, xl: 4 } → per-key inline custom props', () => {
+		const { container } = render(Grid, { columns: { sm: 1, md: 2, lg: 3, xl: 4 } });
 		const el = container.querySelector('.hz-grid') as HTMLElement;
-		expect(el.style.getPropertyValue('--hz-grid-cols-base')).toBe('1');
-		expect(el.style.getPropertyValue('--hz-grid-cols-sm')).toBe('2');
-		expect(el.style.getPropertyValue('--hz-grid-cols-md')).toBe('3');
-		expect(el.style.getPropertyValue('--hz-grid-cols-lg')).toBe('4');
+		expect(el.style.getPropertyValue('--hz-grid-cols-sm')).toBe('1');
+		expect(el.style.getPropertyValue('--hz-grid-cols-md')).toBe('2');
+		expect(el.style.getPropertyValue('--hz-grid-cols-lg')).toBe('3');
+		expect(el.style.getPropertyValue('--hz-grid-cols-xl')).toBe('4');
 	});
 
 	it('object mode → no flat --hz-grid-cols prop', () => {
-		const { container } = render(Grid, { columns: { base: 1, sm: 2, md: 3 } });
+		const { container } = render(Grid, { columns: { sm: 1, md: 2, lg: 3 } });
 		const el = container.querySelector('.hz-grid') as HTMLElement;
 		expect(el.style.getPropertyValue('--hz-grid-cols')).toBe('');
 	});
 
 	it('object mode → no data-columns attribute', () => {
-		const { container } = render(Grid, { columns: { base: 1, sm: 2, md: 3 } });
+		const { container } = render(Grid, { columns: { sm: 1, md: 2, lg: 3 } });
 		const el = container.querySelector('.hz-grid') as HTMLElement;
 		expect(el.hasAttribute('data-columns')).toBe(false);
 	});
 
-	it('{ md: 2 } (partial) → only --hz-grid-cols-md set; base, sm, and lg absent', () => {
+	it('{ md: 2 } (partial) → only --hz-grid-cols-md set; sm, lg, and xl absent', () => {
 		const { container } = render(Grid, { columns: { md: 2 } });
 		const el = container.querySelector('.hz-grid') as HTMLElement;
 		expect(el.style.getPropertyValue('--hz-grid-cols-md')).toBe('2');
-		expect(el.style.getPropertyValue('--hz-grid-cols-base')).toBe('');
 		expect(el.style.getPropertyValue('--hz-grid-cols-sm')).toBe('');
 		expect(el.style.getPropertyValue('--hz-grid-cols-lg')).toBe('');
+		expect(el.style.getPropertyValue('--hz-grid-cols-xl')).toBe('');
 	});
 
 	it('{} (empty object) → no column custom properties emitted', () => {
 		const { container } = render(Grid, { columns: {} });
 		const el = container.querySelector('.hz-grid') as HTMLElement;
 		expect(el.style.getPropertyValue('--hz-grid-cols')).toBe('');
-		expect(el.style.getPropertyValue('--hz-grid-cols-base')).toBe('');
 		expect(el.style.getPropertyValue('--hz-grid-cols-sm')).toBe('');
 		expect(el.style.getPropertyValue('--hz-grid-cols-md')).toBe('');
 		expect(el.style.getPropertyValue('--hz-grid-cols-lg')).toBe('');
+		expect(el.style.getPropertyValue('--hz-grid-cols-xl')).toBe('');
 	});
 
 	it('{} (empty object) → cascade falls back to 1 column, still renders', () => {
 		const { container } = render(Grid, { columns: {} });
 		const el = container.querySelector('.hz-grid') as HTMLElement;
 		expect(el).not.toBeNull();
-		// Base CSS: repeat(var(--hz-grid-cols-base, var(--hz-grid-cols, 1)), ...) → 1
+		// Base CSS: repeat(var(--hz-grid-cols-sm, var(--hz-grid-cols, 1)), ...) → 1
 		expect(countTracks(el)).toBe(1);
 	});
 });
@@ -197,7 +197,7 @@ describe('R12 — columns (object)', () => {
 // ---------------------------------------------------------------------------
 
 describe('R12 — container-query breakpoints', () => {
-	it('default {base:1, sm:2, md:3}: 1 track below 640px, 2 from 640px, 3 from 968px', () => {
+	it('default {sm:1, md:2, lg:3}: 1 track below 640px, 2 from 640px, 3 from 968px', () => {
 		const { container } = render(Grid);
 		const root = container.querySelector('.hz-grid') as HTMLElement;
 		expect(countTracks(root, 500)).toBe(1);
@@ -205,20 +205,70 @@ describe('R12 — container-query breakpoints', () => {
 		expect(countTracks(root, 1000)).toBe(3);
 	});
 
-	it('lg key applies from 1200px of container width', () => {
-		const { container } = render(Grid, { columns: { base: 1, md: 2, lg: 4 } });
+	it('xl key applies from 1200px of container width', () => {
+		const { container } = render(Grid, { columns: { sm: 1, lg: 2, xl: 4 } });
 		const root = container.querySelector('.hz-grid') as HTMLElement;
 		expect(countTracks(root, 1000)).toBe(2);
 		expect(countTracks(root, 1300)).toBe(4);
 	});
 
 	it('partial keys fall back to the next-narrower defined key', () => {
-		const { container } = render(Grid, { columns: { sm: 2 } });
+		const { container } = render(Grid, { columns: { md: 2 } });
 		const root = container.querySelector('.hz-grid') as HTMLElement;
-		// No base → 1 below 640; sm: 2 applies from 640 up (md/lg fall back to sm)
+		// No sm → 1 below 640; md: 2 applies from 640 up (lg/xl fall back to md)
 		expect(countTracks(root, 500)).toBe(1);
 		expect(countTracks(root, 700)).toBe(2);
 		expect(countTracks(root, 1300)).toBe(2);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Fluid columns — columns={{ min }} → auto-fit, no breakpoints, var-driven
+// ---------------------------------------------------------------------------
+
+describe('fluid columns ({ min })', () => {
+	/** Fill the layout with cells so auto-fit tracks don't collapse. */
+	function appendCells(root: HTMLElement, n: number): void {
+		const layout = root.querySelector('.hz-grid-layout') as HTMLElement;
+		for (let i = 0; i < n; i++) {
+			const cell = document.createElement('div');
+			cell.style.height = '5px';
+			layout.appendChild(cell);
+		}
+	}
+
+	it('{ min } → data-fluid attribute and --hz-grid-min inline custom prop', () => {
+		const { container } = render(Grid, { columns: { min: '16rem' } });
+		const el = container.querySelector('.hz-grid') as HTMLElement;
+		expect(el.hasAttribute('data-fluid')).toBe(true);
+		expect(el.style.getPropertyValue('--hz-grid-min')).toBe('16rem');
+		expect(el.style.getPropertyValue('--hz-grid-cols')).toBe('');
+	});
+
+	it('band mode → no data-fluid attribute', () => {
+		const { container } = render(Grid);
+		const el = container.querySelector('.hz-grid') as HTMLElement;
+		expect(el.hasAttribute('data-fluid')).toBe(false);
+	});
+
+	it('track count follows available width continuously — no breakpoints', () => {
+		const { container } = render(Grid, { columns: { min: '200px' }, gap: 'none' });
+		const root = container.querySelector('.hz-grid') as HTMLElement;
+		appendCells(root, 6);
+		expect(countTracks(root, 700)).toBe(3); // floor(700 / 200)
+		expect(countTracks(root, 1000)).toBe(5); // floor(1000 / 200)
+	});
+
+	it('min resolves through var() — overriding retunes the columns', () => {
+		const { container } = render(Grid, {
+			columns: { min: 'var(--card-min, 200px)' },
+			gap: 'none'
+		});
+		const root = container.querySelector('.hz-grid') as HTMLElement;
+		appendCells(root, 6);
+		expect(countTracks(root, 700)).toBe(3);
+		root.style.setProperty('--card-min', '300px');
+		expect(countTracks(root, 700)).toBe(2); // floor(700 / 300)
 	});
 });
 
@@ -290,7 +340,7 @@ describe('padding prop', () => {
 	it('padding shrinks the width the container queries measure (border-box)', () => {
 		// Under border-box sizing (the reset's default — not loaded in this
 		// test page, so set explicitly): 700px root − 2×32px md padding =
-		// 636px content < 640px sm threshold → base band (1 track) even
+		// 636px content < the 640px threshold → sm band (1 track) even
 		// though the root is 700px wide.
 		const { container } = render(Grid, { padding: 'md' });
 		const root = container.querySelector('.hz-grid') as HTMLElement;
