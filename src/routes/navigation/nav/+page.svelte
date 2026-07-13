@@ -19,7 +19,13 @@
 			default: 'false',
 			note: 'position: sticky at the top of the nearest scroll container.'
 		},
-		{ name: 'variant', type: "'default' | 'transparent' | 'bordered'", default: "'default'" },
+		{ name: 'variant', type: "'default' | 'transparent'", default: "'default'" },
+		{
+			name: 'bordered',
+			type: 'boolean',
+			default: 'false',
+			note: 'Bottom hairline — composes with any variant.'
+		},
 		{
 			name: 'orientation',
 			type: "'horizontal' | 'vertical'",
@@ -125,7 +131,17 @@
 		}
 	];
 
-	const variants = ['default', 'transparent', 'bordered'] as const;
+	const surfaceCombos = [
+		{ id: 'default', label: 'default', variant: 'default', bordered: false },
+		{ id: 'transparent', label: 'transparent', variant: 'transparent', bordered: false },
+		{ id: 'bordered', label: 'bordered', variant: 'default', bordered: true },
+		{
+			id: 'transparent-bordered',
+			label: 'transparent + bordered',
+			variant: 'transparent',
+			bordered: true
+		}
+	] as const;
 
 	const smallItemsCode = [
 		'const items: NavItem[] = [',
@@ -137,13 +153,17 @@
 
 	// mobileBreakpoint="sm" keeps the bar expanded in this docs column — the
 	// bar collapses on its own width, and the column is narrower than md.
-	function variantCode(variant: string): string {
+	function comboCode(combo: (typeof surfaceCombos)[number]): string {
+		const attrs = [
+			combo.variant !== 'default' ? `variant="${combo.variant}"` : null,
+			combo.bordered ? 'bordered' : null
+		]
+			.filter(Boolean)
+			.join(' ');
 		return [
 			smallItemsCode,
 			'',
-			variant === 'default'
-				? '<Nav {items} mobileBreakpoint="sm" />'
-				: `<Nav {items} variant="${variant}" mobileBreakpoint="sm" />`
+			`<Nav {items}${attrs ? ` ${attrs}` : ''} mobileBreakpoint="sm" />`
 		].join('\n');
 	}
 
@@ -214,23 +234,26 @@
 				{#if item.id === 'variants'}
 					<p class="tab-note">
 						Demos sit on a tinted backdrop so the surface treatments read: <code>default</code>
-						paints the surface color, <code>transparent</code> lets the backdrop through,
-						<code>bordered</code> adds the bottom hairline.
+						paints the surface color, <code>transparent</code> lets the backdrop through.
+						<code>bordered</code> is a separate boolean prop (a bottom hairline), so it composes
+						with either variant.
 					</p>
 					<Tabs
-						items={variants.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Nav variant"
+						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}
+						ariaLabel="Nav surface"
 						defaultTab="default"
 					>
 						{#snippet panel(vItem)}
+							{@const combo = surfaceCombos.find((c) => c.id === vItem.id)!}
 							<div class="inner-tab">
-								<Example code={variantCode(vItem.id)}>
+								<Example code={comboCode(combo)}>
 									<div class="nav-demo-wrap">
 										<Nav
 											items={barItems}
-											variant={vItem.id as (typeof variants)[number]}
+											variant={combo.variant}
+											bordered={combo.bordered}
 											mobileBreakpoint="sm"
-											ariaLabel="Demo navigation ({vItem.id})"
+											ariaLabel="Demo navigation ({combo.label})"
 										/>
 									</div>
 								</Example>

@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { Stack, Grid, Card } from '$lib';
-	import { manifest } from '../docs/manifest';
+	import { isSection, manifest, type ManifestSection } from '../docs/manifest';
+
+	// The card grid shows sections only — standalone entries (Introduction)
+	// are this page itself.
+	const sections = manifest.filter((e): e is ManifestSection => isSection(e));
 </script>
 
 <svelte:head>
@@ -32,7 +36,7 @@ import '@hyzer-labs/ui/tokens.css';</code
 	<section aria-labelledby="sections-heading">
 		<h2 id="sections-heading">Browse the docs</h2>
 		<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
-			{#each manifest as section (section.label)}
+			{#each sections as section (section.label)}
 				<Card class="hz-card--outlined" padding="md" rounded="md">
 					<!-- Sections have no cover pages — the card opens the first page. -->
 					<a href={section.children[0].href} class="section-link">

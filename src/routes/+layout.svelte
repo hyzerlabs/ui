@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
 	import { Nav } from '$lib';
-	import { manifest } from '../docs/manifest';
+	import { isSection, manifest } from '../docs/manifest';
 	import '$lib/theme/reset.css';
 	import '$lib/tokens/tokens.css';
 	// Reference theme — the docs site is its living example. Demos render the
@@ -24,22 +24,32 @@
 	let mobileNavOpen = $state(false);
 
 	function activeSectionLabel(): string | undefined {
-		return manifest.find((s) => s.children.some((p) => page.url.pathname === p.href))?.label;
+		return manifest.find(
+			(entry) => isSection(entry) && entry.children.some((p) => page.url.pathname === p.href)
+		)?.label;
 	}
 
 	// Dogfood: the sidebar is the library's vertical Nav. Sections are
-	// label-only toggles (no cover pages). Rebuilding items on navigation
-	// re-marks aria-current and (via defaultOpen) auto-expands the active
-	// section; Nav keeps user-opened sections open.
+	// label-only toggles (no cover pages); standalone entries (Introduction)
+	// are plain links. Rebuilding items on navigation re-marks aria-current
+	// and (via defaultOpen) auto-expands the active section; Nav keeps
+	// user-opened sections open.
 	const sidebarNavItems = $derived(
-		manifest.map((section) => ({
-			label: section.label,
-			defaultOpen: section.label === activeSectionLabel(),
-			children: section.children.map((p) => ({
-				...p,
-				ariaCurrent: isActive(p.href) ? ('page' as const) : undefined
-			}))
-		}))
+		manifest.map((entry) =>
+			isSection(entry)
+				? {
+						label: entry.label,
+						defaultOpen: entry.label === activeSectionLabel(),
+						children: entry.children.map((p) => ({
+							...p,
+							ariaCurrent: isActive(p.href) ? ('page' as const) : undefined
+						}))
+					}
+				: {
+						...entry,
+						ariaCurrent: isActive(entry.href) ? ('page' as const) : undefined
+					}
+		)
 	);
 
 	// R9 — initialize from localStorage and sync to DOM
@@ -330,22 +340,31 @@
 		gap: 0.25rem;
 	}
 
-	/* Section label (link) — uppercase chrome treatment */
-	.docs-sidenav-wrap :global(.hz-nav-dropdown > .hz-link) {
-		display: block;
+	/* Top-level rows — section toggles (.hz-nav-trigger buttons, since
+	 * sections are label-only) AND standalone links like Introduction get
+	 * the same uppercase chrome treatment so the column reads as one list. */
+	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-link),
+	.docs-sidenav-wrap :global(.hz-nav-trigger) {
+		flex: 1;
 		padding: 0.375rem 0.5rem 0.375rem 1rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 		color: var(--hz-color-text-muted, #6b7280);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
+		border-radius: 0;
 	}
 
-	.docs-sidenav-wrap :global(.hz-nav-dropdown > .hz-link:hover) {
+	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-link) {
+		display: block;
+	}
+
+	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-link:hover),
+	.docs-sidenav-wrap :global(.hz-nav-trigger:hover) {
 		color: var(--hz-color-text, #000);
 	}
 
-	.docs-sidenav-wrap :global(.hz-nav-dropdown > .hz-link[aria-current='page']) {
+	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-link[aria-current='page']) {
 		color: var(--hz-color-primary, #2563eb);
 	}
 

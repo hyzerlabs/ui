@@ -17,8 +17,8 @@
 		background-color: transparent;
 	}
 
-	.hz-footer:where([data-variant='bordered']) {
-		background-color: transparent;
+	/* bordered is a prop, not a variant — it composes with any surface */
+	.hz-footer:where([data-bordered]) {
 		border-top: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
 	}

@@ -53,7 +53,7 @@ describe('R1 — root landmark', () => {
 		expect(footer.getAttribute('data-variant')).toBe('default');
 	});
 
-	it.each(['default', 'minimal', 'bordered'] as const)(
+	it.each(['default', 'minimal'] as const)(
 		'variant="%s" is reflected in data-variant',
 		(variant) => {
 			const { container } = render(Footer, { columns: [], variant });
@@ -61,6 +61,17 @@ describe('R1 — root landmark', () => {
 			expect(footer.getAttribute('data-variant')).toBe(variant);
 		}
 	);
+
+	it('data-bordered is absent by default and present with bordered — composes with variant', () => {
+		const { container } = render(Footer, { columns: [] });
+		expect(
+			(container.querySelector('footer') as HTMLElement).hasAttribute('data-bordered')
+		).toBe(false);
+		const { container: c2 } = render(Footer, { columns: [], bordered: true, variant: 'minimal' });
+		const footer = c2.querySelector('footer') as HTMLElement;
+		expect(footer.hasAttribute('data-bordered')).toBe(true);
+		expect(footer.getAttribute('data-variant')).toBe('minimal');
+	});
 
 	it('does not render a role attribute on the root footer', () => {
 		const { container } = render(Footer, { columns: [] });

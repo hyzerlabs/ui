@@ -7,7 +7,7 @@
 	import IconMenu from '$lib/icons/IconMenu.svelte';
 	import IconChevronDown from '$lib/icons/IconChevronDown.svelte';
 
-	type NavVariant = 'default' | 'transparent' | 'bordered';
+	type NavVariant = 'default' | 'transparent';
 	type NavBreakpoint = 'sm' | 'md' | 'lg' | 'none';
 	type NavOrientation = 'horizontal' | 'vertical';
 
@@ -15,6 +15,8 @@
 		items: NavItem[];
 		sticky?: boolean;
 		variant?: NavVariant;
+		/** Bottom hairline border — composes with any variant. */
+		bordered?: boolean;
 		/**
 		 * Vertical renders a sidebar-style column: submenus become collapsible
 		 * inline disclosure sections (multiple may be open at once) and the
@@ -35,6 +37,7 @@
 		items,
 		sticky = false,
 		variant = 'default',
+		bordered = false,
 		orientation = 'horizontal',
 		mobileBreakpoint = 'md',
 		ariaLabel = 'Main navigation',
@@ -254,6 +257,7 @@
 	class={cx('hz-nav', className)}
 	aria-label={ariaLabel}
 	data-variant={variant}
+	data-bordered={bordered ? '' : undefined}
 	data-orientation={orientation}
 	data-sticky={sticky ? '' : undefined}
 	data-mobile-breakpoint={mobileBreakpoint}

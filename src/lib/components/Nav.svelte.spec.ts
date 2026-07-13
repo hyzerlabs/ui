@@ -114,13 +114,24 @@ describe('R1 — root landmark', () => {
 			.toHaveAttribute('data-mobile-breakpoint', 'md');
 	});
 
-	it.each(['default', 'transparent', 'bordered'] as const)(
+	it.each(['default', 'transparent'] as const)(
 		'variant="%s" is reflected in data-variant',
 		async (variant) => {
 			render(Nav, { items: [], variant });
 			await expect.element(page.getByRole('navigation')).toHaveAttribute('data-variant', variant);
 		}
 	);
+
+	it('data-bordered is absent by default and present with bordered — composes with variant', () => {
+		const { container } = render(Nav, { items: [] });
+		expect((container.querySelector('nav') as HTMLElement).hasAttribute('data-bordered')).toBe(
+			false
+		);
+		const { container: c2 } = render(Nav, { items: [], bordered: true, variant: 'transparent' });
+		const nav = c2.querySelector('nav') as HTMLElement;
+		expect(nav.hasAttribute('data-bordered')).toBe(true);
+		expect(nav.getAttribute('data-variant')).toBe('transparent');
+	});
 
 	it.each(['sm', 'md', 'lg'] as const)(
 		'mobileBreakpoint="%s" is reflected in data-mobile-breakpoint',

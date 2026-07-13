@@ -5,13 +5,15 @@
 	import Link from './Link.svelte';
 	import Grid from './Grid.svelte';
 
-	type FooterVariant = 'default' | 'minimal' | 'bordered';
+	type FooterVariant = 'default' | 'minimal';
 	type FooterLinkVariant = 'default' | 'subtle' | 'nav';
 	type FooterHeadingLevel = 2 | 3 | 4 | 5 | 6;
 
 	interface Props {
 		columns: FooterColumn[];
 		variant?: FooterVariant;
+		/** Top hairline border — composes with any variant. */
+		bordered?: boolean;
 		linkVariant?: FooterLinkVariant;
 		headingLevel?: FooterHeadingLevel;
 		logo?: Snippet;
@@ -24,6 +26,7 @@
 	let {
 		columns,
 		variant = 'default',
+		bordered = false,
 		linkVariant = 'subtle',
 		headingLevel = 2,
 		logo,
@@ -36,10 +39,15 @@
 
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
-	(class, data-variant) wins over any conflicting key a consumer passes
-	through rest (R11).
+	(class, data-variant, data-bordered) wins over any conflicting key a
+	consumer passes through rest (R11).
 -->
-<footer {...rest} class={cx('hz-footer', className)} data-variant={variant}>
+<footer
+	{...rest}
+	class={cx('hz-footer', className)}
+	data-variant={variant}
+	data-bordered={bordered ? '' : undefined}
+>
 	{#if logo}
 		<div class="hz-footer-logo">{@render logo()}</div>
 	{/if}

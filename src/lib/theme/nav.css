@@ -13,7 +13,8 @@
 		background-color: transparent;
 	}
 
-	.hz-nav:where([data-variant='bordered']) {
+	/* bordered is a prop, not a variant — it composes with any surface */
+	.hz-nav:where([data-bordered]) {
 		border-bottom: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
 	}

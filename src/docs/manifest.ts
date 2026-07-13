@@ -20,8 +20,17 @@ export interface ManifestSection {
 	children: ManifestPage[];
 }
 
-/** Complete information architecture. Top-level entries are sections. */
-export const manifest: ManifestSection[] = [
+/** Top level is a mix: standalone pages (no toggle) and sections. */
+export type ManifestEntry = ManifestPage | ManifestSection;
+
+/** Discriminates sections (NavItem's optional children defeats `in` checks). */
+export function isSection(entry: ManifestEntry): entry is ManifestSection {
+	return Array.isArray((entry as ManifestSection).children);
+}
+
+/** Complete information architecture. */
+export const manifest: ManifestEntry[] = [
+	{ label: 'Introduction', href: '/' },
 	{
 		label: 'Foundation',
 		children: [
@@ -86,4 +95,6 @@ export const manifest: ManifestSection[] = [
 ];
 
 /** Flat list of every routable page (sections have no routes of their own). */
-export const allRoutes: string[] = ['/', ...manifest.flatMap((s) => s.children.map((p) => p.href))];
+export const allRoutes: string[] = manifest.flatMap((entry) =>
+	isSection(entry) ? entry.children.map((p) => p.href) : [entry.href]
+);
