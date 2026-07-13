@@ -26,12 +26,12 @@
 
 	// Mirrors the live demo below — every distance is gap/padding="near" or
 	// "away"; only the data-density-shift nesting changes.
-	const densityUsage = `<Stack gap="away">                          <!-- sections: away = 8rem -->
-	<Stack gap="near">                         <!-- heading ↔ cards: near = 4rem -->
+	const densityUsage = `<Stack gap="away">                           <!-- sections: away = 8rem -->
+	<Stack gap="near" data-density-shift>       <!-- section: 1 shift → near = 2rem -->
 		<h2>Projects</h2>
 		<Cluster gap="near" align="stretch">
-			<Stack padding="near" data-density-shift> <!-- card: 1 shift → near = 2rem -->
-				<Stack gap="near" data-density-shift>    <!-- card rhythm: 2 shifts → 0.8rem -->
+			<Stack padding="near">                   <!-- card inherits the shift: 2rem -->
+				<Stack gap="near" data-density-shift>   <!-- card rhythm: 2 shifts → 0.8rem -->
 					<h3>Flight Tracker</h3>
 					<p>Round scoring and disc flight stats.</p>
 					<Cluster gap="near" data-density-shift> <!-- tags: 3 shifts → 0.4rem -->
@@ -45,7 +45,7 @@
 		</Cluster>
 	</Stack>
 
-	<Stack gap="near">
+	<Stack gap="near" data-density-shift>
 		<h2>Archive</h2>
 		<p>Retired experiments live here.</p>
 	</Stack>
@@ -146,11 +146,11 @@
 		</p>
 		<div class="density-demo" aria-labelledby="density-demo-heading">
 			<Stack gap="away">
-				<Stack gap="near">
+				<Stack gap="near" data-density-shift>
 					<p class="demo-heading">Projects</p>
 					<Cluster gap="near" align="stretch">
 						{#each [{ title: 'Flight Tracker', desc: 'Round scoring and disc flight stats for every throw.', tags: ['svelte', 'supabase', 'pwa'] }, { title: 'Course Atlas', desc: 'Community-maintained maps of local courses.', tags: ['sveltekit', 'maplibre'] }] as project (project.title)}
-							<Stack padding="near" data-density-shift class="density-card">
+							<Stack padding="near" class="density-card">
 								<Stack gap="near" data-density-shift>
 									<p class="card-title">{project.title}</p>
 									<p class="card-desc">{project.desc}</p>
@@ -164,15 +164,15 @@
 						{/each}
 					</Cluster>
 				</Stack>
-				<Stack gap="near">
+				<Stack gap="near" data-density-shift>
 					<p class="demo-heading">Archive</p>
 					<p class="card-desc">Retired experiments live here.</p>
 				</Stack>
 			</Stack>
 		</div>
 		<p class="tab-note">
-			Sections sit 8rem apart (<code>away</code>, no shift) and headings sit 4rem from their
-			content (<code>near</code>). Card padding is <code>near</code> at one shift = 2rem; the
+			Sections sit 8rem apart (<code>away</code>, no shift). Each section is one shift, so its
+			heading, cards, and the card padding all share <code>near</code> = 2rem; the
 			title/description/tags rhythm is <code>near</code> at two shifts = 0.8rem; the tag gaps are
 			<code>near</code> at three shifts = 0.4rem.
 		</p>
