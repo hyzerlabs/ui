@@ -665,6 +665,16 @@ describe('Accordion-R12 — onToggle callback', () => {
 // ---------------------------------------------------------------------------
 
 describe('Accordion-R13 — native Enter/Space activation', () => {
+	/*
+	 * Focus is established by CLICKING the summary, not element.focus():
+	 * userEvent.keyboard sends real CDP keys to whichever iframe holds
+	 * browser-level focus, and .focus() alone doesn't claim it — under
+	 * parallel test-file iframes the keystroke could land in another file's
+	 * frame (the old flake). The click both focuses the summary in this
+	 * frame and natively opens it, so the keypress asserts the CLOSE half of
+	 * the toggle — still exactly R13: the roving-focus keydown handler must
+	 * not preventDefault native Enter/Space activation.
+	 */
 	it('Enter on a non-disabled summary toggles it', async () => {
 		const { container } = render(Accordion, {
 			items: threeItems,
@@ -673,10 +683,13 @@ describe('Accordion-R13 — native Enter/Space activation', () => {
 		});
 		const summaries = container.querySelectorAll<HTMLElement>('summary');
 		const details = container.querySelectorAll('details');
-		summaries[0].focus();
-		await userEvent.keyboard('{Enter}');
+		await userEvent.click(summaries[0]);
 		await tick();
 		expect(details[0].hasAttribute('open')).toBe(true);
+		expect(document.activeElement).toBe(summaries[0]);
+		await userEvent.keyboard('{Enter}');
+		await tick();
+		expect(details[0].hasAttribute('open')).toBe(false);
 	});
 
 	it('Space on a non-disabled summary toggles it', async () => {
@@ -687,10 +700,13 @@ describe('Accordion-R13 — native Enter/Space activation', () => {
 		});
 		const summaries = container.querySelectorAll<HTMLElement>('summary');
 		const details = container.querySelectorAll('details');
-		summaries[0].focus();
-		await userEvent.keyboard(' ');
+		await userEvent.click(summaries[0]);
 		await tick();
 		expect(details[0].hasAttribute('open')).toBe(true);
+		expect(document.activeElement).toBe(summaries[0]);
+		await userEvent.keyboard(' ');
+		await tick();
+		expect(details[0].hasAttribute('open')).toBe(false);
 	});
 });
 
