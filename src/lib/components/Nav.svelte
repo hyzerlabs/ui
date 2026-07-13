@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import type { NavItem } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
 	import Link from './Link.svelte';
@@ -8,11 +9,18 @@
 
 	type NavVariant = 'default' | 'transparent' | 'bordered';
 	type NavBreakpoint = 'sm' | 'md' | 'lg';
+	type NavOrientation = 'horizontal' | 'vertical';
 
 	interface Props {
 		items: NavItem[];
 		sticky?: boolean;
 		variant?: NavVariant;
+		/**
+		 * Vertical renders a sidebar-style column: submenus become collapsible
+		 * inline disclosure sections (multiple may be open at once) and the
+		 * hamburger collapse is disabled.
+		 */
+		orientation?: NavOrientation;
 		mobileBreakpoint?: NavBreakpoint;
 		ariaLabel?: string;
 		logo?: Snippet;
@@ -27,6 +35,7 @@
 		items,
 		sticky = false,
 		variant = 'default',
+		orientation = 'horizontal',
 		mobileBreakpoint = 'md',
 		ariaLabel = 'Main navigation',
 		logo,
@@ -36,6 +45,8 @@
 		class: className,
 		...rest
 	}: Props = $props();
+
+	const isVertical = $derived(orientation === 'vertical');
 
 	// Stable IDs: WeakMap keyed on each NavItem object so IDs survive
 	// reactive re-derivations without changing value for the same item.
@@ -52,7 +63,15 @@
 	const menuId = uid('hz-nav-menu');
 
 	// Open state: index of the currently-open desktop dropdown, or null.
+	// Horizontal bars are single-open (opening one closes the others).
 	let openIndex = $state<number | null>(null);
+
+	// Vertical sidebars are multi-open: any number of sections at once.
+	const openSections = new SvelteSet<number>();
+
+	function isOpen(index: number): boolean {
+		return isVertical ? openSections.has(index) : openIndex === index;
+	}
 
 	// Mobile menu open state.
 	let mobileOpen = $state(false);
@@ -64,7 +83,12 @@
 	let toggleEl = $state<HTMLButtonElement | null>(null);
 
 	function toggleDesktop(index: number) {
-		openIndex = openIndex === index ? null : index;
+		if (isVertical) {
+			if (openSections.has(index)) openSections.delete(index);
+			else openSections.add(index);
+		} else {
+			openIndex = openIndex === index ? null : index;
+		}
 	}
 
 	function closeDesktop() {
@@ -220,6 +244,7 @@
 	class={cx('hz-nav', className)}
 	aria-label={ariaLabel}
 	data-variant={variant}
+	data-orientation={orientation}
 	data-sticky={sticky ? '' : undefined}
 	data-mobile-breakpoint={mobileBreakpoint}
 >
@@ -245,30 +270,32 @@
 						<button
 							bind:this={triggerEls[i]}
 							class="hz-nav-chevron"
-							aria-expanded={openIndex === i ? 'true' : 'false'}
-							aria-haspopup="true"
+							aria-expanded={isOpen(i) ? 'true' : 'false'}
+							aria-haspopup={isVertical ? undefined : 'true'}
 							aria-controls={panelIds[i]}
 							aria-label="{item.label} submenu"
 							onclick={() => toggleDesktop(i)}
-							onkeydown={(e) => onTriggerKeydown(e, i)}
+							onkeydown={isVertical ? undefined : (e) => onTriggerKeydown(e, i)}
 						>
 							{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
 						</button>
-						<!-- R9: dropdown panel -->
+						<!-- R9: dropdown panel. Horizontal is a role="menu" popover; vertical
+						     is a plain disclosure list (sidebar sections aren't menus). -->
 						<ul
 							id={panelIds[i]}
-							role="menu"
-							data-state={openIndex === i ? 'open' : 'closed'}
-							onkeydown={(e) => onMenuKeydown(e, i)}
+							class="hz-nav-panel"
+							role={isVertical ? undefined : 'menu'}
+							data-state={isOpen(i) ? 'open' : 'closed'}
+							onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
 						>
 							{#each item.children as child, j (j)}
-								<li role="none">
+								<li role={isVertical ? undefined : 'none'}>
 									<Link
 										href={child.href ?? '#'}
 										variant="nav"
 										external={child.external}
 										ariaCurrent={child.ariaCurrent}
-										role="menuitem"
+										role={isVertical ? undefined : 'menuitem'}
 									>
 										{child.label}
 									</Link>
@@ -282,30 +309,31 @@
 						<button
 							bind:this={triggerEls[i]}
 							class="hz-nav-trigger"
-							aria-expanded={openIndex === i ? 'true' : 'false'}
-							aria-haspopup="true"
+							aria-expanded={isOpen(i) ? 'true' : 'false'}
+							aria-haspopup={isVertical ? undefined : 'true'}
 							aria-controls={panelIds[i]}
 							onclick={() => toggleDesktop(i)}
-							onkeydown={(e) => onTriggerKeydown(e, i)}
+							onkeydown={isVertical ? undefined : (e) => onTriggerKeydown(e, i)}
 						>
 							{item.label}
 							{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
 						</button>
-						<!-- R9: dropdown panel -->
+						<!-- R9: dropdown panel (see above — menu vs disclosure) -->
 						<ul
 							id={panelIds[i]}
-							role="menu"
-							data-state={openIndex === i ? 'open' : 'closed'}
-							onkeydown={(e) => onMenuKeydown(e, i)}
+							class="hz-nav-panel"
+							role={isVertical ? undefined : 'menu'}
+							data-state={isOpen(i) ? 'open' : 'closed'}
+							onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
 						>
 							{#each item.children as child, j (j)}
-								<li role="none">
+								<li role={isVertical ? undefined : 'none'}>
 									<Link
 										href={child.href ?? '#'}
 										variant="nav"
 										external={child.external}
 										ariaCurrent={child.ariaCurrent}
-										role="menuitem"
+										role={isVertical ? undefined : 'menuitem'}
 									>
 										{child.label}
 									</Link>
@@ -413,8 +441,16 @@
 	/* Bar layout                                                           */
 	/* ------------------------------------------------------------------ */
 
+	/*
+	 * The nav is its own size container: the responsive collapse rules below
+	 * are container queries against the nav's width (its descendants query
+	 * it), consistent with Grid/Split. Breakpoint thresholds mirror the
+	 * width tokens but stay literal — CSS cannot read custom properties in
+	 * container queries.
+	 */
 	.hz-nav {
 		position: relative;
+		container-type: inline-size;
 	}
 
 	.hz-nav[data-sticky] {
@@ -453,11 +489,17 @@
 	/* Desktop dropdown (R9, R18)                                          */
 	/* ------------------------------------------------------------------ */
 
+	/* Flex-centers the link + chevron pair so dropdown items align with the
+	 * plain link items on the bar's center line (a block li would baseline-
+	 * align its inline children instead). */
 	.hz-nav-dropdown {
 		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 0.125rem;
 	}
 
-	.hz-nav-dropdown [role='menu'] {
+	.hz-nav-dropdown .hz-nav-panel {
 		position: absolute;
 		top: 100%;
 		left: 0;
@@ -469,11 +511,11 @@
 	}
 
 	/* closed → hidden; open → visible */
-	.hz-nav-dropdown [role='menu'][data-state='closed'] {
+	.hz-nav-dropdown .hz-nav-panel[data-state='closed'] {
 		display: none;
 	}
 
-	.hz-nav-dropdown [role='menu'][data-state='open'] {
+	.hz-nav-dropdown .hz-nav-panel[data-state='open'] {
 		display: block;
 	}
 
@@ -523,80 +565,138 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* R17: Responsive collapse — sm breakpoint (640px)                   */
+	/* R17: Responsive collapse                                            */
+	/*                                                                     */
+	/* Collapsed (hamburger) below the breakpoint for BOTH orientations.   */
+	/* What un-collapses differs:                                          */
+	/*  - horizontal bars measure their OWN width (container query — a bar */
+	/*    in a narrow slot should collapse regardless of the window)       */
+	/*  - vertical sidebars measure the VIEWPORT (the sidebar itself is    */
+	/*    always narrow; whether the page has room is a window question)   */
+	/* Thresholds mirror --hz-width-sm/md/lg but stay literal — CSS cannot */
+	/* read custom properties in media or container queries.               */
 	/* ------------------------------------------------------------------ */
 
-	.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-links {
-		display: none;
-	}
-
-	.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-toggle {
-		display: flex;
-	}
-
-	@media (min-width: 640px) {
-		.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-links {
-			display: flex;
-		}
-
-		.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-toggle {
-			display: none;
-		}
-
-		.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-mobile {
-			display: none !important;
-		}
-	}
-
-	/* ------------------------------------------------------------------ */
-	/* R17: Responsive collapse — md breakpoint (968px)                   */
-	/* ------------------------------------------------------------------ */
-
-	.hz-nav[data-mobile-breakpoint='md'] .hz-nav-links {
-		display: none;
-	}
-
-	.hz-nav[data-mobile-breakpoint='md'] .hz-nav-toggle {
-		display: flex;
-	}
-
-	@media (min-width: 968px) {
-		.hz-nav[data-mobile-breakpoint='md'] .hz-nav-links {
-			display: flex;
-		}
-
-		.hz-nav[data-mobile-breakpoint='md'] .hz-nav-toggle {
-			display: none;
-		}
-
-		.hz-nav[data-mobile-breakpoint='md'] .hz-nav-mobile {
-			display: none !important;
-		}
-	}
-
-	/* ------------------------------------------------------------------ */
-	/* R17: Responsive collapse — lg breakpoint (1200px)                  */
-	/* ------------------------------------------------------------------ */
-
+	.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-links,
+	.hz-nav[data-mobile-breakpoint='md'] .hz-nav-links,
 	.hz-nav[data-mobile-breakpoint='lg'] .hz-nav-links {
 		display: none;
 	}
 
+	.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-toggle,
+	.hz-nav[data-mobile-breakpoint='md'] .hz-nav-toggle,
 	.hz-nav[data-mobile-breakpoint='lg'] .hz-nav-toggle {
 		display: flex;
 	}
 
-	@media (min-width: 1200px) {
-		.hz-nav[data-mobile-breakpoint='lg'] .hz-nav-links {
+	/* sm — 640px */
+	@container (min-width: 640px) {
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='sm'] .hz-nav-links {
 			display: flex;
 		}
-
-		.hz-nav[data-mobile-breakpoint='lg'] .hz-nav-toggle {
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='sm'] .hz-nav-toggle {
 			display: none;
 		}
-
-		.hz-nav[data-mobile-breakpoint='lg'] .hz-nav-mobile {
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='sm'] .hz-nav-mobile {
 			display: none !important;
 		}
+	}
+
+	@media (min-width: 640px) {
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='sm'] .hz-nav-links {
+			display: flex;
+		}
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='sm'] .hz-nav-toggle {
+			display: none;
+		}
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='sm'] .hz-nav-mobile {
+			display: none !important;
+		}
+	}
+
+	/* md — 968px */
+	@container (min-width: 968px) {
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='md'] .hz-nav-links {
+			display: flex;
+		}
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='md'] .hz-nav-toggle {
+			display: none;
+		}
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='md'] .hz-nav-mobile {
+			display: none !important;
+		}
+	}
+
+	@media (min-width: 968px) {
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='md'] .hz-nav-links {
+			display: flex;
+		}
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='md'] .hz-nav-toggle {
+			display: none;
+		}
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='md'] .hz-nav-mobile {
+			display: none !important;
+		}
+	}
+
+	/* lg — 1200px */
+	@container (min-width: 1200px) {
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='lg'] .hz-nav-links {
+			display: flex;
+		}
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='lg'] .hz-nav-toggle {
+			display: none;
+		}
+		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='lg'] .hz-nav-mobile {
+			display: none !important;
+		}
+	}
+
+	@media (min-width: 1200px) {
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='lg'] .hz-nav-links {
+			display: flex;
+		}
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='lg'] .hz-nav-toggle {
+			display: none;
+		}
+		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='lg'] .hz-nav-mobile {
+			display: none !important;
+		}
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* Vertical (sidebar) orientation — column layout with inline,          */
+	/* collapsible, multi-open sections. Collapse behavior above applies.   */
+	/* ------------------------------------------------------------------ */
+
+	.hz-nav[data-orientation='vertical'] .hz-nav-inner {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.hz-nav[data-orientation='vertical'] .hz-nav-links {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	/* Section rows wrap so the inline panel drops below at full width. */
+	.hz-nav[data-orientation='vertical'] .hz-nav-dropdown {
+		flex-wrap: wrap;
+	}
+
+	.hz-nav[data-orientation='vertical'] .hz-nav-dropdown > :global(.hz-link) {
+		flex: 1;
+	}
+
+	.hz-nav[data-orientation='vertical'] .hz-nav-trigger {
+		flex: 1;
+		justify-content: space-between;
+	}
+
+	/* Submenus are inline sections, not floating popovers. */
+	.hz-nav[data-orientation='vertical'] .hz-nav-panel {
+		position: static;
+		flex-basis: 100%;
+		min-width: 0;
 	}
 </style>

@@ -572,34 +572,45 @@ describe('R16 — keyboard map for desktop dropdowns', () => {
 		await page.viewport(1024, 768);
 	});
 
-	it('Enter on trigger opens the dropdown', async () => {
+	/*
+	 * Focus is established by CLICKING the trigger, not element.focus():
+	 * userEvent.keyboard sends real CDP keys to whichever test-file iframe
+	 * holds browser-level focus, and .focus() alone doesn't claim it (same
+	 * flake family as Accordion/Toggle/Tabs). Clicking toggles the dropdown,
+	 * so the assertions cover the keyboard half of each toggle.
+	 */
+	it('Enter on the focused trigger toggles the dropdown', async () => {
+		const { container } = render(Nav, { items: [triggerItem] });
+		const btn = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
+		await userEvent.click(btn); // opens + focuses for real
+		await tick();
+		expect(btn.getAttribute('aria-expanded')).toBe('true');
+		expect(document.activeElement).toBe(btn);
+		await userEvent.keyboard('{Enter}');
+		await tick();
+		expect(btn.getAttribute('aria-expanded')).toBe('false');
+	});
+
+	it('Space on the focused trigger toggles the dropdown', async () => {
 		const { container } = render(Nav, { items: [triggerItem] });
 		const btn = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
 		await userEvent.click(btn);
-		// click opened dropdown; close it first to test Enter specifically
-		await tick();
-		btn.click(); // close
-		await tick();
-		// Now focus without clicking, then press Enter
-		btn.focus();
-		await userEvent.keyboard('{Enter}');
 		await tick();
 		expect(btn.getAttribute('aria-expanded')).toBe('true');
-	});
-
-	it('Space on trigger opens the dropdown', async () => {
-		const { container } = render(Nav, { items: [triggerItem] });
-		const btn = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
-		btn.focus();
 		await userEvent.keyboard(' ');
 		await tick();
-		expect(btn.getAttribute('aria-expanded')).toBe('true');
+		expect(btn.getAttribute('aria-expanded')).toBe('false');
 	});
 
 	it('ArrowDown on trigger opens the dropdown and focuses first menuitem', async () => {
 		const { container } = render(Nav, { items: [triggerItem] });
 		const btn = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
-		btn.focus();
+		// Claim focus via click, then Escape back to the closed+focused state.
+		await userEvent.click(btn);
+		await tick();
+		await userEvent.keyboard('{Escape}');
+		await tick();
+		expect(btn.getAttribute('aria-expanded')).toBe('false');
 		await userEvent.keyboard('{ArrowDown}');
 		// Wait for the component's internal setTimeout to fire.
 		await new Promise((r) => setTimeout(r, 50));
@@ -610,9 +621,8 @@ describe('R16 — keyboard map for desktop dropdowns', () => {
 	it('Escape within the open menu closes it and returns focus to trigger', async () => {
 		const { container } = render(Nav, { items: [triggerItem] });
 		const btn = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
-		// Open with Enter
-		btn.focus();
-		await userEvent.keyboard('{Enter}');
+		// Open with a real click
+		await userEvent.click(btn);
 		await tick();
 		expect(btn.getAttribute('aria-expanded')).toBe('true');
 		// Escape on the open panel → menu keydown handler
@@ -626,8 +636,9 @@ describe('R16 — keyboard map for desktop dropdowns', () => {
 	it('ArrowDown/ArrowUp move roving focus among menuitems', async () => {
 		const { container } = render(Nav, { items: [triggerItem] });
 		const btn = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
-		btn.focus();
-		await userEvent.keyboard('{ArrowDown}');
+		await userEvent.click(btn); // opens + claims focus
+		await tick();
+		await userEvent.keyboard('{ArrowDown}'); // focuses the first menuitem
 		await new Promise((r) => setTimeout(r, 50));
 		const menuItems = Array.from(container.querySelectorAll<HTMLElement>('[role="menuitem"]'));
 		expect(document.activeElement).toBe(menuItems[0]);
@@ -643,8 +654,9 @@ describe('R16 — keyboard map for desktop dropdowns', () => {
 	it('Home jumps to first menuitem, End to last', async () => {
 		const { container } = render(Nav, { items: [triggerItem] });
 		const btn = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
-		btn.focus();
-		await userEvent.keyboard('{ArrowDown}');
+		await userEvent.click(btn); // opens + claims focus
+		await tick();
+		await userEvent.keyboard('{ArrowDown}'); // focuses the first menuitem
 		await new Promise((r) => setTimeout(r, 50));
 		const menuItems = Array.from(container.querySelectorAll<HTMLElement>('[role="menuitem"]'));
 		const panel = container.querySelector('[role="menu"]') as HTMLElement;
@@ -882,5 +894,93 @@ describe('Edge cases', () => {
 		const panels = container.querySelectorAll('[role="menu"]');
 		expect(panels[0].getAttribute('data-state')).toBe('closed');
 		expect(panels[1].getAttribute('data-state')).toBe('open');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Orientation — vertical (sidebar) mode
+// ---------------------------------------------------------------------------
+
+describe('orientation', () => {
+	const sections: NavItem[] = [
+		{ label: 'Foundation', children: [{ label: 'Colors', href: '/colors' }] },
+		{ label: 'Components', children: [{ label: 'Button', href: '/button' }] }
+	];
+
+	it('defaults to data-orientation="horizontal"', () => {
+		const { container } = render(Nav, { items: [linkItem] });
+		const nav = container.querySelector('.hz-nav') as HTMLElement;
+		expect(nav.getAttribute('data-orientation')).toBe('horizontal');
+	});
+
+	it('vertical panels are plain disclosure lists — no menu semantics', () => {
+		const { container } = render(Nav, { items: sections, orientation: 'vertical' });
+		expect(container.querySelector('[role="menu"]')).toBeNull();
+		expect(container.querySelector('[role="menuitem"]')).toBeNull();
+		const trigger = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
+		expect(trigger.getAttribute('aria-expanded')).toBe('false');
+		expect(trigger.hasAttribute('aria-haspopup')).toBe(false);
+	});
+
+	it('vertical sections are multi-open (opening one keeps the other open)', async () => {
+		const { container } = render(Nav, { items: sections, orientation: 'vertical' });
+		const triggers = Array.from(container.querySelectorAll<HTMLButtonElement>('.hz-nav-trigger'));
+		triggers[0].click();
+		await tick();
+		triggers[1].click();
+		await tick();
+		expect(triggers[0].getAttribute('aria-expanded')).toBe('true');
+		expect(triggers[1].getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('horizontal dropdowns stay single-open (opening one closes the other)', async () => {
+		const { container } = render(Nav, {
+			items: [
+				{ label: 'A', children: [{ label: 'A1', href: '/a1' }] },
+				{ label: 'B', children: [{ label: 'B1', href: '/b1' }] }
+			]
+		});
+		const triggers = Array.from(container.querySelectorAll<HTMLButtonElement>('.hz-nav-trigger'));
+		triggers[0].click();
+		await tick();
+		triggers[1].click();
+		await tick();
+		expect(triggers[0].getAttribute('aria-expanded')).toBe('false');
+		expect(triggers[1].getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('vertical open panel renders inline (position: static)', async () => {
+		const { container } = render(Nav, { items: sections, orientation: 'vertical' });
+		const trigger = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
+		trigger.click();
+		await tick();
+		const panel = container.querySelector('.hz-nav-panel') as HTMLElement;
+		expect(panel.getAttribute('data-state')).toBe('open');
+		expect(getComputedStyle(panel).position).toBe('static');
+	});
+
+	it('horizontal collapse responds to the nav’s own width (container query)', () => {
+		const { container } = render(Nav, { items: [linkItem] });
+		const nav = container.querySelector('.hz-nav') as HTMLElement;
+		const links = container.querySelector('.hz-nav-links') as HTMLElement;
+		const toggle = container.querySelector('.hz-nav-toggle') as HTMLElement;
+		nav.style.width = '500px'; // below the md default (968px)
+		expect(getComputedStyle(links).display).toBe('none');
+		expect(getComputedStyle(toggle).display).toBe('flex');
+		nav.style.width = '1000px';
+		expect(getComputedStyle(links).display).toBe('flex');
+		expect(getComputedStyle(toggle).display).toBe('none');
+	});
+
+	it('vertical collapse tracks the viewport, not the nav width', async () => {
+		const { container } = render(Nav, { items: sections, orientation: 'vertical' });
+		const nav = container.querySelector('.hz-nav') as HTMLElement;
+		const links = container.querySelector('.hz-nav-links') as HTMLElement;
+		nav.style.width = '260px'; // narrow sidebar — must NOT trigger collapse
+		await page.viewport(1024, 768); // ≥ md
+		expect(getComputedStyle(links).display).toBe('flex');
+		await page.viewport(500, 768); // < md → hamburger
+		expect(getComputedStyle(links).display).toBe('none');
+		await page.viewport(1024, 768);
 	});
 });

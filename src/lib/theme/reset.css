@@ -44,6 +44,12 @@
 		max-width: 100%;
 	}
 
+	/* The library's own inline icons stay inline — block svgs would wrap
+	 * them onto their own line mid-text (flex/grid parents blockify anyway). */
+	svg.hz-icon {
+		display: inline-block;
+	}
+
 	input,
 	button,
 	textarea,
