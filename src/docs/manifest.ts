@@ -77,6 +77,7 @@ export const manifest: ManifestEntry[] = [
 		label: 'Media',
 		children: [
 			{ label: 'Image', href: '/media/image' },
+			{ label: 'Lightbox', href: '/media/lightbox' },
 			{ label: 'Video', href: '/media/video' }
 		]
 	},
@@ -86,6 +87,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Button', href: '/components/button' },
 			{ label: 'Link', href: '/components/link' },
 			{ label: 'Card', href: '/components/card' },
+			{ label: 'Carousel', href: '/components/carousel' },
 			{ label: 'Hero', href: '/components/hero' },
 			{ label: 'Modal', href: '/components/modal' },
 			{ label: 'Accordion', href: '/components/accordion' },

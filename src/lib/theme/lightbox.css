@@ -1,0 +1,89 @@
+/**
+ * @hyzer-labs/ui reference theme — Lightbox
+ * Dark backdrop, framed image, circular close control, inverted caption.
+ */
+@layer hz-theme {
+	.hz-lightbox {
+		background: transparent;
+		border: none;
+	}
+
+	.hz-lightbox::backdrop {
+		background: rgb(0 0 0 / 0.85);
+	}
+
+	.hz-lightbox :where(.hz-lightbox-img) {
+		border-radius: var(--hz-radius-md, 0.5rem);
+		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+	}
+
+	.hz-lightbox :where(.hz-lightbox-caption) {
+		margin-top: 0.625rem;
+		text-align: center;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-white, #fff);
+	}
+
+	.hz-lightbox :where(.hz-lightbox-close) {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.25rem;
+		height: 2.25rem;
+		padding: 0;
+		border: none;
+		border-radius: var(--hz-radius-full, 9999px);
+		background: rgb(0 0 0 / 0.55);
+		color: var(--hz-color-white, #fff);
+		cursor: pointer;
+		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-lightbox :where(.hz-lightbox-close:hover) {
+		background: rgb(0 0 0 / 0.75);
+	}
+
+	/* Trigger affordance — subtle lift on hover */
+	.hz-lightbox-trigger {
+		transition: opacity var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-lightbox-trigger:where(:hover) {
+		opacity: 0.85;
+	}
+
+	/* Poster-less video thumbs fall back to a labeled chip */
+	.hz-lightbox :where(.hz-lightbox-thumb-label),
+	.hz-lightbox-trigger :where(.hz-lightbox-thumb-label) {
+		display: block;
+		padding: 1rem;
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	/* Video play badge overlaying the thumbnail */
+	.hz-lightbox-trigger :where(.hz-lightbox-badge) {
+		color: var(--hz-color-white, #fff);
+		font-size: 1.5rem;
+		text-shadow: 0 1px 4px rgb(0 0 0 / 0.6);
+	}
+
+	/* Carousel chrome inverts inside the dark viewer */
+	.hz-lightbox :where(.hz-carousel-status) {
+		color: var(--hz-color-white, #fff);
+	}
+
+	.hz-lightbox :where(.hz-carousel-prev),
+	.hz-lightbox :where(.hz-carousel-next) {
+		background: rgb(0 0 0 / 0.55);
+		border-color: transparent;
+		color: var(--hz-color-white, #fff);
+	}
+
+	.hz-lightbox :where(.hz-carousel-prev:hover:not(:disabled)),
+	.hz-lightbox :where(.hz-carousel-next:hover:not(:disabled)) {
+		background: rgb(0 0 0 / 0.75);
+	}
+}

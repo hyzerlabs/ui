@@ -478,3 +478,58 @@ describe('IMG-R15 — barrel export', () => {
 		expect(ImageComp).toBeDefined();
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Picture mode (sources prop)
+// ---------------------------------------------------------------------------
+
+describe('picture mode (sources)', () => {
+	const sources = [
+		{ srcset: '/img/photo.avif', type: 'image/avif' },
+		{ srcset: '/img/photo-wide.jpg', media: '(min-width: 968px)', sizes: '100vw' }
+	];
+
+	it('no sources → no <picture>, no data-picture on the wrapper', () => {
+		const { container } = render(Image, { src: '/img/a.jpg', alt: 'A' });
+		expect(container.querySelector('picture')).toBeNull();
+		const wrapper = container.querySelector('.hz-image') as HTMLElement;
+		expect(wrapper.hasAttribute('data-picture')).toBe(false);
+	});
+
+	it('sources → <picture> wraps the sources (in order) plus the fallback img', () => {
+		const { container } = render(Image, { src: '/img/a.jpg', alt: 'A', sources });
+		const picture = container.querySelector('picture.hz-image__picture') as HTMLElement;
+		expect(picture).not.toBeNull();
+		expect(Array.from(picture.children).map((e) => e.tagName)).toEqual([
+			'SOURCE',
+			'SOURCE',
+			'IMG'
+		]);
+		const img = picture.querySelector('img.hz-image__img') as HTMLImageElement;
+		expect(img.getAttribute('src')).toBe('/img/a.jpg');
+		expect(img.getAttribute('alt')).toBe('A');
+	});
+
+	it('source attributes pass through: srcset, type, media, sizes', () => {
+		const { container } = render(Image, { src: '/img/a.jpg', alt: 'A', sources });
+		const [s1, s2] = Array.from(container.querySelectorAll('source'));
+		expect(s1.getAttribute('srcset')).toBe('/img/photo.avif');
+		expect(s1.getAttribute('type')).toBe('image/avif');
+		expect(s1.hasAttribute('media')).toBe(false);
+		expect(s2.getAttribute('media')).toBe('(min-width: 968px)');
+		expect(s2.getAttribute('sizes')).toBe('100vw');
+	});
+
+	it('wrapper gets data-picture; the picture box is display: contents', () => {
+		const { container } = render(Image, { src: '/img/a.jpg', alt: 'A', sources });
+		const wrapper = container.querySelector('.hz-image') as HTMLElement;
+		expect(wrapper.hasAttribute('data-picture')).toBe(true);
+		const picture = container.querySelector('picture') as HTMLElement;
+		expect(getComputedStyle(picture).display).toBe('contents');
+	});
+
+	it('an empty sources array behaves like no sources', () => {
+		const { container } = render(Image, { src: '/img/a.jpg', alt: 'A', sources: [] });
+		expect(container.querySelector('picture')).toBeNull();
+	});
+});

@@ -15,6 +15,42 @@ export interface NavItem {
 	defaultOpen?: boolean;
 }
 
+/**
+ * A <source> candidate for Image's picture mode — art direction via `media`,
+ * format negotiation via `type`. Order matters: the browser takes the first
+ * matching source.
+ */
+export interface ImageSource {
+	srcset: string;
+	type?: string;
+	media?: string;
+	sizes?: string;
+}
+
+/** An image entry for Lightbox. */
+export interface LightboxImageItem {
+	type?: 'image';
+	src: string;
+	alt: string;
+	/** Thumbnail for the trigger strip; defaults to src. */
+	thumbSrc?: string;
+	caption?: string;
+}
+
+/** A video entry for Lightbox — plays via the Video component. */
+export interface LightboxVideoItem {
+	type: 'video';
+	src: string;
+	/** Accessible name (becomes the Video title). */
+	label: string;
+	poster?: string;
+	/** Thumbnail for the trigger strip; defaults to poster. */
+	thumbSrc?: string;
+	caption?: string;
+}
+
+export type LightboxItem = LightboxImageItem | LightboxVideoItem;
+
 /** A single crumb for Breadcrumbs — the linkable subset of NavItem. */
 export type BreadcrumbItem = Pick<NavItem, 'label' | 'href' | 'external' | 'ariaCurrent'>;
 

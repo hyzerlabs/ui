@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import { browser } from '$app/environment';
+	import type { ImageSource } from '$lib/types';
 	import { cx } from '$lib/utils';
 
 	type AspectRatio = 'auto' | '1/1' | '4/3' | '16/9' | '21/9' | string;
@@ -12,6 +13,12 @@
 	interface Props {
 		src: string;
 		alt: string;
+		/**
+		 * Renders a <picture> with these <source> candidates ahead of the img
+		 * (art direction / format negotiation); `src` stays the fallback and
+		 * still drives the load state.
+		 */
+		sources?: ImageSource[];
 		width?: number;
 		height?: number;
 		loading?: 'lazy' | 'eager';
@@ -28,6 +35,7 @@
 	let {
 		src,
 		alt,
+		sources,
 		width,
 		height,
 		loading = 'lazy',
@@ -119,6 +127,7 @@
 	data-fit={fit}
 	data-rounded={dataRounded}
 	data-placeholder={effectivePlaceholder !== 'none' ? effectivePlaceholder : undefined}
+	data-picture={sources?.length ? '' : undefined}
 	data-reduced-motion={reducedMotion ? '' : undefined}
 	style={wrapperStyle}
 >
@@ -128,19 +137,39 @@
 	{/if}
 
 	<!-- IMG-R14: ...rest first so managed attrs win -->
-	<img
-		{...rest}
-		class="hz-image__img"
-		{src}
-		{alt}
-		{loading}
-		{width}
-		{height}
-		role={alt === '' ? 'presentation' : undefined}
-		bind:this={imgEl}
-		onload={onLoad}
-		onerror={onError}
-	/>
+	{#snippet theImg()}
+		<img
+			{...rest}
+			class="hz-image__img"
+			{src}
+			{alt}
+			{loading}
+			{width}
+			{height}
+			role={alt === '' ? 'presentation' : undefined}
+			bind:this={imgEl}
+			onload={onLoad}
+			onerror={onError}
+		/>
+	{/snippet}
+
+	{#if sources?.length}
+		<!-- Picture mode: sources in order, img as the fallback. Load events
+		     fire on the img whichever source the browser picks. -->
+		<picture class="hz-image__picture">
+			{#each sources as source, i (i)}
+				<source
+					srcset={source.srcset}
+					type={source.type}
+					media={source.media}
+					sizes={source.sizes}
+				/>
+			{/each}
+			{@render theImg()}
+		</picture>
+	{:else}
+		{@render theImg()}
+	{/if}
 </div>
 
 <style>
@@ -149,6 +178,12 @@
 		display: block;
 		width: 100%;
 		position: relative;
+	}
+
+	/* Picture mode: the <picture> element contributes no box of its own, so
+	 * the img fills the wrapper exactly as in the plain mode. */
+	.hz-image__picture {
+		display: contents;
 	}
 
 	/* IMG-R5 — img fills the aspect-ratio box */
