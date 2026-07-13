@@ -260,19 +260,19 @@
 								initial={720}
 								describe={(w) => (w >= 968 ? 'side by side' : 'media on top')}
 							>
-								<div class="demo-hero-wrap">
-									<Hero
-										layout="split"
-										reverseOnMobile
-										title="Media leads when stacked"
-										subtitle="Media renders above the content on small screens."
-										headingLevel={2}
-									>
-										{#snippet media()}
-											<div class="media-block" role="img" aria-label="Media placeholder"></div>
-										{/snippet}
-									</Hero>
-								</div>
+								<!-- No wrapper and no inline padding: the demo width IS the split's width. -->
+								<Hero
+									layout="split"
+									reverseOnMobile
+									title="Media leads when stacked"
+									subtitle="Media renders above the content on small screens."
+									headingLevel={2}
+									class="demo-hero-flush"
+								>
+									{#snippet media()}
+										<div class="media-block" role="img" aria-label="Media placeholder"></div>
+									{/snippet}
+								</Hero>
 							</ResizableDemo>
 						</Example>
 					</Container>
@@ -305,6 +305,11 @@
 		border: 1px dashed var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
 		overflow: hidden;
+	}
+	/* Reverse demo: zero the theme's inline padding so the slider width is
+	 * exactly the split's width (unlayered rule beats the hz-theme layer). */
+	:global(.hz-hero.demo-hero-flush) {
+		padding-inline: 0;
 	}
 	.media-block {
 		width: 100%;

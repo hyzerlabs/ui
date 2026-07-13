@@ -2,9 +2,11 @@
 	import type { Snippet } from 'svelte';
 
 	/**
-	 * A width-adjustable demo frame for container-query components, driven by
-	 * the slider. The readout shows the live content width — the exact width
-	 * the component's container queries respond to.
+	 * A width-adjustable demo frame for width-responsive components, driven
+	 * by the slider or the exact px field. The box is borderless and unpadded
+	 * so its width IS the component's width — demos must not put padded or
+	 * bordered wrappers between the box and the component, or the readout
+	 * drifts from what the component measures.
 	 */
 	interface Props {
 		/** Starting box width in px. */
@@ -19,8 +21,13 @@
 	let { initial = 720, min = 320, max = 1400, describe, children }: Props = $props();
 
 	let box = $state<HTMLElement>();
-	// clientWidth of the borderless, paddingless box = the demo content width.
+	// clientWidth of the borderless, paddingless box = the component width.
 	let measured = $state(0);
+
+	function setWidth(raw: string) {
+		const value = Math.round(Math.min(max, Math.max(min, Number(raw) || min)));
+		if (box) box.style.width = `${value}px`;
+	}
 </script>
 
 <div class="rd">
@@ -32,12 +39,23 @@
 				{min}
 				{max}
 				value={measured || initial}
-				oninput={(e) => box && (box.style.width = `${e.currentTarget.value}px`)}
+				oninput={(e) => setWidth(e.currentTarget.value)}
 			/>
 		</label>
-		<p class="rd-readout" aria-live="polite">
-			<strong>{measured || initial}px</strong>{describe ? ` — ${describe(measured || initial)}` : ''}
-		</p>
+		<label class="rd-label rd-exact">
+			<span class="sr-only">Demo width in pixels</span>
+			<input
+				type="number"
+				{min}
+				{max}
+				value={measured || initial}
+				onchange={(e) => setWidth(e.currentTarget.value)}
+			/>
+			px
+		</label>
+		{#if describe}
+			<p class="rd-readout" aria-live="polite">{describe(measured || initial)}</p>
+		{/if}
 	</div>
 	<div class="rd-scroll">
 		<div
@@ -68,8 +86,20 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	.rd-label input {
+	.rd-label input[type='range'] {
 		width: 12rem;
+	}
+
+	.rd-exact input {
+		width: 4.5rem;
+		padding: 0.125rem 0.375rem;
+		border: 1px solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		background: transparent;
+		color: inherit;
+		font: inherit;
+		font-family: var(--hz-font-family-mono, monospace);
+		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 
 	.rd-readout {

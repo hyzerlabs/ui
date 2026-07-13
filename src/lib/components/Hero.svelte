@@ -224,6 +224,13 @@
 		z-index: 1;
 	}
 
+	/* Split's gap="lg" sets both axes, but 4rem reads oversized vertically
+	 * when the switcher stacks. row-gap only shows between wrapped lines, so
+	 * this tightens the stacked spacing without touching the 4rem column gap. */
+	.hz-hero[data-layout='split'] :global(.hz-split > .hz-split-layout) {
+		row-gap: var(--hz-space-md, 2rem);
+	}
+
 	.hz-hero[data-layout='split'][data-align='start'] :global(.hz-split > .hz-split-layout) {
 		align-items: flex-start;
 	}

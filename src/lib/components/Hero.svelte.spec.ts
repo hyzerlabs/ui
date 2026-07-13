@@ -549,6 +549,17 @@ describe('Hero-R9 — split layout', () => {
 		expect(m.left).toBeGreaterThan(c.left);
 	});
 
+	it('split gaps: 4rem between columns, tightened 2rem between stacked lines', () => {
+		const { container } = render(Hero, {
+			layout: 'split',
+			title: titleSnippet,
+			media: mediaSnippet
+		});
+		const layout = container.querySelector('.hz-split-layout') as HTMLElement;
+		expect(getComputedStyle(layout).columnGap).toBe('64px'); // lg fallback 4rem
+		expect(getComputedStyle(layout).rowGap).toBe('32px'); // hero override 2rem
+	});
+
 	it('split layout at <968px: content and media stack (content above media)', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
