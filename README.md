@@ -36,6 +36,7 @@ pnpm add @hyzer-labs/ui
 | `@hyzer-labs/ui`                  | All components                  |
 | `@hyzer-labs/ui/tokens`           | Token names & metadata (JS)     |
 | `@hyzer-labs/ui/tokens.css`       | CSS custom property tokens      |
+| `@hyzer-labs/ui/reset.css`        | Structural CSS reset (optional) |
 | `@hyzer-labs/ui/icons`            | SVG icon components             |
 | `@hyzer-labs/ui/utils`            | Utility functions               |
 | `@hyzer-labs/ui/types`            | Shared TypeScript types         |
@@ -51,20 +52,28 @@ The library ships in opt-in tiers — take as much or as little as you want:
 1. **Headless (default).** Components ship structure, behavior, and a11y only.
    Style them yourself via the stable `hz-*` classes and `data-*` attributes
    (`data-variant`, `data-intent`, `data-size`, `data-state`).
-2. **Tokens.** `@hyzer-labs/ui/tokens.css` defines the `--hz-*` custom
+2. **Reset.** `@hyzer-labs/ui/reset.css` is a structural adaptation of
+   [Josh Comeau's reset](https://www.joshwcomeau.com/css/custom-css-reset/) —
+   no colors or typefaces. Lives in the `hz-reset` cascade layer, below
+   `hz-theme`, so everything else wins ties. Import it first.
+3. **Tokens.** `@hyzer-labs/ui/tokens.css` defines the `--hz-*` custom
    properties (palette, semantic roles, type, spacing, radius, elevation,
-   motion). Includes the `[data-theme="dark"]` role hook.
-3. **Reference theme.** `@hyzer-labs/ui/theme` is a complete, token-driven
+   motion). Includes the `[data-theme="dark"]` role hook and the density
+   spacing model (`--hz-density` grid unit → `--hz-space-near` /
+   `--hz-space-away`, tightened per `data-density-shift` ancestor — adapted
+   from [Complementary Space](https://blog.damato.design/posts/complementary-space/)).
+4. **Reference theme.** `@hyzer-labs/ui/theme` is a complete, token-driven
    visual layer — or cherry-pick per-component files
    (`@hyzer-labs/ui/theme/button.css`).
-4. **Theme variants.** `ocean.css` / `sunset.css` restyle both tiers purely by
+5. **Theme variants.** `ocean.css` / `sunset.css` restyle both tiers purely by
    overriding tokens. Import one **after** `tokens.css`.
 
 ```svelte
 <script>
-	import '@hyzer-labs/ui/tokens.css'; // 1. tokens
-	import '@hyzer-labs/ui/theme'; // 2. reference theme (optional)
-	import '@hyzer-labs/ui/theme/ocean.css'; // 3. variant (optional)
+	import '@hyzer-labs/ui/reset.css'; // 1. reset (optional)
+	import '@hyzer-labs/ui/tokens.css'; // 2. tokens
+	import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)
+	import '@hyzer-labs/ui/theme/ocean.css'; // 4. variant (optional)
 </script>
 ```
 

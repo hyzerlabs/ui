@@ -19,6 +19,20 @@ export interface FooterColumn {
 /** Component size variants */
 export type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
+/**
+ * Padding scale shared by every layout primitive (Container, Stack, Cluster,
+ * Grid, Split). Applied on both axes; near/away are the density distances
+ * from the tokens.css density block and tighten inside data-density-shift
+ * regions.
+ */
+export type LayoutPadding = 'none' | 'sm' | 'md' | 'lg' | 'near' | 'away';
+
+/**
+ * Cross-axis alignment shared by Stack, Cluster, and Grid (align-items).
+ * All five values are valid in both flex and grid contexts.
+ */
+export type LayoutAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
+
 /** Semantic intent variants */
 export type Intent = 'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info';
 

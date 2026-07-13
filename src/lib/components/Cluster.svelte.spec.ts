@@ -107,12 +107,17 @@ describe('R7 — default render', () => {
 // ---------------------------------------------------------------------------
 
 describe('R8 — gap prop', () => {
-	const gapEntries: Array<{ gap: 'none' | 'xs' | 'sm' | 'md' | 'lg'; expectedPx: string }> = [
+	const gapEntries: Array<{
+		gap: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'near' | 'away';
+		expectedPx: string;
+	}> = [
 		{ gap: 'none', expectedPx: '0px' },
 		{ gap: 'xs', expectedPx: '8px' }, // 0.5rem
 		{ gap: 'sm', expectedPx: '16px' }, // 1rem
 		{ gap: 'md', expectedPx: '32px' }, // 2rem
-		{ gap: 'lg', expectedPx: '64px' } // 4rem
+		{ gap: 'lg', expectedPx: '64px' }, // 4rem
+		{ gap: 'near', expectedPx: '32px' }, // density fallback 2rem
+		{ gap: 'away', expectedPx: '64px' } // density fallback 4rem
 	];
 
 	for (const { gap, expectedPx } of gapEntries) {
@@ -131,18 +136,53 @@ describe('R8 — gap prop', () => {
 });
 
 // ---------------------------------------------------------------------------
+// padding prop (shared LayoutPadding scale, both axes)
+// ---------------------------------------------------------------------------
+
+describe('padding prop', () => {
+	it('defaults to data-padding="none" with zero computed padding', () => {
+		const { container } = render(Cluster);
+		const el = container.querySelector('.hz-cluster') as HTMLElement;
+		expect(el.getAttribute('data-padding')).toBe('none');
+		expect(getComputedStyle(el).padding).toBe('0px');
+	});
+
+	const paddingEntries: Array<{
+		padding: 'sm' | 'md' | 'lg' | 'near' | 'away';
+		expectedPx: string;
+	}> = [
+		{ padding: 'sm', expectedPx: '16px' }, // 1rem
+		{ padding: 'md', expectedPx: '32px' }, // 2rem
+		{ padding: 'lg', expectedPx: '64px' }, // 4rem
+		{ padding: 'near', expectedPx: '32px' }, // density fallback 2rem
+		{ padding: 'away', expectedPx: '64px' } // density fallback 4rem
+	];
+
+	for (const { padding, expectedPx } of paddingEntries) {
+		it(`padding="${padding}" drives padding on both axes: ${expectedPx}`, () => {
+			const { container } = render(Cluster, { padding });
+			const el = container.querySelector('.hz-cluster') as HTMLElement;
+			expect(el.getAttribute('data-padding')).toBe(padding);
+			expect(getComputedStyle(el).paddingLeft).toBe(expectedPx);
+			expect(getComputedStyle(el).paddingTop).toBe(expectedPx);
+		});
+	}
+});
+
+// ---------------------------------------------------------------------------
 // R8 — justify prop
 // ---------------------------------------------------------------------------
 
 describe('R8 — justify prop', () => {
 	const justifyEntries: Array<{
-		justify: 'start' | 'center' | 'end' | 'between';
+		justify: 'start' | 'center' | 'end' | 'between' | 'around';
 		expectedJustifyContent: string;
 	}> = [
 		{ justify: 'start', expectedJustifyContent: 'flex-start' },
 		{ justify: 'center', expectedJustifyContent: 'center' },
 		{ justify: 'end', expectedJustifyContent: 'flex-end' },
-		{ justify: 'between', expectedJustifyContent: 'space-between' }
+		{ justify: 'between', expectedJustifyContent: 'space-between' },
+		{ justify: 'around', expectedJustifyContent: 'space-around' }
 	];
 
 	for (const { justify, expectedJustifyContent } of justifyEntries) {
@@ -166,13 +206,14 @@ describe('R8 — justify prop', () => {
 
 describe('R8 — align prop', () => {
 	const alignEntries: Array<{
-		align: 'start' | 'center' | 'end' | 'baseline';
+		align: 'start' | 'center' | 'end' | 'baseline' | 'stretch';
 		expectedAlignItems: string;
 	}> = [
 		{ align: 'start', expectedAlignItems: 'flex-start' },
 		{ align: 'center', expectedAlignItems: 'center' },
 		{ align: 'end', expectedAlignItems: 'flex-end' },
-		{ align: 'baseline', expectedAlignItems: 'baseline' }
+		{ align: 'baseline', expectedAlignItems: 'baseline' },
+		{ align: 'stretch', expectedAlignItems: 'stretch' }
 	];
 
 	for (const { align, expectedAlignItems } of alignEntries) {

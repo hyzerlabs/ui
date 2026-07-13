@@ -28,17 +28,19 @@ function getCols(el: HTMLElement): string {
 }
 
 /**
- * Add two `<div>` children to el programmatically and return them.
- * Used to test the CSS `order` reversal and DOM-order preservation.
- * (createRawSnippet cannot return multi-element HTML, so we do this directly.)
+ * Add two `<div>` children to the split's inner layout element (where slotted
+ * children land) and return them. Used to test the CSS `order` reversal and
+ * DOM-order preservation. (createRawSnippet cannot return multi-element HTML,
+ * so we do this directly.)
  */
-function appendTwoChildren(el: HTMLElement): [HTMLElement, HTMLElement] {
+function appendTwoChildren(root: HTMLElement): [HTMLElement, HTMLElement] {
+	const layout = root.querySelector('.hz-split-layout') as HTMLElement;
 	const c1 = document.createElement('div');
 	c1.setAttribute('data-child', '1');
 	const c2 = document.createElement('div');
 	c2.setAttribute('data-child', '2');
-	el.appendChild(c1);
-	el.appendChild(c2);
+	layout.appendChild(c1);
+	layout.appendChild(c2);
 	return [c1, c2];
 }
 
@@ -72,10 +74,10 @@ describe('R14 — default render', () => {
 		expect(el.getAttribute('data-gap')).toBe('md');
 	});
 
-	it('has data-stack-below="md" by default', () => {
+	it('has data-stack-below="sm" by default', () => {
 		const { container } = render(Split);
 		const el = container.querySelector('.hz-split') as HTMLElement;
-		expect(el.getAttribute('data-stack-below')).toBe('md');
+		expect(el.getAttribute('data-stack-below')).toBe('sm');
 	});
 
 	it('has data-reverse absent by default', () => {
@@ -84,10 +86,12 @@ describe('R14 — default render', () => {
 		expect(el.hasAttribute('data-reverse')).toBe(false);
 	});
 
-	it('has computed display: grid', () => {
+	it('root is the size container; inner .hz-split-layout has computed display: grid', () => {
 		const { container } = render(Split);
 		const el = container.querySelector('.hz-split') as HTMLElement;
-		expect(getComputedStyle(el).display).toBe('grid');
+		const layout = el.querySelector('.hz-split-layout') as HTMLElement;
+		expect(getComputedStyle(el).containerType).toBe('inline-size');
+		expect(getComputedStyle(layout).display).toBe('grid');
 	});
 
 	it('renders children', () => {
@@ -168,10 +172,11 @@ describe('R16 — reverse prop', () => {
 	it('reverse=true → DOM source order of children is unchanged (first child stays first)', () => {
 		const { container } = render(Split, { reverse: true });
 		const el = container.querySelector('.hz-split') as HTMLElement;
+		const layout = el.querySelector('.hz-split-layout') as HTMLElement;
 		const [c1, c2] = appendTwoChildren(el);
 		// DOM order must match insertion order regardless of visual reversal
-		expect(el.children[0]).toBe(c1);
-		expect(el.children[1]).toBe(c2);
+		expect(layout.children[0]).toBe(c1);
+		expect(layout.children[1]).toBe(c2);
 	});
 
 	it('reverse=true → CSS visually swaps via order: first child gets order: 2', () => {
@@ -202,6 +207,17 @@ describe('R16 — reverse prop', () => {
 // ---------------------------------------------------------------------------
 
 describe('R17 — stackBelow prop', () => {
+	/**
+	 * Read the layout's grid-template-columns with the root (the size
+	 * container) forced to a given width. 'none' means stacked (single
+	 * auto-flow column); two track values mean side by side.
+	 */
+	function templateAt(root: HTMLElement, width: number): string {
+		root.style.width = `${width}px`;
+		const layout = root.querySelector('.hz-split-layout') as HTMLElement;
+		return getComputedStyle(layout).gridTemplateColumns.trim();
+	}
+
 	for (const stackBelow of ['sm', 'md', 'lg'] as const) {
 		it(`stackBelow="${stackBelow}" is reflected in data-stack-below`, () => {
 			const { container } = render(Split, { stackBelow });
@@ -210,10 +226,27 @@ describe('R17 — stackBelow prop', () => {
 		});
 	}
 
+	const thresholds = [
+		{ stackBelow: 'sm', px: 640 },
+		{ stackBelow: 'md', px: 968 },
+		{ stackBelow: 'lg', px: 1200 }
+	] as const;
+
+	for (const { stackBelow, px } of thresholds) {
+		it(`stackBelow="${stackBelow}" stacks below ${px}px of container width and splits at ${px}px`, () => {
+			const { container } = render(Split, { stackBelow });
+			const root = container.querySelector('.hz-split') as HTMLElement;
+			expect(templateAt(root, px - 40)).toBe('none');
+			expect(templateAt(root, px).split(/\s+/).length).toBe(2);
+		});
+	}
+
 	it('gap is retained while stacked (computed row-gap is non-zero for gap="md")', () => {
 		const { container } = render(Split, { gap: 'md', stackBelow: 'md' });
-		const el = container.querySelector('.hz-split') as HTMLElement;
-		expect(getComputedStyle(el).rowGap).toBe('32px');
+		const root = container.querySelector('.hz-split') as HTMLElement;
+		root.style.width = '500px';
+		const layout = root.querySelector('.hz-split-layout') as HTMLElement;
+		expect(getComputedStyle(layout).rowGap).toBe('32px');
 	});
 });
 
@@ -222,11 +255,16 @@ describe('R17 — stackBelow prop', () => {
 // ---------------------------------------------------------------------------
 
 describe('Split gap prop', () => {
-	const gapEntries: Array<{ gap: 'none' | 'sm' | 'md' | 'lg'; expectedPx: string }> = [
+	const gapEntries: Array<{
+		gap: 'none' | 'sm' | 'md' | 'lg' | 'near' | 'away';
+		expectedPx: string;
+	}> = [
 		{ gap: 'none', expectedPx: '0px' },
 		{ gap: 'sm', expectedPx: '16px' }, // 1rem
 		{ gap: 'md', expectedPx: '32px' }, // 2rem
-		{ gap: 'lg', expectedPx: '64px' } // 4rem
+		{ gap: 'lg', expectedPx: '64px' }, // 4rem
+		{ gap: 'near', expectedPx: '32px' }, // density fallback 2rem
+		{ gap: 'away', expectedPx: '64px' } // density fallback 4rem
 	];
 
 	for (const { gap, expectedPx } of gapEntries) {
@@ -238,8 +276,42 @@ describe('Split gap prop', () => {
 
 		it(`gap="${gap}" drives computed row-gap: ${expectedPx}`, () => {
 			const { container } = render(Split, { gap });
+			const layout = container.querySelector('.hz-split-layout') as HTMLElement;
+			expect(getComputedStyle(layout).rowGap).toBe(expectedPx);
+		});
+	}
+});
+
+// ---------------------------------------------------------------------------
+// padding prop (shared LayoutPadding scale, both axes, on the container root)
+// ---------------------------------------------------------------------------
+
+describe('padding prop', () => {
+	it('defaults to data-padding="none" with zero computed padding', () => {
+		const { container } = render(Split);
+		const el = container.querySelector('.hz-split') as HTMLElement;
+		expect(el.getAttribute('data-padding')).toBe('none');
+		expect(getComputedStyle(el).padding).toBe('0px');
+	});
+
+	const paddingEntries: Array<{
+		padding: 'sm' | 'md' | 'lg' | 'near' | 'away';
+		expectedPx: string;
+	}> = [
+		{ padding: 'sm', expectedPx: '16px' }, // 1rem
+		{ padding: 'md', expectedPx: '32px' }, // 2rem
+		{ padding: 'lg', expectedPx: '64px' }, // 4rem
+		{ padding: 'near', expectedPx: '32px' }, // density fallback 2rem
+		{ padding: 'away', expectedPx: '64px' } // density fallback 4rem
+	];
+
+	for (const { padding, expectedPx } of paddingEntries) {
+		it(`padding="${padding}" drives padding on both axes: ${expectedPx}`, () => {
+			const { container } = render(Split, { padding });
 			const el = container.querySelector('.hz-split') as HTMLElement;
-			expect(getComputedStyle(el).rowGap).toBe(expectedPx);
+			expect(el.getAttribute('data-padding')).toBe(padding);
+			expect(getComputedStyle(el).paddingLeft).toBe(expectedPx);
+			expect(getComputedStyle(el).paddingTop).toBe(expectedPx);
 		});
 	}
 });
@@ -323,7 +395,7 @@ describe('R20 — rest forwarding', () => {
 			'data-stack-below': 'override'
 		} as Record<string, unknown>);
 		const el = container.querySelector('.hz-split') as HTMLElement;
-		expect(el.getAttribute('data-stack-below')).toBe('md');
+		expect(el.getAttribute('data-stack-below')).toBe('sm');
 	});
 });
 
@@ -346,11 +418,12 @@ describe('Edge cases', () => {
 	it('renders with ≠ 2 element children (3 children) without error', () => {
 		const { container } = render(Split);
 		const el = container.querySelector('.hz-split') as HTMLElement;
+		const layout = el.querySelector('.hz-split-layout') as HTMLElement;
 		// Add three children directly — the two-track grid applies to whatever children exist
 		for (let i = 1; i <= 3; i++) {
 			const child = document.createElement('div');
 			child.setAttribute('data-child', String(i));
-			el.appendChild(child);
+			layout.appendChild(child);
 		}
 		expect(el).not.toBeNull();
 		expect(el.querySelectorAll('[data-child]')).toHaveLength(3);

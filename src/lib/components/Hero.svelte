@@ -94,9 +94,10 @@
 	{#if layout === 'split'}
 		<!--
 			Hero-R9: split layout composes the existing Split component.
-			fraction="1/2" gives equal columns; stackBelow="md" collapses below 968px.
-			Do NOT use Split's reverse prop — reverseOnMobile is handled by Hero's own
-			scoped order rules (Hero-R10).
+			fraction="1/2" gives equal columns; stackBelow="md" collapses below
+			968px of the split's own width (container query). Do NOT use Split's
+			reverse prop — reverseOnMobile is handled by Hero's own scoped order
+			rules (Hero-R10).
 		-->
 		<Split fraction="1/2" gap="lg" stackBelow="md">
 			{#if hasContent}
@@ -213,7 +214,8 @@
 
 	/* ------------------------------------------------------------------ */
 	/* Hero-R9: split layout — hz-split fills the root; align maps to      */
-	/* vertical alignment of content vs media via align-items on hz-split. */
+	/* vertical alignment of content vs media via align-items on the       */
+	/* split's inner .hz-split-layout (the grid element).                  */
 	/* ------------------------------------------------------------------ */
 
 	.hz-hero[data-layout='split'] :global(.hz-split) {
@@ -222,30 +224,33 @@
 		z-index: 1;
 	}
 
-	.hz-hero[data-layout='split'][data-align='start'] :global(.hz-split) {
+	.hz-hero[data-layout='split'][data-align='start'] :global(.hz-split > .hz-split-layout) {
 		align-items: flex-start;
 	}
 
-	.hz-hero[data-layout='split'][data-align='center'] :global(.hz-split) {
+	.hz-hero[data-layout='split'][data-align='center'] :global(.hz-split > .hz-split-layout) {
 		align-items: center;
 	}
 
-	.hz-hero[data-layout='split'][data-align='end'] :global(.hz-split) {
+	.hz-hero[data-layout='split'][data-align='end'] :global(.hz-split > .hz-split-layout) {
 		align-items: flex-end;
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Hero-R10: reverseOnMobile — visual-only order swap below 968px.     */
-	/* Only applies in split layout. DOM order is never changed (R5).       */
-	/* At ≥968px the split is side-by-side so order has no visual effect.   */
+	/* Hero-R10: reverseOnMobile — visual-only order swap while the split  */
+	/* is stacked. A container query against the .hz-split size container, */
+	/* so it flips at exactly the width Split un-stacks (968px container   */
+	/* width, matching stackBelow="md"). DOM order is never changed (R5).  */
 	/* ------------------------------------------------------------------ */
 
-	@media (max-width: 967px) {
-		.hz-hero[data-layout='split'][data-reverse-on-mobile] :global(.hz-split > .hz-hero-content) {
+	@container (max-width: 967.98px) {
+		.hz-hero[data-layout='split'][data-reverse-on-mobile]
+			:global(.hz-split > .hz-split-layout > .hz-hero-content) {
 			order: 2;
 		}
 
-		.hz-hero[data-layout='split'][data-reverse-on-mobile] :global(.hz-split > .hz-hero-media) {
+		.hz-hero[data-layout='split'][data-reverse-on-mobile]
+			:global(.hz-split > .hz-split-layout > .hz-hero-media) {
 			order: 1;
 		}
 	}

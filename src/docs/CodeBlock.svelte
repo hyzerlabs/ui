@@ -29,8 +29,13 @@
 </div>
 
 <style>
+	/* Standalone default: framed with the same tint the Example frame uses.
+	 * Example.svelte strips the border/radius when embedding one. */
 	.code-block {
 		position: relative;
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, transparent);
+		border: 1px solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
 	}
 
 	pre {

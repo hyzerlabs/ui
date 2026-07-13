@@ -28,7 +28,8 @@ export const manifest: ManifestItem[] = [
 			{ label: 'Spacing & Sizing', href: '/foundation/spacing' },
 			{ label: 'Radius & Elevation', href: '/foundation/radius-elevation' },
 			{ label: 'Motion', href: '/foundation/motion' },
-			{ label: 'Icons', href: '/foundation/icons' }
+			{ label: 'Icons', href: '/foundation/icons' },
+			{ label: 'CSS Reset', href: '/foundation/reset' }
 		]
 	},
 	{

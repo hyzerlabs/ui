@@ -69,7 +69,7 @@
 	<section aria-labelledby="all-heading">
 		<h2 id="all-heading">All icons ({iconEntries.length})</h2>
 		<!-- R8 — icon export name is visible text associated with each icon -->
-		<Grid columns={{ sm: 2, md: 3, lg: 5 }} gap="sm">
+		<Grid columns={{ base: 2, sm: 3, md: 5 }} gap="sm">
 			{#each iconEntries as [name, IconComponent] (name)}
 				<div class="icon-tile">
 					<!-- R8 — decorative in grid context; name is visible text below -->

@@ -40,7 +40,7 @@
 
 	<section aria-labelledby="radius-heading">
 		<h2 id="radius-heading">Border radius</h2>
-		<Grid columns={{ sm: 2, md: 3, lg: 5 }} gap="md">
+		<Grid columns={{ base: 2, sm: 3, md: 5 }} gap="md">
 			{#each radiusTokens as token (token.cssVar)}
 				<div class="radius-card">
 					<div
@@ -76,7 +76,7 @@
 
 	<section aria-labelledby="shadow-heading">
 		<h2 id="shadow-heading">Shadows</h2>
-		<Grid columns={{ sm: 1, md: 3 }} gap="lg">
+		<Grid columns={{ base: 1, sm: 3 }} gap="lg">
 			{#each shadowTokens as token (token.cssVar)}
 				<div class="shadow-card" style="box-shadow: {token.value}">
 					<code class="token-name">{token.cssVar}</code>

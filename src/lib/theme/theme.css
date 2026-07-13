@@ -21,7 +21,10 @@
  * and any palette-override theme (see the variant stylesheets) restyle the
  * whole theme automatically.
  */
-@layer hz-theme;
+
+/* Pin layer order so the theme beats the optional reset (reset.css) even if
+ * a consumer imports the two in the wrong order. */
+@layer hz-reset, hz-theme;
 
 @import './base.css';
 @import './button.css';

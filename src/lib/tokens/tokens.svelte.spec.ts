@@ -117,6 +117,62 @@ describe('R6 — motion tokens resolve on :root', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Density spacing — --hz-density grid unit + data-density-shift levels
+// ---------------------------------------------------------------------------
+
+describe('density spacing tokens', () => {
+	/**
+	 * Resolve a length var by applying it to a probe's width and reading the
+	 * computed pixel value (default root font size: 0.4rem = 6.4px).
+	 */
+	function resolveLength(parent: HTMLElement, varName: string): number {
+		const probe = document.createElement('div');
+		probe.style.cssText = `width: var(${varName})`;
+		parent.appendChild(probe);
+		const width = parseFloat(getComputedStyle(probe).width);
+		parent.removeChild(probe);
+		return width;
+	}
+
+	it('--hz-density resolves to "0.4rem" on :root', () => {
+		expect(rootVar('--hz-density')).toBe('0.4rem');
+	});
+
+	it('base level: near = 5 units, away = 10 units', () => {
+		expect(resolveLength(document.body, '--hz-space-near')).toBeCloseTo(6.4 * 5, 1);
+		expect(resolveLength(document.body, '--hz-space-away')).toBeCloseTo(6.4 * 10, 1);
+	});
+
+	it('one data-density-shift ancestor tightens to 2 / 5 units', () => {
+		const region = document.createElement('div');
+		region.setAttribute('data-density-shift', '');
+		document.body.appendChild(region);
+		expect(resolveLength(region, '--hz-space-near')).toBeCloseTo(6.4 * 2, 1);
+		expect(resolveLength(region, '--hz-space-away')).toBeCloseTo(6.4 * 5, 1);
+		region.remove();
+	});
+
+	it('two nested data-density-shift ancestors tighten to 1 / 2 units', () => {
+		const outer = document.createElement('div');
+		outer.setAttribute('data-density-shift', '');
+		const inner = document.createElement('div');
+		inner.setAttribute('data-density-shift', '');
+		outer.appendChild(inner);
+		document.body.appendChild(outer);
+		expect(resolveLength(inner, '--hz-space-near')).toBeCloseTo(6.4 * 1, 1);
+		expect(resolveLength(inner, '--hz-space-away')).toBeCloseTo(6.4 * 2, 1);
+		outer.remove();
+	});
+
+	it('overriding --hz-density rescales both distances', () => {
+		document.documentElement.style.setProperty('--hz-density', '0.5rem');
+		expect(resolveLength(document.body, '--hz-space-near')).toBeCloseTo(8 * 5, 1);
+		expect(resolveLength(document.body, '--hz-space-away')).toBeCloseTo(8 * 10, 1);
+		document.documentElement.style.removeProperty('--hz-density');
+	});
+});
+
+// ---------------------------------------------------------------------------
 // R4 — semantic role indirection (light mode)
 // ---------------------------------------------------------------------------
 

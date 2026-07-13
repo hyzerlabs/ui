@@ -1,0 +1,76 @@
+/**
+ * @hyzer-labs/ui reset (optional)
+ *
+ * Structural adaptation of Josh Comeau's custom CSS reset:
+ * https://www.joshwcomeau.com/css/custom-css-reset/
+ *
+ * Deliberately colorless and font-less — tokens.css and the reference theme
+ * (or your own CSS) own those. Usable with or without the theme.
+ *
+ * Rules live in the `hz-reset` cascade layer, pinned before `hz-theme`, so
+ * the reference theme and any unlayered consumer CSS always win ties.
+ * Import this before other stylesheets.
+ */
+@layer hz-reset, hz-theme;
+
+@layer hz-reset {
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	* {
+		margin: 0;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		html {
+			interpolate-size: allow-keywords;
+		}
+	}
+
+	body {
+		line-height: var(--hz-line-height-base, 1.5);
+		-webkit-font-smoothing: antialiased;
+	}
+
+	img,
+	picture,
+	video,
+	canvas,
+	svg {
+		display: block;
+		max-width: 100%;
+	}
+
+	input,
+	button,
+	textarea,
+	select {
+		font: inherit;
+	}
+
+	p,
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		overflow-wrap: break-word;
+	}
+
+	p {
+		text-wrap: pretty;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		text-wrap: balance;
+	}
+}

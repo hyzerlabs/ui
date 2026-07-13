@@ -375,7 +375,7 @@ describe('R8 — responsive columns grid', () => {
 	it('at narrow viewport (320px) columns grid computes a single track (stacked)', async () => {
 		const { container } = render(Footer, { columns: threeColumns });
 		await page.viewport(320, 600);
-		const grid = container.querySelector('.hz-footer-columns') as HTMLElement;
+		const grid = container.querySelector('.hz-footer-columns > .hz-grid-layout') as HTMLElement;
 		const computedCols = getComputedStyle(grid).gridTemplateColumns;
 		// Single track = one space-delimited value (e.g. "304px")
 		const trackCount = computedCols.trim().split(/\s+/).length;
@@ -385,7 +385,7 @@ describe('R8 — responsive columns grid', () => {
 	it('at wide viewport (700px) with 3 columns grid computes multiple tracks', async () => {
 		const { container } = render(Footer, { columns: threeColumns });
 		await page.viewport(700, 600);
-		const grid = container.querySelector('.hz-footer-columns') as HTMLElement;
+		const grid = container.querySelector('.hz-footer-columns > .hz-grid-layout') as HTMLElement;
 		const computedCols = getComputedStyle(grid).gridTemplateColumns;
 		// Multiple tracks = multiple space-delimited values (e.g. "228px 228px 228px")
 		const trackCount = computedCols.trim().split(/\s+/).length;

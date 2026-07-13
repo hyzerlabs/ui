@@ -81,15 +81,16 @@
 
 <style>
 	/*
-	 * R8 — Override Grid's fixed track template with an auto-fit layout so
-	 * columns stack on narrow viewports and fill available tracks as width grows.
-	 * No media queries required; --hz-footer-col-min is consumer-tunable.
+	 * R8 — Override Grid's track template with an auto-fit layout so columns
+	 * stack when narrow and fill available tracks as width grows. No media or
+	 * container queries required; --hz-footer-col-min is consumer-tunable.
 	 *
-	 * The parent selector (.hz-footer) is scoped, which Svelte compiles to
-	 * .hz-footer.svelte-HASH — giving specificity (0,3,0), enough to beat
-	 * Grid's own scoped .hz-grid.svelte-HASH rule at (0,2,0).
+	 * Grid does its layout on the inner .hz-grid-layout element (the root is
+	 * its size container), so that's the element to override. The scoped
+	 * .hz-footer parent gives this rule enough specificity to beat Grid's own
+	 * scoped layout rules.
 	 */
-	.hz-footer :global(.hz-footer-columns) {
+	.hz-footer :global(.hz-footer-columns > .hz-grid-layout) {
 		grid-template-columns: repeat(
 			auto-fit,
 			minmax(min(100%, var(--hz-footer-col-min, 12rem)), 1fr)

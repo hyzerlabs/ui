@@ -1,15 +1,16 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { LayoutAlign, LayoutPadding } from '$lib/types';
 	import { cx } from '$lib/utils';
 
-	type GridColumns = number | { sm?: number; md?: number; lg?: number };
-	type GridGap = 'none' | 'sm' | 'md' | 'lg';
-	type GridAlign = 'start' | 'center' | 'end' | 'stretch';
+	type GridColumns = number | { base?: number; sm?: number; md?: number; lg?: number };
+	type GridGap = 'none' | 'sm' | 'md' | 'lg' | 'near' | 'away';
 
 	interface Props {
 		columns?: GridColumns;
 		gap?: GridGap;
-		align?: GridAlign;
+		align?: LayoutAlign;
+		padding?: LayoutPadding;
 		as?: string;
 		class?: string;
 		children?: Snippet;
@@ -17,9 +18,10 @@
 	}
 
 	let {
-		columns = { sm: 1, md: 2, lg: 3 },
+		columns = { base: 1, sm: 2, md: 3 },
 		gap = 'md',
 		align = 'stretch',
+		padding = 'none',
 		as = 'div',
 		class: className,
 		children,
@@ -30,15 +32,16 @@
 	 * Build the inline style string that carries the --hz-grid-cols* custom
 	 * properties consumed by the shipped responsive CSS.
 	 *
-	 * - number  → single `--hz-grid-cols: N` (same column count at every breakpoint)
-	 * - object  → per-key `--hz-grid-cols-{sm,md,lg}: N` for each present key
-	 * - empty object → no properties (cascade falls back to 1 at every breakpoint)
+	 * - number  → single `--hz-grid-cols: N` (same column count at every width)
+	 * - object  → per-key `--hz-grid-cols-{base,sm,md,lg}: N` for each present key
+	 * - empty object → no properties (cascade falls back to 1 at every width)
 	 */
 	const gridStyle = $derived(
 		typeof columns === 'number'
 			? `--hz-grid-cols: ${columns}`
 			: (
 					[
+						columns.base !== undefined ? `--hz-grid-cols-base: ${columns.base}` : null,
 						columns.sm !== undefined ? `--hz-grid-cols-sm: ${columns.sm}` : null,
 						columns.md !== undefined ? `--hz-grid-cols-md: ${columns.md}` : null,
 						columns.lg !== undefined ? `--hz-grid-cols-lg: ${columns.lg}` : null
@@ -49,8 +52,8 @@
 
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
-	(class, data-gap, data-align, style) wins over any conflicting key a
-	consumer accidentally passes through rest.
+	(class, data-gap, data-align, data-padding, style) wins over any
+	conflicting key a consumer accidentally passes through rest.
 -->
 <svelte:element
 	this={as}
@@ -58,66 +61,137 @@
 	class={cx('hz-grid', className)}
 	data-gap={gap}
 	data-align={align}
+	data-padding={padding}
 	style={gridStyle || undefined}
 >
-	{@render children?.()}
+	<div class="hz-grid-layout">
+		{@render children?.()}
+	</div>
 </svelte:element>
 
 <style>
+	/*
+	 * The root is a size container so the column breakpoints respond to the
+	 * grid's own available width (container queries), not the viewport. An
+	 * element cannot container-query itself, so the inner .hz-grid-layout
+	 * does the actual grid layout.
+	 *
+	 * Breakpoint keys map to the width tokens: sm counts apply from
+	 * --hz-width-sm (640px) of container width, md from --hz-width-md (968px),
+	 * lg from --hz-width-lg (1200px); base below 640px. Thresholds stay
+	 * literal — CSS cannot read custom properties in container queries.
+	 */
 	.hz-grid {
-		display: grid;
-		/* base (<968px): sm → flat → 1 */
-		grid-template-columns: repeat(var(--hz-grid-cols-sm, var(--hz-grid-cols, 1)), minmax(0, 1fr));
+		display: block;
+		container-type: inline-size;
 	}
 
-	/* tablet (≥968px): md → sm → flat → 1 */
-	@media (min-width: 968px) {
-		.hz-grid {
+	.hz-grid-layout {
+		display: grid;
+		/* narrow (<640px): base → flat → 1 */
+		grid-template-columns: repeat(
+			var(--hz-grid-cols-base, var(--hz-grid-cols, 1)),
+			minmax(0, 1fr)
+		);
+	}
+
+	/* container ≥ --hz-width-sm: sm → base → flat → 1 */
+	@container (min-width: 640px) {
+		.hz-grid-layout {
 			grid-template-columns: repeat(
-				var(--hz-grid-cols-md, var(--hz-grid-cols-sm, var(--hz-grid-cols, 1))),
+				var(--hz-grid-cols-sm, var(--hz-grid-cols-base, var(--hz-grid-cols, 1))),
 				minmax(0, 1fr)
 			);
 		}
 	}
 
-	/* desktop (≥1200px): lg → md → sm → flat → 1 */
-	@media (min-width: 1200px) {
-		.hz-grid {
+	/* container ≥ --hz-width-md: md → sm → base → flat → 1 */
+	@container (min-width: 968px) {
+		.hz-grid-layout {
 			grid-template-columns: repeat(
 				var(
-					--hz-grid-cols-lg,
-					var(--hz-grid-cols-md, var(--hz-grid-cols-sm, var(--hz-grid-cols, 1)))
+					--hz-grid-cols-md,
+					var(--hz-grid-cols-sm, var(--hz-grid-cols-base, var(--hz-grid-cols, 1)))
 				),
 				minmax(0, 1fr)
 			);
 		}
 	}
 
+	/* container ≥ --hz-width-lg: lg → md → sm → base → flat → 1 */
+	@container (min-width: 1200px) {
+		.hz-grid-layout {
+			grid-template-columns: repeat(
+				var(
+					--hz-grid-cols-lg,
+					var(
+						--hz-grid-cols-md,
+						var(--hz-grid-cols-sm, var(--hz-grid-cols-base, var(--hz-grid-cols, 1)))
+					)
+				),
+				minmax(0, 1fr)
+			);
+		}
+	}
+
+	/* padding (both axes) per spacing scale — on the root, so the container
+	 * queries measure the space actually available to the tracks.
+	 * near/away are density-shift aware. */
+	.hz-grid[data-padding='none'] {
+		padding: 0;
+	}
+	.hz-grid[data-padding='sm'] {
+		padding: var(--hz-space-sm, 1rem);
+	}
+	.hz-grid[data-padding='md'] {
+		padding: var(--hz-space-md, 2rem);
+	}
+	.hz-grid[data-padding='lg'] {
+		padding: var(--hz-space-lg, 4rem);
+	}
+	.hz-grid[data-padding='near'] {
+		padding: var(--hz-space-near, 2rem);
+	}
+	.hz-grid[data-padding='away'] {
+		padding: var(--hz-space-away, 4rem);
+	}
+
 	/* gap per spacing scale */
-	.hz-grid[data-gap='none'] {
+	.hz-grid[data-gap='none'] > .hz-grid-layout {
 		gap: 0;
 	}
-	.hz-grid[data-gap='sm'] {
+	.hz-grid[data-gap='sm'] > .hz-grid-layout {
 		gap: var(--hz-space-sm, 1rem);
 	}
-	.hz-grid[data-gap='md'] {
+	.hz-grid[data-gap='md'] > .hz-grid-layout {
 		gap: var(--hz-space-md, 2rem);
 	}
-	.hz-grid[data-gap='lg'] {
+	.hz-grid[data-gap='lg'] > .hz-grid-layout {
 		gap: var(--hz-space-lg, 4rem);
 	}
 
+	/* density distances — shift-aware vars from the tokens.css density block */
+	.hz-grid[data-gap='near'] > .hz-grid-layout {
+		gap: var(--hz-space-near, 2rem);
+	}
+	.hz-grid[data-gap='away'] > .hz-grid-layout {
+		gap: var(--hz-space-away, 4rem);
+	}
+
 	/* align-items per data-align */
-	.hz-grid[data-align='start'] {
+	.hz-grid[data-align='start'] > .hz-grid-layout {
 		align-items: flex-start;
 	}
-	.hz-grid[data-align='center'] {
+	.hz-grid[data-align='center'] > .hz-grid-layout {
 		align-items: center;
 	}
-	.hz-grid[data-align='end'] {
+	.hz-grid[data-align='end'] > .hz-grid-layout {
 		align-items: flex-end;
 	}
-	.hz-grid[data-align='stretch'] {
+	.hz-grid[data-align='stretch'] > .hz-grid-layout {
 		align-items: stretch;
+	}
+	.hz-grid[data-align='baseline'] > .hz-grid-layout {
+		align-items: baseline;
 	}
 </style>

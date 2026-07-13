@@ -1,13 +1,14 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { LayoutAlign, LayoutPadding } from '$lib/types';
 	import { cx } from '$lib/utils';
 
-	type StackGap = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-	type StackAlign = 'start' | 'center' | 'end' | 'stretch';
+	type StackGap = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'near' | 'away';
 
 	interface Props {
 		gap?: StackGap;
-		align?: StackAlign;
+		align?: LayoutAlign;
+		padding?: LayoutPadding;
 		as?: string;
 		class?: string;
 		children?: Snippet;
@@ -17,6 +18,7 @@
 	let {
 		gap = 'md',
 		align = 'stretch',
+		padding = 'none',
 		as = 'div',
 		class: className,
 		children,
@@ -26,8 +28,8 @@
 
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
-	(class, data-gap, data-align) wins over any conflicting key a consumer
-	accidentally passes through rest.
+	(class, data-gap, data-align, data-padding) wins over any conflicting key
+	a consumer accidentally passes through rest.
 -->
 <svelte:element
 	this={as}
@@ -35,6 +37,7 @@
 	class={cx('hz-stack', className)}
 	data-gap={gap}
 	data-align={align}
+	data-padding={padding}
 >
 	{@render children?.()}
 </svelte:element>
@@ -65,6 +68,34 @@
 		gap: var(--hz-space-xl, 8rem);
 	}
 
+	/* density distances — shift-aware vars from the tokens.css density block */
+	.hz-stack[data-gap='near'] {
+		gap: var(--hz-space-near, 2rem);
+	}
+	.hz-stack[data-gap='away'] {
+		gap: var(--hz-space-away, 4rem);
+	}
+
+	/* padding (both axes) per spacing scale — near/away are density-shift aware */
+	.hz-stack[data-padding='none'] {
+		padding: 0;
+	}
+	.hz-stack[data-padding='sm'] {
+		padding: var(--hz-space-sm, 1rem);
+	}
+	.hz-stack[data-padding='md'] {
+		padding: var(--hz-space-md, 2rem);
+	}
+	.hz-stack[data-padding='lg'] {
+		padding: var(--hz-space-lg, 4rem);
+	}
+	.hz-stack[data-padding='near'] {
+		padding: var(--hz-space-near, 2rem);
+	}
+	.hz-stack[data-padding='away'] {
+		padding: var(--hz-space-away, 4rem);
+	}
+
 	/* align-items per data-align */
 	.hz-stack[data-align='start'] {
 		align-items: flex-start;
@@ -77,5 +108,8 @@
 	}
 	.hz-stack[data-align='stretch'] {
 		align-items: stretch;
+	}
+	.hz-stack[data-align='baseline'] {
+		align-items: baseline;
 	}
 </style>

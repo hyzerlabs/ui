@@ -58,9 +58,15 @@
 	--hz-space-lg: 4rem;
 	--hz-space-xl: 8rem;
 
+	/* Density grid unit — drives --hz-space-near/--hz-space-away (see the
+	 * density spacing block below). Override to retune every distance. */
+	--hz-density: 0.4rem; /* ~10pt grid */
+
 	/* =====================================================================
 	 * Sizing / width — backs existing component fallbacks (values are fixed)
-	 * Note: @media thresholds stay literal in components (CSS limitation).
+	 * Also the Grid/Split container-query breakpoints (sm/md/lg). Note:
+	 * @media/@container thresholds stay literal in components — CSS cannot
+	 * read custom properties there.
 	 * ===================================================================== */
 	--hz-width-sm: 640px;
 	--hz-width-md: 968px;
@@ -108,6 +114,30 @@
 	--hz-ease-standard: cubic-bezier(0.2, 0, 0, 1);
 	--hz-ease-in: cubic-bezier(0.4, 0, 1, 1);
 	--hz-ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* ==========================================================================
+ * Density spacing — adapted from "Complementary Space"
+ * (https://blog.damato.design/posts/complementary-space/).
+ * Two distances: --hz-space-near separates related things, --hz-space-away
+ * separates unrelated things; both derive from the --hz-density grid unit.
+ * Each data-density-shift ancestor tightens the pair one step (5/10 → 2/5 →
+ * 1/2 units), so nested regions read denser without new spacing values.
+ * Coexists with the fixed --hz-space-* scale above.
+ * ========================================================================== */
+body {
+	--hz-space-near: calc(var(--hz-density) * 5);
+	--hz-space-away: calc(var(--hz-density) * 10);
+}
+
+body [data-density-shift] {
+	--hz-space-near: calc(var(--hz-density) * 2);
+	--hz-space-away: calc(var(--hz-density) * 5);
+}
+
+body [data-density-shift] [data-density-shift] {
+	--hz-space-near: calc(var(--hz-density) * 1);
+	--hz-space-away: calc(var(--hz-density) * 2);
 }
 
 /* ==========================================================================

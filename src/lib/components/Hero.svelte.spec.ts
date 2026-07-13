@@ -273,13 +273,13 @@ describe('Hero-R5 — DOM order', () => {
 		expect(contentIdx).toBeGreaterThan(bgIdx);
 	});
 
-	it('split layout: content precedes media inside .hz-split in DOM', () => {
+	it('split layout: content precedes media inside .hz-split-layout in DOM', () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		const kids = Array.from(split.children);
 		const contentIdx = kids.findIndex((el) => el.classList.contains('hz-hero-content'));
 		const mediaIdx = kids.findIndex((el) => el.classList.contains('hz-hero-media'));
@@ -485,7 +485,7 @@ describe('Hero-R9 — split layout', () => {
 
 	it('split layout → .hz-hero-content is inside .hz-split', () => {
 		const { container } = render(Hero, { layout: 'split', title: titleSnippet });
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		expect(split.querySelector('.hz-hero-content')).not.toBeNull();
 	});
 
@@ -495,51 +495,51 @@ describe('Hero-R9 — split layout', () => {
 			title: titleSnippet,
 			media: mediaSnippet
 		});
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		expect(split.querySelector('.hz-hero-media')).not.toBeNull();
 	});
 
-	it('split + align=start: .hz-split has computed align-items: flex-start', () => {
+	it('split + align=start: .hz-split-layout has computed align-items: flex-start', () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			align: 'start',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		expect(getComputedStyle(split).alignItems).toBe('flex-start');
 	});
 
-	it('split + align=center: .hz-split has computed align-items: center', () => {
+	it('split + align=center: .hz-split-layout has computed align-items: center', () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			align: 'center',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		expect(getComputedStyle(split).alignItems).toBe('center');
 	});
 
-	it('split + align=end: .hz-split has computed align-items: flex-end', () => {
+	it('split + align=end: .hz-split-layout has computed align-items: flex-end', () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			align: 'end',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		expect(getComputedStyle(split).alignItems).toBe('flex-end');
 	});
 
-	it('split layout at ≥968px: .hz-split has two-column grid-template-columns', async () => {
+	it('split layout at ≥968px: .hz-split-layout has two-column grid-template-columns', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
 		await page.viewport(1200, 800);
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		const cols = getComputedStyle(split).gridTemplateColumns;
 		// Equal 1/2 fraction → two equal columns
 		const parts = cols.trim().split(/\s+/);
@@ -547,23 +547,23 @@ describe('Hero-R9 — split layout', () => {
 		expect(parts[0]).toBe(parts[1]);
 	});
 
-	it('split layout at <968px: .hz-split is single column', async () => {
+	it('split layout at <968px: .hz-split-layout is single column', async () => {
 		const { container } = render(Hero, {
 			layout: 'split',
 			title: titleSnippet,
 			media: mediaSnippet
 		});
 		await page.viewport(640, 800);
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		const cols = getComputedStyle(split).gridTemplateColumns;
 		// Single column — only one track value
 		const parts = cols.trim().split(/\s+/);
 		expect(parts).toHaveLength(1);
 	});
 
-	it('split layout with no media: .hz-split has single child (hz-hero-content)', () => {
+	it('split layout with no media: .hz-split-layout has single child (hz-hero-content)', () => {
 		const { container } = render(Hero, { layout: 'split', title: titleSnippet });
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		expect(split.querySelector('.hz-hero-content')).not.toBeNull();
 		expect(split.querySelector('.hz-hero-media')).toBeNull();
 	});
@@ -626,7 +626,7 @@ describe('Hero-R10 — reverseOnMobile', () => {
 		});
 		// Check at narrow viewport
 		await page.viewport(320, 800);
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		const kids = Array.from(split.children);
 		const contentIdx = kids.findIndex((el) => el.classList.contains('hz-hero-content'));
 		const mediaIdx = kids.findIndex((el) => el.classList.contains('hz-hero-media'));
@@ -954,9 +954,9 @@ describe('Edge cases', () => {
 		expect(hero.hasAttribute('data-reverse-on-mobile')).toBe(true);
 	});
 
-	it('media absent in split → .hz-split has single child (no empty track)', () => {
+	it('media absent in split → .hz-split-layout has single child (no empty track)', () => {
 		const { container } = render(Hero, { layout: 'split', title: titleSnippet });
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		const directChildren = Array.from(split.children);
 		expect(directChildren).toHaveLength(1);
 		expect(directChildren[0].classList.contains('hz-hero-content')).toBe(true);
@@ -996,7 +996,7 @@ describe('Integration — Hero-R9/R10 responsive layout', () => {
 			title: titleSnippet,
 			media: mediaSnippet
 		});
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 
 		await page.viewport(1200, 800);
 		const wideCols = getComputedStyle(split).gridTemplateColumns;
@@ -1017,7 +1017,7 @@ describe('Integration — Hero-R9/R10 responsive layout', () => {
 			title: titleSnippet,
 			media: mediaSnippet
 		});
-		const split = container.querySelector('.hz-split') as HTMLElement;
+		const split = container.querySelector('.hz-split-layout') as HTMLElement;
 		const content = container.querySelector('.hz-hero-content') as HTMLElement;
 		const mediaEl = container.querySelector('.hz-hero-media') as HTMLElement;
 

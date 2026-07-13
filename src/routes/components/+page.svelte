@@ -15,7 +15,7 @@
 		<p>Interactive, accessible UI components — headless by design.</p>
 	</div>
 
-	<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
+	<Grid columns={{ base: 1, sm: 2, md: 3 }} gap="md">
 		{#each section.children ?? [] as p (p.href)}
 			<Card class="hz-card--outlined" padding="md" rounded="md">
 				<a href={p.href} class="component-link">

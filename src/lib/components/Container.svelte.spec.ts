@@ -134,11 +134,16 @@ describe('R2 — max prop', () => {
 // ---------------------------------------------------------------------------
 
 describe('R3 — padding prop', () => {
-	const paddingEntries: Array<{ padding: 'none' | 'sm' | 'md' | 'lg'; expectedLeft: string }> = [
+	const paddingEntries: Array<{
+		padding: 'none' | 'sm' | 'md' | 'lg' | 'near' | 'away';
+		expectedLeft: string;
+	}> = [
 		{ padding: 'none', expectedLeft: '0px' },
 		{ padding: 'sm', expectedLeft: '16px' }, // 1rem = 16px at default 16px root font-size
 		{ padding: 'md', expectedLeft: '32px' }, // 2rem
-		{ padding: 'lg', expectedLeft: '64px' } // 4rem
+		{ padding: 'lg', expectedLeft: '64px' }, // 4rem
+		{ padding: 'near', expectedLeft: '32px' }, // density fallback 2rem
+		{ padding: 'away', expectedLeft: '64px' } // density fallback 4rem
 	];
 
 	for (const { padding, expectedLeft } of paddingEntries) {
@@ -148,18 +153,37 @@ describe('R3 — padding prop', () => {
 			expect(el.getAttribute('data-padding')).toBe(padding);
 		});
 
-		it(`padding="${padding}" drives paddingLeft: ${expectedLeft}`, () => {
+		it(`padding="${padding}" drives padding on both axes: ${expectedLeft}`, () => {
 			const { container } = render(Container, { padding });
 			const el = container.querySelector('.hz-container') as HTMLElement;
 			expect(getComputedStyle(el).paddingLeft).toBe(expectedLeft);
+			expect(getComputedStyle(el).paddingTop).toBe(expectedLeft);
 		});
 	}
 
-	it('padding="none" → 0 for both left and right (padding-inline)', () => {
+	it('padding="none" → 0 on all sides', () => {
 		const { container } = render(Container, { padding: 'none' });
 		const el = container.querySelector('.hz-container') as HTMLElement;
-		expect(getComputedStyle(el).paddingLeft).toBe('0px');
-		expect(getComputedStyle(el).paddingRight).toBe('0px');
+		expect(getComputedStyle(el).padding).toBe('0px');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// breakout prop
+// ---------------------------------------------------------------------------
+
+describe('breakout prop', () => {
+	it('is off by default — no data-breakout attribute', () => {
+		const { container } = render(Container);
+		const el = container.querySelector('.hz-container') as HTMLElement;
+		expect(el.hasAttribute('data-breakout')).toBe(false);
+	});
+
+	it('breakout sets data-breakout and overrides the max cap', () => {
+		const { container } = render(Container, { breakout: true, max: 'sm' });
+		const el = container.querySelector('.hz-container') as HTMLElement;
+		expect(el.hasAttribute('data-breakout')).toBe(true);
+		expect(getComputedStyle(el).maxWidth).toBe('none');
 	});
 });
 

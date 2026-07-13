@@ -41,7 +41,7 @@
 		<div>
 			<h3>Aspect ratio variants</h3>
 			<!-- R12: uses placeholder="color" — no real asset needed -->
-			<Grid columns={{ sm: 1, md: 3 }} gap="md">
+			<Grid columns={{ base: 1, sm: 3 }} gap="md">
 				{#each ['1/1', '4/3', '16/9'] as ratio (ratio)}
 					<div>
 						<Image
@@ -59,7 +59,7 @@
 
 		<div>
 			<h3>Rounded corners</h3>
-			<Grid columns={{ sm: 2, md: 4 }} gap="md">
+			<Grid columns={{ base: 2, sm: 4 }} gap="md">
 				{#each [false, 'sm', 'md', 'lg', 'full'] as const as rounded (String(rounded))}
 					<div>
 						<Image
@@ -77,7 +77,7 @@
 
 		<div>
 			<h3>Object-fit modes</h3>
-			<Grid columns={{ sm: 2, md: 4 }} gap="md">
+			<Grid columns={{ base: 2, sm: 4 }} gap="md">
 				{#each ['cover', 'contain', 'fill', 'none'] as const as fit (fit)}
 					<div>
 						<Image

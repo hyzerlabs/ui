@@ -31,7 +31,7 @@ import '@hyzer-labs/ui/tokens.css';</code
 
 	<section aria-labelledby="sections-heading">
 		<h2 id="sections-heading">Browse the docs</h2>
-		<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
+		<Grid columns={{ base: 1, sm: 2, md: 3 }} gap="md">
 			{#each manifest as section (section.href)}
 				<Card class="hz-card--outlined" padding="md" rounded="md">
 					<a href={section.href} class="section-link">

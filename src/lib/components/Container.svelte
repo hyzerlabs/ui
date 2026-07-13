@@ -1,14 +1,19 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import type { LayoutPadding } from '$lib/types';
 	import { cx } from '$lib/utils';
 
 	type ContainerMax = 'sm' | 'md' | 'lg' | 'xl' | 'full';
-	type ContainerPadding = 'none' | 'sm' | 'md' | 'lg';
 
 	interface Props {
 		max?: ContainerMax;
-		padding?: ContainerPadding;
+		padding?: LayoutPadding;
 		center?: boolean;
+		/**
+		 * Escape the parent column and span the nearest inline-size container
+		 * (or the viewport when no ancestor sets container-type). Overrides max.
+		 */
+		breakout?: boolean;
 		as?: string;
 		class?: string;
 		children?: Snippet;
@@ -19,6 +24,7 @@
 		max = 'lg',
 		padding = 'md',
 		center = true,
+		breakout = false,
 		as = 'div',
 		class: className,
 		children,
@@ -28,8 +34,8 @@
 
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
-	(class, data-max, data-padding, data-center) wins over any conflicting
-	key a consumer accidentally passes through rest.
+	(class, data-max, data-padding, data-center, data-breakout) wins over any
+	conflicting key a consumer accidentally passes through rest.
 -->
 <svelte:element
 	this={as}
@@ -38,6 +44,7 @@
 	data-max={max}
 	data-padding={padding}
 	data-center={center ? '' : undefined}
+	data-breakout={breakout ? '' : undefined}
 >
 	{@render children?.()}
 </svelte:element>
@@ -64,22 +71,45 @@
 		max-width: 100%;
 	}
 
-	/* horizontal padding per spacing scale */
+	/* padding (both axes) per spacing scale */
 	.hz-container[data-padding='none'] {
-		padding-inline: 0;
+		padding: 0;
 	}
 	.hz-container[data-padding='sm'] {
-		padding-inline: var(--hz-space-sm, 1rem);
+		padding: var(--hz-space-sm, 1rem);
 	}
 	.hz-container[data-padding='md'] {
-		padding-inline: var(--hz-space-md, 2rem);
+		padding: var(--hz-space-md, 2rem);
 	}
 	.hz-container[data-padding='lg'] {
-		padding-inline: var(--hz-space-lg, 4rem);
+		padding: var(--hz-space-lg, 4rem);
+	}
+
+	/* density distances — shift-aware vars from the tokens.css density block */
+	.hz-container[data-padding='near'] {
+		padding: var(--hz-space-near, 2rem);
+	}
+	.hz-container[data-padding='away'] {
+		padding: var(--hz-space-away, 4rem);
 	}
 
 	/* centering */
 	.hz-container[data-center] {
 		margin-inline: auto;
+	}
+
+	/*
+	 * Breakout — escape the parent column and span the nearest inline-size
+	 * container (cq units fall back to the small viewport when no ancestor
+	 * sets container-type). The default start margin assumes the parent
+	 * column is centered within that container; a start-aligned layout sets
+	 * --hz-breakout-shift: 0 on an ancestor so the breakout only grows
+	 * toward the end edge. Declared last so it beats the max and centering
+	 * rules above at equal specificity.
+	 */
+	.hz-container[data-breakout] {
+		width: 100cqw;
+		max-width: none;
+		margin-inline-start: var(--hz-breakout-shift, calc(50% - 50cqw));
 	}
 </style>

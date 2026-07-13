@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { manifest } from '../docs/manifest';
 	import { IconChevronDown } from '$lib/icons';
+	import '$lib/theme/reset.css';
 	import '$lib/tokens/tokens.css';
 	// Reference theme — the docs site is its living example. Demos render the
 	// styled starting point; the docs chrome below stays hand-rolled CSS on the
@@ -181,9 +182,14 @@
 			</nav>
 		</aside>
 
-		<!-- Main content -->
+		<!-- Main content. The main element is a size container so Container
+		     breakout (100cqw) spans the full content area; the inner div caps
+		     the prose column, start-aligned — --hz-breakout-shift: 0 tells
+		     breakouts to grow rightward only. -->
 		<main id="main-content" class="docs-main" tabindex="-1">
-			{@render children()}
+			<div class="docs-main-inner">
+				{@render children()}
+			</div>
 		</main>
 	</div>
 
@@ -443,6 +449,12 @@
 		flex: 1;
 		min-width: 0;
 		padding: 2rem 2.5rem;
+		container-type: inline-size;
+		/* Prose column is start-aligned — breakouts grow rightward only. */
+		--hz-breakout-shift: 0;
+	}
+
+	.docs-main-inner {
 		max-width: 56rem;
 	}
 

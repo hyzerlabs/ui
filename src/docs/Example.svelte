@@ -33,8 +33,12 @@
 		padding: 1.5rem 1rem;
 	}
 
+	/* Embedded in the example frame: the frame provides the outer border, so
+	 * collapse the standalone chrome down to a divider. */
 	.doc-example :global(.code-block) {
+		border: none;
 		border-top: 1px solid var(--hz-color-border, #6b7280);
+		border-radius: 0;
 		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, transparent);
 	}
 </style>

@@ -56,6 +56,24 @@ export const space = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Density spacing — mirrors the density block in tokens.css.
+// Two distances (--hz-space-near / --hz-space-away) derive from one
+// --hz-density grid unit; each data-density-shift ancestor drops the
+// multipliers one level. Adapted from "Complementary Space":
+// https://blog.damato.design/posts/complementary-space/
+// ---------------------------------------------------------------------------
+
+export const density = {
+	unit: '0.4rem',
+	/** Multipliers of --hz-density per data-density-shift nesting depth. */
+	levels: [
+		{ near: 5, away: 10 },
+		{ near: 2, away: 5 },
+		{ near: 1, away: 2 }
+	]
+} as const;
+
+// ---------------------------------------------------------------------------
 // Sizing / width (R1 — matches component fallbacks exactly)
 // ---------------------------------------------------------------------------
 

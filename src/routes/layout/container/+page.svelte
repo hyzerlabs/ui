@@ -1,28 +1,71 @@
 <script lang="ts">
 	import { Container, Tabs } from '$lib';
+	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
 		{ name: 'max', type: "'sm' | 'md' | 'lg' | 'xl' | 'full'", default: "'lg'" },
-		{ name: 'padding', type: "'none' | 'sm' | 'md' | 'lg'", default: "'md'" },
+		{
+			name: 'padding',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: "'md'",
+			note: 'near/away are the density distances — they tighten inside data-density-shift regions.'
+		},
 		{ name: 'center', type: 'boolean', default: 'true' },
+		{
+			name: 'breakout',
+			type: 'boolean',
+			default: 'false',
+			note: 'Escapes the parent column to span the nearest inline-size container (viewport when none). Overrides max.'
+		},
 		{ name: 'as', type: 'string', default: "'div'" },
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-container class.' }
 	];
 
-	const maxValues = ['sm', 'md', 'lg', 'xl'] as const;
-	const paddingValues = ['none', 'sm', 'md', 'lg'] as const;
+	const maxValues = ['sm', 'md', 'lg', 'xl', 'full'] as const;
+	const paddingValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
+
+	const widthPx: Record<(typeof maxValues)[number], string> = {
+		sm: '640px',
+		md: '968px',
+		lg: '1200px',
+		xl: '1440px',
+		full: 'no cap'
+	};
+
+	const maxCode = maxValues
+		.map((v) => `<Container max="${v}" center={false}>…</Container>`)
+		.join('\n');
+
+	function paddingCode(padding: string): string {
+		return `<Container padding="${padding}">…</Container>`;
+	}
+
+	const centerCode = [
+		'<Container max="sm">Centered (default)</Container>',
+		'<Container max="sm" center={false}>Flush left</Container>'
+	].join('\n');
+
+	const breakoutCode = [
+		'<!-- Escapes the prose column to span the nearest inline-size container -->',
+		'<!-- (set container-type: inline-size on your layout root; falls back to the viewport). -->',
+		'<!-- Centered column assumed; start-aligned layouts set --hz-breakout-shift: 0. -->',
+		'<Container breakout padding="none">Full-bleed demo, hero, or media</Container>'
+	].join('\n');
 
 	const demoTabs = [
 		{ id: 'max', label: 'Max width' },
-		{ id: 'padding', label: 'Padding' }
+		{ id: 'padding', label: 'Padding' },
+		{ id: 'center', label: 'Centering' },
+		{ id: 'breakout', label: 'Breakout' }
 	];
 </script>
 
 <DocPage
 	name="Container"
-	description="Centers content horizontally with a configurable max-width and inline padding."
+	description="Centers content horizontally with a configurable max-width and padding."
 	importLine={'import {Container} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="Container is a layout primitive with no ARIA semantics. Supply a meaningful landmark element via the `as` prop (e.g. as='main') when appropriate."
@@ -31,24 +74,24 @@
 		{#snippet panel(item)}
 			<div class="tab-content">
 				{#if item.id === 'max'}
-					<Tabs
-						items={maxValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Max width value"
-						defaultTab="lg"
-					>
-						{#snippet panel(maxItem)}
-							<div class="inner-tab">
-								<Container
-									max={maxItem.id as (typeof maxValues)[number]}
-									padding="sm"
-									class="demo-container"
-								>
-									<code>max="{maxItem.id}"</code>
-								</Container>
+					<Container breakout padding="none">
+						<Example code={maxCode}>
+							<div class="maxw-scroll">
+								<div class="maxw-canvas">
+									{#each maxValues as v (v)}
+										<Container max={v} padding="none" center={false} class="maxw-bar">
+											<span class="maxw-label">max="{v}" · {widthPx[v]}</span>
+										</Container>
+									{/each}
+								</div>
 							</div>
-						{/snippet}
-					</Tabs>
-				{:else}
+						</Example>
+					</Container>
+				{:else if item.id === 'padding'}
+					<p class="tab-note">
+						The tinted zone is the container; the solid box is its content. The gap between them is
+						the padding, applied on both axes.
+					</p>
 					<Tabs
 						items={paddingValues.map((v) => ({ id: v, label: v }))}
 						ariaLabel="Padding value"
@@ -56,16 +99,55 @@
 					>
 						{#snippet panel(padItem)}
 							<div class="inner-tab">
-								<Container
-									max="md"
-									padding={padItem.id as (typeof paddingValues)[number]}
-									class="demo-container"
-								>
-									<code>padding="{padItem.id}"</code>
-								</Container>
+								<Example code={paddingCode(padItem.id)}>
+									<Container
+										max="full"
+										padding={padItem.id as (typeof paddingValues)[number]}
+										class="pad-container"
+									>
+										<div class="pad-content">padding="{padItem.id}"</div>
+									</Container>
+								</Example>
 							</div>
 						{/snippet}
 					</Tabs>
+				{:else if item.id === 'center'}
+					<p class="tab-note">
+						<code>center</code> only matters when the container is narrower than its parent — the
+						default centers it with <code>margin-inline: auto</code>;
+						<code>center={'{false}'}</code>
+						leaves it flush with the start edge.
+					</p>
+					<Container breakout padding="none">
+						<Example code={centerCode}>
+							<div class="maxw-scroll">
+								<div class="maxw-canvas">
+									<Container max="sm" padding="none" class="maxw-bar">
+										<span class="maxw-label">center (default)</span>
+									</Container>
+									<Container max="sm" padding="none" center={false} class="maxw-bar">
+										<span class="maxw-label">center=&#123;false&#125;</span>
+									</Container>
+								</div>
+							</div>
+						</Example>
+					</Container>
+				{:else}
+					<p class="tab-note">
+						<code>breakout</code> escapes the prose column and spans the nearest ancestor with
+						<code>container-type: inline-size</code> (this docs page sets one on its main content
+						area; with no ancestor container it falls back to the viewport). <code>max</code> is
+						ignored. By default the margin math assumes a centered column; start-aligned layouts
+						like this one set <code>--hz-breakout-shift: 0</code> so the breakout grows toward the end
+						edge only.
+					</p>
+					<Container breakout padding="none" class="breakout-demo">
+						<span class="breakout-label"
+							>breakout — the full content area, escaping this column</span
+						>
+					</Container>
+					<div class="breakout-reference">the normal prose column</div>
+					<CodeBlock code={breakoutCode} />
 				{/if}
 			</div>
 		{/snippet}
@@ -79,14 +161,84 @@
 	.inner-tab {
 		padding-top: 0.5rem;
 	}
-	:global(.demo-container) {
+	.tab-note {
+		margin: 0 0 1rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+	.tab-note code {
+		font-family: var(--hz-font-family-mono, monospace);
+	}
+
+	/* Real-width canvas: wide enough for the xl cap plus breathing room so
+	 * every bar reaches its true max-width; the wrapper scrolls when the
+	 * canvas exceeds the available (breakout) width. The 100px background
+	 * grid gives a visual ruler. */
+	.maxw-scroll {
+		overflow-x: auto;
+	}
+
+	.maxw-canvas {
+		min-width: 1500px;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding-block: 0.5rem;
+		background-image: linear-gradient(
+			to right,
+			color-mix(in srgb, var(--hz-color-gray, #6b7280) 25%, transparent) 1px,
+			transparent 1px
+		);
+		background-size: 100px 100%;
+	}
+
+	/* width: 100% is load-bearing: the containers are flex items whose auto
+	 * inline margins (from `center`) cancel align-items: stretch — without an
+	 * explicit width they'd shrink-wrap their labels instead of hitting max. */
+	:global(.maxw-bar) {
+		width: 100%;
+		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
+		border: 1px solid var(--hz-color-primary, #2563eb);
+	}
+	.maxw-label {
+		display: block;
+		padding: 0.375rem 0.5rem;
+		font-family: var(--hz-font-family-mono, monospace);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		white-space: nowrap;
+	}
+
+	:global(.breakout-demo) {
+		background-color: color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 15%, transparent);
+		border: 1px dashed var(--hz-color-secondary, #7c3aed);
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		margin-bottom: 0.75rem;
+	}
+	.breakout-label,
+	.breakout-reference {
+		display: block;
+		padding: 0.75rem 1rem;
+		font-family: var(--hz-font-family-mono, monospace);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+	.breakout-reference {
 		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
 		border: 1px dashed var(--hz-color-primary, #2563eb);
 		border-radius: var(--hz-radius-sm, 0.25rem);
-		padding-block: 0.5rem;
+		margin-bottom: 1rem;
 	}
-	code {
+
+	:global(.pad-container) {
+		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
+		border: 1px dashed var(--hz-color-primary, #2563eb);
+		border-radius: var(--hz-radius-sm, 0.25rem);
+	}
+	.pad-content {
+		padding: 0.75rem 1rem;
+		background-color: var(--hz-color-surface, #fff);
+		border: 1px solid var(--hz-color-primary, #2563eb);
+		border-radius: var(--hz-radius-sm, 0.25rem);
 		font-family: var(--hz-font-family-mono, monospace);
-		font-size: 0.875em;
+		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 </style>

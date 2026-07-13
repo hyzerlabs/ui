@@ -66,7 +66,7 @@
 	<section aria-labelledby="palette-heading">
 		<h2 id="palette-heading">Palette tokens</h2>
 		<p>These tokens ship fixed values. Override them to retheme the entire palette at once.</p>
-		<Grid columns={{ sm: 2, md: 3, lg: 4 }} gap="sm">
+		<Grid columns={{ base: 2, sm: 3, md: 4 }} gap="sm">
 			{#each paletteTokens as token (token.cssVar)}
 				<div class="color-card">
 					<div

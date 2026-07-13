@@ -36,6 +36,7 @@
 			"default": "./dist/index.js"
 		},
 		"./tokens.css": "./dist/tokens/tokens.css",
+		"./reset.css": "./dist/theme/reset.css",
 		"./icons": {
 			"types": "./dist/icons/index.d.ts",
 			"svelte": "./dist/icons/index.js",
