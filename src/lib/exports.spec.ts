@@ -37,6 +37,8 @@ describe('subpath exports', () => {
 		expect(mod.ColorInput).toBeDefined();
 		// Badge-R6: Badge exported from $lib.
 		expect(mod.Badge).toBeDefined();
+		// Alert-R6: Alert exported from $lib.
+		expect(mod.Alert).toBeDefined();
 		// Form-R9: Form component exported from $lib.
 		expect(mod.Form).toBeDefined();
 		// Form-R11: toFormErrors helper exported from $lib.

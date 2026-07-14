@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { FormError } from '$lib/types';
-	import { cx, uid } from '$lib/utils';
+	import { cx } from '$lib/utils';
+	import Alert from './Alert.svelte';
 
 	interface Props {
 		errors?: FormError[];
@@ -29,10 +30,6 @@
 		...rest
 	}: Props = $props();
 
-	// Form-R3: stable IDs per instance.
-	const _uid = uid('hz');
-	const summaryId = `hz-form-summary-${_uid}`;
-
 	// Form-R1: bind:this on the form element for form.elements access (Form-R4/R7).
 	let formEl: HTMLFormElement | null = $state(null);
 
@@ -43,8 +40,11 @@
 	let submitAttempted = $state(false);
 	let errorsAtSubmit: FormError[] | null = null;
 
-	// Form-R3: summary div ref (tabindex="-1" so it is programmatically focusable).
-	let summaryEl: HTMLDivElement | null = $state(null);
+	// Form-R3/Alert-R5: the summary is an Alert (no element ref exposed) —
+	// focus resolves it by class inside this form.
+	function summaryEl(): HTMLElement | null {
+		return formEl?.querySelector<HTMLElement>('.hz-form-error-summary') ?? null;
+	}
 
 	// ---------------------------------------------------------------------------
 	// Form-R4: resolve a field element from form.elements[name].
@@ -148,9 +148,10 @@
 					return;
 				}
 			}
-			// Default: focus the summary container (guard: still mounted).
-			if (summaryEl && document.contains(summaryEl)) {
-				summaryEl.focus();
+			// Default: focus the summary Alert (guard: still mounted).
+			const summary = summaryEl();
+			if (summary && document.contains(summary)) {
+				summary.focus();
 			}
 		});
 	});
@@ -186,26 +187,20 @@
 	onsubmit={handleSubmit}
 >
 	<!--
-		Form-R3: summary is the FIRST child of the form, rendered only when
-		errors.length > 0. role="alert" announces changes; tabindex="-1" allows
-		programmatic focus (Form-R5).
+		Form-R3/Alert-R5: the summary IS a danger Alert — first child of the
+		form, rendered only when errors.length > 0. role="alert" (announces) and
+		tabindex="-1" (programmatic focus, Form-R5) ride Alert's rest; the Alert
+		labels itself from its title.
 	-->
 	{#if errors.length > 0}
-		<div
-			bind:this={summaryEl}
+		<Alert
+			intent="danger"
 			class="hz-form-error-summary"
 			role="alert"
-			tabindex="-1"
-			aria-labelledby={summaryId}
+			tabindex={-1}
+			title={summaryTitle}
+			headingLevel={summaryHeadingLevel}
 		>
-			<!--
-				Form-R3: dynamic heading level via svelte:element.
-				Form-R3: heading id referenced by aria-labelledby.
-			-->
-			<svelte:element this={'h' + summaryHeadingLevel} id={summaryId} class="hz-form-summary-title">
-				{summaryTitle}
-			</svelte:element>
-
 			<!--
 				Form-R4: one <li> per resolved error, sorted by DOM position with
 				form-level errors last. Each item is:
@@ -233,7 +228,7 @@
 					</li>
 				{/each}
 			</ul>
-		</div>
+		</Alert>
 	{/if}
 
 	<!-- Form children (fields, submit button, etc.). -->
@@ -241,21 +236,12 @@
 </form>
 
 <style>
-	/* Form-R3: summary is a full-width block at the top. */
-	.hz-form-error-summary {
-		display: block;
-		width: 100%;
-	}
-
-	/* Structural list reset — no visual list markers. */
+	/* Structural list reset — no visual list markers. The summary box itself
+	 * is the Alert's concern (Alert-R5). */
 	.hz-form-error-list {
 		list-style: none;
 		margin: 0;
 		padding: 0;
-	}
-
-	.hz-form-summary-title {
-		margin: 0;
 	}
 
 	.hz-form-error-summary-item {

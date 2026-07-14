@@ -233,7 +233,7 @@ test.describe('R7 — foundation colors page', () => {
 			'secondary',
 			'success',
 			'warning',
-			'error',
+			'danger',
 			'info',
 			'black',
 			'white',

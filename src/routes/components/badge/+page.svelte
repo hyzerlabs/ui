@@ -9,7 +9,8 @@
 		{
 			name: 'intent',
 			type: "'neutral' | 'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info'",
-			default: "'neutral'"
+			default: "'neutral'",
+			note: 'See Foundation → Colors & Intent.'
 		},
 		{ name: 'variant', type: "'soft' | 'solid' | 'outline'", default: "'soft'" },
 		{ name: 'size', type: "'sm' | 'md'", default: "'md'" },
@@ -121,9 +122,8 @@
 			<div class="tab-content">
 				{#if item.id === 'intents'}
 					<p class="tab-note">
-						Seven intents on the shared <code>Intent</code> vocabulary plus the
-						<code>neutral</code> default — <code>danger</code> maps to the error token. The text carries
-						the meaning; color reinforces it.
+						The <a href="/foundation/colors#intent">intent vocabulary</a> plus the
+						<code>neutral</code> default. The text carries the meaning; color reinforces it.
 					</p>
 					<Example code={intentsCode}>
 						<Cluster gap="xs">

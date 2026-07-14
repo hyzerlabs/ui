@@ -12,7 +12,7 @@
 	--hz-color-secondary: #7c3aed;
 	--hz-color-success: #16a34a;
 	--hz-color-warning: #d97706;
-	--hz-color-error: #dc2626;
+	--hz-color-danger: #dc2626;
 	--hz-color-info: #0891b2;
 	--hz-color-black: #000000;
 	--hz-color-white: #ffffff;
@@ -27,6 +27,21 @@
 	--hz-color-text: var(--hz-color-black);
 	--hz-color-text-muted: var(--hz-color-gray);
 	--hz-color-border: var(--hz-color-gray);
+
+	/* =====================================================================
+	 * Layer 2 — Intent roles
+	 * The component-facing intent vocabulary (Button/Badge/Alert intents,
+	 * field error states). Same indirection pattern as the roles above:
+	 * override --hz-intent-* to retarget status colors specifically without
+	 * touching the palette; override the palette and these follow.
+	 * ===================================================================== */
+	--hz-intent-neutral: var(--hz-color-gray);
+	--hz-intent-primary: var(--hz-color-primary);
+	--hz-intent-secondary: var(--hz-color-secondary);
+	--hz-intent-danger: var(--hz-color-danger);
+	--hz-intent-warning: var(--hz-color-warning);
+	--hz-intent-success: var(--hz-color-success);
+	--hz-intent-info: var(--hz-color-info);
 
 	/* =====================================================================
 	 * Type scale — five steps

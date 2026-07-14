@@ -15,6 +15,7 @@ export { default as Lightbox } from './Lightbox.svelte';
 export { default as Footer } from './Footer.svelte';
 export { default as Image } from './Image.svelte';
 export { default as Video } from './Video.svelte';
+export { default as Alert } from './Alert.svelte';
 export { default as Badge } from './Badge.svelte';
 export { default as Card } from './Card.svelte';
 export { default as Hero } from './Hero.svelte';

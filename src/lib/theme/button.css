@@ -8,7 +8,7 @@
 @layer hz-theme {
 	.hz-button {
 		/* Per-intent hooks — override these two to restyle every variant. */
-		--hz-button-accent: var(--hz-color-primary, #2563eb);
+		--hz-button-accent: var(--hz-intent-primary, #2563eb);
 		--hz-button-on-accent: var(--hz-color-white, #ffffff);
 
 		box-sizing: border-box;
@@ -31,11 +31,11 @@
 	}
 
 	.hz-button:where([data-intent='secondary']) {
-		--hz-button-accent: var(--hz-color-secondary, #7c3aed);
+		--hz-button-accent: var(--hz-intent-secondary, #7c3aed);
 	}
 
 	.hz-button:where([data-intent='danger']) {
-		--hz-button-accent: var(--hz-color-error, #dc2626);
+		--hz-button-accent: var(--hz-intent-danger, #dc2626);
 	}
 
 	/* Sizes */

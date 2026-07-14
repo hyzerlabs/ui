@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Stack, Grid } from '$lib';
-	import { color } from '$lib/tokens';
+	import { Stack, Grid, Cluster, Badge, Alert, Button } from '$lib';
+	import { color, intent } from '$lib/tokens';
 
 	// R7 — derive palette and role tokens from metadata; never hardcoded
 
@@ -48,18 +48,37 @@
 		cssVar: `--hz-color-${toKebab(key)}`,
 		value
 	}));
+
+	// R7 — the intent role tokens, derived from metadata.
+	const intentNotes: Record<string, string> = {
+		neutral: 'Badge/Alert extension and their default — no particular status.',
+		primary: 'The brand action.',
+		secondary: 'The supporting accent.',
+		danger: 'Destructive actions and error states.',
+		warning: 'Caution; not yet a failure.',
+		success: 'A completed or valid outcome.',
+		info: 'Neutral supplementary information.'
+	};
+
+	const intentRows = Object.entries(intent).map(([key, target]) => ({
+		intent: key,
+		cssVar: `--hz-intent-${key}`,
+		target,
+		note: intentNotes[key] ?? ''
+	}));
 </script>
 
 <svelte:head>
-	<title>Colors — @hyzer-labs/ui</title>
+	<title>Colors & Intent — @hyzer-labs/ui</title>
 </svelte:head>
 
 <Stack gap="xl">
 	<div>
-		<h1>Colors</h1>
+		<h1>Colors & Intent</h1>
 		<p>
-			A two-layer color model: a fixed palette (Layer 1) of single-value colors and a small set of
-			semantic role tokens (Layer 2) that reference the palette via <code>var()</code>.
+			A two-layer color model — a fixed palette (Layer 1) of single-value colors and a small set of
+			semantic role tokens (Layer 2) that reference the palette via <code>var()</code> — topped by
+			the <a href="#intent">intent vocabulary</a> components use to give color meaning.
 		</p>
 	</div>
 
@@ -143,6 +162,66 @@
 				</tbody>
 			</table>
 		</div>
+	</section>
+
+	<section aria-labelledby="intent">
+		<h2 id="intent">Intent</h2>
+		<p>
+			Intent is the shared vocabulary components use when color carries meaning: the
+			<code>Intent</code> type in <code>$lib/types</code> —
+			<code>primary | secondary | danger | warning | success | info</code>. Components speak it
+			consistently rather than inventing their own scales: Badge and Alert take the full set plus a
+			<code>neutral</code> default; Button restricts to
+			<code>primary | secondary | danger</code>. Intent color is reinforcement, never the only
+			signal — the text carries the meaning.
+		</p>
+		<p>
+			Each intent has its own role token, one indirection above the palette: override
+			<code>--hz-intent-*</code> to retarget status colors specifically — a danger red that isn't your
+			brand red — or override the palette and the intents follow. Every intent-bearing surface (Button,
+			Badge, and Alert intents, plus field error states) resolves through this layer.
+		</p>
+		<div class="token-table-wrapper">
+			<table class="token-table">
+				<thead>
+					<tr>
+						<th scope="col">Intent</th>
+						<th scope="col">Token</th>
+						<th scope="col">Default</th>
+						<th scope="col">Swatch</th>
+						<th scope="col">Use</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each intentRows as row (row.intent)}
+						<tr>
+							<td><code>{row.intent}</code></td>
+							<td><code>{row.cssVar}</code></td>
+							<td><code>{row.target}</code></td>
+							<td>
+								<div
+									class="swatch swatch-sm"
+									style="background-color: var({row.cssVar})"
+									role="img"
+									aria-label="{row.intent} color swatch"
+								></div>
+							</td>
+							<td>{row.note}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<p>One vocabulary, every component — <code>danger</code> shown across the family:</p>
+		<Stack gap="sm">
+			<Cluster gap="sm" align="center">
+				<Button intent="danger">Delete round</Button>
+				<Badge intent="danger">OB</Badge>
+			</Cluster>
+			<Alert intent="danger" title="Course closed" headingLevel={3}>
+				Lightning in the area — clear the course now.
+			</Alert>
+		</Stack>
 	</section>
 </Stack>
 

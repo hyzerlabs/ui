@@ -34,7 +34,7 @@ export const manifest: ManifestEntry[] = [
 	{
 		label: 'Foundation',
 		children: [
-			{ label: 'Colors', href: '/foundation/colors' },
+			{ label: 'Colors & Intent', href: '/foundation/colors' },
 			{ label: 'Typography', href: '/foundation/typography' },
 			{ label: 'Spacing & Sizing', href: '/foundation/spacing' },
 			{ label: 'Radius & Elevation', href: '/foundation/radius-elevation' },
@@ -87,6 +87,7 @@ export const manifest: ManifestEntry[] = [
 	{
 		label: 'Components',
 		children: [
+			{ label: 'Alert', href: '/components/alert' },
 			{ label: 'Badge', href: '/components/badge' },
 			{ label: 'Button', href: '/components/button' },
 			{ label: 'Link', href: '/components/link' },

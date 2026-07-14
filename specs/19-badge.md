@@ -20,9 +20,10 @@ chrome are the reference theme's job.
   `src/lib/components/Badge.svelte`, exported from the barrel; assertion in
   `exports.spec.ts`.
 - Intent vocabulary **reuses the shared `Intent` type** (`$lib/types`) plus a
-  `'neutral'` default: `BadgeIntent = 'neutral' | Intent`. `danger` maps to
-  the `--hz-color-error` token; `neutral` to `--hz-color-gray` (theme
-  concern).
+  `'neutral'` default: `BadgeIntent = 'neutral' | Intent`. Every intent
+  resolves through its `--hz-intent-*` role token (`specs/15-tokens.md`,
+  2026-07-13 amendment) — a theme retargets status colors there without
+  touching the palette (theme concern).
 - Variants are Badge-specific (`'soft' | 'solid' | 'outline'`) — the shared
   `Variant` type's `ghost`/`link` values are meaningless for a chip, and
   `soft` (tinted background) is the natural badge default, which `Variant`
@@ -88,8 +89,8 @@ win).
    `@layer hz-theme`, imported by `theme.css`): `data-rounded` maps 1:1 to
    the radius tokens (`none`/`sm`/`md`/`lg`/`full`), size-keyed
    padding/font-size (`sm`/`md`), per-intent color via a `--_c` custom
-   property switched on `data-intent` (neutral→gray, danger→error, others
-   1:1), variants — `soft` = tinted `color-mix` background, `solid` = filled
+   property switched on `data-intent` to the matching `--hz-intent-*` role
+   token, variants — `soft` = tinted `color-mix` background, `solid` = filled
    with `--hz-color-white` text, `outline` = mixed border + tinted text —
    and the dismiss button (icon sized via `1em`, hover tint, focus ring via
    the shared ring treatment).

@@ -45,16 +45,36 @@ reference the palette via `var()`. A single `[data-theme="dark"]` block override
 | `--hz-color-secondary` | `#7c3aed` |
 | `--hz-color-success` | `#16a34a` |
 | `--hz-color-warning` | `#d97706` |
-| `--hz-color-error` | `#dc2626` |
+| `--hz-color-danger` | `#dc2626` |
 | `--hz-color-info` | `#0891b2` |
 | `--hz-color-black` | `#000000` |
 | `--hz-color-white` | `#ffffff` |
 | `--hz-color-gray` | `#6b7280` |
 
-`--hz-color-gray` is a single mid-gray (no `gray-100/200/...` ramp). `--hz-color-error`
-is the intent name `danger`'s color (the `danger`→`error` naming difference is
-intentional and accepted); `--hz-color-info` is included to cover the full `Intent`
-union from `src/lib/types/index.ts`.
+`--hz-color-gray` is a single mid-gray (no `gray-100/200/...` ramp).
+`--hz-color-danger` matches the `Intent` union's `danger` name (renamed from
+`--hz-color-error` 2026-07-13 — the earlier `danger`→`error` discrepancy is
+retired); `--hz-color-info` is included to cover the full `Intent` union from
+`src/lib/types/index.ts`.
+
+**Layer 2 — Intent roles** (amendment 2026-07-13; reference the palette via
+`var()`, same indirection pattern as the semantic roles — the
+component-facing intent vocabulary consumed by Button/Badge/Alert intents and
+field error states, so a theme can retarget status colors specifically
+without touching the palette):
+
+| Token | Default |
+| --- | --- |
+| `--hz-intent-neutral` | `var(--hz-color-gray)` |
+| `--hz-intent-primary` | `var(--hz-color-primary)` |
+| `--hz-intent-secondary` | `var(--hz-color-secondary)` |
+| `--hz-intent-danger` | `var(--hz-color-danger)` |
+| `--hz-intent-warning` | `var(--hz-color-warning)` |
+| `--hz-intent-success` | `var(--hz-color-success)` |
+| `--hz-intent-info` | `var(--hz-color-info)` |
+
+Mirrored by the `intent` metadata export in `src/lib/tokens/index.ts`. The
+dark block does **not** touch them — they chain through the palette.
 
 **Layer 2 — Semantic roles** (reference the palette via `var()`; the only tokens
 the dark block overrides):
@@ -130,7 +150,7 @@ CSS cannot read custom properties inside media queries.
    an undefined token. The existing `Image.svelte.spec.ts` passes an explicit
    `placeholderColor`, so it is unaffected; do not change that test.
 3. **R3 — Palette.** The nine palette colors (`primary, secondary, success,
-   warning, error, info, black, white, gray`) are defined on `:root` exactly as the
+   warning, danger, info, black, white, gray`) are defined on `:root` exactly as the
    table, each a single value.
 4. **R4 — Semantic role layer.** The four role tokens (`surface, text, text-muted,
    border`) are defined on `:root` as `var()` references into the palette — never
@@ -196,8 +216,8 @@ queries are added to `tokens.css`.
   `Stack`/`Container`/`Grid`/`Split` and in `specs/03-layout.md` "Shared Scales"
   (authoritative for R1).
 - Key palette intent names to the `Intent` union in `src/lib/types/index.ts`
-  (`primary, secondary, danger, warning, success, info`), using `error` for
-  `danger` per R3.
+  (`primary, secondary, danger, warning, success, info`) — 1:1 since the
+  2026-07-13 `error`→`danger` rename.
 - `src/lib/components/Image.svelte` line 39 — the only component edit (R2). Note:
   `specs/06-media.md` and `original-specs/07-image.md` still document the old
   `var(--hz-color-gray-200)` default; updating those prose tables for consistency
@@ -218,7 +238,7 @@ scope).
   border, shadow, zIndex, motion`) plus `prefix`.
 - Assert `space` and `width` values equal the R1 fixed values exactly.
 - Assert `color.gray` is defined and there is **no** `gray-100/200/...` ramp key (R2/R3).
-- Assert all nine palette keys exist incl. `error` and `info` (R3).
+- Assert all nine palette keys exist incl. `danger` and `info` (R3).
 - Assert the type scale exposes exactly six font-size steps (R6).
 - Assert the dark sub-map exists with exactly `surface` and `text` keys (R5/R7).
 

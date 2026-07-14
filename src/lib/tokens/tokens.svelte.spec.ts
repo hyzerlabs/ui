@@ -206,6 +206,44 @@ describe('R4 — semantic role indirection in light mode', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Intent roles (2026-07-13 amendment) — same indirection pattern
+// ---------------------------------------------------------------------------
+
+describe('intent role indirection', () => {
+	it('all seven --hz-intent-* tokens are defined', () => {
+		for (const name of [
+			'neutral',
+			'primary',
+			'secondary',
+			'danger',
+			'warning',
+			'success',
+			'info'
+		]) {
+			expect(rootVar(`--hz-intent-${name}`)).toBeTruthy();
+		}
+	});
+
+	it('--hz-intent-danger resolves to the same color as --hz-color-danger', () => {
+		expect(resolveColor('var(--hz-intent-danger)')).toBe(resolveColor('var(--hz-color-danger)'));
+	});
+
+	it('--hz-intent-neutral resolves to the same color as --hz-color-gray', () => {
+		expect(resolveColor('var(--hz-intent-neutral)')).toBe(resolveColor('var(--hz-color-gray)'));
+	});
+
+	it('overriding --hz-intent-danger retargets it without touching the palette', () => {
+		document.documentElement.style.setProperty('--hz-intent-danger', 'rgb(1, 2, 3)');
+		try {
+			expect(resolveColor('var(--hz-intent-danger)')).toBe('rgb(1, 2, 3)');
+			expect(resolveColor('var(--hz-color-danger)')).not.toBe('rgb(1, 2, 3)');
+		} finally {
+			document.documentElement.style.removeProperty('--hz-intent-danger');
+		}
+	});
+});
+
+// ---------------------------------------------------------------------------
 // R5 — dark theme hook
 // ---------------------------------------------------------------------------
 

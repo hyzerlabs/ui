@@ -5,7 +5,7 @@
  */
 @layer hz-theme {
 	.hz-badge {
-		--_c: var(--hz-color-gray, #6b7280);
+		--_c: var(--hz-intent-neutral, #6b7280);
 
 		padding: 0.125rem 0.5rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
@@ -38,22 +38,22 @@
 
 	/* Intent → color. */
 	.hz-badge:where([data-intent='primary']) {
-		--_c: var(--hz-color-primary, #2563eb);
+		--_c: var(--hz-intent-primary, #2563eb);
 	}
 	.hz-badge:where([data-intent='secondary']) {
-		--_c: var(--hz-color-secondary, #7c3aed);
+		--_c: var(--hz-intent-secondary, #7c3aed);
 	}
 	.hz-badge:where([data-intent='danger']) {
-		--_c: var(--hz-color-error, #dc2626);
+		--_c: var(--hz-intent-danger, #dc2626);
 	}
 	.hz-badge:where([data-intent='warning']) {
-		--_c: var(--hz-color-warning, #d97706);
+		--_c: var(--hz-intent-warning, #d97706);
 	}
 	.hz-badge:where([data-intent='success']) {
-		--_c: var(--hz-color-success, #16a34a);
+		--_c: var(--hz-intent-success, #16a34a);
 	}
 	.hz-badge:where([data-intent='info']) {
-		--_c: var(--hz-color-info, #0891b2);
+		--_c: var(--hz-intent-info, #0891b2);
 	}
 
 	/* Variants. Soft/outline text mixes the intent color toward the text

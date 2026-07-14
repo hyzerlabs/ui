@@ -207,13 +207,16 @@ describe('Form-R3 — summary rendering', () => {
 		expect(container.querySelector('.hz-form-error-summary')).toBeNull();
 	});
 
-	it('errors non-empty: summary renders with role="alert" and tabindex="-1"', () => {
+	it('errors non-empty: summary is a danger Alert with role="alert" and tabindex="-1"', () => {
 		const { container } = render(Form, {
 			errors: [emailError],
 			children: basicChildren
 		});
 		const summary = container.querySelector('.hz-form-error-summary') as HTMLElement;
 		expect(summary).not.toBeNull();
+		// Alert-R5: the summary IS an Alert.
+		expect(summary.classList.contains('hz-alert')).toBe(true);
+		expect(summary.getAttribute('data-intent')).toBe('danger');
 		expect(summary.getAttribute('role')).toBe('alert');
 		expect(summary.getAttribute('tabindex')).toBe('-1');
 	});
@@ -262,7 +265,7 @@ describe('Form-R3 — summary rendering', () => {
 			summaryTitle: 'Fix these errors',
 			children: basicChildren
 		});
-		const heading = container.querySelector('.hz-form-summary-title') as HTMLElement;
+		const heading = container.querySelector('.hz-alert-title') as HTMLElement;
 		expect(heading.textContent?.trim()).toBe('Fix these errors');
 	});
 
@@ -271,7 +274,7 @@ describe('Form-R3 — summary rendering', () => {
 			errors: [emailError],
 			children: basicChildren
 		});
-		const heading = container.querySelector('.hz-form-summary-title') as HTMLElement;
+		const heading = container.querySelector('.hz-alert-title') as HTMLElement;
 		expect(heading.textContent?.trim()).toBe('There is a problem');
 	});
 });
@@ -746,13 +749,15 @@ describe('Form-R9 — barrel export', () => {
 // ---------------------------------------------------------------------------
 
 describe('Structural CSS', () => {
-	it('summary is display: block', () => {
+	it('summary is a block-level box (the Alert flex banner)', () => {
 		const { container } = render(Form, {
 			errors: [emailError],
 			children: basicChildren
 		});
 		const summary = container.querySelector('.hz-form-error-summary') as HTMLElement;
-		expect(getComputedStyle(summary).display).toBe('block');
+		// Alert-R5: the summary root is the Alert's flex row — still a
+		// block-level (full-width) box at the top of the form.
+		expect(getComputedStyle(summary).display).toBe('flex');
 	});
 
 	it('error list has no list-style markers', () => {

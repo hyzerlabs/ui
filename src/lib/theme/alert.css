@@ -1,0 +1,98 @@
+/**
+ * @hyzer-labs/ui reference theme — Alert
+ * Intent color via --_c (Badge's mapping): soft tinted box with an
+ * inline-start accent bar. The Form error summary is an Alert with
+ * data-intent="danger" — one look for both.
+ */
+@layer hz-theme {
+	.hz-alert {
+		--_c: var(--hz-intent-neutral, #6b7280);
+
+		box-sizing: border-box;
+		padding: 0.875rem 1rem;
+		border-inline-start: 3px solid var(--_c);
+		background-color: color-mix(in srgb, var(--_c) 10%, var(--hz-color-surface, #fff));
+	}
+
+	/* Radius — 1:1 with the token scale (data-rounded, default md). */
+	.hz-alert:where([data-rounded='none']) {
+		border-radius: var(--hz-radius-none, 0);
+	}
+	.hz-alert:where([data-rounded='sm']) {
+		border-radius: var(--hz-radius-sm, 0.25rem);
+	}
+	.hz-alert:where([data-rounded='md']) {
+		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+	.hz-alert:where([data-rounded='lg']) {
+		border-radius: var(--hz-radius-lg, 1rem);
+	}
+	.hz-alert:where([data-rounded='full']) {
+		border-radius: var(--hz-radius-full, 9999px);
+	}
+
+	.hz-alert:where([data-intent='primary']) {
+		--_c: var(--hz-intent-primary, #2563eb);
+	}
+	.hz-alert:where([data-intent='secondary']) {
+		--_c: var(--hz-intent-secondary, #7c3aed);
+	}
+	.hz-alert:where([data-intent='danger']) {
+		--_c: var(--hz-intent-danger, #dc2626);
+	}
+	.hz-alert:where([data-intent='warning']) {
+		--_c: var(--hz-intent-warning, #d97706);
+	}
+	.hz-alert:where([data-intent='success']) {
+		--_c: var(--hz-intent-success, #16a34a);
+	}
+	.hz-alert:where([data-intent='info']) {
+		--_c: var(--hz-intent-info, #0891b2);
+	}
+
+	.hz-alert :where(.hz-alert-title) {
+		font-size: var(--hz-font-size-base, 1rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: color-mix(in srgb, var(--_c) 70%, var(--hz-color-text, #000));
+		margin-bottom: 0.375rem;
+	}
+
+	.hz-alert :where(.hz-alert-content) {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	/* First/last content children keep the banner padding honest. */
+	.hz-alert :where(.hz-alert-content > :first-child) {
+		margin-top: 0;
+	}
+	.hz-alert :where(.hz-alert-content > :last-child) {
+		margin-bottom: 0;
+	}
+
+	.hz-alert :where(.hz-alert-icon) {
+		color: color-mix(in srgb, var(--_c) 80%, var(--hz-color-text, #000));
+	}
+
+	.hz-alert :where(.hz-alert-dismiss) {
+		padding: 0.125rem;
+		border: none;
+		border-radius: var(--hz-radius-full, 9999px);
+		background: transparent;
+		color: inherit;
+		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-alert :where(.hz-alert-dismiss) .hz-icon {
+		width: 1em;
+		height: 1em;
+	}
+
+	.hz-alert :where(.hz-alert-dismiss:hover) {
+		background-color: color-mix(in srgb, currentColor 15%, transparent);
+	}
+
+	.hz-alert :where(.hz-alert-dismiss:focus-visible) {
+		outline: 2px solid transparent;
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--_c) 35%, transparent);
+	}
+}

@@ -21,7 +21,7 @@ export const color = {
 	secondary: '#7c3aed',
 	success: '#16a34a',
 	warning: '#d97706',
-	error: '#dc2626',
+	danger: '#dc2626',
 	info: '#0891b2',
 	black: '#000000',
 	white: '#ffffff',
@@ -40,6 +40,22 @@ export const color = {
 			text: 'var(--hz-color-white)'
 		}
 	}
+} as const;
+
+// ---------------------------------------------------------------------------
+// Intent roles — the component-facing intent vocabulary (--hz-intent-*).
+// Same indirection pattern as the semantic roles: override these to
+// retarget status colors specifically; override the palette and they follow.
+// ---------------------------------------------------------------------------
+
+export const intent = {
+	neutral: 'var(--hz-color-gray)',
+	primary: 'var(--hz-color-primary)',
+	secondary: 'var(--hz-color-secondary)',
+	danger: 'var(--hz-color-danger)',
+	warning: 'var(--hz-color-warning)',
+	success: 'var(--hz-color-success)',
+	info: 'var(--hz-color-info)'
 } as const;
 
 // ---------------------------------------------------------------------------

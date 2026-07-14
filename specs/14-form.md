@@ -44,9 +44,10 @@ opinions (no colors, borders, shadows, radius, fonts, or animation).
   `Nav.svelte`), `bind:this` form ref + `$effect` for focus/scroll side effects,
   `import.meta.env.DEV` + `untrack(...)` for any dev warning (per `Card.svelte`).
 - **Structural-CSS exception** (same justification as the other components):
-  Form ships **minimal structural** CSS in a scoped `<style>` — the summary as a
-  block and its list reset (`list-style`/`margin`/`padding`). It ships **no**
-  colors, borders, shadows, border-radius, fonts, or animation. Any spacing
+  Form ships **minimal structural** CSS in a scoped `<style>` — the error
+  list reset (`list-style`/`margin`/`padding`); the summary box itself is the
+  Alert's concern (Alert-R5, `specs/20-alert.md`). It ships **no** colors,
+  borders, shadows, border-radius, fonts, or animation. Any spacing
   references `--hz-space-*` tokens **with literal fallbacks** (Shared Scale in
   `specs/03-layout.md`).
 
@@ -102,14 +103,19 @@ rendered.
    fails native constraint validation, the browser preempts the `submit` event
    (native validation UI shows); the handler / `onSubmit` only run once native
    constraints pass.
-3. **Form-R3 — Summary rendering.** When `errors.length > 0`, render a summary as
-   the **first child** of the form (before `children`):
-   `<div class="hz-form-error-summary" role="alert" tabindex="-1"
-   aria-labelledby="hz-form-summary-{uid}">` containing a heading
-   `<svelte:element this={'h' + summaryHeadingLevel}>` with
-   `id="hz-form-summary-{uid}"` and text `summaryTitle`, followed by a `<ul>` of
-   items (Form-R4). When `errors` is empty, the summary element is **absent**.
-   The form carries `data-state="error"` when the summary is shown, else absent.
+3. **Form-R3 — Summary rendering (amended by Alert-R5, `specs/20-alert.md`).**
+   When `errors.length > 0`, the summary renders as the **first child** of the
+   form (before `children`) — an **Alert**:
+   `<Alert intent="danger" class="hz-form-error-summary" role="alert"
+   tabindex={-1} title={summaryTitle} headingLevel={summaryHeadingLevel}>`
+   wrapping the `<ul>` of items (Form-R4). The rendered summary root is
+   therefore `.hz-alert.hz-form-error-summary[data-intent="danger"]` with
+   `role="alert"` and `tabindex="-1"` (via Alert's rest passthrough); the
+   heading is Alert's `.hz-alert-title`, and Alert wires `aria-labelledby`
+   itself. Form focuses the summary by querying
+   `formEl.querySelector('.hz-form-error-summary')`. When `errors` is empty,
+   the summary is **absent**. The form carries `data-state="error"` when the
+   summary is shown, else absent.
 4. **Form-R4 — Summary items.** One `<li class="hz-form-error-summary-item">` per
    error. Resolve the target via `form.elements[error.name]`:
    - a resolved control with a non-empty `id` → `<a href="#{id}">{message}</a>`;

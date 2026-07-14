@@ -18,7 +18,7 @@
 	}
 
 	.hz-field-required {
-		color: var(--hz-color-error, #dc2626);
+		color: var(--hz-intent-danger, #dc2626);
 		margin-inline-start: 0.125rem;
 	}
 
@@ -32,7 +32,7 @@
 		margin: 0.25rem 0 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		font-weight: var(--hz-font-weight-medium, 500);
-		color: var(--hz-color-error, #dc2626);
+		color: var(--hz-intent-danger, #dc2626);
 	}
 
 	/* Text-like controls: bare select/textarea, the TextInput wrapper (which
@@ -147,7 +147,7 @@
 	/* Error state — the control shows it, the message is already red. */
 	.hz-field:where([data-state='error']) :where(select, textarea, .hz-slider-number, .hz-color-hex),
 	.hz-field:where([data-state='error']) .hz-input-wrapper {
-		border-color: var(--hz-color-error, #dc2626);
+		border-color: var(--hz-intent-danger, #dc2626);
 	}
 
 	/* Disabled state */
