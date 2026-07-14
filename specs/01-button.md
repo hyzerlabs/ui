@@ -28,7 +28,7 @@ the documented hooks.
 | Prop         | Type                                        | Default     |
 | ------------ | ------------------------------------------- | ----------- |
 | variant      | `'solid' \| 'outline' \| 'ghost' \| 'link'` | `'solid'`   |
-| intent       | `'primary' \| 'secondary' \| 'danger'`      | `'primary'` |
+| intent       | `'primary' \| 'secondary' \| 'danger' \| 'neutral'` | `'primary'` |
 | size         | `'sm' \| 'md' \| 'lg'`                      | `'md'`      |
 | disabled     | `boolean`                                   | `false`     |
 | loading      | `boolean`                                   | `false`     |
@@ -54,10 +54,21 @@ Each is a testable assertion.
 3. **R3 — Variant.** `variant` accepts `'solid' | 'outline' | 'ghost' | 'link'`
    (the shared `Variant` type from `src/lib/types/index.ts`), defaults `'solid'`,
    reflected verbatim in `data-variant`.
-4. **R4 — Intent.** `intent` accepts the local literal union
-   `'primary' | 'secondary' | 'danger'`, defaults `'primary'`, reflected in
-   `data-intent`. (The shared `Intent` type is a superset and is intentionally
-   not used here.)
+4. **R4 — Intent (amended 2026-07-13).** `intent` accepts the local literal
+   union `'primary' | 'secondary' | 'danger' | 'neutral'`, defaults
+   `'primary'`, reflected in `data-intent`. Intent accents resolve through
+   the `--hz-intent-*` role tokens (`specs/15-tokens.md`); `neutral` is the
+   gray chrome used by composed controls (Carousel, Pagination). (The shared
+   `Intent` type is a superset and is intentionally not used here.)
+   **R4b — Icon-only form (amended 2026-07-13).** Icon-only usage is the
+   long-established pattern — an `iconStart`/`iconEnd` snippet with **no**
+   `children` (plus `ariaLabel`, guarded by R14). There is deliberately no
+   prop: the root **derives** boolean-present `data-icon-only` from that
+   pattern, and the theme renders it as a circle of the size's control
+   height (`padding: 0`, full radius). Carousel's prev/next and Pagination's
+   chevrons compose Button this way — the interim `.hz-icon-button`
+   shared-chrome class is retired (2026-07-13; see `specs/21-pagination.md`
+   Pagination-R6).
 5. **R5 — Size.** `size` accepts the local literal union `'sm' | 'md' | 'lg'`,
    defaults `'md'`, reflected in `data-size`. (Full-width is a separate concern,
    see R7 — there is no `full` size value.)

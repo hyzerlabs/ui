@@ -7,33 +7,7 @@
 		margin-top: 0.75rem;
 	}
 
-	.hz-carousel :where(.hz-carousel-prev),
-	.hz-carousel :where(.hz-carousel-next) {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 2rem;
-		height: 2rem;
-		padding: 0;
-		border: var(--hz-border-width-thin, 1px) solid
-			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
-		border-radius: var(--hz-radius-full, 9999px);
-		background: transparent;
-		color: inherit;
-		cursor: pointer;
-		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
-	}
-
-	.hz-carousel :where(.hz-carousel-prev:hover:not(:disabled)),
-	.hz-carousel :where(.hz-carousel-next:hover:not(:disabled)) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 12%, transparent);
-	}
-
-	.hz-carousel :where(.hz-carousel-prev:disabled),
-	.hz-carousel :where(.hz-carousel-next:disabled) {
-		opacity: 0.4;
-		cursor: not-allowed;
-	}
+	/* Prev/next chrome comes from the shared .hz-icon-button (controls.css). */
 
 	.hz-carousel :where(.hz-carousel-status) {
 		font-family: var(--hz-font-family-mono, monospace);

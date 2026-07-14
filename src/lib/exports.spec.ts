@@ -39,6 +39,8 @@ describe('subpath exports', () => {
 		expect(mod.Badge).toBeDefined();
 		// Alert-R6: Alert exported from $lib.
 		expect(mod.Alert).toBeDefined();
+		// Pagination-R8: Pagination exported from $lib.
+		expect(mod.Pagination).toBeDefined();
 		// Form-R9: Form component exported from $lib.
 		expect(mod.Form).toBeDefined();
 		// Form-R11: toFormErrors helper exported from $lib.

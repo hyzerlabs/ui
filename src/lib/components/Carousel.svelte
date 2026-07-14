@@ -3,6 +3,7 @@
 	import { cx } from '$lib/utils';
 	import IconChevronLeft from '$lib/icons/IconChevronLeft.svelte';
 	import IconChevronRight from '$lib/icons/IconChevronRight.svelte';
+	import Button from './Button.svelte';
 
 	interface Props {
 		items: T[];
@@ -104,15 +105,17 @@
 
 	{#if count > 1}
 		<div class="hz-carousel-controls">
-			<button
-				type="button"
+			<Button
+				variant="outline"
+				intent="neutral"
+				size="sm"
 				class="hz-carousel-prev"
-				aria-label={prevLabel}
+				ariaLabel={prevLabel}
 				disabled={!canPrev}
 				onclick={() => go(index - 1)}
 			>
-				<IconChevronLeft />
-			</button>
+				{#snippet iconStart()}<IconChevronLeft />{/snippet}
+			</Button>
 			{#if indicator === 'dots'}
 				<!-- Slide pickers: each dot is a labelled button (aria-current marks
 				     the active slide); position changes still announce via the
@@ -133,15 +136,17 @@
 				<!-- Decorative — the live region announces "{n} of {total}" already. -->
 				<span class="hz-carousel-status" aria-hidden="true">{index + 1} / {count}</span>
 			{/if}
-			<button
-				type="button"
+			<Button
+				variant="outline"
+				intent="neutral"
+				size="sm"
 				class="hz-carousel-next"
-				aria-label={nextLabel}
+				ariaLabel={nextLabel}
 				disabled={!canNext}
 				onclick={() => go(index + 1)}
 			>
-				<IconChevronRight />
-			</button>
+				{#snippet iconStart()}<IconChevronRight />{/snippet}
+			</Button>
 		</div>
 	{/if}
 </div>

@@ -10,6 +10,7 @@ export { default as Grid } from './Grid.svelte';
 export { default as Split } from './Split.svelte';
 export { default as Nav } from './Nav.svelte';
 export { default as Breadcrumbs } from './Breadcrumbs.svelte';
+export { default as Pagination } from './Pagination.svelte';
 export { default as Carousel } from './Carousel.svelte';
 export { default as Lightbox } from './Lightbox.svelte';
 export { default as Footer } from './Footer.svelte';

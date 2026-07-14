@@ -1,0 +1,20 @@
+/**
+ * @hyzer-labs/ui reference theme — Pagination
+ * The controls are Buttons (icon-only neutral outline chevrons; ghost pages
+ * with the current one solid primary — button.css does the chrome). Only the
+ * numeric sizing and the ellipsis live here.
+ */
+@layer hz-theme {
+	.hz-pagination :where(.hz-pagination-page) {
+		min-width: 2rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.hz-pagination :where(.hz-pagination-ellipsis) {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 2rem;
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+}

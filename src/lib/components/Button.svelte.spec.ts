@@ -87,7 +87,7 @@ describe('R3 — variant prop', () => {
 // ---------------------------------------------------------------------------
 
 describe('R4 — intent prop', () => {
-	const intents = ['primary', 'secondary', 'danger'] as const;
+	const intents = ['primary', 'secondary', 'danger', 'neutral'] as const;
 
 	for (const intent of intents) {
 		it(`intent="${intent}" is reflected in data-intent`, async () => {
@@ -95,6 +95,39 @@ describe('R4 — intent prop', () => {
 			await expect.element(page.getByRole('button')).toHaveAttribute('data-intent', intent);
 		});
 	}
+});
+
+// ---------------------------------------------------------------------------
+// R4b — Derived icon-only form
+// ---------------------------------------------------------------------------
+
+describe('R4b — derived icon-only form', () => {
+	it('icon snippet with no children derives data-icon-only', async () => {
+		render(Button, {
+			ariaLabel: 'Search',
+			iconStart: createRawSnippet(() => ({ render: () => '<svg></svg>' }))
+		});
+		await expect.element(page.getByRole('button')).toHaveAttribute('data-icon-only', '');
+	});
+
+	it('children present: no data-icon-only, even with an icon snippet', async () => {
+		const { container } = render(Button, {
+			children: createRawSnippet(() => ({ render: () => '<span>Search</span>' })),
+			iconStart: createRawSnippet(() => ({ render: () => '<svg></svg>' }))
+		});
+		expect(
+			(container.querySelector('.hz-button') as HTMLElement).hasAttribute('data-icon-only')
+		).toBe(false);
+	});
+
+	it('plain labelled button: no data-icon-only', async () => {
+		const { container } = render(Button, {
+			children: createRawSnippet(() => ({ render: () => '<span>Save</span>' }))
+		});
+		expect(
+			(container.querySelector('.hz-button') as HTMLElement).hasAttribute('data-icon-only')
+		).toBe(false);
+	});
 });
 
 // ---------------------------------------------------------------------------

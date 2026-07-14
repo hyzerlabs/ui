@@ -5,7 +5,7 @@
 	import { IconLoader } from '$lib/icons';
 	import { cx } from '$lib/utils';
 
-	type ButtonIntent = 'primary' | 'secondary' | 'danger';
+	type ButtonIntent = 'primary' | 'secondary' | 'danger' | 'neutral';
 	type ButtonSize = 'sm' | 'md' | 'lg';
 	type ButtonType = 'button' | 'submit' | 'reset';
 
@@ -50,6 +50,10 @@
 	// R8: anchor only when href is a non-empty string
 	const isAnchor = $derived(typeof href === 'string' && href.length > 0);
 
+	// R4b: icon-only is DERIVED from the established usage pattern (an icon
+	// snippet with no children) — no prop; the theme renders the circle form.
+	const iconOnly = $derived(!children && !!(iconStart || iconEnd));
+
 	// R11: disabled takes precedence over loading for data-state
 	const dataState = $derived(disabled ? 'disabled' : loading ? 'loading' : undefined);
 
@@ -84,6 +88,7 @@
 		data-variant={variant}
 		data-intent={intent}
 		data-size={size}
+		data-icon-only={iconOnly ? '' : undefined}
 		data-state={dataState}
 		data-full-width={fullWidth ? '' : undefined}
 		aria-disabled={disabled ? 'true' : undefined}
@@ -107,6 +112,7 @@
 		data-variant={variant}
 		data-intent={intent}
 		data-size={size}
+		data-icon-only={iconOnly ? '' : undefined}
 		data-state={dataState}
 		data-full-width={fullWidth ? '' : undefined}
 		aria-disabled={disabled ? 'true' : undefined}

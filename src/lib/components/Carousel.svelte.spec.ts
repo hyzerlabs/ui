@@ -85,6 +85,14 @@ describe('structure', () => {
 		expect(visibleText(container)).toBe('alpha');
 	});
 
+	it('prev/next compose Button (.hz-button, derived icon-only form)', () => {
+		const { container } = render(Carousel, base);
+		const { prev, next } = parts(container);
+		expect(prev.classList.contains('hz-button')).toBe(true);
+		expect(prev.hasAttribute('data-icon-only')).toBe(true);
+		expect(next.classList.contains('hz-button')).toBe(true);
+	});
+
 	it('a single item renders no controls', () => {
 		const { container } = render(Carousel, { ...base, items: ['only'] });
 		expect(container.querySelector('.hz-carousel-controls')).toBeNull();
@@ -121,19 +129,19 @@ describe('navigation', () => {
 	it('without loop, prev is disabled at the start and next at the end', async () => {
 		const { container } = render(Carousel, base);
 		const { prev, next } = parts(container);
-		expect(prev.disabled).toBe(true);
+		expect(prev.getAttribute('aria-disabled')).toBe('true');
 		next.click();
 		await tick();
 		next.click();
 		await tick();
-		expect(parts(container).next.disabled).toBe(true);
-		expect(parts(container).prev.disabled).toBe(false);
+		expect(parts(container).next.getAttribute('aria-disabled')).toBe('true');
+		expect(parts(container).prev.hasAttribute('aria-disabled')).toBe(false);
 	});
 
 	it('with loop, navigation wraps in both directions and nothing disables', async () => {
 		const { container } = render(Carousel, { ...base, loop: true });
 		const { prev } = parts(container);
-		expect(prev.disabled).toBe(false);
+		expect(prev.hasAttribute('aria-disabled')).toBe(false);
 		prev.click(); // 0 → wraps to last
 		await tick();
 		expect(visibleText(container)).toBe('gamma');

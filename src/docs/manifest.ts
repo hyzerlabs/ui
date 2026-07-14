@@ -58,6 +58,7 @@ export const manifest: ManifestEntry[] = [
 		children: [
 			{ label: 'Nav', href: '/navigation/nav' },
 			{ label: 'Breadcrumbs', href: '/navigation/breadcrumbs' },
+			{ label: 'Pagination', href: '/navigation/pagination' },
 			{ label: 'Footer', href: '/navigation/footer' }
 		]
 	},

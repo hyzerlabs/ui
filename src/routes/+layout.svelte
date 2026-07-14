@@ -492,10 +492,12 @@
 		max-width: 100%;
 	}
 
-	/* Field controls get the theme's soft focus ring instead — this unlayered
-	 * chrome rule would otherwise beat it and draw an offset box across the
-	 * field borders. */
-	:global(*:focus-visible:not(:is(.hz-field input, .hz-field select, .hz-field textarea))) {
+	/* Field controls and shared icon-buttons get the theme's soft focus ring
+	 * instead — this unlayered chrome rule would otherwise beat it and draw
+	 * an offset box across their borders. */
+	:global(
+		*:focus-visible:not(:is(.hz-field input, .hz-field select, .hz-field textarea, .hz-button))
+	) {
 		outline: 2px solid currentColor;
 		outline-offset: 2px;
 	}

@@ -7,7 +7,12 @@
 
 	const props: PropRow[] = [
 		{ name: 'variant', type: "'solid' | 'outline' | 'ghost' | 'link'", default: "'solid'" },
-		{ name: 'intent', type: "'primary' | 'secondary' | 'danger'", default: "'primary'" },
+		{
+			name: 'intent',
+			type: "'primary' | 'secondary' | 'danger' | 'neutral'",
+			default: "'primary'",
+			note: 'See Foundation → Colors & Intent.'
+		},
 		{ name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
 		{ name: 'disabled', type: 'boolean', default: 'false' },
 		{ name: 'loading', type: 'boolean', default: 'false' },
@@ -33,7 +38,12 @@
 			note: 'Merged after the hz-button class.'
 		},
 		{ name: 'children', type: 'Snippet', default: '—' },
-		{ name: 'iconStart', type: 'Snippet', default: '—' },
+		{
+			name: 'iconStart',
+			type: 'Snippet',
+			default: '—',
+			note: 'An icon snippet with no children renders the compact circular icon-only form.'
+		},
 		{ name: 'iconEnd', type: 'Snippet', default: '—' }
 	];
 
