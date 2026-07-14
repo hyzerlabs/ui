@@ -40,7 +40,7 @@ confirmed information architecture with nested-by-section URLs.
 
 Single source of truth: a **nav manifest** (a typed `NavItem[]`/section structure
 in the docs-only dir) that drives (a) the `Nav` component in the shell, (b) the
-prerender crawl, and (c) the parity test (R14). Sections, slugs, and the component
+prerender crawl, and (c) the parity enforcement (R14). Sections, slugs, and the component
 each page documents:
 
 **foundation** — `/foundation` (index)
@@ -80,7 +80,7 @@ This covers all **23** exported components from `src/lib/components/index.ts`
 1. **R1 — Nav manifest is the single source of truth.** A typed manifest in the
    docs-only dir enumerates every section and page (label, slug/href, and the
    documented component's export name where applicable). The shell `Nav`, the
-   prerender entries, and the R14 parity test all derive from it. Adding a page is
+   prerender entries, and the R14 parity enforcement all derive from it. Adding a page is
    a one-line manifest edit plus the route file.
 2. **R2 — Shell dogfoods library components.** `src/routes/+layout.svelte` renders
    the primary navigation with the **`Nav`** component (manifest → `items`, with a
@@ -139,10 +139,18 @@ This covers all **23** exported components from `src/lib/components/index.ts`
 13. **R13 — Repurpose the existing stub.** `src/routes/components/+page.svelte`
     (currently a placeholder) becomes the `components` section index; no dead stub
     remains.
-14. **R14 — Manifest ↔ exports parity.** A test asserts every component exported
-    from `src/lib/components/index.ts` appears exactly once in the manifest under
-    the correct section, and that every manifest route has a corresponding
-    `+page.svelte` (no orphan pages, no missing pages).
+14. **R14 — Manifest ↔ exports parity (revised 2026-07-14).** Every exported
+    component appears exactly once in the manifest under the correct section,
+    and every manifest route has a corresponding `+page.svelte`. Enforcement:
+    the export half is covered by `src/lib/exports.spec.ts` (every component
+    asserts its `$lib` export there — the established per-component
+    convention), and route existence is covered by the docs e2e's
+    parametrize-over-every-manifest-route page-load pass plus the prerender
+    crawl (a manifest entry without a page fails the build). The originally
+    planned dedicated parity unit test (`docs-manifest.spec.ts`) was never
+    written and is **withdrawn** as redundant with those layers (user decision
+    2026-07-14); manifest *placement* remains a per-component spec requirement
+    verified in review.
 
 ### Responsive Behavior
 
@@ -196,7 +204,7 @@ guards in `+layout.svelte`.
 | Long token list / 21 icons | Grids wrap; no overflow at any breakpoint. |
 | Prerender | Every manifest route builds with no client-only crash; no module-top-level `window` access. |
 | Theme toggled before hydration / on a fresh load | Site renders in light by default; toggling applies dark without layout shift or flash beyond the role-token color change. |
-| Missing/extra route vs manifest | Caught by R14 parity test. |
+| Missing/extra route vs manifest | Caught by R14 enforcement — the e2e route pass and the prerender crawl (a manifest entry without a page fails the build). |
 | Direct deep-link to a section/page URL | Prerendered page loads standalone (no reliance on client-side nav state). |
 
 ### Existing Code to Reuse
@@ -221,17 +229,12 @@ guards in `+layout.svelte`.
 
 ### Test Plan
 
-Runner: **Playwright** e2e for the site (`*.e2e.ts`), **Vitest** server project for
-the manifest parity unit test. `expect.requireAssertions` is on.
+Runner: **Playwright** e2e for the site (`*.e2e.ts`). `expect.requireAssertions`
+is on.
 
-**Manifest parity (server, e.g. `src/routes/docs-manifest.spec.ts`):**
-
-- Assert every export from `src/lib/components/index.ts` appears exactly once in
-  the manifest, under the section dictated by the IA table (R14).
-- Assert the manifest's component count is 23 and the foundation/icons entries
-  exist.
-- Glob `src/routes/**/+page.svelte` and assert a 1:1 mapping to manifest routes —
-  no orphan pages, no missing pages (R14/R5).
+**Manifest parity (R14, revised 2026-07-14):** no dedicated unit test —
+enforcement rides `src/lib/exports.spec.ts` (per-component export assertions),
+the e2e's every-manifest-route page-load pass below, and the prerender crawl.
 
 **Site e2e (`src/routes/docs.e2e.ts`, mirroring `landing.e2e.ts`):**
 

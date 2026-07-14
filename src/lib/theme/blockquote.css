@@ -1,0 +1,44 @@
+/**
+ * @hyzer-labs/ui reference theme — Blockquote
+ * Inline-start accent bar on the quote, block padding from the space
+ * tokens, larger quote typography, and a muted, smaller attribution with a
+ * decorative em-dash (a pseudo-element, so it never enters the accessible
+ * name).
+ */
+@layer hz-theme {
+	.hz-blockquote :where(.hz-blockquote-quote) {
+		padding-block: var(--hz-space-sm, 1rem);
+		padding-inline-start: var(--hz-space-sm, 1rem);
+		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
+		font-size: var(--hz-font-size-lg, 1.4rem);
+		line-height: var(--hz-line-height-base, 1.5);
+	}
+
+	.hz-blockquote :where(.hz-blockquote-attribution) {
+		margin-top: var(--hz-space-xs, 0.5rem);
+		padding-inline-start: calc(var(--hz-space-sm, 1rem) + 3px);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-blockquote :where(.hz-blockquote-cite) {
+		font-style: normal;
+	}
+
+	/* Blockquote-R4b: attribution-row alignment. The inline-start padding
+	 * exists to line the row up with the quote's accent bar — drop it for
+	 * center/end, where the row is positioned by text-align instead. */
+	.hz-blockquote:where([data-align='center']) :where(.hz-blockquote-attribution) {
+		text-align: center;
+		padding-inline-start: 0;
+	}
+
+	.hz-blockquote:where([data-align='end']) :where(.hz-blockquote-attribution) {
+		text-align: end;
+		padding-inline-start: 0;
+	}
+
+	.hz-blockquote :where(.hz-blockquote-attribution)::before {
+		content: '— ';
+	}
+}

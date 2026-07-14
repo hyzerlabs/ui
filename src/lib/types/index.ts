@@ -1,3 +1,5 @@
+import type { Snippet } from 'svelte';
+
 /**
  * Navigation item — recursive. Used by Nav and Footer.
  * @see original-specs/00-architecture.md
@@ -150,6 +152,45 @@ export interface ComboboxChipProps {
 	variant?: BadgeVariant;
 	size?: BadgeSize;
 	rounded?: Rounded;
+	class?: string;
+}
+
+/** An actionable entry in a Dropdown action menu. */
+export interface DropdownItem {
+	/** Stable identity — keys the item, its DOM id, and the onselect callback. */
+	id: string;
+	label: string;
+	disabled?: boolean;
+	/** Destructive action (e.g. Delete) — surfaces a `data-danger` styling hook. */
+	danger?: boolean;
+	/** Optional decorative leading glyph (rendered aria-hidden — the label owns
+	 *  the accessible name). */
+	icon?: Snippet;
+	/** Per-item action, fired on activation before the component-level onselect. */
+	onselect?: () => void;
+}
+
+/** A non-interactive divider between groups of Dropdown items. */
+export interface DropdownSeparator {
+	separator: true;
+}
+
+/** A Dropdown menu entry — an actionable item or a separator. */
+export type DropdownEntry = DropdownItem | DropdownSeparator;
+
+/**
+ * Button appearance passed through to the Dropdown trigger — consumers who only
+ * import Dropdown can still set the trigger's look. Behavioral trigger props
+ * (label, aria, open/keyboard handlers) are component-managed and excluded.
+ * (Button's `intent`/`size` are local literal unions, not exported shared types,
+ * so they are inlined here — the same rationale by which `ComboboxChipProps`
+ * referenced the now-shared Badge unions; extract them only if a second consumer
+ * appears.)
+ */
+export interface DropdownTriggerProps {
+	variant?: Variant;
+	intent?: 'primary' | 'secondary' | 'danger' | 'neutral';
+	size?: 'sm' | 'md' | 'lg';
 	class?: string;
 }
 

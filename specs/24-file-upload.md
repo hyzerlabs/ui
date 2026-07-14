@@ -442,7 +442,9 @@ rendered.
     field, not a network uploader (Out of Scope). A
     `{ label: 'FileUpload', href: '/forms/file-upload' }` entry is added to the
     **Forms** section of `src/docs/manifest.ts` (placed **after** `Combobox`),
-    keeping the manifest↔exports parity test green (`specs/16-docs.md` R14).
+    keeping the
+manifest↔exports parity enforcement satisfied (`specs/16-docs.md` R14 —
+exports.spec.ts + the docs e2e route pass).
 
 ### Responsive Behavior
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Carousel, Tabs } from '$lib';
+	import { Carousel, Blockquote, Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
@@ -72,8 +72,7 @@
 	const basicCode = [
 		'<Carousel items={quotes} ariaLabel="Customer quotes">',
 		'\t{#snippet slide(quote)}',
-		'\t\t<blockquote>{quote.text}</blockquote>',
-		'\t\t<cite>{quote.who}</cite>',
+		'\t\t<Blockquote cite={quote.who}>{quote.text}</Blockquote>',
 		'\t{/snippet}',
 		'</Carousel>'
 	].join('\n');
@@ -106,8 +105,7 @@
 					<Example code={basicCode}>
 						<Carousel items={quotes} ariaLabel="Customer quotes">
 							{#snippet slide(quote)}
-								<blockquote class="quote">{quote.text}</blockquote>
-								<cite class="who">{quote.who}</cite>
+								<Blockquote cite={quote.who}>{quote.text}</Blockquote>
 							{/snippet}
 						</Carousel>
 					</Example>
@@ -121,8 +119,7 @@
 					<Example code={dotsCode}>
 						<Carousel items={quotes} indicator="dots" ariaLabel="Customer quotes (dots)">
 							{#snippet slide(quote)}
-								<blockquote class="quote">{quote.text}</blockquote>
-								<cite class="who">{quote.who}</cite>
+								<Blockquote cite={quote.who}>{quote.text}</Blockquote>
 							{/snippet}
 						</Carousel>
 					</Example>
@@ -134,8 +131,7 @@
 					<Example code={loopCode}>
 						<Carousel items={quotes} loop ariaLabel="Customer quotes (looping)">
 							{#snippet slide(quote)}
-								<blockquote class="quote">{quote.text}</blockquote>
-								<cite class="who">{quote.who}</cite>
+								<Blockquote cite={quote.who}>{quote.text}</Blockquote>
 							{/snippet}
 						</Carousel>
 					</Example>
@@ -144,19 +140,3 @@
 		{/snippet}
 	</Tabs>
 </DocPage>
-
-<style>
-	.quote {
-		margin: 0 0 0.5rem;
-		padding: 1.25rem 1.5rem 0.25rem;
-		font-size: var(--hz-font-size-lg, 1.4rem);
-		text-align: center;
-	}
-	.who {
-		display: block;
-		text-align: center;
-		font-style: normal;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-</style>

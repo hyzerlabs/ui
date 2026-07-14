@@ -295,7 +295,9 @@ rendered.
     responsibility (Virtualizer-R9). A
     `{ label: 'Virtualizer', href: '/layout/virtualizer' }` entry is added to
     the **Layout** section of `src/docs/manifest.ts` (placed after `Split`),
-    keeping the manifest↔exports parity test green (`specs/16-docs.md` R14).
+    keeping the
+manifest↔exports parity enforcement satisfied (`specs/16-docs.md` R14 —
+exports.spec.ts + the docs e2e route pass).
     **Section choice (decision 2026-07-14):** Virtualizer joins the existing
     **Layout** section — it is a headless structural container primitive with no
     visual chrome, in the same family as `Container`/`Stack`/`Grid`/`Split`;

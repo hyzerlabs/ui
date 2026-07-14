@@ -432,8 +432,9 @@ rendered.
     **small, static** option sets — **cross-linking `/forms/select`** (the
     mirror of Select-R7). A `{ label: 'Combobox', href: '/forms/combobox' }`
     entry is added to the **Forms** section of `src/docs/manifest.ts` (placed
-    after `Select`), keeping the manifest↔exports parity test green
-    (`specs/16-docs.md` R14).
+    after `Select`), keeping the
+manifest↔exports parity enforcement satisfied (`specs/16-docs.md` R14 —
+exports.spec.ts + the docs e2e route pass).
 
 ### Responsive Behavior
 

@@ -30,6 +30,8 @@ describe('subpath exports', () => {
 		expect(mod.Select).toBeDefined();
 		// Combobox-R16: Combobox exported from $lib.
 		expect(mod.Combobox).toBeDefined();
+		// Dropdown-R16: Dropdown exported from $lib.
+		expect(mod.Dropdown).toBeDefined();
 		// FileUpload-R14: FileUpload exported from $lib.
 		expect(mod.FileUpload).toBeDefined();
 		expect(mod.Checkbox).toBeDefined();
@@ -45,6 +47,10 @@ describe('subpath exports', () => {
 		expect(mod.Badge).toBeDefined();
 		// Alert-R6: Alert exported from $lib.
 		expect(mod.Alert).toBeDefined();
+		// Blockquote-R6: Blockquote exported from $lib.
+		expect(mod.Blockquote).toBeDefined();
+		// Divider-R6: Divider exported from $lib.
+		expect(mod.Divider).toBeDefined();
 		// Pagination-R8: Pagination exported from $lib.
 		expect(mod.Pagination).toBeDefined();
 		// Form-R9: Form component exported from $lib.

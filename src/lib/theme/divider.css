@@ -1,0 +1,66 @@
+/**
+ * @hyzer-labs/ui reference theme — Divider
+ * The rule itself (border-block-start on the bare <hr> and on the labelled
+ * form's ::before/::after), border-style switched on data-variant via a
+ * custom property (pseudo-elements inherit it from their host), block
+ * margin switched on data-spacing, and muted label typography.
+ */
+@layer hz-theme {
+	.hz-divider {
+		--_bs: solid;
+		--_bw: var(--hz-border-width-thin, 1px);
+	}
+	.hz-divider:where([data-variant='dashed']) {
+		--_bs: dashed;
+	}
+	.hz-divider:where([data-variant='dotted']) {
+		--_bs: dotted;
+	}
+	/* Divider-R3/R7: line weight from the border-width tokens; the custom
+	 * property inherits into the labelled form's pseudo-elements. */
+	.hz-divider:where([data-line-width='thick']) {
+		--_bw: var(--hz-border-width-thick, 2px);
+	}
+
+	hr.hz-divider {
+		/* Reset the UA's 3D inset border here (NOT in the component's scoped
+		 * styles — those are unlayered and would beat this layered rule),
+		 * then draw the themed line. */
+		border: 0;
+		border-block-start: var(--_bw) var(--_bs) var(--hz-color-border, #6b7280);
+	}
+
+	div.hz-divider::before,
+	div.hz-divider::after {
+		border-block-start: var(--_bw) var(--_bs) var(--hz-color-border, #6b7280);
+	}
+
+	/* Block margin — reflected from data-spacing (space scale, matching
+	 * Container's padding enum). */
+	.hz-divider:where([data-spacing='none']) {
+		margin-block: 0;
+	}
+	.hz-divider:where([data-spacing='sm']) {
+		margin-block: var(--hz-space-sm, 1rem);
+	}
+	.hz-divider:where([data-spacing='md']) {
+		margin-block: var(--hz-space-md, 2rem);
+	}
+	.hz-divider:where([data-spacing='lg']) {
+		margin-block: var(--hz-space-lg, 4rem);
+	}
+	/* Density distances — dividers participate in data-density-shift regions
+	 * like the layout family (fallbacks mirror the 4rem/8rem house base). */
+	.hz-divider:where([data-spacing='near']) {
+		margin-block: var(--hz-space-near, 4rem);
+	}
+	.hz-divider:where([data-spacing='away']) {
+		margin-block: var(--hz-space-away, 8rem);
+	}
+
+	.hz-divider :where(.hz-divider-label) {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+		letter-spacing: 0.02em;
+	}
+}

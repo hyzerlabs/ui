@@ -93,9 +93,12 @@ export const manifest: ManifestEntry[] = [
 		children: [
 			{ label: 'Alert', href: '/components/alert' },
 			{ label: 'Badge', href: '/components/badge' },
+			{ label: 'Blockquote', href: '/components/blockquote' },
 			{ label: 'Button', href: '/components/button' },
 			{ label: 'Link', href: '/components/link' },
 			{ label: 'Card', href: '/components/card' },
+			{ label: 'Divider', href: '/components/divider' },
+			{ label: 'Dropdown', href: '/components/dropdown' },
 			{ label: 'Carousel', href: '/components/carousel' },
 			{ label: 'Hero', href: '/components/hero' },
 			{ label: 'Modal', href: '/components/modal' },
