@@ -13,6 +13,8 @@ describe('subpath exports', () => {
 		expect(mod.Cluster).toBeDefined();
 		expect(mod.Grid).toBeDefined();
 		expect(mod.Split).toBeDefined();
+		// Virtualizer-R11: Virtualizer exported from $lib.
+		expect(mod.Virtualizer).toBeDefined();
 		expect(mod.Nav).toBeDefined();
 		expect(mod.Footer).toBeDefined();
 		expect(mod.Image).toBeDefined();
@@ -26,6 +28,8 @@ describe('subpath exports', () => {
 		expect(mod.TextInput).toBeDefined();
 		expect(mod.Textarea).toBeDefined();
 		expect(mod.Select).toBeDefined();
+		// Combobox-R16: Combobox exported from $lib.
+		expect(mod.Combobox).toBeDefined();
 		expect(mod.Checkbox).toBeDefined();
 		expect(mod.RadioGroup).toBeDefined();
 		expect(mod.Toggle).toBeDefined();

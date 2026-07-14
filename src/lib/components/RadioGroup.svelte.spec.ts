@@ -1,20 +1,20 @@
 import { userEvent } from 'vitest/browser';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import type { RadioOption } from '$lib/types';
+import type { FormOption } from '$lib/types';
 import RadioGroup from './RadioGroup.svelte';
 
 // ---------------------------------------------------------------------------
 // Sample options
 // ---------------------------------------------------------------------------
 
-const opts: RadioOption[] = [
+const opts: FormOption[] = [
 	{ value: 'a', label: 'Option A' },
 	{ value: 'b', label: 'Option B' },
 	{ value: 'c', label: 'Option C' }
 ];
 
-const withDisabled: RadioOption[] = [
+const withDisabled: FormOption[] = [
 	{ value: 'a', label: 'A' },
 	{ value: 'b', label: 'B', disabled: true },
 	{ value: 'c', label: 'C' }

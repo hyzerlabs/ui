@@ -100,24 +100,40 @@ export interface FieldBase {
 	hideLabel?: boolean;
 }
 
-/** A single <option> for Select, or an <optgroup> wrapping nested options. */
-export type SelectOption =
-	| { value: string; label: string; disabled?: boolean }
-	| { group: string; options: { value: string; label: string; disabled?: boolean }[] };
-
-/** A tick mark on a Slider/RangeSlider track: a bare value or value + label. */
-export type SliderTick = number | { value: number; label: string };
-
-/** A single radio choice in a RadioGroup. */
-export interface RadioOption {
+/** A single selectable choice — shared by Select, RadioGroup, and Combobox. */
+export interface FormOption {
 	value: string;
 	label: string;
 	disabled?: boolean;
 }
+
+/** A single <option> for Select, or an <optgroup> wrapping nested options. */
+export type SelectOption = FormOption | { group: string; options: FormOption[] };
+
+/** A tick mark on a Slider/RangeSlider track: a bare value or value + label. */
+export type SliderTick = number | { value: number; label: string };
 
 /** A single error surfaced by the Form error summary. */
 export interface FormError {
 	/** Field `name` to link to. Empty/unresolved ⇒ a form-level error (no link). */
 	name: string;
 	message: string;
+}
+
+/** Badge appearance unions (shared so Combobox chips can be typed). */
+export type BadgeIntent = 'neutral' | Intent;
+export type BadgeVariant = 'soft' | 'solid' | 'outline';
+export type BadgeSize = 'sm' | 'md';
+
+/**
+ * Badge styling passed through to every Combobox chip — consumers who only
+ * import Combobox can still set chip appearance. Behavioral Badge props
+ * (children, onDismiss, dismissLabel) are component-managed and excluded.
+ */
+export interface ComboboxChipProps {
+	intent?: BadgeIntent;
+	variant?: BadgeVariant;
+	size?: BadgeSize;
+	rounded?: Rounded;
+	class?: string;
 }

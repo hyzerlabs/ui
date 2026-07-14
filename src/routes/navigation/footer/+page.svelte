@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Container, Footer, Link, Tabs } from '$lib';
-	import { IconGithub, IconRss, IconTwitterX } from '$lib/icons';
+	import { IconGithub, IconRss } from '$lib/icons';
 	import type { FooterColumn } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';

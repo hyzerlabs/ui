@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { RadioGroup, Tabs, Stack } from '$lib';
-	import type { RadioOption } from '$lib/types';
+	import type { FormOption } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
@@ -20,9 +20,9 @@
 		},
 		{
 			name: 'options',
-			type: 'RadioOption[]',
+			type: 'FormOption[]',
 			default: '—',
-			note: 'Required. See RadioOption below.'
+			note: 'Required. See FormOption below.'
 		},
 		{ name: 'value', type: 'string', default: "''", note: 'Bindable. The selected option value.' },
 		{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'vertical'" },
@@ -44,25 +44,25 @@
 		}
 	];
 
-	const radioOptionType: PropRow[] = [
+	const formOptionType: PropRow[] = [
 		{ name: 'value', type: 'string', default: '—', note: 'Required.' },
 		{ name: 'label', type: 'string', default: '—', note: 'Required.' },
 		{ name: 'disabled', type: 'boolean', default: '—', note: 'Disables just this option.' }
 	];
 
-	const stabilities: RadioOption[] = [
+	const stabilities: FormOption[] = [
 		{ value: 'understable', label: 'Understable' },
 		{ value: 'stable', label: 'Stable' },
 		{ value: 'overstable', label: 'Overstable' },
 		{ value: 'flippy', label: 'Roller-only (unavailable)', disabled: true }
 	];
 
-	const teePositions: RadioOption[] = [
+	const teePositions: FormOption[] = [
 		{ value: 'short', label: 'Short' },
 		{ value: 'long', label: 'Long' }
 	];
 
-	const divisions: RadioOption[] = [
+	const divisions: FormOption[] = [
 		{ value: 'mpo', label: 'MPO' },
 		{ value: 'fpo', label: 'FPO' },
 		{ value: 'ma1', label: 'MA1' },
@@ -72,7 +72,7 @@
 	let stability = $state('');
 
 	const basicCode = [
-		'const stabilities: RadioOption[] = [',
+		'const stabilities: FormOption[] = [',
 		"\t{ value: 'understable', label: 'Understable' },",
 		"\t{ value: 'stable', label: 'Stable' },",
 		"\t{ value: 'overstable', label: 'Overstable' },",
@@ -110,7 +110,7 @@
 	description="A group of radio buttons in a fieldset with a legend, vertical or horizontal layout, and standard field accessibility."
 	importLine={'import {RadioGroup} from "@hyzer-labs/ui"'}
 	{props}
-	types={[{ name: 'RadioOption', props: radioOptionType }]}
+	types={[{ name: 'FormOption', props: formOptionType }]}
 	a11yNote="The group is a `<fieldset>` whose `label` renders as the `<legend>`; with `hideLabel` the legend stays in the DOM as screen-reader-only text. Each radio has its own label, and the options sit in an inner `role=&quot;radiogroup&quot;` container that carries `aria-describedby` (description first, then error) and `aria-invalid`. Arrow-key movement between radios is native browser behavior."
 >
 	<Tabs items={demoTabs} ariaLabel="RadioGroup demos" defaultTab="basic">

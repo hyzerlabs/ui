@@ -50,7 +50,8 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Stack', href: '/layout/stack' },
 			{ label: 'Cluster', href: '/layout/cluster' },
 			{ label: 'Grid', href: '/layout/grid' },
-			{ label: 'Split', href: '/layout/split' }
+			{ label: 'Split', href: '/layout/split' },
+			{ label: 'Virtualizer', href: '/layout/virtualizer' }
 		]
 	},
 	{
@@ -69,6 +70,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'TextInput', href: '/forms/text-input' },
 			{ label: 'Textarea', href: '/forms/textarea' },
 			{ label: 'Select', href: '/forms/select' },
+			{ label: 'Combobox', href: '/forms/combobox' },
 			{ label: 'Checkbox', href: '/forms/checkbox' },
 			{ label: 'RadioGroup', href: '/forms/radio-group' },
 			{ label: 'Slider', href: '/forms/slider' },

@@ -14,6 +14,12 @@
 		errorId: string;
 		/** Full wrapper class, pre-computed by the parent (e.g. cx('hz-field', className)). */
 		class: string;
+		/**
+		 * Optional `data-open` hook on the root, boolean-presence style.
+		 * Combobox-R1: the popup open/closed state needs to surface on the
+		 * Field-rendered root div, which no other field family member needs.
+		 */
+		dataOpen?: boolean;
 		/** The actual control (input/textarea/select wrapper). */
 		control: Snippet;
 	}
@@ -29,6 +35,7 @@
 		descId,
 		errorId,
 		class: wrapperClass,
+		dataOpen,
 		control
 	}: Props = $props();
 
@@ -43,7 +50,7 @@
 	Field-R4: description only when non-empty.
 	Field-R5: error only when non-empty; role="alert".
 -->
-<div class={wrapperClass} data-state={dataState}>
+<div class={wrapperClass} data-state={dataState} data-open={dataOpen ? '' : undefined}>
 	<label class={cx('hz-field-label', hideLabel && 'sr-only')} for={inputId}>
 		{label}
 		{#if required}<span aria-hidden="true" class="hz-field-required">*</span>{/if}

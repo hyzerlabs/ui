@@ -72,18 +72,22 @@ export interface FieldBase {
 	hideLabel?: boolean;     // default false
 }
 
-/** A single <option> for Select, or an <optgroup> wrapping nested options. */
-export type SelectOption =
-	| { value: string; label: string; disabled?: boolean }
-	| { group: string; options: { value: string; label: string; disabled?: boolean }[] };
-
-/** A single radio choice in a RadioGroup. */
-export interface RadioOption {
+/** A single selectable choice — shared by Select, RadioGroup, and Combobox. */
+export interface FormOption {
 	value: string;
 	label: string;
 	disabled?: boolean;
 }
+
+/** A single <option> for Select, or an <optgroup> wrapping nested options. */
+export type SelectOption =
+	| FormOption
+	| { group: string; options: FormOption[] };
 ```
+
+(`RadioOption` was folded into the shared `FormOption` per
+`specs/22-combobox.md` Combobox-R16 — greenfield, no external consumers;
+`RadioGroup` migrates to `FormOption`.)
 
 ### Props
 
@@ -116,11 +120,16 @@ forwarded onto the control element, and an optional `class` (→ `cx`).
 
 **Select**
 
-| Prop          | Type                   | Default       |
-| ------------- | ---------------------- | ------------- |
-| `options`     | `SelectOption[]`       | _required_    |
-| `value`       | `string` (`$bindable`) | `''`          |
-| `placeholder` | `string`               | `'Select...'` |
+| Prop          | Type                                                          | Default                       |
+| ------------- | ------------------------------------------------------------- | ----------------------------- |
+| `options`     | `SelectOption[]`                                             | _required_                    |
+| `multiple`    | `boolean`                                                    | `false`                       |
+| `value`       | `string` (single) / `string[]` (multiple) (`$bindable`)      | `''` single / `[]` multiple   |
+| `placeholder` | `string`                                                    | `'Select...'`                 |
+
+The `value` type is bound to `multiple` by a discriminated `Props` union
+(Select-R1). The native `size` attribute (visible-row count) is not a dedicated
+prop — it flows through `...rest` (Select-R2).
 
 **Checkbox**
 
@@ -134,7 +143,7 @@ forwarded onto the control element, and an optional `class` (→ `cx`).
 
 | Prop          | Type                         | Default      |
 | ------------- | ---------------------------- | ------------ |
-| `options`     | `RadioOption[]`              | _required_   |
+| `options`     | `FormOption[]`               | _required_   |
 | `value`       | `string` (`$bindable`)       | `''`         |
 | `orientation` | `'horizontal' \| 'vertical'` | `'vertical'` |
 
@@ -191,7 +200,7 @@ id/aria logic in their own structure.
    and the wrapper `data-state="disabled"` (unless
    `error` overrides per R1). Native `disabled` removes the control from the tab
    order and from form submission. No `aria-disabled` is used.
-8. **Field-R8 — Shared types.** `FieldBase`, `SelectOption`, and `RadioOption`
+8. **Field-R8 — Shared types.** `FieldBase`, `SelectOption`, and `FormOption`
    are declared in and exported from `src/lib/types/index.ts`; components import
    them rather than redeclaring.
 
@@ -242,17 +251,89 @@ id/aria logic in their own structure.
 
 #### Select (`Select-R*`)
 
-1. **Select-R1 — Native element.** Renders the Field scaffold wrapping a native
-   `<select id="hz-input-{uid}" name={name}>` (not a custom dropdown). `value` is
-   `$bindable`, two-way bound via `bind:value`, default `''`.
-2. **Select-R2 — Placeholder option.** A leading
-   `<option value="" disabled selected>{placeholder}</option>` (default text
-   `'Select...'`) is rendered; it is the selected option only while `value` is
-   `''`. Once `value` is a real option, the placeholder is not selected.
-3. **Select-R3 — Options & optgroups.** For each `SelectOption`: a flat
-   `{ value, label, disabled? }` renders `<option value={value}>{label}</option>`
-   with `disabled` applied when true; a `{ group, options }` entry renders
-   `<optgroup label={group}>` wrapping its options. Array order is preserved.
+**Decision 2026-07-14:** `Select` gains first-class **multiple-selection**
+support mirroring the native `<select multiple>` element. A `multiple` prop
+renders the native attribute and switches the value model from `string` to
+`string[]`. This is a **first-class rewrite** of the Select contract, not an
+amendment: the native element already handles multi-select, optgroups, and
+repeated-name submission, so exposing it costs no custom widget or listbox.
+Component-choice guidance: `Select` is the low-ceremony choice for **small,
+static** option sets (single **or** `multiple`); reach for `Combobox`
+(`specs/22-combobox.md`) when there are **many** options (where filtering /
+virtualization helps) or when **search / type-to-filter** is needed. This
+guidance ships on both docs pages (Select-R7 ↔ Combobox-R19).
+
+1. **Select-R1 — Native element & value typing.** Renders the Field scaffold
+   wrapping a native `<select id="hz-input-{uid}" name={name}>` (not a custom
+   dropdown). The `multiple` prop (default `false`) renders the native
+   `multiple` attribute when true. `value` is `$bindable`. **Value typing —
+   discriminated `Props` union** (decision: this is the only mechanism that
+   makes the compiler enforce the `multiple ↔ value` correspondence at call
+   sites while leaving a single `$bindable` declaration): the `Props` type is a
+   union whose `multiple?: false` arm types `value?: string` (default `''`) and
+   whose `multiple: true` arm types `value?: string[]` (default `[]`), so
+   `<Select multiple value={['a']} />` type-checks and a `string` there errors.
+   Internally the single `$bindable` declaration widens to `string | string[]`
+   with its default computed from the already-destructured `multiple`
+   (`$bindable(multiple ? [] : '')`). The template renders **two branches** —
+   `<select multiple bind:value>` (Svelte binds a `string[]`) and a plain
+   `<select bind:value>` (binds a `string`) — so each `bind:value` sees the
+   correctly-typed value; a single element with dynamic `multiple={…}` is
+   **not** used because Svelte infers select-binding array-ness from the
+   **literal** `multiple` attribute.
+2. **Select-R2 — Multiple mode.** When `multiple` is `true`: the native
+   `multiple` attribute is present; `bind:value` binds the **array of selected
+   option values** (`string[]`) two-way, per native `<select multiple>`
+   semantics — the selection order in the array follows the browser's native
+   (option/DOM) order, not click order; the placeholder option is **omitted
+   entirely** (Select-R3); and the native **`size`** attribute (how many rows
+   are visible) flows through `...rest` (Forms-R2) with no dedicated prop. When
+   `multiple` is `false` the element is a single-selection `<select>` as today.
+3. **Select-R3 — Placeholder option (single mode only).** In **single** mode a
+   leading `<option value="" disabled selected>{placeholder}</option>` (default
+   text `'Select...'`) is rendered; it is the selected option only while `value`
+   is `''`, and once a real option is chosen it is not selected. In **multiple**
+   mode the placeholder option is **not rendered at all** — a native multiple
+   select has no placeholder convention and the placeholder would appear as a
+   selectable, misleading list row.
+4. **Select-R4 — Options & optgroups.** For each `SelectOption`: a flat
+   `FormOption` (`{ value, label, disabled? }`) renders
+   `<option value={value}>{label}</option>` with `disabled` applied when true; a
+   `{ group, options }` entry renders `<optgroup label={group}>` wrapping its
+   options. Array order is preserved. `FormOption` / `SelectOption` are
+   **unchanged** by the `multiple` feature, and optgroups **and** disabled
+   options work identically in single and multiple mode (native supports both) —
+   a `disabled` option is not selectable in either mode.
+5. **Select-R5 — Value binding & form submission.** `value` is two-way
+   `$bindable` and reflects programmatic changes into the control both ways
+   (Select-R1). **Single** mode: the one native `<select name>` submits the
+   single selected value. **Multiple** mode: the **same single**
+   `<select multiple name>` element submits **repeated** `name` values (one per
+   selected option); `new FormData(form).getAll(name)` returns them in option
+   order. Because `<select multiple>` is still **one named element** (not a
+   group), `form.elements[name]` resolves the single `HTMLSelectElement` (not a
+   `RadioNodeList`), so the `Form` error summary (`specs/14-form.md` Form-R4)
+   links to its `id` exactly as for a single select — no special-casing needed.
+6. **Select-R6 — class, rest, and states.** Root class is `cx('hz-field',
+   className)` (Forms-R1). `...rest` spreads **first** on the `<select>` so
+   component-managed attributes (`id`, `name`, `multiple`, `bind:value`,
+   `aria-*`, `data-*`) win (Forms-R2); a forwarded `size` / `onchange` /
+   `data-testid` reaches the element. `required` → `aria-required` + the `*`
+   indicator (Field-R3); `disabled` → native `disabled` (Field-R7); `error` →
+   `role="alert"` + `aria-invalid` + `data-state="error"` (Field-R5). These
+   states apply identically in single and multiple mode.
+7. **Select-R7 — Docs page (amends the existing Select page).** The Select docs
+   route `src/routes/forms/select/+page.svelte` (`specs/16-docs.md`) is amended
+   for `multiple`: (a) a live **Multiple** demo — a `<Select multiple>` bound to
+   a `string[]`, showing the array binding and (in a small `<form>`) that
+   `FormData.getAll` returns each selected value; (b) a `multiple` row in the
+   `PropsTable` and the `value` row updated to `string | string[]`; and (c) a
+   **"Select vs Combobox"** guidance callout — `Select` for small, static
+   option sets (single or native `multiple`); `Combobox` when there are many
+   options (filtering / virtualization) or search/type-to-filter is needed —
+   **cross-linking `/forms/combobox`**. The Combobox page carries the mirror
+   note (`specs/22-combobox.md` Combobox-R19). This docs amendment is scoped to
+   the `multiple` feature and the guidance note.
 
 #### Checkbox (`Checkbox-R*`)
 
@@ -276,7 +357,7 @@ id/aria logic in their own structure.
    optional error (Field-R5). `data-orientation` reflects `orientation` verbatim
    and drives the flex direction (`vertical` default → column,
    `horizontal` → row).
-2. **RadioGroup-R2 — Options.** For each `RadioOption` (in array order, keyed by
+2. **RadioGroup-R2 — Options.** For each `FormOption` (in array order, keyed by
    index) render a `<div class="hz-radio-option">` containing
    `<input type="radio" id="hz-radio-{uid}-{i}" name={name} value={option.value}>`
    then `<label for="hz-radio-{uid}-{i}">{option.label}</label>`. A per-option
@@ -324,7 +405,8 @@ id/aria logic in their own structure.
 2. **Forms-R2 — rest forwarding.** `...rest` forwards onto the control element
    (`input`/`textarea`/`select`/`button`/`fieldset` as appropriate), spread
    **first** so component-managed attributes (`id`, `name`, `class`,
-   `data-state`, `aria-*`) cannot be clobbered.
+   `data-state`, `aria-*`) cannot be clobbered. For Select this means native
+   `size`/`onchange` reach the `<select>` (Select-R2/R6).
 3. **Forms-R3 — barrel export.** `TextInput`, `Textarea`, `Select`, `Checkbox`,
    `RadioGroup`, and `Toggle` are exported from `src/lib/components/index.ts`;
    each resolves via `import { … } from '$lib'`; assertions added to
@@ -341,7 +423,9 @@ id/aria logic in their own structure.
 - `inputmode` is exposed on TextInput for mobile keyboard optimization, and
   `autocomplete` for autofill. Minimum touch-target sizing (≥44×44 per the
   architecture baseline) for the control/label hit area is a theme concern; the
-  component ships no breakpoint-specific CSS.
+  component ships no breakpoint-specific CSS. A `multiple` Select with a `size`
+  renders a scrollable multi-row list at every breakpoint (no interaction-pattern
+  change by width).
 
 ### Accessibility (WCAG 2.1 AA)
 
@@ -359,6 +443,9 @@ id/aria logic in their own structure.
 - RadioGroup uses `<fieldset>`/`<legend>` so the group has an accessible name,
   and a `role="radiogroup"` inner container; native radio roving arrow-key
   navigation is preserved and skips disabled options (2.1.1, 4.1.2).
+- Select multi-selection uses the **native `<select multiple>`**, so its
+  keyboard model (Space/Shift+Arrows/Ctrl+click) and screen-reader announcement
+  come from the platform — no custom ARIA is added (4.1.2).
 - Toggle uses `role="switch"` + `aria-checked` to convey the on/off semantic
   clearly for settings toggles (4.1.2).
 - Prefix/suffix spans are `aria-hidden="true"` (decorative, not meaningful
@@ -380,8 +467,11 @@ id/aria logic in their own structure.
 | Neither description nor error                     | `aria-describedby` attribute omitted entirely (Field-R6).                                                   |
 | `hideLabel` true                                  | Label stays in the DOM with `.sr-only`; remains programmatically associated (Field-R2).                    |
 | `maxlength` set and reached                       | Native enforcement only; no custom counter shipped (TextInput-R3, Textarea-R1).                            |
-| Select `value === ''`                             | Placeholder option shown and selected; once a real `value` is set the placeholder is not selected (Select-R2). |
-| Select with optgroups / disabled options          | `<optgroup label>` wraps its options; `disabled` options render non-selectable (Select-R3).                |
+| Select single, `value === ''`                     | Placeholder option shown and selected; once a real `value` is set the placeholder is not selected (Select-R3). |
+| Select `multiple`                                 | Native `multiple` attribute present; `value` is a `string[]`; **no** placeholder option; native `size` via `...rest` (Select-R1/R2/R3). |
+| Select `multiple` with several selected           | `bind:value` array reflects all selections both ways; the single `<select name>` submits repeated values — `new FormData(form).getAll(name)` returns them in option order (Select-R5). |
+| Select `multiple` targeted by the Form summary    | `form.elements[name]` resolves the single `<select>` element (not a `RadioNodeList`); summary links to its `id` like a single select (Select-R5). |
+| Select with optgroups / disabled options (single **or** multiple) | `<optgroup label>` wraps its options; `disabled` options render non-selectable in both modes (Select-R4). |
 | Checkbox `indeterminate` true                     | `.indeterminate` set on the element ref via `$effect`; a user toggle clears it natively (Checkbox-R3).      |
 | RadioGroup `options` empty                        | `<fieldset>`/`<legend>` render with an empty `radiogroup`; no radios; no error (RadioGroup-R1, R2).         |
 | RadioGroup option `disabled`                      | That radio gets native `disabled`; arrow navigation skips it natively (RadioGroup-R2, R4).                  |
@@ -389,14 +479,14 @@ id/aria logic in their own structure.
 | Toggle click / Enter / Space                      | Toggles `checked`, `aria-checked`, and `data-state` (Toggle-R2).                                            |
 | `value`/`checked` bound externally                | Two-way `$bindable` reflects programmatic changes into the control and user changes back out (per-component value/checked reqs). |
 | `...rest` attempts `id`/`name`/`class`/`data-state`/`aria-*` | Component-managed value wins (Forms-R2).                                                          |
-| SSR / pre-mount                                   | Static markup renders with initial `value`/`checked`; `indeterminate`, auto-resize sync, and any listeners attach on mount. |
+| SSR / pre-mount                                   | Static markup renders with initial `value`/`checked` (single string **or** multiple array); `indeterminate`, auto-resize sync, and any listeners attach on mount. |
 
 ### Existing Code to Reuse
 
 - **Utils:** `cx` and `uid` from `src/lib/utils` (Forms-R1, Field-R1) — do not
   write new class-merging or id logic.
-- **Types:** extend `src/lib/types/index.ts` with `FieldBase`, `SelectOption`,
-  and `RadioOption` (Field-R8); components import these. Do not redeclare locally.
+- **Types:** extend `src/lib/types/index.ts` with `FieldBase`, `FormOption`,
+  and `SelectOption` (Field-R8); components import these. Do not redeclare locally.
 - **`.sr-only`:** reuse the existing bare `.sr-only` class emitted by
   `Button.svelte` / `Link.svelte` (Field-R2) — do not introduce `.hz-sr-only` or
   a new sr-only mechanism.
@@ -443,7 +533,7 @@ demos are a later sprint).
   `aria-describedby` lists desc then error, omitted when neither present.
 - Field-R7: `disabled` → native `disabled` on the control + `data-state` (unless
   error wins); control removed from tab order.
-- Field-R8: `FieldBase`/`SelectOption`/`RadioOption` importable from `$lib/types`.
+- Field-R8: `FieldBase`/`SelectOption`/`FormOption` importable from `$lib/types`.
 
 **Per component:**
 
@@ -456,9 +546,21 @@ demos are a later sprint).
   `data-resize` + CSS mapping; `resize="auto"` auto-grows (assert `field-sizing`
   path, and the JS fallback grows height when `field-sizing` is unsupported —
   exercise the input handler).
-- Select-R1…R3: native `<select>` with `bind:value`; placeholder option
-  `disabled selected` while `value===''` and not selected after a real choice;
-  flat options + `<optgroup>` render in order; disabled options non-selectable.
+- Select-R1…R7:
+  - **single mode** — native `<select>` with `bind:value` (string); placeholder
+    option `disabled selected` while `value===''` and not selected after a real
+    choice; flat options + `<optgroup>` render in order; disabled options
+    non-selectable.
+  - **multiple mode** — `multiple` renders the native attribute; `bind:value`
+    binds a **`string[]`** and updates **both ways** (programmatic array change
+    reflects the selected options; user multi-selection updates the array); the
+    placeholder option is **absent**; a native `size` passed via `...rest`
+    reaches the element; optgroups render and work with `multiple`; disabled
+    options are not selectable.
+  - **submission** — inside a `<form>`, selecting several options and reading
+    `new FormData(form).getAll(name)` returns each selected value in option
+    order; `form.elements[name]` resolves the **single** `HTMLSelectElement`
+    (not a `RadioNodeList`).
 - Checkbox-R1…R3: input-then-label DOM order; `bind:checked` two-way; `value`
   present only when defined; `indeterminate` reflected on the element ref and
   cleared by a user toggle.
@@ -472,23 +574,27 @@ demos are a later sprint).
 - Forms-R1: no `class` → exactly the base class; `class="foo bar"` appended
   after the base.
 - Forms-R2: `...rest` (e.g. `data-testid`) forwarded; override attempt on
-  `id`/`name`/`class`/`data-state` → managed wins.
+  `id`/`name`/`class`/`data-state` → managed wins; Select `size`/`onchange`
+  reach the `<select>`.
 - Forms-R3: extend `exports.spec.ts` to assert each of the six resolves from
   `$lib`, plus a smoke render of each.
 
 **Integration (browser):** Tab order reaches each enabled control and skips
 disabled ones; typing into TextInput/Textarea updates the bound value and a
-parent reflecting it; selecting a Select option / a radio updates the bound
-value; toggling Checkbox/Toggle flips bound `checked`; setting an `error`
-surfaces the `role="alert"` message and `aria-invalid`, and `aria-describedby`
-points the control at the live error text.
+parent reflecting it; selecting a single Select option / a radio updates the
+bound value; multi-selecting in a `<select multiple>` updates the bound
+`string[]` and submits repeated values; toggling Checkbox/Toggle flips bound
+`checked`; setting an `error` surfaces the `role="alert"` message and
+`aria-invalid`, and `aria-describedby` points the control at the live error text.
 
 ### Out of Scope
 
 - Validation logic, schema validation, form-level orchestration, or `FormData`
   handling — components present an externally-supplied `error` string only.
-- A custom dropdown/listbox for Select (native `<select>` only); combobox,
-  autocomplete, typeahead, or multi-select.
+- A custom dropdown/listbox for Select — Select is the **native `<select>`**
+  only (single **and** `multiple` via the native attribute, Select-R1/R2). A
+  **filterable** listbox, combobox, autocomplete, typeahead, or chip-based
+  multi-select is `Combobox`'s job (`specs/22-combobox.md`), not Select.
 - Character counters, masked inputs, custom number steppers, and file
   pickers. A custom calendar/date-picker UI is likewise out of scope —
   TextInput's `date` / `time` / `datetime-local` types render the **native
@@ -503,4 +609,6 @@ points the control at the live error text.
 - Form-level error aggregation / submit orchestration — see the `Form`
   error-summary provider (`specs/14-form.md`), which resolves fields natively via
   `form.elements[name]` and needs no coupling to these primitives.
-- Docs demo routes and Playwright e2e — later sprint.
+- Docs demo routes and Playwright e2e for the forms family — later sprint. The
+  Select page's `multiple` demo and the Select-vs-Combobox guidance note are the
+  one exception, specified as an amendment to the existing page (Select-R7).

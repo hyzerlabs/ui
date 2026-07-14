@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Select, Tabs, Stack } from '$lib';
+	import { Select, Tabs, Stack, Alert } from '$lib';
 	import type { SelectOption } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
@@ -19,7 +19,18 @@
 			default: '—',
 			note: 'Required. Flat options and optgroups mix freely — see SelectOption below.'
 		},
-		{ name: 'value', type: 'string', default: "''", note: 'Bindable.' },
+		{
+			name: 'multiple',
+			type: 'boolean',
+			default: 'false',
+			note: 'Renders the native multiple attribute; switches value to string[].'
+		},
+		{
+			name: 'value',
+			type: 'string | string[]',
+			default: "'' (single) / [] (multiple)",
+			note: 'Bindable. A discriminated union on multiple: string when omitted/false, string[] when true.'
+		},
 		{
 			name: 'placeholder',
 			type: 'string',
@@ -39,11 +50,14 @@
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-field class.' }
 	];
 
-	// SelectOption is a union: a flat option or an optgroup wrapper.
-	const selectOptionType: PropRow[] = [
-		{ name: 'value', type: 'string', default: '—', note: 'Flat option form. Required with label.' },
-		{ name: 'label', type: 'string', default: '—', note: 'Flat option form. Required.' },
-		{ name: 'disabled', type: 'boolean', default: '—', note: 'Flat option form.' },
+	// SelectOption is a union: a flat FormOption or an optgroup wrapper.
+	const formOptionType: PropRow[] = [
+		{ name: 'value', type: 'string', default: '—', note: 'Required.' },
+		{ name: 'label', type: 'string', default: '—', note: 'Required.' },
+		{ name: 'disabled', type: 'boolean', default: '—', note: '—' }
+	];
+
+	const selectOptionGroupType: PropRow[] = [
 		{
 			name: 'group',
 			type: 'string',
@@ -52,7 +66,7 @@
 		},
 		{
 			name: 'options',
-			type: '{ value, label, disabled? }[]',
+			type: 'FormOption[]',
 			default: '—',
 			note: 'Group form: the flat options inside the group.'
 		}
@@ -137,9 +151,37 @@
 		'<Select name="card" label="Card" options={cards} disabled />'
 	].join('\n');
 
+	// Select-R7: live Multiple demo — bound to a string[], with a form
+	// showing FormData.getAll returning each selected value.
+	const discOptions: SelectOption[] = [
+		{ value: 'destroyer', label: 'Destroyer' },
+		{ value: 'wraith', label: 'Wraith' },
+		{ value: 'buzzz', label: 'Buzzz' },
+		{ value: 'roc3', label: 'Roc3' }
+	];
+	let selectedDiscs = $state<string[]>(['destroyer']);
+	let submittedDiscs = $state<string[]>([]);
+
+	function onMultipleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		submittedDiscs = new FormData(e.target as HTMLFormElement).getAll('discs-demo') as string[];
+	}
+
+	const multipleCode = [
+		'let discs = $state<string[]>([]);',
+		'',
+		'<form onsubmit={handleSubmit}>',
+		'\t<Select name="discs-demo" label="Discs" options={discOptions} multiple bind:value={discs} />',
+		'\t<button type="submit">Submit</button>',
+		'</form>',
+		'',
+		'// handleSubmit reads: new FormData(form).getAll("discs-demo")'
+	].join('\n');
+
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
 		{ id: 'groups', label: 'Option groups' },
+		{ id: 'multiple', label: 'Multiple' },
 		{ id: 'states', label: 'Description & states' }
 	];
 </script>
@@ -149,9 +191,19 @@
 	description="A labeled native select with flat options, option groups, a placeholder option, and standard field accessibility."
 	importLine={'import {Select} from "@hyzer-labs/ui"'}
 	{props}
-	types={[{ name: 'SelectOption', props: selectOptionType }]}
+	types={[
+		{ name: 'FormOption', props: formOptionType },
+		{ name: 'SelectOption (group arm)', props: selectOptionGroupType }
+	]}
 	a11yNote="The select is associated with its label via `id`/`for`; with `hideLabel` the label stays in the DOM as screen-reader-only text. `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`. The control is the native `<select>`, so keyboard and assistive-tech behavior come from the platform."
 >
+	<Alert intent="info" title="Select vs Combobox">
+		Reach for <code>Select</code> when your option set is small and static — single-select, or
+		multi-select via the native <code>multiple</code> attribute. When there are many options (where
+		filtering or virtualization helps) or you need search / type-to-filter, use
+		<a href="/forms/combobox">Combobox</a> instead — it's the multi-select, filterable member of the field
+		family.
+	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Select demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">
@@ -179,6 +231,36 @@
 					<Example code={groupsCode}>
 						<div class="demo-col">
 							<Select name="disc-demo" label="Disc" options={bag} placeholder="Pick a disc" />
+						</div>
+					</Example>
+				{:else if item.id === 'multiple'}
+					<p class="tab-note">
+						The <code>multiple</code> prop renders the native <code>multiple</code> attribute and
+						switches <code>value</code> to a <code>string[]</code> — there is no placeholder option
+						in this mode. The single <code>&lt;select multiple&gt;</code> element submits repeated
+						<code>name</code> values; <code>new FormData(form).getAll(name)</code> returns each selected
+						value in option order.
+					</p>
+					<Example code={multipleCode}>
+						<div class="demo-col">
+							<form onsubmit={onMultipleSubmit}>
+								<Stack gap="sm">
+									<Select
+										name="discs-demo"
+										label="Discs"
+										options={discOptions}
+										multiple
+										bind:value={selectedDiscs}
+									/>
+									<button type="submit">Submit</button>
+								</Stack>
+							</form>
+							<p class="tab-note">Bound value: {selectedDiscs.join(', ') || '(none)'}</p>
+							{#if submittedDiscs.length > 0}
+								<p class="tab-note">
+									FormData.getAll("discs-demo") → {submittedDiscs.join(', ')}
+								</p>
+							{/if}
 						</div>
 					</Example>
 				{:else}

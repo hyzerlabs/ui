@@ -1,12 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { Intent, Rounded } from '$lib/types';
+	import type { BadgeIntent, BadgeVariant, BadgeSize, Rounded } from '$lib/types';
 	import { cx } from '$lib/utils';
 	import IconX from '$lib/icons/IconX.svelte';
-
-	type BadgeIntent = 'neutral' | Intent;
-	type BadgeVariant = 'soft' | 'solid' | 'outline';
-	type BadgeSize = 'sm' | 'md';
 
 	interface Props {
 		children: Snippet;

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { FieldBase, RadioOption } from '$lib/types';
+	import type { FieldBase, FormOption } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
 
 	interface Props extends FieldBase {
-		options: RadioOption[];
+		options: FormOption[];
 		value?: string;
 		orientation?: 'horizontal' | 'vertical';
 		class?: string;
