@@ -4,10 +4,9 @@
 @layer hz-theme {
 	.hz-footer {
 		padding: 3rem 1.5rem 2rem;
-		background-color: color-mix(
-			in srgb,
-			var(--hz-color-gray, #6b7280) 6%,
-			var(--hz-color-surface, #fff)
+		background-color: var(
+			--hz-color-surface-muted,
+			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
 		);
 		color: var(--hz-color-text, #000);
 	}

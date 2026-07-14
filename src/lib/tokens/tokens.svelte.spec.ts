@@ -203,6 +203,12 @@ describe('R4 — semantic role indirection in light mode', () => {
 		const black = resolveColor('var(--hz-color-black)');
 		expect(text).toBe(black);
 	});
+
+	it('--hz-color-surface-muted resolves to a 6% gray mix over surface', () => {
+		expect(resolveColor('var(--hz-color-surface-muted)')).toBe(
+			resolveColor('color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface))')
+		);
+	});
 });
 
 // ---------------------------------------------------------------------------
@@ -288,6 +294,13 @@ describe('R5 — dark theme override hook', () => {
 		const before = rootVar('--hz-color-border');
 		document.documentElement.setAttribute('data-theme', 'dark');
 		expect(rootVar('--hz-color-border')).toBe(before);
+	});
+
+	it('data-theme="dark" strengthens --hz-color-surface-muted to a 25% gray mix over surface', () => {
+		document.documentElement.setAttribute('data-theme', 'dark');
+		expect(resolveColor('var(--hz-color-surface-muted)')).toBe(
+			resolveColor('color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface))')
+		);
 	});
 
 	it('--hz-space-md is unchanged in dark mode', () => {

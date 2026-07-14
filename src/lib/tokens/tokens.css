@@ -24,6 +24,10 @@
 	 * block overrides — the single indirection point for theming.
 	 * ===================================================================== */
 	--hz-color-surface: var(--hz-color-white);
+	/* Subdued opaque surface (code blocks, footer, quiet panels): gray mixed
+	 * over surface, so it tracks surface overrides and covers what's behind
+	 * it. The dark block strengthens the mix — 6% is invisible over black. */
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface));
 	--hz-color-text: var(--hz-color-black);
 	--hz-color-text-muted: var(--hz-color-gray);
 	--hz-color-border: var(--hz-color-gray);
@@ -166,11 +170,13 @@ body [data-density-shift] [data-density-shift] [data-density-shift] {
 
 /* ==========================================================================
  * Dark theme — semantic role overrides only.
- * Only --hz-color-surface and --hz-color-text flip; all other tokens remain
- * unchanged. Setting data-theme="dark" on any ancestor activates this block
- * for that subtree via normal CSS cascade.
+ * Surface and text flip, and surface-muted's gray tint strengthens (6% is
+ * invisible over black); all other tokens remain unchanged. Setting
+ * data-theme="dark" on any ancestor activates this block for that subtree
+ * via normal CSS cascade.
  * ========================================================================== */
 [data-theme='dark'] {
 	--hz-color-surface: var(--hz-color-black);
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface));
 	--hz-color-text: var(--hz-color-white);
 }

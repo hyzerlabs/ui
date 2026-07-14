@@ -76,20 +76,25 @@ without touching the palette):
 Mirrored by the `intent` metadata export in `src/lib/tokens/index.ts`. The
 dark block does **not** touch them — they chain through the palette.
 
-**Layer 2 — Semantic roles** (reference the palette via `var()`; the only tokens
-the dark block overrides):
+**Layer 2 — Semantic roles** (reference the palette via `var()` — `surface-muted`
+through a `color-mix()` of it; the only tokens the dark block overrides):
 
 | Role token | Light (`:root`) | Dark (`[data-theme="dark"]`) |
 | --- | --- | --- |
 | `--hz-color-surface` | `var(--hz-color-white)` | `var(--hz-color-black)` |
+| `--hz-color-surface-muted` | `color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface))` | `color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface))` |
 | `--hz-color-text` | `var(--hz-color-black)` | `var(--hz-color-white)` |
 | `--hz-color-text-muted` | `var(--hz-color-gray)` | `var(--hz-color-gray)` |
 | `--hz-color-border` | `var(--hz-color-gray)` | `var(--hz-color-gray)` |
 
-Only `--hz-color-surface` and `--hz-color-text` flip between modes; `text-muted`
-and `border` stay gray in both. There is intentionally **no** `surface-raised`
-role (a single gray cannot serve both a raised surface and a readable muted text);
-the reference theme will derive raised surfaces later.
+`--hz-color-surface` and `--hz-color-text` flip between modes, and
+`--hz-color-surface-muted` (amendment 2026-07-13) strengthens its gray tint —
+6% is invisible over black; `text-muted` and `border` stay gray in both.
+`surface-muted` is an **opaque** subdued surface (docs code blocks, the reference
+Footer): gray mixed over `surface`, so it tracks surface overrides and covers
+whatever sits behind it — not a raised surface. There is intentionally **no**
+`surface-raised` role (a single gray cannot serve both a raised surface and a
+readable muted text); the reference theme will derive raised surfaces later.
 
 **Type scale — six steps:**
 
@@ -152,23 +157,26 @@ CSS cannot read custom properties inside media queries.
 3. **R3 — Palette.** The nine palette colors (`primary, secondary, success,
    warning, danger, info, black, white, gray`) are defined on `:root` exactly as the
    table, each a single value.
-4. **R4 — Semantic role layer.** The four role tokens (`surface, text, text-muted,
-   border`) are defined on `:root` as `var()` references into the palette — never
-   raw literals — so the indirection a theme overrides stays intact.
+4. **R4 — Semantic role layer.** The five role tokens (`surface, surface-muted,
+   text, text-muted, border`) are defined on `:root` as references into the
+   palette — `var()` indirection, or `color-mix()` over a palette `var()` for
+   `surface-muted` — never raw literals — so the indirection a theme overrides
+   stays intact.
 5. **R5 — Dark override hook.** A single `[data-theme="dark"]` selector overrides
-   **only** `--hz-color-surface` and `--hz-color-text` to their Dark-column values.
-   No palette token, no non-color token, and no other role token is redefined in
-   that block. Setting `data-theme="dark"` on any ancestor flips surface/text for
-   that subtree and changes nothing else.
+   **only** `--hz-color-surface`, `--hz-color-surface-muted`, and
+   `--hz-color-text` to their Dark-column values. No palette token, no non-color
+   token, and no other role token is redefined in that block. Setting
+   `data-theme="dark"` on any ancestor flips those roles for that subtree and
+   changes nothing else.
 6. **R6 — Type, radius, border, elevation, z-index, motion.** All remaining token
    groups above are defined on `:root` under the `--hz` prefix with the values
    given. The type scale has exactly six `--hz-font-size-*` steps.
 7. **R7 — JS metadata parity.** `index.ts` exports typed, readonly objects —
    `color`, `space`, `width`, `typography`, `radius`, `border`, `shadow`, `zIndex`,
    `motion` — plus the existing `prefix`. Every key/value mirrors a `tokens.css`
-   custom property with no drift. The dark surface/text mapping is exported as a
-   documented sub-map (e.g. `color.theme.dark` or equivalent) carrying the two
-   flipped role values.
+   custom property with no drift. The dark role mapping is exported as a
+   documented sub-map (e.g. `color.theme.dark` or equivalent) carrying the three
+   overridden role values.
 8. **R8 — Single source, no duplication.** Each token value is authored once per
    mode; `index.ts` reflects `tokens.css` with no contradictory hardcoding. The
    `prefix` export and existing `utils` (`cx`/`uid`) are unaffected.
@@ -200,7 +208,7 @@ queries are added to `tokens.css`.
 | Case | Expected behavior |
 | --- | --- |
 | Consumer imports `tokens.css` over existing components | Identical computed spacing/width (R1); `Image` placeholder now resolves via `--hz-color-gray` (R2). |
-| `data-theme="dark"` on `<html>` or any wrapper | `--hz-color-surface`/`--hz-color-text` cascade to dark for that subtree; palette, muted, border, and all non-color tokens unchanged (R5). |
+| `data-theme="dark"` on `<html>` or any wrapper | `--hz-color-surface`/`--hz-color-surface-muted`/`--hz-color-text` cascade to dark for that subtree; palette, text-muted, border, and all non-color tokens unchanged (R5). |
 | No `data-theme` attribute present | Light role values apply from `:root`; nothing depends on the attribute existing. |
 | Consumer overrides a palette token (e.g. `--hz-color-gray`) | Role tokens referencing it update automatically (indirection holds, R4). |
 | `index.ts` consumed without `tokens.css` (JS-only tooling) | Metadata returns correct string values (R7); no runtime dependency on the CSS being loaded. |
@@ -240,7 +248,7 @@ scope).
 - Assert `color.gray` is defined and there is **no** `gray-100/200/...` ramp key (R2/R3).
 - Assert all nine palette keys exist incl. `danger` and `info` (R3).
 - Assert the type scale exposes exactly six font-size steps (R6).
-- Assert the dark sub-map exists with exactly `surface` and `text` keys (R5/R7).
+- Assert the dark sub-map exists with exactly `surface`, `surfaceMuted`, and `text` keys (R5/R7).
 
 **Computed values (browser, e.g. `src/lib/tokens/tokens.svelte.spec.ts`):**
 

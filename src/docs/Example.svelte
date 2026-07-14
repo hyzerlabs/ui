@@ -39,6 +39,9 @@
 		border: none;
 		border-top: 1px solid var(--hz-color-border, #6b7280);
 		border-radius: 0;
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, transparent);
+		background-color: var(
+			--hz-color-surface-muted,
+			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
+		);
 	}
 </style>

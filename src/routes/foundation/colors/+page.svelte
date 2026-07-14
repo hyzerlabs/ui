@@ -34,10 +34,12 @@
 		'--hz-color'
 	);
 
+	// Roles are everything that isn't a raw palette hex — var() indirections
+	// plus derived values like surface-muted's color-mix().
 	const roleTokens = colorEntries(
 		Object.fromEntries(
 			Object.entries(color).filter(
-				([, v]) => typeof v === 'string' && (v as string).startsWith('var(')
+				([, v]) => typeof v === 'string' && !(v as string).startsWith('#')
 			)
 		),
 		'--hz-color'
@@ -76,9 +78,10 @@
 	<div>
 		<h1>Colors & Intent</h1>
 		<p>
-			A two-layer color model — a fixed palette (Layer 1) of single-value colors and a small set of
-			semantic role tokens (Layer 2) that reference the palette via <code>var()</code> — topped by
-			the <a href="#intent">intent vocabulary</a> components use to give color meaning.
+			A two-layer color model: a fixed palette (Layer 1) of single-value colors, and a semantic role
+			layer (Layer 2) that references the palette via <code>var()</code> — structural roles for what
+			a color does in the layout, and the <a href="#intent">intent vocabulary</a> for what a color means.
+			Dark theme overrides land on the role layer, never the palette.
 		</p>
 	</div>
 
@@ -104,11 +107,15 @@
 	</section>
 
 	<section aria-labelledby="roles-heading">
-		<h2 id="roles-heading">Semantic role tokens (light)</h2>
+		<h2 id="roles-heading">Semantic roles & intent</h2>
 		<p>
-			These tokens reference the palette via <code>var()</code>. They are the single indirection
-			point a theme overrides — not the raw palette values.
+			Components never reference the palette directly — they resolve through role tokens, the single
+			indirection point a theme overrides. Roles come in two families: structural roles (<code
+				>--hz-color-*</code
+			>) name what a color <em>does</em> in the layout, and intent roles (<code>--hz-intent-*</code
+			>) name what a color <em>means</em>.
 		</p>
+		<h3 id="structural-roles">Structural roles</h3>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>
@@ -136,36 +143,7 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
-
-	<section aria-labelledby="dark-heading">
-		<h2 id="dark-heading">Dark theme overrides</h2>
-		<p>
-			Only <code>--hz-color-surface</code> and <code>--hz-color-text</code> flip in
-			<code>[data-theme="dark"]</code>. All palette tokens and other roles remain unchanged.
-		</p>
-		<div class="token-table-wrapper">
-			<table class="token-table">
-				<thead>
-					<tr>
-						<th scope="col">Token</th>
-						<th scope="col">Dark value</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each darkTokens as token (token.cssVar)}
-						<tr>
-							<td><code>{token.cssVar}</code></td>
-							<td><code>{token.value}</code></td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	</section>
-
-	<section aria-labelledby="intent">
-		<h2 id="intent">Intent</h2>
+		<h3 id="intent">Intent</h3>
 		<p>
 			Intent is the shared vocabulary components use when color carries meaning: the
 			<code>Intent</code> type in <code>$lib/types</code> —
@@ -218,10 +196,43 @@
 				<Button intent="danger">Delete round</Button>
 				<Badge intent="danger">OB</Badge>
 			</Cluster>
-			<Alert intent="danger" title="Course closed" headingLevel={3}>
+			<Alert intent="danger" title="Course closed" headingLevel={4}>
 				Lightning in the area — clear the course now.
 			</Alert>
 		</Stack>
+	</section>
+
+	<section aria-labelledby="dark-heading">
+		<h2 id="dark-heading">Dark theme overrides</h2>
+		<p>
+			Dark mode is a set of role overrides in <code>[data-theme="dark"]</code> — the palette never
+			changes. Out of the box <code>--hz-color-surface</code> and <code>--hz-color-text</code>
+			flip, and <code>--hz-color-surface-muted</code> strengthens its gray tint (6% is invisible over
+			black):
+		</p>
+		<div class="token-table-wrapper">
+			<table class="token-table">
+				<thead>
+					<tr>
+						<th scope="col">Token</th>
+						<th scope="col">Dark value</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each darkTokens as token (token.cssVar)}
+						<tr>
+							<td><code>{token.cssVar}</code></td>
+							<td><code>{token.value}</code></td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+		<p>
+			Any role can be overridden the same way — including intents. If your danger red reads too
+			harsh on a dark surface, set <code>--hz-intent-danger</code> inside
+			<code>[data-theme="dark"]</code> and every intent-bearing surface follows.
+		</p>
 	</section>
 </Stack>
 
@@ -235,6 +246,12 @@
 	h2 {
 		margin: 0 0 0.5rem;
 		font-size: var(--hz-font-size-xl, 1.5rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	h3 {
+		margin: 1.5rem 0 0.5rem;
+		font-size: var(--hz-font-size-lg, 1.125rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 

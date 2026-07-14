@@ -29,14 +29,17 @@ export const color = {
 
 	// Layer 2 — Semantic roles (indirection via var())
 	surface: 'var(--hz-color-white)',
+	surfaceMuted: 'color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface))',
 	text: 'var(--hz-color-black)',
 	textMuted: 'var(--hz-color-gray)',
 	border: 'var(--hz-color-gray)',
 
-	// Dark-theme override map — only surface and text flip (R5)
+	// Dark-theme override map (R5) — surface/text flip; surface-muted's
+	// tint strengthens so it stays visible over black.
 	theme: {
 		dark: {
 			surface: 'var(--hz-color-black)',
+			surfaceMuted: 'color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface))',
 			text: 'var(--hz-color-white)'
 		}
 	}

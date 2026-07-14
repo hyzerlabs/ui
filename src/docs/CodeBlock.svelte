@@ -33,7 +33,10 @@
 	 * Example.svelte strips the border/radius when embedding one. */
 	.code-block {
 		position: relative;
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, transparent);
+		background-color: var(
+			--hz-color-surface-muted,
+			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
+		);
 		border: 1px solid var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
 	}

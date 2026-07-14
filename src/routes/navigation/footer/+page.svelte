@@ -141,8 +141,7 @@
 		'<Footer {columns} headingLevel={3}>',
 		'\t{#snippet logo()}<strong>@hyzer-labs/ui</strong>{/snippet}',
 		'\t{#snippet social()}',
-		'\t\t<Link href="https://github.com/hyzerlabs/ui" external ariaLabel="GitHub"><IconGithub /></Link>',
-		'\t\t<Link href="https://x.com/hyzerlabs" external ariaLabel="X"><IconTwitterX /></Link>',
+		'\t\t<Link href="https://github.com/hyzerlabs/ui" ariaLabel="GitHub"><IconGithub /></Link>',
 		'\t\t<Link href="/rss.xml" ariaLabel="RSS feed"><IconRss /></Link>',
 		'\t{/snippet}',
 		'\t{#snippet bottom()}',
@@ -186,10 +185,11 @@
 			<div class="tab-content">
 				{#if item.id === 'variants'}
 					<p class="tab-note">
-						Demos sit on a tinted backdrop so the surface treatments read: <code>default</code>
-						fills with a soft gray, <code>minimal</code> is transparent with tighter padding.
-						<code>bordered</code> is a separate boolean prop (a top hairline), so it composes with either
-						variant.
+						<code>default</code> fills with the muted surface (<code>--hz-color-surface-muted</code
+						>),
+						<code>minimal</code> is transparent with tighter padding — the surface underneath shows
+						through. <code>bordered</code> is a separate boolean prop (a top hairline), so it composes
+						with either variant.
 					</p>
 					<Tabs
 						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}
@@ -200,14 +200,12 @@
 							{@const combo = surfaceCombos.find((c) => c.id === vItem.id)!}
 							<div class="inner-tab">
 								<Example code={comboCode(combo)}>
-									<div class="footer-demo-wrap">
-										<Footer
-											columns={demoColumns}
-											headingLevel={3}
-											variant={combo.variant}
-											bordered={combo.bordered}
-										/>
-									</div>
+									<Footer
+										columns={demoColumns}
+										headingLevel={3}
+										variant={combo.variant}
+										bordered={combo.bordered}
+									/>
 								</Example>
 							</div>
 						{/snippet}
@@ -226,36 +224,29 @@
 						{#snippet panel(lvItem)}
 							<div class="inner-tab">
 								<Example code={linkVariantCode(lvItem.id)}>
-									<div class="footer-demo-wrap">
-										<Footer
-											columns={demoColumns}
-											headingLevel={3}
-											linkVariant={lvItem.id as (typeof linkVariants)[number]}
-										/>
-									</div>
+									<Footer
+										columns={demoColumns}
+										headingLevel={3}
+										linkVariant={lvItem.id as (typeof linkVariants)[number]}
+									/>
 								</Example>
 							</div>
 						{/snippet}
 					</Tabs>
 				{:else if item.id === 'slots'}
 					<Example code={slotsCode}>
-						<div class="footer-demo-wrap">
-							<Footer columns={demoColumns} headingLevel={3}>
-								{#snippet logo()}<strong>@hyzer-labs/ui</strong>{/snippet}
-								{#snippet social()}
-									<Link href="https://github.com/hyzerlabs/ui" external ariaLabel="GitHub">
-										<IconGithub />
-									</Link>
-									<Link href="https://x.com/hyzerlabs" external ariaLabel="X">
-										<IconTwitterX />
-									</Link>
-									<Link href="#" ariaLabel="RSS feed"><IconRss /></Link>
-								{/snippet}
-								{#snippet bottom()}
-									<p class="copy">© 2026 Hyzer Labs — MIT License</p>
-								{/snippet}
-							</Footer>
-						</div>
+						<Footer columns={demoColumns} headingLevel={3}>
+							{#snippet logo()}<strong>@hyzer-labs/ui</strong>{/snippet}
+							{#snippet social()}
+								<Link href="https://github.com/hyzerlabs/ui" ariaLabel="GitHub">
+									<IconGithub />
+								</Link>
+								<Link href="#" ariaLabel="RSS feed"><IconRss /></Link>
+							{/snippet}
+							{#snippet bottom()}
+								<p class="copy">© 2026 Hyzer Labs — MIT License</p>
+							{/snippet}
+						</Footer>
 					</Example>
 				{:else}
 					<p class="tab-note">
@@ -277,17 +268,6 @@
 </DocPage>
 
 <style>
-	/* Tinted backdrop (no border) — shows the difference between the filled,
-	 * transparent, and hairlined variants. */
-	.footer-demo-wrap {
-		background: linear-gradient(
-			135deg,
-			color-mix(in srgb, var(--hz-color-primary, #2563eb) 14%, transparent),
-			color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 14%, transparent)
-		);
-		border-radius: var(--hz-radius-md, 0.5rem);
-	}
-
 	.copy {
 		margin: 0;
 	}
