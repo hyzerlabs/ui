@@ -1,0 +1,210 @@
+<script lang="ts">
+	/**
+	 * Internal, non-exported viewer — the accessible `<dialog>` shared by the
+	 * `Lightbox` component and the `lightboxGroup` attachment
+	 * (LightboxGroup-R14). Same pattern as the internal `Field.svelte`
+	 * scaffold: used by peers, never added to the barrel.
+	 *
+	 * Focus-return is the only seam: the overlay does not own the trigger
+	 * elements, so `returnFocusTo` is passed in by the caller (captured at
+	 * open time), falling back to whatever had focus when the overlay opened.
+	 */
+	import type { LightboxItem } from '$lib/types';
+	import Carousel from './Carousel.svelte';
+	import Video from './Video.svelte';
+	import IconX from '$lib/icons/IconX.svelte';
+
+	interface Props {
+		items: LightboxItem[];
+		open?: boolean;
+		/** Index the viewer seeds `index` to on each closed→open transition. */
+		startIndex?: number;
+		/** Accessible name of the dialog in multi-item mode. */
+		dialogLabel?: string;
+		closeLabel?: string;
+		prevLabel?: string;
+		nextLabel?: string;
+		/** Element to focus on close; falls back to the element that had focus when the overlay opened. */
+		returnFocusTo?: HTMLElement | null;
+		onclose?: (() => void) | undefined;
+	}
+
+	let {
+		items,
+		open = $bindable(false),
+		startIndex = 0,
+		dialogLabel = 'Media viewer',
+		closeLabel = 'Close media viewer',
+		prevLabel = 'Previous item',
+		nextLabel = 'Next item',
+		returnFocusTo = null,
+		onclose
+	}: Props = $props();
+
+	function nameOf(item: LightboxItem): string {
+		return item.type === 'video' ? item.label : item.alt;
+	}
+
+	// Active viewer item — seeded from `startIndex` on open (see the $effect
+	// below), then driven by the carousel.
+	let index = $state(0);
+
+	let dialogEl: HTMLDialogElement | null = $state(null);
+
+	const dataState = $derived(open ? 'open' : 'closed');
+	const dialogName = $derived(items.length === 1 ? nameOf(items[0]) : dialogLabel);
+
+	// Per-instance scroll-lock state (mirrors Modal-R16).
+	let prevBodyOverflow = '';
+	let scrollLockActive = false;
+	// Fallback focus target when the caller doesn't pass `returnFocusTo`:
+	// whatever had focus at the moment the overlay opened.
+	let openActiveElement: Element | null = null;
+
+	// Reconcile `open` with the DOM via showModal()/close(), mirroring Modal's
+	// R8–R16 behavior: scroll lock, focus return, onclose once. showModal()
+	// natively focuses the close button.
+	$effect(() => {
+		if (!dialogEl) return;
+
+		if (open) {
+			if (!dialogEl.open) {
+				index = startIndex;
+				openActiveElement = document.activeElement;
+				prevBodyOverflow = document.body.style.overflow;
+				document.body.style.overflow = 'hidden';
+				scrollLockActive = true;
+				dialogEl.showModal();
+			}
+		} else {
+			if (dialogEl.open) {
+				dialogEl.close();
+				if (scrollLockActive) {
+					document.body.style.overflow = prevBodyOverflow;
+					scrollLockActive = false;
+				}
+				(returnFocusTo ?? (openActiveElement as HTMLElement | null))?.focus();
+				onclose?.();
+			}
+		}
+
+		return () => {
+			if (scrollLockActive) {
+				document.body.style.overflow = prevBodyOverflow;
+				scrollLockActive = false;
+			}
+		};
+	});
+
+	// Escape fires the native cancel — reroute through the bindable `open`
+	// so every dismissal path behaves identically. Esc always closes.
+	function handleCancel(e: Event) {
+		e.preventDefault();
+		open = false;
+	}
+
+	// Clicking the backdrop (the dialog element itself) closes the viewer.
+	function handleDialogClick(e: MouseEvent) {
+		if (e.target === dialogEl) {
+			open = false;
+		}
+	}
+
+	// Arrow keys page the viewer from anywhere in the dialog (the carousel
+	// handles them itself when focus is inside it — skip those).
+	function handleDialogKeydown(e: KeyboardEvent) {
+		if (e.defaultPrevented || items.length < 2) return;
+		if (e.key === 'ArrowLeft') {
+			e.preventDefault();
+			index = (index - 1 + items.length) % items.length;
+		} else if (e.key === 'ArrowRight') {
+			e.preventDefault();
+			index = (index + 1) % items.length;
+		}
+	}
+</script>
+
+{#snippet media(item: LightboxItem)}
+	<figure class="hz-lightbox-figure">
+		{#if item.type === 'video'}
+			<div class="hz-lightbox-video">
+				<Video src={item.src} title={item.label} poster={item.poster} />
+			</div>
+		{:else}
+			<img class="hz-lightbox-img" src={item.src} alt={item.alt} />
+		{/if}
+		{#if item.caption}<figcaption class="hz-lightbox-caption">{item.caption}</figcaption>{/if}
+	</figure>
+{/snippet}
+
+<dialog
+	bind:this={dialogEl}
+	class="hz-lightbox"
+	aria-modal="true"
+	aria-label={dialogName}
+	tabindex="-1"
+	data-state={dataState}
+	oncancel={handleCancel}
+	onclick={handleDialogClick}
+	onkeydown={handleDialogKeydown}
+>
+	<button class="hz-lightbox-close" aria-label={closeLabel} onclick={() => (open = false)}>
+		<!-- No ariaLabel on the icon → decorative -->
+		<IconX />
+	</button>
+	{#if items.length > 1}
+		<Carousel
+			{items}
+			bind:index
+			loop
+			ariaLabel={dialogLabel}
+			{prevLabel}
+			{nextLabel}
+			slideLabel={(item, i) => `${nameOf(item)} (${i + 1} of ${items.length})`}
+			class="hz-lightbox-carousel"
+		>
+			{#snippet slide(item)}
+				{@render media(item)}
+			{/snippet}
+		</Carousel>
+	{:else if items[0]}
+		{@render media(items[0])}
+	{/if}
+</dialog>
+
+<style>
+	/* Dialog: centered in the top layer; sized by its media. */
+	.hz-lightbox {
+		padding: 0;
+		margin: auto;
+		/* Absolute positioning context for the close control. */
+		position: fixed;
+	}
+
+	.hz-lightbox:not([open]) {
+		display: none;
+	}
+
+	.hz-lightbox-figure {
+		margin: 0;
+	}
+
+	.hz-lightbox-img {
+		display: block;
+		max-width: min(92vw, 100%);
+		max-height: 80dvh;
+		object-fit: contain;
+	}
+
+	/* Video slides: give the 16/9 player a real footprint. */
+	.hz-lightbox-video {
+		width: min(92vw, 64rem);
+	}
+
+	.hz-lightbox-close {
+		position: absolute;
+		top: 0.5rem;
+		right: 0.5rem;
+		z-index: 1;
+	}
+</style>

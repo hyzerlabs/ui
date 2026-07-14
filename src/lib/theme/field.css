@@ -37,11 +37,14 @@
 
 	/* Text-like controls: bare select/textarea, the TextInput wrapper (which
 	 * carries the border so prefix/suffix sit inside the box), the
-	 * exact-entry fields (slider numbers, color hex), and the Combobox
-	 * control row (Combobox-R18) — one chrome for all. */
+	 * exact-entry fields (slider numbers, color hex), the Combobox
+	 * control row (Combobox-R18), and FileUpload's basic control box /
+	 * dropzone surface (FileUpload-R13) — one chrome for all. */
 	.hz-field :where(select, textarea, .hz-slider-number, .hz-color-hex),
 	.hz-input-wrapper,
-	.hz-combobox-control {
+	.hz-combobox-control,
+	.hz-file-control,
+	.hz-file-dropzone {
 		box-sizing: border-box;
 		border: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 60%, transparent);
@@ -116,7 +119,9 @@
 	}
 
 	.hz-input-wrapper:where(:focus-within),
-	.hz-combobox-control:where(:focus-within) {
+	.hz-combobox-control:where(:focus-within),
+	.hz-file-control:where(:focus-within),
+	.hz-file-dropzone:where(:focus-within) {
 		border-color: var(--hz-color-primary, #2563eb);
 		box-shadow: var(--hz-field-ring);
 	}
@@ -150,7 +155,9 @@
 	/* Error state — the control shows it, the message is already red. */
 	.hz-field:where([data-state='error']) :where(select, textarea, .hz-slider-number, .hz-color-hex),
 	.hz-field:where([data-state='error']) .hz-input-wrapper,
-	.hz-field:where([data-state='error']) .hz-combobox-control {
+	.hz-field:where([data-state='error']) .hz-combobox-control,
+	.hz-field:where([data-state='error']) .hz-file-control,
+	.hz-field:where([data-state='error']) .hz-file-dropzone {
 		border-color: var(--hz-intent-danger, #dc2626);
 	}
 
@@ -158,7 +165,9 @@
 	.hz-field:where([data-state='disabled'])
 		:where(select, textarea, .hz-slider-number, .hz-color-hex),
 	.hz-field:where([data-state='disabled']) .hz-input-wrapper,
-	.hz-field:where([data-state='disabled']) .hz-combobox-control {
+	.hz-field:where([data-state='disabled']) .hz-combobox-control,
+	.hz-field:where([data-state='disabled']) .hz-file-control,
+	.hz-field:where([data-state='disabled']) .hz-file-dropzone {
 		background-color: color-mix(
 			in srgb,
 			var(--hz-color-gray, #6b7280) 10%,

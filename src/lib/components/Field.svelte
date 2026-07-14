@@ -20,6 +20,12 @@
 		 * Field-rendered root div, which no other field family member needs.
 		 */
 		dataOpen?: boolean;
+		/**
+		 * Optional `data-dropzone` hook on the root, boolean-presence style.
+		 * FileUpload-R1: the dropzone-vs-basic presentation mode needs to surface
+		 * on the Field-rendered root div, which no other field family member needs.
+		 */
+		dataDropzone?: boolean;
 		/** The actual control (input/textarea/select wrapper). */
 		control: Snippet;
 	}
@@ -36,6 +42,7 @@
 		errorId,
 		class: wrapperClass,
 		dataOpen,
+		dataDropzone,
 		control
 	}: Props = $props();
 
@@ -50,7 +57,12 @@
 	Field-R4: description only when non-empty.
 	Field-R5: error only when non-empty; role="alert".
 -->
-<div class={wrapperClass} data-state={dataState} data-open={dataOpen ? '' : undefined}>
+<div
+	class={wrapperClass}
+	data-state={dataState}
+	data-open={dataOpen ? '' : undefined}
+	data-dropzone={dataDropzone ? '' : undefined}
+>
 	<label class={cx('hz-field-label', hideLabel && 'sr-only')} for={inputId}>
 		{label}
 		{#if required}<span aria-hidden="true" class="hz-field-required">*</span>{/if}

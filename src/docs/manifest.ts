@@ -71,6 +71,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Textarea', href: '/forms/textarea' },
 			{ label: 'Select', href: '/forms/select' },
 			{ label: 'Combobox', href: '/forms/combobox' },
+			{ label: 'FileUpload', href: '/forms/file-upload' },
 			{ label: 'Checkbox', href: '/forms/checkbox' },
 			{ label: 'RadioGroup', href: '/forms/radio-group' },
 			{ label: 'Slider', href: '/forms/slider' },

@@ -30,6 +30,8 @@ describe('subpath exports', () => {
 		expect(mod.Select).toBeDefined();
 		// Combobox-R16: Combobox exported from $lib.
 		expect(mod.Combobox).toBeDefined();
+		// FileUpload-R14: FileUpload exported from $lib.
+		expect(mod.FileUpload).toBeDefined();
 		expect(mod.Checkbox).toBeDefined();
 		expect(mod.RadioGroup).toBeDefined();
 		expect(mod.Toggle).toBeDefined();
@@ -49,6 +51,9 @@ describe('subpath exports', () => {
 		expect(mod.Form).toBeDefined();
 		// Form-R11: toFormErrors helper exported from $lib.
 		expect(mod.toFormErrors).toBeDefined();
+		// LightboxGroup-R16: lightboxGroup attachment factory exported from $lib.
+		expect(mod.lightboxGroup).toBeDefined();
+		expect(typeof mod.lightboxGroup).toBe('function');
 	});
 
 	it('$lib/icons — exports all 21 icon components (R10)', async () => {

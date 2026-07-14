@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Image, Tabs } from '$lib';
+	import { Image, Tabs, Alert } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
@@ -125,6 +125,12 @@
 	{props}
 	a11yNote="Pass a descriptive alt text for informative images. Pass alt='' for decorative images — the component sets role='presentation' automatically."
 >
+	<Alert intent="info" title="Image + Lightbox">
+		Image renders media, Lightbox provides viewing. <code>Image</code> has no click-to-view of its
+		own — for that, pass an <code>Image</code> into a <a href="/media/lightbox">Lightbox</a>
+		component's <code>trigger</code> snippet, or wire the <code>lightboxGroup</code> attachment over
+		an <code>Image</code> grid you already render.
+	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Image demos" defaultTab="aspect">
 		{#snippet panel(item)}
 			<div class="tab-content">

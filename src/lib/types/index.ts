@@ -51,6 +51,21 @@ export interface LightboxVideoItem {
 
 export type LightboxItem = LightboxImageItem | LightboxVideoItem;
 
+/** Options for the `lightboxGroup` attachment. All optional. */
+export interface LightboxGroupOptions {
+	/**
+	 * CSS selector narrowing which descendants qualify. Matched elements are
+	 * still filtered to img / picture>img / video and the exclusion rules
+	 * (LightboxGroup-R4). Default: every qualifying media descendant.
+	 */
+	selector?: string;
+	/** Accessible name of the viewer dialog in multi-item mode. */
+	dialogLabel?: string;
+	closeLabel?: string;
+	prevLabel?: string;
+	nextLabel?: string;
+}
+
 /** A single crumb for Breadcrumbs — the linkable subset of NavItem. */
 export type BreadcrumbItem = Pick<NavItem, 'label' | 'href' | 'external' | 'ariaCurrent'>;
 
@@ -136,4 +151,20 @@ export interface ComboboxChipProps {
 	size?: BadgeSize;
 	rounded?: Rounded;
 	class?: string;
+}
+
+/** Why a file was rejected by FileUpload's client-side validation. */
+export type FileRejectionReason = 'type' | 'size' | 'too-many';
+
+/**
+ * A single file rejected by FileUpload (accept mismatch, over maxSize, or
+ * beyond the count cap — single mode's inherent 1, or `maxFiles` in multiple
+ * mode). Surfaced via `onreject`; the component never silently drops a file.
+ * `message` is a ready-to-display English string; the `reason` code lets
+ * consumers localize or aggregate.
+ */
+export interface FileRejection {
+	file: File;
+	reason: FileRejectionReason;
+	message: string;
 }

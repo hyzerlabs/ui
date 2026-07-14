@@ -52,6 +52,13 @@
 		opacity: 0.85;
 	}
 
+	/* lightboxGroup attachment (LightboxGroup-R13): the only styling hook the
+	 * attachment ships — a cursor affordance, parity with .hz-lightbox-trigger
+	 * above. No other visual opinion is added. */
+	[data-lightbox-trigger] {
+		cursor: zoom-in;
+	}
+
 	/* Poster-less video thumbs fall back to a labeled chip */
 	.hz-lightbox :where(.hz-lightbox-thumb-label),
 	.hz-lightbox-trigger :where(.hz-lightbox-thumb-label) {

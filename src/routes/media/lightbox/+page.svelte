@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Lightbox, Tabs } from '$lib';
+	import { Lightbox, Tabs, lightboxGroup, Alert, Image } from '$lib';
 	import type { LightboxItem } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
@@ -42,6 +42,12 @@
 			note: 'Custom trigger content — replaces the thumbnail strip; opens the first item.'
 		},
 		{
+			name: 'trigger',
+			type: 'Snippet<[LightboxItem, number]>',
+			default: '—',
+			note: 'Per-item trigger face, e.g. an Image — replaces the default thumb/badge for every item. Ignored (with a DEV warning) when children is also passed.'
+		},
+		{
 			name: 'class',
 			type: 'string',
 			default: '—',
@@ -82,13 +88,34 @@
 	];
 
 	// Inline SVG data-URIs — no committed binary assets (same convention as
-	// the Image page).
+	// the Image page). SVG <text> cannot wrap, so long labels are broken into
+	// centered <tspan> lines on word boundaries — otherwise they run off the
+	// edges and are unreadable at thumbnail sizes.
 	function demoSvg(label: string, fill: string, w = 1200, h = 800): string {
-		return (
-			`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'%3E%3Crect width='${w}' height='${h}' fill='%23${fill}'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23fff' font-size='48' font-family='system-ui'%3E` +
-			encodeURIComponent(label) +
-			'%3C/text%3E%3C/svg%3E'
-		);
+		const fontSize = 48;
+		const maxChars = Math.max(8, Math.floor((w - 64) / (fontSize * 0.55)));
+		const lines: string[] = [];
+		let line = '';
+		for (const word of label.split(' ')) {
+			const candidate = line ? `${line} ${word}` : word;
+			if (candidate.length > maxChars && line) {
+				lines.push(line);
+				line = word;
+			} else {
+				line = candidate;
+			}
+		}
+		if (line) lines.push(line);
+
+		const lineHeight = fontSize * 1.25;
+		const firstY = h / 2 - ((lines.length - 1) * lineHeight) / 2;
+		const tspans = lines
+			.map(
+				(l, i) =>
+					`%3Ctspan x='50%25' y='${firstY + i * lineHeight}'%3E${encodeURIComponent(l)}%3C/tspan%3E`
+			)
+			.join('');
+		return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'%3E%3Crect width='${w}' height='${h}' fill='%23${fill}'/%3E%3Ctext dominant-baseline='middle' text-anchor='middle' fill='%23fff' font-size='${fontSize}' font-family='system-ui'%3E${tspans}%3C/text%3E%3C/svg%3E`;
 	}
 
 	const galleryItems: LightboxItem[] = [
@@ -138,9 +165,66 @@
 		'<Lightbox {items} />'
 	].join('\n');
 
+	// LightboxTrigger-R9: the `trigger` snippet swaps each strip button's face
+	// for an Image-composed one — Lightbox still owns the button, the
+	// aria-haspopup="dialog" name, and the click wiring.
+	const triggerCode = [
+		'<Lightbox items={items} class="trigger-strip">',
+		'\t{#snippet trigger(item)}',
+		'\t\t<Image src={item.thumbSrc ?? item.src} alt="" aspectRatio="1/1" rounded="md" fit="cover" />',
+		'\t{/snippet}',
+		'</Lightbox>'
+	].join('\n');
+
+	// LightboxGroup-R17: a plain figure grid — no thumbnail strip, no Lightbox
+	// component at all. The attachment enhances the grid's own <img> media
+	// directly (its normal rendered size IS the trigger surface).
+	// The second photo demonstrates data-lightbox-src: its rendered src is the
+	// scaled-down version, the viewer opens the full-resolution override. The
+	// last figure demonstrates data-lightbox-ignore: skipped entirely (no zoom
+	// cursor, no enhancement, not in the shared viewer).
+	const attachmentBase: { alt: string; color: string; full?: string; ignored?: boolean }[] = [
+		{ alt: 'First demo photo', color: '2563eb' },
+		{
+			alt: 'Second demo photo (opens the full-res override)',
+			color: '7c3aed',
+			full: demoSvg('Full-resolution override — via data-lightbox-src', '7c3aed', 1200, 800)
+		},
+		{ alt: 'Third demo photo', color: '0891b2' },
+		{ alt: 'Fourth demo photo', color: 'ea580c' },
+		{ alt: 'Static chart — excluded from the group', color: '6b7280', ignored: true }
+	];
+	const attachmentPhotos = attachmentBase.map((p) => ({
+		...p,
+		src: demoSvg(p.alt, p.color, 600, 400)
+	}));
+
+	const attachmentCode = [
+		"import { lightboxGroup, Image } from '@hyzer-labs/ui';",
+		'',
+		'<div class="gallery-grid" {@attach lightboxGroup()}>',
+		'\t<!-- Image spreads ...rest onto its inner img, so data-lightbox-src / -ignore -->',
+		'\t<!-- pass through — the attachment sees the real <img> it enhances. -->',
+		'\t<Image',
+		'\t\tsrc={photo.thumb}',
+		'\t\talt={photo.alt}',
+		'\t\taspectRatio="1/1"',
+		'\t\trounded="md"',
+		'\t\tdata-lightbox-src={photo.fullRes}',
+		'\t/>',
+		'',
+		'\t<Image src={photo.src} alt={photo.alt} aspectRatio="1/1" rounded="md" />',
+		'',
+		'\t<!-- opted out: no enhancement, not part of the shared viewer -->',
+		'\t<Image src={chart} alt="Static chart" aspectRatio="1/1" rounded="md" data-lightbox-ignore />',
+		'</div>'
+	].join('\n');
+
 	const demoTabs = [
 		{ id: 'basic', label: 'Single image' },
-		{ id: 'gallery', label: 'Gallery & video' }
+		{ id: 'gallery', label: 'Gallery & video' },
+		{ id: 'triggers', label: 'Image triggers' },
+		{ id: 'attachment', label: 'Group attachment' }
 	];
 </script>
 
@@ -155,6 +239,12 @@
 	]}
 	a11yNote="Each thumbnail is a real `<button>` with `aria-haspopup=&quot;dialog&quot;` named by its item. The viewer is a native `<dialog>` opened with `showModal()` — focus is trapped, Escape always closes, the backdrop closes, and focus returns to the thumbnail that opened it. Multi-item viewers embed the Carousel (labelled slides, live announcements) and ArrowLeft/ArrowRight page from anywhere in the dialog. Body scroll is locked while open."
 >
+	<Alert intent="info" title="Image + Lightbox">
+		Image renders media, Lightbox provides viewing. Compose an <a href="/media/image">Image</a> as a
+		trigger face — see the "Image triggers" tab — or reach for the <code>lightboxGroup</code>
+		attachment on the "Group attachment" tab to add click-to-view over an <code>Image</code> grid you
+		already render.
+	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Lightbox demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">
@@ -173,7 +263,7 @@
 							/>
 						</div>
 					</Example>
-				{:else}
+				{:else if item.id === 'gallery'}
 					<p class="tab-note">
 						With <code>items</code>, one component renders the whole strip; each thumbnail opens the
 						viewer at its item, ArrowLeft/ArrowRight (or the controls) page through with
@@ -182,6 +272,62 @@
 					</p>
 					<Example code={galleryCode}>
 						<Lightbox items={galleryItems} class="gallery-strip" />
+					</Example>
+				{:else if item.id === 'triggers'}
+					<p class="tab-note">
+						The <code>trigger</code> snippet swaps each strip button's face — <code>Lightbox</code>
+						still owns the <code>&lt;button&gt;</code>, its <code>aria-haspopup="dialog"</code>
+						name, and the click wiring, so a face like this <code>Image</code> should pass
+						<code>alt=""</code> — the button is already named, and an empty alt drops the decorative face
+						out of the accessibility tree instead of announcing it twice.
+					</p>
+					<Example code={triggerCode}>
+						<Lightbox items={galleryItems} class="trigger-strip">
+							{#snippet trigger(item)}
+								<Image
+									src={item.thumbSrc ?? item.src}
+									alt=""
+									aspectRatio="1/1"
+									rounded="md"
+									fit="cover"
+								/>
+							{/snippet}
+						</Lightbox>
+					</Example>
+				{:else}
+					<p class="tab-note">
+						<code>lightboxGroup()</code> enhances a container's own media in place — there's no
+						thumbnail strip here, no <code>Lightbox</code> component at all. Click any photo below
+						(or Tab to one and press Enter/Space) — every qualifying image in the grid opens
+						together in one shared viewer, starting at the photo you activated. Two escape hatches:
+						<code>data-lightbox-ignore</code>
+						opts an element out (the grey chart below gets no zoom cursor and never joins the group),
+						and <code>data-lightbox-src</code>
+						opens a full-resolution source instead of the rendered — often scaled-down —
+						<code>src</code> (open the second photo and note the override). Reach for the attachment
+						to enhance existing page media in place; reach for <code>Lightbox</code> when you control
+						the markup and want the strongest accessibility guarantees.
+					</p>
+					<Example code={attachmentCode}>
+						<div class="gallery-grid" {@attach lightboxGroup()}>
+							{#each attachmentPhotos as photo (photo.alt)}
+								<figure class="gallery-figure">
+									<Image
+										src={photo.src}
+										alt={photo.alt}
+										aspectRatio="1/1"
+										rounded="md"
+										data-lightbox-src={photo.full}
+										data-lightbox-ignore={photo.ignored ? '' : undefined}
+									/>
+									{#if photo.ignored}
+										<figcaption class="ignored-caption">
+											<code>data-lightbox-ignore</code> — not part of the group
+										</figcaption>
+									{/if}
+								</figure>
+							{/each}
+						</div>
 					</Example>
 				{/if}
 			</div>
@@ -195,5 +341,27 @@
 	}
 	:global(.gallery-strip) :global(.hz-lightbox-trigger) {
 		width: 10rem;
+	}
+
+	/* Gives the trigger snippet's Image faces a definite inline size so the
+	   1/1 aspect-ratio box resolves (LightboxTrigger-R9). */
+	:global(.trigger-strip) :global(.hz-lightbox-trigger) {
+		width: 8rem;
+	}
+
+	.ignored-caption {
+		margin-top: 0.25rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.gallery-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+		gap: var(--hz-space-xs, 0.5rem);
+	}
+
+	.gallery-figure {
+		margin: 0;
 	}
 </style>

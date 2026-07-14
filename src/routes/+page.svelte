@@ -33,6 +33,30 @@ import '@hyzer-labs/ui/tokens.css';</code
 			></pre>
 	</section>
 
+	<section aria-labelledby="philosophy-heading">
+		<h2 id="philosophy-heading">Philosophy</h2>
+		<p class="philosophy-lead">
+			Three commitments shape every component, from the smallest button to the largest data table:
+		</p>
+		<ul class="philosophy-list">
+			<li>
+				<strong>Accessibility is prioritized.</strong> Each component ships the ARIA roles, keyboard interactions,
+				and focus management of its WAI-ARIA pattern by default — not bolted on afterward.
+			</li>
+			<li>
+				<strong>Headless components are easily overridden via snippets.</strong> Structure and
+				per-item content are yours to shape — pass a <code>children</code> or per-item snippet and render
+				your own markup without forking the component.
+			</li>
+			<li>
+				<strong>Theming is via classes and data-* attributes.</strong> Components ship only
+				structural CSS plus stable <code>hz-*</code> classes and <code>data-*</code>/<code
+					>aria-*</code
+				> hooks — all visual chrome lives in the theme layer, keyed on those hooks.
+			</li>
+		</ul>
+	</section>
+
 	<section aria-labelledby="sections-heading">
 		<h2 id="sections-heading">Browse the docs</h2>
 		<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
@@ -84,6 +108,20 @@ import '@hyzer-labs/ui/tokens.css';</code
 		border: 1px solid var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
 		overflow-x: auto;
+	}
+
+	.philosophy-lead {
+		margin: 0 0 0.75rem;
+		line-height: var(--hz-line-height-base, 1.5);
+	}
+
+	.philosophy-list {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		margin: 0;
+		padding-left: 1.25rem;
+		line-height: var(--hz-line-height-base, 1.5);
 	}
 
 	code {

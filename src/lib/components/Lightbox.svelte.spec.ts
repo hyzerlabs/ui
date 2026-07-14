@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
-import { createRawSnippet } from 'svelte';
+import { createRawSnippet, mount, unmount } from 'svelte';
 import Lightbox from './Lightbox.svelte';
+import Image from './Image.svelte';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -11,6 +12,36 @@ const base = { src: '/img/full.jpg', alt: 'A disc in flight' };
 
 const customTrigger = createRawSnippet(() => ({
 	render: () => `<span data-testid="custom-trigger">open me</span>`
+}));
+
+// A per-item trigger face: renders the item's name and its index so tests can
+// assert both the value and document order (LightboxTrigger-R1/R2).
+const namedIndexTrigger = createRawSnippet<[unknown, number]>((getItem, getIndex) => ({
+	render: () => {
+		const item = getItem() as { alt?: string; label?: string };
+		const name = item.alt ?? item.label ?? '';
+		return `<span data-testid="trigger-face">${name}::${getIndex()}</span>`;
+	}
+}));
+
+// A marker face used to prove `trigger` is never invoked when `children`
+// also wins (LightboxTrigger-R5).
+const markedTrigger = createRawSnippet<[unknown, number]>(() => ({
+	render: () => `<span data-testid="trigger-marker">trigger face</span>`
+}));
+
+// An `<Image>`-composed face, imperatively mounted into the raw snippet's
+// root node — mirrors the docs' `<Image aspectRatio rounded alt="">` face
+// (LightboxTrigger-R9-shape).
+const imageFaceTrigger = createRawSnippet<[unknown, number]>(() => ({
+	render: () => `<span class="image-face-slot"></span>`,
+	setup: (element) => {
+		const instance = mount(Image, {
+			target: element as HTMLElement,
+			props: { src: '/img/face.jpg', alt: '', aspectRatio: '1/1' as const, rounded: 'md' as const }
+		});
+		return () => unmount(instance);
+	}
 }));
 
 function tick(): Promise<void> {
@@ -309,5 +340,132 @@ describe('multi-item mode', () => {
 		await tick();
 		await closeViewer(dialog);
 		expect(document.activeElement).toBe(triggers[1]);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// trigger snippet (LightboxTrigger-R1..R9) — additive, does not touch the
+// describe blocks above.
+// ---------------------------------------------------------------------------
+
+describe('trigger snippet', () => {
+	const triggerItems = [
+		{ src: '/img/one.jpg', alt: 'First photo' },
+		{ src: '/img/two.jpg', alt: 'Second photo' },
+		{ src: '/img/three.jpg', alt: 'Third photo' }
+	];
+
+	function openViewer(container: HTMLElement, at = 0): HTMLDialogElement {
+		const triggers = container.querySelectorAll<HTMLButtonElement>('.hz-lightbox-trigger');
+		triggers[at].click();
+		return container.querySelector('dialog.hz-lightbox') as HTMLDialogElement;
+	}
+
+	async function closeViewer(dialog: HTMLDialogElement) {
+		dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
+		await tick();
+	}
+
+	it('receives each item and its zero-based index (R1/R2)', () => {
+		const { container } = render(Lightbox, { items: triggerItems, trigger: namedIndexTrigger });
+		const faces = Array.from(container.querySelectorAll('[data-testid="trigger-face"]'));
+		expect(faces.map((f) => f.textContent?.trim())).toEqual([
+			'First photo::0',
+			'Second photo::1',
+			'Third photo::2'
+		]);
+	});
+
+	it('preserves button type/aria-haspopup/aria-label; the default thumb is absent (R2/R6)', () => {
+		const { container } = render(Lightbox, { items: triggerItems, trigger: namedIndexTrigger });
+		const triggers = Array.from(
+			container.querySelectorAll<HTMLButtonElement>('.hz-lightbox-trigger')
+		);
+		expect(triggers).toHaveLength(3);
+		for (const [i, t] of triggers.entries()) {
+			expect(t.getAttribute('type')).toBe('button');
+			expect(t.getAttribute('aria-haspopup')).toBe('dialog');
+			expect(t.getAttribute('aria-label')).toBe(`View larger: ${triggerItems[i].alt}`);
+		}
+		expect(container.querySelector('.hz-lightbox-thumb')).toBeNull();
+	});
+
+	it('clicking a trigger-faced button opens the viewer at that index and returns focus on close (R2)', async () => {
+		const { container } = render(Lightbox, { items: triggerItems, trigger: namedIndexTrigger });
+		const triggers = container.querySelectorAll<HTMLButtonElement>('.hz-lightbox-trigger');
+		const dialog = openViewer(container, 1);
+		await tick();
+		const slides = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide'));
+		expect(slides[1].hidden).toBe(false);
+		expect(slides[0].hidden).toBe(true);
+		await closeViewer(dialog);
+		expect(document.activeElement).toBe(triggers[1]);
+	});
+
+	it('an Image-composed face renders its aspect wrapper inside the button; aria-label still names the item (R9-shape/R6)', () => {
+		const { container } = render(Lightbox, { items: triggerItems, trigger: imageFaceTrigger });
+		const trigger = container.querySelector('.hz-lightbox-trigger') as HTMLButtonElement;
+		const face = trigger.querySelector('.hz-image');
+		expect(face).not.toBeNull();
+		expect(face?.getAttribute('data-aspect-ratio')).toBe('1/1');
+		expect(face?.getAttribute('data-rounded')).toBe('md');
+		expect(trigger.getAttribute('aria-label')).toBe('View larger: First photo');
+	});
+
+	it('applies to the single-image sugar item and opens the single-media viewer (R4)', async () => {
+		const { container } = render(Lightbox, { ...base, trigger: namedIndexTrigger });
+		const triggers = container.querySelectorAll<HTMLButtonElement>('.hz-lightbox-trigger');
+		expect(triggers).toHaveLength(1);
+		expect(container.querySelector('[data-testid="trigger-face"]')?.textContent?.trim()).toBe(
+			'A disc in flight::0'
+		);
+		const dialog = openViewer(container);
+		await tick();
+		expect(dialog.querySelector('.hz-lightbox-img')).not.toBeNull();
+		expect(dialog.querySelector('.hz-carousel')).toBeNull();
+		await closeViewer(dialog);
+	});
+
+	it('children wins over trigger: the trigger face is never invoked, and DEV warns (R5)', () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { container } = render(Lightbox, {
+			...base,
+			children: customTrigger,
+			trigger: markedTrigger
+		});
+		expect(container.querySelector('[data-testid="custom-trigger"]')).not.toBeNull();
+		expect(container.querySelector('[data-testid="trigger-marker"]')).toBeNull();
+		expect(container.querySelector('.hz-lightbox-triggers')).toBeNull();
+		expect(container.querySelectorAll('.hz-lightbox-trigger')).toHaveLength(1);
+		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('`trigger` is ignored'));
+		warnSpy.mockRestore();
+	});
+
+	it('replaces the whole face for a video item — no play badge; the viewer still plays the video (R7)', async () => {
+		const videoItems = [
+			...triggerItems,
+			{
+				type: 'video' as const,
+				src: '/video/clip.mp4',
+				label: 'Flight video',
+				poster: '/img/poster.jpg'
+			}
+		];
+		const { container } = render(Lightbox, { items: videoItems, trigger: namedIndexTrigger });
+		const videoTrigger = container.querySelectorAll('.hz-lightbox-trigger')[3];
+		expect(videoTrigger.querySelector('.hz-lightbox-badge')).toBeNull();
+		expect(videoTrigger.querySelector('[data-testid="trigger-face"]')?.textContent?.trim()).toBe(
+			'Flight video::3'
+		);
+		const dialog = openViewer(container, 3);
+		await tick();
+		const activeSlide = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide')).find(
+			(s) => !s.hidden
+		) as HTMLElement;
+		expect(
+			activeSlide.querySelector('.hz-lightbox-video video, .hz-lightbox-video iframe')
+		).not.toBeNull();
+		expect(activeSlide.querySelector('.hz-lightbox-img')).toBeNull();
+		await closeViewer(dialog);
 	});
 });

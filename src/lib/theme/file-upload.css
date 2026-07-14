@@ -1,0 +1,135 @@
+/**
+ * @hyzer-labs/ui reference theme — FileUpload
+ * The basic control box, the dropzone border/focus ring, and the
+ * error/disabled chrome are shared with the rest of the field family
+ * (field.css's amended text-control selector, FileUpload-R13); this sheet
+ * owns the dropzone's dashed-border surface, the [data-dragover] active
+ * state, the activation button, and the file-list-row chrome.
+ */
+@layer hz-theme {
+	.hz-file-control {
+		padding: 0.375rem 0.75rem;
+	}
+
+	.hz-file-dropzone {
+		gap: var(--hz-space-xs, 0.5rem);
+		padding: var(--hz-space-sm, 1rem);
+		border-style: dashed;
+		border-radius: var(--hz-radius-md, 0.5rem);
+		background-color: var(--hz-color-surface, #fff);
+		text-align: center;
+		transition:
+			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+			background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-file-dropzone-text {
+		margin: 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	/* FileUpload-R6: the active dragover state — a background AND border
+	 * change, not a hue-only signal (WCAG 1.4.1). */
+	.hz-file-dropzone[data-dragover] {
+		border-color: var(--hz-color-primary, #2563eb);
+		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 6%, transparent);
+	}
+
+	.hz-file-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		appearance: none;
+		cursor: pointer;
+		padding: 0.5rem 1rem;
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 60%, transparent);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		background-color: var(--hz-color-surface, #fff);
+		color: var(--hz-color-text, #000);
+		font: inherit;
+		font-weight: var(--hz-font-weight-medium, 500);
+		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-file-button:where(:hover):not(:disabled) {
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 10%, transparent);
+	}
+
+	.hz-file-button:where(:disabled) {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	.hz-file-button:focus-visible {
+		outline: 2px solid transparent;
+		border-color: var(--hz-color-primary, #2563eb);
+		box-shadow: var(
+			--hz-field-ring,
+			0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #2563eb) 25%, transparent)
+		);
+	}
+
+	.hz-file-list {
+		margin-top: var(--hz-space-sm, 1rem);
+	}
+
+	.hz-file-item {
+		padding: 0.5rem 0.75rem;
+		border-bottom: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.hz-file-item:last-child {
+		border-bottom: none;
+	}
+
+	.hz-file-name {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.hz-file-size {
+		flex-shrink: 0;
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-file-remove {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		appearance: none;
+		background: none;
+		border: none;
+		padding: 0.25rem;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		color: var(--hz-color-text-muted, #6b7280);
+		cursor: pointer;
+		transition:
+			background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+			color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-file-remove:where(:hover) {
+		background-color: color-mix(in srgb, var(--hz-intent-danger, #dc2626) 10%, transparent);
+		color: var(--hz-intent-danger, #dc2626);
+	}
+
+	.hz-file-remove:focus-visible {
+		outline: 2px solid transparent;
+		box-shadow: var(
+			--hz-field-ring,
+			0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #2563eb) 25%, transparent)
+		);
+	}
+
+	/* Disabled state — the field family's shared disabled tint (field.css)
+	 * covers the control/dropzone surface; the button and list rows dim too. */
+	.hz-field:where([data-state='disabled']) .hz-file-button {
+		opacity: 0.5;
+	}
+}

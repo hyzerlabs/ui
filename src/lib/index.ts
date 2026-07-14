@@ -5,3 +5,4 @@
  */
 export * from './components/index.js';
 export { toFormErrors, type FormErrorsInput } from './utils/form.js';
+export { lightboxGroup } from './attachments/lightboxGroup.js';
