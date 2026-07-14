@@ -70,6 +70,9 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Select', href: '/forms/select' },
 			{ label: 'Checkbox', href: '/forms/checkbox' },
 			{ label: 'RadioGroup', href: '/forms/radio-group' },
+			{ label: 'Slider', href: '/forms/slider' },
+			{ label: 'RangeSlider', href: '/forms/range-slider' },
+			{ label: 'ColorInput', href: '/forms/color-input' },
 			{ label: 'Toggle', href: '/forms/toggle' }
 		]
 	},
@@ -84,6 +87,7 @@ export const manifest: ManifestEntry[] = [
 	{
 		label: 'Components',
 		children: [
+			{ label: 'Badge', href: '/components/badge' },
 			{ label: 'Button', href: '/components/button' },
 			{ label: 'Link', href: '/components/link' },
 			{ label: 'Card', href: '/components/card' },

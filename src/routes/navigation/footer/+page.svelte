@@ -50,7 +50,12 @@
 	];
 
 	const footerColumnType: PropRow[] = [
-		{ name: 'title', type: 'string', default: '—', note: 'Required. Labels the column’s nav landmark.' },
+		{
+			name: 'title',
+			type: 'string',
+			default: '—',
+			note: 'Required. Labels the column’s nav landmark.'
+		},
 		{
 			name: 'links',
 			type: 'NavItem[]',
@@ -183,8 +188,8 @@
 					<p class="tab-note">
 						Demos sit on a tinted backdrop so the surface treatments read: <code>default</code>
 						fills with a soft gray, <code>minimal</code> is transparent with tighter padding.
-						<code>bordered</code> is a separate boolean prop (a top hairline), so it composes with
-						either variant.
+						<code>bordered</code> is a separate boolean prop (a top hairline), so it composes with either
+						variant.
 					</p>
 					<Tabs
 						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}
@@ -238,17 +243,12 @@
 							<Footer columns={demoColumns} headingLevel={3}>
 								{#snippet logo()}<strong>@hyzer-labs/ui</strong>{/snippet}
 								{#snippet social()}
-									<Link
-										href="https://github.com/hyzerlabs/ui"
-										external
-										ariaLabel="GitHub"
-									>
+									<Link href="https://github.com/hyzerlabs/ui" external ariaLabel="GitHub">
 										<IconGithub />
 									</Link>
 									<Link href="https://x.com/hyzerlabs" external ariaLabel="X">
 										<IconTwitterX />
 									</Link>
-									<!-- svelte-ignore a11y_invalid_attribute — deliberate # so demos don't navigate -->
 									<Link href="#" ariaLabel="RSS feed"><IconRss /></Link>
 								{/snippet}
 								{#snippet bottom()}
@@ -260,8 +260,8 @@
 				{:else}
 					<p class="tab-note">
 						Columns auto-fit the footer's own width — as many as have at least
-						<code>--hz-footer-col-min</code> (12rem, consumer-tunable via that custom property) of
-						room, no breakpoints involved. Use the slider to watch them stack.
+						<code>--hz-footer-col-min</code> (12rem, consumer-tunable via that custom property) of room,
+						no breakpoints involved. Use the slider to watch them stack.
 					</p>
 					<Container breakout padding="none">
 						<Example code={responsiveCode}>
@@ -277,21 +277,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
-	}
-
 	/* Tinted backdrop (no border) — shows the difference between the filled,
 	 * transparent, and hairlined variants. */
 	.footer-demo-wrap {

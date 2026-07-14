@@ -179,12 +179,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
 	.demo-note {
 		margin: 0 0 0.5rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);

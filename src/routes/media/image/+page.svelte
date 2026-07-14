@@ -65,7 +65,8 @@
 	}
 
 	function roundedCode(value: boolean | string): string {
-		if (value === false) return '<Image src="/photos/course.jpg" alt="Hole 7 fairway" aspectRatio="1/1" />';
+		if (value === false)
+			return '<Image src="/photos/course.jpg" alt="Hole 7 fairway" aspectRatio="1/1" />';
 		return `<Image src="/photos/course.jpg" alt="Hole 7 fairway" aspectRatio="1/1" rounded="${value}" />`;
 	}
 
@@ -150,8 +151,8 @@
 					</Tabs>
 				{:else if item.id === 'fit'}
 					<p class="tab-note">
-						<code>fit</code> maps to <code>object-fit</code> inside the aspect-ratio box — the demo
-						source is 21/9, letterboxed into a 4/3 frame so the modes differ visibly.
+						<code>fit</code> maps to <code>object-fit</code> inside the aspect-ratio box — the demo source
+						is 21/9, letterboxed into a 4/3 frame so the modes differ visibly.
 					</p>
 					<Tabs
 						items={fits.map((f) => ({ id: f, label: f }))}
@@ -183,7 +184,8 @@
 						defaultTab="md"
 					>
 						{#snippet panel(vItem)}
-							{@const value = vItem.id === 'false' ? false : (vItem.id as 'sm' | 'md' | 'lg' | 'full')}
+							{@const value =
+								vItem.id === 'false' ? false : (vItem.id as 'sm' | 'md' | 'lg' | 'full')}
 							<div class="inner-tab">
 								<Example code={roundedCode(value)}>
 									<div class="demo-box demo-box--square">
@@ -239,8 +241,8 @@
 					<p class="tab-note">
 						<code>sources</code> renders a <code>&lt;picture&gt;</code> — the browser takes the
 						first matching source, falling back to <code>src</code>. Source <code>media</code>
-						conditions are <em>viewport</em> queries per the platform, so resize the window across
-						968px to watch the labeled candidates swap.
+						conditions are <em>viewport</em> queries per the platform, so resize the window across 968px
+						to watch the labeled candidates swap.
 					</p>
 					<Example code={pictureCode}>
 						<Image
@@ -257,20 +259,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
-	}
 	.demo-box {
 		max-width: 26rem;
 	}

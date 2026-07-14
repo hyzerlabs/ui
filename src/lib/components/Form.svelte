@@ -37,8 +37,11 @@
 	let formEl: HTMLFormElement | null = $state(null);
 
 	// Form-R2/R5: internal flag — set true on every submit, consumed by the focus
-	// effect (reset to false after focus moves so corrections re-trigger on next submit).
+	// effect on the first `errors` reassignment after the submit (sync from
+	// onSubmit or async from an action response). `errorsAtSubmit` snapshots the
+	// pre-submit reference so async errors are awaited, not the stale array.
 	let submitAttempted = $state(false);
+	let errorsAtSubmit: FormError[] | null = null;
 
 	// Form-R3: summary div ref (tabindex="-1" so it is programmatically focusable).
 	let summaryEl: HTMLDivElement | null = $state(null);
@@ -101,8 +104,11 @@
 	// Form-R2: submit handler.
 	// ---------------------------------------------------------------------------
 	function handleSubmit(e: SubmitEvent) {
-		e.preventDefault();
+		// Form-R2: client mode (onSubmit provided) intercepts the submit; native
+		// mode lets it proceed — full-page POST or use:enhance (Form-R10).
+		if (onSubmit) e.preventDefault();
 		submitAttempted = true;
+		errorsAtSubmit = errors;
 		onSubmit?.(e);
 	}
 
@@ -119,18 +125,18 @@
 
 	// ---------------------------------------------------------------------------
 	// Form-R5: move focus exactly once per submit attempt, when errors are present.
-	// Gated on submitAttempted; reset immediately so the next submit re-triggers.
+	// The flag is consumed by the first `errors` REASSIGNMENT after the submit —
+	// until then (async validation still in flight) it stays pending.
 	// ---------------------------------------------------------------------------
 	$effect(() => {
 		if (!submitAttempted) return;
-		if (errors.length === 0) {
-			// No errors — consume the flag without moving focus.
-			submitAttempted = false;
-			return;
-		}
+		// Still the pre-submit array AND nothing showing — async errors in
+		// flight, keep waiting. (A visible stale summary re-focuses immediately.)
+		if (errors === errorsAtSubmit && errors.length === 0) return;
 
-		// Consume the flag before the async DOM settle.
+		// Consume the flag; empty errors (validation passed) move no focus.
 		submitAttempted = false;
+		if (errors.length === 0) return;
 
 		// Defer one microtask so the summary has been painted before we focus it.
 		queueMicrotask(() => {
@@ -147,6 +153,21 @@
 				summaryEl.focus();
 			}
 		});
+	});
+
+	// ---------------------------------------------------------------------------
+	// Form-R5: a native `reset` (use:enhance's default success path) consumes the
+	// flag without moving focus. addEventListener — not a managed onreset — so a
+	// consumer `onreset` passed via ...rest is not clobbered.
+	// ---------------------------------------------------------------------------
+	$effect(() => {
+		const el = formEl;
+		if (!el) return;
+		const consume = () => {
+			submitAttempted = false;
+		};
+		el.addEventListener('reset', consume);
+		return () => el.removeEventListener('reset', consume);
 	});
 </script>
 

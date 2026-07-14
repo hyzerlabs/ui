@@ -101,12 +101,3 @@
 		{/snippet}
 	</Tabs>
 </DocPage>
-
-<style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
-</style>

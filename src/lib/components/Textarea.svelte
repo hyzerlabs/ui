@@ -42,10 +42,12 @@
 	// Textarea-R3: bind:this for the auto-resize JS fallback.
 	let textareaEl: HTMLTextAreaElement | null = $state(null);
 
-	// Textarea-R3: field-sizing: content is the primary auto-grow mechanism.
-	// When the browser lacks support, a JS height-sync fallback is used.
+	// Textarea-R3: 'vertical' (default) and 'auto' both grow with content —
+	// field-sizing: content is the primary mechanism ('vertical' keeps the
+	// drag handle as a manual override). When the browser lacks support, a
+	// JS height-sync fallback is used.
 	$effect(() => {
-		if (resize !== 'auto') return;
+		if (resize !== 'auto' && resize !== 'vertical') return;
 		if (!textareaEl) return;
 
 		// Feature-detect field-sizing support.
@@ -80,6 +82,7 @@
 		{rows}
 		{maxlength}
 		data-resize={resize}
+		style:--hz-textarea-rows={rows}
 		{disabled}
 		aria-required={required ? 'true' : undefined}
 		aria-invalid={error ? 'true' : undefined}
@@ -108,8 +111,11 @@
 		resize: none;
 	}
 
+	/* field-sizing makes the browser ignore `rows`, so the element exposes
+	 * --hz-textarea-rows and the theme keeps rows as the minimum height. */
 	textarea[data-resize='vertical'] {
 		resize: vertical;
+		field-sizing: content;
 	}
 
 	textarea[data-resize='both'] {

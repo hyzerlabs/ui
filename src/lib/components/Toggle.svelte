@@ -4,13 +4,13 @@
 
 	interface Props extends FieldBase {
 		checked?: boolean;
+		value?: string;
 		class?: string;
 		[key: string]: unknown;
 	}
 
 	let {
-		// `name` is accepted as part of FieldBase but not applied to the button;
-		// it passes through rest if provided, going onto the button element (Forms-R2).
+		name,
 		label,
 		description,
 		error,
@@ -18,13 +18,14 @@
 		disabled = false,
 		hideLabel = false,
 		checked = $bindable(false),
+		value,
 		class: className,
 		...rest
 	}: Props = $props();
 
 	// Field-R1: derive one stable uid base per instance.
 	const _uid = uid('hz');
-	const labelId = `hz-label-${_uid}`;
+	const inputId = `hz-input-${_uid}`;
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
 
@@ -35,47 +36,37 @@
 
 	// Field-R1: error wins over disabled wins over default.
 	const dataState = $derived(error ? 'error' : disabled ? 'disabled' : 'default');
-
-	// Toggle-R2: clicking (and native Enter/Space on button) toggles checked.
-	function handleClick() {
-		if (!disabled) {
-			checked = !checked;
-		}
-	}
 </script>
 
 <!--
-	Toggle-R1: hz-field hz-field--toggle root; button role="switch" then label.
-	Toggle-R2: aria-checked + data-state reflect checked.
+	Toggle-R1: hz-field hz-field--toggle root; a NATIVE CHECKBOX exposed as a
+	switch (role="switch"), then label (label-after, like Checkbox). Being a
+	real form control it submits name/value and resolves via form.elements.
+	The native checked state carries on/off semantics — no manual aria-checked.
+	Toggle-R2: bind:checked two-way; data-state="on"|"off" mirrors checked as
+	the stable styling hook (track/thumb visuals are the theme's job).
 	Toggle-R3: aria-describedby, aria-invalid, native disabled.
-	Field-R2: label carries id="hz-label-{uid}" for aria-labelledby on the button.
-	Forms-R2: {...rest} spread first on the button so managed attrs win.
+	Forms-R2: {...rest} spread first on the input so managed attrs win.
 -->
 <div class={cx('hz-field', 'hz-field--toggle', className)} data-state={dataState}>
-	<button
+	<input
 		{...rest}
-		type="button"
+		type="checkbox"
 		role="switch"
 		class="hz-toggle"
-		aria-labelledby={labelId}
-		aria-checked={checked ? 'true' : 'false'}
+		id={inputId}
+		{name}
+		{value}
+		{disabled}
+		bind:checked
 		data-state={checked ? 'on' : 'off'}
 		aria-describedby={describedBy}
 		aria-invalid={error ? 'true' : undefined}
 		aria-required={required ? 'true' : undefined}
-		{disabled}
-		onclick={handleClick}
-	>
-		<span class="hz-toggle-thumb"></span>
-	</button>
+	/>
 
-	<!--
-		Field-R2: label always in DOM; id="hz-label-{uid}" for aria-labelledby.
-		sr-only class applied when hideLabel.
-		svelte-ignore: label intentionally uses aria-labelledby on the button, not for=.
-	-->
-	<!-- svelte-ignore a11y_label_has_associated_control -->
-	<label id={labelId} class={cx('hz-field-label', hideLabel && 'sr-only')}>
+	<!-- Field-R2: label always in DOM; sr-only when hideLabel. -->
+	<label class={cx('hz-field-label', hideLabel && 'sr-only')} for={inputId}>
 		{label}
 		{#if required}<span aria-hidden="true" class="hz-field-required">*</span>{/if}
 	</label>
@@ -92,7 +83,7 @@
 </div>
 
 <style>
-	/* Toggle-R1: button then label as an inline flex row. */
+	/* Toggle-R1: input then label as an inline flex row. */
 	.hz-field--toggle {
 		display: flex;
 		flex-direction: row;
@@ -107,22 +98,13 @@
 		flex-basis: 100%;
 	}
 
-	/* Toggle-R1: button structural reset — no visual opinions. */
+	/* Headless: the native checkbox stays visible and functional; the theme
+	 * replaces it with the track/thumb visual (appearance: none + ::before). */
 	.hz-toggle {
-		display: inline-flex;
-		align-items: center;
 		cursor: pointer;
-		background: none;
-		border: none;
-		padding: 0;
 	}
 
 	.hz-toggle:disabled {
 		cursor: not-allowed;
-	}
-
-	/* Toggle-R1: thumb is a structural child block. */
-	.hz-toggle-thumb {
-		display: block;
 	}
 </style>

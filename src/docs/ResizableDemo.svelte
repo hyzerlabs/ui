@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { Slider } from '$lib';
 
 	/**
 	 * A width-adjustable demo frame for width-responsive components, driven
-	 * by the slider or the exact px field. The box is borderless and unpadded
+	 * by the library's own Slider (dogfooding the slider + exact-entry
+	 * pattern this component pioneered). The box is borderless and unpadded
 	 * so its width IS the component's width — demos must not put padded or
 	 * bordered wrappers between the box and the component, or the readout
 	 * drifts from what the component measures.
@@ -20,49 +22,27 @@
 
 	let { initial = 720, min = 320, max = 1400, describe, children }: Props = $props();
 
-	let box = $state<HTMLElement>();
-	// clientWidth of the borderless, paddingless box = the component width.
+	// `initial` is deliberately captured once as the starting width.
+	// svelte-ignore state_referenced_locally
+	let width = $state(initial);
+	// clientWidth of the borderless, paddingless box = the true component width.
 	let measured = $state(0);
-
-	function setWidth(raw: string) {
-		const value = Math.round(Math.min(max, Math.max(min, Number(raw) || min)));
-		if (box) box.style.width = `${value}px`;
-	}
 </script>
 
 <div class="rd">
 	<div class="rd-controls">
-		<label class="rd-label">
-			Demo width
-			<input
-				type="range"
-				{min}
-				{max}
-				value={measured || initial}
-				oninput={(e) => setWidth(e.currentTarget.value)}
-			/>
-		</label>
-		<label class="rd-label rd-exact">
-			<span class="sr-only">Demo width in pixels</span>
-			<input
-				type="number"
-				{min}
-				{max}
-				value={measured || initial}
-				onchange={(e) => setWidth(e.currentTarget.value)}
-			/>
-			px
-		</label>
+		<div class="rd-slider">
+			<Slider name="demo-width" label="Demo width" {min} {max} unit="px" bind:value={width} />
+		</div>
 		{#if describe}
-			<p class="rd-readout" aria-live="polite">{describe(measured || initial)}</p>
+			<p class="rd-readout" aria-live="polite">{describe(measured || width)}</p>
 		{/if}
 	</div>
 	<div class="rd-scroll">
 		<div
 			class="rd-box"
-			bind:this={box}
 			bind:clientWidth={measured}
-			style="width: {initial}px; min-width: {min}px; max-width: {max}px"
+			style="width: {width}px; min-width: {min}px; max-width: {max}px"
 		>
 			{@render children()}
 		</div>
@@ -72,38 +52,19 @@
 <style>
 	.rd-controls {
 		display: flex;
-		align-items: center;
+		align-items: end;
 		gap: 1rem;
 		flex-wrap: wrap;
 		margin-bottom: 0.75rem;
 	}
 
-	.rd-label {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-
-	.rd-label input[type='range'] {
-		width: 12rem;
-	}
-
-	.rd-exact input {
-		width: 4.5rem;
-		padding: 0.125rem 0.375rem;
-		border: 1px solid var(--hz-color-border, #6b7280);
-		border-radius: var(--hz-radius-sm, 0.25rem);
-		background: transparent;
-		color: inherit;
-		font: inherit;
-		font-family: var(--hz-font-family-mono, monospace);
-		font-size: var(--hz-font-size-sm, 0.875rem);
+	.rd-slider {
+		flex: 0 1 22rem;
+		min-width: 16rem;
 	}
 
 	.rd-readout {
-		margin: 0;
+		margin: 0 0 0.25rem;
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}

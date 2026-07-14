@@ -64,9 +64,9 @@ describe('R1 — root landmark', () => {
 
 	it('data-bordered is absent by default and present with bordered — composes with variant', () => {
 		const { container } = render(Footer, { columns: [] });
-		expect(
-			(container.querySelector('footer') as HTMLElement).hasAttribute('data-bordered')
-		).toBe(false);
+		expect((container.querySelector('footer') as HTMLElement).hasAttribute('data-bordered')).toBe(
+			false
+		);
 		const { container: c2 } = render(Footer, { columns: [], bordered: true, variant: 'minimal' });
 		const footer = c2.querySelector('footer') as HTMLElement;
 		expect(footer.hasAttribute('data-bordered')).toBe(true);

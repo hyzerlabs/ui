@@ -1,0 +1,29 @@
+/* Shared docs-page demo conventions, imported once by the root layout.
+ * Every component page uses the same scaffolding around its Example blocks:
+ *
+ *   .tab-content — panel padding inside the demo Tabs
+ *   .inner-tab   — padding for nested variant sub-tabs
+ *   .tab-note    — muted caveat paragraph above an Example
+ *   .demo-col    — narrow column so form-control demos don't span the prose width
+ *
+ * Page-specific demo styles stay in each page's scoped <style>.
+ * (Inline-code chips inside tab-notes come from the layout's `p code` rule.)
+ */
+
+.tab-content {
+	padding-top: 1rem;
+}
+
+.inner-tab {
+	padding-top: 0.5rem;
+}
+
+.tab-note {
+	margin: 0 0 1rem;
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	color: var(--hz-color-text-muted, #6b7280);
+}
+
+.demo-col {
+	max-width: 24rem;
+}

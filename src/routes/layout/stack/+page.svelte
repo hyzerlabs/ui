@@ -95,8 +95,8 @@
 						Gap values map to the <code>--hz-space-*</code> tokens (<code>xs</code> 0.5rem →
 						<code>xl</code> 8rem). <code>near</code> and <code>away</code> are the
 						<a href="/foundation/spacing">density distances</a> — context-aware values that tighten
-						inside <code>data-density-shift</code> regions (see the Density tab). Dashed outline
-						marks the Stack itself.
+						inside <code>data-density-shift</code> regions (see the Density tab). Dashed outline marks
+						the Stack itself.
 					</p>
 					<Tabs
 						items={gapValues.map((v) => ({ id: v, label: v }))}
@@ -118,8 +118,8 @@
 				{:else if item.id === 'align'}
 					<p class="tab-note">
 						<code>align</code> maps to <code>align-items</code> — visible when children have
-						different natural widths. The default <code>stretch</code> makes every child fill the
-						Stack's width.
+						different natural widths. The default <code>stretch</code> makes every child fill the Stack's
+						width.
 					</p>
 					<Tabs
 						items={alignValues.map((v) => ({ id: v, label: v }))}
@@ -164,10 +164,10 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						With <code>gap="near"</code> every Stack below uses the <em>same</em> prop — the
-						spacing tightens purely from nesting. <code>data-density-shift</code> goes directly on
-						the Stack (extra attributes forward to the root element), and the shift applies to that
-						Stack's own gap and everything inside it. See
+						With <code>gap="near"</code> every Stack below uses the <em>same</em> prop — the spacing
+						tightens purely from nesting. <code>data-density-shift</code> goes directly on the Stack
+						(extra attributes forward to the root element), and the shift applies to that Stack's
+						own gap and everything inside it. See
 						<a href="/foundation/spacing">density spacing</a> for the model.
 					</p>
 					<Example code={densityCode}>
@@ -191,20 +191,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
-	}
 	:global(.demo-stack) {
 		border: 1px dashed var(--hz-color-border, #6b7280);
 		padding: 0.5rem;

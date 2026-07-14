@@ -1,0 +1,101 @@
+/**
+ * @hyzer-labs/ui reference theme — Badge
+ * Intent color via --_c (switched on data-intent), three variants, two
+ * sizes, radius from data-rounded (1:1 with the --hz-radius-* tokens).
+ */
+@layer hz-theme {
+	.hz-badge {
+		--_c: var(--hz-color-gray, #6b7280);
+
+		padding: 0.125rem 0.5rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-medium, 500);
+		line-height: var(--hz-line-height-tight, 1.2);
+		white-space: nowrap;
+	}
+
+	.hz-badge:where([data-size='sm']) {
+		padding: 0.0625rem 0.375rem;
+		font-size: var(--hz-font-size-xs, 0.75rem);
+	}
+
+	/* Radius — 1:1 with the token scale. */
+	.hz-badge:where([data-rounded='none']) {
+		border-radius: var(--hz-radius-none, 0);
+	}
+	.hz-badge:where([data-rounded='sm']) {
+		border-radius: var(--hz-radius-sm, 0.25rem);
+	}
+	.hz-badge:where([data-rounded='md']) {
+		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+	.hz-badge:where([data-rounded='lg']) {
+		border-radius: var(--hz-radius-lg, 1rem);
+	}
+	.hz-badge:where([data-rounded='full']) {
+		border-radius: var(--hz-radius-full, 9999px);
+	}
+
+	/* Intent → color. */
+	.hz-badge:where([data-intent='primary']) {
+		--_c: var(--hz-color-primary, #2563eb);
+	}
+	.hz-badge:where([data-intent='secondary']) {
+		--_c: var(--hz-color-secondary, #7c3aed);
+	}
+	.hz-badge:where([data-intent='danger']) {
+		--_c: var(--hz-color-error, #dc2626);
+	}
+	.hz-badge:where([data-intent='warning']) {
+		--_c: var(--hz-color-warning, #d97706);
+	}
+	.hz-badge:where([data-intent='success']) {
+		--_c: var(--hz-color-success, #16a34a);
+	}
+	.hz-badge:where([data-intent='info']) {
+		--_c: var(--hz-color-info, #0891b2);
+	}
+
+	/* Variants. Soft/outline text mixes the intent color toward the text
+	 * token so it holds contrast on light and dark surfaces alike. */
+	.hz-badge:where([data-variant='soft']) {
+		background-color: color-mix(in srgb, var(--_c) 14%, var(--hz-color-surface, #fff));
+		color: color-mix(in srgb, var(--_c) 65%, var(--hz-color-text, #000));
+	}
+
+	.hz-badge:where([data-variant='solid']) {
+		background-color: var(--_c);
+		color: var(--hz-color-white, #fff);
+	}
+
+	.hz-badge:where([data-variant='outline']) {
+		border: var(--hz-border-width-thin, 1px) solid color-mix(in srgb, var(--_c) 60%, transparent);
+		background-color: transparent;
+		color: color-mix(in srgb, var(--_c) 65%, var(--hz-color-text, #000));
+	}
+
+	/* Dismiss button (the chip form) — inherits the badge's text color. */
+	.hz-badge :where(.hz-badge-dismiss) {
+		padding: 0.0625rem;
+		margin-inline-end: -0.25rem;
+		border: none;
+		border-radius: var(--hz-radius-full, 9999px);
+		background: transparent;
+		color: inherit;
+		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-badge :where(.hz-badge-dismiss) .hz-icon {
+		width: 1em;
+		height: 1em;
+	}
+
+	.hz-badge :where(.hz-badge-dismiss:hover) {
+		background-color: color-mix(in srgb, currentColor 15%, transparent);
+	}
+
+	.hz-badge :where(.hz-badge-dismiss:focus-visible) {
+		outline: 2px solid transparent;
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--_c) 35%, transparent);
+	}
+}

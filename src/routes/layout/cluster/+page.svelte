@@ -188,8 +188,8 @@
 					</Tabs>
 				{:else if item.id === 'padding'}
 					<p class="tab-note">
-						The tinted zone is the Cluster; the space between its edge and the chips is the
-						padding, applied on both axes.
+						The tinted zone is the Cluster; the space between its edge and the chips is the padding,
+						applied on both axes.
 					</p>
 					<Tabs
 						items={paddingValues.map((v) => ({ id: v, label: v }))}
@@ -199,10 +199,7 @@
 						{#snippet panel(padItem)}
 							<div class="inner-tab">
 								<Example code={paddingCode(padItem.id)}>
-									<Cluster
-										padding={padItem.id as (typeof paddingValues)[number]}
-										class="pad-frame"
-									>
+									<Cluster padding={padItem.id as (typeof paddingValues)[number]} class="pad-frame">
 										<span class="chip">One</span>
 										<span class="chip">Two</span>
 										<span class="chip">Three</span>
@@ -213,9 +210,8 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						The default wraps onto new lines as space runs out. <code>wrap={'{false}'}</code> keeps
-						a single line — the second demo sits in a scrollable wrapper so the overflow is
-						reachable.
+						The default wraps onto new lines as space runs out. <code>wrap={'{false}'}</code> keeps a
+						single line — the second demo sits in a scrollable wrapper so the overflow is reachable.
 					</p>
 					<Example code={wrapCode}>
 						<p class="wrap-label">wrap (default)</p>
@@ -240,20 +236,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
-	}
 	:global(.pad-frame) {
 		background: color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 12%, transparent);
 		border: 1px dashed var(--hz-color-secondary, #7c3aed);

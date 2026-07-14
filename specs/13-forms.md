@@ -38,7 +38,7 @@ opinions (no colors, borders, shadows, radius, fonts, or animation).
   `onChange`-style callback props are introduced.
 - IDs via `uid` from `$lib/utils` — one stable base id per instance, from which
   `hz-input-{uid}`, `hz-desc-{uid}`, `hz-error-{uid}` (and per-radio
-  `hz-radio-{uid}-{i}`, the Toggle label id `hz-label-{uid}`) derive
+  `hz-radio-{uid}-{i}`) derive
   deterministically (mirror `Nav.svelte`'s `uid` usage) so id relationships are
   stable across reactive re-derivation.
 - Dev warnings use the `import.meta.env.DEV` + `untrack(...)` pattern from
@@ -95,7 +95,7 @@ forwarded onto the control element, and an optional `class` (→ `cx`).
 
 | Prop           | Type                                                                        | Default  |
 | -------------- | --------------------------------------------------------------------------- | -------- |
-| `type`         | `'text' \| 'email' \| 'password' \| 'tel' \| 'url' \| 'search' \| 'number'` | `'text'` |
+| `type`         | `'text' \| 'email' \| 'password' \| 'tel' \| 'url' \| 'search' \| 'number' \| 'date' \| 'time' \| 'datetime-local'` | `'text'` |
 | `value`        | `string` (`$bindable`)                                                      | `''`     |
 | `placeholder`  | `string \| undefined`                                                       | —        |
 | `autocomplete` | `string \| undefined`                                                       | —        |
@@ -143,6 +143,7 @@ forwarded onto the control element, and an optional `class` (→ `cx`).
 | Prop      | Type                    | Default |
 | --------- | ----------------------- | ------- |
 | `checked` | `boolean` (`$bindable`) | `false` |
+| `value`   | `string`                | —       |
 
 ### Requirements
 
@@ -165,9 +166,8 @@ id/aria logic in their own structure.
 2. **Field-R2 — Label always present.** A label element always renders in the DOM
    with text content `label`:
    `<label class="hz-field-label" for="hz-input-{uid}">` for
-   TextInput/Textarea/Select/Checkbox, `<legend class="hz-field-label">` for
-   RadioGroup, and an `id="hz-label-{uid}"`-carrying
-   `<label class="hz-field-label">` for Toggle. When `hideLabel` is true, the
+   TextInput/Textarea/Select/Checkbox/Toggle, and
+   `<legend class="hz-field-label">` for RadioGroup. When `hideLabel` is true, the
    label additionally carries the **`.sr-only`** class — it is never omitted from
    the DOM.
 3. **Field-R3 — Required indicator.** When `required` is true, the control gets
@@ -187,8 +187,8 @@ id/aria logic in their own structure.
    `hz-error-{uid}`. When only one is present, only that id is listed; when
    neither is present, the `aria-describedby` attribute is omitted entirely.
 7. **Field-R7 — Disabled (native).** When `disabled` is true, the control gets
-   the **native `disabled` attribute** (the `<button>` for Toggle; every radio
-   `<input>` for RadioGroup) and the wrapper `data-state="disabled"` (unless
+   the **native `disabled` attribute** (every radio `<input>` for RadioGroup)
+   and the wrapper `data-state="disabled"` (unless
    `error` overrides per R1). Native `disabled` removes the control from the tab
    order and from form submission. No `aria-disabled` is used.
 8. **Field-R8 — Shared types.** `FieldBase`, `SelectOption`, and `RadioOption`
@@ -225,14 +225,20 @@ id/aria logic in their own structure.
 2. **Textarea-R2 — Value binding.** `value` is `$bindable`, two-way bound via
    `bind:value`, default `''`.
 3. **Textarea-R3 — Resize mapping.** `resize` reflects to `data-resize` and maps
-   to behavior: `'none' | 'vertical' | 'both'` set the CSS `resize` property to
-   the matching value; `'auto'` disables manual resize and auto-grows to fit
-   content via **`field-sizing: content`** as the primary mechanism, plus a
-   **minimal JS height-sync fallback** for browsers lacking `field-sizing`
-   support (feature-detected via `CSS.supports('field-sizing', 'content')`): an
-   `oninput` handler resets `height` to `auto` then to `scrollHeight`, registered
-   via `$effect` and synced on the initial value. The fallback is a no-op when
-   `field-sizing` is supported.
+   to behavior: `'none' | 'both'` set the CSS `resize` property to the matching
+   value with a fixed height; `'vertical'` (the default) **auto-grows with
+   content and keeps the drag handle** as a manual override; `'auto'`
+   auto-grows with no handle (`resize: none`). Growth uses
+   **`field-sizing: content`** as the primary mechanism, plus a **minimal JS
+   height-sync fallback** for browsers lacking `field-sizing` support
+   (feature-detected via `CSS.supports('field-sizing', 'content')`): an
+   `oninput` handler resets `height` to `auto` then to `scrollHeight`,
+   registered via `$effect` and synced on the initial value. The fallback is a
+   no-op when `field-sizing` is supported. Because `field-sizing` makes the
+   browser ignore the `rows` attribute, growing textareas expose
+   `--hz-textarea-rows` (inline custom property = the `rows` prop) so the
+   theme can restore `rows` as the **minimum** height; headless, an empty
+   growing textarea collapses to one line.
 
 #### Select (`Select-R*`)
 
@@ -286,19 +292,26 @@ id/aria logic in their own structure.
 #### Toggle (`Toggle-R*`)
 
 1. **Toggle-R1 — Switch structure.** Renders
-   `<div class="hz-field hz-field--toggle">` containing a
-   `<button type="button" role="switch" class="hz-toggle"
-   aria-labelledby="hz-label-{uid}">` with a child
-   `<span class="hz-toggle-thumb"></span>`, followed by a
-   `<label id="hz-label-{uid}" class="hz-field-label">{label}</label>`. It is a
-   `role="switch"` button, **not** a checkbox.
-2. **Toggle-R2 — Checked state.** `checked` is `$bindable`, default `false`. The
-   button carries `aria-checked="true"|"false"` and `data-state="on"|"off"`
-   reflecting `checked`. Clicking the button and pressing Enter/Space (native
-   button activation) toggle `checked` (and thus `aria-checked`/`data-state`).
-3. **Toggle-R3 — describedby.** The button carries the `aria-describedby` chain
+   `<div class="hz-field hz-field--toggle">` containing an
+   `<input type="checkbox" role="switch" class="hz-toggle"
+   id="hz-input-{uid}" name={name}>` followed by a
+   `<label class="hz-field-label" for="hz-input-{uid}">{label}</label>`
+   (label-after, like Checkbox). It is a **native checkbox exposed as a
+   switch**: it participates in form submission (`name`/`value`, `value`
+   applied only when defined) and resolves via `form.elements[name]` for the
+   Form error summary. No `aria-checked` is set — the native checked state
+   carries the on/off semantics. The track/thumb visuals are the theme's job
+   (the input becomes the track via `appearance: none`; the thumb is its
+   `::before`); headless, it renders as a bare functional checkbox.
+2. **Toggle-R2 — Checked state.** `checked` is `$bindable`, default `false`,
+   two-way bound via `bind:checked`. The input carries `data-state="on"|"off"`
+   reflecting `checked` as the stable styling hook. Clicking the input or its
+   label and pressing Space (native checkbox activation) toggle `checked`;
+   Enter does **not** toggle — inside a form it submits, per native checkbox
+   behavior.
+3. **Toggle-R3 — describedby.** The input carries the `aria-describedby` chain
    (Field-R6) and, on error, `aria-invalid="true"` (Field-R5). When `disabled`,
-   the button gets the native `disabled` attribute (Field-R7).
+   the input gets the native `disabled` attribute (Field-R7).
 
 #### Composition & exports (all components)
 
@@ -372,7 +385,7 @@ id/aria logic in their own structure.
 | Checkbox `indeterminate` true                     | `.indeterminate` set on the element ref via `$effect`; a user toggle clears it natively (Checkbox-R3).      |
 | RadioGroup `options` empty                        | `<fieldset>`/`<legend>` render with an empty `radiogroup`; no radios; no error (RadioGroup-R1, R2).         |
 | RadioGroup option `disabled`                      | That radio gets native `disabled`; arrow navigation skips it natively (RadioGroup-R2, R4).                  |
-| Textarea `resize="auto"`, browser lacks `field-sizing` | JS height-sync fallback grows the textarea to its content on input and initial value (Textarea-R3).   |
+| Textarea `resize="auto"` or `"vertical"`, browser lacks `field-sizing` | JS height-sync fallback grows the textarea to its content on input and initial value (Textarea-R3).   |
 | Toggle click / Enter / Space                      | Toggles `checked`, `aria-checked`, and `data-state` (Toggle-R2).                                            |
 | `value`/`checked` bound externally                | Two-way `$bindable` reflects programmatic changes into the control and user changes back out (per-component value/checked reqs). |
 | `...rest` attempts `id`/`name`/`class`/`data-state`/`aria-*` | Component-managed value wins (Forms-R2).                                                          |
@@ -476,8 +489,12 @@ points the control at the live error text.
   handling — components present an externally-supplied `error` string only.
 - A custom dropdown/listbox for Select (native `<select>` only); combobox,
   autocomplete, typeahead, or multi-select.
-- Character counters, masked inputs, custom number steppers, and date / file /
-  range / color pickers.
+- Character counters, masked inputs, custom number steppers, and file
+  pickers. A custom calendar/date-picker UI is likewise out of scope —
+  TextInput's `date` / `time` / `datetime-local` types render the **native
+  platform picker**. Range inputs are covered by the `Slider` family
+  (`specs/17-slider.md`); color inputs by `ColorInput`
+  (`specs/18-color-input.md`).
 - Colors, borders, shadows, radius, fonts, checkbox/toggle/radio visuals,
   focus-ring styling, or any state **animation** — the reference theme's job. The
   components only guarantee stable `hz-*` hooks + `data-state`.

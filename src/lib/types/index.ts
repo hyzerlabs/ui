@@ -83,6 +83,12 @@ export type Intent = 'primary' | 'secondary' | 'danger' | 'warning' | 'success' 
 /** Visual style variants */
 export type Variant = 'solid' | 'outline' | 'ghost' | 'link';
 
+/**
+ * Corner radius scale, mirroring the --hz-radius-* tokens.
+ * Shared by every `rounded` prop (Badge; Card/Image migrate in a follow-up).
+ */
+export type Rounded = 'none' | 'sm' | 'md' | 'lg' | 'full';
+
 /** Props shared by every form field. */
 export interface FieldBase {
 	name: string;
@@ -98,6 +104,9 @@ export interface FieldBase {
 export type SelectOption =
 	| { value: string; label: string; disabled?: boolean }
 	| { group: string; options: { value: string; label: string; disabled?: boolean }[] };
+
+/** A tick mark on a Slider/RangeSlider track: a bare value or value + label. */
+export type SliderTick = number | { value: number; label: string };
 
 /** A single radio choice in a RadioGroup. */
 export interface RadioOption {

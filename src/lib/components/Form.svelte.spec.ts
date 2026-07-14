@@ -158,15 +158,23 @@ describe('Form-R2 — submit handling', () => {
 		expect(captured).toBeInstanceOf(SubmitEvent);
 	});
 
-	it('no onSubmit: submit does not throw', async () => {
+	it('no onSubmit (native mode): the submit is NOT prevented', async () => {
 		const { container } = render(Form, {
 			errors: [],
 			novalidate: true,
 			children: emptyChildren
 		});
+		const form = container.querySelector('form') as HTMLFormElement;
+		let prevented: boolean | null = null;
+		// The component's handler is registered at mount, so it runs first; this
+		// listener observes its verdict, then prevents so the iframe stays put.
+		form.addEventListener('submit', (e) => {
+			prevented = e.defaultPrevented;
+			e.preventDefault();
+		});
 		submitForm(container);
 		await tick();
-		expect(container.querySelector('form')).not.toBeNull();
+		expect(prevented).toBe(false);
 	});
 
 	it('novalidate=false with required field empty: native validation blocks submit', async () => {
@@ -463,6 +471,77 @@ describe('Form-R5 — managed focus', () => {
 		// - so if focus is on the button, it stays there.
 		await tick();
 		expect(document.activeElement).toBe(previousActive);
+	});
+
+	it('async errors after a native-mode submit move focus when they arrive', async () => {
+		const { container, rerender } = render(Form, {
+			errors: [] as FormError[],
+			novalidate: true,
+			children: basicChildren
+		});
+		const form = container.querySelector('form') as HTMLFormElement;
+		form.addEventListener('submit', (e) => e.preventDefault()); // keep the iframe put
+
+		submitForm(container);
+		await tick();
+		// No errors yet — flag pending, nothing focused.
+		expect(container.querySelector('.hz-form-error-summary')).toBeNull();
+
+		// The "action response" lands.
+		await rerender({ errors: [emailError] });
+		await tick();
+		await tick();
+		const summary = container.querySelector('.hz-form-error-summary') as HTMLElement;
+		expect(summary).not.toBeNull();
+		expect(document.activeElement).toBe(summary);
+	});
+
+	it('async empty reassignment consumes the flag — later errors do not move focus', async () => {
+		const { container, rerender } = render(Form, {
+			errors: [] as FormError[],
+			novalidate: true,
+			children: basicChildren
+		});
+		const form = container.querySelector('form') as HTMLFormElement;
+		form.addEventListener('submit', (e) => e.preventDefault());
+
+		submitForm(container);
+		await tick();
+		// Validation passed: a NEW empty array consumes the flag silently.
+		await rerender({ errors: [] as FormError[] });
+		await tick();
+		await tick();
+
+		// A later errors change without a submit shows the summary but never focuses.
+		await rerender({ errors: [emailError] });
+		await tick();
+		await tick();
+		const summary = container.querySelector('.hz-form-error-summary') as HTMLElement;
+		expect(summary).not.toBeNull();
+		expect(document.activeElement).not.toBe(summary);
+	});
+
+	it('a form reset after submit consumes the flag (enhance success path)', async () => {
+		const { container, rerender } = render(Form, {
+			errors: [] as FormError[],
+			novalidate: true,
+			children: basicChildren
+		});
+		const form = container.querySelector('form') as HTMLFormElement;
+		form.addEventListener('submit', (e) => e.preventDefault());
+
+		submitForm(container);
+		await tick();
+		form.reset();
+		await tick();
+
+		// Errors arriving after the reset do not move focus.
+		await rerender({ errors: [emailError] });
+		await tick();
+		await tick();
+		const summary = container.querySelector('.hz-form-error-summary') as HTMLElement;
+		expect(summary).not.toBeNull();
+		expect(document.activeElement).not.toBe(summary);
 	});
 
 	it('second submit re-moves focus', async () => {

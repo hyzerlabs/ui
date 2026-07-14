@@ -26,11 +26,19 @@ opinions (no colors, borders, shadows, radius, fonts, or animation).
 - Field targeting is **native** via `form.elements[name]` — **no context, no
   store, no coupling** to the form primitives (`specs/13-forms.md`). It works
   with any named control, ours or plain native HTML.
-- On submit, the Form `preventDefault()`s, flags an internal `submitAttempted`
-  state, then calls `onSubmit`. When errors are present after a submit, it
-  renders the summary and moves focus (once per attempt). Reactive `errors`
-  changes that are **not** the result of a submit update the summary content but
-  never move focus (so live corrections as the user types never yank focus).
+- The Form has two submission modes. **Client mode** (`onSubmit` provided): the
+  submit is `preventDefault()`ed and the consumer validates and updates `errors`
+  in `onSubmit`. **Native mode** (`onSubmit` absent): the submit proceeds
+  untouched — a full-page POST, or intercepted by SvelteKit's `use:enhance`
+  attached via the attachment bridge (see Form-R10); `errors` then arrive
+  asynchronously (e.g. mapped from `ActionData`). In both modes the Form flags
+  an internal `submitAttempted` state; when errors arrive after a submit it
+  renders the summary and moves focus (once per attempt, Form-R5). Reactive
+  `errors` changes that are **not** the result of a submit update the summary
+  content but never move focus (so live corrections as the user types never
+  yank focus).
+- The Form imports **nothing from SvelteKit** — it stays Kit-agnostic; all Kit
+  integration rides `...rest` (`method`, `action`) and pass-through attachments.
 - Mirror existing patterns: `$props()` destructuring with `class: className` via
   `cx`, `...rest`-first spread (managed attributes win), `uid` ids (per
   `Nav.svelte`), `bind:this` form ref + `$effect` for focus/scroll side effects,
@@ -61,7 +69,7 @@ export interface FormError {
 | Prop                  | Type                                       | Default                |
 | --------------------- | ------------------------------------------ | ---------------------- |
 | `errors`              | `FormError[]`                              | `[]`                   |
-| `onSubmit`            | `((e: SubmitEvent) => void) \| undefined`  | —                      |
+| `onSubmit`            | `((e: SubmitEvent) => void) \| undefined`  | — (omit ⇒ native mode) |
 | `summaryTitle`        | `string`                                   | `'There is a problem'` |
 | `summaryHeadingLevel` | `2 \| 3 \| 4 \| 5 \| 6`                    | `2`                    |
 | `focusTarget`         | `'summary' \| 'firstField'`                | `'summary'`            |
@@ -82,12 +90,18 @@ rendered.
    `aria-label={ariaLabel}` only when `ariaLabel` is set. The native `novalidate`
    attribute is present **only** when the `novalidate` prop is `true`; by default
    (`false`) it is absent, so native HTML5 constraint validation runs.
-2. **Form-R2 — Submit handling.** A `submit` handler calls `preventDefault()`,
-   sets an internal `submitAttempted` flag (`$state`), then invokes
-   `onSubmit(event)` when provided (the consumer validates and updates `errors`).
-   When `novalidate` is `false` and the form fails native constraint validation,
-   the browser preempts the `submit` event (native validation UI shows); the
-   handler / `onSubmit` only run once native constraints pass.
+2. **Form-R2 — Submit handling.** A `submit` handler sets an internal
+   `submitAttempted` flag (`$state`) and snapshots the current `errors`
+   reference. It calls `preventDefault()` **only when `onSubmit` is provided**
+   (client mode), then invokes `onSubmit(event)` (the consumer validates and
+   reassigns `errors`). When `onSubmit` is absent (native mode) the event is
+   **not** prevented: the form submits natively, or `use:enhance` (attached per
+   Form-R10) takes over. Providing `onSubmit` together with `use:enhance` is
+   unsupported (both would handle the submit) — use enhance's `SubmitFunction`
+   for pre-submit logic instead. When `novalidate` is `false` and the form
+   fails native constraint validation, the browser preempts the `submit` event
+   (native validation UI shows); the handler / `onSubmit` only run once native
+   constraints pass.
 3. **Form-R3 — Summary rendering.** When `errors.length > 0`, render a summary as
    the **first child** of the form (before `children`):
    `<div class="hz-form-error-summary" role="alert" tabindex="-1"
@@ -107,17 +121,27 @@ rendered.
 
    Items are ordered by their resolved control's **DOM position** within the
    form; form-level (unlinked) errors render **last**, in array order.
-5. **Form-R5 — Managed focus.** On a submit that yields errors
-   (`submitAttempted` && `errors.length > 0`), focus moves **once** to:
+5. **Form-R5 — Managed focus.** The per-submit flag is consumed by the **first
+   reassignment of `errors` after the submit** (a new array reference — works
+   identically whether the consumer sets errors synchronously in `onSubmit` or
+   asynchronously from an action response) — or **immediately** when `errors`
+   was already non-empty at submit time (the summary is already showing;
+   re-submitting re-announces and re-focuses it). On consumption with a
+   non-empty `errors`, focus moves **once** to:
    - the summary container (`focusTarget="summary"`, the default — it is
      `tabindex="-1"` so it is focusable), or
    - the first error's resolved control (`focusTarget="firstField"`; falls back
-     to the summary when the first error has no resolvable control).
+     to the summary when the first error has no resolvable control);
 
-   Focus moves **only** in response to a submit, via an `$effect` gated on the
-   per-submit flag — never on a reactive `errors` change that is not the result
-   of a submit. The flag is consumed (reset) after the focus move so corrections
-   re-trigger focus only on the next submit.
+   if the new `errors` is empty, the flag is consumed with **no** focus move.
+   A native `reset` event on the form (e.g. `use:enhance`'s default success
+   behavior) also consumes the flag without moving focus; the `reset` listener
+   is attached via `addEventListener` in an `$effect` so a consumer `onreset`
+   in `...rest` is not clobbered. Focus moves **only** via this flag — never on
+   a reactive `errors` change with no pending submit — so corrections
+   re-trigger focus only on the next submit. Consumers must **reassign**
+   `errors` (runes idiom), not mutate it in place; an in-place mutation is not
+   a consumption signal.
 6. **Form-R6 — Jump to field.** Activating a summary link/button
    `preventDefault()`s any hash navigation, calls `.focus()` on the resolved
    control, and `scrollIntoView`s it with `behavior: 'smooth'` unless
@@ -136,6 +160,41 @@ rendered.
    `src/lib/components/index.ts`; `import { Form } from '$lib'` resolves;
    assertion added to `exports.spec.ts` (plus a smoke render). `FormError` is
    exported from `$lib/types`.
+10. **Form-R10 — Progressive enhancement (SvelteKit `use:enhance`).** Because
+    `...rest` spreads onto the `<form>` element, Svelte **attachments** pass
+    through the component: consumers attach enhance with
+    `<Form method="POST" {@attach fromAction(enhance)}>` (`fromAction` from
+    `svelte/attachments`, `enhance` from `$app/forms`; requires Svelte ≥ 5.32
+    in the consuming app). The Form adds **no** prop for this and imports
+    nothing from SvelteKit. With enhance attached and no `onSubmit`, the Form's
+    submit handler still records the attempt (Form-R2), enhance performs the
+    fetch, and the default enhance behavior completes the loop: on failure the
+    consumer maps `ActionData` into `errors` (flag consumed → focus, Form-R5);
+    on success enhance resets the form (`reset` consumes the flag, no focus).
+11. **Form-R11 — `toFormErrors` helper.** A pure mapping function in
+    `src/lib/utils/form.ts`, exported from the package root
+    (`import { toFormErrors } from '@hyzer-labs/ui'`):
+
+    ```ts
+    export type FormErrorsInput =
+    	| FormError[]
+    	| Record<string, string | string[] | undefined>
+    	| { formErrors: string[]; fieldErrors: Record<string, string[] | undefined> }
+    	| null
+    	| undefined;
+    export function toFormErrors(input: FormErrorsInput): FormError[];
+    ```
+
+    Rules, in order: `null`/`undefined` → `[]`; an **array** passes through
+    unchanged (already `FormError[]`); an object with an array `formErrors`
+    **and** an object `fieldErrors` is treated as the zod-flattened shape
+    (`z.flattenError(error)` / `error.flatten()`) — one entry per field using
+    the **first** message (empty/missing message lists skipped), followed by
+    one **form-level** entry (`name: ''`) per `formErrors` string; any other
+    object is a plain record — one entry per key, `string[]` values use the
+    first message, `undefined`/empty values skipped. The helper never throws
+    and performs **no validation** — it only reshapes. (Ordering within the
+    summary is Form-R4's DOM sort regardless.)
 
 ### Responsive Behavior
 
@@ -182,6 +241,14 @@ rendered.
 | Used with a plain native `<input name>` (no hz primitive) | Targeting resolves identically via `form.elements` (Form-R7).                              |
 | SSR / pre-mount                                   | Static markup renders (summary present iff `errors` non-empty); submit/focus/scroll logic attaches on mount. |
 | `...rest` attempts `class` / `novalidate` / `data-state` | Component-managed value wins (Form-R8).                                                      |
+| No `onSubmit` (native mode)                       | Submit is **not** prevented; form POSTs natively or `use:enhance` intercepts (Form-R2, R10).         |
+| Errors arrive async after a native-mode submit    | The first `errors` reassignment consumes the flag: non-empty → focus; empty → no focus (Form-R5).    |
+| Re-submit while stale errors are still displayed  | Flag consumed immediately — the visible summary is re-focused; content updates when new errors land (Form-R5). |
+| Form `reset` fires after a submit (enhance success) | Flag consumed, no focus move; a consumer `onreset` in `...rest` still runs (Form-R5).              |
+| `errors` mutated in place (not reassigned)        | Not a consumption signal; summary may update but focus timing is undefined — reassign instead (Form-R5). |
+| `onSubmit` + `use:enhance` both supplied          | Unsupported combination; `onSubmit` preventDefaults and enhance also handles the submit (Form-R2).   |
+| `toFormErrors(null / undefined)`                  | `[]` (Form-R11).                                                                                     |
+| `toFormErrors(zodFlattened)`                      | First message per field + `formErrors` as form-level entries last (Form-R11).                        |
 
 ### Existing Code to Reuse
 
@@ -238,6 +305,18 @@ are a later sprint).
   managed wins.
 - Form-R9: extend `exports.spec.ts` to assert `Form` resolves from `$lib` (+
   smoke render) and `FormError` is importable from `$lib/types`.
+- Form-R2/R5 (native mode): submitting without `onSubmit` leaves
+  `defaultPrevented` false (asserted via a capturing test listener that then
+  prevents the event itself so the iframe doesn't navigate); after such a
+  submit, reassigning `errors` to a non-empty array moves focus to the summary;
+  reassigning to `[]` consumes the flag silently (a later non-empty
+  reassignment without a submit does **not** move focus); dispatching a
+  `reset` event after a submit consumes the flag (a subsequent `errors`
+  reassignment does not move focus).
+- Form-R11 (node project, `src/lib/utils/form.spec.ts`): `null`/`undefined` →
+  `[]`; `FormError[]` passthrough; zod-flattened shape → field entries (first
+  message) + form-level entries; plain record with `string` / `string[]` /
+  `undefined` values; `toFormErrors` importable from `$lib`.
 
 **Integration (browser):** a form of several `hz-*` fields plus a submit button —
 submitting with a consumer-populated `errors` array renders the summary, moves
@@ -254,11 +333,15 @@ radio group → first radio); correcting fields and resubmitting with a shorter
 - `disabled` / `busy` state threading to descendant fields during submit (native
   submit-button disabling covers this for consumers).
 - Async submit states, spinners, optimistic UI, multi-step / wizard forms,
-  dirty-tracking, and autosave.
+  dirty-tracking, and autosave (enhance's `SubmitFunction` is the consumer's
+  hook for these).
 - A standalone `ErrorSummary` with custom placement — the summary renders only at
   the top of the form for now (revisit if a placement need appears).
-- Letting native (non-prevented) submission proceed — the Form always
-  `preventDefault()`s and delegates to `onSubmit` (revisit if a need appears).
+- Importing anything from SvelteKit (`$app/forms`, `@sveltejs/kit`) — the
+  library stays Kit-agnostic; enhance arrives via the consumer's attachment
+  (Form-R10).
+- Schema-library adapters beyond the flattened-shape mapping in `toFormErrors`
+  — zod is a **docs devDependency only**, never a package dependency.
 - Colors, borders, shadows, border-radius, fonts, or animation — reference
   theme's job; the component guarantees only stable `hz-form*` hooks +
   `data-state`.

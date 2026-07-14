@@ -80,8 +80,8 @@
 			<div class="tab-content">
 				{#if item.id === 'aspect'}
 					<p class="tab-note">
-						Demos use a blank native source with an SVG poster — real clips coming soon. The
-						aspect box is the component's; posters and embeds fill it.
+						Demos use a blank native source with an SVG poster — real clips coming soon. The aspect
+						box is the component's; posters and embeds fill it.
 					</p>
 					<Tabs
 						items={aspectRatios.map((r) => ({ id: r.replace('/', '-'), label: r }))}
@@ -106,8 +106,8 @@
 					</Tabs>
 				{:else if item.id === 'providers'}
 					<p class="tab-note">
-						One prop, three players: YouTube and Vimeo URLs become privacy-friendly iframes with
-						the correct allow/referrer policies; anything else renders a native
+						One prop, three players: YouTube and Vimeo URLs become privacy-friendly iframes with the
+						correct allow/referrer policies; anything else renders a native
 						<code>&lt;video&gt;</code>. The demo below is the native player (embed demos land with
 						the real assets).
 					</p>
@@ -122,16 +122,12 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>poster</code> shows before playback starts (native provider only — embeds bring
-						their own thumbnails).
+						<code>poster</code> shows before playback starts (native provider only — embeds bring their
+						own thumbnails).
 					</p>
 					<Example code={posterCode}>
 						<div class="demo-box">
-							<Video
-								src={blankSrc}
-								title="Poster demo"
-								poster={posterSvg('poster frame')}
-							/>
+							<Video src={blankSrc} title="Poster demo" poster={posterSvg('poster frame')} />
 						</div>
 					</Example>
 				{/if}
@@ -141,20 +137,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
-	}
 	.demo-box {
 		max-width: 28rem;
 	}

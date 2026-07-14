@@ -25,7 +25,12 @@
 			default: "'Media viewer'",
 			note: 'Dialog name in multi-item mode (single items are labelled by their own name).'
 		},
-		{ name: 'triggerLabel', type: 'string', default: "'View larger: {name}'", note: 'Single trigger only.' },
+		{
+			name: 'triggerLabel',
+			type: 'string',
+			default: "'View larger: {name}'",
+			note: 'Single trigger only.'
+		},
 		{ name: 'closeLabel', type: 'string', default: "'Close media viewer'" },
 		{ name: 'prevLabel', type: 'string', default: "'Previous item'" },
 		{ name: 'nextLabel', type: 'string', default: "'Next item'" },
@@ -54,10 +59,25 @@
 
 	const videoItemType: PropRow[] = [
 		{ name: 'type', type: "'video'", default: '—', note: 'Required for videos.' },
-		{ name: 'src', type: 'string', default: '—', note: 'Required. Native file or YouTube/Vimeo URL — plays via the Video component.' },
-		{ name: 'label', type: 'string', default: '—', note: 'Required. Accessible name (the Video title).' },
+		{
+			name: 'src',
+			type: 'string',
+			default: '—',
+			note: 'Required. Native file or YouTube/Vimeo URL — plays via the Video component.'
+		},
+		{
+			name: 'label',
+			type: 'string',
+			default: '—',
+			note: 'Required. Accessible name (the Video title).'
+		},
 		{ name: 'poster', type: 'string', default: '—' },
-		{ name: 'thumbSrc', type: 'string', default: '—', note: 'Strip thumbnail; defaults to poster.' },
+		{
+			name: 'thumbSrc',
+			type: 'string',
+			default: '—',
+			note: 'Strip thumbnail; defaults to poster.'
+		},
 		{ name: 'caption', type: 'string', default: '—' }
 	];
 
@@ -155,8 +175,8 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						With <code>items</code>, one component renders the whole strip; each thumbnail opens
-						the viewer at its item, ArrowLeft/ArrowRight (or the controls) page through with
+						With <code>items</code>, one component renders the whole strip; each thumbnail opens the
+						viewer at its item, ArrowLeft/ArrowRight (or the controls) page through with
 						wrap-around, and videos play via the Video component. Focus returns to the thumbnail
 						that opened the viewer.
 					</p>
@@ -170,17 +190,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
-	}
 	.thumb-box {
 		max-width: 20rem;
 	}

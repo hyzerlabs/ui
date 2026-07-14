@@ -42,4 +42,30 @@
 		min-width: 3.5rem;
 		text-align: center;
 	}
+
+	/* Slide-picker dots — the active dot fills with primary and grows a touch.
+	 * Hook: --hz-carousel-dot-size. */
+	.hz-carousel :where(.hz-carousel-dot) {
+		--hz-carousel-dot-size: 0.5rem;
+
+		width: var(--hz-carousel-dot-size);
+		height: var(--hz-carousel-dot-size);
+		padding: 0;
+		border: none;
+		border-radius: var(--hz-radius-full, 9999px);
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 40%, transparent);
+		cursor: pointer;
+		transition:
+			background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+			scale var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-carousel :where(.hz-carousel-dot:hover) {
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 65%, transparent);
+	}
+
+	.hz-carousel :where(.hz-carousel-dot[data-active]) {
+		background-color: var(--hz-color-primary, #2563eb);
+		scale: 1.25;
+	}
 }

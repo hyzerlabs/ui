@@ -70,9 +70,7 @@ test.describe('R2 — docs shell structure', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('R4 — nav links and aria-current', () => {
-	test('expanding a section toggle reveals its pages; clicking one navigates', async ({
-		page
-	}) => {
+	test('expanding a section toggle reveals its pages; clicking one navigates', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
 		await page.goto('/');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });

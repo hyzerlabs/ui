@@ -235,8 +235,8 @@
 					<p class="tab-note">
 						Demos sit on a tinted backdrop so the surface treatments read: <code>default</code>
 						paints the surface color, <code>transparent</code> lets the backdrop through.
-						<code>bordered</code> is a separate boolean prop (a bottom hairline), so it composes
-						with either variant.
+						<code>bordered</code> is a separate boolean prop (a bottom hairline), so it composes with
+						either variant.
 					</p>
 					<Tabs
 						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}
@@ -263,10 +263,10 @@
 				{:else if item.id === 'dropdowns'}
 					<p class="tab-note">
 						An item with <code>children</code> becomes a dropdown, in one of two forms: with an
-						<code>href</code> the label stays a navigable link and a separate chevron button opens
-						the menu (so click-to-navigate and open-the-menu never fight); without one, the whole
-						label is the trigger. Try it with a keyboard — Enter/Space toggle, ArrowDown opens and
-						focuses the menu.
+						<code>href</code> the label stays a navigable link and a separate chevron button opens the
+						menu (so click-to-navigate and open-the-menu never fight); without one, the whole label is
+						the trigger. Try it with a keyboard — Enter/Space toggle, ArrowDown opens and focuses the
+						menu.
 					</p>
 					<Example code={dropdownCode}>
 						<div class="nav-demo-wrap">
@@ -279,9 +279,9 @@
 					</Example>
 				{:else if item.id === 'vertical'}
 					<p class="tab-note">
-						<code>orientation="vertical"</code> renders a sidebar column: submenus become inline
-						disclosure sections that collapse independently — open several at once. Below the
-						breakpoint (viewport-based for sidebars) it still collapses to the hamburger.
+						<code>orientation="vertical"</code> renders a sidebar column: submenus become inline disclosure
+						sections that collapse independently — open several at once. Below the breakpoint (viewport-based
+						for sidebars) it still collapses to the hamburger.
 					</p>
 					<Example code={verticalCode}>
 						<div class="nav-demo-wrap sidebar-demo">
@@ -297,7 +297,8 @@
 						<div class="nav-demo-wrap">
 							<Nav items={barItems} mobileBreakpoint="sm" ariaLabel="Demo navigation (slots)">
 								{#snippet logo()}
-									<!-- svelte-ignore a11y_invalid_attribute — deliberate # so demos don't navigate -->
+									<!-- deliberate "#" so demos don't navigate -->
+									<!-- svelte-ignore a11y_invalid_attribute -->
 									<a href="#" class="demo-logo">Hyzer Labs</a>
 								{/snippet}
 								{#snippet actions()}
@@ -321,7 +322,8 @@
 								<div class="nav-demo-wrap">
 									<Nav items={demoItems} ariaLabel="Demo navigation (mobile)">
 										{#snippet logo()}
-											<!-- svelte-ignore a11y_invalid_attribute — deliberate # so demos don't navigate -->
+											<!-- deliberate "#" so demos don't navigate -->
+											<!-- svelte-ignore a11y_invalid_attribute -->
 											<a href="#" class="demo-logo">Hyzer Labs</a>
 										{/snippet}
 										{#snippet actions()}
@@ -339,21 +341,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
-	}
-
 	/* Open dropdowns must escape the example frame instead of clipping. */
 	.tab-content :global(.doc-example) {
 		overflow: visible;

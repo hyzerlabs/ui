@@ -9,6 +9,8 @@
 	// styled starting point; the docs chrome below stays hand-rolled CSS on the
 	// same role tokens.
 	import '$lib/theme/theme.css';
+	// Shared demo-page scaffolding classes (.tab-content, .tab-note, …).
+	import '../docs/docs.css';
 
 	interface Props {
 		children: Snippet;
@@ -490,7 +492,10 @@
 		max-width: 100%;
 	}
 
-	:global(*:focus-visible) {
+	/* Field controls get the theme's soft focus ring instead — this unlayered
+	 * chrome rule would otherwise beat it and draw an offset box across the
+	 * field borders. */
+	:global(*:focus-visible:not(:is(.hz-field input, .hz-field select, .hz-field textarea))) {
 		outline: 2px solid currentColor;
 		outline-offset: 2px;
 	}

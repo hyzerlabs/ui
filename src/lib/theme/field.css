@@ -35,9 +35,10 @@
 		color: var(--hz-color-error, #dc2626);
 	}
 
-	/* Text-like controls: bare select/textarea, and the TextInput wrapper
-	 * (which carries the border so prefix/suffix sit inside the box). */
-	.hz-field :where(select, textarea),
+	/* Text-like controls: bare select/textarea, the TextInput wrapper (which
+	 * carries the border so prefix/suffix sit inside the box), and the
+	 * exact-entry fields (slider numbers, color hex) — one chrome for all. */
+	.hz-field :where(select, textarea, .hz-slider-number, .hz-color-hex),
 	.hz-input-wrapper {
 		box-sizing: border-box;
 		border: var(--hz-border-width-thin, 1px) solid
@@ -52,14 +53,50 @@
 			box-shadow var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
 	}
 
-	.hz-field :where(select, textarea) {
+	.hz-field :where(select, textarea, .hz-slider-number, .hz-color-hex) {
 		padding: 0.5rem 0.75rem;
 	}
 
-	.hz-field :where(select:focus-visible, textarea:focus-visible) {
-		outline: none;
+	/* Growing textareas (vertical/auto): field-sizing ignores `rows`, so the
+	 * component's --hz-textarea-rows var restores it as the minimum height
+	 * (padding + borders added here, where they're known). */
+	.hz-field textarea:where([data-resize='vertical'], [data-resize='auto']) {
+		min-height: calc(
+			var(--hz-textarea-rows, 3) * 1lh + 1rem + 2 * var(--hz-border-width-thin, 1px)
+		);
+	}
+
+	/*
+	 * Focus ring, shared by every field control: a soft ring hugging the
+	 * control's rounded border instead of an offset box breaking across it.
+	 * The transparent outline keeps a visible rectangle in forced-colors mode.
+	 */
+	.hz-field {
+		--hz-field-ring: 0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #2563eb) 25%, transparent);
+	}
+
+	.hz-field
+		:where(
+			select:focus-visible,
+			textarea:focus-visible,
+			.hz-slider-number:focus-visible,
+			.hz-color-hex:focus-visible
+		) {
+		outline: 2px solid transparent;
 		border-color: var(--hz-color-primary, #2563eb);
-		box-shadow: 0 0 0 1px var(--hz-color-primary, #2563eb);
+		box-shadow: var(--hz-field-ring);
+	}
+
+	.hz-field :where(input[type='checkbox']:not(.hz-toggle)):focus-visible {
+		outline: 2px solid transparent;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		box-shadow: var(--hz-field-ring);
+	}
+
+	.hz-field :where(input[type='radio']):focus-visible {
+		outline: 2px solid transparent;
+		border-radius: var(--hz-radius-full, 9999px);
+		box-shadow: var(--hz-field-ring);
 	}
 
 	.hz-input-wrapper {
@@ -78,7 +115,7 @@
 
 	.hz-input-wrapper:where(:focus-within) {
 		border-color: var(--hz-color-primary, #2563eb);
-		box-shadow: 0 0 0 1px var(--hz-color-primary, #2563eb);
+		box-shadow: var(--hz-field-ring);
 	}
 
 	.hz-input-prefix,
@@ -108,13 +145,14 @@
 	}
 
 	/* Error state — the control shows it, the message is already red. */
-	.hz-field:where([data-state='error']) :where(select, textarea),
+	.hz-field:where([data-state='error']) :where(select, textarea, .hz-slider-number, .hz-color-hex),
 	.hz-field:where([data-state='error']) .hz-input-wrapper {
 		border-color: var(--hz-color-error, #dc2626);
 	}
 
 	/* Disabled state */
-	.hz-field:where([data-state='disabled']) :where(select, textarea),
+	.hz-field:where([data-state='disabled'])
+		:where(select, textarea, .hz-slider-number, .hz-color-hex),
 	.hz-field:where([data-state='disabled']) .hz-input-wrapper {
 		background-color: color-mix(
 			in srgb,
@@ -127,23 +165,309 @@
 	.hz-field:where([data-state='disabled']) {
 		opacity: 0.7;
 	}
+
+	/*
+	 * Slider family — hooks live on the row so track, thumbs, fill, and ticks
+	 * all share them. The fill edge tracks the THUMB CENTER: a thumb at
+	 * fraction f sits at calc(thumb/2 + f * (100% - thumb)).
+	 * Override hooks: --hz-slider-track-height / --hz-slider-thumb-size.
+	 */
+	.hz-field--slider .hz-slider-row {
+		--hz-slider-track-height: 0.375rem;
+		--hz-slider-thumb-size: 1.125rem;
+		--_track-color: color-mix(
+			in srgb,
+			var(--hz-color-gray, #6b7280) 35%,
+			var(--hz-color-surface, #fff)
+		);
+	}
+
+	/* Single slider: the input itself is the track; the fill is a two-stop
+	 * gradient with the stop driven by --hz-slider-fill (Fill-R1). */
+	.hz-field--slider input.hz-slider {
+		--_fill-stop: calc(
+			var(--hz-slider-thumb-size) / 2 + var(--hz-slider-fill, 0) *
+				(100% - var(--hz-slider-thumb-size))
+		);
+
+		appearance: none;
+		height: var(--hz-slider-track-height);
+		border-radius: var(--hz-radius-full, 9999px);
+		background: linear-gradient(
+			to right,
+			var(--hz-color-primary, #2563eb) var(--_fill-stop),
+			var(--_track-color) var(--_fill-stop)
+		);
+		cursor: pointer;
+	}
+
+	.hz-field--slider input.hz-slider::-webkit-slider-thumb {
+		appearance: none;
+		width: var(--hz-slider-thumb-size);
+		height: var(--hz-slider-thumb-size);
+		border: none;
+		border-radius: var(--hz-radius-full, 9999px);
+		background-color: var(--hz-color-primary, #2563eb);
+		box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+		/* The track is the element itself — recentre the thumb on it. */
+		margin-top: calc((var(--hz-slider-track-height) - var(--hz-slider-thumb-size)) / 2);
+	}
+
+	.hz-field--slider input.hz-slider::-moz-range-thumb {
+		width: var(--hz-slider-thumb-size);
+		height: var(--hz-slider-thumb-size);
+		border: none;
+		border-radius: var(--hz-radius-full, 9999px);
+		background-color: var(--hz-color-primary, #2563eb);
+		box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+	}
+
+	.hz-field--slider input.hz-slider:disabled {
+		cursor: not-allowed;
+	}
+
+	/* Focus ring on the thumb (the moving part), not the whole track. */
+	.hz-field--slider input.hz-slider:focus-visible {
+		outline: 2px solid transparent;
+	}
+
+	.hz-field--slider input.hz-slider:focus-visible::-webkit-slider-thumb {
+		box-shadow: var(--hz-field-ring);
+	}
+
+	.hz-field--slider input.hz-slider:focus-visible::-moz-range-thumb {
+		box-shadow: var(--hz-field-ring);
+	}
+
+	/*
+	 * RangeSlider (after the single rules so equal-specificity overrides win):
+	 * the wrapper paints the track (::before) and the between-thumbs fill
+	 * (::after, from --hz-slider-fill-start/-end); the two inputs stack
+	 * transparently over it — pointer-events: none on the inputs, auto on the
+	 * thumbs, so each thumb is grabbable through the other input.
+	 */
+	.hz-field--slider-range .hz-slider-track {
+		height: var(--hz-slider-thumb-size);
+	}
+
+	.hz-field--slider-range .hz-slider-track::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 50%;
+		translate: 0 -50%;
+		height: var(--hz-slider-track-height);
+		border-radius: var(--hz-radius-full, 9999px);
+		background-color: var(--_track-color);
+	}
+
+	.hz-field--slider-range .hz-slider-track::after {
+		content: '';
+		position: absolute;
+		top: 50%;
+		translate: 0 -50%;
+		height: var(--hz-slider-track-height);
+		border-radius: var(--hz-radius-full, 9999px);
+		background-color: var(--hz-color-primary, #2563eb);
+		left: calc(
+			var(--hz-slider-thumb-size) / 2 + var(--hz-slider-fill-start, 0) *
+				(100% - var(--hz-slider-thumb-size))
+		);
+		width: calc(
+			(var(--hz-slider-fill-end, 1) - var(--hz-slider-fill-start, 0)) *
+				(100% - var(--hz-slider-thumb-size))
+		);
+	}
+
+	.hz-field--slider-range input.hz-slider {
+		position: absolute;
+		inset: 0;
+		height: 100%;
+		margin: 0;
+		background: none;
+		pointer-events: none;
+		z-index: 1;
+	}
+
+	/* Range-R3: raise the escapable thumb on exact overlap (max is later in
+	 * DOM and wins by default). */
+	.hz-field--slider-range .hz-slider-row[data-top='min'] input.hz-slider-min {
+		z-index: 2;
+	}
+
+	.hz-field--slider-range input.hz-slider::-webkit-slider-thumb {
+		pointer-events: auto;
+		/* Element height equals the thumb — no recentring offset. */
+		margin-top: 0;
+	}
+
+	.hz-field--slider-range input.hz-slider::-moz-range-thumb {
+		pointer-events: auto;
+	}
+
+	/*
+	 * Ticks (both components) — decorative marks under the track, positioned
+	 * by --hz-tick-pos with the same thumb-center correction as the fill.
+	 */
+	.hz-field--slider .hz-slider-row[data-has-ticks] {
+		padding-bottom: 1.375rem;
+	}
+
+	.hz-field--slider .hz-slider-ticks {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: calc(50% + var(--hz-slider-thumb-size) / 2 + 0.25rem);
+	}
+
+	.hz-field--slider .hz-slider-tick {
+		position: absolute;
+		translate: -50% 0;
+		left: calc(
+			var(--hz-slider-thumb-size) / 2 + var(--hz-tick-pos, 0) * (100% - var(--hz-slider-thumb-size))
+		);
+		width: 2px;
+		height: 0.375rem;
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 60%, transparent);
+	}
+
+	.hz-field--slider .hz-slider-tick-label {
+		position: absolute;
+		top: calc(100% + 0.125rem);
+		left: 50%;
+		translate: -50% 0;
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		color: var(--hz-color-text-muted, #6b7280);
+		white-space: nowrap;
+	}
+
+	/* The en-dash between the RangeSlider's exact-entry pair. */
+	.hz-field--slider .hz-slider-sep {
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	/*
+	 * ColorInput — size the native swatch and strip the vendor wrapper padding
+	 * so the color fills the control. Hook: --hz-color-swatch-size.
+	 */
+	.hz-field--color input.hz-color {
+		--hz-color-swatch-size: 2rem;
+
+		inline-size: calc(var(--hz-color-swatch-size) * 1.5);
+		block-size: var(--hz-color-swatch-size);
+		padding: 0;
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 60%, transparent);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		background-color: transparent;
+	}
+
+	.hz-field--color input.hz-color::-webkit-color-swatch-wrapper {
+		padding: 2px;
+	}
+
+	.hz-field--color input.hz-color::-webkit-color-swatch {
+		border: none;
+		border-radius: calc(var(--hz-radius-md, 0.5rem) - 2px);
+	}
+
+	.hz-field--color input.hz-color::-moz-color-swatch {
+		border: none;
+		border-radius: calc(var(--hz-radius-md, 0.5rem) - 2px);
+	}
+
+	.hz-field--color input.hz-color:focus-visible {
+		outline: 2px solid transparent;
+		border-color: var(--hz-color-primary, #2563eb);
+		box-shadow: var(--hz-field-ring);
+	}
+
+	.hz-field--color input.hz-color:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	/* Read-only value readout (showInput=false) — matches the field text scale. */
+	.hz-field--color .hz-color-value {
+		font-size: var(--hz-font-size-base, 1rem);
+	}
+
+	/*
+	 * Exact-entry fields (slider numbers, color hex) share the text-control
+	 * chrome above and are AUTO-SIZED to their content via field-sizing — no
+	 * width guessing. --_chars only feeds a never-clipping MINIMUM (so the
+	 * slider row doesn't shift as digit counts change mid-drag) and the width
+	 * fallback for browsers without field-sizing.
+	 */
+	.hz-field--slider .hz-slider-number,
+	.hz-field--color .hz-color-hex {
+		field-sizing: content;
+		min-width: calc(var(--_chars, 3) * 1ch + 1.5rem + 2 * var(--hz-border-width-thin, 1px));
+	}
+
+	.hz-field--slider .hz-slider-number {
+		--_chars: var(--hz-slider-chars, 3);
+	}
+
+	.hz-field--color .hz-color-hex {
+		--_chars: 7;
+	}
+
+	@supports not (field-sizing: content) {
+		.hz-field--slider .hz-slider-number,
+		.hz-field--color .hz-color-hex {
+			width: calc((var(--_chars, 3) + 1) * 1ch + 1.5rem + 2 * var(--hz-border-width-thin, 1px));
+		}
+	}
+
+	/* Native spin buttons are hidden: on desktop they overlay and block the
+	 * digits, and they duplicate the slider — the range is the stepping
+	 * control, and arrow keys still step this field natively. */
+	.hz-field--slider .hz-slider-number {
+		appearance: textfield;
+		-moz-appearance: textfield;
+	}
+
+	.hz-field--slider .hz-slider-number::-webkit-outer-spin-button,
+	.hz-field--slider .hz-slider-number::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	/* Read-only value readout (showInput=false) — matches the field text
+	 * scale; reserved width so the row doesn't jitter while dragging. */
+	.hz-field--slider .hz-slider-value {
+		min-width: calc(var(--hz-slider-chars, 3) * 1ch);
+		text-align: end;
+		font-size: var(--hz-font-size-base, 1rem);
+	}
+
+	.hz-field--slider .hz-slider-unit {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
 }
 
 /*
  * Toggle track & thumb — deliberately UNLAYERED.
- * The component ships a scoped structural reset (`.hz-toggle { background:
- * none; ... }`) that is unlayered and hash-qualified (0-2-0); layered rules
- * can never beat it, so these selectors carry 0-2-1 specificity instead.
+ * Headless, the component is a bare native checkbox (plus an unlayered,
+ * hash-qualified cursor rule at 0-2-0); these selectors carry 0-2-1 so the
+ * visual replacement always wins, including over the layered generic
+ * checkbox sizing above. The input itself becomes the track
+ * (appearance: none) and the thumb is its ::before pseudo-element.
  * Override hooks: --hz-toggle-width / --hz-toggle-height.
  */
-.hz-field--toggle button.hz-toggle {
+.hz-field--toggle input.hz-toggle {
 	--hz-toggle-width: 2.5rem;
 	--hz-toggle-height: 1.5rem;
 
+	appearance: none;
 	box-sizing: border-box;
+	position: relative;
+	margin: 0;
 	width: var(--hz-toggle-width);
 	height: var(--hz-toggle-height);
-	padding: 2px;
 	border-radius: var(--hz-radius-full, 9999px);
 	background-color: color-mix(
 		in srgb,
@@ -154,16 +478,30 @@
 	flex-shrink: 0;
 }
 
-.hz-field--toggle button.hz-toggle[data-state='on'] {
+.hz-field--toggle input.hz-toggle[data-state='on'] {
 	background-color: var(--hz-color-primary, #2563eb);
 }
 
-.hz-field--toggle button.hz-toggle:disabled {
+.hz-field--toggle input.hz-toggle:disabled {
 	cursor: not-allowed;
 	opacity: 0.5;
 }
 
-button.hz-toggle .hz-toggle-thumb {
+/* Focus ring hugging the pill (unlayered like the rest of the toggle rules).
+ * --hz-field-ring inherits from the layered .hz-field rule. */
+.hz-field--toggle input.hz-toggle:focus-visible {
+	outline: 2px solid transparent;
+	box-shadow: var(
+		--hz-field-ring,
+		0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #2563eb) 25%, transparent)
+	);
+}
+
+.hz-field--toggle input.hz-toggle::before {
+	content: '';
+	position: absolute;
+	top: 2px;
+	left: 2px;
 	width: calc(var(--hz-toggle-height) - 4px);
 	height: calc(var(--hz-toggle-height) - 4px);
 	border-radius: var(--hz-radius-full, 9999px);
@@ -172,6 +510,6 @@ button.hz-toggle .hz-toggle-thumb {
 	transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
 }
 
-button.hz-toggle[data-state='on'] .hz-toggle-thumb {
+.hz-field--toggle input.hz-toggle[data-state='on']::before {
 	transform: translateX(calc(var(--hz-toggle-width) - var(--hz-toggle-height)));
 }

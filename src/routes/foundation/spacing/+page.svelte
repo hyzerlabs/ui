@@ -73,8 +73,7 @@
 			</li>
 			<li>
 				<strong>Breakpoint widths</strong> — the <code>--hz-width-sm…xl</code> tokens that cap
-				<code>Container</code> and drive the <code>Grid</code>/<code>Split</code> container-query
-				thresholds.
+				<code>Container</code> and drive the <code>Grid</code>/<code>Split</code> container-query thresholds.
 			</li>
 		</ul>
 	</div>
@@ -104,17 +103,17 @@
 		<p>
 			An alternate spacing model, adapted from
 			<a href="https://blog.damato.design/posts/complementary-space/">Complementary Space</a>:
-			instead of picking from a
-			scale, use two distances — <code>--hz-space-near</code> between related things and
+			instead of picking from a scale, use two distances — <code>--hz-space-near</code> between
+			related things and
 			<code>--hz-space-away</code> between unrelated things. Both derive from the
 			<code>--hz-density</code> grid unit ({density.unit}), so overriding one custom property
 			retunes every distance on the page.
 		</p>
 		<p class="tab-note">
-			Adding <code>data-density-shift</code> to an ancestor tightens both distances one level, so
-			nested regions read denser without introducing new spacing values. Three levels of shift is
-			the floor. The near multipliers walk the 1-2-5-10 ladder, so a shifted region's away always
-			equals its parent's near.
+			Adding <code>data-density-shift</code> to an ancestor tightens both distances one level, so nested
+			regions read denser without introducing new spacing values. Three levels of shift is the floor.
+			The near multipliers walk the 1-2-5-10 ladder, so a shifted region's away always equals its parent's
+			near.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -141,8 +140,8 @@
 		<p>
 			A real composition built from Stack and Cluster — page, sections, cards, tag rows. Every
 			distance is <code>gap="near"</code>, <code>gap="away"</code>, or
-			<code>padding="near"</code>; each nested region adds one <code>data-density-shift</code> and
-			the whole hierarchy tightens on its own.
+			<code>padding="near"</code>; each nested region adds one <code>data-density-shift</code> and the
+			whole hierarchy tightens on its own.
 		</p>
 		<div class="density-demo" aria-labelledby="density-demo-heading">
 			<Stack gap="away">
@@ -188,8 +187,8 @@
 			<code>stackBelow</code> threshold, and <code>Grid</code>'s fluid
 			<code>{'{ min }'}</code> mode — they all resolve via <code>var()</code>. The one exception is
 			<code>Grid</code>'s band breakpoints (base/sm/md/lg): they mirror these values but remain
-			literal system constants, because CSS cannot read custom properties inside media or
-			container queries.
+			literal system constants, because CSS cannot read custom properties inside media or container
+			queries.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -277,11 +276,6 @@
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		min-width: 2px;
 		max-width: 100%;
-	}
-
-	.tab-note {
-		color: var(--hz-color-text-muted, #6b7280);
-		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 
 	.density-demo {

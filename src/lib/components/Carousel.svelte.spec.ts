@@ -31,9 +31,9 @@ function parts(container: HTMLElement) {
 }
 
 function visibleText(container: HTMLElement): string {
-	const active = Array.from(
-		container.querySelectorAll<HTMLElement>('.hz-carousel-slide')
-	).find((s) => !s.hidden);
+	const active = Array.from(container.querySelectorAll<HTMLElement>('.hz-carousel-slide')).find(
+		(s) => !s.hidden
+	);
 	return active?.textContent?.trim() ?? '';
 }
 
@@ -188,6 +188,56 @@ describe('navigation', () => {
 // ---------------------------------------------------------------------------
 // Barrel export
 // ---------------------------------------------------------------------------
+
+describe('indicator', () => {
+	it('default (counter): status span present, no dots', () => {
+		const { container } = render(Carousel, base);
+		expect(container.querySelector('.hz-carousel-status')).not.toBeNull();
+		expect(container.querySelector('.hz-carousel-dots')).toBeNull();
+	});
+
+	it('dots: one labelled button per slide, aria-current on the active one, no counter', () => {
+		const { container } = render(Carousel, { ...base, indicator: 'dots' });
+		expect(container.querySelector('.hz-carousel-status')).toBeNull();
+		const dots = Array.from(container.querySelectorAll<HTMLButtonElement>('.hz-carousel-dot'));
+		expect(dots.length).toBe(3);
+		expect(dots[0].getAttribute('aria-label')).toBe('Go to slide 1 of 3');
+		expect(dots[2].getAttribute('aria-label')).toBe('Go to slide 3 of 3');
+		expect(dots[0].getAttribute('aria-current')).toBe('true');
+		expect(dots[1].hasAttribute('aria-current')).toBe(false);
+		expect(dots[0].hasAttribute('data-active')).toBe(true);
+	});
+
+	it('clicking a dot jumps to that slide and moves aria-current', async () => {
+		const onchange = vi.fn();
+		const { container } = render(Carousel, { ...base, indicator: 'dots', onchange });
+		const dots = Array.from(container.querySelectorAll<HTMLButtonElement>('.hz-carousel-dot'));
+		dots[2].click();
+		await tick();
+		expect(visibleText(container)).toBe('gamma');
+		expect(onchange).toHaveBeenCalledWith(2);
+		expect(dots[2].getAttribute('aria-current')).toBe('true');
+		expect(dots[0].hasAttribute('aria-current')).toBe(false);
+	});
+
+	it('dotLabel overrides the dot accessible names', () => {
+		const { container } = render(Carousel, {
+			...base,
+			indicator: 'dots',
+			dotLabel: (i: number, c: number) => `Bild ${i + 1} von ${c}`
+		});
+		expect(
+			(container.querySelector('.hz-carousel-dot') as HTMLButtonElement).getAttribute('aria-label')
+		).toBe('Bild 1 von 3');
+	});
+
+	it('dots viewport still announces via the live region', () => {
+		const { container } = render(Carousel, { ...base, indicator: 'dots' });
+		expect(
+			(container.querySelector('.hz-carousel-viewport') as HTMLElement).getAttribute('aria-live')
+		).toBe('polite');
+	});
+});
 
 describe('barrel export', () => {
 	it('Carousel is resolvable from $lib', async () => {

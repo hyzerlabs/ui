@@ -11,6 +11,10 @@ function tick(): Promise<void> {
 	return new Promise((r) => setTimeout(r, 0));
 }
 
+function getInput(container: HTMLElement): HTMLInputElement {
+	return container.querySelector('input.hz-toggle') as HTMLInputElement;
+}
+
 // ---------------------------------------------------------------------------
 // Field-R1 — Wrapper + state
 // ---------------------------------------------------------------------------
@@ -61,34 +65,40 @@ describe('Field-R1 — wrapper and state', () => {
 // ---------------------------------------------------------------------------
 
 describe('Toggle-R1 — structure', () => {
-	it('renders button[role="switch"].hz-toggle', () => {
+	it('renders input[type="checkbox"][role="switch"].hz-toggle', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		const btn = container.querySelector('button[role="switch"].hz-toggle') as HTMLElement;
-		expect(btn).not.toBeNull();
+		const input = container.querySelector(
+			'input[type="checkbox"][role="switch"].hz-toggle'
+		) as HTMLInputElement;
+		expect(input).not.toBeNull();
 	});
 
-	it('button type is "button"', () => {
-		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		expect((container.querySelector('button') as HTMLButtonElement).type).toBe('button');
+	it('name lands on the input (form participation)', () => {
+		const { container } = render(Toggle, { name: 'alerts', label: 'X' });
+		expect(getInput(container).name).toBe('alerts');
 	});
 
-	it('button contains a span.hz-toggle-thumb', () => {
-		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		const thumb = container.querySelector('button .hz-toggle-thumb') as HTMLElement;
-		expect(thumb).not.toBeNull();
+	it('value applies only when defined', () => {
+		const { container } = render(Toggle, { name: 'x', label: 'X', value: 'yes' });
+		expect(getInput(container).getAttribute('value')).toBe('yes');
+		const { container: bare } = render(Toggle, { name: 'x', label: 'X' });
+		expect(getInput(bare).hasAttribute('value')).toBe(false);
 	});
 
-	it('label follows button in DOM with id="hz-label-{uid}"', () => {
+	it('no aria-checked — native checked state carries semantics', () => {
+		const { container } = render(Toggle, { name: 'x', label: 'X' });
+		expect(getInput(container).hasAttribute('aria-checked')).toBe(false);
+	});
+
+	it('label follows input in DOM and is associated via for/id', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'Dark mode' });
 		const root = container.querySelector('.hz-field--toggle') as HTMLElement;
-		const btn = container.querySelector('button') as HTMLButtonElement;
+		const input = getInput(container);
 		const lbl = container.querySelector('label') as HTMLLabelElement;
-		// label id referenced by aria-labelledby
-		expect(lbl.id).toMatch(/^hz-label-/);
-		expect(btn.getAttribute('aria-labelledby')).toBe(lbl.id);
-		// label follows button in DOM
+		expect(input.id).toMatch(/^hz-input-/);
+		expect(lbl.htmlFor).toBe(input.id);
 		const children = Array.from(root.children);
-		expect(children.indexOf(btn)).toBeLessThan(children.indexOf(lbl));
+		expect(children.indexOf(input)).toBeLessThan(children.indexOf(lbl));
 	});
 
 	it('label text matches the label prop', () => {
@@ -111,72 +121,71 @@ describe('Toggle-R1 — structure', () => {
 // ---------------------------------------------------------------------------
 
 describe('Toggle-R2 — checked state', () => {
-	it('initial aria-checked="false" and data-state="off"', () => {
+	it('initial unchecked with data-state="off"', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		expect(btn.getAttribute('aria-checked')).toBe('false');
-		expect(btn.getAttribute('data-state')).toBe('off');
+		const input = getInput(container);
+		expect(input.checked).toBe(false);
+		expect(input.getAttribute('data-state')).toBe('off');
 	});
 
-	it('clicking toggles aria-checked to "true" and data-state to "on"', async () => {
+	it('clicking the input toggles checked and data-state to "on"', async () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		btn.click();
+		const input = getInput(container);
+		input.click();
 		await tick();
-		expect(btn.getAttribute('aria-checked')).toBe('true');
-		expect(btn.getAttribute('data-state')).toBe('on');
+		expect(input.checked).toBe(true);
+		expect(input.getAttribute('data-state')).toBe('on');
 	});
 
-	it('clicking again toggles back to "false"/"off"', async () => {
+	it('clicking again toggles back to unchecked/"off"', async () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		btn.click();
+		const input = getInput(container);
+		input.click();
 		await tick();
-		btn.click();
+		input.click();
 		await tick();
-		expect(btn.getAttribute('aria-checked')).toBe('false');
-		expect(btn.getAttribute('data-state')).toBe('off');
+		expect(input.checked).toBe(false);
+		expect(input.getAttribute('data-state')).toBe('off');
+	});
+
+	it('clicking the LABEL toggles checked (native for/id association)', async () => {
+		const { container } = render(Toggle, { name: 'x', label: 'X' });
+		const lbl = container.querySelector('label') as HTMLLabelElement;
+		lbl.click();
+		await tick();
+		expect(getInput(container).checked).toBe(true);
 	});
 
 	/*
-	 * Focus is established by CLICKING the button, not element.focus():
+	 * Focus is established by CLICKING the input, not element.focus():
 	 * userEvent.keyboard sends real CDP keys to whichever test-file iframe
 	 * holds browser-level focus, and .focus() alone doesn't claim it — under
 	 * parallel iframes the keystroke could land in another frame (same flake
 	 * as Accordion R13). The click toggles on and focuses; the keypress
-	 * asserts the toggle-off half of native button activation.
+	 * asserts the toggle-off half of native checkbox activation.
 	 */
-	/** The headless button is zero-sized without the theme's track styles —
-	 * give it a hit area so Playwright's real click can land. */
-	function makeClickable(btn: HTMLButtonElement): void {
-		btn.style.width = '44px';
-		btn.style.height = '24px';
-	}
-
-	it('Enter key on button toggles checked (native button activation)', async () => {
+	it('Space key toggles checked (native checkbox activation)', async () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		makeClickable(btn);
-		await userEvent.click(btn);
+		const input = getInput(container);
+		await userEvent.click(input);
 		await tick();
-		expect(btn.getAttribute('aria-checked')).toBe('true');
-		expect(document.activeElement).toBe(btn);
-		await userEvent.keyboard('{Enter}');
-		await tick();
-		expect(btn.getAttribute('aria-checked')).toBe('false');
-	});
-
-	it('Space key on button toggles checked (native button activation)', async () => {
-		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		makeClickable(btn);
-		await userEvent.click(btn);
-		await tick();
-		expect(btn.getAttribute('aria-checked')).toBe('true');
-		expect(document.activeElement).toBe(btn);
+		expect(input.checked).toBe(true);
+		expect(document.activeElement).toBe(input);
 		await userEvent.keyboard(' ');
 		await tick();
-		expect(btn.getAttribute('aria-checked')).toBe('false');
+		expect(input.checked).toBe(false);
+	});
+
+	it('Enter key does NOT toggle (native checkbox behavior)', async () => {
+		const { container } = render(Toggle, { name: 'x', label: 'X' });
+		const input = getInput(container);
+		await userEvent.click(input);
+		await tick();
+		expect(input.checked).toBe(true);
+		expect(document.activeElement).toBe(input);
+		await userEvent.keyboard('{Enter}');
+		await tick();
+		expect(input.checked).toBe(true);
 	});
 });
 
@@ -185,19 +194,18 @@ describe('Toggle-R2 — checked state', () => {
 // ---------------------------------------------------------------------------
 
 describe('Toggle-R3 — aria chain and disabled', () => {
-	it('description: button aria-describedby = desc id', () => {
+	it('description: input aria-describedby = desc id', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X', description: 'Help' });
-		const btn = container.querySelector('button') as HTMLButtonElement;
 		const desc = container.querySelector('.hz-field-description') as HTMLElement;
-		expect(btn.getAttribute('aria-describedby')).toBe(desc.id);
+		expect(getInput(container).getAttribute('aria-describedby')).toBe(desc.id);
 	});
 
-	it('error: button aria-describedby = error id + aria-invalid="true"', () => {
+	it('error: input aria-describedby = error id + aria-invalid="true"', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X', error: 'Required' });
-		const btn = container.querySelector('button') as HTMLButtonElement;
+		const input = getInput(container);
 		const err = container.querySelector('.hz-field-error') as HTMLElement;
-		expect(btn.getAttribute('aria-describedby')).toBe(err.id);
-		expect(btn.getAttribute('aria-invalid')).toBe('true');
+		expect(input.getAttribute('aria-describedby')).toBe(err.id);
+		expect(input.getAttribute('aria-invalid')).toBe('true');
 	});
 
 	it('both desc and error: aria-describedby chains them', () => {
@@ -207,31 +215,19 @@ describe('Toggle-R3 — aria chain and disabled', () => {
 			description: 'Help',
 			error: 'Bad'
 		});
-		const btn = container.querySelector('button') as HTMLButtonElement;
 		const descId = (container.querySelector('.hz-field-description') as HTMLElement).id;
 		const errId = (container.querySelector('.hz-field-error') as HTMLElement).id;
-		expect(btn.getAttribute('aria-describedby')).toBe(`${descId} ${errId}`);
+		expect(getInput(container).getAttribute('aria-describedby')).toBe(`${descId} ${errId}`);
 	});
 
 	it('neither: aria-describedby absent', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		expect(btn.hasAttribute('aria-describedby')).toBe(false);
+		expect(getInput(container).hasAttribute('aria-describedby')).toBe(false);
 	});
 
-	it('disabled: native disabled on button', () => {
+	it('disabled: native disabled on input', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X', disabled: true });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		expect(btn.disabled).toBe(true);
-	});
-
-	it('disabled: clicking does not toggle checked', async () => {
-		const { container } = render(Toggle, { name: 'x', label: 'X', disabled: true });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		// Native disabled prevents click events from firing normally,
-		// but even if it fires, the handler should not toggle.
-		expect(btn.getAttribute('aria-checked')).toBe('false');
-		expect(btn.disabled).toBe(true);
+		expect(getInput(container).disabled).toBe(true);
 	});
 
 	it('error renders with role="alert"', () => {
@@ -247,18 +243,15 @@ describe('Toggle-R3 — aria chain and disabled', () => {
 // ---------------------------------------------------------------------------
 
 describe('Field-R3 — required', () => {
-	it('required: aria-required on button + * span in label', () => {
+	it('required: aria-required on input + * span in label', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X', required: true });
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		expect(btn.getAttribute('aria-required')).toBe('true');
+		expect(getInput(container).getAttribute('aria-required')).toBe('true');
 		expect(container.querySelector('.hz-field-required')).not.toBeNull();
 	});
 
 	it('not required: no aria-required and no * span', () => {
 		const { container } = render(Toggle, { name: 'x', label: 'X' });
-		expect(
-			(container.querySelector('button') as HTMLButtonElement).hasAttribute('aria-required')
-		).toBe(false);
+		expect(getInput(container).hasAttribute('aria-required')).toBe(false);
 		expect(container.querySelector('.hz-field-required')).toBeNull();
 	});
 });
@@ -291,15 +284,15 @@ describe('Forms-R1 — class composition', () => {
 // ---------------------------------------------------------------------------
 
 describe('Forms-R2 — rest forwarding', () => {
-	it('data-testid from rest forwards to the button', async () => {
+	it('data-testid from rest forwards to the input', async () => {
 		render(Toggle, {
 			name: 'x',
 			label: 'X',
 			'data-testid': 'my-toggle'
 		} as Record<string, unknown>);
-		const btn = document.querySelector('[data-testid="my-toggle"]');
-		expect(btn).not.toBeNull();
-		expect(btn?.tagName.toLowerCase()).toBe('button');
+		const input = document.querySelector('[data-testid="my-toggle"]');
+		expect(input).not.toBeNull();
+		expect(input?.tagName.toLowerCase()).toBe('input');
 	});
 
 	it('role in rest is overridden by managed role="switch"', () => {
@@ -308,8 +301,16 @@ describe('Forms-R2 — rest forwarding', () => {
 			label: 'X',
 			role: 'checkbox'
 		} as Record<string, unknown>);
-		const btn = container.querySelector('button') as HTMLButtonElement;
-		expect(btn.getAttribute('role')).toBe('switch');
+		expect(getInput(container).getAttribute('role')).toBe('switch');
+	});
+
+	it('type in rest is overridden by managed type="checkbox"', () => {
+		const { container } = render(Toggle, {
+			name: 'x',
+			label: 'X',
+			type: 'radio'
+		} as Record<string, unknown>);
+		expect(getInput(container).type).toBe('checkbox');
 	});
 });
 

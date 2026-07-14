@@ -6,7 +6,17 @@
 	import Field from './Field.svelte';
 
 	interface Props extends FieldBase {
-		type?: 'text' | 'email' | 'password' | 'tel' | 'url' | 'search' | 'number';
+		type?:
+			| 'text'
+			| 'email'
+			| 'password'
+			| 'tel'
+			| 'url'
+			| 'search'
+			| 'number'
+			| 'date'
+			| 'time'
+			| 'datetime-local';
 		value?: string;
 		placeholder?: string;
 		autocomplete?: HTMLInputAttributes['autocomplete'];

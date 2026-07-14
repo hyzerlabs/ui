@@ -29,8 +29,18 @@ describe('subpath exports', () => {
 		expect(mod.Checkbox).toBeDefined();
 		expect(mod.RadioGroup).toBeDefined();
 		expect(mod.Toggle).toBeDefined();
+		// Slider-R7: Slider exported from $lib.
+		expect(mod.Slider).toBeDefined();
+		// Range-R7: RangeSlider exported from $lib.
+		expect(mod.RangeSlider).toBeDefined();
+		// Color-R6: ColorInput exported from $lib.
+		expect(mod.ColorInput).toBeDefined();
+		// Badge-R6: Badge exported from $lib.
+		expect(mod.Badge).toBeDefined();
 		// Form-R9: Form component exported from $lib.
 		expect(mod.Form).toBeDefined();
+		// Form-R11: toFormErrors helper exported from $lib.
+		expect(mod.toFormErrors).toBeDefined();
 	});
 
 	it('$lib/icons — exports all 21 icon components (R10)', async () => {

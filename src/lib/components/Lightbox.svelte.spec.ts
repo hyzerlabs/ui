@@ -103,9 +103,7 @@ describe('dialog', () => {
 
 	it('caption renders as a figcaption; absent without the prop', () => {
 		const { container } = render(Lightbox, { ...base, caption: 'Hole 7, sunset round' });
-		expect(container.querySelector('figcaption')?.textContent?.trim()).toBe(
-			'Hole 7, sunset round'
-		);
+		expect(container.querySelector('figcaption')?.textContent?.trim()).toBe('Hole 7, sunset round');
 		const { container: c2 } = render(Lightbox, base);
 		expect(c2.querySelector('figcaption')).toBeNull();
 	});
@@ -202,7 +200,12 @@ describe('multi-item mode', () => {
 	const items = [
 		{ src: '/img/one.jpg', alt: 'First photo' },
 		{ src: '/img/two.jpg', alt: 'Second photo', caption: 'Second caption' },
-		{ type: 'video' as const, src: '/video/clip.mp4', label: 'Flight video', poster: '/img/poster.jpg' }
+		{
+			type: 'video' as const,
+			src: '/video/clip.mp4',
+			label: 'Flight video',
+			poster: '/img/poster.jpg'
+		}
 	];
 
 	function openViewer(container: HTMLElement, at = 0): HTMLDialogElement {
@@ -289,10 +292,12 @@ describe('multi-item mode', () => {
 		const { container } = render(Lightbox, { items });
 		const dialog = openViewer(container, 2);
 		await tick();
-		const activeSlide = Array.from(
-			dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide')
-		).find((s) => !s.hidden) as HTMLElement;
-		expect(activeSlide.querySelector('.hz-lightbox-video video, .hz-lightbox-video iframe')).not.toBeNull();
+		const activeSlide = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide')).find(
+			(s) => !s.hidden
+		) as HTMLElement;
+		expect(
+			activeSlide.querySelector('.hz-lightbox-video video, .hz-lightbox-video iframe')
+		).not.toBeNull();
 		expect(activeSlide.querySelector('.hz-lightbox-img')).toBeNull();
 		await closeViewer(dialog);
 	});

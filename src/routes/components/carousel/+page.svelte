@@ -5,10 +5,31 @@
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
-		{ name: 'items', type: 'T[]', default: '—', note: 'Required. Generic — each item renders via the slide snippet.' },
-		{ name: 'ariaLabel', type: 'string', default: '—', note: 'Required. Names the carousel region.' },
+		{
+			name: 'items',
+			type: 'T[]',
+			default: '—',
+			note: 'Required. Generic — each item renders via the slide snippet.'
+		},
+		{
+			name: 'ariaLabel',
+			type: 'string',
+			default: '—',
+			note: 'Required. Names the carousel region.'
+		},
 		{ name: 'index', type: 'number (bindable)', default: '0' },
-		{ name: 'loop', type: 'boolean', default: 'false', note: 'Wrap from the last slide to the first and back.' },
+		{
+			name: 'loop',
+			type: 'boolean',
+			default: 'false',
+			note: 'Wrap from the last slide to the first and back.'
+		},
+		{
+			name: 'indicator',
+			type: "'counter' | 'dots'",
+			default: "'counter'",
+			note: 'The "1 / 3" counter, or clickable slide-picker dots.'
+		},
 		{ name: 'prevLabel', type: 'string', default: "'Previous slide'" },
 		{ name: 'nextLabel', type: 'string', default: "'Next slide'" },
 		{
@@ -17,15 +38,35 @@
 			default: '—',
 			note: 'Accessible name per slide; defaults to "{n} of {total}".'
 		},
+		{
+			name: 'dotLabel',
+			type: '(index, count) => string',
+			default: '—',
+			note: 'Accessible name per dot; defaults to "Go to slide {n} of {total}".'
+		},
 		{ name: 'onchange', type: '(index: number) => void', default: '—' },
-		{ name: 'slide', type: 'Snippet<[T, number]>', default: '—', note: 'Required. Renders one slide.' },
+		{
+			name: 'slide',
+			type: 'Snippet<[T, number]>',
+			default: '—',
+			note: 'Required. Renders one slide.'
+		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-carousel class.' }
 	];
 
 	const quotes = [
-		{ text: 'The density spacing sold me — one prop, correct rhythm everywhere.', who: 'Beta user' },
-		{ text: 'Headless plus a real reference theme is exactly the right split.', who: 'Design lead' },
-		{ text: 'The container-query grid removed a whole breakpoint spreadsheet.', who: 'Frontend dev' }
+		{
+			text: 'The density spacing sold me — one prop, correct rhythm everywhere.',
+			who: 'Beta user'
+		},
+		{
+			text: 'Headless plus a real reference theme is exactly the right split.',
+			who: 'Design lead'
+		},
+		{
+			text: 'The container-query grid removed a whole breakpoint spreadsheet.',
+			who: 'Frontend dev'
+		}
 	];
 
 	const basicCode = [
@@ -42,8 +83,11 @@
 		'<Carousel items={quotes} loop ariaLabel="Customer quotes" />'
 	].join('\n');
 
+	const dotsCode = '<Carousel items={quotes} indicator="dots" ariaLabel="Customer quotes" />';
+
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
+		{ id: 'dots', label: 'Dots' },
 		{ id: 'loop', label: 'Loop' }
 	];
 </script>
@@ -67,10 +111,25 @@
 							{/snippet}
 						</Carousel>
 					</Example>
+				{:else if item.id === 'dots'}
+					<p class="tab-note">
+						<code>indicator="dots"</code> swaps the counter for clickable slide pickers — each dot
+						is a labelled button (<code>aria-current</code> marks the active slide), and position changes
+						still announce through the live region, so screen readers keep the "n of total" information
+						either way.
+					</p>
+					<Example code={dotsCode}>
+						<Carousel items={quotes} indicator="dots" ariaLabel="Customer quotes (dots)">
+							{#snippet slide(quote)}
+								<blockquote class="quote">{quote.text}</blockquote>
+								<cite class="who">{quote.who}</cite>
+							{/snippet}
+						</Carousel>
+					</Example>
 				{:else}
 					<p class="tab-note">
-						Without <code>loop</code> the controls disable at the ends; with it, navigation wraps
-						both ways.
+						Without <code>loop</code> the controls disable at the ends; with it, navigation wraps both
+						ways.
 					</p>
 					<Example code={loopCode}>
 						<Carousel items={quotes} loop ariaLabel="Customer quotes (looping)">
@@ -87,17 +146,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
-	}
 	.quote {
 		margin: 0 0 0.5rem;
 		padding: 1.25rem 1.5rem 0.25rem;

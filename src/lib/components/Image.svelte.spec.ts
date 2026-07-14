@@ -500,11 +500,7 @@ describe('picture mode (sources)', () => {
 		const { container } = render(Image, { src: '/img/a.jpg', alt: 'A', sources });
 		const picture = container.querySelector('picture.hz-image__picture') as HTMLElement;
 		expect(picture).not.toBeNull();
-		expect(Array.from(picture.children).map((e) => e.tagName)).toEqual([
-			'SOURCE',
-			'SOURCE',
-			'IMG'
-		]);
+		expect(Array.from(picture.children).map((e) => e.tagName)).toEqual(['SOURCE', 'SOURCE', 'IMG']);
 		const img = picture.querySelector('img.hz-image__img') as HTMLImageElement;
 		expect(img.getAttribute('src')).toBe('/img/a.jpg');
 		expect(img.getAttribute('alt')).toBe('A');

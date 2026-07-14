@@ -6,7 +6,12 @@
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
-		{ name: 'items', type: 'BreadcrumbItem[]', default: '—', note: 'Required. See BreadcrumbItem below.' },
+		{
+			name: 'items',
+			type: 'BreadcrumbItem[]',
+			default: '—',
+			note: 'Required. See BreadcrumbItem below.'
+		},
 		{ name: 'ariaLabel', type: 'string', default: "'Breadcrumb'" },
 		{
 			name: 'separator',
@@ -60,9 +65,11 @@
 		'<Breadcrumbs {items} />'
 	].join('\n');
 
-	const wrapCode = ['<!-- The trail is a wrapping flex row — long paths', '     break onto new lines; separators stay attached to their crumb -->', '<Breadcrumbs {items} />'].join(
-		'\n'
-	);
+	const wrapCode = [
+		'<!-- The trail is a wrapping flex row — long paths',
+		'     break onto new lines; separators stay attached to their crumb -->',
+		'<Breadcrumbs {items} />'
+	].join('\n');
 
 	const separatorCode = [
 		'<Breadcrumbs {items}>',
@@ -115,14 +122,6 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
 	.narrow {
 		max-width: 18rem;
 		border: 1px dashed var(--hz-color-border, #6b7280);

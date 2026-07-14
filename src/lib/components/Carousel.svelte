@@ -12,10 +12,14 @@
 		index?: number;
 		/** Wrap from the last slide to the first and vice versa. */
 		loop?: boolean;
+		/** Position display: the "1 / 3" counter, or clickable slide-picker dots. */
+		indicator?: 'counter' | 'dots';
 		prevLabel?: string;
 		nextLabel?: string;
 		/** Accessible name per slide; defaults to "{n} of {total}". */
 		slideLabel?: (item: T, index: number) => string;
+		/** Accessible name per dot; defaults to "Go to slide {n} of {total}". */
+		dotLabel?: (index: number, count: number) => string;
 		onchange?: ((index: number) => void) | undefined;
 		/** Renders one slide's content. */
 		slide: Snippet<[T, number]>;
@@ -28,9 +32,11 @@
 		ariaLabel,
 		index = $bindable(0),
 		loop = false,
+		indicator = 'counter',
 		prevLabel = 'Previous slide',
 		nextLabel = 'Next slide',
 		slideLabel,
+		dotLabel = (i, c) => `Go to slide ${i + 1} of ${c}`,
 		onchange,
 		slide,
 		class: className,
@@ -73,7 +79,6 @@
 	announced via each slide's aria-label ("2 of 5" by default). Arrow keys
 	work while focus is anywhere inside the carousel.
 -->
-<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	{...rest}
 	class={cx('hz-carousel', className)}
@@ -108,8 +113,26 @@
 			>
 				<IconChevronLeft />
 			</button>
-			<!-- Decorative — the live region announces "{n} of {total}" already. -->
-			<span class="hz-carousel-status" aria-hidden="true">{index + 1} / {count}</span>
+			{#if indicator === 'dots'}
+				<!-- Slide pickers: each dot is a labelled button (aria-current marks
+				     the active slide); position changes still announce via the
+				     viewport live region, so screen readers keep "{n} of {total}". -->
+				<div class="hz-carousel-dots">
+					{#each { length: count }, i (i)}
+						<button
+							type="button"
+							class="hz-carousel-dot"
+							aria-label={dotLabel(i, count)}
+							aria-current={i === index ? 'true' : undefined}
+							data-active={i === index ? '' : undefined}
+							onclick={() => go(i)}
+						></button>
+					{/each}
+				</div>
+			{:else}
+				<!-- Decorative — the live region announces "{n} of {total}" already. -->
+				<span class="hz-carousel-status" aria-hidden="true">{index + 1} / {count}</span>
+			{/if}
 			<button
 				type="button"
 				class="hz-carousel-next"
@@ -138,6 +161,14 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		gap: var(--hz-space-xs, 0.5rem);
+	}
+
+	/* Structural row only — dot visuals (size, circle, active state) are the
+	 * theme's job. */
+	.hz-carousel-dots {
+		display: flex;
+		align-items: center;
 		gap: var(--hz-space-xs, 0.5rem);
 	}
 </style>

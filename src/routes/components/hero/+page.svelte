@@ -283,23 +283,9 @@
 </DocPage>
 
 <style>
-	.tab-content {
-		padding-top: 1rem;
-	}
-	.inner-tab {
-		padding-top: 0.5rem;
-	}
 	.demo-note,
-	.tab-note {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
 	.demo-note {
 		margin-bottom: 0.5rem;
-	}
-	.tab-note code {
-		font-family: var(--hz-font-family-mono, monospace);
 	}
 	.demo-hero-wrap {
 		border: 1px dashed var(--hz-color-border, #6b7280);

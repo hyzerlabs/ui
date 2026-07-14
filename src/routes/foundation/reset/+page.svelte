@@ -20,9 +20,8 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 			An optional, structural adaptation of
 			<a href="https://www.joshwcomeau.com/css/custom-css-reset/">Josh Comeau's custom CSS reset</a
 			>. It normalizes box sizing, margins, media elements, and text wrapping — and deliberately
-			says nothing about color or typefaces. Those belong to the tokens and theme tiers (or your
-			own CSS), so the reset works the same whether you use the reference theme or go fully
-			headless.
+			says nothing about color or typefaces. Those belong to the tokens and theme tiers (or your own
+			CSS), so the reset works the same whether you use the reference theme or go fully headless.
 		</p>
 	</div>
 
