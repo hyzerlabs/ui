@@ -51,7 +51,7 @@ describe('subpath exports', () => {
 		expect(mod.Form).toBeDefined();
 		// Form-R11: toFormErrors helper exported from $lib.
 		expect(mod.toFormErrors).toBeDefined();
-		// LightboxGroup-R16: lightboxGroup attachment factory exported from $lib.
+		// Lightbox-R16: lightboxGroup attachment factory exported from $lib.
 		expect(mod.lightboxGroup).toBeDefined();
 		expect(typeof mod.lightboxGroup).toBe('function');
 	});

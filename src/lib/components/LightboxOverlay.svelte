@@ -2,7 +2,7 @@
 	/**
 	 * Internal, non-exported viewer — the accessible `<dialog>` shared by the
 	 * `Lightbox` component and the `lightboxGroup` attachment
-	 * (LightboxGroup-R14). Same pattern as the internal `Field.svelte`
+	 * (Lightbox-R28). Same pattern as the internal `Field.svelte`
 	 * scaffold: used by peers, never added to the barrel.
 	 *
 	 * Focus-return is the only seam: the overlay does not own the trigger
@@ -12,6 +12,7 @@
 	import type { LightboxItem } from '$lib/types';
 	import Carousel from './Carousel.svelte';
 	import Video from './Video.svelte';
+	import Image from './Image.svelte';
 	import IconX from '$lib/icons/IconX.svelte';
 
 	interface Props {
@@ -131,7 +132,24 @@
 				<Video src={item.src} title={item.label} poster={item.poster} />
 			</div>
 		{:else}
-			<img class="hz-lightbox-img" src={item.src} alt={item.alt} />
+			<!--
+				Lightbox-R15: image items render through the library's own `Image`
+				component instead of a raw <img> — a load-state affordance, an
+				error state, and a free blur-up reveal keyed on the strip thumb.
+				`fit="contain"` (never crop) + `loading="eager"` (this IS the
+				dialog's primary content). Blur-up only when `thumbSrc` exists —
+				`placeholder="none"` otherwise, so Image's blur-without-src DEV
+				warning never trips.
+			-->
+			<Image
+				class="hz-lightbox-img"
+				src={item.src}
+				alt={item.alt}
+				fit="contain"
+				loading="eager"
+				placeholder={item.thumbSrc ? 'blur' : 'none'}
+				placeholderSrc={item.thumbSrc}
+			/>
 		{/if}
 		{#if item.caption}<figcaption class="hz-lightbox-caption">{item.caption}</figcaption>{/if}
 	</figure>
@@ -189,11 +207,32 @@
 		margin: 0;
 	}
 
-	.hz-lightbox-img {
+	/* Lightbox-R15: `.hz-lightbox-img` now lands on Image's wrapper <div>
+	 * (see "The .hz-lightbox-img hook decision" in specs/25-lightbox.md), not
+	 * a raw <img> — Image's own scoped CSS forces the wrapper to
+	 * `width: 100%`, which would stretch it to the dialog's fit-content
+	 * (shrink-wrapped) box instead of hugging the actual media. `width:
+	 * fit-content` restores the shrink-wrap so the dialog still sizes to its
+	 * image, same as before. Both rules cross the `Image` component boundary
+	 * (:global) — their higher selector specificity here (vs. Image.svelte's
+	 * own `.hz-image` / `.hz-image__img` rules) wins the cascade. */
+	.hz-lightbox-figure :global(.hz-lightbox-img) {
 		display: block;
+		width: fit-content;
 		max-width: min(92vw, 100%);
 		max-height: 80dvh;
-		object-fit: contain;
+	}
+
+	/* The bitmap does the real aspect-ratio-preserving, no-crop sizing —
+	 * identical max-width/max-height envelope the pre-R15 raw <img> had, one
+	 * level deeper. `width`/`height: auto` (overriding Image's own 100%/100%)
+	 * lets the browser's replaced-element sizing algorithm reconcile both max
+	 * constraints simultaneously, exactly as a plain capped <img> would. */
+	.hz-lightbox-figure :global(.hz-lightbox-img .hz-image__img) {
+		width: auto;
+		height: auto;
+		max-width: min(92vw, 100%);
+		max-height: 80dvh;
 	}
 
 	/* Video slides: give the 16/9 player a real footprint. */

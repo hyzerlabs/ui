@@ -15,7 +15,7 @@ const customTrigger = createRawSnippet(() => ({
 }));
 
 // A per-item trigger face: renders the item's name and its index so tests can
-// assert both the value and document order (LightboxTrigger-R1/R2).
+// assert both the value and document order (Lightbox-R5).
 const namedIndexTrigger = createRawSnippet<[unknown, number]>((getItem, getIndex) => ({
 	render: () => {
 		const item = getItem() as { alt?: string; label?: string };
@@ -25,14 +25,14 @@ const namedIndexTrigger = createRawSnippet<[unknown, number]>((getItem, getIndex
 }));
 
 // A marker face used to prove `trigger` is never invoked when `children`
-// also wins (LightboxTrigger-R5).
+// also wins (Lightbox-R6).
 const markedTrigger = createRawSnippet<[unknown, number]>(() => ({
 	render: () => `<span data-testid="trigger-marker">trigger face</span>`
 }));
 
 // An `<Image>`-composed face, imperatively mounted into the raw snippet's
 // root node — mirrors the docs' `<Image aspectRatio rounded alt="">` face
-// (LightboxTrigger-R9-shape).
+// (Lightbox-R30-shape).
 const imageFaceTrigger = createRawSnippet<[unknown, number]>(() => ({
 	render: () => `<span class="image-face-slot"></span>`,
 	setup: (element) => {
@@ -88,7 +88,9 @@ describe('trigger', () => {
 		const { container } = render(Lightbox, { ...base, thumbSrc: '/img/thumb.jpg' });
 		const thumb = container.querySelector('.hz-lightbox-thumb') as HTMLImageElement;
 		expect(thumb.getAttribute('src')).toBe('/img/thumb.jpg');
-		const full = container.querySelector('.hz-lightbox-img') as HTMLImageElement;
+		// R15 (sanctioned): `.hz-lightbox-img` is now Image's wrapper box — the
+		// bitmap is `.hz-lightbox-img .hz-image__img`.
+		const full = container.querySelector('.hz-lightbox-img .hz-image__img') as HTMLImageElement;
 		expect(full.getAttribute('src')).toBe('/img/full.jpg');
 	});
 
@@ -127,7 +129,11 @@ describe('dialog', () => {
 
 	it('shows the full image with alt inside a figure', () => {
 		const { container } = render(Lightbox, base);
-		const img = container.querySelector('figure .hz-lightbox-img') as HTMLImageElement;
+		// R15 (sanctioned): `.hz-lightbox-img` is now Image's wrapper box — the
+		// bitmap is `.hz-lightbox-img .hz-image__img`.
+		const img = container.querySelector(
+			'figure .hz-lightbox-img .hz-image__img'
+		) as HTMLImageElement;
 		expect(img.getAttribute('src')).toBe('/img/full.jpg');
 		expect(img.getAttribute('alt')).toBe('A disc in flight');
 	});
@@ -137,6 +143,97 @@ describe('dialog', () => {
 		expect(container.querySelector('figcaption')?.textContent?.trim()).toBe('Hole 7, sunset round');
 		const { container: c2 } = render(Lightbox, base);
 		expect(c2.querySelector('figcaption')).toBeNull();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Image rendering via Image (Lightbox-R15) — [NEW]: the viewer renders image
+// items through the library's own `Image` component instead of a raw <img>.
+// ---------------------------------------------------------------------------
+
+describe('image rendering via Image (R15)', () => {
+	// A large intrinsic size so the max-width/max-height envelope actually
+	// engages (a tiny image would render well under the cap either way).
+	const LARGE_IMAGE_URI =
+		"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4000' height='3000'%3E%3Crect width='4000' height='3000' fill='%232563eb'/%3E%3C/svg%3E";
+
+	it('renders the image item through <Image> with fit="contain" and eager loading', () => {
+		const { container } = render(Lightbox, base);
+		const wrapper = container.querySelector('.hz-lightbox-img') as HTMLElement;
+		expect(wrapper.classList.contains('hz-image')).toBe(true);
+		expect(wrapper.getAttribute('data-fit')).toBe('contain');
+		const img = wrapper.querySelector('.hz-image__img') as HTMLImageElement;
+		expect(img).not.toBeNull();
+		expect(img.getAttribute('loading')).toBe('eager');
+		expect(img.getAttribute('src')).toBe('/img/full.jpg');
+		expect(img.getAttribute('alt')).toBe('A disc in flight');
+	});
+
+	it('gets a blur-up placeholder from thumbSrc when set; none when absent', () => {
+		const { container: withThumb } = render(Lightbox, { ...base, thumbSrc: '/img/thumb.jpg' });
+		const wrapperWithThumb = withThumb.querySelector('.hz-lightbox-img') as HTMLElement;
+		expect(wrapperWithThumb.getAttribute('data-placeholder')).toBe('blur');
+		const placeholder = wrapperWithThumb.querySelector(
+			'.hz-image__placeholder'
+		) as HTMLImageElement;
+		expect(placeholder).not.toBeNull();
+		expect(placeholder.getAttribute('src')).toBe('/img/thumb.jpg');
+		expect(placeholder.getAttribute('aria-hidden')).toBe('true');
+
+		const { container: withoutThumb } = render(Lightbox, base);
+		const wrapperWithoutThumb = withoutThumb.querySelector('.hz-lightbox-img') as HTMLElement;
+		expect(wrapperWithoutThumb.hasAttribute('data-placeholder')).toBe(false);
+		expect(wrapperWithoutThumb.querySelector('.hz-image__placeholder')).toBeNull();
+	});
+
+	it('shows a load-state affordance — loaded on the load event', async () => {
+		const { container } = render(Lightbox, base);
+		const wrapper = container.querySelector('.hz-lightbox-img') as HTMLElement;
+		const img = wrapper.querySelector('.hz-image__img') as HTMLImageElement;
+		expect(['loading', 'loaded', 'error']).toContain(wrapper.getAttribute('data-state'));
+		img.dispatchEvent(new Event('load'));
+		await tick();
+		expect(wrapper.getAttribute('data-state')).toBe('loaded');
+	});
+
+	it('shows an error state (data-state="error") rather than a broken raw <img> on failure', async () => {
+		const { container } = render(Lightbox, base);
+		const wrapper = container.querySelector('.hz-lightbox-img') as HTMLElement;
+		const img = wrapper.querySelector('.hz-image__img') as HTMLImageElement;
+		img.dispatchEvent(new Event('error'));
+		await tick();
+		expect(wrapper.getAttribute('data-state')).toBe('error');
+	});
+
+	it('the Image wrapper resolves a definite, capped size inside the shrink-wrapped dialog — no crop', async () => {
+		const { container } = render(Lightbox, { src: LARGE_IMAGE_URI, alt: 'Large demo image' });
+		const { trigger, dialog } = getParts(container);
+		trigger.click();
+		await tick();
+		const wrapper = container.querySelector('.hz-lightbox-img') as HTMLElement;
+		const img = wrapper.querySelector('.hz-image__img') as HTMLImageElement;
+		// The dialog's shrink-wrap depends on the bitmap's decoded intrinsic
+		// size — wait for it rather than racing the decode.
+		if (!img.complete || img.naturalWidth === 0) {
+			await new Promise<void>((resolve) =>
+				img.addEventListener('load', () => resolve(), { once: true })
+			);
+			await tick();
+		}
+		const rect = wrapper.getBoundingClientRect();
+		// Resolves a real, non-zero box — not collapsed by Image's own
+		// `width: 100%` inside the shrink-wrapped (width/height: fit-content)
+		// dialog.
+		expect(rect.width).toBeGreaterThan(0);
+		expect(rect.height).toBeGreaterThan(0);
+		// Capped within the viewport envelope — min(92vw, 100%) x 80dvh.
+		expect(rect.width).toBeLessThanOrEqual(window.innerWidth * 0.92 + 2);
+		expect(rect.height).toBeLessThanOrEqual(window.innerHeight * 0.8 + 2);
+		// Aspect ratio preserved (no crop) — the 4000x3000 source scales down
+		// uniformly rather than being stretched or cropped to fill the box.
+		expect(rect.width / rect.height).toBeCloseTo(4000 / 3000, 1);
+		dialog.dispatchEvent(new Event('cancel', { cancelable: true }));
+		await tick();
 	});
 });
 
@@ -344,7 +441,7 @@ describe('multi-item mode', () => {
 });
 
 // ---------------------------------------------------------------------------
-// trigger snippet (LightboxTrigger-R1..R9) — additive, does not touch the
+// trigger snippet (Lightbox-R2/R5–R7) — additive, does not touch the
 // describe blocks above.
 // ---------------------------------------------------------------------------
 
@@ -366,7 +463,7 @@ describe('trigger snippet', () => {
 		await tick();
 	}
 
-	it('receives each item and its zero-based index (R1/R2)', () => {
+	it('receives each item and its zero-based index (R5)', () => {
 		const { container } = render(Lightbox, { items: triggerItems, trigger: namedIndexTrigger });
 		const faces = Array.from(container.querySelectorAll('[data-testid="trigger-face"]'));
 		expect(faces.map((f) => f.textContent?.trim())).toEqual([
@@ -376,7 +473,7 @@ describe('trigger snippet', () => {
 		]);
 	});
 
-	it('preserves button type/aria-haspopup/aria-label; the default thumb is absent (R2/R6)', () => {
+	it('preserves button type/aria-haspopup/aria-label; the default thumb is absent (R5/R7)', () => {
 		const { container } = render(Lightbox, { items: triggerItems, trigger: namedIndexTrigger });
 		const triggers = Array.from(
 			container.querySelectorAll<HTMLButtonElement>('.hz-lightbox-trigger')
@@ -390,7 +487,7 @@ describe('trigger snippet', () => {
 		expect(container.querySelector('.hz-lightbox-thumb')).toBeNull();
 	});
 
-	it('clicking a trigger-faced button opens the viewer at that index and returns focus on close (R2)', async () => {
+	it('clicking a trigger-faced button opens the viewer at that index and returns focus on close (R5)', async () => {
 		const { container } = render(Lightbox, { items: triggerItems, trigger: namedIndexTrigger });
 		const triggers = container.querySelectorAll<HTMLButtonElement>('.hz-lightbox-trigger');
 		const dialog = openViewer(container, 1);
@@ -402,7 +499,7 @@ describe('trigger snippet', () => {
 		expect(document.activeElement).toBe(triggers[1]);
 	});
 
-	it('an Image-composed face renders its aspect wrapper inside the button; aria-label still names the item (R9-shape/R6)', () => {
+	it('an Image-composed face renders its aspect wrapper inside the button; aria-label still names the item (R30-shape/R7)', () => {
 		const { container } = render(Lightbox, { items: triggerItems, trigger: imageFaceTrigger });
 		const trigger = container.querySelector('.hz-lightbox-trigger') as HTMLButtonElement;
 		const face = trigger.querySelector('.hz-image');
@@ -412,7 +509,7 @@ describe('trigger snippet', () => {
 		expect(trigger.getAttribute('aria-label')).toBe('View larger: First photo');
 	});
 
-	it('applies to the single-image sugar item and opens the single-media viewer (R4)', async () => {
+	it('applies to the single-image sugar item and opens the single-media viewer (R2/R5)', async () => {
 		const { container } = render(Lightbox, { ...base, trigger: namedIndexTrigger });
 		const triggers = container.querySelectorAll<HTMLButtonElement>('.hz-lightbox-trigger');
 		expect(triggers).toHaveLength(1);
@@ -426,7 +523,7 @@ describe('trigger snippet', () => {
 		await closeViewer(dialog);
 	});
 
-	it('children wins over trigger: the trigger face is never invoked, and DEV warns (R5)', () => {
+	it('children wins over trigger: the trigger face is never invoked, and DEV warns (R6)', () => {
 		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const { container } = render(Lightbox, {
 			...base,
@@ -441,7 +538,7 @@ describe('trigger snippet', () => {
 		warnSpy.mockRestore();
 	});
 
-	it('replaces the whole face for a video item — no play badge; the viewer still plays the video (R7)', async () => {
+	it('replaces the whole face for a video item — no play badge; the viewer still plays the video (R5)', async () => {
 		const videoItems = [
 			...triggerItems,
 			{

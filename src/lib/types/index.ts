@@ -56,7 +56,7 @@ export interface LightboxGroupOptions {
 	/**
 	 * CSS selector narrowing which descendants qualify. Matched elements are
 	 * still filtered to img / picture>img / video and the exclusion rules
-	 * (LightboxGroup-R4). Default: every qualifying media descendant.
+	 * (Lightbox-R18). Default: every qualifying media descendant.
 	 */
 	selector?: string;
 	/** Accessible name of the viewer dialog in multi-item mode. */

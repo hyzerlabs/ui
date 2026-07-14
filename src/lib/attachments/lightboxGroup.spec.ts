@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { lightboxGroup } from './lightboxGroup.js';
 
 /**
- * LightboxGroup-R3 — client-only / SSR no-op. This file runs in the 'server'
+ * Lightbox-R17 — client-only / SSR no-op. This file runs in the 'server'
  * Vitest project (environment: 'node', no DOM globals), so `document` is
  * genuinely undefined here — exercising the real guard rather than a mock.
  */
-describe('SSR / pre-hydration (R3)', () => {
+describe('SSR / pre-hydration (R17)', () => {
 	it('invoking the returned attachment without `document` performs no work and returns a no-op cleanup', () => {
 		expect(typeof document).toBe('undefined');
 

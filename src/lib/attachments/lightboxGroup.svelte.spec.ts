@@ -43,10 +43,10 @@ function markContainer(el: HTMLElement): HTMLElement {
 }
 
 // ---------------------------------------------------------------------------
-// Enhancement (LightboxGroup-R5)
+// Enhancement (Lightbox-R19)
 // ---------------------------------------------------------------------------
 
-describe('enhancement (R5)', () => {
+describe('enhancement (R19)', () => {
 	it('sets tabindex, role, aria-label, and data-lightbox-trigger on each qualifying element', () => {
 		const container = markContainer(
 			makeContainer(`
@@ -83,10 +83,10 @@ describe('enhancement (R5)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Exclusions (LightboxGroup-R4)
+// Exclusions (Lightbox-R18)
 // ---------------------------------------------------------------------------
 
-describe('exclusions (R4)', () => {
+describe('exclusions (R18)', () => {
 	it('data-lightbox-ignore is not enhanced and never opens the overlay', async () => {
 		const container = markContainer(
 			makeContainer(`<img id="img1" src="/a.jpg" alt="Ignored" data-lightbox-ignore />`)
@@ -130,7 +130,7 @@ describe('exclusions (R4)', () => {
 		container.remove();
 	});
 
-	it('aria-hidden media is neither enhanced nor in the item set (R4 amended)', async () => {
+	it('aria-hidden media is neither enhanced nor in the item set (R18 amended)', async () => {
 		// Image-like structure: a decorative aria-hidden placeholder img next to
 		// the real img (how Image's blur placeholder renders). Only the real
 		// image is enhanced; the viewer contains exactly one item.
@@ -158,14 +158,18 @@ describe('exclusions (R4)', () => {
 		const dialog = getDialog() as HTMLDialogElement;
 		// Single item → single-media rendering, no carousel of duplicates.
 		expect(dialog.querySelectorAll('.hz-carousel-slide').length).toBe(0);
-		expect((dialog.querySelector('.hz-lightbox-img') as HTMLImageElement).src).toContain('/a.jpg');
+		// R15/R20 (sanctioned): `.hz-lightbox-img` is now Image's wrapper box —
+		// the bitmap is `.hz-lightbox-img .hz-image__img`.
+		expect(
+			(dialog.querySelector('.hz-lightbox-img .hz-image__img') as HTMLImageElement).src
+		).toContain('/a.jpg');
 		await closeOverlay(dialog);
 
 		cleanup();
 		container.remove();
 	});
 
-	it('a hidden element is enhanced but excluded from the activation-time item set (R4 amended)', async () => {
+	it('a hidden element is enhanced but excluded from the activation-time item set (R18 amended)', async () => {
 		// Media commonly mounts inside a hidden region (an inactive Tabs panel):
 		// it must be enhanced up front, but never join the viewer while hidden.
 		const container = markContainer(
@@ -186,7 +190,11 @@ describe('exclusions (R4)', () => {
 		await tick();
 		let dialog = getDialog() as HTMLDialogElement;
 		expect(dialog.querySelectorAll('.hz-carousel-slide').length).toBe(0); // single item → no carousel
-		expect((dialog.querySelector('.hz-lightbox-img') as HTMLImageElement).src).toContain('/a.jpg');
+		// R15/R20 (sanctioned): `.hz-lightbox-img` is now Image's wrapper box —
+		// the bitmap is `.hz-lightbox-img .hz-image__img`.
+		expect(
+			(dialog.querySelector('.hz-lightbox-img .hz-image__img') as HTMLImageElement).src
+		).toContain('/a.jpg');
 		await closeOverlay(dialog);
 
 		// Once revealed, the same element joins the group without a re-run.
@@ -217,7 +225,11 @@ describe('exclusions (R4)', () => {
 		(container.querySelector('#img1') as HTMLImageElement).click();
 		await tick();
 		const dialog = getDialog() as HTMLDialogElement;
-		expect((dialog.querySelector('.hz-lightbox-img') as HTMLImageElement).src).toContain('/a.jpg');
+		// R15/R20 (sanctioned): `.hz-lightbox-img` is now Image's wrapper box —
+		// the bitmap is `.hz-lightbox-img .hz-image__img`.
+		expect(
+			(dialog.querySelector('.hz-lightbox-img .hz-image__img') as HTMLImageElement).src
+		).toContain('/a.jpg');
 		expect(dialog.querySelectorAll('.hz-carousel-slide').length).toBe(0);
 		await closeOverlay(dialog);
 
@@ -247,10 +259,10 @@ describe('exclusions (R4)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Pointer open (LightboxGroup-R8/R10)
+// Pointer open (Lightbox-R22/R24)
 // ---------------------------------------------------------------------------
 
-describe('pointer open (R8/R10)', () => {
+describe('pointer open (R22/R24)', () => {
 	it('clicking a trigger mounts an open dialog.hz-lightbox into document.body and locks scroll', async () => {
 		const container = markContainer(makeContainer(`<img id="img1" src="/a.jpg" alt="One" />`));
 		const cleanup = lightboxGroup()(container);
@@ -329,10 +341,10 @@ describe('pointer open (R8/R10)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Keyboard open (LightboxGroup-R9)
+// Keyboard open (Lightbox-R23)
 // ---------------------------------------------------------------------------
 
-describe('keyboard open (R9)', () => {
+describe('keyboard open (R23)', () => {
 	it('Enter on a focused trigger opens the overlay', async () => {
 		const container = markContainer(makeContainer(`<img id="img1" src="/a.jpg" alt="One" />`));
 		const cleanup = lightboxGroup()(container);
@@ -372,10 +384,10 @@ describe('keyboard open (R9)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Item derivation (LightboxGroup-R6)
+// Item derivation (Lightbox-R20)
 // ---------------------------------------------------------------------------
 
-describe('item derivation (R6)', () => {
+describe('item derivation (R20)', () => {
 	it('image src = currentSrc || src when there is no data-lightbox-src override', async () => {
 		const container = markContainer(makeContainer(`<img id="img1" src="/full.jpg" alt="Plain" />`));
 		const cleanup = lightboxGroup()(container);
@@ -384,7 +396,9 @@ describe('item derivation (R6)', () => {
 		img.click();
 		await tick();
 		const dialog = getDialog()!;
-		const rendered = dialog.querySelector('.hz-lightbox-img') as HTMLImageElement;
+		// R15/R20 (sanctioned): `.hz-lightbox-img` is now Image's wrapper box —
+		// the bitmap is `.hz-lightbox-img .hz-image__img`.
+		const rendered = dialog.querySelector('.hz-lightbox-img .hz-image__img') as HTMLImageElement;
 
 		expect(rendered.src).toContain('/full.jpg');
 
@@ -405,7 +419,9 @@ describe('item derivation (R6)', () => {
 		img.click();
 		await tick();
 		const dialog = getDialog()!;
-		const rendered = dialog.querySelector('.hz-lightbox-img') as HTMLImageElement;
+		// R15/R20 (sanctioned): `.hz-lightbox-img` is now Image's wrapper box —
+		// the bitmap is `.hz-lightbox-img .hz-image__img`.
+		const rendered = dialog.querySelector('.hz-lightbox-img .hz-image__img') as HTMLImageElement;
 
 		expect(rendered.src).toContain('/full-res.jpg');
 
@@ -527,7 +543,7 @@ describe('item derivation (R6)', () => {
 		container.remove();
 	});
 
-	it('the enhancement-set aria-label does not leak into a later video-label read (R5+R6 interaction)', async () => {
+	it('the enhancement-set aria-label does not leak into a later video-label read (R19+R20 interaction)', async () => {
 		// The enhancement pass overwrites aria-label with "View larger: …" —
 		// item derivation must still resolve the ORIGINAL name, not read back
 		// its own overwrite.
@@ -552,10 +568,10 @@ describe('item derivation (R6)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Lazy scan & dynamic children (LightboxGroup-R7/R12)
+// Lazy scan & dynamic children (Lightbox-R21/R26)
 // ---------------------------------------------------------------------------
 
-describe('lazy scan & dynamic children (R7/R12)', () => {
+describe('lazy scan & dynamic children (R21/R26)', () => {
 	it('media added after attach is included in the overlay set opened from a pre-existing trigger', async () => {
 		const container = markContainer(
 			makeContainer(`
@@ -625,10 +641,10 @@ describe('lazy scan & dynamic children (R7/R12)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Close & focus return (LightboxGroup-R10)
+// Close & focus return (Lightbox-R24)
 // ---------------------------------------------------------------------------
 
-describe('close & focus return (R10)', () => {
+describe('close & focus return (R24)', () => {
 	it('Escape (native cancel) closes and unmounts, restores scroll, and returns focus to the trigger', async () => {
 		const container = markContainer(makeContainer(`<img id="img1" src="/a.jpg" alt="One" />`));
 		const cleanup = lightboxGroup()(container);
@@ -686,10 +702,10 @@ describe('close & focus return (R10)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Nested groups (LightboxGroup-R8)
+// Nested groups (Lightbox-R22)
 // ---------------------------------------------------------------------------
 
-describe('nested groups (R8)', () => {
+describe('nested groups (R22)', () => {
 	it('activating inner media opens exactly one overlay (innermost wins via stopPropagation)', async () => {
 		const outer = markContainer(document.createElement('div'));
 		const inner = document.createElement('div');
@@ -717,10 +733,10 @@ describe('nested groups (R8)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Single-instance guard (LightboxGroup-R10)
+// Single-instance guard (Lightbox-R24)
 // ---------------------------------------------------------------------------
 
-describe('single-instance guard (R10)', () => {
+describe('single-instance guard (R24)', () => {
 	it('activating a second trigger while the overlay is open does not mount a second dialog', async () => {
 		const container = markContainer(
 			makeContainer(`
@@ -746,10 +762,10 @@ describe('single-instance guard (R10)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cleanup (LightboxGroup-R11)
+// Cleanup (Lightbox-R25)
 // ---------------------------------------------------------------------------
 
-describe('cleanup (R11)', () => {
+describe('cleanup (R25)', () => {
 	it('removes listeners so a subsequent click opens nothing', async () => {
 		const container = markContainer(makeContainer(`<img id="img1" src="/a.jpg" alt="One" />`));
 		const cleanup = lightboxGroup()(container);
@@ -809,10 +825,10 @@ describe('cleanup (R11)', () => {
 });
 
 // ---------------------------------------------------------------------------
-// options.selector (LightboxGroup-R4)
+// options.selector (Lightbox-R18)
 // ---------------------------------------------------------------------------
 
-describe('options.selector (R4)', () => {
+describe('options.selector (R18)', () => {
 	it('narrows enhancement to elements matching the selector', () => {
 		const container = markContainer(
 			makeContainer(`
