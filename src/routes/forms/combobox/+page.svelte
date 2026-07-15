@@ -196,6 +196,9 @@
 		{ name: 'ComboboxChipProps', props: chipPropsType }
 	]}
 	a11yNote="The visible input carries `role=combobox` with `aria-autocomplete=list`, `aria-expanded`, and `aria-controls` pointing at the `role=listbox` popup, which is `aria-multiselectable`. Instead of moving DOM focus into the list, the currently highlighted option is tracked as virtual focus via `aria-activedescendant` on the input, so screen readers announce the active option while the field stays editable. Each selected value renders as a `Badge` chip inside the control, and every chip's labelled dismiss button (announced as Remove, followed by the option's label) is a real, individually-focusable tab stop — tabbing into the field reaches the chips before the input. Keyboard: `ArrowDown`/`ArrowUp` open and move the active option (wrapping, skipping disabled entries); `Alt+ArrowDown` opens without moving; `Alt+ArrowUp` closes unchanged; `Home`/`End` jump to the first/last enabled option while open (native text-cursor behavior while closed); `Enter` toggles the active option's membership and keeps the popup open so you can keep picking; `Backspace` on an empty query removes the last chip; `Escape` closes and clears the filter query only — it never clears a selection, since every chip carries its own dismiss button; `Tab` closes and lets focus move on. The input is the only tab stop for opening the popup — the trailing toggle button is `tabindex=-1`, reachable by pointer only."
+	a11yLinks={[
+		{ label: 'APG Combobox pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/combobox/' }
+	]}
 >
 	<Alert intent="info" title="Select vs Combobox">
 		Reach for <code>Combobox</code> when there are many options — where filtering or virtualization

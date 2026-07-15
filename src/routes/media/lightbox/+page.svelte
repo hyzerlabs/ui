@@ -136,7 +136,7 @@
 			// by the prerender crawler) until real demo assets land.
 			src: 'about:blank',
 			label: 'Demo flight video',
-			thumbSrc: demoSvg('Video ▶', '0891b2', 600, 400),
+			thumbSrc: demoSvg('Video ▶', '0e7490', 600, 400),
 			caption: 'Videos play inline via the Video component (placeholder clip)'
 		}
 	];
@@ -190,7 +190,7 @@
 			color: '7c3aed',
 			full: demoSvg('Full-resolution override — via data-lightbox-src', '7c3aed', 1200, 800)
 		},
-		{ alt: 'Third demo photo', color: '0891b2' },
+		{ alt: 'Third demo photo', color: '0e7490' },
 		{ alt: 'Fourth demo photo', color: 'ea580c' },
 		{ alt: 'Static chart — excluded from the group', color: '6b7280', ignored: true }
 	];
@@ -238,6 +238,13 @@
 		{ name: 'LightboxItem (video)', props: videoItemType }
 	]}
 	a11yNote="Each thumbnail is a real `<button>` with `aria-haspopup=&quot;dialog&quot;` named by its item. The viewer is a native `<dialog>` opened with `showModal()` — focus is trapped, Escape always closes, the backdrop closes, and focus returns to the thumbnail that opened it. Multi-item viewers embed the Carousel (labelled slides, live announcements) and ArrowLeft/ArrowRight page from anywhere in the dialog. Body scroll is locked while open."
+	a11yLinks={[
+		{
+			label: 'APG Dialog (Modal) pattern',
+			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/'
+		},
+		{ label: 'APG Carousel pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/carousel/' }
+	]}
 >
 	<Alert intent="info" title="Image + Lightbox">
 		Image renders media, Lightbox provides viewing. Compose an <a href="/media/image">Image</a> as a

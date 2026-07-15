@@ -14,7 +14,7 @@
 		border: none;
 		padding: 0;
 		font: inherit;
-		color: var(--hz-intent-danger, #dc2626);
+		color: var(--hz-intent-danger, #b91c1c);
 		text-decoration: underline;
 		text-underline-offset: 0.15em;
 		cursor: pointer;

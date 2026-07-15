@@ -76,6 +76,12 @@
 	importLine={'import {Textarea} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="The textarea is associated with its label via `id`/`for`; with `hideLabel` the label stays in the DOM as screen-reader-only text. `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`."
+	a11yLinks={[
+		{
+			label: 'MDN: <textarea>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Textarea demos" defaultTab="basic">
 		{#snippet panel(item)}

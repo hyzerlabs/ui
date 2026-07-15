@@ -60,6 +60,10 @@
 	importLine={'import {Link} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="External links automatically add `target=&quot;_blank&quot;`, `rel=&quot;noopener noreferrer&quot;`, a decorative external glyph, and a visually-hidden &quot;(opens in new tab)&quot; string. `ariaCurrent` sets `aria-current` on the anchor for nav links."
+	a11yLinks={[
+		{ label: 'APG Link pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/link/' },
+		{ label: 'MDN: <a>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a' }
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Link demos" defaultTab="variants">
 		{#snippet panel(item)}

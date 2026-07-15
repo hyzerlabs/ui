@@ -61,6 +61,13 @@
 	importLine={'import {Divider} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="The bare form is a native `<hr>` — implicit `role=&quot;separator&quot;`, horizontal, non-focusable, needing no ARIA. The labelled form keeps `role=&quot;separator&quot;` on the wrapping `<div>` so the thematic break survives the switch away from `<hr>`; the label text is the separator's accessible name and stays in the tree, so screen readers announce 'separator, OR'. The flanking rules are decorative `::before`/`::after` pseudo-elements — never part of the accessibility tree."
+	a11yLinks={[
+		{ label: 'MDN: <hr>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr' },
+		{
+			label: 'MDN: separator role',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/separator_role'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Divider demos" defaultTab="bare">
 		{#snippet panel(item)}

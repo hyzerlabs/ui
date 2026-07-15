@@ -203,6 +203,12 @@
 		{ name: 'DropdownSeparator', props: dropdownSeparatorType }
 	]}
 	a11yNote="The trigger is a real button — `aria-haspopup=menu`, `aria-expanded`, `aria-controls` (the library's own Button) — opening a `role=menu` popup of `role=menuitem` buttons named by the trigger via `aria-labelledby`. Unlike `Combobox`, which keeps DOM focus on its text input and tracks a virtually-focused option via `aria-activedescendant`, Dropdown moves real DOM focus into the menu — opening lands focus on the first menuitem (last on `ArrowUp`), and a roving `tabindex` (`0` on the focused item, `-1` on the rest) keeps the menu a single tab stop, so the active item is styled with native `:focus` rather than a `data-active` hook. Keyboard: `ArrowDown`/`ArrowUp` move focus and wrap (including disabled items); `Home`/`End` jump to the first/last item; typing a character cycles focus to the next matching label-initial; `Enter`/`Space` activate the focused item via its own native button click (no separate handling); `Escape` closes and returns focus to the trigger; `Tab`/`Shift+Tab` close the menu and let focus move on — there is no focus trap. A disabled item keeps `aria-disabled=true` rather than the native `disabled` attribute, so it stays focusable and screen-reader users can discover it; activating it is a no-op."
+	a11yLinks={[
+		{
+			label: 'APG Menu Button pattern',
+			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/'
+		}
+	]}
 >
 	<Alert intent="info" title="Dropdown vs Nav">
 		Reach for <code>Dropdown</code> when the entries are <strong>actions</strong> — an action menu

@@ -10,7 +10,7 @@
 		padding-block: var(--hz-space-sm, 1rem);
 		padding-inline-start: var(--hz-space-sm, 1rem);
 		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
-		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-size: var(--hz-font-size-xl, 1.65rem);
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 

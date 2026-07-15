@@ -138,6 +138,9 @@
 	{props}
 	types={[{ name: 'AccordionItem', props: itemType }]}
 	a11yNote="Built on native `<details>` — no ARIA needed for disclosure semantics. Arrow keys navigate between summaries; Home/End jump to first/last. Disabled items have `aria-disabled='true'` and block interaction. Summaries wrap a real heading (`headingLevel`) so panels join the document outline."
+	a11yLinks={[
+		{ label: 'APG Accordion pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/accordion/' }
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Accordion demos" defaultTab="modes">
 		{#snippet panel(item)}

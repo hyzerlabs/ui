@@ -44,16 +44,16 @@
 		--_c: var(--hz-intent-secondary, #7c3aed);
 	}
 	.hz-badge:where([data-intent='danger']) {
-		--_c: var(--hz-intent-danger, #dc2626);
+		--_c: var(--hz-intent-danger, #b91c1c);
 	}
 	.hz-badge:where([data-intent='warning']) {
-		--_c: var(--hz-intent-warning, #d97706);
+		--_c: var(--hz-intent-warning, #b45309);
 	}
 	.hz-badge:where([data-intent='success']) {
-		--_c: var(--hz-intent-success, #16a34a);
+		--_c: var(--hz-intent-success, #15803d);
 	}
 	.hz-badge:where([data-intent='info']) {
-		--_c: var(--hz-intent-info, #0891b2);
+		--_c: var(--hz-intent-info, #0e7490);
 	}
 
 	/* Variants. Soft/outline text mixes the intent color toward the text
@@ -63,9 +63,12 @@
 		color: color-mix(in srgb, var(--_c) 65%, var(--hz-color-text, #000));
 	}
 
+	/* Solid text is the surface role, not white: dark mode retargets the
+	 * intents to light companions, and the flipped surface (black) keeps
+	 * solid text ≥ 4.5:1 in both modes. */
 	.hz-badge:where([data-variant='solid']) {
 		background-color: var(--_c);
-		color: var(--hz-color-white, #fff);
+		color: var(--hz-color-surface, #fff);
 	}
 
 	.hz-badge:where([data-variant='outline']) {

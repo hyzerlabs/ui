@@ -234,6 +234,9 @@
 	{props}
 	types={[{ name: 'FormError', props: formErrorType }]}
 	a11yNote="The error summary is the first child of the form, has `role=&quot;alert&quot;` (announced when it appears), and is focused when errors arrive after a submit — or the first invalid field is, with `focusTarget=&quot;firstField&quot;`. Each summary item links to its field and focuses it on activation, scrolling smoothly unless `prefers-reduced-motion` is set. Set `summaryHeadingLevel` so the summary title fits your page's heading outline."
+	a11yLinks={[
+		{ label: 'MDN: <form>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form' }
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Form demos" defaultTab="kit">
 		{#snippet panel(item)}
@@ -371,7 +374,7 @@
 <style>
 	.success {
 		margin: 0 0 0.75rem;
-		color: var(--hz-color-success, #16a34a);
+		color: var(--hz-color-success, #15803d);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 	.code-note {

@@ -110,6 +110,13 @@
 	importLine={'import {Alert} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="A statically rendered Alert is plain content — no role, no live region; the optional `title` names it via `aria-labelledby`. For alerts inserted after load, pass `role=&quot;status&quot;` (polite) or `role=&quot;alert&quot;` (assertive, sparingly) via the rest props — a live role on static content is dead weight, so it is never a default. The dismiss button is a real labelled `<button>`; dismissal is your state change, so consider where focus should land. There is deliberately no Toast component — timed self-dismissing overlays fail WCAG 2.2.1 and routinely escape announcement; an inline Alert with `role=&quot;status&quot;` covers the need accessibly."
+	a11yLinks={[
+		{ label: 'APG Alert pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/alert/' },
+		{
+			label: 'MDN: alert role',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/alert_role'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Alert demos" defaultTab="intents">
 		{#snippet panel(item)}

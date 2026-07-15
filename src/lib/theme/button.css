@@ -7,9 +7,12 @@
  */
 @layer hz-theme {
 	.hz-button {
-		/* Per-intent hooks — override these two to restyle every variant. */
+		/* Per-intent hooks — override these two to restyle every variant.
+		 * On-accent is the surface role, not white: dark mode retargets the
+		 * intents to light companions, and the flipped surface (black) keeps
+		 * solid text ≥ 4.5:1 in both modes. */
 		--hz-button-accent: var(--hz-intent-primary, #2563eb);
-		--hz-button-on-accent: var(--hz-color-white, #ffffff);
+		--hz-button-on-accent: var(--hz-color-surface, #ffffff);
 
 		box-sizing: border-box;
 		display: inline-flex;
@@ -35,7 +38,7 @@
 	}
 
 	.hz-button:where([data-intent='danger']) {
-		--hz-button-accent: var(--hz-intent-danger, #dc2626);
+		--hz-button-accent: var(--hz-intent-danger, #b91c1c);
 	}
 
 	.hz-button:where([data-intent='neutral']) {

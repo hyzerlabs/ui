@@ -106,7 +106,9 @@ win). Blockquote sets no `role`, no `aria-*`, and no `data-*` hooks — the nati
    alphabetically among the `@import` block): inline-start accent bar on the
    `<blockquote>` (via `border-inline-start` using `--hz-color-border` /
    `--hz-color-primary`), block padding from the space tokens, quote typography
-   (`--hz-font-size-lg`), and attribution styling — muted, smaller
+   (`--hz-font-size-xl`; amendment 2026-07-14 — bumped from `lg` for editorial
+   presence, override in a consumer theme if quieter quotes are wanted), and
+   attribution styling — muted, smaller
    (`--hz-color-text-muted`, `--hz-font-size-sm`) with a decorative em-dash via
    `.hz-blockquote-attribution::before { content: '— '; }` (pseudo-element, so it
    stays out of the accessible name).

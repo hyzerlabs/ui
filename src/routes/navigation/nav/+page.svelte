@@ -227,6 +227,16 @@
 	{props}
 	types={[{ name: 'NavItem', props: navItemType }]}
 	a11yNote="Nav renders a `<nav>` landmark with an accessible name via `ariaLabel`. Horizontal dropdown triggers expose `aria-expanded`/`aria-controls` and support Enter, Space, ArrowDown (opens and focuses the menu), and Escape; open menus rove with ArrowUp/ArrowDown/Home/End. Vertical submenus are plain disclosure sections, not menus. The mobile menu is a focus-trapped region that closes on Esc and returns focus to the toggle."
+	a11yLinks={[
+		{
+			label: 'APG Disclosure pattern',
+			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/'
+		},
+		{
+			label: 'APG Disclosure Navigation example',
+			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Nav demos" defaultTab="variants">
 		{#snippet panel(item)}

@@ -82,6 +82,12 @@
 	importLine={'import {Blockquote} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="The root is always a `<figure>` wrapping a `<blockquote>`; when `cite` is provided, the attribution renders in a `<figcaption><cite>` outside the quote, so screen readers don't announce it as part of the quotation itself. No ARIA is added — the native `figure`/`blockquote`/`figcaption`/`cite` elements carry all the semantics. The decorative em-dash before the attribution is a theme `::before` pseudo-element, so it never enters the accessible name."
+	a11yLinks={[
+		{
+			label: 'MDN: <blockquote>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/blockquote'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Blockquote demos" defaultTab="quote-only">
 		{#snippet panel(item)}

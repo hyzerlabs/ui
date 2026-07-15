@@ -38,16 +38,16 @@
 		--_c: var(--hz-intent-secondary, #7c3aed);
 	}
 	.hz-alert:where([data-intent='danger']) {
-		--_c: var(--hz-intent-danger, #dc2626);
+		--_c: var(--hz-intent-danger, #b91c1c);
 	}
 	.hz-alert:where([data-intent='warning']) {
-		--_c: var(--hz-intent-warning, #d97706);
+		--_c: var(--hz-intent-warning, #b45309);
 	}
 	.hz-alert:where([data-intent='success']) {
-		--_c: var(--hz-intent-success, #16a34a);
+		--_c: var(--hz-intent-success, #15803d);
 	}
 	.hz-alert:where([data-intent='info']) {
-		--_c: var(--hz-intent-info, #0891b2);
+		--_c: var(--hz-intent-info, #0e7490);
 	}
 
 	.hz-alert :where(.hz-alert-title) {

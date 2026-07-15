@@ -100,6 +100,13 @@
 	importLine={'import {Checkbox} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="The input is associated with its label via `id`/`for` (label rendered after the box). `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`. `indeterminate` is applied through the DOM `.indeterminate` property, so screen readers announce the mixed state natively."
+	a11yLinks={[
+		{ label: 'APG Checkbox pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/' },
+		{
+			label: 'MDN: <input type="checkbox">',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Checkbox demos" defaultTab="basic">
 		{#snippet panel(item)}

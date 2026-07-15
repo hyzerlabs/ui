@@ -91,6 +91,12 @@
 	{props}
 	types={[{ name: 'BreadcrumbItem', props: breadcrumbItemType }]}
 	a11yNote="Breadcrumbs renders a `<nav aria-label=&quot;Breadcrumb&quot;>` landmark wrapping an ordered list. The last item is the current page — `aria-current=&quot;page&quot;` is applied automatically (as plain text when it has no `href`). Separators are decorative and `aria-hidden`."
+	a11yLinks={[
+		{
+			label: 'APG Breadcrumb pattern',
+			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Breadcrumbs demos" defaultTab="basic">
 		{#snippet panel(item)}

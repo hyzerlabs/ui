@@ -115,8 +115,8 @@
 	}
 
 	.hz-file-remove:where(:hover) {
-		background-color: color-mix(in srgb, var(--hz-intent-danger, #dc2626) 10%, transparent);
-		color: var(--hz-intent-danger, #dc2626);
+		background-color: color-mix(in srgb, var(--hz-intent-danger, #b91c1c) 10%, transparent);
+		color: var(--hz-intent-danger, #b91c1c);
 	}
 
 	.hz-file-remove:focus-visible {

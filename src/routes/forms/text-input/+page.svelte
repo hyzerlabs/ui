@@ -143,6 +143,12 @@
 	importLine={'import {TextInput} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="The input is associated with its label via `id`/`for`; with `hideLabel` the label stays in the DOM as screen-reader-only text. `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`. `prefix` and `suffix` are rendered `aria-hidden` — keep them decorative and put meaning in the label or description."
+	a11yLinks={[
+		{
+			label: 'MDN: <input>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="TextInput demos" defaultTab="basic">
 		{#snippet panel(item)}

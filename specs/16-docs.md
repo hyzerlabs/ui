@@ -49,10 +49,37 @@ each page documents:
 | --- | --- | --- |
 | Colors | `/foundation/colors` | `color` token metadata |
 | Typography | `/foundation/typography` | `typography` token metadata |
+| Contrast & Accessibility | `/foundation/contrast` | WCAG contrast math over `color` + `intent` metadata (added 2026-07-14) |
 | Spacing & Sizing | `/foundation/spacing` | `space` + `width` metadata |
 | Radius & Elevation | `/foundation/radius-elevation` | `radius` + `border` + `shadow` + `zIndex` |
 | Motion | `/foundation/motion` | `motion` token metadata |
 | Icons | `/foundation/icons` | all 21 icon exports (single page) |
+
+Foundation-polish amendments (2026-07-14): Typography leads with a font-families
+demo on the component-page tab pattern — family tabs (Sans/Serif/Mono, incl. the
+new `--hz-font-family-serif`) × weight sub-tabs, each `Example` rendering the
+full size scale; token tables follow. A dedicated **Contrast & Accessibility**
+page (`/foundation/contrast`, listed after Typography) carries the a11y tooling,
+driven by docs-only WCAG math in `src/docs/contrast.ts` (unit-tested, including
+a token-compliance suite that fails CI if a palette change breaks AA): a
+requirements table (AA/AAA/508 × normal/large); an interactive
+foreground/background pairing checker (palette + per-mode intent roles +
+resolved surface roles, incl. surface-muted's `color-mix()` resolved in JS)
+with per-requirement pass/fail Badges and luminance readout; and **mode-aware,
+in-situ-first** sections — every panel is painted from statically resolved
+hexes (never live tokens) so each stays pinned to its mode regardless of the
+site theme toggle, and every in-situ row shows 16px and 24px samples with
+per-size level Badges: "Text on surfaces" (semantic text roles + all intents,
+light values on light surfaces / dark companions on dark, surface sub-tabs +
+matrix table), "Solid intent backgrounds" (surface-colored text per mode),
+"Soft intent surfaces" (the Badge 14%/65% and Alert 10%/70% `color-mix()`
+recipes re-derived per mode, light/dark sub-tabs), and a Resources section
+linking WCAG 1.4.3/1.4.6/1.4.11, WAI-ARIA 1.2, the APG, and Section 508.
+Colors & Intent cross-links to it. Still R7-compliant — everything derives
+from token metadata. DocPage also gained `a11yLinks` (label/href pairs
+rendered as a "References:" line under the a11y note); every component page
+following an explicit APG pattern links that pattern, plus the MDN reference
+for native-element-backed components.
 
 **layout** — `/layout` (index): `/layout/container` (Container), `/layout/stack`
 (Stack), `/layout/cluster` (Cluster), `/layout/grid` (Grid), `/layout/split` (Split).

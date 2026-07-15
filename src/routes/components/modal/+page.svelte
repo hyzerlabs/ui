@@ -98,6 +98,16 @@
 	importLine={'import {Modal} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="Modal uses `showModal()` for native top-layer focus trapping and backdrop. `aria-modal`, `aria-labelledby`, and optional `aria-describedby` are set automatically. Focus returns to the trigger on close. The built-in close button's accessible name comes from `closeLabel`."
+	a11yLinks={[
+		{
+			label: 'APG Dialog (Modal) pattern',
+			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/'
+		},
+		{
+			label: 'MDN: <dialog>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog'
+		}
+	]}
 >
 	<p class="demo-note">No dialog is open on page load — click a trigger to open one.</p>
 	<Tabs items={demoTabs} ariaLabel="Modal demos" defaultTab="sizes">

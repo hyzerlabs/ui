@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Stack } from '$lib';
+	import { Stack, Tabs } from '$lib';
 	import { typography } from '$lib/tokens';
+	import Example from '../../../docs/Example.svelte';
 
 	// R7 — derive from token metadata
 	const fontSizes = Object.entries(typography.fontSize).map(([key, value]) => ({
@@ -26,6 +27,39 @@
 		cssVar: `--hz-line-height-${key}`,
 		value
 	}));
+
+	const familyLabels: Record<string, string> = {
+		sans: 'Sans',
+		serif: 'Serif',
+		mono: 'Mono'
+	};
+
+	const familyNotes: Record<string, string> = {
+		sans: 'The default UI face — the reference theme sets it on the page, so every component inherits it. A system stack; no webfont ships.',
+		serif:
+			'An editorial face for long-form prose and display moments. No component references it by default — opt in per element.',
+		mono: 'Code and tabular data — docs code blocks and readouts resolve through it.'
+	};
+
+	const familyTabs = fontFamilies.map((f) => ({ id: f.key, label: familyLabels[f.key] ?? f.key }));
+	const weightTabs = fontWeights.map((w) => ({ id: w.key, label: w.key }));
+
+	const familyValue = (key: string) => fontFamilies.find((f) => f.key === key)?.value ?? 'inherit';
+	const weightValue = (key: string) => fontWeights.find((w) => w.key === key)?.value ?? '400';
+
+	function familyCode(family: string, weight: string): string {
+		return [
+			'.round-recap {',
+			`\tfont-family: var(--hz-font-family-${family});`,
+			`\tfont-weight: var(--hz-font-weight-${weight});`,
+			'}'
+		].join('\n');
+	}
+
+	const specimen = 'The quick brown fox jumps over the lazy dog';
+
+	const lineHeightSample =
+		'Wind pushed the drive wide on seventeen, but a smooth forehand upshot and a confident putt saved par from the rough.';
 </script>
 
 <svelte:head>
@@ -35,8 +69,66 @@
 <Stack gap="xl">
 	<div>
 		<h1>Typography</h1>
-		<p>Five-step type scale, font families, and weights.</p>
+		<p>Three font families, a six-step type scale, four weights, and three line heights.</p>
 	</div>
+
+	<section aria-labelledby="families-heading">
+		<h2 id="families-heading">Font families</h2>
+		<p>
+			Each family is a system stack — nothing is downloaded. Pick a family and a weight to see the
+			full type scale rendered in it.
+		</p>
+		<Tabs items={familyTabs} ariaLabel="Font family" defaultTab="sans">
+			{#snippet panel(fItem)}
+				<div class="tab-content">
+					<p class="tab-note">
+						<code>--hz-font-family-{fItem.id}</code> — {familyNotes[fItem.id]}
+					</p>
+					<Tabs items={weightTabs} ariaLabel="Font weight" defaultTab="normal">
+						{#snippet panel(wItem)}
+							<div class="inner-tab">
+								<Example code={familyCode(fItem.id, wItem.id)}>
+									<div class="specimen-list">
+										{#each fontSizes as size (size.cssVar)}
+											<div class="specimen-row">
+												<code class="specimen-label">{size.key} · {size.value}</code>
+												<span
+													class="specimen-text"
+													style="font-family: {familyValue(fItem.id)}; font-weight: {weightValue(
+														wItem.id
+													)}; font-size: {size.value};"
+												>
+													{specimen}
+												</span>
+											</div>
+										{/each}
+									</div>
+								</Example>
+							</div>
+						{/snippet}
+					</Tabs>
+				</div>
+			{/snippet}
+		</Tabs>
+		<div class="token-table-wrapper">
+			<table class="token-table">
+				<thead>
+					<tr>
+						<th scope="col">Token</th>
+						<th scope="col">Stack</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each fontFamilies as token (token.cssVar)}
+						<tr>
+							<td><code>{token.cssVar}</code></td>
+							<td><code>{token.value}</code></td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	</section>
 
 	<section aria-labelledby="scale-heading">
 		<h2 id="scale-heading">Font size scale</h2>
@@ -83,6 +175,7 @@
 					<tr>
 						<th scope="col">Token</th>
 						<th scope="col">Value</th>
+						<th scope="col">Preview</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -90,25 +183,16 @@
 						<tr>
 							<td><code>{token.cssVar}</code></td>
 							<td><code>{token.value}</code></td>
+							<td>
+								<p class="line-height-sample" style="line-height: {token.value};">
+									{lineHeightSample}
+								</p>
+							</td>
 						</tr>
 					{/each}
 				</tbody>
 			</table>
 		</div>
-	</section>
-
-	<section aria-labelledby="families-heading">
-		<h2 id="families-heading">Font families</h2>
-		<Stack gap="md">
-			{#each fontFamilies as token (token.cssVar)}
-				<div>
-					<code class="token-name">{token.cssVar}</code>
-					<p class="family-preview" style="font-family: {token.value};">
-						The quick brown fox jumps over the lazy dog. 0123456789
-					</p>
-				</div>
-			{/each}
-		</Stack>
 	</section>
 </Stack>
 
@@ -129,9 +213,41 @@
 		margin: 0;
 	}
 
+	section > p {
+		margin-bottom: 1rem;
+	}
+
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
+	}
+
+	.specimen-list {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.specimen-row {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid var(--hz-color-border, #6b7280);
+	}
+
+	.specimen-row:last-child {
+		padding-bottom: 0;
+		border-bottom: none;
+	}
+
+	.specimen-label {
+		color: var(--hz-color-text-muted, #6b7280);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.specimen-text {
+		line-height: var(--hz-line-height-tight, 1.2);
 	}
 
 	.scale-row {
@@ -160,6 +276,7 @@
 
 	.token-table-wrapper {
 		overflow-x: auto;
+		margin-top: 1rem;
 	}
 
 	.token-table {
@@ -173,14 +290,15 @@
 		text-align: left;
 		padding: 0.5rem 0.75rem;
 		border-bottom: 1px solid var(--hz-color-border, #6b7280);
+		vertical-align: top;
 	}
 
 	.token-table th {
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
-	.family-preview {
-		margin: 0.5rem 0 0;
+	.line-height-sample {
+		max-width: 28rem;
 		font-size: var(--hz-font-size-base, 1rem);
 	}
 </style>

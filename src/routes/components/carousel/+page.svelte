@@ -97,6 +97,9 @@
 	importLine={'import {Carousel} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="Follows the APG grouped-carousel pattern: the region and each slide carry `aria-roledescription`, slides are named ('2 of 5'-style by default, customizable via `slideLabel`), and because there is no auto-rotation the viewport is an `aria-live=&quot;polite&quot;` region — slide changes announce themselves. Arrow keys, Home, and End steer while focus is inside the carousel."
+	a11yLinks={[
+		{ label: 'APG Carousel pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/carousel/' }
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Carousel demos" defaultTab="basic">
 		{#snippet panel(item)}

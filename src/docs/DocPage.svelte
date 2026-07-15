@@ -10,6 +10,12 @@
 		props: PropRow[];
 	}
 
+	/** An external reference shown under the a11y note (APG pattern, MDN page). */
+	export interface A11yLink {
+		label: string;
+		href: string;
+	}
+
 	interface Props {
 		name: string;
 		description: string;
@@ -19,6 +25,8 @@
 		types?: TypeTable[];
 		/** Backtick-wrapped segments render as inline <code>, e.g. "sets `aria-busy`". */
 		a11yNote?: string;
+		/** APG pattern / MDN reference links rendered after the a11y note. */
+		a11yLinks?: A11yLink[];
 		children?: Snippet;
 	}
 
@@ -29,6 +37,7 @@
 		props = [],
 		types = [],
 		a11yNote,
+		a11yLinks = [],
 		children
 	}: Props = $props();
 </script>
@@ -74,6 +83,14 @@
 				{#each a11yNote.split('`') as segment, i (i)}{#if i % 2 === 1}<code>{segment}</code
 						>{:else}{segment}{/if}{/each}
 			</p>
+			{#if a11yLinks.length > 0}
+				<p class="a11y-refs">
+					References:
+					{#each a11yLinks as link, i (link.href)}{#if i > 0}
+							·
+						{/if}<a href={link.href}>{link.label}</a>{/each}
+				</p>
+			{/if}
 		</section>
 	{/if}
 </Stack>
@@ -103,6 +120,12 @@
 		margin: 1.5rem 0 0.75rem;
 		font-size: var(--hz-font-size-base, 1rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.a11y-refs {
+		margin: 0.75rem 0 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
 	}
 
 	pre {

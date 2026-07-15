@@ -43,11 +43,11 @@
 	/* Destructive items — conveyed by color AND the label text, never color
 	 * alone (1.4.1). */
 	.hz-dropdown-item[data-danger] {
-		color: var(--hz-intent-danger, #dc2626);
+		color: var(--hz-intent-danger, #b91c1c);
 	}
 
 	.hz-dropdown-item[data-danger]:where(:hover, :focus, :focus-visible) {
-		background-color: color-mix(in srgb, var(--hz-intent-danger, #dc2626) 12%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-danger, #b91c1c) 12%, transparent);
 	}
 
 	/* Dropdown-R10: disabled items stay focusable — muted, not hidden. */

@@ -138,6 +138,13 @@
 	{props}
 	types={[{ name: 'SliderTick', props: sliderTickType }]}
 	a11yNote="The range input is the labelled (`id`/`for`), named, form-participating control; its slider semantics (value, min, max) are native, and arrow keys step it. The number field is an exact-entry affordance with its own accessible name (`inputLabel`) and no `name` — it never submits. `description` and `error` chain into `aria-describedby` on the range (description first) and an `error` sets `aria-invalid`. `unit` is decorative and `aria-hidden` — put meaning-bearing units in the label or description."
+	a11yLinks={[
+		{ label: 'APG Slider pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/slider/' },
+		{
+			label: 'MDN: <input type="range">',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/range'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Slider demos" defaultTab="basic">
 		{#snippet panel(item)}

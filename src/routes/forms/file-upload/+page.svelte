@@ -234,6 +234,12 @@
 	{props}
 	types={[{ name: 'FileRejection', props: fileRejectionType }]}
 	a11yNote="Drag-and-drop is a progressive enhancement — the non-drag alternative is always present: in basic mode the visible native input opens the platform picker directly; in dropzone mode a real `<button>` (`buttonText`) opens the same picker, so no function ever depends on a dragging movement (WCAG 2.5.7). The native input is labelled by the field's `<label for>`; in dropzone mode it is `aria-hidden` and out of the tab order, since the button is the operable, accessible control. Each selected file's remove button carries a unique `Remove` label naming that file. File additions, removals, and rejection counts are announced through a polite `aria-live` status region, separate from the file list, so screen-reader users hear dynamic changes the re-rendered list alone wouldn't surface. The theme's dragover state is a background-and-border change, not color alone."
+	a11yLinks={[
+		{
+			label: 'MDN: <input type="file">',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="FileUpload demos" defaultTab="basic">
 		{#snippet panel(item)}

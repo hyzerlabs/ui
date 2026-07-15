@@ -87,6 +87,12 @@
 	importLine={'import {ColorInput} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="The color input is the labelled (`id`/`for`), named, form-participating control; activating it opens the platform picker, which owns the picking UX. The hex field is an exact-entry affordance with its own accessible name (`inputLabel`) and no `name` — it never submits. `description` and `error` chain into `aria-describedby` (description first) and an `error` sets `aria-invalid`. `required` renders the label indicator only — a color input always holds a value. Don't let color alone carry meaning; the visible hex value helps."
+	a11yLinks={[
+		{
+			label: 'MDN: <input type="color">',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/color'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="ColorInput demos" defaultTab="basic">
 		{#snippet panel(item)}

@@ -35,18 +35,24 @@ already reference, and is structured as a two-layer color model so a
 **Two-layer color model.** Layer 1 is a fixed **palette** of single-value colors
 (no per-color ramps). Layer 2 is a small set of **semantic role** tokens that
 reference the palette via `var()`. A single `[data-theme="dark"]` block overrides
-**only the role layer** — the one documented place a future dark theme plugs in.
+the role layer **and the status palette hues** — never the brand hues
+(`primary`/`secondary`), which are constants in every mode (amended
+2026-07-14; the block is the one documented place per-mode values live).
 
-**Layer 1 — Palette (single value each, no ramps):**
+**Layer 1 — Palette (single value each, no ramps)** (amendment 2026-07-14:
+status hues retuned so every intent color passes WCAG AA — ≥ 4.5:1 — as text
+on both light surfaces, and white text passes on every solid intent
+background; was `success #16a34a`, `warning #d97706`, `danger #dc2626`,
+`info #0891b2`):
 
 | Token | Value |
 | --- | --- |
 | `--hz-color-primary` | `#2563eb` |
 | `--hz-color-secondary` | `#7c3aed` |
-| `--hz-color-success` | `#16a34a` |
-| `--hz-color-warning` | `#d97706` |
-| `--hz-color-danger` | `#dc2626` |
-| `--hz-color-info` | `#0891b2` |
+| `--hz-color-success` | `#15803d` |
+| `--hz-color-warning` | `#b45309` |
+| `--hz-color-danger` | `#b91c1c` |
+| `--hz-color-info` | `#0e7490` |
 | `--hz-color-black` | `#000000` |
 | `--hz-color-white` | `#ffffff` |
 | `--hz-color-gray` | `#6b7280` |
@@ -73,8 +79,30 @@ without touching the palette):
 | `--hz-intent-success` | `var(--hz-color-success)` |
 | `--hz-intent-info` | `var(--hz-color-info)` |
 
-Mirrored by the `intent` metadata export in `src/lib/tokens/index.ts`. The
-dark block does **not** touch them — they chain through the palette.
+Mirrored by the `intent` metadata export in `src/lib/tokens/index.ts`.
+
+Amendment 2026-07-14: every intent resolves to a lighter companion in dark
+mode — each value ≥ 4.5:1 as text on both dark surfaces (resolved set
+mirrored as the `intentDark` metadata export). The mechanism differs by hue
+class: the **status palette hues** (`danger`/`warning`/`success`/`info`)
+lighten at the palette layer inside `[data-theme="dark"]`, and their intents
+chain through untouched; the **brand hues** (`primary`/`secondary`) are
+constants that never change in any mode, so their intent roles (plus
+`neutral`) retarget instead:
+
+| Token | Resolves in dark to | Via |
+| --- | --- | --- |
+| `--hz-intent-neutral` | `#9ca3af` | intent override |
+| `--hz-intent-primary` | `#60a5fa` | intent override (brand palette fixed) |
+| `--hz-intent-secondary` | `#a78bfa` | intent override (brand palette fixed) |
+| `--hz-intent-danger` | `#f87171` | dark palette `--hz-color-danger` |
+| `--hz-intent-warning` | `#fbbf24` | dark palette `--hz-color-warning` |
+| `--hz-intent-success` | `#4ade80` | dark palette `--hz-color-success` |
+| `--hz-intent-info` | `#22d3ee` | dark palette `--hz-color-info` |
+
+Because dark intents are *lighter* than the surfaces, the reference theme
+paints solid intent text with `--hz-color-surface` (white in light mode,
+black in dark) rather than white — both modes stay ≥ 4.5:1.
 
 **Layer 2 — Semantic roles** (reference the palette via `var()` — `surface-muted`
 through a `color-mix()` of it; the only tokens the dark block overrides):
@@ -84,32 +112,40 @@ through a `color-mix()` of it; the only tokens the dark block overrides):
 | `--hz-color-surface` | `var(--hz-color-white)` | `var(--hz-color-black)` |
 | `--hz-color-surface-muted` | `color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface))` | `color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface))` |
 | `--hz-color-text` | `var(--hz-color-black)` | `var(--hz-color-white)` |
-| `--hz-color-text-muted` | `var(--hz-color-gray)` | `var(--hz-color-gray)` |
+| `--hz-color-text-muted` | `var(--hz-color-gray)` | `#9ca3af` (amendment 2026-07-14) |
 | `--hz-color-border` | `var(--hz-color-gray)` | `var(--hz-color-gray)` |
 
 `--hz-color-surface` and `--hz-color-text` flip between modes, and
 `--hz-color-surface-muted` (amendment 2026-07-13) strengthens its gray tint —
-6% is invisible over black; `text-muted` and `border` stay gray in both.
+6% is invisible over black; `border` stays gray in both. `text-muted`
+(amendment 2026-07-14) lightens in dark mode — gray on black is ≈ 4.34:1,
+just under AA, so dark mode uses a literal light companion (≥ 8:1 on black).
 `surface-muted` is an **opaque** subdued surface (docs code blocks, the reference
 Footer): gray mixed over `surface`, so it tracks surface overrides and covers
 whatever sits behind it — not a raised surface. There is intentionally **no**
 `surface-raised` role (a single gray cannot serve both a raised surface and a
 readable muted text); the reference theme will derive raised surfaces later.
 
-**Type scale — six steps:**
+**Type scale — six steps** (amendment 2026-07-14: table updated to the shipped
+values — the `xs` step was dropped and `lg`/`xl`/`2xl` retuned during the
+reference-theme pass, and a `3xl` display step was added, keeping the count at
+six):
 
 | Token | Value |
 | --- | --- |
-| `--hz-font-size-xs` | `0.75rem` |
 | `--hz-font-size-sm` | `0.875rem` |
 | `--hz-font-size-base` | `1rem` |
-| `--hz-font-size-lg` | `1.25rem` |
-| `--hz-font-size-xl` | `1.5rem` |
-| `--hz-font-size-2xl` | `2rem` |
+| `--hz-font-size-lg` | `1.4rem` |
+| `--hz-font-size-xl` | `1.65rem` |
+| `--hz-font-size-2xl` | `2.75rem` |
+| `--hz-font-size-3xl` | `3.5rem` |
 
 Supporting type tokens:
 
 - `--hz-font-family-sans`: `system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`
+- `--hz-font-family-serif`: `ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif`
+  (amendment 2026-07-14 — third family, an editorial serif; system stack like the
+  other two, referenced by no component default — consumers/themes opt in)
 - `--hz-font-family-mono`: `ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace`
 - `--hz-font-weight-normal: 400; -medium: 500; -semibold: 600; -bold: 700`
 - `--hz-line-height-tight: 1.2; -base: 1.5; -loose: 1.75`
@@ -162,12 +198,18 @@ CSS cannot read custom properties inside media queries.
    palette — `var()` indirection, or `color-mix()` over a palette `var()` for
    `surface-muted` — never raw literals — so the indirection a theme overrides
    stays intact.
-5. **R5 — Dark override hook.** A single `[data-theme="dark"]` selector overrides
-   **only** `--hz-color-surface`, `--hz-color-surface-muted`, and
-   `--hz-color-text` to their Dark-column values. No palette token, no non-color
-   token, and no other role token is redefined in that block. Setting
-   `data-theme="dark"` on any ancestor flips those roles for that subtree and
-   changes nothing else.
+5. **R5 — Dark override hook** (amended 2026-07-14). A single
+   `[data-theme="dark"]` selector overrides: the four semantic text/surface
+   roles (`surface`, `surface-muted`, `text`, `text-muted`), the four
+   **status palette hues** (`danger`, `warning`, `success`, `info`), and the
+   three intent roles whose targets can't lighten at the palette layer
+   (`neutral`, plus `primary`/`secondary` — the brand hues are constants
+   that never change in any mode). Dark values are authored literals where
+   no palette reference exists (the single-value palette has no light ramp)
+   — this block is the one documented place per-mode values live. No brand
+   palette token, no non-color token, and no other token is redefined in
+   that block. Setting `data-theme="dark"` on any ancestor flips those
+   values for that subtree and changes nothing else.
 6. **R6 — Type, radius, border, elevation, z-index, motion.** All remaining token
    groups above are defined on `:root` under the `--hz` prefix with the values
    given. The type scale has exactly six `--hz-font-size-*` steps.
@@ -191,15 +233,20 @@ queries are added to `tokens.css`.
 
 ### Accessibility (WCAG 2.1 AA)
 
+(Amended 2026-07-14 — the first-pass "flagged for iteration" posture is
+retired; the token system is now AA-compliant by construction. Live proof
+lives at `/foundation/contrast`.)
+
 - In light mode, `--hz-color-text` (black) on `--hz-color-surface` (white) is
   21:1; in dark mode white on black is 21:1 — both pass AAA.
-- `--hz-color-text-muted` (gray `#6b7280`) on white is ≈ 4.8:1 (passes AA for
-  normal text). On dark surface (black) it is ≈ 4.4:1 — borderline for normal
-  text; this is an accepted first-pass tradeoff of the single-gray palette and is
-  flagged for iteration. `--hz-color-border` is a non-text UI color (3:1 target)
-  and passes in both modes.
-- Intent colors are first-pass values to be iterated; the Reviewer records, but
-  does not block on, their text-contrast ratios on white/surface.
+- `--hz-color-text-muted` passes AA on both surfaces in both modes: gray
+  `#6b7280` is ≈ 4.8:1 on white / ≈ 4.5:1 on light muted; the dark companion
+  `#9ca3af` is ≈ 8.3:1 on black / ≈ 6.7:1 on dark muted. `--hz-color-border`
+  is a non-text UI color (3:1 target) and passes in both modes.
+- Every intent color passes AA (≥ 4.5:1) as normal text on both surfaces of
+  its mode — palette values on the light surfaces, dark companions on the
+  dark surfaces — and surface-colored text on solid intent backgrounds passes
+  AA in both modes.
 - Motion tokens are values only; honoring `prefers-reduced-motion` is the
   consumer's responsibility. Tokens introduce no DOM, focus, or ARIA surface.
 
@@ -208,7 +255,7 @@ queries are added to `tokens.css`.
 | Case | Expected behavior |
 | --- | --- |
 | Consumer imports `tokens.css` over existing components | Identical computed spacing/width (R1); `Image` placeholder now resolves via `--hz-color-gray` (R2). |
-| `data-theme="dark"` on `<html>` or any wrapper | `--hz-color-surface`/`--hz-color-surface-muted`/`--hz-color-text` cascade to dark for that subtree; palette, text-muted, border, and all non-color tokens unchanged (R5). |
+| `data-theme="dark"` on `<html>` or any wrapper | Surface roles, text roles, and the intent roles cascade to their dark values for that subtree; palette, border, and all non-color tokens unchanged (R5, amended 2026-07-14). |
 | No `data-theme` attribute present | Light role values apply from `:root`; nothing depends on the attribute existing. |
 | Consumer overrides a palette token (e.g. `--hz-color-gray`) | Role tokens referencing it update automatically (indirection holds, R4). |
 | `index.ts` consumed without `tokens.css` (JS-only tooling) | Metadata returns correct string values (R7); no runtime dependency on the CSS being loaded. |
@@ -248,7 +295,9 @@ scope).
 - Assert `color.gray` is defined and there is **no** `gray-100/200/...` ramp key (R2/R3).
 - Assert all nine palette keys exist incl. `danger` and `info` (R3).
 - Assert the type scale exposes exactly six font-size steps (R6).
-- Assert the dark sub-map exists with exactly `surface`, `surfaceMuted`, and `text` keys (R5/R7).
+- Assert the dark sub-map exists with exactly `surface`, `surfaceMuted`, `text`,
+  and `textMuted` keys, and `intentDark` mirrors the seven intent keys (R5/R7,
+  amended 2026-07-14).
 
 **Computed values (browser, e.g. `src/lib/tokens/tokens.svelte.spec.ts`):**
 
@@ -262,8 +311,9 @@ scope).
 - **Dark hook:** set `data-theme="dark"` on the root element; assert
   `--hz-color-surface` now equals `--hz-color-black` and `--hz-color-text` equals
   `--hz-color-white`, while `--hz-color-primary`, `--hz-color-gray`,
-  `--hz-color-text-muted`, `--hz-color-border`, and `--hz-space-md` are unchanged
-  (R5).
+  `--hz-color-border`, and `--hz-space-md` are unchanged; assert
+  `--hz-color-text-muted` resolves to `#9ca3af` and every `--hz-intent-*`
+  differs from its light value (R5, amended 2026-07-14).
 
 **Parity (server):** for the dark map, assert each value maps to a declared
 palette entry and differs from its light counterpart (R7).

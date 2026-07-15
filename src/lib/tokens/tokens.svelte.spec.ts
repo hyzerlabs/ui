@@ -284,10 +284,47 @@ describe('R5 — dark theme override hook', () => {
 		expect(rootVar('--hz-color-gray')).toBe(before);
 	});
 
-	it('--hz-color-text-muted is unchanged in dark mode', () => {
-		const before = rootVar('--hz-color-text-muted');
+	it('--hz-color-text-muted lightens in dark mode (AA on dark surfaces)', () => {
+		const before = resolveColor('var(--hz-color-text-muted)');
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(rootVar('--hz-color-text-muted')).toBe(before);
+		const after = resolveColor('var(--hz-color-text-muted)');
+		expect(after).not.toBe(before);
+		expect(after).toBe('rgb(156, 163, 175)'); // #9ca3af
+	});
+
+	it('every --hz-intent-* retargets to its light companion in dark mode', () => {
+		const before = Object.fromEntries(
+			['neutral', 'primary', 'secondary', 'danger', 'warning', 'success', 'info'].map((name) => [
+				name,
+				resolveColor(`var(--hz-intent-${name})`)
+			])
+		);
+		document.documentElement.setAttribute('data-theme', 'dark');
+		for (const [name, light] of Object.entries(before)) {
+			expect(resolveColor(`var(--hz-intent-${name})`)).not.toBe(light);
+		}
+	});
+
+	it('dark status intents still chain through the (lightened) palette', () => {
+		document.documentElement.setAttribute('data-theme', 'dark');
+		expect(resolveColor('var(--hz-intent-danger)')).toBe(resolveColor('var(--hz-color-danger)'));
+		expect(resolveColor('var(--hz-color-danger)')).toBe('rgb(248, 113, 113)'); // #f87171
+	});
+
+	it('brand palette hues are constants — unchanged in dark mode', () => {
+		const primary = rootVar('--hz-color-primary');
+		const secondary = rootVar('--hz-color-secondary');
+		document.documentElement.setAttribute('data-theme', 'dark');
+		expect(rootVar('--hz-color-primary')).toBe(primary);
+		expect(rootVar('--hz-color-secondary')).toBe(secondary);
+	});
+
+	it('dark --hz-intent-primary retargets away from the fixed brand palette', () => {
+		document.documentElement.setAttribute('data-theme', 'dark');
+		expect(resolveColor('var(--hz-intent-primary)')).not.toBe(
+			resolveColor('var(--hz-color-primary)')
+		);
+		expect(resolveColor('var(--hz-intent-primary)')).toBe('rgb(96, 165, 250)'); // #60a5fa
 	});
 
 	it('--hz-color-border is unchanged in dark mode', () => {

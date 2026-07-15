@@ -78,6 +78,9 @@
 	importLine={'import {Pagination} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="Pagination renders a `<nav>` landmark named by `ariaLabel` — give it a distinct name when a page hosts several. Every control is a `Button`, so the current item carries `aria-current=&quot;page&quot;`, page items get full accessible names via `pageLabel` (&quot;Page 7&quot;, not a bare number), and ellipses are decorative. In link mode everything is a real `<a>`; at the ends the previous/next controls render as disabled Buttons without an `href` — a link can't be disabled, and a dead link announcing itself helps no one. Tab order is native; there are no roving-focus tricks."
+	a11yLinks={[
+		{ label: 'MDN: <nav>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav' }
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Pagination demos" defaultTab="basic">
 		{#snippet panel(item)}

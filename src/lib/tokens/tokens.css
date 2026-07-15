@@ -10,10 +10,13 @@
 	 * ===================================================================== */
 	--hz-color-primary: #2563eb;
 	--hz-color-secondary: #7c3aed;
-	--hz-color-success: #16a34a;
-	--hz-color-warning: #d97706;
-	--hz-color-danger: #dc2626;
-	--hz-color-info: #0891b2;
+	/* Status hues tuned 2026-07-14 so every intent color passes WCAG AA
+	 * (≥ 4.5:1) as text on both light surfaces — and so white text passes
+	 * on every solid intent background. */
+	--hz-color-success: #15803d;
+	--hz-color-warning: #b45309;
+	--hz-color-danger: #b91c1c;
+	--hz-color-info: #0e7490;
 	--hz-color-black: #000000;
 	--hz-color-white: #ffffff;
 	--hz-color-gray: #6b7280;
@@ -48,16 +51,18 @@
 	--hz-intent-info: var(--hz-color-info);
 
 	/* =====================================================================
-	 * Type scale — five steps
+	 * Type scale — six steps
 	 * ===================================================================== */
 	--hz-font-size-sm: 0.875rem;
 	--hz-font-size-base: 1rem;
 	--hz-font-size-lg: 1.4rem;
 	--hz-font-size-xl: 1.65rem;
 	--hz-font-size-2xl: 2.75rem;
+	--hz-font-size-3xl: 3.5rem;
 
 	/* Supporting type tokens */
 	--hz-font-family-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--hz-font-family-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
 	--hz-font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 	--hz-font-weight-normal: 400;
 	--hz-font-weight-medium: 500;
@@ -169,14 +174,29 @@ body [data-density-shift] [data-density-shift] [data-density-shift] {
 }
 
 /* ==========================================================================
- * Dark theme — semantic role overrides only.
- * Surface and text flip, and surface-muted's gray tint strengthens (6% is
- * invisible over black); all other tokens remain unchanged. Setting
- * data-theme="dark" on any ancestor activates this block for that subtree
- * via normal CSS cascade.
+ * Dark theme. Surface and text flip, surface-muted's gray tint strengthens
+ * (6% is invisible over black), and — since 2026-07-14 — dark mode gets
+ * light companion values so colored text keeps WCAG AA (≥ 4.5:1) on both
+ * dark surfaces. The status hues lighten at the PALETTE layer (their intent
+ * roles chain through); the brand hues (primary/secondary) are constants
+ * that never change, so their INTENT roles retarget instead — components
+ * resolve through intents and stay compliant while the brand palette holds.
+ * The companions are authored literals: the single-value palette ships no
+ * light ramp to reference. Setting data-theme="dark" on any ancestor
+ * activates this block for that subtree via normal CSS cascade.
  * ========================================================================== */
 [data-theme='dark'] {
 	--hz-color-surface: var(--hz-color-black);
 	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface));
 	--hz-color-text: var(--hz-color-white);
+	--hz-color-text-muted: #9ca3af;
+
+	--hz-color-danger: #f87171;
+	--hz-color-warning: #fbbf24;
+	--hz-color-success: #4ade80;
+	--hz-color-info: #22d3ee;
+
+	--hz-intent-neutral: #9ca3af;
+	--hz-intent-primary: #60a5fa;
+	--hz-intent-secondary: #a78bfa;
 }

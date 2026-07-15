@@ -80,8 +80,9 @@
 		<p>
 			A two-layer color model: a fixed palette (Layer 1) of single-value colors, and a semantic role
 			layer (Layer 2) that references the palette via <code>var()</code> — structural roles for what
-			a color does in the layout, and the <a href="#intent">intent vocabulary</a> for what a color means.
-			Dark theme overrides land on the role layer, never the palette.
+			a color does in the layout, and the <a href="#intent">intent vocabulary</a> for what a color
+			means. Dark theme overrides land on the role layer and the status hues — never the brand
+			colors (<code>primary</code>, <code>secondary</code>), which are constants in every mode.
 		</p>
 	</div>
 
@@ -205,10 +206,15 @@
 	<section aria-labelledby="dark-heading">
 		<h2 id="dark-heading">Dark theme overrides</h2>
 		<p>
-			Dark mode is a set of role overrides in <code>[data-theme="dark"]</code> — the palette never
-			changes. Out of the box <code>--hz-color-surface</code> and <code>--hz-color-text</code>
-			flip, and <code>--hz-color-surface-muted</code> strengthens its gray tint (6% is invisible over
-			black):
+			Dark mode is a set of overrides in <code>[data-theme="dark"]</code>. Out of the box
+			<code>--hz-color-surface</code> and <code>--hz-color-text</code> flip,
+			<code>--hz-color-surface-muted</code> strengthens its gray tint (6% is invisible over black),
+			and <code>--hz-color-text-muted</code> plus the four status hues lighten so colored text keeps
+			WCAG AA on dark surfaces. The brand colors never change; their intent roles retarget instead (<code
+				>--hz-intent-primary</code
+			>
+			→ <code>#60a5fa</code>, <code>--hz-intent-secondary</code> →
+			<code>#a78bfa</code>, <code>--hz-intent-neutral</code> → <code>#9ca3af</code>):
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -232,6 +238,10 @@
 			Any role can be overridden the same way — including intents. If your danger red reads too
 			harsh on a dark surface, set <code>--hz-intent-danger</code> inside
 			<code>[data-theme="dark"]</code> and every intent-bearing surface follows.
+		</p>
+		<p>
+			For WCAG ratios, luminance, and in-situ previews of every pairing, see
+			<a href="/foundation/contrast">Contrast &amp; Accessibility</a>.
 		</p>
 	</section>
 </Stack>

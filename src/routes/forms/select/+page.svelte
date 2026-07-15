@@ -196,6 +196,12 @@
 		{ name: 'SelectOption (group arm)', props: selectOptionGroupType }
 	]}
 	a11yNote="The select is associated with its label via `id`/`for`; with `hideLabel` the label stays in the DOM as screen-reader-only text. `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`. The control is the native `<select>`, so keyboard and assistive-tech behavior come from the platform."
+	a11yLinks={[
+		{
+			label: 'MDN: <select>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select'
+		}
+	]}
 >
 	<Alert intent="info" title="Select vs Combobox">
 		Reach for <code>Select</code> when your option set is small and static — single-select, or

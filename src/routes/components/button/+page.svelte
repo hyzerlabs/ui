@@ -107,6 +107,13 @@
 	importLine={'import {Button} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="Use `ariaLabel` for icon-only buttons (no visible text). The loading state sets `aria-busy=&quot;true&quot;` and renders a screen-reader-only &quot;Loading&quot; label. Disabled state sets `aria-disabled=&quot;true&quot;`."
+	a11yLinks={[
+		{ label: 'APG Button pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/button/' },
+		{
+			label: 'MDN: <button>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button'
+		}
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Button demos" defaultTab="variants">
 		{#snippet panel(item)}

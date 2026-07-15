@@ -115,6 +115,9 @@
 	{props}
 	types={[{ name: 'TabItem', props: itemType }]}
 	a11yNote="Implements the WAI-ARIA tabs pattern: `role='tablist'/'tab'/'tabpanel'`, `aria-selected`, and roving `tabindex` — Tab is one stop for the whole tablist; arrow keys move between triggers, Home/End jump to first/last. Panels are only their own tab stop when they contain no focusable content. `ariaLabel` is required to name the tablist. Disabled tabs stay focusable via arrows but carry `aria-disabled='true'` and never activate."
+	a11yLinks={[
+		{ label: 'APG Tabs pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/tabs/' }
+	]}
 >
 	<Tabs items={demoTabs} ariaLabel="Tabs demos" defaultTab="orientation">
 		{#snippet panel(item)}
