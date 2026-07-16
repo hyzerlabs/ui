@@ -2,6 +2,9 @@
  * @hyzer-labs/ui utility functions.
  */
 
+// WCAG contrast math — check palette overrides against your contrast bar.
+export * from './contrast.js';
+
 /**
  * Compose CSS class names, filtering out all falsy values.
  *

@@ -60,8 +60,12 @@ demo on the component-page tab pattern — family tabs (Sans/Serif/Mono, incl. t
 new `--hz-font-family-serif`) × weight sub-tabs, each `Example` rendering the
 full size scale; token tables follow. A dedicated **Contrast & Accessibility**
 page (`/foundation/contrast`, listed after Typography) carries the a11y tooling,
-driven by docs-only WCAG math in `src/docs/contrast.ts` (unit-tested, including
-a token-compliance suite that fails CI if a palette change breaks AA): a
+driven by the library's own WCAG contrast utilities (promoted 2026-07-15 from
+docs-only `src/docs/contrast.ts` to public API in `src/lib/utils/contrast.ts`,
+exported from the package root and `./utils` — see specs/15 R10; unit-tested,
+including a token-compliance suite that fails CI if a palette change breaks
+AA; the page dogfoods the exports and documents them in a "Check your own
+palette" section with a usage snippet): a
 requirements table (AA/AAA/508 × normal/large); an interactive
 foreground/background pairing checker (palette + per-mode intent roles +
 resolved surface roles, incl. surface-muted's `color-mix()` resolved in JS)

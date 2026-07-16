@@ -223,7 +223,20 @@ CSS cannot read custom properties inside media queries.
    mode; `index.ts` reflects `tokens.css` with no contradictory hardcoding. The
    `prefix` export and existing `utils` (`cx`/`uid`) are unaffected.
 9. **R9 — Packaging.** `pnpm package` and `publint` succeed; `./tokens` and
-   `./tokens.css` resolve from `dist/` with no `package.json` edit.
+   `./tokens.css` resolve from `dist/`. (Amendment 2026-07-15: the `./tokens`
+   JS subpath had drifted out of the exports map and was restored — consumers
+   import the metadata via `@hyzer-labs/ui/tokens`.)
+10. **R10 — Contrast utilities (amendment 2026-07-15).** The WCAG contrast
+    math that proves this token system's AA posture is public API:
+    `hexToRgb`, `rgbToHex`, `mixSrgb` (`color-mix(in srgb)` parity),
+    `relativeLuminance`, `contrastRatio`, `gradeContrast`, `bestLevel`,
+    `bestLevelLarge` (+ `Rgb`, `ContrastGrade`, `ContrastLevel`,
+    `LargeContrastLevel` types) live in `src/lib/utils/contrast.ts` and are
+    exported from both the package root and `./utils`. Pure hex-string
+    functions — no DOM, SSR-safe — so a consumer overriding the palette can
+    assert their pairings in unit tests exactly as the library's own
+    token-compliance suite (`src/lib/utils/contrast.spec.ts`) does. The
+    `/foundation/contrast` page dogfoods these exports and documents them.
 
 ### Responsive Behavior
 

@@ -1,7 +1,10 @@
 /**
- * WCAG 2.x contrast math over sRGB hex colors — docs-only tooling for the
- * foundation Colors & Intent page. Operates on the static token metadata
- * (hex strings), so it is SSR-safe and needs no computed styles.
+ * WCAG 2.x contrast math over sRGB hex colors. Pure functions over hex
+ * strings — no DOM or computed styles, so everything is SSR-safe. Pair with
+ * the token metadata from `@hyzer-labs/ui/tokens` to verify a palette
+ * override still meets your contrast bar; the docs' Contrast & Accessibility
+ * page and the library's own token-compliance test suite run on exactly
+ * these functions.
  *
  * Thresholds (WCAG 2.1 §1.4.3 / §1.4.6):
  *   normal text — AA ≥ 4.5, AAA ≥ 7

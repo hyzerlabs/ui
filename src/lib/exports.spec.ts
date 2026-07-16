@@ -60,6 +60,16 @@ describe('subpath exports', () => {
 		// Lightbox-R16: lightboxGroup attachment factory exported from $lib.
 		expect(mod.lightboxGroup).toBeDefined();
 		expect(typeof mod.lightboxGroup).toBe('function');
+		// Contrast utilities (2026-07-15): WCAG math exported from the root
+		// so consumers can verify palette overrides.
+		expect(typeof mod.contrastRatio).toBe('function');
+		expect(typeof mod.gradeContrast).toBe('function');
+		expect(typeof mod.relativeLuminance).toBe('function');
+		expect(typeof mod.mixSrgb).toBe('function');
+		expect(typeof mod.bestLevel).toBe('function');
+		expect(typeof mod.bestLevelLarge).toBe('function');
+		expect(typeof mod.hexToRgb).toBe('function');
+		expect(typeof mod.rgbToHex).toBe('function');
 	});
 
 	it('$lib/icons — exports all 21 icon components (R10)', async () => {
@@ -89,10 +99,22 @@ describe('subpath exports', () => {
 		expect(mod.IconRss).toBeDefined();
 	});
 
-	it('$lib/utils — exports cx and uid functions', async () => {
+	it('$lib/utils — exports cx, uid, and the contrast utilities', async () => {
 		const mod = await import('$lib/utils');
 		expect(typeof mod.cx).toBe('function');
 		expect(typeof mod.uid).toBe('function');
+		expect(typeof mod.contrastRatio).toBe('function');
+		expect(typeof mod.gradeContrast).toBe('function');
+	});
+
+	it('$lib/tokens — exports the token metadata groups (specs/15 R7/R9)', async () => {
+		const mod = await import('$lib/tokens');
+		expect(mod.prefix).toBe('--hz');
+		expect(mod.color).toBeDefined();
+		expect(mod.intent).toBeDefined();
+		expect(mod.intentDark).toBeDefined();
+		expect(mod.typography).toBeDefined();
+		expect(mod.space).toBeDefined();
 	});
 
 	it('$lib/types — module is importable (type-only exports have no runtime value)', async () => {
@@ -114,6 +136,7 @@ describe('package.json metadata', () => {
 		const pkg = await import('../../package.json', { with: { type: 'json' } });
 		const exports = pkg.default.exports as Record<string, unknown>;
 		expect(exports['.']).toBeDefined();
+		expect(exports['./tokens']).toBeDefined();
 		expect(exports['./tokens.css']).toBeDefined();
 		expect(exports['./icons']).toBeDefined();
 		expect(exports['./utils']).toBeDefined();

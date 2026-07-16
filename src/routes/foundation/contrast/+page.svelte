@@ -1,8 +1,11 @@
 <script lang="ts">
-	import { Stack, Cluster, Grid, Badge, Select, Tabs } from '$lib';
-	import type { SelectOption } from '$lib/types';
-	import { color, intent, intentDark } from '$lib/tokens';
 	import {
+		Stack,
+		Cluster,
+		Grid,
+		Badge,
+		Select,
+		Tabs,
 		contrastRatio,
 		relativeLuminance,
 		gradeContrast,
@@ -11,16 +14,34 @@
 		mixSrgb,
 		type ContrastLevel,
 		type LargeContrastLevel
-	} from '../../../docs/contrast';
+	} from '$lib';
+	import type { SelectOption } from '$lib/types';
+	import { color, intent, intentDark } from '$lib/tokens';
+	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// -------------------------------------------------------------------------
-	// WCAG 2.x math over the static token metadata (src/docs/contrast.ts).
-	// SSR-safe: role/intent indirections are resolved here to concrete hexes
-	// per mode — light values on light surfaces, dark companions on dark —
-	// including surface-muted's color-mix(). Panels are painted from these
-	// resolved hexes (not live tokens) so each panel stays pinned to its mode
+	// WCAG 2.x math over the static token metadata — the same contrast
+	// utilities the library exports ($lib/utils/contrast). SSR-safe:
+	// role/intent indirections are resolved here to concrete hexes per mode —
+	// light values on light surfaces, dark companions on dark — including
+	// surface-muted's color-mix(). Panels are painted from these resolved
+	// hexes (not live tokens) so each panel stays pinned to its mode
 	// regardless of the site theme toggle.
 	// -------------------------------------------------------------------------
+
+	const apiCode = [
+		"import { gradeContrast, contrastRatio, mixSrgb } from '@hyzer-labs/ui';",
+		"import { color } from '@hyzer-labs/ui/tokens';",
+		'',
+		'// Your override for --hz-color-primary',
+		"const brand = '#0f766e';",
+		'',
+		'gradeContrast(brand, color.white).aaNormal; // text on surface',
+		'gradeContrast(color.white, brand).aaNormal; // solid button text',
+		'',
+		'// On surface-muted — the same 6% color-mix the theme derives',
+		'contrastRatio(brand, mixSrgb(color.gray, color.white, 0.06));'
+	].join('\n');
 
 	const paletteTokens = Object.entries(color)
 		.filter(([, v]) => typeof v === 'string' && (v as string).startsWith('#'))
@@ -193,7 +214,9 @@
 			pass. Every ratio on this page is computed from the
 			<a href="/foundation/colors">token metadata</a>, resolved per mode — light values on light
 			surfaces, the dark companions on dark — and the same math runs in CI, so a palette change that
-			breaks AA fails the build. If you override the palette, re-check your pairings here.
+			breaks AA fails the build. The functions themselves
+			<a href="#api-heading">ship in the library</a>, so a theme that overrides the palette can run
+			the same checks.
 		</p>
 	</div>
 
@@ -449,6 +472,20 @@
 				</div>
 			{/snippet}
 		</Tabs>
+	</section>
+
+	<section aria-labelledby="api-heading">
+		<h2 id="api-heading">Check your own palette</h2>
+		<p>
+			The math behind this page is part of the library — <code>hexToRgb</code>,
+			<code>rgbToHex</code>, <code>mixSrgb</code>, <code>relativeLuminance</code>,
+			<code>contrastRatio</code>, <code>gradeContrast</code>, <code>bestLevel</code>, and
+			<code>bestLevelLarge</code>, exported from the package root and
+			<code>@hyzer-labs/ui/utils</code>. Pure functions over hex strings (no DOM, SSR-safe), with
+			the token metadata importable from <code>@hyzer-labs/ui/tokens</code>. If your theme overrides
+			the palette, assert your pairings in a unit test the same way this library does:
+		</p>
+		<CodeBlock code={apiCode} />
 	</section>
 
 	<section aria-labelledby="resources-heading">
