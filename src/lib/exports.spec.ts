@@ -107,12 +107,21 @@ describe('subpath exports', () => {
 		expect(typeof mod.gradeContrast).toBe('function');
 	});
 
+	it('$lib/config — exports the token engine (specs/29 R1)', async () => {
+		const mod = await import('$lib/config');
+		expect(typeof mod.defineConfig).toBe('function');
+		expect(typeof mod.resolveConfig).toBe('function');
+		expect(typeof mod.generateCss).toBe('function');
+		expect(typeof mod.contrastReport).toBe('function');
+		expect(typeof mod.HyzerConfigError).toBe('function');
+	});
+
 	it('$lib/tokens — exports the token metadata groups (specs/15 R7/R9)', async () => {
 		const mod = await import('$lib/tokens');
 		expect(mod.prefix).toBe('--hz');
 		expect(mod.color).toBeDefined();
 		expect(mod.intent).toBeDefined();
-		expect(mod.intentDark).toBeDefined();
+		expect(mod.color.theme.dark.primary).toBeDefined();
 		expect(mod.typography).toBeDefined();
 		expect(mod.space).toBeDefined();
 	});
@@ -132,10 +141,16 @@ describe('package.json metadata', () => {
 		expect(pkg.default.name).toBe('@hyzer-labs/ui');
 	});
 
+	it('bin exposes the hyzer CLI (specs/29 R9)', async () => {
+		const pkg = await import('../../package.json', { with: { type: 'json' } });
+		expect((pkg.default.bin as Record<string, string>).hyzer).toBe('./dist/cli/hyzer.js');
+	});
+
 	it('exports map contains all required subpath keys', async () => {
 		const pkg = await import('../../package.json', { with: { type: 'json' } });
 		const exports = pkg.default.exports as Record<string, unknown>;
 		expect(exports['.']).toBeDefined();
+		expect(exports['./config']).toBeDefined();
 		expect(exports['./tokens']).toBeDefined();
 		expect(exports['./tokens.css']).toBeDefined();
 		expect(exports['./icons']).toBeDefined();

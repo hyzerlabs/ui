@@ -294,13 +294,14 @@ test.describe('R9 — theme toggle', () => {
 		expect(lightSurface).not.toBe(darkSurface);
 	});
 
-	test('--hz-color-primary is unchanged after toggle (R9 dogfoods specs/15 R5)', async ({
+	test('--hz-color-primary lightens to its dark companion after toggle (R9 dogfoods specs/15 R5)', async ({
 		page
 	}) => {
 		await page.goto('/');
 		const primaryBefore = await page.evaluate(() =>
 			getComputedStyle(document.documentElement).getPropertyValue('--hz-color-primary').trim()
 		);
+		expect(primaryBefore).toBe('#2563eb');
 
 		await page.getByRole('button', { name: /theme/i }).click();
 
@@ -308,6 +309,8 @@ test.describe('R9 — theme toggle', () => {
 			getComputedStyle(document.documentElement).getPropertyValue('--hz-color-primary').trim()
 		);
 
-		expect(primaryBefore).toBe(primaryAfter);
+		// Dark mode is authored at the palette layer (specs/15 R5, revised
+		// 2026-07-15): every hue lightens; non-color tokens stay put.
+		expect(primaryAfter).toBe('#60a5fa');
 	});
 });

@@ -32,12 +32,16 @@ already reference, and is structured as a two-layer color model so a
 
 ### Token System
 
-**Two-layer color model.** Layer 1 is a fixed **palette** of single-value colors
-(no per-color ramps). Layer 2 is a small set of **semantic role** tokens that
-reference the palette via `var()`. A single `[data-theme="dark"]` block overrides
-the role layer **and the status palette hues** — never the brand hues
-(`primary`/`secondary`), which are constants in every mode (amended
-2026-07-14; the block is the one documented place per-mode values live).
+**Two-layer color model** (amended 2026-07-15, "the two-tier rule"). Layer 1
+is a **palette** of single-value colors (no per-color ramps), authored per
+mode: a single `[data-theme="dark"]` block overrides the hues (plus the three
+surface/text roles that flip) and nothing else. Layer 2 — the semantic roles
+and the intent vocabulary — is a pure `var()` indirection surface in **both**
+modes: it is never re-authored for dark, everything chains through Layer 1
+automatically. Layer 2 exists so a theme can remap one reference to another
+(`--hz-intent-danger` → a different hue than the brand red) or add new
+category tokens (`--hz-intent-foo: #bar`); the dark block is the one
+documented place per-mode values live.
 
 **Layer 1 — Palette (single value each, no ramps)** (amendment 2026-07-14:
 status hues retuned so every intent color passes WCAG AA — ≥ 4.5:1 — as text
@@ -81,45 +85,45 @@ without touching the palette):
 
 Mirrored by the `intent` metadata export in `src/lib/tokens/index.ts`.
 
-Amendment 2026-07-14: every intent resolves to a lighter companion in dark
-mode — each value ≥ 4.5:1 as text on both dark surfaces (resolved set
-mirrored as the `intentDark` metadata export). The mechanism differs by hue
-class: the **status palette hues** (`danger`/`warning`/`success`/`info`)
-lighten at the palette layer inside `[data-theme="dark"]`, and their intents
-chain through untouched; the **brand hues** (`primary`/`secondary`) are
-constants that never change in any mode, so their intent roles (plus
-`neutral`) retarget instead:
+Amendment 2026-07-15 (supersedes the 2026-07-14 mechanism): the intent layer
+carries **no dark authoring of its own**. Every hue lightens at the palette
+layer inside `[data-theme="dark"]` — including `primary`/`secondary`/`gray`
+— and the intents chain through untouched, each resolving ≥ 4.5:1 as text on
+both dark surfaces:
 
-| Token | Resolves in dark to | Via |
+| Palette hue | Light | Dark companion |
 | --- | --- | --- |
-| `--hz-intent-neutral` | `#9ca3af` | intent override |
-| `--hz-intent-primary` | `#60a5fa` | intent override (brand palette fixed) |
-| `--hz-intent-secondary` | `#a78bfa` | intent override (brand palette fixed) |
-| `--hz-intent-danger` | `#f87171` | dark palette `--hz-color-danger` |
-| `--hz-intent-warning` | `#fbbf24` | dark palette `--hz-color-warning` |
-| `--hz-intent-success` | `#4ade80` | dark palette `--hz-color-success` |
-| `--hz-intent-info` | `#22d3ee` | dark palette `--hz-color-info` |
+| `--hz-color-primary` | `#2563eb` | `#60a5fa` |
+| `--hz-color-secondary` | `#7c3aed` | `#a78bfa` |
+| `--hz-color-danger` | `#b91c1c` | `#f87171` |
+| `--hz-color-warning` | `#b45309` | `#fbbf24` |
+| `--hz-color-success` | `#15803d` | `#4ade80` |
+| `--hz-color-info` | `#0e7490` | `#22d3ee` |
+| `--hz-color-gray` | `#6b7280` | `#9ca3af` |
 
-Because dark intents are *lighter* than the surfaces, the reference theme
-paints solid intent text with `--hz-color-surface` (white in light mode,
-black in dark) rather than white — both modes stay ≥ 4.5:1.
+Because the dark companions are *lighter* than the surfaces, the reference
+theme paints solid intent text with `--hz-color-surface` (white in light
+mode, black in dark) rather than white — both modes stay ≥ 4.5:1.
 
-**Layer 2 — Semantic roles** (reference the palette via `var()` — `surface-muted`
-through a `color-mix()` of it; the only tokens the dark block overrides):
+**Layer 2 — Semantic roles** (reference the palette via `var()` —
+`surface-muted` through a `color-mix()` of it). Only `surface`,
+`surface-muted`, and `text` appear in the dark block (they flip rather than
+lighten); `text-muted` and `border` are authored once and follow `gray`:
 
-| Role token | Light (`:root`) | Dark (`[data-theme="dark"]`) |
+| Role token | Value (both modes) | Resolves in dark to |
 | --- | --- | --- |
-| `--hz-color-surface` | `var(--hz-color-white)` | `var(--hz-color-black)` |
-| `--hz-color-surface-muted` | `color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface))` | `color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface))` |
-| `--hz-color-text` | `var(--hz-color-black)` | `var(--hz-color-white)` |
-| `--hz-color-text-muted` | `var(--hz-color-gray)` | `#9ca3af` (amendment 2026-07-14) |
-| `--hz-color-border` | `var(--hz-color-gray)` | `var(--hz-color-gray)` |
+| `--hz-color-surface` | light `var(--hz-color-white)` / dark `var(--hz-color-black)` | black |
+| `--hz-color-surface-muted` | `color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface))`; dark strengthens to 25% | dark-gray tint over black |
+| `--hz-color-text` | light `var(--hz-color-black)` / dark `var(--hz-color-white)` | white |
+| `--hz-color-text-muted` | `var(--hz-color-gray)` | `#9ca3af` via the dark gray |
+| `--hz-color-border` | `var(--hz-color-gray)` | `#9ca3af` via the dark gray |
 
 `--hz-color-surface` and `--hz-color-text` flip between modes, and
 `--hz-color-surface-muted` (amendment 2026-07-13) strengthens its gray tint —
-6% is invisible over black; `border` stays gray in both. `text-muted`
-(amendment 2026-07-14) lightens in dark mode — gray on black is ≈ 4.34:1,
-just under AA, so dark mode uses a literal light companion (≥ 8:1 on black).
+6% is invisible over black. `text-muted` needs no dark authoring (amendment
+2026-07-15): gray on black is ≈ 4.34:1, just under AA, so the **palette
+gray** lightens in dark and both `text-muted` (≈ 8.3:1 on black, ≈ 5.7:1 on
+dark muted) and `border` chain through it.
 `surface-muted` is an **opaque** subdued surface (docs code blocks, the reference
 Footer): gray mixed over `surface`, so it tracks surface overrides and covers
 whatever sits behind it — not a raised surface. There is intentionally **no**
@@ -198,17 +202,20 @@ CSS cannot read custom properties inside media queries.
    palette — `var()` indirection, or `color-mix()` over a palette `var()` for
    `surface-muted` — never raw literals — so the indirection a theme overrides
    stays intact.
-5. **R5 — Dark override hook** (amended 2026-07-14). A single
-   `[data-theme="dark"]` selector overrides: the four semantic text/surface
-   roles (`surface`, `surface-muted`, `text`, `text-muted`), the four
-   **status palette hues** (`danger`, `warning`, `success`, `info`), and the
-   three intent roles whose targets can't lighten at the palette layer
-   (`neutral`, plus `primary`/`secondary` — the brand hues are constants
-   that never change in any mode). Dark values are authored literals where
-   no palette reference exists (the single-value palette has no light ramp)
-   — this block is the one documented place per-mode values live. No brand
-   palette token, no non-color token, and no other token is redefined in
-   that block. Setting `data-theme="dark"` on any ancestor flips those
+5. **R5 — Dark override hook** (amended 2026-07-15, "the two-tier rule").
+   A single `[data-theme="dark"]` selector overrides **Layer 1 only**: the
+   three roles that flip (`surface`, `surface-muted`, `text`) and the seven
+   hue companions (`primary`, `secondary`, `danger`, `warning`, `success`,
+   `info`, `gray`). No intent token, no other role (`text-muted`/`border`
+   follow `gray`), and no non-color token is redefined in that block —
+   Layer 2 is a pure `var()` chain in both modes — **in the base file**.
+   The intent layer remains a consumer authoring surface in either mode
+   (remap or add intents in a theme sheet or via the specs/29 config);
+   the base simply ships nothing there in dark. Companion values are
+   authored literals (the single-value base palette ships no ramp — the
+   specs/29 engine generates consumer-added ramps like
+   `--hz-color-red-50`); this block is the one documented place per-mode
+   values live. Setting `data-theme="dark"` on any ancestor flips those
    values for that subtree and changes nothing else.
 6. **R6 — Type, radius, border, elevation, z-index, motion.** All remaining token
    groups above are defined on `:root` under the `--hz` prefix with the values
@@ -253,9 +260,10 @@ lives at `/foundation/contrast`.)
 - In light mode, `--hz-color-text` (black) on `--hz-color-surface` (white) is
   21:1; in dark mode white on black is 21:1 — both pass AAA.
 - `--hz-color-text-muted` passes AA on both surfaces in both modes: gray
-  `#6b7280` is ≈ 4.8:1 on white / ≈ 4.5:1 on light muted; the dark companion
-  `#9ca3af` is ≈ 8.3:1 on black / ≈ 6.7:1 on dark muted. `--hz-color-border`
-  is a non-text UI color (3:1 target) and passes in both modes.
+  `#6b7280` is ≈ 4.8:1 on white / ≈ 4.5:1 on light muted; in dark it chains
+  through the gray companion `#9ca3af` — ≈ 8.3:1 on black / ≈ 5.7:1 on dark
+  muted (which itself mixes the dark gray). `--hz-color-border` follows the
+  same chain and clears the non-text 3:1 target in both modes.
 - Every intent color passes AA (≥ 4.5:1) as normal text on both surfaces of
   its mode — palette values on the light surfaces, dark companions on the
   dark surfaces — and surface-colored text on solid intent backgrounds passes
@@ -308,9 +316,11 @@ scope).
 - Assert `color.gray` is defined and there is **no** `gray-100/200/...` ramp key (R2/R3).
 - Assert all nine palette keys exist incl. `danger` and `info` (R3).
 - Assert the type scale exposes exactly six font-size steps (R6).
-- Assert the dark sub-map exists with exactly `surface`, `surfaceMuted`, `text`,
-  and `textMuted` keys, and `intentDark` mirrors the seven intent keys (R5/R7,
-  amended 2026-07-14).
+- Assert the dark sub-map (`color.theme.dark`) exists with exactly the three
+  flip roles (`surface`, `surfaceMuted`, `text`) plus the seven hue
+  companions (`primary`, `secondary`, `danger`, `warning`, `success`,
+  `info`, `gray`), and that `intent` carries no dark authoring (R5/R7,
+  amended 2026-07-15 — Layer 2 chains, no mirror needed).
 
 **Computed values (browser, e.g. `src/lib/tokens/tokens.svelte.spec.ts`):**
 
@@ -322,11 +332,13 @@ scope).
   `--hz-color-white`, and `--hz-color-text` equals `--hz-color-black` in light
   mode (R4).
 - **Dark hook:** set `data-theme="dark"` on the root element; assert
-  `--hz-color-surface` now equals `--hz-color-black` and `--hz-color-text` equals
-  `--hz-color-white`, while `--hz-color-primary`, `--hz-color-gray`,
-  `--hz-color-border`, and `--hz-space-md` are unchanged; assert
-  `--hz-color-text-muted` resolves to `#9ca3af` and every `--hz-intent-*`
-  differs from its light value (R5, amended 2026-07-14).
+  `--hz-color-surface` now equals `--hz-color-black` and `--hz-color-text`
+  equals `--hz-color-white`, while `--hz-space-md` and other non-color
+  tokens are unchanged; assert each hue resolves to its dark companion
+  (`--hz-color-primary` → `#60a5fa`, `--hz-color-gray` → `#9ca3af`), that
+  `--hz-color-text-muted`/`--hz-color-border` follow gray, and that every
+  `--hz-intent-*` equals its (lightened) palette target — pure chains
+  (R5, amended 2026-07-15).
 
 **Parity (server):** for the dark map, assert each value maps to a declared
 palette entry and differs from its light counterpart (R7).

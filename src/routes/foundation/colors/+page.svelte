@@ -78,11 +78,11 @@
 	<div>
 		<h1>Colors & Intent</h1>
 		<p>
-			A two-layer color model: a fixed palette (Layer 1) of single-value colors, and a semantic role
-			layer (Layer 2) that references the palette via <code>var()</code> — structural roles for what
-			a color does in the layout, and the <a href="#intent">intent vocabulary</a> for what a color
-			means. Dark theme overrides land on the role layer and the status hues — never the brand
-			colors (<code>primary</code>, <code>secondary</code>), which are constants in every mode.
+			A two-layer color model: a palette (Layer 1) of single-value colors authored per mode, and a
+			semantic role layer (Layer 2) of pure <code>var()</code> references into it — structural roles
+			for what a color does in the layout, and the <a href="#intent">intent vocabulary</a> for what a
+			color means. Dark theme overrides land entirely on Layer 1; everything in Layer 2 chains through
+			automatically.
 		</p>
 	</div>
 
@@ -206,15 +206,12 @@
 	<section aria-labelledby="dark-heading">
 		<h2 id="dark-heading">Dark theme overrides</h2>
 		<p>
-			Dark mode is a set of overrides in <code>[data-theme="dark"]</code>. Out of the box
-			<code>--hz-color-surface</code> and <code>--hz-color-text</code> flip,
+			Dark mode is a set of palette-layer overrides in <code>[data-theme="dark"]</code>. Out of the
+			box <code>--hz-color-surface</code> and <code>--hz-color-text</code> flip,
 			<code>--hz-color-surface-muted</code> strengthens its gray tint (6% is invisible over black),
-			and <code>--hz-color-text-muted</code> plus the four status hues lighten so colored text keeps
-			WCAG AA on dark surfaces. The brand colors never change; their intent roles retarget instead (<code
-				>--hz-intent-primary</code
-			>
-			→ <code>#60a5fa</code>, <code>--hz-intent-secondary</code> →
-			<code>#a78bfa</code>, <code>--hz-intent-neutral</code> → <code>#9ca3af</code>):
+			and every hue lightens to a companion that keeps WCAG AA as text on dark surfaces. Nothing is
+			re-authored at Layer 2 — <code>text-muted</code> and <code>border</code> follow
+			<code>gray</code>, and every intent follows its hue:
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">

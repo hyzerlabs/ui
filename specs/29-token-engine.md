@@ -42,15 +42,21 @@ in v1).
 
 ### Metadata schema evolution (`src/lib/tokens/index.ts`)
 
-1. New authored export `intentDarkOverrides = { neutral: '#9ca3af',
-   primary: '#60a5fa', secondary: '#a78bfa' }` — the three intent roles the
-   dark block retargets directly (brand palette hues are constants; see
-   specs/15 R5).
-2. `intentDark` becomes **derived**: the four status hues from
-   `color.theme.dark` merged with `intentDarkOverrides`. Its exported value
-   must remain identical to today's (metadata parity test updated to assert
-   derivation, not literals). `intent` stays a flat object — docs pages
-   iterate it with `Object.entries`.
+1. (Amended mid-build, user decision 2026-07-15.) The authored dark intent
+   overrides move INSIDE the intent export, mirroring `color`:
+   `intent.theme.dark = { neutral: '#9ca3af', primary: '#60a5fa', secondary:
+   '#a78bfa' }` — only the intents whose targets cannot lighten at the
+   palette layer (brand hues are constants; see specs/15 R5). The former
+   `intentDark`/`intentDarkOverrides` exports are GONE — consumers derive a
+   dark intent as `intent.theme.dark[k] ?? color.theme.dark[<target hue>]`.
+   `Object.entries(intent)` iterators must filter to string values, exactly
+   as they already do for `color`.
+2. **Palette-override flow-through (engine merge rule).** When a config's
+   `dark.color` overrides a palette hue that one of the authored
+   `intent.theme.dark` entries targets (e.g. `dark: { color: { primary } }`),
+   the authored intent override YIELDS — it is not emitted, so the intent
+   chains through the consumer's dark palette value. An explicit
+   `dark.intent` entry always wins over the yield.
 3. No other shape changes. The group→CSS-prefix mapping (`space` →
    `--hz-space-*`, `zIndex` → `--hz-z-*`, `motion.duration` →
    `--hz-duration-*`, `typography.fontSize` → `--hz-font-size-*`,
@@ -86,6 +92,14 @@ in v1).
    Unknown group/section names are a hard error listing the valid names.
    A config key that kebab-cases to the same CSS name as an existing token
    (e.g. adding `textMuted` alongside `text-muted`) is a hard error.
+   **Color ramps** (amended 2026-07-15): the base palette ships no ramps,
+   but color groups (`tokens.color`, `dark.color`) accept one level of
+   nesting — `{ red: { 50: '#fef2f2', 900: '#7f1d1d' } }` generates
+   `--hz-color-red-50`/`--hz-color-red-900` (equivalent to flat `'red-50'`
+   keys; the two spellings collide by design). The **intent layer is a
+   consumer authoring surface in both modes**: remap an intent to any color
+   or variable, or add new category intents, via `tokens.intent` (light) and
+   `dark.intent` (dark) — the base simply authors nothing there in dark.
 
 3. **R3 — Full-mode generation.** `generateCss(resolved)` emits a complete
    tokens sheet structurally equivalent to today's `tokens.css`: header
@@ -93,8 +107,8 @@ in v1).
    groups under section banners, the density block (`body` +
    three nested `data-density-shift` levels computed from `density`), and
    the `[data-theme='dark']` block (semantic roles from `color.theme.dark`,
-   status palette hues, `intentDarkOverrides`, plus any config `dark`
-   additions). Values pass through verbatim — `var()` chains and
+   status palette hues, `intent.theme.dark` after the yield rule, plus any
+   config `dark` additions). Values pass through verbatim — `var()` chains and
    `color-mix()` expressions are not resolved in output.
 
 4. **R4 — Overrides-mode generation.** `generateCss(resolved, { mode:
@@ -136,7 +150,7 @@ in v1).
 
 8. **R8 — Compliance suite reads metadata.** The token-compliance tests in
    `src/lib/utils/contrast.spec.ts` derive their palettes from the metadata
-   (`color`, `intentDark`) instead of hardcoded hex arrays — thresholds
+   (`color`, `intent.theme.dark`) instead of hardcoded hex arrays — thresholds
    (≥ 4.5:1) stay literal; values travel with the schema.
 
 9. **R9 — `hyzer` CLI.** `package.json` gains `"bin": { "hyzer": … }`. The

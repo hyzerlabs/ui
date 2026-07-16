@@ -242,7 +242,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		gap: var(--hz-space-sm, 0.75rem);
+		gap: var(--hz-space-sm, 1rem);
 	}
 
 	.hz-slider-track {

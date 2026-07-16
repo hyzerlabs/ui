@@ -16,7 +16,7 @@
 		type LargeContrastLevel
 	} from '$lib';
 	import type { SelectOption } from '$lib/types';
-	import { color, intent, intentDark } from '$lib/tokens';
+	import { color, intent } from '$lib/tokens';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// -------------------------------------------------------------------------
@@ -53,21 +53,33 @@
 		return (color as Record<string, unknown>)[key] as string;
 	}
 
-	// Every token the theme paints text with, resolved per mode.
+	/**
+	 * What an intent resolves to in dark mode: intents are pure chains, so
+	 * the answer is simply the dark palette companion of its target hue
+	 * (color.theme.dark), falling back to the light value for hues the dark
+	 * block leaves alone (black/white).
+	 */
+	function intentDarkHex(target: string): string {
+		const paletteKey = target.match(/--hz-color-([a-z]+)/)?.[1] ?? 'gray';
+		return (color.theme.dark as Record<string, string>)[paletteKey] ?? intentHex(target);
+	}
+
+	// Every token the theme paints text with, resolved per mode. text-muted
+	// chains through gray, which lightens in dark mode.
 	const textTokens = [
 		{ key: 'text', light: color.black, dark: color.white },
-		{ key: 'text-muted', light: color.gray, dark: color.theme.dark.textMuted },
+		{ key: 'text-muted', light: color.gray, dark: color.theme.dark.gray },
 		...Object.entries(intent).map(([k, target]) => ({
 			key: `intent-${k}`,
 			light: intentHex(target),
-			dark: intentDark[k as keyof typeof intentDark]
+			dark: intentDarkHex(target)
 		}))
 	];
 
 	const intents = Object.entries(intent).map(([key, target]) => ({
 		key,
 		light: intentHex(target),
-		dark: intentDark[key as keyof typeof intentDark]
+		dark: intentDarkHex(target)
 	}));
 
 	// The four backgrounds text actually sits on: both surface roles, both modes.
@@ -84,7 +96,8 @@
 			key: 'surface-muted-dark',
 			label: 'surface-muted · dark',
 			mode: 'dark' as const,
-			hex: mixSrgb(color.gray, color.black, 0.25)
+			// The dark muted surface mixes the DARK gray companion over black.
+			hex: mixSrgb(color.theme.dark.gray, color.black, 0.25)
 		}
 	];
 
@@ -141,7 +154,7 @@
 					{ label: string; hex: string }
 				]
 		),
-		['text-muted-dark', { label: 'text-muted · dark', hex: color.theme.dark.textMuted }],
+		['text-muted-dark', { label: 'text-muted · dark', hex: color.theme.dark.gray }],
 		...surfaces.map(
 			(s) => [s.key, { label: s.label, hex: s.hex }] as [string, { label: string; hex: string }]
 		)
@@ -169,7 +182,7 @@
 		{
 			group: 'Text & surface roles (resolved)',
 			options: [
-				{ value: 'text-muted-dark', label: `text-muted · dark · ${color.theme.dark.textMuted}` },
+				{ value: 'text-muted-dark', label: `text-muted · dark · ${color.theme.dark.gray}` },
 				...surfaces.map((s) => ({ value: s.key, label: `${s.label} · ${s.hex}` }))
 			]
 		}

@@ -272,16 +272,17 @@ describe('R5 — dark theme override hook', () => {
 		expect(text).toBe(white);
 	});
 
-	it('--hz-color-primary is unchanged in dark mode', () => {
-		const before = rootVar('--hz-color-primary');
+	it('--hz-color-primary lightens to its dark companion', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(rootVar('--hz-color-primary')).toBe(before);
+		expect(resolveColor('var(--hz-color-primary)')).toBe('rgb(96, 165, 250)'); // #60a5fa
 	});
 
-	it('--hz-color-gray is unchanged in dark mode', () => {
-		const before = rootVar('--hz-color-gray');
+	it('--hz-color-gray lightens in dark mode (border/muted chains follow)', () => {
+		const before = resolveColor('var(--hz-color-gray)');
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(rootVar('--hz-color-gray')).toBe(before);
+		const after = resolveColor('var(--hz-color-gray)');
+		expect(after).not.toBe(before);
+		expect(after).toBe('rgb(156, 163, 175)'); // #9ca3af
 	});
 
 	it('--hz-color-text-muted lightens in dark mode (AA on dark surfaces)', () => {
@@ -311,26 +312,16 @@ describe('R5 — dark theme override hook', () => {
 		expect(resolveColor('var(--hz-color-danger)')).toBe('rgb(248, 113, 113)'); // #f87171
 	});
 
-	it('brand palette hues are constants — unchanged in dark mode', () => {
-		const primary = rootVar('--hz-color-primary');
-		const secondary = rootVar('--hz-color-secondary');
+	it('dark mode is authored at the palette layer — intents stay pure chains', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(rootVar('--hz-color-primary')).toBe(primary);
-		expect(rootVar('--hz-color-secondary')).toBe(secondary);
-	});
-
-	it('dark --hz-intent-primary retargets away from the fixed brand palette', () => {
-		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(resolveColor('var(--hz-intent-primary)')).not.toBe(
-			resolveColor('var(--hz-color-primary)')
-		);
+		expect(resolveColor('var(--hz-intent-primary)')).toBe(resolveColor('var(--hz-color-primary)'));
 		expect(resolveColor('var(--hz-intent-primary)')).toBe('rgb(96, 165, 250)'); // #60a5fa
+		expect(resolveColor('var(--hz-intent-neutral)')).toBe(resolveColor('var(--hz-color-gray)'));
 	});
 
-	it('--hz-color-border is unchanged in dark mode', () => {
-		const before = rootVar('--hz-color-border');
+	it('--hz-color-border chains through the lightened gray in dark mode', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(rootVar('--hz-color-border')).toBe(before);
+		expect(resolveColor('var(--hz-color-border)')).toBe(resolveColor('var(--hz-color-gray)'));
 	});
 
 	it('data-theme="dark" strengthens --hz-color-surface-muted to a 25% gray mix over surface', () => {

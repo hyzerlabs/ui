@@ -6,7 +6,7 @@
 	"type": "module",
 	"packageManager": "pnpm@10.12.3",
 	"engines": {
-		"node": ">=22"
+		"node": ">=22.18"
 	},
 	"homepage": "https://design.hyzer.sh",
 	"repository": {
@@ -29,11 +29,18 @@
 	],
 	"svelte": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"bin": {
+		"hyzer": "./dist/cli/hyzer.js"
+	},
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js",
 			"default": "./dist/index.js"
+		},
+		"./config": {
+			"types": "./dist/config/index.d.ts",
+			"default": "./dist/config/index.js"
 		},
 		"./tokens": {
 			"types": "./dist/tokens/index.d.ts",
@@ -70,7 +77,8 @@
 		"format": "prettier --write .",
 		"test:unit": "vitest --run",
 		"test:e2e": "playwright install chromium --with-deps && playwright test",
-		"test": "pnpm run test:unit && pnpm run test:e2e"
+		"test": "pnpm run test:unit && pnpm run test:e2e",
+		"gen:tokens": "tsx scripts/gen-tokens.ts"
 	},
 	"peerDependencies": {
 		"svelte": "^5.0.0"
@@ -96,6 +104,7 @@
 		"publint": "^0.3.21",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
+		"tsx": "^4.23.1",
 		"typescript": "^6.0.3",
 		"typescript-eslint": "^8.60.1",
 		"vite": "^8.0.16",

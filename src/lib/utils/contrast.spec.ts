@@ -9,6 +9,7 @@ import {
 	bestLevel,
 	bestLevelLarge
 } from './contrast';
+import { color } from '$lib/tokens';
 
 describe('hexToRgb / rgbToHex', () => {
 	it('parses #rrggbb', () => {
@@ -110,15 +111,36 @@ describe('gradeContrast / bestLevel', () => {
 
 describe('token compliance (the palette contract)', () => {
 	// Mirrors the AA-by-construction posture in specs/15 (2026-07-14): every
-	// value the theme uses as text passes ≥ 4.5:1 on both surfaces of its mode.
-	const WHITE = '#ffffff';
-	const BLACK = '#000000';
-	const GRAY = '#6b7280';
+	// value the theme uses as text passes ≥ 4.5:1 on both surfaces of its
+	// mode. Palettes derive from the token metadata (specs/29 R8) — the
+	// thresholds are the contract, the hues travel with the schema.
+	const WHITE = color.white;
+	const BLACK = color.black;
+	const GRAY = color.gray;
 	const mutedLight = mixSrgb(GRAY, WHITE, 0.06);
-	const mutedDark = mixSrgb(GRAY, BLACK, 0.25);
+	// In dark mode the muted surface mixes the DARK gray companion.
+	const mutedDark = mixSrgb(color.theme.dark.gray, BLACK, 0.25);
 
-	const lightIntents = ['#2563eb', '#7c3aed', '#b91c1c', '#b45309', '#15803d', '#0e7490', GRAY];
-	const darkIntents = ['#60a5fa', '#a78bfa', '#f87171', '#fbbf24', '#4ade80', '#22d3ee', '#9ca3af'];
+	const lightIntents = [
+		color.primary,
+		color.secondary,
+		color.danger,
+		color.warning,
+		color.success,
+		color.info,
+		GRAY
+	];
+	// Dark mode is authored entirely at the palette layer; every intent
+	// chains through these companions (neutral through gray).
+	const darkIntents = [
+		color.theme.dark.primary,
+		color.theme.dark.secondary,
+		color.theme.dark.danger,
+		color.theme.dark.warning,
+		color.theme.dark.success,
+		color.theme.dark.info,
+		color.theme.dark.gray
+	];
 
 	it('every light intent passes AA on both light surfaces and under white solid text', () => {
 		for (const c of lightIntents) {
@@ -157,7 +179,8 @@ describe('token compliance (the palette contract)', () => {
 	it('muted text passes AA in both modes', () => {
 		expect(contrastRatio(GRAY, WHITE)).toBeGreaterThanOrEqual(4.5);
 		expect(contrastRatio(GRAY, mutedLight)).toBeGreaterThanOrEqual(4.5);
-		expect(contrastRatio('#9ca3af', BLACK)).toBeGreaterThanOrEqual(4.5);
-		expect(contrastRatio('#9ca3af', mutedDark)).toBeGreaterThanOrEqual(4.5);
+		// text-muted chains through gray, which lightens in dark mode.
+		expect(contrastRatio(color.theme.dark.gray, BLACK)).toBeGreaterThanOrEqual(4.5);
+		expect(contrastRatio(color.theme.dark.gray, mutedDark)).toBeGreaterThanOrEqual(4.5);
 	});
 });
