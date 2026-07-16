@@ -76,8 +76,10 @@ site theme toggle, and every in-situ row shows 16px and 24px samples with
 per-size level Badges: "Text on surfaces" (semantic text roles + all intents,
 light values on light surfaces / dark companions on dark, surface sub-tabs +
 matrix table), "Solid intent backgrounds" (surface-colored text per mode),
-"Soft intent surfaces" (the Badge 14%/65% and Alert 10%/70% `color-mix()`
-recipes re-derived per mode, light/dark sub-tabs), and a Resources section
+"Soft intent surfaces" (the Badge and Alert `color-mix()` recipes re-derived
+per mode from the engine's `softTints` model — backgrounds strengthen in dark,
+14% → 28% and 10% → 22%, amendment 2026-07-15 — light/dark sub-tabs), and a
+Resources section
 linking WCAG 1.4.3/1.4.6/1.4.11, WAI-ARIA 1.2, the APG, and Section 508.
 Colors & Intent cross-links to it. Still R7-compliant — everything derives
 from token metadata. DocPage also gained `a11yLinks` (label/href pairs
@@ -105,6 +107,26 @@ for native-element-backed components.
 
 This covers all **23** exported components from `src/lib/components/index.ts`
 (5 layout + 2 navigation + 7 forms + 2 media + 7 components) and the icon set.
+
+IA amendments (2026-07-15, specs/30): a standalone **Getting Started** page
+(`/getting-started`, after Introduction — the three-tier quickstart: import
+committed sheets / override tokens in CSS / optional `hyzer.config.ts` +
+`hyzer generate`) and a **Theming** section after Components:
+
+| Page | URL | Source |
+| --- | --- | --- |
+| Overview | `/theming/overview` | tiers + cascade-layer contract |
+| Tokens & Overrides | `/theming/tokens` | CSS recipes + config/CLI workflow |
+| Styling Components | `/theming/components` | `hz-*`/`data-*` hooks, class prop, Card treatments + `.hz-card-title` |
+| Example Themes | `/theming/examples` | ocean/sunset configs → engine-scoped live demos |
+
+The theme folder restructured the same day: per-component sheets live under
+`theme/components/`, example override sheets (engine-generated from
+`*.config.ts`, drift-tested, AA-gated) under `theme/examples/`; cherry-pick
+imports become `@hyzer-labs/ui/theme/components/<name>.css` (the exports-map
+wildcard already matches nested paths). The Theming section absorbs the
+long-deferred theme-integration backlog (Card treatment classes and the new
+`.hz-card-title` opt-in convention land on Styling Components).
 
 ### Requirements
 

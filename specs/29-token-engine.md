@@ -125,7 +125,11 @@ in v1).
    `contrastReport(resolved)` enumerates the same pairings as the
    compliance test suite — text roles and every intent as text on both
    surfaces per mode, surface-colored solid text on every intent, the Badge
-   14%/65% and Alert 10%/70% soft mixes — returning `{ pairing, mode,
+   and Alert soft mixes (per the exported `softTints` model — amendment
+   2026-07-15: tint strengths are mode-aware, Badge 14% → 28% and Alert
+   10% → 22% in dark, because a weak tint over a dark surface barely reads
+   as color; text mixes stay 65%/70%; a computed-style test pins the theme
+   CSS to the model) — returning `{ pairing, mode,
    ratio, level, pass }` rows computed with the public contrast utils.
    Consumer-added palette keys participate only where roles/intents
    reference them.

@@ -146,6 +146,28 @@ describe('package.json metadata', () => {
 		expect((pkg.default.bin as Record<string, string>).hyzer).toBe('./dist/cli/hyzer.js');
 	});
 
+	it('theme wildcard export reaches the restructured paths (specs/30 R6)', async () => {
+		// Node exports-map `*` matches across `/`, so "./theme/*.css" already
+		// covers theme/components/ and theme/examples/ — this pins the files
+		// the documented cherry-pick/example paths point at.
+		const { existsSync } = await import('node:fs');
+		const { fileURLToPath } = await import('node:url');
+		const here = fileURLToPath(new URL('.', import.meta.url));
+		for (const path of [
+			'theme/theme.css',
+			'theme/reset.css',
+			'theme/components/button.css',
+			'theme/components/card.css',
+			'theme/examples/ocean.css',
+			'theme/examples/sunset.css'
+		]) {
+			expect(existsSync(`${here}${path}`), path).toBe(true);
+		}
+		const pkg = await import('../../package.json', { with: { type: 'json' } });
+		const exports = pkg.default.exports as Record<string, unknown>;
+		expect(exports['./theme/*.css']).toBe('./dist/theme/*.css');
+	});
+
 	it('exports map contains all required subpath keys', async () => {
 		const pkg = await import('../../package.json', { with: { type: 'json' } });
 		const exports = pkg.default.exports as Record<string, unknown>;

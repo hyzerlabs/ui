@@ -8,7 +8,7 @@
  * Usage:
  *   import '@hyzer-labs/ui/tokens.css'; // tokens first
  *   import '@hyzer-labs/ui/theme';      // full theme
- *   // or cherry-pick: import '@hyzer-labs/ui/theme/button.css';
+ *   // or cherry-pick: import '@hyzer-labs/ui/theme/components/button.css';
  *
  * Every rule lives in the `hz-theme` cascade layer, so any unlayered consumer
  * CSS — e.g. a class passed through a component's `class` prop — overrides the
@@ -27,26 +27,26 @@
 @layer hz-reset, hz-theme;
 
 @import './base.css';
-@import './alert.css';
-@import './badge.css';
-@import './blockquote.css';
-@import './button.css';
-@import './divider.css';
-@import './link.css';
-@import './field.css';
-@import './combobox.css';
-@import './dropdown.css';
-@import './file-upload.css';
-@import './form.css';
-@import './card.css';
-@import './accordion.css';
-@import './tabs.css';
-@import './modal.css';
-@import './nav.css';
-@import './breadcrumbs.css';
-@import './footer.css';
-@import './hero.css';
-@import './media.css';
-@import './carousel.css';
-@import './lightbox.css';
-@import './pagination.css';
+@import './components/alert.css';
+@import './components/badge.css';
+@import './components/blockquote.css';
+@import './components/button.css';
+@import './components/divider.css';
+@import './components/link.css';
+@import './components/field.css';
+@import './components/combobox.css';
+@import './components/dropdown.css';
+@import './components/file-upload.css';
+@import './components/form.css';
+@import './components/card.css';
+@import './components/accordion.css';
+@import './components/tabs.css';
+@import './components/modal.css';
+@import './components/nav.css';
+@import './components/breadcrumbs.css';
+@import './components/footer.css';
+@import './components/hero.css';
+@import './components/media.css';
+@import './components/carousel.css';
+@import './components/lightbox.css';
+@import './components/pagination.css';

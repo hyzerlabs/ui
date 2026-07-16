@@ -7,11 +7,26 @@
 @layer hz-theme {
 	.hz-alert {
 		--_c: var(--hz-intent-neutral, #6b7280);
+		/* Banner-tint strength — a documented hook: override --hz-alert-tint
+		 * to retune how strongly the intent color mixes into the surface.
+		 * Strengthened in dark below (a weak tint over a dark surface barely
+		 * reads as color — the physics behind surface-muted's 6% → 25% jump).
+		 * Mirrored by the engine's softTints model (src/lib/config/report.ts)
+		 * and pinned by a computed-style test. */
+		--hz-alert-tint: 10%;
 
 		box-sizing: border-box;
 		padding: 0.875rem 1rem;
 		border-inline-start: 3px solid var(--_c);
-		background-color: color-mix(in srgb, var(--_c) 10%, var(--hz-color-surface, #fff));
+		background-color: color-mix(
+			in srgb,
+			var(--_c) var(--hz-alert-tint),
+			var(--hz-color-surface, #fff)
+		);
+	}
+
+	:where([data-theme='dark']) .hz-alert {
+		--hz-alert-tint: 22%;
 	}
 
 	/* Radius — 1:1 with the token scale (data-rounded, default md). */

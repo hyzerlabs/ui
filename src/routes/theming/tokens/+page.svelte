@@ -1,0 +1,199 @@
+<script lang="ts">
+	import { Stack, Tabs } from '$lib';
+	import CodeBlock from '../../../docs/CodeBlock.svelte';
+
+	const recipeTabs = [
+		{ id: 'palette', label: 'Palette' },
+		{ id: 'intents', label: 'Intents' },
+		{ id: 'dark', label: 'Dark mode' },
+		{ id: 'shape', label: 'Shape & density' }
+	];
+
+	const paletteCode = [
+		'/* Override any hue once; every role and intent that references it',
+		'   follows automatically. */',
+		':root {',
+		'\t--hz-color-primary: #0f766e;',
+		'\t--hz-color-gray: #64748b; /* border, text-muted, and surface tints follow */',
+		'}'
+	].join('\n');
+
+	const intentCode = [
+		'/* The intent layer is a remap surface: point an intent at a different',
+		'   hue than the palette default, or add brand-new category tokens. */',
+		':root {',
+		'\t--hz-intent-danger: var(--hz-color-secondary); /* remap */',
+		'\t--hz-intent-fairway: #3f6212;                   /* extend */',
+		'}'
+	].join('\n');
+
+	const darkCode = [
+		'/* Dark mode is authored at the palette layer — the same hook the base',
+		'   sheet uses. Override a hue here and its intents, borders, and muted',
+		'   tints follow in dark only. */',
+		"[data-theme='dark'] {",
+		'\t--hz-color-primary: #2dd4bf;',
+		'}',
+		'',
+		'/* Intents can be re-authored per mode too, if you want a mapping that',
+		'   only applies in the dark: */',
+		"[data-theme='dark'] {",
+		'\t--hz-intent-fairway: #a3e635;',
+		'}'
+	].join('\n');
+
+	const shapeCode = [
+		':root {',
+		'\t--hz-radius-md: 0.625rem;   /* buttons, cards, fields */',
+		'\t--hz-density: 0.5rem;       /* rescales every near/away distance */',
+		"\t--hz-font-family-sans: 'Inter', system-ui, sans-serif;",
+		'}'
+	].join('\n');
+
+	const configCode = [
+		'// hyzer.config.ts',
+		"import { defineConfig } from '@hyzer-labs/ui/config';",
+		'',
+		'export default defineConfig({',
+		"\toutput: 'src/styles/tokens.css',",
+		'\ttokens: {',
+		'\t\tcolor: {',
+		"\t\t\tprimary: '#0f766e',                              // override",
+		"\t\t\tfairway: '#3f6212',                              // add a hue",
+		"\t\t\tbrandRed: { 50: '#fef2f2', 900: '#7f1d1d' }      // add a ramp",
+		'\t\t},',
+		"\t\tintent: { fairway: 'var(--hz-color-fairway)' },   // add an intent",
+		'\t\ttypography: { fontFamily: { sans: "\'Inter\', system-ui, sans-serif" } },',
+		"\t\tdensity: { unit: '0.5rem' }",
+		'\t},',
+		'\tdark: {',
+		"\t\tcolor: { primary: '#2dd4bf', fairway: '#a3e635' }",
+		'\t}',
+		'});'
+	].join('\n');
+
+	const reportCode = [
+		'$ hyzer generate',
+		'config: hyzer.config.ts',
+		'wrote src/styles/tokens.css (full, 84 tokens)',
+		'  ✗ light text:intent-fairway/surface-muted — 4.21:1 (AA Large)',
+		'contrast: 1 of 96 pairings fail WCAG AA (warnings; use --strict to fail the build)'
+	].join('\n');
+
+	const modesCode = [
+		'# A complete sheet — import it INSTEAD of tokens.css:',
+		'hyzer generate',
+		'',
+		'# A patch sheet with only your overrides — import it AFTER tokens.css:',
+		'hyzer generate --mode overrides',
+		'',
+		'# Validate without writing; fail CI on any AA miss:',
+		'hyzer generate --check --strict'
+	].join('\n');
+</script>
+
+<svelte:head>
+	<title>Tokens & Overrides — @hyzer-labs/ui</title>
+</svelte:head>
+
+<Stack gap="xl">
+	<div>
+		<h1>Tokens &amp; Overrides</h1>
+		<p>
+			Two layers, one rule. Layer 1 is the palette — single-value hues, authored per mode. Layer 2
+			(semantic roles and intents) is pure <code>var()</code> indirection that chains through it.
+			Override a hue and everything referencing it follows; remap or extend Layer 2 when you want a
+			different wiring. Token names and defaults live on
+			<a href="/foundation/colors">Colors &amp; Intent</a>.
+		</p>
+	</div>
+
+	<section aria-labelledby="css-heading">
+		<h2 id="css-heading">In plain CSS — no build step</h2>
+		<p>
+			Import your stylesheet after <code>tokens.css</code> and redefine what you need. These are the four
+			recipes that cover nearly everything:
+		</p>
+		<Tabs items={recipeTabs} ariaLabel="Override recipes" defaultTab="palette">
+			{#snippet panel(item)}
+				<div class="tab-content">
+					{#if item.id === 'palette'}
+						<CodeBlock code={paletteCode} />
+					{:else if item.id === 'intents'}
+						<CodeBlock code={intentCode} />
+					{:else if item.id === 'dark'}
+						<CodeBlock code={darkCode} />
+					{:else}
+						<CodeBlock code={shapeCode} />
+					{/if}
+				</div>
+			{/snippet}
+		</Tabs>
+	</section>
+
+	<section aria-labelledby="config-heading">
+		<h2 id="config-heading">With the <code>hyzer</code> CLI — a config as source of truth</h2>
+		<p>
+			The same engine that generates this library's own <code>tokens.css</code> ships in the
+			package. Describe your system once in <code>hyzer.config.ts</code> — overrides merge over the
+			base schema, new keys extend it, and nested color objects generate ramps (<code
+				>--hz-color-brand-red-900</code
+			>) even though the base palette ships none.
+		</p>
+		<CodeBlock code={configCode} />
+		<p>
+			Every run prints a WCAG contrast report over the resolved tokens — the same math and the same
+			pairings as this library's own CI gate, covering your custom intents too:
+		</p>
+		<CodeBlock code={reportCode} />
+		<CodeBlock code={modesCode} />
+		<p class="note">
+			TypeScript configs load via Node's native type stripping (Node ≥ 22.18); on older runtimes
+			name the file <code>hyzer.config.mjs</code>. The engine is also importable directly from
+			<code>@hyzer-labs/ui/config</code> (<code>resolveConfig</code>, <code>generateCss</code>,
+			<code>contrastReport</code>) for build scripts of your own.
+		</p>
+	</section>
+
+	<section aria-labelledby="verify-heading">
+		<h2 id="verify-heading">Verify your palette</h2>
+		<p>
+			The contrast math is public API — assert your pairings in a unit test exactly as this library
+			does, or read the full methodology and the live pairing checker on
+			<a href="/foundation/contrast#api-heading">Contrast &amp; Accessibility</a>.
+		</p>
+	</section>
+</Stack>
+
+<style>
+	h1 {
+		margin: 0 0 0.5rem;
+		font-size: var(--hz-font-size-2xl, 2.75rem);
+		font-weight: var(--hz-font-weight-bold, 700);
+	}
+
+	h2 {
+		margin: 0 0 0.5rem;
+		font-size: var(--hz-font-size-xl, 1.65rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	p {
+		margin: 0 0 1rem;
+	}
+
+	code {
+		font-family: var(--hz-font-family-mono, monospace);
+		font-size: 0.875em;
+	}
+
+	section :global(.code-block) {
+		margin-bottom: 1rem;
+	}
+
+	.note {
+		margin: 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+</style>

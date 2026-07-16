@@ -31,6 +31,7 @@ export function isSection(entry: ManifestEntry): entry is ManifestSection {
 /** Complete information architecture. */
 export const manifest: ManifestEntry[] = [
 	{ label: 'Introduction', href: '/' },
+	{ label: 'Getting Started', href: '/getting-started' },
 	{
 		label: 'Foundation',
 		children: [
@@ -105,6 +106,15 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Modal', href: '/components/modal' },
 			{ label: 'Accordion', href: '/components/accordion' },
 			{ label: 'Tabs', href: '/components/tabs' }
+		]
+	},
+	{
+		label: 'Theming',
+		children: [
+			{ label: 'Overview', href: '/theming/overview' },
+			{ label: 'Tokens & Overrides', href: '/theming/tokens' },
+			{ label: 'Styling Components', href: '/theming/components' },
+			{ label: 'Example Themes', href: '/theming/examples' }
 		]
 	}
 ];

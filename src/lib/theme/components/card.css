@@ -54,6 +54,17 @@
 		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
 	}
 
+	/* Opt-in title convention (specs/30) — consumers bring their own heading
+	 * element: <h3 class="hz-card-title">…</h3>. A class rather than a Card
+	 * prop: headings aren't load-bearing for Card (unlike Modal/Accordion/
+	 * Hero), so the consumer keeps full control of the level. */
+	.hz-card :where(.hz-card-title) {
+		margin: 0 0 0.5rem;
+		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		line-height: var(--hz-line-height-tight, 1.2);
+	}
+
 	.hz-card-media :where(img, video) {
 		display: block;
 		width: 100%;

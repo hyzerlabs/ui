@@ -22,4 +22,9 @@ export {
 	type SectionId
 } from './schema.js';
 export { generateCss, type GenerateOptions } from './generate.js';
-export { contrastReport, type ContrastReport, type ContrastReportRow } from './report.js';
+export {
+	contrastReport,
+	softTints,
+	type ContrastReport,
+	type ContrastReportRow
+} from './report.js';

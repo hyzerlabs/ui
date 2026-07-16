@@ -238,7 +238,8 @@
 		</p>
 		<p>
 			For WCAG ratios, luminance, and in-situ previews of every pairing, see
-			<a href="/foundation/contrast">Contrast &amp; Accessibility</a>.
+			<a href="/foundation/contrast">Contrast &amp; Accessibility</a>; for override recipes and the
+			config/CLI workflow, see <a href="/theming/tokens">Theming → Tokens &amp; Overrides</a>.
 		</p>
 	</section>
 </Stack>

@@ -20,6 +20,11 @@ export interface GenerateOptions {
 	 * scope a theme to a subtree; the dark block composes with it.
 	 */
 	selector?: string;
+	/**
+	 * Extra description lines prepended inside the generated header comment —
+	 * how the example sheets carry their name/usage prose.
+	 */
+	intro?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -173,11 +178,21 @@ function darkSelector(selector: string): string {
 export function generateCss(resolved: ResolvedConfig, options: GenerateOptions = {}): string {
 	const mode = options.mode ?? 'full';
 	const selector = options.selector ?? ':root';
-	return mode === 'full' ? generateFull(resolved, selector) : generateOverrides(resolved, selector);
+	return mode === 'full'
+		? generateFull(resolved, selector, options.intro)
+		: generateOverrides(resolved, selector, options.intro);
 }
 
-function generateFull(resolved: ResolvedConfig, selector: string): string {
-	const parts: string[] = [FULL_HEADER, `${selector} {`];
+/** Weave optional intro lines into a generated header comment. */
+function withIntro(header: string, intro: string[] | undefined): string {
+	if (!intro || intro.length === 0) return header;
+	const lines = header.split('\n');
+	// After the opening '/**': the intro block, a spacer, then the stock text.
+	return [lines[0], ...intro.map((l) => ` * ${l}`.trimEnd()), ' *', ...lines.slice(1)].join('\n');
+}
+
+function generateFull(resolved: ResolvedConfig, selector: string, intro?: string[]): string {
+	const parts: string[] = [withIntro(FULL_HEADER, intro), `${selector} {`];
 
 	resolved.sections.forEach((section, i) => {
 		if (i > 0) parts.push('');
@@ -217,16 +232,19 @@ function isRoleKey(key: string): boolean {
 	return ['surface', 'surfaceMuted', 'text', 'textMuted', 'border'].includes(key);
 }
 
-function generateOverrides(resolved: ResolvedConfig, selector: string): string {
-	const header = [
-		'/**',
-		' * @hyzer-labs/ui token overrides',
-		' *',
-		' * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).',
-		' * Only config-touched tokens are emitted; import this sheet AFTER',
-		' * @hyzer-labs/ui/tokens.css so the overrides win by source order.',
-		' */'
-	].join('\n');
+function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: string[]): string {
+	const header = withIntro(
+		[
+			'/**',
+			' * @hyzer-labs/ui token overrides',
+			' *',
+			' * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).',
+			' * Only config-touched tokens are emitted; import this sheet AFTER',
+			' * @hyzer-labs/ui/tokens.css so the overrides win by source order.',
+			' */'
+		].join('\n'),
+		intro
+	);
 
 	const rootEntries = resolved.sections.flatMap((s) => s.entries.filter((e) => e.fromConfig));
 	const darkEntries = [

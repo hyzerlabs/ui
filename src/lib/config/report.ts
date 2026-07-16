@@ -12,6 +12,23 @@
 import { contrastRatio, bestLevel, mixSrgb, type ContrastLevel } from '../utils/contrast.js';
 import type { ResolvedConfig } from './schema.js';
 
+/**
+ * The reference theme's soft-tint recipe, as fractions of the intent color.
+ * Backgrounds strengthen in dark mode — a weak tint of even a bright hue
+ * over a dark surface is barely recognizable as color (the same physics
+ * behind surface-muted's 6% → 25% jump). This model MUST match the
+ * `--hz-badge-tint`/`--hz-alert-tint` values in
+ * theme/components/{badge,alert}.css; a computed-style test pins the two
+ * together, and the properties are documented consumer hooks for retuning
+ * the strength.
+ */
+export const softTints = {
+	badgeText: 0.65,
+	alertTitle: 0.7,
+	light: { badgeBg: 0.14, alertBg: 0.1 },
+	dark: { badgeBg: 0.28, alertBg: 0.22 }
+} as const;
+
 export interface ContrastReportRow {
 	/** Stable pairing id, e.g. `text:intent-danger/surface-muted`. */
 	id: string;
@@ -198,19 +215,20 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 				{ name: short, hex }
 			);
 
-			// Soft recipes — Badge (14% bg / 65% text) and Alert (10% bg / 70% title).
-			const badgeBg = { name: `${short} badge-soft bg`, hex: mixSrgb(hex, surface, 0.14) };
-			const alertBg = { name: `${short} alert bg`, hex: mixSrgb(hex, surface, 0.1) };
+			// Soft recipes — mode-aware tint strengths per the softTints model.
+			const tints = softTints[mode];
+			const badgeBg = { name: `${short} badge-soft bg`, hex: mixSrgb(hex, surface, tints.badgeBg) };
+			const alertBg = { name: `${short} alert bg`, hex: mixSrgb(hex, surface, tints.alertBg) };
 			push(
 				`soft-badge:${short}`,
 				`soft Badge text on soft ${short}`,
-				{ name: `${short} badge-soft text`, hex: mixSrgb(hex, text, 0.65) },
+				{ name: `${short} badge-soft text`, hex: mixSrgb(hex, text, softTints.badgeText) },
 				badgeBg
 			);
 			push(
 				`soft-alert-title:${short}`,
 				`Alert title on tinted ${short}`,
-				{ name: `${short} alert title`, hex: mixSrgb(hex, text, 0.7) },
+				{ name: `${short} alert title`, hex: mixSrgb(hex, text, softTints.alertTitle) },
 				alertBg
 			);
 			push(

@@ -158,20 +158,21 @@ describe('token compliance (the palette contract)', () => {
 		}
 	});
 
-	it('soft Badge (14%/65%) and Alert (10%/70%) recipes pass AA in both modes', () => {
+	it('the soft Badge/Alert recipes pass AA in both modes (mode-aware tints)', async () => {
+		const { softTints } = await import('$lib/config');
 		const modes = [
-			{ intents: lightIntents, surface: WHITE, text: BLACK },
-			{ intents: darkIntents, surface: BLACK, text: WHITE }
+			{ tints: softTints.light, intents: lightIntents, surface: WHITE, text: BLACK },
+			{ tints: softTints.dark, intents: darkIntents, surface: BLACK, text: WHITE }
 		];
-		for (const { intents, surface, text } of modes) {
+		for (const { tints, intents, surface, text } of modes) {
 			for (const c of intents) {
 				expect(
-					contrastRatio(mixSrgb(c, text, 0.65), mixSrgb(c, surface, 0.14))
+					contrastRatio(mixSrgb(c, text, softTints.badgeText), mixSrgb(c, surface, tints.badgeBg))
 				).toBeGreaterThanOrEqual(4.5);
 				expect(
-					contrastRatio(mixSrgb(c, text, 0.7), mixSrgb(c, surface, 0.1))
+					contrastRatio(mixSrgb(c, text, softTints.alertTitle), mixSrgb(c, surface, tints.alertBg))
 				).toBeGreaterThanOrEqual(4.5);
-				expect(contrastRatio(text, mixSrgb(c, surface, 0.1))).toBeGreaterThanOrEqual(4.5);
+				expect(contrastRatio(text, mixSrgb(c, surface, tints.alertBg))).toBeGreaterThanOrEqual(4.5);
 			}
 		}
 	});

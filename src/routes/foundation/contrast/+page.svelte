@@ -17,6 +17,7 @@
 	} from '$lib';
 	import type { SelectOption } from '$lib/types';
 	import { color, intent } from '$lib/tokens';
+	import { softTints } from '$lib/config';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// -------------------------------------------------------------------------
@@ -117,14 +118,18 @@
 
 	// --- Soft intent surfaces — the Badge/Alert reference-theme recipes -------
 
+	/** Tint fraction → whole-percent display (0.14 * 100 is 14.000…002). */
+	const pct = (fraction: number) => Math.round(fraction * 100);
+
 	function softRecipe(c: string, mode: 'light' | 'dark') {
 		const surface = mode === 'light' ? color.white : color.black;
 		const text = mode === 'light' ? color.black : color.white;
+		const tints = softTints[mode];
 		return {
-			badgeBg: mixSrgb(c, surface, 0.14),
-			badgeText: mixSrgb(c, text, 0.65),
-			alertBg: mixSrgb(c, surface, 0.1),
-			alertTitle: mixSrgb(c, text, 0.7),
+			badgeBg: mixSrgb(c, surface, tints.badgeBg),
+			badgeText: mixSrgb(c, text, softTints.badgeText),
+			alertBg: mixSrgb(c, surface, tints.alertBg),
+			alertTitle: mixSrgb(c, text, softTints.alertTitle),
 			alertBody: text
 		};
 	}
@@ -429,11 +434,16 @@
 	<section aria-labelledby="soft-heading">
 		<h2 id="soft-heading">Soft intent surfaces (Alert &amp; Badge)</h2>
 		<p>
-			The tinted recipes the reference theme derives with <code>color-mix()</code>: soft Badge
-			paints its background at 14% intent over surface and its text at 65% intent toward the text
-			role; Alert uses 10% for the banner and 70% for the title, with body text on the plain text
-			role. The same derivation runs here over the mode's resolved values — proof the tints hold
-			contrast, not just the raw hues.
+			The reference theme derives these surfaces with <code>color-mix()</code>: backgrounds mix
+			{pct(softTints.light.alertBg)}–{pct(softTints.light.badgeBg)}% of the intent color into the
+			surface in light mode and {pct(softTints.dark.alertBg)}–{pct(softTints.dark.badgeBg)}% in dark
+			(weak tints barely read as color on a dark surface); text mixes
+			{pct(softTints.badgeText)}–{pct(softTints.alertTitle)}% toward the text role in both modes.
+			Tune the background strength with the <code>--hz-alert-tint</code> and
+			<code>--hz-badge-tint</code>
+			<a href="/theming/components#hook-props-heading">hooks</a>. Everything below is that
+			derivation over the mode's resolved values — proof the tints hold contrast, not just the raw
+			hues.
 		</p>
 		<Tabs items={modeTabs} ariaLabel="Soft surface mode" defaultTab="light">
 			{#snippet panel(mItem)}
@@ -499,6 +509,11 @@
 			the palette, assert your pairings in a unit test the same way this library does:
 		</p>
 		<CodeBlock code={apiCode} />
+		<p>
+			For the full override workflow — plain-CSS recipes and the <code>hyzer</code> CLI, whose
+			generate step runs this same report over your config — see
+			<a href="/theming/tokens">Theming → Tokens &amp; Overrides</a>.
+		</p>
 	</section>
 
 	<section aria-labelledby="resources-heading">

@@ -105,6 +105,12 @@ Because the dark companions are *lighter* than the surfaces, the reference
 theme paints solid intent text with `--hz-color-surface` (white in light
 mode, black in dark) rather than white — both modes stay ≥ 4.5:1.
 
+(2026-07-15, specs/30: the example override sheets under
+`src/lib/theme/examples/` — ocean, sunset — are engine-generated from the
+`*.config.ts` files beside them, drift-tested, and held to the same AA gate
+via `contrastReport`; they demonstrate consumer-side palette/role/intent
+overrides including per-mode brand accents.)
+
 **Layer 2 — Semantic roles** (reference the palette via `var()` —
 `surface-muted` through a `color-mix()` of it). Only `surface`,
 `surface-muted`, and `text` appear in the dark block (they flip rather than
