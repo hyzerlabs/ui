@@ -7,7 +7,23 @@
 		margin-top: 0.75rem;
 	}
 
-	/* Prev/next chrome comes from the shared .hz-icon-button (controls.css). */
+	/* Prev/next chrome is Button's (button.css) — they compose <Button
+	 * variant="outline">. The theme's only addition here is the touch target:
+	 * the sm icon button paints at 32px, so a transparent ::before lifts its
+	 * hit area to 44px without changing how it looks (spec 33 R8). */
+	.hz-carousel :where(.hz-carousel-prev, .hz-carousel-next) {
+		position: relative;
+	}
+
+	.hz-carousel :where(.hz-carousel-prev, .hz-carousel-next)::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		translate: -50% -50%;
+		width: max(100%, 44px);
+		height: max(100%, 44px);
+	}
 
 	.hz-carousel :where(.hz-carousel-status) {
 		font-family: var(--hz-font-family-mono, monospace);
@@ -22,6 +38,7 @@
 	.hz-carousel :where(.hz-carousel-dot) {
 		--hz-carousel-dot-size: 0.5rem;
 
+		position: relative;
 		width: var(--hz-carousel-dot-size);
 		height: var(--hz-carousel-dot-size);
 		padding: 0;
@@ -32,6 +49,21 @@
 		transition:
 			background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
 			scale var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	/* Touch target (spec 33 R8): the dot paints at --hz-carousel-dot-size, but
+	 * a transparent ::before makes it tappable across the full 24px slot (the
+	 * dots row sets a 1rem gap so slots don't overlap) and 44px tall. Drag and
+	 * prev/next are the primary touch paths and meet 44×44 outright; the dots
+	 * clear the 24px AA floor horizontally and 44px AAA vertically. */
+	.hz-carousel :where(.hz-carousel-dot)::before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		translate: -50% -50%;
+		width: calc(var(--hz-carousel-dot-size, 0.5rem) + var(--hz-space-sm, 1rem));
+		height: 44px;
 	}
 
 	.hz-carousel :where(.hz-carousel-dot:hover) {

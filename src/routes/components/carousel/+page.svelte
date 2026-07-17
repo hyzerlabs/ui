@@ -25,6 +25,12 @@
 			note: 'Wrap from the last slide to the first and back.'
 		},
 		{
+			name: 'draggable',
+			type: 'boolean',
+			default: 'true',
+			note: 'Pointer drag to slide (drag wraps when loop is set). Off leaves keyboard, buttons, and dots working.'
+		},
+		{
 			name: 'indicator',
 			type: "'counter' | 'dots'",
 			default: "'counter'",
@@ -93,7 +99,7 @@
 
 <DocPage
 	name="Carousel"
-	description="An accessible, manually-rotated carousel: labelled slides, previous/next controls, arrow-key steering, and a live region announcing changes. No auto-rotation, by design."
+	description="An accessible, manually-rotated carousel: a draggable slide track, labelled slides, previous/next controls, arrow-key steering, and a live region announcing changes. No auto-rotation, by design."
 	importLine={'import {Carousel} from "@hyzer-labs/ui"'}
 	{props}
 	a11yNote="Follows the APG grouped-carousel pattern: the region and each slide carry `aria-roledescription`, slides are named ('2 of 5'-style by default, customizable via `slideLabel`), and because there is no auto-rotation the viewport is an `aria-live=&quot;polite&quot;` region — slide changes announce themselves. Arrow keys, Home, and End steer while focus is inside the carousel."
@@ -129,7 +135,7 @@
 				{:else}
 					<p class="tab-note">
 						Without <code>loop</code> the controls disable at the ends; with it, navigation wraps both
-						ways.
+						ways — including a drag flicked past the first or last slide.
 					</p>
 					<Example code={loopCode}>
 						<Carousel items={quotes} loop ariaLabel="Customer quotes (looping)">

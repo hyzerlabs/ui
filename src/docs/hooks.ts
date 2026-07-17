@@ -50,11 +50,6 @@ export interface ComponentHooks {
 }
 
 /**
- * Custom properties the reference theme declares that are deliberately NOT
- * contract — internal derivations, listed so hooks.spec.ts can tell
- * "intentionally private" apart from "someone forgot to document it".
- */
-/**
  * Custom properties the reference theme DECLARES that are deliberately not
  * contract, so hooks.spec.ts can tell "intentionally private" apart from
  * "someone forgot to document it". Scoped to what the drift check actually
@@ -1199,33 +1194,55 @@ export const hooks: Record<string, ComponentHooks> = {
 		attrs: [
 			{
 				name: 'data-active',
-				values: 'present on the current dot',
-				note: 'On .hz-carousel-dot. Slides use the native hidden attribute rather than a class, so target [hidden] for those.'
+				values: 'present on the active slide and dot',
+				note: 'On .hz-carousel-slide and .hz-carousel-dot. Off-screen slides carry inert instead — they are clipped by the viewport, not hidden — so target :not([inert]) for the visible one.'
+			},
+			{
+				name: 'data-dragging',
+				values: 'present while a drag is underway',
+				note: 'On .hz-carousel-track. The settle transition is suppressed while it is present so the track follows the pointer 1:1; a grab/grabbing cursor pairs with it.'
 			}
 		],
 		props: [
 			{
 				name: '--hz-carousel-dot-size',
 				values: '<length> — default 0.5rem',
-				note: 'Dot diameter. Declared on .hz-carousel-dot itself, so set it there — declaring it on .hz-carousel will not reach, since the local declaration beats your inherited value.'
+				note: 'Dot diameter (the painted size; the tap target is larger). Declared on .hz-carousel-dot itself, so set it there — declaring it on .hz-carousel will not reach, since the local declaration beats your inherited value.'
 			}
 		],
 		parts: [
-			{ name: '.hz-carousel-viewport', values: 'child element', note: 'The live region.' },
-			{ name: '.hz-carousel-slide', values: 'child element', note: 'One slide.' },
+			{
+				name: '.hz-carousel-viewport',
+				values: 'child element',
+				note: 'The clip window and live region.'
+			},
+			{
+				name: '.hz-carousel-track',
+				values: 'child element',
+				note: 'The sliding row of slides. Its transform is an inline style; the transition and the drag cursor live here.'
+			},
+			{
+				name: '.hz-carousel-slide',
+				values: 'child element',
+				note: 'One slide; off-screen ones are inert.'
+			},
 			{ name: '.hz-carousel-controls', values: 'child element', note: 'The control row.' },
 			{
 				name: '.hz-carousel-prev',
 				values: 'on a Button',
-				note: 'Previous control; also a .hz-button.'
+				note: 'Previous control; also a .hz-button. Its ::before carries the 44px touch target.'
 			},
 			{
 				name: '.hz-carousel-next',
 				values: 'on a Button',
-				note: 'Next control; also a .hz-button.'
+				note: 'Next control; also a .hz-button. Its ::before carries the 44px touch target.'
 			},
 			{ name: '.hz-carousel-dots', values: 'child element', note: 'The dot rail.' },
-			{ name: '.hz-carousel-dot', values: 'child element', note: 'One dot.' },
+			{
+				name: '.hz-carousel-dot',
+				values: 'child element',
+				note: 'One dot. Its ::before is a transparent tap target larger than the painted dot.'
+			},
 			{ name: '.hz-carousel-status', values: 'child element', note: 'The "1 / 3" counter.' }
 		]
 	},

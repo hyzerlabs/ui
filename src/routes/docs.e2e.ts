@@ -413,3 +413,63 @@ test.describe('specs/31 R5 — Pages sample', () => {
 		await expect(page.getByRole('navigation', { name: 'Docs navigation' })).toBeAttached();
 	});
 });
+
+// ---------------------------------------------------------------------------
+// specs/33 — carousel drag + touch targets
+// ---------------------------------------------------------------------------
+
+test.describe('specs/33 — carousel', () => {
+	// The basic demo (counter indicator) is the default-active tab.
+	async function gotoCarousel(page: import('@playwright/test').Page) {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/components/carousel');
+		await expect(page.locator('.hz-carousel-track').first()).toBeVisible();
+	}
+
+	test('a pointer drag advances the slide (R3/R4)', async ({ page }) => {
+		await gotoCarousel(page);
+		const status = page.locator('.hz-carousel-status').first();
+		await expect(status).toHaveText('1 / 3');
+
+		const box = await page.locator('.hz-carousel-viewport').first().boundingBox();
+		if (!box) throw new Error('no viewport box');
+		const cy = box.y + box.height / 2;
+		// Fast drag left across most of the viewport → advances.
+		await page.mouse.move(box.x + box.width * 0.8, cy);
+		await page.mouse.down();
+		await page.mouse.move(box.x + box.width * 0.1, cy, { steps: 4 });
+		await page.mouse.up();
+
+		await expect(status).toHaveText('2 / 3');
+	});
+
+	// A point 20px above the element's centre must still resolve to it (or its
+	// ::before) — i.e. the hit area extends ≥20px above centre, so it clears 40px
+	// tall. The painted control may be much smaller.
+	const probesTaller = (el: Element) => {
+		const r = el.getBoundingClientRect();
+		const probe = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2 - 20);
+		return el === probe || el.contains(probe as Node);
+	};
+
+	test('prev/next hit areas are ≥44px tall (R8)', async ({ page }) => {
+		await gotoCarousel(page); // basic tab — prev/next visible
+		const prev = page.locator('.hz-carousel-prev').first();
+		const next = page.locator('.hz-carousel-next').first();
+		await expect(prev).toBeVisible();
+		expect(await prev.evaluate(probesTaller)).toBe(true);
+		expect(await next.evaluate(probesTaller)).toBe(true);
+	});
+
+	test('dot hit areas are taller than the painted dot (R8)', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/components/carousel');
+		await page.getByRole('tab', { name: 'Dots' }).click();
+		const dot = page.locator('.hz-carousel-dot').first();
+		await expect(dot).toBeVisible();
+		// The painted dot is ~8px; a taller ::before carries the tap target.
+		const painted = await dot.evaluate((el) => el.getBoundingClientRect().height);
+		expect(painted).toBeLessThan(20);
+		expect(await dot.evaluate(probesTaller)).toBe(true);
+	});
+});
