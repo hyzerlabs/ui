@@ -1,0 +1,44 @@
+/**
+ * Sunset — Card (specs/32 R3)
+ *
+ * LAYERED. Card's treatments are opt-in modifier classes passed through the
+ * `class` prop (.hz-card--outlined / .hz-card--elevated), so the same markup
+ * works under every theme — Sunset just redefines what the two words mean:
+ * "outlined" becomes engraved into the surface, "elevated" becomes extruded
+ * out of it. Neither one grows a border.
+ */
+.hz-theme-sunset .hz-card {
+	border-radius: var(--hz-radius-lg, 1.25rem);
+	transition:
+		box-shadow var(--sunset-ease),
+		translate var(--sunset-ease);
+}
+
+/* Rounding is the theme's job here — but keep the theme's overflow clip so
+ * media still meets the (now much rounder) corners. */
+.hz-theme-sunset .hz-card[data-rounded] {
+	border-radius: var(--hz-radius-lg, 1.25rem);
+}
+
+.hz-theme-sunset .hz-card.hz-card--outlined {
+	border: none;
+	box-shadow: var(--sunset-well);
+}
+
+.hz-theme-sunset .hz-card.hz-card--elevated {
+	box-shadow: var(--sunset-raise);
+}
+
+.hz-theme-sunset .hz-card.hz-card--outlined[data-clickable]:hover {
+	box-shadow: var(--sunset-raise);
+}
+
+.hz-theme-sunset .hz-card.hz-card--elevated[data-clickable]:hover {
+	box-shadow: var(--sunset-lift);
+	translate: 0 -2px;
+}
+
+.hz-theme-sunset .hz-card.hz-card--elevated[data-clickable]:active {
+	box-shadow: var(--sunset-press);
+	translate: 0 1px;
+}

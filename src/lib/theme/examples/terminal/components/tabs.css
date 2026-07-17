@@ -1,0 +1,84 @@
+/**
+ * Terminal — Tabs (specs/32 R1)
+ *
+ * Standalone: assumes tokens.css only.
+ *
+ * The reference theme's tabs are underlined text. Terminal's are ruled cells:
+ * each trigger is a one-pixel box, and the active one is lit solid and joined
+ * to the panel below it.
+ *
+ * The component ships no button reset, so this sheet resets appearance itself
+ * — exactly as the reference theme has to.
+ */
+.hz-theme-terminal .hz-tabs-list {
+	border-bottom: 1px solid var(--hz-color-text, #33ff66);
+	gap: 0.25rem;
+}
+
+.hz-theme-terminal .hz-tabs-trigger {
+	appearance: none;
+	padding: 0.375rem 0.875rem;
+	border: 1px solid var(--hz-color-text, #33ff66);
+	border-bottom: none;
+	border-radius: 0;
+	background: var(--hz-color-surface, #0b0f0b);
+	color: var(--hz-color-text-muted, #00a844);
+	font: inherit;
+	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
+	font-size: var(--hz-font-size-xs, 0.75rem);
+	font-weight: var(--hz-font-weight-bold, 700);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: none;
+	box-shadow: none;
+}
+
+.hz-theme-terminal .hz-tabs-trigger:hover {
+	background: var(--hz-color-text, #33ff66);
+	color: var(--hz-color-surface, #0b0f0b);
+}
+
+.hz-theme-terminal .hz-tabs-trigger[data-state='active'] {
+	background: var(--hz-intent-primary, #00ff41);
+	color: var(--hz-color-surface, #0b0f0b);
+	box-shadow: none;
+}
+
+.hz-theme-terminal .hz-tabs-trigger:focus-visible {
+	outline: 3px solid var(--hz-color-text, #33ff66);
+	outline-offset: -3px;
+}
+
+.hz-theme-terminal .hz-tabs-trigger[data-disabled] {
+	cursor: not-allowed;
+	opacity: 0.5;
+	border-style: dashed;
+	border-bottom: none;
+}
+
+/* Vertical orientation: the folder tabs turn to face the rail. */
+.hz-theme-terminal .hz-tabs[data-orientation='vertical'] .hz-tabs-list {
+	border-bottom: none;
+	border-inline-end: 1px solid var(--hz-color-text, #33ff66);
+}
+
+.hz-theme-terminal .hz-tabs[data-orientation='vertical'] .hz-tabs-trigger {
+	border: 1px solid var(--hz-color-text, #33ff66);
+	border-inline-end: none;
+	text-align: start;
+}
+
+.hz-theme-terminal .hz-tabs[data-orientation='vertical'] .hz-tabs-trigger[data-state='active'] {
+	box-shadow: none;
+}
+
+.hz-theme-terminal .hz-tabs-panel {
+	padding-top: 1rem;
+}
+
+.hz-theme-terminal .hz-tabs[data-orientation='vertical'] .hz-tabs-panel {
+	padding-top: 0;
+	padding-inline-start: 1.5rem;
+}

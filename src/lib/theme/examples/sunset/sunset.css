@@ -1,0 +1,49 @@
+/**
+ * Example theme — Sunset (specs/32 R3)
+ *
+ * A LAYERED class-override theme: warm ember palette (tokens) plus a
+ * neo-soft/tactile treatment (class overrides) applied ON TOP OF the
+ * reference theme. Everything these sheets don't mention — every component
+ * outside the demo set, every variant, size and state they leave alone —
+ * still gets the reference theme's look.
+ *
+ * Usage (order matters — this sheet must come after the theme):
+ *   import '@hyzer-labs/ui/tokens.css';
+ *   import '@hyzer-labs/ui/theme';                      // required here
+ *   import '@hyzer-labs/ui/theme/examples/sunset/sunset.css';
+ *
+ * Then put the class on whatever subtree it should own:
+ *   <html class="hz-theme-sunset">
+ *
+ * WHY IT WINS — the reference theme's rules live in @layer hz-theme and these
+ * do not. Unlayered CSS beats layered CSS regardless of specificity, so none
+ * of this needs !important, none of it has to mirror the theme's :where()
+ * selectors, and none of it does specificity arithmetic. The one exception is
+ * Toggle, whose theme rules are themselves unlayered — see components/
+ * toggle.css for why that matters and how these rules still win.
+ *
+ * COVERAGE — this pass ships the demo set (specs/32): Button, Badge, Alert,
+ * Card, the Field scaffold + TextInput, Toggle, Tabs, Accordion. Growing to
+ * full parity is additive: add a sheet under ./components and @import it
+ * below. Because Sunset layers, an uncovered component degrades to the
+ * reference theme rather than to bare structure — the standalone Terminal
+ * example has no such safety net.
+ *
+ * Contrast with theme/examples/ocean.css, which achieves its whole look with
+ * nothing but the token block below.
+ */
+
+/* The palette (generated from sunset.config.ts — do not edit by hand). */
+@import './sunset.tokens.css';
+
+/* The shared extrusion recipe every component sheet below consumes. */
+@import './components/base.css';
+
+@import './components/button.css';
+@import './components/badge.css';
+@import './components/alert.css';
+@import './components/card.css';
+@import './components/field.css';
+@import './components/toggle.css';
+@import './components/tabs.css';
+@import './components/accordion.css';

@@ -159,7 +159,15 @@ describe('package.json metadata', () => {
 			'theme/components/button.css',
 			'theme/components/card.css',
 			'theme/examples/ocean.css',
-			'theme/examples/sunset.css'
+			// The class-override themes are directories, not single sheets
+			// (specs/32): an index, its generated palette, and per-component
+			// sheets. `*` spans `/`, so one wildcard still reaches all of them.
+			'theme/examples/sunset/sunset.css',
+			'theme/examples/sunset/sunset.tokens.css',
+			'theme/examples/sunset/components/button.css',
+			'theme/examples/terminal/terminal.css',
+			'theme/examples/terminal/terminal.tokens.css',
+			'theme/examples/terminal/components/button.css'
 		]) {
 			expect(existsSync(`${here}${path}`), path).toBe(true);
 		}

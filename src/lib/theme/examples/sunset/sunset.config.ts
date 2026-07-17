@@ -1,21 +1,25 @@
 /**
- * Sunset — example theme config (specs/30 R2).
- * `pnpm gen:tokens` renders this through the token engine (overrides mode)
- * into the committed sunset.css next to it; a drift test keeps them in sync.
- * The config doubles as docs: /theming/examples shows it verbatim.
+ * Sunset — example theme config (specs/30 R2, restructured by specs/32 R3).
+ * `pnpm gen:tokens` renders this through the token engine (overrides mode,
+ * scoped to `.hz-theme-sunset`) into the committed sunset.tokens.css next to
+ * it; a drift test keeps them in sync. The config doubles as docs:
+ * /theming/examples shows it verbatim.
+ *
+ * Sunset is the LAYERED example: this palette plus the neo-soft component
+ * sheets in ./components, applied over the reference theme. The tokens do the
+ * color; the class overrides do the tactile shape and elevation.
  */
-import { defineConfig } from '../../config/index.js';
+import { defineConfig } from '../../../config/index.js';
 
 /** Header prose woven into the generated sheet. */
 export const intro = [
-	'Example theme — Sunset',
-	'Warm ember accents on stone neutrals. A token-override sheet: it restyles',
-	'the headless hooks AND the reference theme purely by redefining tokens.',
+	'Example theme — Sunset (tokens)',
+	'Warm ember accents on stone neutrals. Scoped to the .hz-theme-sunset',
+	'class rather than :root, so the theme travels with the class and can',
+	'share a page with anything else.',
 	'',
-	'Usage (order matters — overrides win by coming later in the cascade):',
-	"  import '@hyzer-labs/ui/tokens.css';",
-	"  import '@hyzer-labs/ui/theme';            // optional",
-	"  import '@hyzer-labs/ui/theme/examples/sunset.css';"
+	'This is only the palette — sunset.css imports it plus the component',
+	'sheets. See sunset.css for the usage contract.'
 ];
 
 export default defineConfig({

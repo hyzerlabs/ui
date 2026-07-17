@@ -1,0 +1,77 @@
+/**
+ * Terminal — Toggle (specs/32 R1)
+ *
+ * Standalone: assumes tokens.css only.
+ *
+ * CASCADE NOTE — this is the one component where a theme cannot be careless.
+ * Headless, Toggle is a bare native checkbox, and the reference theme's
+ * track/thumb rules are deliberately UNLAYERED at (0,2,1)
+ * (`.hz-field--toggle input.hz-toggle`) so they out-compete the component's
+ * own scoped structural reset. Layer order cannot help you here: an
+ * override authored at `.hz-field--toggle input.hz-toggle` would tie on
+ * specificity and lose on source order whenever the theme is imported after.
+ * These rules carry the theme's root class for (0,3,1) and win outright.
+ *
+ * The look: a two-cell character field. Square track, square block cursor,
+ * and a stepped slide — no easing, the block is either in this cell or that
+ * one. Lit means on.
+ */
+.hz-theme-terminal .hz-field--toggle input.hz-toggle {
+	--hz-toggle-width: 3rem;
+	--hz-toggle-height: 1.5rem;
+
+	appearance: none;
+	box-sizing: border-box;
+	position: relative;
+	margin: 0;
+	width: var(--hz-toggle-width);
+	height: var(--hz-toggle-height);
+	border: 1px solid var(--hz-color-text-muted, #00a844);
+	border-radius: 0;
+	background-color: var(--hz-color-surface, #0b0f0b);
+	cursor: pointer;
+	transition: none;
+	flex-shrink: 0;
+}
+
+.hz-theme-terminal .hz-field--toggle input.hz-toggle[data-state='on'] {
+	border-color: var(--hz-intent-primary, #00ff41);
+	background-color: var(--hz-intent-primary, #00ff41);
+	box-shadow: 0 0 12px -2px color-mix(in srgb, var(--hz-intent-primary, #00ff41) 60%, transparent);
+}
+
+.hz-theme-terminal .hz-field--toggle input.hz-toggle:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+	border-style: dashed;
+}
+
+.hz-theme-terminal .hz-field--toggle input.hz-toggle:focus-visible {
+	outline: 1px solid var(--hz-intent-primary, #00ff41);
+	outline-offset: 2px;
+	box-shadow: 0 0 12px -2px color-mix(in srgb, var(--hz-intent-primary, #00ff41) 60%, transparent);
+}
+
+/*
+ * The block cursor. The 1px rule means the padding box is (w-2)x(h-2), so a
+ * (h-4) block at 1px inset sits centred with 1px of clearance all round, and
+ * the (w-h) travel lands it with the same 1px clearance on the far side.
+ */
+.hz-theme-terminal .hz-field--toggle input.hz-toggle::before {
+	content: '';
+	position: absolute;
+	top: 1px;
+	left: 1px;
+	width: calc(var(--hz-toggle-height) - 4px);
+	height: calc(var(--hz-toggle-height) - 4px);
+	border-radius: 0;
+	background-color: var(--hz-color-text-muted, #00a844);
+	box-shadow: none;
+	/* Stepped, not eased — the cursor jumps cells. */
+	transition: transform 120ms steps(3, end);
+}
+
+.hz-theme-terminal .hz-field--toggle input.hz-toggle[data-state='on']::before {
+	transform: translateX(calc(var(--hz-toggle-width) - var(--hz-toggle-height)));
+	background-color: var(--hz-color-surface, #0b0f0b);
+}

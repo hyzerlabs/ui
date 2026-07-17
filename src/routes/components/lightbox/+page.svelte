@@ -247,8 +247,8 @@
 	]}
 >
 	<Alert intent="info" title="Image + Lightbox">
-		Image renders media, Lightbox provides viewing. Compose an <a href="/media/image">Image</a> as a
-		trigger face — see the "Image triggers" tab — or reach for the <code>lightboxGroup</code>
+		Image renders media, Lightbox provides viewing. Compose an <a href="/components/image">Image</a>
+		as a trigger face — see the "Image triggers" tab — or reach for the <code>lightboxGroup</code>
 		attachment on the "Group attachment" tab to add click-to-view over an <code>Image</code> grid you
 		already render.
 	</Alert>

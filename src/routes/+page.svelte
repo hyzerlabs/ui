@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { Stack, Grid, Card } from '$lib';
-	import { isSection, manifest, type ManifestSection } from '../docs/manifest';
+	import { isSection, manifest, sectionPages, type ManifestSection } from '../docs/manifest';
 
 	// The card grid shows sections only — standalone entries (Introduction)
-	// are this page itself.
-	const sections = manifest.filter((e): e is ManifestSection => isSection(e));
+	// are this page itself. Pages are flattened: the cards preview page names,
+	// so Components' group bands don't matter here.
+	const sections = manifest
+		.filter((e): e is ManifestSection => isSection(e))
+		.map((section) => ({ label: section.label, pages: sectionPages(section) }));
 </script>
 
 <svelte:head>
@@ -63,17 +66,17 @@ import '@hyzer-labs/ui/tokens.css';</code
 			{#each sections as section (section.label)}
 				<Card class="hz-card--outlined" padding="md" rounded="md">
 					<!-- Sections have no cover pages — the card opens the first page. -->
-					<a href={section.children[0].href} class="section-link">
+					<a href={section.pages[0].href} class="section-link">
 						<h3 class="section-title">{section.label}</h3>
 						<p class="section-count">
-							{section.children.length} page{section.children.length !== 1 ? 's' : ''}
+							{section.pages.length} page{section.pages.length !== 1 ? 's' : ''}
 						</p>
 						<ul class="section-pages" aria-label="{section.label} pages">
-							{#each section.children.slice(0, 4) as p (p.href)}
+							{#each section.pages.slice(0, 4) as p (p.href)}
 								<li>{p.label}</li>
 							{/each}
-							{#if section.children.length > 4}
-								<li>+{section.children.length - 4} more</li>
+							{#if section.pages.length > 4}
+								<li>+{section.pages.length - 4} more</li>
 							{/if}
 						</ul>
 					</a>

@@ -2,7 +2,8 @@
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
 	import { Nav } from '$lib';
-	import { isSection, manifest } from '../docs/manifest';
+	import type { NavChild } from '$lib/types';
+	import { isGrouped, isSection, manifest, sectionPages } from '../docs/manifest';
 	import '$lib/theme/reset.css';
 	import '$lib/tokens/tokens.css';
 	// Reference theme — the docs site is its living example. Demos render the
@@ -27,8 +28,22 @@
 
 	function activeSectionLabel(): string | undefined {
 		return manifest.find(
-			(entry) => isSection(entry) && entry.children.some((p) => page.url.pathname === p.href)
+			(entry) => isSection(entry) && sectionPages(entry).some((p) => page.url.pathname === p.href)
 		)?.label;
+	}
+
+	// A section's pages as Nav children. Grouped sections (Components) emit a
+	// heading entry before each band — spec 31 R2's children-only subtype, so
+	// the five group labels cost no second disclosure level.
+	function navChildren(section: (typeof manifest)[number] & object): NavChild[] {
+		if (!isSection(section)) return [];
+		const link = (p: { label: string; href: string }) => ({
+			...p,
+			ariaCurrent: isActive(p.href) ? ('page' as const) : undefined
+		});
+		return isGrouped(section)
+			? section.groups.flatMap((g) => [{ heading: g.label }, ...g.pages.map(link)])
+			: section.children.map(link);
 	}
 
 	// Dogfood: the sidebar is the library's vertical Nav. Sections are
@@ -42,10 +57,7 @@
 				? {
 						label: entry.label,
 						defaultOpen: entry.label === activeSectionLabel(),
-						children: entry.children.map((p) => ({
-							...p,
-							ariaCurrent: isActive(p.href) ? ('page' as const) : undefined
-						}))
+						children: navChildren(entry)
 					}
 				: {
 						...entry,
@@ -378,6 +390,23 @@
 	/* Inline section panel — no theme indent padding; links carry it */
 	.docs-sidenav-wrap :global(.hz-nav-panel) {
 		padding: 0;
+	}
+
+	/* Group labels inside the Components section (spec 31 R2). Quieter and
+	 * smaller than the section toggles above them, indented to sit between
+	 * the toggle and the page links they label. */
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-heading) {
+		padding: 0.75rem 1rem 0.25rem 1.75rem;
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text-muted, #6b7280);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	/* First group's label sits directly under the toggle — no extra gap. */
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-heading:first-child) {
+		padding-top: 0.25rem;
 	}
 
 	/* Page links — active gets the right-side accent border */

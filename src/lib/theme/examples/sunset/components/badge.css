@@ -1,0 +1,33 @@
+/**
+ * Sunset — Badge (specs/32 R3)
+ *
+ * LAYERED: the intent→--_c mapping, the sizes and the soft-tint recipe all
+ * come from the reference theme. This sheet just lifts the chip off the page
+ * and rounds it fully.
+ *
+ * Note what ISN'T here: --hz-badge-tint is left alone. The reference theme's
+ * tint math (and the contrast report that models it) still governs Badge's
+ * colors — Sunset is changing the shape of the object, not its palette.
+ */
+.hz-theme-sunset .hz-badge {
+	border-radius: var(--hz-radius-full, 9999px);
+	padding: 0.1875rem 0.625rem;
+	box-shadow: var(--sunset-raise);
+}
+
+/* Outline badges have no fill to extrude, so they get the well instead —
+ * stamped into the surface rather than sitting on it. */
+.hz-theme-sunset .hz-badge[data-variant='outline'] {
+	border-color: transparent;
+	background-color: var(--hz-color-surface, #fffbf5);
+	box-shadow: var(--sunset-press);
+}
+
+.hz-theme-sunset .hz-badge .hz-badge-dismiss {
+	transition: box-shadow var(--sunset-ease);
+}
+
+.hz-theme-sunset .hz-badge .hz-badge-dismiss:hover {
+	background-color: transparent;
+	box-shadow: var(--sunset-press);
+}

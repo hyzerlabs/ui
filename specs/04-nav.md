@@ -183,6 +183,30 @@ exists; "absent" = not rendered at all.
 21. **R21 — barrel export.** `Nav` exports from `src/lib/components/index.ts` and
     resolves via `import { Nav } from '$lib'`.
 
+### Amendment (2026-07-16, specs/31) — heading entries
+
+22. **R22 — group labels inside `children`.** A `children` array accepts a
+    heading entry (`{ heading: string }`, the `NavHeading` subtype of
+    `NavChild`) alongside link items, so a long section can be banded without a
+    second disclosure level. It renders as a static
+    `<li class="hz-nav-heading">` carrying the text: **no href, no button, no
+    focus stop.** Keyboard traversal skips it for free — the roving logic
+    targets `[role=menuitem]` and the mobile trap collects links, buttons and
+    summaries, and a heading is none of those. Screen readers read it in
+    sequence before the links it labels; it takes no `role="separator"` and no
+    `aria-hidden`, because the label is information.
+    - Supported in vertical orientation; a horizontal dropdown panel renders it
+      identically, with `role="presentation"` so the `role="menu"` parent keeps
+      only `menuitem` children in its accessibility tree.
+    - **Children-only.** A heading in the top-level `items` array is out of
+      contract: Nav filters it out and warns in dev. It has no `label`, so
+      rendering it as a top-level item would emit an empty row.
+    - Discriminate with `isNavHeading` from `$lib/utils`. The guard lives with
+      the runtime helpers because `$lib/types` stays type-only (it is the
+      declaration-merging module for `IntentRegistry`).
+    - The reference theme styles `.hz-nav-heading` as muted, small, uppercase
+      text — a label, not a link.
+
 ### Structural CSS (shipped)
 
 Authored by the Builder in the component's scoped `<style>`. Illustrative only —

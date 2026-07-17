@@ -165,10 +165,70 @@ function densityBlock(resolved: ResolvedConfig): string {
 	return rules.join('\n\n');
 }
 
-/** Dark-block selector: plain hook at :root, compound + descendant when scoped. */
+/**
+ * Dark-block selector: plain hook at :root, compound + descendant when scoped
+ * (the scope element may carry data-theme itself, or inherit it from an
+ * ancestor like <html>).
+ *
+ * The scoped pair is emitted one selector per line: generated sheets are
+ * committed, so `prettier --check .` sees them, and a comma-joined pair of
+ * this length is exactly what Prettier would break. Matching its output keeps
+ * the drift test and the lint suite from contradicting each other.
+ */
 function darkSelector(selector: string): string {
 	if (selector === ':root') return "[data-theme='dark']";
-	return `${selector}[data-theme='dark'], [data-theme='dark'] ${selector}`;
+	return `${selector}[data-theme='dark'],\n[data-theme='dark'] ${selector}`;
+}
+
+/** Custom-property names referenced by var() inside a token value. */
+function varRefs(value: string): string[] {
+	return [...value.matchAll(/var\(\s*(--[a-z0-9-]+)/gi)].map((m) => m[1]);
+}
+
+/**
+ * The tokens a SCOPED override sheet must re-declare: everything the config
+ * touched, plus the transitive closure of tokens whose values depend on them.
+ *
+ * Why this exists. The two-layer color model is built on indirection —
+ * `--hz-intent-primary: var(--hz-color-primary)` — and var() inside a custom
+ * property is substituted at computed-value time ON THE ELEMENT THE
+ * DECLARATION APPLIES TO. At `:root` that is exactly what we want: an
+ * override of `--hz-color-primary` lands on the same element as the intent
+ * declaration, so the cascade picks the new value and the whole chain
+ * re-resolves.
+ *
+ * Scoped to a class it breaks. `.theme-ocean { --hz-color-primary: #0f766e }`
+ * leaves `--hz-intent-primary` declared back at `:root`, where it already
+ * computed to the BASE blue and inherits down as that resolved value — so
+ * every component reading the intent vocabulary (Button, Badge, Alert) keeps
+ * the base palette while the panel swears it is teal.
+ *
+ * Re-emitting the dependents under the scope re-resolves them against the
+ * scope's own values. The seed includes dark-block entries: a hue overridden
+ * only in dark still needs its intent chain declared locally, or the dark
+ * block has nothing to feed.
+ */
+function scopedClosure(resolved: ResolvedConfig): Set<string> {
+	const included = new Set<string>();
+	for (const section of resolved.sections) {
+		for (const e of section.entries) if (e.fromConfig) included.add(e.cssName);
+	}
+	for (const e of [...resolved.dark.color, ...resolved.dark.intent]) {
+		if (e.fromConfig) included.add(e.cssName);
+	}
+
+	const all = resolved.sections.flatMap((s) => s.entries);
+	for (let changed = true; changed; ) {
+		changed = false;
+		for (const e of all) {
+			if (included.has(e.cssName)) continue;
+			if (varRefs(e.value).some((ref) => included.has(ref))) {
+				included.add(e.cssName);
+				changed = true;
+			}
+		}
+	}
+	return included;
 }
 
 // ---------------------------------------------------------------------------
@@ -233,23 +293,51 @@ function isRoleKey(key: string): boolean {
 }
 
 function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: string[]): string {
+	const scoped = selector !== ':root';
 	const header = withIntro(
 		[
 			'/**',
 			' * @hyzer-labs/ui token overrides',
 			' *',
 			' * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).',
-			' * Only config-touched tokens are emitted; import this sheet AFTER',
-			' * @hyzer-labs/ui/tokens.css so the overrides win by source order.',
+			...(scoped
+				? [
+						' * Config-touched tokens plus every token that derives from them: a',
+						' * scoped sheet must re-declare the derived Layer-2 chain, because a',
+						' * var() indirection declared at :root already resolved there and',
+						' * inherits down as a fixed value.',
+						' * Import this sheet AFTER @hyzer-labs/ui/tokens.css so the overrides',
+						' * win by source order.'
+					]
+				: [
+						' * Only config-touched tokens are emitted; import this sheet AFTER',
+						' * @hyzer-labs/ui/tokens.css so the overrides win by source order.'
+					]),
 			' */'
 		].join('\n'),
 		intro
 	);
 
-	const rootEntries = resolved.sections.flatMap((s) => s.entries.filter((e) => e.fromConfig));
+	// Scoped sheets carry the derived chain too — see scopedClosure().
+	const emit = scoped ? scopedClosure(resolved) : null;
+	const rootEntries = resolved.sections.flatMap((s) =>
+		s.entries.filter((e) => (emit ? emit.has(e.cssName) : e.fromConfig))
+	);
+
+	/**
+	 * The dark block needs the same treatment for a different reason. A base
+	 * dark entry like surface-muted's stronger tint
+	 * (`color-mix(… var(--hz-color-gray) 25%, var(--hz-color-surface))`) is
+	 * declared at :root's dark block. Scoped, it never reaches the subtree, and
+	 * the scope's own light-block declaration would silently keep applying its
+	 * 6% light-mode tint in dark. Re-emit any dark entry that derives from a
+	 * token the scope redeclares.
+	 */
+	const darkDerives = (e: TokenEntry) =>
+		emit !== null && varRefs(e.value).some((ref) => emit.has(ref));
 	const darkEntries = [
-		...resolved.dark.color.filter((e) => e.fromConfig),
-		...resolved.dark.intent.filter((e) => e.fromConfig)
+		...resolved.dark.color.filter((e) => e.fromConfig || darkDerives(e)),
+		...resolved.dark.intent.filter((e) => e.fromConfig || darkDerives(e))
 	];
 
 	const parts: string[] = [header];

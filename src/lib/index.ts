@@ -5,6 +5,13 @@
  * (also available from ./utils).
  */
 export * from './components/index.js';
+/**
+ * The intent vocabulary. Re-exported for convenience — but note that
+ * AUGMENTING IntentRegistry must target the declaring module
+ * (`@hyzer-labs/ui/types`), since TypeScript merges an interface only into
+ * the module that declares it, not one that re-exports it.
+ */
+export type { Intent, IntentRegistry } from './types/index.js';
 export { toFormErrors, type FormErrorsInput } from './utils/form.js';
 export { lightboxGroup } from './attachments/lightboxGroup.js';
 export {

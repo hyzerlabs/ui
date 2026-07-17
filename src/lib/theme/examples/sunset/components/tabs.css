@@ -1,0 +1,45 @@
+/**
+ * Sunset — Tabs (specs/32 R3)
+ *
+ * LAYERED. The reference theme's tabs are underlined text with an inset
+ * box-shadow indicator; Sunset makes each trigger a soft pill and swaps the
+ * indicator for a press — the active tab is the one pushed into the surface.
+ *
+ * The theme's indicator is itself a box-shadow, so overriding box-shadow here
+ * replaces it outright; no need to unset anything.
+ */
+.hz-theme-sunset .hz-tabs-list {
+	border-bottom: none;
+	gap: 0.375rem;
+	padding-bottom: 0.25rem;
+}
+
+.hz-theme-sunset .hz-tabs-trigger {
+	border-radius: var(--hz-radius-full, 9999px);
+	padding: 0.5rem 1rem;
+	box-shadow: var(--sunset-raise);
+	transition:
+		box-shadow var(--sunset-ease),
+		color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+}
+
+.hz-theme-sunset .hz-tabs-trigger:hover {
+	box-shadow: var(--sunset-lift);
+}
+
+.hz-theme-sunset .hz-tabs-trigger[data-state='active'] {
+	color: var(--hz-color-primary, #c2410c);
+	box-shadow: var(--sunset-press);
+}
+
+.hz-theme-sunset .hz-tabs-trigger[data-disabled] {
+	box-shadow: none;
+}
+
+.hz-theme-sunset .hz-tabs[data-orientation='vertical'] .hz-tabs-list {
+	border-inline-end: none;
+}
+
+.hz-theme-sunset .hz-tabs[data-orientation='vertical'] .hz-tabs-trigger[data-state='active'] {
+	box-shadow: var(--sunset-press);
+}

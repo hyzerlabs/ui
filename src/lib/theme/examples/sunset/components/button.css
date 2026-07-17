@@ -1,0 +1,79 @@
+/**
+ * Sunset — Button (specs/32 R3)
+ *
+ * LAYERED over the reference theme: this sheet declares only what changes.
+ * Everything it doesn't mention — the intent→accent mapping, sizes,
+ * icon-only, loading, full-width, the --hz-button-accent hook contract — is
+ * inherited from theme/components/button.css and keeps working.
+ *
+ * That's the whole demonstration: these are plain unlayered class rules at
+ * (0,2,0). They beat @layer hz-theme with no !important, no matching of the
+ * theme's :where() selectors, and no specificity arithmetic.
+ *
+ * The look: a soft key you can actually push. Solid buttons are the accent
+ * extruded out of the surface; hollow ones are the surface itself, raised.
+ */
+.hz-theme-sunset .hz-button {
+	border: none;
+	border-radius: var(--hz-radius-full, 9999px);
+	font-weight: var(--hz-font-weight-semibold, 600);
+	box-shadow: var(--sunset-raise);
+	transition:
+		box-shadow var(--sunset-ease),
+		translate var(--sunset-ease),
+		background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
+		color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+}
+
+/* Hollow variants become the surface, lifted — not an outline. The accent
+ * survives as the text color only. */
+.hz-theme-sunset .hz-button:is([data-variant='outline'], [data-variant='ghost']) {
+	background-color: var(--hz-color-surface, #fffbf5);
+	color: var(--hz-button-accent);
+}
+
+/* Solid keeps its accent fill but loses its border and gains the extrusion. */
+.hz-theme-sunset .hz-button[data-variant='solid'] {
+	background-color: var(--hz-button-accent);
+	color: var(--hz-button-on-accent);
+}
+
+/* Link stays flat — a raised piece of text would be absurd. */
+.hz-theme-sunset .hz-button[data-variant='link'] {
+	box-shadow: none;
+	background-color: transparent;
+}
+
+/* Hover lifts toward the light. */
+.hz-theme-sunset
+	.hz-button:is([data-variant='solid'], [data-variant='outline'], [data-variant='ghost']):hover:not(
+		[data-state]
+	) {
+	box-shadow: var(--sunset-lift);
+	translate: 0 -1px;
+}
+
+/* Active presses in — the shadow inverts and the key sinks. */
+.hz-theme-sunset
+	.hz-button:is(
+		[data-variant='solid'],
+		[data-variant='outline'],
+		[data-variant='ghost']
+	):active:not([data-state]) {
+	box-shadow: var(--sunset-press);
+	translate: 0 1px;
+}
+
+/* The theme's focus ring is a color-mix halo; keep it, but let it sit
+ * outside the extrusion rather than replacing it. */
+.hz-theme-sunset .hz-button:focus-visible {
+	outline: 2px solid transparent;
+	box-shadow:
+		var(--sunset-raise),
+		0 0 0 3px color-mix(in srgb, var(--hz-button-accent) 35%, transparent);
+}
+
+.hz-theme-sunset .hz-button[data-state='disabled'] {
+	box-shadow: var(--sunset-press);
+	opacity: 0.55;
+}

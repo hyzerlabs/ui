@@ -314,3 +314,102 @@ test.describe('R9 — theme toggle', () => {
 		expect(primaryAfter).toBe('#60a5fa');
 	});
 });
+
+// ---------------------------------------------------------------------------
+// specs/31 — grouped Components section, flat URLs, Pages, Theme hooks
+// ---------------------------------------------------------------------------
+
+test.describe('specs/31 R2/R6 — grouped sidebar', () => {
+	test('the Components section opens to five group headers and 38 links', async ({ page }) => {
+		await page.goto('/components/button');
+		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
+
+		// The active section auto-expands, so the panel is already open here.
+		const panel = sidebar.locator('.hz-nav-panel').filter({ has: page.locator('.hz-nav-heading') });
+		await expect(panel.locator('.hz-nav-heading')).toHaveText([
+			'Layout',
+			'Navigation',
+			'Forms',
+			'Media',
+			'General'
+		]);
+		await expect(panel.locator('a')).toHaveCount(38);
+	});
+
+	test('a group header is not focusable and Tab skips it (R2)', async ({ page }) => {
+		await page.goto('/components/button');
+		const heading = page.locator('.hz-nav-heading').first();
+		await expect(heading).toBeVisible();
+		// Static text: no link, no button, nothing to land on.
+		await expect(heading.locator('a, button')).toHaveCount(0);
+		expect(await heading.evaluate((el) => el.matches(':focus-within'))).toBe(false);
+		expect(await heading.getAttribute('tabindex')).toBeNull();
+	});
+
+	test('navigates to a moved page at its flat URL and marks it current', async ({ page }) => {
+		await page.goto('/components/button');
+		// Select moved from /forms/select — the sidebar link must be the flat one.
+		await page
+			.getByRole('navigation', { name: 'Docs navigation' })
+			.getByRole('link', { name: 'Select', exact: true })
+			.click();
+		await expect(page).toHaveURL('/components/select');
+		await expect(page.locator('h1')).toHaveText('Select');
+		await expect(
+			page
+				.getByRole('navigation', { name: 'Docs navigation' })
+				.getByRole('link', { name: 'Select', exact: true })
+		).toHaveAttribute('aria-current', 'page');
+	});
+});
+
+test.describe('specs/31 R9/R10 — theme hooks', () => {
+	test('a component page lists its root class, data hooks, and custom properties', async ({
+		page
+	}) => {
+		await page.goto('/components/button');
+		const hooks = page.locator('section', {
+			has: page.getByRole('heading', { name: 'Theme hooks' })
+		});
+		await expect(hooks).toContainText('.hz-button');
+		await expect(hooks).toContainText('data-variant');
+		await expect(hooks).toContainText('--hz-button-accent');
+	});
+
+	test('the theming roll-up lists hooks from across the library and links their pages', async ({
+		page
+	}) => {
+		await page.goto('/theming/components');
+		const table = page.locator('.token-table');
+		// Sourced from hooks.ts, so it spans components the old hand-written
+		// table never covered.
+		await expect(table).toContainText('--hz-button-accent');
+		await expect(table).toContainText('--hz-modal-width');
+		await expect(table).toContainText('--hz-image-fade-duration');
+		// Button contributes two rows (the accent pair), so it links twice.
+		await expect(table.getByRole('link', { name: 'Button' }).first()).toHaveAttribute(
+			'href',
+			'/components/button'
+		);
+	});
+});
+
+test.describe('specs/31 R5 — Pages sample', () => {
+	test('the Homepage sample bleeds wider than the prose column', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/pages/homepage');
+
+		const proseWidth = await page.locator('h1').evaluate((el) => el.getBoundingClientRect().width);
+		const sampleWidth = await page
+			.locator('.sample-frame')
+			.evaluate((el) => el.getBoundingClientRect().width);
+		expect(sampleWidth).toBeGreaterThan(proseWidth);
+	});
+
+	test('the sample nav landmark is named apart from the docs sidebar', async ({ page }) => {
+		await page.goto('/pages/homepage');
+		// Nested <nav>s: distinct accessible names or they collide.
+		await expect(page.getByRole('navigation', { name: 'Sample site navigation' })).toBeVisible();
+		await expect(page.getByRole('navigation', { name: 'Docs navigation' })).toBeAttached();
+	});
+});

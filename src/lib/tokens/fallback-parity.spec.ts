@@ -123,7 +123,16 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 
 const libRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const files = walk(libRoot);
+/**
+ * theme/examples/** is deliberately out of scope. This invariant exists so
+ * that a consumer who skips tokens.css still gets the BASE look — which makes
+ * the base palette the only correct fallback for library code. An example
+ * theme inverts that: `var(--hz-color-surface, #ffffff)` inside Terminal
+ * would promise white paper for a theme whose paper is #f4f4ec. The example
+ * sheets are held to the same standard against THEIR OWN resolved config, in
+ * theme/examples/examples.spec.ts.
+ */
+const files = walk(libRoot).filter((p) => !p.includes(join('theme', 'examples')));
 const tokenNames = new Set([
 	...lightMap.keys(),
 	'--hz-density',

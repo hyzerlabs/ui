@@ -127,7 +127,7 @@
 >
 	<Alert intent="info" title="Image + Lightbox">
 		Image renders media, Lightbox provides viewing. <code>Image</code> has no click-to-view of its
-		own — for that, pass an <code>Image</code> into a <a href="/media/lightbox">Lightbox</a>
+		own — for that, pass an <code>Image</code> into a <a href="/components/lightbox">Lightbox</a>
 		component's <code>trigger</code> snippet, or wire the <code>lightboxGroup</code> attachment over
 		an <code>Image</code> grid you already render.
 	</Alert>

@@ -214,7 +214,7 @@
 		Reach for <code>Dropdown</code> when the entries are <strong>actions</strong> — an action menu
 		or kebab menu that does something (edit, duplicate, delete). For <strong>navigation</strong> —
 		links a reader clicks through to another page or section — use
-		<a href="/navigation/nav">Nav</a>'s built-in dropdown instead; its menu items are real navigable
+		<a href="/components/nav">Nav</a>'s built-in dropdown instead; its menu items are real navigable
 		links, not action buttons.
 	</Alert>
 

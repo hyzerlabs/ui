@@ -1,0 +1,30 @@
+/**
+ * Sunset — shared tactile recipe (specs/32 R3)
+ *
+ * Neo-soft surfaces are one trick applied consistently: a light source at the
+ * top-left, so every raised thing gets a pale highlight there and a warm
+ * shadow at the bottom-right, and every pressed thing gets the same pair
+ * turned inward.
+ *
+ * These four properties ARE the theme. They're defined once here and consumed
+ * by every component sheet, so retuning the whole feel — softer, harder,
+ * flatter — is a one-line edit. Both mixes derive from --hz-color-surface, so
+ * they follow the palette into dark mode automatically instead of hardcoding
+ * a highlight that only works on cream.
+ */
+.hz-theme-sunset {
+	/* The two ends of the extrusion. */
+	--sunset-hi: color-mix(in srgb, var(--hz-color-surface, #fffbf5) 86%, #fff);
+	--sunset-lo: color-mix(in srgb, var(--hz-color-surface, #fffbf5) 80%, #000);
+
+	/* Raised: sitting on top of the surface. */
+	--sunset-raise: -5px -5px 10px var(--sunset-hi), 5px 5px 10px var(--sunset-lo);
+	/* Lifted: raised, further. */
+	--sunset-lift: -8px -8px 16px var(--sunset-hi), 8px 8px 16px var(--sunset-lo);
+	/* Pressed: pushed into the surface. */
+	--sunset-press: inset -3px -3px 6px var(--sunset-hi), inset 3px 3px 6px var(--sunset-lo);
+	/* Engraved: a well, for things you type into. */
+	--sunset-well: inset -2px -2px 5px var(--sunset-hi), inset 3px 3px 6px var(--sunset-lo);
+
+	--sunset-ease: 200ms cubic-bezier(0.34, 1.2, 0.64, 1);
+}

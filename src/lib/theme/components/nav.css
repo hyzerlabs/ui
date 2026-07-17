@@ -49,6 +49,17 @@
 		padding: 0.25rem 0 0.25rem 0.875rem;
 	}
 
+	/* Group labels within a panel (spec 31 R2) — static text banding a long
+	 * section. Muted and small so they read as labels, not as links. */
+	.hz-nav :where(.hz-nav-heading) {
+		padding: 0.5rem 0.625rem 0.25rem;
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text-muted, #6b7280);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
 	/* Icon-button controls: dropdown chevron, children-only trigger, hamburger */
 	.hz-nav-chevron,
 	.hz-nav-trigger,

@@ -147,12 +147,11 @@
 		<h3 id="intent">Intent</h3>
 		<p>
 			Intent is the shared vocabulary components use when color carries meaning: the
-			<code>Intent</code> type in <code>$lib/types</code> —
+			<code>Intent</code> type in <code>@hyzer-labs/ui/types</code> —
 			<code>primary | secondary | danger | warning | success | info</code>. Components speak it
-			consistently rather than inventing their own scales: Badge and Alert take the full set plus a
-			<code>neutral</code> default; Button restricts to
-			<code>primary | secondary | danger</code>. Intent color is reinforcement, never the only
-			signal — the text carries the meaning.
+			consistently rather than inventing their own scales: Button, Badge and Alert all take the full
+			set plus a <code>neutral</code> default. Intent color is reinforcement, never the only signal —
+			the text carries the meaning.
 		</p>
 		<p>
 			Each intent has its own role token, one indirection above the palette: override
@@ -160,6 +159,16 @@
 			brand red — or override the palette and the intents follow. Every intent-bearing surface (Button,
 			Badge, and Alert intents, plus field error states) resolves through this layer.
 		</p>
+		<Alert intent="info" title="These six are a starting set, not a ceiling" headingLevel={4}>
+			A component only stamps <code>data-intent="&lt;name&gt;"</code> and lets the theme decide what
+			the name means, so the vocabulary is yours to grow. Define
+			<code>--hz-intent-&lt;name&gt;</code> in your config and it gets
+			<a href="/foundation/contrast">contrast-graded</a> like any built-in; augment the
+			<code>IntentRegistry</code> interface and <code>intent="yours"</code> type-checks and
+			autocompletes on every component — while a typo still fails to compile. The
+			<a href="/theming/examples#intents-heading">Terminal example theme</a> adds two,
+			<code>phosphor</code> and <code>amber</code>, and shows all three steps.
+		</Alert>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>

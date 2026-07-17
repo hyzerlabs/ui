@@ -225,8 +225,53 @@ describe('generateCss — overrides mode', () => {
 			{ mode: 'overrides', selector: '.theme-ocean' }
 		);
 		expect(css).toContain('.theme-ocean {');
-		expect(css).toContain(".theme-ocean[data-theme='dark'], [data-theme='dark'] .theme-ocean {");
+		// One selector per line — Prettier's own formatting, so the committed
+		// generated sheets survive `prettier --check .` (see darkSelector).
+		expect(css).toContain(".theme-ocean[data-theme='dark'],\n[data-theme='dark'] .theme-ocean {");
 		expect(css).toContain('--hz-intent-primary: #5eead4;');
+	});
+
+	/**
+	 * Regression — a scoped sheet that emits ONLY the touched palette entry is
+	 * inert for every component that reads the intent vocabulary. The var()
+	 * indirection in `--hz-intent-primary: var(--hz-color-primary)` is
+	 * substituted where it is DECLARED; left at :root it resolves to the base
+	 * palette and inherits down as that fixed value, so `.theme-x` overriding
+	 * the palette underneath changes nothing. Scoped mode must re-declare the
+	 * derived chain locally.
+	 */
+	it('scoped mode re-emits the chain derived from touched tokens', () => {
+		const css = generateCss(resolveConfig({ tokens: { color: { primary: '#0f766e' } } }), {
+			mode: 'overrides',
+			selector: '.theme-ocean'
+		});
+		// The intent that reads primary must be re-declared under the scope...
+		expect(css).toContain('--hz-intent-primary: var(--hz-color-primary);');
+		// ...but untouched, unrelated chains must not be dragged along.
+		expect(css).not.toContain('--hz-space-md');
+		expect(css).not.toContain('--hz-intent-success');
+	});
+
+	it('scoped mode re-emits chains a dark-only override disturbs', () => {
+		// `danger` is touched in dark only. --hz-intent-danger must still be
+		// declared in the light scope block, or the dark block feeds nothing.
+		const css = generateCss(resolveConfig({ dark: { color: { danger: '#fca5a5' } } }), {
+			mode: 'overrides',
+			selector: '.theme-ocean'
+		});
+		expect(css).toContain('.theme-ocean {');
+		expect(css).toContain('--hz-intent-danger: var(--hz-color-danger);');
+	});
+
+	it('root-scoped mode still emits only what the config touched', () => {
+		// At :root the override and the intent declaration land on the same
+		// element, so the cascade re-resolves the chain for free — emitting it
+		// would be noise.
+		const css = generateCss(resolveConfig({ tokens: { color: { primary: '#0f766e' } } }), {
+			mode: 'overrides'
+		});
+		expect(css).toContain('--hz-color-primary: #0f766e;');
+		expect(css).not.toContain('--hz-intent-primary');
 	});
 
 	it('an untouched config emits a no-overrides note and no rules', () => {

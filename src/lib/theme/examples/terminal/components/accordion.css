@@ -1,0 +1,80 @@
+/**
+ * Terminal — Accordion (specs/32 R1)
+ *
+ * Standalone: assumes tokens.css only.
+ *
+ * A ruled list, like a menu on a mainframe. The open row lights up entirely —
+ * header and panel — so it reads as the selected line rather than a
+ * highlighted one. The chevron rotation is stepped, not eased; the icon
+ * snippet is the consumer's, so this only styles the wrapper the component
+ * provides.
+ */
+.hz-theme-terminal .hz-accordion {
+	border: 1px solid var(--hz-color-text-muted, #00a844);
+	border-radius: 0;
+	background-color: var(--hz-color-surface, #0b0f0b);
+	box-shadow: none;
+	overflow: hidden;
+}
+
+.hz-theme-terminal .hz-accordion-item + .hz-accordion-item {
+	border-top: 1px solid var(--hz-color-text-muted, #00a844);
+}
+
+.hz-theme-terminal .hz-accordion-trigger {
+	padding: 0.75rem 1rem;
+	background-color: transparent;
+	color: var(--hz-color-text, #33ff66);
+	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
+	cursor: pointer;
+	transition: none;
+}
+
+.hz-theme-terminal .hz-accordion-trigger:hover {
+	background-color: var(--hz-color-text, #33ff66);
+	color: var(--hz-color-surface, #0b0f0b);
+}
+
+.hz-theme-terminal .hz-accordion-trigger:focus-visible {
+	outline: 3px solid var(--hz-color-text, #33ff66);
+	outline-offset: -3px;
+}
+
+.hz-theme-terminal .hz-accordion-trigger[aria-disabled='true'] {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+.hz-theme-terminal .hz-accordion-trigger[aria-disabled='true']:hover {
+	background-color: transparent;
+	color: var(--hz-color-text, #33ff66);
+}
+
+/* The open row inverts — the whole block, not just the header. */
+.hz-theme-terminal .hz-accordion-item[data-state='open'] .hz-accordion-trigger {
+	background-color: var(--hz-intent-primary, #00ff41);
+	color: var(--hz-color-surface, #0b0f0b);
+}
+
+.hz-theme-terminal .hz-accordion-heading {
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	font-weight: var(--hz-font-weight-bold, 700);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+
+.hz-theme-terminal .hz-accordion-icon {
+	color: inherit;
+	transition: transform 120ms steps(3, end);
+}
+
+.hz-theme-terminal .hz-accordion-item[data-state='open'] .hz-accordion-icon {
+	transform: rotate(180deg);
+}
+
+.hz-theme-terminal .hz-accordion-panel {
+	padding: 0.875rem 1rem;
+	border-top: 1px dashed var(--hz-color-text, #33ff66);
+	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
+	font-size: var(--hz-font-size-sm, 0.875rem);
+}

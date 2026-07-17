@@ -3,6 +3,8 @@
 	import Stack from '$lib/components/Stack.svelte';
 	import PropsTable from './PropsTable.svelte';
 	import type { PropRow } from './PropsTable.svelte';
+	import ThemeHooks from './ThemeHooks.svelte';
+	import { hooks } from './hooks';
 
 	/** A named supporting type (e.g. AccordionItem) shown as its own table under Props. */
 	interface TypeTable {
@@ -40,6 +42,12 @@
 		a11yLinks = [],
 		children
 	}: Props = $props();
+
+	// spec 31 R9: a page's hook table is looked up by component name rather
+	// than passed in — hooks.ts is keyed the same way, so the section appears
+	// wherever there's an entry and there's no per-page wiring to drift.
+	// hooks.spec.ts enforces that every component page has one.
+	const componentHooks = $derived(hooks[name]);
 </script>
 
 <svelte:head>
@@ -72,6 +80,18 @@
 				<h3 class="type-heading"><code>{t.name}</code></h3>
 				<PropsTable props={t.props} />
 			{/each}
+		</section>
+	{/if}
+
+	{#if componentHooks}
+		<section aria-labelledby="hooks-heading" class="doc-section">
+			<h2 id="hooks-heading">Theme hooks</h2>
+			<p class="hooks-intro">
+				What this component promises your CSS. The reference theme styles exactly these — from
+				<code>@layer hz-theme</code>, so your unlayered rules win. See
+				<a href="/theming/components">Styling Components</a> for the how.
+			</p>
+			<ThemeHooks hooks={componentHooks} />
 		</section>
 	{/if}
 
@@ -126,6 +146,10 @@
 		margin: 0.75rem 0 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hooks-intro {
+		margin: 0 0 1rem;
 	}
 
 	pre {

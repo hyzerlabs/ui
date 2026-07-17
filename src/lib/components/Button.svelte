@@ -1,11 +1,17 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
-	import type { Variant } from '$lib/types';
+	import type { Intent, Variant } from '$lib/types';
 	import { IconLoader } from '$lib/icons';
 	import { cx } from '$lib/utils';
 
-	type ButtonIntent = 'primary' | 'secondary' | 'danger' | 'neutral';
+	/**
+	 * The full intent vocabulary, not a narrower hand-picked list: Button
+	 * stamps data-intent and the theme decides what it means, so anything the
+	 * IntentRegistry knows about is fair game — including intents a consumer
+	 * added themselves.
+	 */
+	type ButtonIntent = 'neutral' | Intent;
 	type ButtonSize = 'sm' | 'md' | 'lg';
 	type ButtonType = 'button' | 'submit' | 'reset';
 

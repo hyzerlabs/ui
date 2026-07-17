@@ -1,0 +1,66 @@
+/**
+ * Example theme — Terminal (specs/32 R1)
+ *
+ * A STANDALONE class-override theme: phosphor-on-black, sharp one-pixel
+ * rules, mono caps, and light that blooms instead of falling. Styled directly
+ * on the headless hz-* hooks — the reference theme is never imported, so
+ * every rule here is this sheet's own.
+ *
+ * Terminal declines to be a light theme. Both modes are dark: light is the
+ * tube at rest, dark is lights-out (true black, hotter phosphor). A theme is
+ * allowed to have opinions like that; nothing in the library requires a
+ * light mode, only that both modes hold AA.
+ *
+ * It is also the EXTENSION example. `phosphor` and `amber` are intents the
+ * library never shipped — added in terminal.config.ts, typed in
+ * ./intents.d.ts, styled in ./components/button.css, and graded by the
+ * contrast report exactly like `primary`. The intent vocabulary is a theme's
+ * to grow, not a fixed enum.
+ *
+ * Usage:
+ *   import '@hyzer-labs/ui/tokens.css';                    // required
+ *   import '@hyzer-labs/ui/theme/examples/terminal/terminal.css';
+ *   // NO '@hyzer-labs/ui/theme' — that is the point.
+ *
+ * Then put the class on whatever subtree it should own:
+ *   <html class="hz-theme-terminal">
+ *
+ * Every rule is rooted at .hz-theme-terminal rather than :root, so the theme
+ * travels with the class: it can own a whole document or a single panel, and
+ * two themes can share a page. It also means these rules sit at (0,2,0) and
+ * unlayered — they beat @layer hz-theme outright, which is why this sheet can
+ * be demoed on a docs page that loads the reference theme globally.
+ *
+ * COVERAGE — this pass ships the demo set (specs/32): Button, Badge, Alert,
+ * Card, the Field scaffold + TextInput, Toggle, Tabs, Accordion. Components
+ * outside that list fall back to bare headless structure. Growing to full
+ * parity is additive: add a sheet under ./components and @import it below.
+ *
+ * ALSO NEEDED — Terminal skips the reference theme, and `.sr-only` ships in
+ * theme/base.css, not in the component sheets. Button's loading label, Link's
+ * external hint and the Field scaffold's hideLabel all render
+ * class="sr-only", so a Terminal-only app must import base.css or bring its
+ * own .sr-only rule, or that text becomes visible.
+ */
+
+/* The palette (generated from terminal.config.ts — do not edit by hand). */
+@import './terminal.tokens.css';
+
+@import './components/button.css';
+@import './components/badge.css';
+@import './components/alert.css';
+@import './components/card.css';
+@import './components/field.css';
+@import './components/toggle.css';
+@import './components/tabs.css';
+@import './components/accordion.css';
+
+/* Document-level defaults, scoped to the theme's subtree. The reference
+ * theme's base.css does this for `body`; Terminal cannot assume it owns the
+ * document, so it paints its own root instead. */
+.hz-theme-terminal {
+	background-color: var(--hz-color-surface, #0b0f0b);
+	color: var(--hz-color-text, #33ff66);
+	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
+	line-height: var(--hz-line-height-base, 1.5);
+}

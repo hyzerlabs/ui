@@ -203,7 +203,7 @@
 	<Alert intent="info" title="Select vs Combobox">
 		Reach for <code>Combobox</code> when there are many options — where filtering or virtualization
 		helps — or when you need search / type-to-filter. For a small, static option set, prefer the
-		simpler native <a href="/forms/select">Select</a>, including its own native
+		simpler native <a href="/components/select">Select</a>, including its own native
 		<code>multiple</code>.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Combobox demos" defaultTab="basic">

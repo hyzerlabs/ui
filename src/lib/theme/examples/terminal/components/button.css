@@ -1,0 +1,231 @@
+/**
+ * Terminal — Button (specs/32 R1, R9)
+ *
+ * Standalone: assumes tokens.css only. Every property the reference theme
+ * sets on .hz-button is set here too (specs/32 R2), so this sheet renders
+ * identically whether or not the reference theme is loaded.
+ *
+ * The look: a CRT. One-pixel phosphor rules, square corners, mono caps. At
+ * rest a button is an outline; on hover the phosphor floods the cell and the
+ * text knocks out to the background — an inversion, exactly like a text-mode
+ * selection. The glow is a real light source, so it paints in the accent, and
+ * every color resolves through role tokens: nothing here is a literal, which
+ * is why lights-out mode (true black, hotter phosphor) just works.
+ */
+.hz-theme-terminal .hz-button {
+	/* Per-intent hooks, same contract as the reference theme: override these
+	 * two to restyle every variant. */
+	--hz-button-accent: var(--hz-intent-primary, #00ff41);
+	--hz-button-on-accent: var(--hz-color-surface, #0b0f0b);
+	--hz-button-glow: 0 0 12px color-mix(in srgb, var(--hz-button-accent) 55%, transparent);
+
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5em;
+	border: 1px solid var(--hz-button-accent);
+	border-radius: 0;
+	background-color: transparent;
+	color: var(--hz-button-accent);
+	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
+	font-weight: var(--hz-font-weight-medium, 500);
+	line-height: var(--hz-line-height-tight, 1.2);
+	text-transform: uppercase;
+	letter-spacing: 0.12em;
+	text-decoration: none;
+	cursor: pointer;
+	user-select: none;
+	box-shadow: none;
+	translate: 0 0;
+	/* The tube has no easing, but it does have persistence. */
+	transition: none;
+}
+
+/*
+ * Intent → accent. The reference theme maps four; Terminal maps everything
+ * the vocabulary has, INCLUDING two intents the library never shipped.
+ * `phosphor` and `amber` are defined in terminal.config.ts and typed in
+ * ../intents.d.ts — from here they are ordinary intents, and that is the
+ * whole point: the component only stamps data-intent, so the set of intents
+ * is the theme's to decide, not the library's.
+ */
+.hz-theme-terminal .hz-button[data-intent='secondary'] {
+	--hz-button-accent: var(--hz-intent-secondary, #00e5ff);
+}
+
+.hz-theme-terminal .hz-button[data-intent='danger'] {
+	--hz-button-accent: var(--hz-intent-danger, #ff3b30);
+}
+
+.hz-theme-terminal .hz-button[data-intent='neutral'] {
+	--hz-button-accent: var(--hz-intent-neutral, #00a844);
+}
+
+.hz-theme-terminal .hz-button[data-intent='warning'] {
+	--hz-button-accent: var(--hz-intent-warning, #ffb000);
+}
+
+.hz-theme-terminal .hz-button[data-intent='success'] {
+	--hz-button-accent: var(--hz-intent-success, #00ff41);
+}
+
+.hz-theme-terminal .hz-button[data-intent='info'] {
+	--hz-button-accent: var(--hz-intent-info, #00e5ff);
+}
+
+/* The two extension intents. */
+.hz-theme-terminal .hz-button[data-intent='phosphor'] {
+	--hz-button-accent: var(--hz-intent-phosphor, #00ff41);
+}
+
+.hz-theme-terminal .hz-button[data-intent='amber'] {
+	--hz-button-accent: var(--hz-intent-amber, #ffb000);
+}
+
+/* Sizes — tight, on a character grid. */
+.hz-theme-terminal .hz-button[data-size='sm'] {
+	padding: 0.25rem 0.625rem;
+	min-height: 2rem;
+	font-size: var(--hz-font-size-xs, 0.75rem);
+}
+
+.hz-theme-terminal .hz-button[data-size='md'] {
+	padding: 0.5rem 1rem;
+	min-height: 2.5rem;
+	font-size: var(--hz-font-size-sm, 0.875rem);
+}
+
+.hz-theme-terminal .hz-button[data-size='lg'] {
+	padding: 0.75rem 1.5rem;
+	min-height: 3rem;
+	font-size: var(--hz-font-size-base, 1rem);
+}
+
+/* Icon-only — a square cell, never a circle. */
+.hz-theme-terminal .hz-button[data-icon-only] {
+	padding: 0;
+	border-radius: 0;
+}
+
+.hz-theme-terminal .hz-button[data-icon-only][data-size='sm'] {
+	width: 2rem;
+}
+
+.hz-theme-terminal .hz-button[data-icon-only][data-size='md'] {
+	width: 2.5rem;
+}
+
+.hz-theme-terminal .hz-button[data-icon-only][data-size='lg'] {
+	width: 3rem;
+}
+
+/* Variant: solid — the cell is already lit. */
+.hz-theme-terminal .hz-button[data-variant='solid'] {
+	background-color: var(--hz-button-accent);
+	border-color: var(--hz-button-accent);
+	color: var(--hz-button-on-accent);
+	box-shadow: var(--hz-button-glow);
+}
+
+/* Variant: outline — the default state of everything here. */
+.hz-theme-terminal .hz-button[data-variant='outline'] {
+	background-color: transparent;
+	border-color: var(--hz-button-accent);
+	color: var(--hz-button-accent);
+}
+
+/* Variant: ghost — no rule until you touch it. The transparent border keeps
+ * it the same size as its bordered siblings. */
+.hz-theme-terminal .hz-button[data-variant='ghost'] {
+	background-color: transparent;
+	border-color: transparent;
+	color: var(--hz-button-accent);
+}
+
+/* Variant: link — a lit string of text. */
+.hz-theme-terminal .hz-button[data-variant='link'] {
+	padding-inline: 0;
+	min-height: auto;
+	background-color: transparent;
+	border-color: transparent;
+	color: var(--hz-button-accent);
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.2em;
+}
+
+/* Hover — the phosphor floods the cell and the glyphs knock out. Solid is
+ * already flooded, so it inverts the other way: the light drops out and the
+ * outline remains. */
+.hz-theme-terminal
+	.hz-button:is([data-variant='outline'], [data-variant='ghost']):hover:not([data-state]) {
+	background-color: var(--hz-button-accent);
+	border-color: var(--hz-button-accent);
+	color: var(--hz-button-on-accent);
+	box-shadow: var(--hz-button-glow);
+}
+
+.hz-theme-terminal .hz-button[data-variant='solid']:hover:not([data-state]) {
+	background-color: transparent;
+	border-color: var(--hz-button-accent);
+	color: var(--hz-button-accent);
+	box-shadow: none;
+}
+
+.hz-theme-terminal .hz-button[data-variant='link']:hover:not([data-state]) {
+	color: var(--hz-button-accent);
+	text-decoration-thickness: 2px;
+	text-shadow: var(--hz-button-glow);
+}
+
+/* Active — the beam surges. */
+.hz-theme-terminal
+	.hz-button:is(
+		[data-variant='solid'],
+		[data-variant='outline'],
+		[data-variant='ghost']
+	):active:not([data-state]) {
+	background-color: var(--hz-button-accent);
+	color: var(--hz-button-on-accent);
+	box-shadow: 0 0 22px color-mix(in srgb, var(--hz-button-accent) 85%, transparent);
+}
+
+/* Focus — a hard offset rectangle, not a soft ring. */
+.hz-theme-terminal .hz-button:focus-visible {
+	outline: 2px solid var(--hz-button-accent);
+	outline-offset: 2px;
+	box-shadow: var(--hz-button-glow);
+}
+
+/* States */
+.hz-theme-terminal .hz-button[data-state='disabled'] {
+	opacity: 1;
+	cursor: not-allowed;
+	background-color: transparent;
+	border-style: dashed;
+	border-color: var(--hz-color-text-muted, #00a844);
+	color: var(--hz-color-text-muted, #00a844);
+	box-shadow: none;
+}
+
+.hz-theme-terminal .hz-button[data-state='loading'] {
+	cursor: progress;
+}
+
+/* Namespaced: @keyframes are global, so reusing the reference theme's
+ * `hz-spin` name here would redefine it for every page that loads both. */
+.hz-theme-terminal .hz-button[data-state='loading'] .hz-icon {
+	animation: hz-terminal-spin 0.8s steps(8, end) infinite;
+}
+
+.hz-theme-terminal .hz-button[data-full-width] {
+	display: flex;
+	width: 100%;
+}
+
+@keyframes hz-terminal-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}

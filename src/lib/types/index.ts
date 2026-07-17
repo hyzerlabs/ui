@@ -7,7 +7,7 @@ import type { Snippet } from 'svelte';
 export interface NavItem {
 	label: string;
 	href?: string;
-	children?: NavItem[];
+	children?: NavChild[];
 	external?: boolean;
 	ariaCurrent?: 'page' | 'step' | 'true';
 	/**
@@ -16,6 +16,26 @@ export interface NavItem {
 	 */
 	defaultOpen?: boolean;
 }
+
+/**
+ * A group label inside a `children` array — static text between link items,
+ * for sidebars that group a long section without a second disclosure level.
+ *
+ * Non-interactive by contract: no href, no button, no focus stop. It is plain
+ * text in the list, so keyboard traversal skips it and screen readers read it
+ * in sequence before the links it labels. Children-only: a heading in a
+ * top-level `items` array is out of contract and renders nothing.
+ */
+export interface NavHeading {
+	heading: string;
+}
+
+/**
+ * A `children` entry — either a real nav item or a group label.
+ * Discriminate with `isNavHeading` from `@hyzer-labs/ui/utils` (this module
+ * stays type-only, so the guard lives with the other runtime helpers).
+ */
+export type NavChild = NavItem | NavHeading;
 
 /**
  * A <source> candidate for Image's picture mode — art direction via `media`,
@@ -94,8 +114,48 @@ export type LayoutPadding = 'none' | 'sm' | 'md' | 'lg' | 'near' | 'away';
  */
 export type LayoutAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
 
-/** Semantic intent variants */
-export type Intent = 'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info';
+/**
+ * The intent vocabulary, as an open registry.
+ *
+ * Intents are a TOKEN-driven vocabulary: a component only stamps
+ * `data-intent="<name>"`, and a theme decides what that name looks like by
+ * defining `--hz-intent-<name>`. Nothing in the components is bound to these
+ * six — so the type shouldn't be either. A closed union would make the
+ * library's own list the ceiling, which is exactly backwards for a headless
+ * system.
+ *
+ * Consumers extend the vocabulary by augmenting this interface, and get full
+ * type-checking and autocomplete on their own intents:
+ *
+ * ```ts
+ * // hyzer-intents.d.ts — augment the DECLARING module ('/types'), not the
+ * // barrel that re-exports it: TypeScript merges an interface only into the
+ * // module that declares it.
+ * declare module '@hyzer-labs/ui/types' {
+ *   interface IntentRegistry {
+ *     phosphor: true;
+ *     amber: true;
+ *   }
+ * }
+ * export {};
+ * ```
+ *
+ * Then `<Button intent="phosphor">` type-checks, `intent="phosfor"` doesn't,
+ * and `--hz-intent-phosphor` (add it under `tokens.intent` in hyzer.config)
+ * is graded by the contrast report like any built-in intent. See
+ * theme/examples/terminal for a worked example.
+ */
+export interface IntentRegistry {
+	primary: true;
+	secondary: true;
+	danger: true;
+	warning: true;
+	success: true;
+	info: true;
+}
+
+/** Semantic intent variants — open via {@link IntentRegistry}. */
+export type Intent = keyof IntentRegistry;
 
 /** Visual style variants */
 export type Variant = 'solid' | 'outline' | 'ghost' | 'link';

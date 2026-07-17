@@ -1,0 +1,109 @@
+/**
+ * Terminal — Badge (specs/32 R1)
+ *
+ * Standalone: assumes tokens.css only.
+ *
+ * The reference theme's Badge is a soft tinted pill whose color is mixed out
+ * of the intent hue (--hz-badge-tint). Terminal's is a status cell: a
+ * one-pixel rule, square, uppercase mono, no mixing at all. Nothing here consults
+ * --hz-badge-tint — a token hook the reference theme documents but this sheet
+ * simply has no use for. That is the point: the hook is the theme's, not the
+ * component's.
+ */
+.hz-theme-terminal .hz-badge {
+	--_c: var(--hz-intent-neutral, #00a844);
+
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375em;
+	padding: 0.125rem 0.5rem;
+	border: 1px solid var(--hz-color-text, #33ff66);
+	border-radius: 0;
+	background-color: var(--hz-color-surface, #0b0f0b);
+	color: var(--hz-color-text, #33ff66);
+	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
+	font-size: var(--hz-font-size-xs, 0.75rem);
+	font-weight: var(--hz-font-weight-bold, 700);
+	line-height: var(--hz-line-height-tight, 1.2);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	white-space: nowrap;
+}
+
+.hz-theme-terminal .hz-badge[data-size='sm'] {
+	padding: 0 0.375rem;
+	font-size: var(--hz-font-size-xs, 0.75rem);
+}
+
+/* data-rounded is ignored on purpose — every corner in this theme is square.
+ * The prop still works; the theme just declines to honor it. */
+.hz-theme-terminal .hz-badge[data-rounded] {
+	border-radius: 0;
+}
+
+/* Intent → color. */
+.hz-theme-terminal .hz-badge[data-intent='primary'] {
+	--_c: var(--hz-intent-primary, #00ff41);
+}
+.hz-theme-terminal .hz-badge[data-intent='secondary'] {
+	--_c: var(--hz-intent-secondary, #00e5ff);
+}
+.hz-theme-terminal .hz-badge[data-intent='danger'] {
+	--_c: var(--hz-intent-danger, #ff3b30);
+}
+.hz-theme-terminal .hz-badge[data-intent='warning'] {
+	--_c: var(--hz-intent-warning, #ffb000);
+}
+.hz-theme-terminal .hz-badge[data-intent='success'] {
+	--_c: var(--hz-intent-success, #00ff41);
+}
+.hz-theme-terminal .hz-badge[data-intent='info'] {
+	--_c: var(--hz-intent-info, #00e5ff);
+}
+
+/* Variants. Solid stamps the intent flat; soft and outline are the same
+ * object with the fill dropped — no tint math, so no contrast surprises. */
+.hz-theme-terminal .hz-badge[data-variant='solid'] {
+	background-color: var(--_c);
+	color: var(--hz-color-surface, #0b0f0b);
+}
+
+.hz-theme-terminal .hz-badge[data-variant='soft'] {
+	background-color: var(--hz-color-surface, #0b0f0b);
+	color: var(--_c);
+}
+
+.hz-theme-terminal .hz-badge[data-variant='outline'] {
+	border: 1px dashed var(--_c);
+	background-color: transparent;
+	color: var(--_c);
+}
+
+/* Dismiss button (the chip form). */
+.hz-theme-terminal .hz-badge .hz-badge-dismiss {
+	padding: 0;
+	margin-inline-end: -0.125rem;
+	border: none;
+	border-radius: 0;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+	transition: none;
+}
+
+.hz-theme-terminal .hz-badge .hz-badge-dismiss .hz-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.hz-theme-terminal .hz-badge .hz-badge-dismiss:hover {
+	background-color: currentColor;
+	color: var(--hz-color-surface, #0b0f0b);
+}
+
+.hz-theme-terminal .hz-badge .hz-badge-dismiss:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 1px;
+	box-shadow: none;
+}

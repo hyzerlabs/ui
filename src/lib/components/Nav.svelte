@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import type { NavItem } from '$lib/types';
-	import { cx, uid } from '$lib/utils';
+	import { cx, uid, isNavHeading } from '$lib/utils';
 	import Link from './Link.svelte';
 	import IconMenu from '$lib/icons/IconMenu.svelte';
 	import IconChevronDown from '$lib/icons/IconChevronDown.svelte';
@@ -34,7 +34,7 @@
 	}
 
 	let {
-		items,
+		items: rawItems,
 		sticky = false,
 		variant = 'default',
 		bordered = false,
@@ -50,6 +50,21 @@
 	}: Props = $props();
 
 	const isVertical = $derived(orientation === 'vertical');
+
+	// spec 31 R2: headings are children-only. The `items` type already rules
+	// this out, but JS consumers can still pass one — drop it rather than
+	// render an empty <li> from a missing `label`.
+	const items = $derived(rawItems.filter((item) => !isNavHeading(item)) as NavItem[]);
+
+	$effect(() => {
+		if (!import.meta.env.DEV) return;
+		if (rawItems.some((item) => isNavHeading(item))) {
+			console.warn(
+				'[hz-nav] A heading entry appeared in the top-level `items` array and was ' +
+					'ignored. Group labels are only supported inside a `children` array.'
+			);
+		}
+	});
 
 	// Stable IDs: WeakMap keyed on each NavItem object so IDs survive
 	// reactive re-derivations without changing value for the same item.
@@ -303,17 +318,26 @@
 							onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
 						>
 							{#each item.children as child, j (j)}
-								<li role={isVertical ? undefined : 'none'}>
-									<Link
-										href={child.href ?? '#'}
-										variant="nav"
-										external={child.external}
-										ariaCurrent={child.ariaCurrent}
-										role={isVertical ? undefined : 'menuitem'}
-									>
-										{child.label}
-									</Link>
-								</li>
+								{#if isNavHeading(child)}
+									<!-- spec 31 R2: group label — static text, no focus stop.
+									     Keyboard traversal targets [role=menuitem]/links, so it
+									     is skipped without any logic here. -->
+									<li class="hz-nav-heading" role={isVertical ? undefined : 'presentation'}>
+										{child.heading}
+									</li>
+								{:else}
+									<li role={isVertical ? undefined : 'none'}>
+										<Link
+											href={child.href ?? '#'}
+											variant="nav"
+											external={child.external}
+											ariaCurrent={child.ariaCurrent}
+											role={isVertical ? undefined : 'menuitem'}
+										>
+											{child.label}
+										</Link>
+									</li>
+								{/if}
 							{/each}
 						</ul>
 					</li>
@@ -341,17 +365,24 @@
 							onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
 						>
 							{#each item.children as child, j (j)}
-								<li role={isVertical ? undefined : 'none'}>
-									<Link
-										href={child.href ?? '#'}
-										variant="nav"
-										external={child.external}
-										ariaCurrent={child.ariaCurrent}
-										role={isVertical ? undefined : 'menuitem'}
-									>
-										{child.label}
-									</Link>
-								</li>
+								{#if isNavHeading(child)}
+									<!-- spec 31 R2: group label — see the note on the panel above. -->
+									<li class="hz-nav-heading" role={isVertical ? undefined : 'presentation'}>
+										{child.heading}
+									</li>
+								{:else}
+									<li role={isVertical ? undefined : 'none'}>
+										<Link
+											href={child.href ?? '#'}
+											variant="nav"
+											external={child.external}
+											ariaCurrent={child.ariaCurrent}
+											role={isVertical ? undefined : 'menuitem'}
+										>
+											{child.label}
+										</Link>
+									</li>
+								{/if}
 							{/each}
 						</ul>
 					</li>
@@ -412,16 +443,23 @@
 							</summary>
 							<ul>
 								{#each item.children as child, j (j)}
-									<li>
-										<Link
-											href={child.href ?? '#'}
-											variant="nav"
-											external={child.external}
-											ariaCurrent={child.ariaCurrent}
-										>
-											{child.label}
-										</Link>
-									</li>
+									{#if isNavHeading(child)}
+										<!-- spec 31 R2: group label — static text, no focus stop.
+										     The mobile focus trap collects links/buttons/summaries,
+										     so it is skipped without any logic here. -->
+										<li class="hz-nav-heading">{child.heading}</li>
+									{:else}
+										<li>
+											<Link
+												href={child.href ?? '#'}
+												variant="nav"
+												external={child.external}
+												ariaCurrent={child.ariaCurrent}
+											>
+												{child.label}
+											</Link>
+										</li>
+									{/if}
 								{/each}
 							</ul>
 						</details>

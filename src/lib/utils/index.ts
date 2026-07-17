@@ -1,9 +1,20 @@
 /**
  * @hyzer-labs/ui utility functions.
  */
+import type { NavChild, NavHeading } from '../types/index.js';
 
 // WCAG contrast math — check palette overrides against your contrast bar.
 export * from './contrast.js';
+
+/**
+ * Narrow a Nav `children` entry to the group-label subtype.
+ *
+ * @example
+ * children.filter((c) => !isNavHeading(c)) // → only the real links
+ */
+export function isNavHeading(child: NavChild): child is NavHeading {
+	return typeof (child as NavHeading).heading === 'string';
+}
 
 /**
  * Compose CSS class names, filtering out all falsy values.

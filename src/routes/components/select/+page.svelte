@@ -207,8 +207,8 @@
 		Reach for <code>Select</code> when your option set is small and static — single-select, or
 		multi-select via the native <code>multiple</code> attribute. When there are many options (where
 		filtering or virtualization helps) or you need search / type-to-filter, use
-		<a href="/forms/combobox">Combobox</a> instead — it's the multi-select, filterable member of the field
-		family.
+		<a href="/components/combobox">Combobox</a> instead — it's the multi-select, filterable member of
+		the field family.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Select demos" defaultTab="basic">
 		{#snippet panel(item)}

@@ -1,0 +1,108 @@
+/**
+ * Terminal — Alert (specs/32 R1)
+ *
+ * Standalone: assumes tokens.css only.
+ *
+ * The reference theme's Alert is a soft tinted banner with a 3px accent bar.
+ * Terminal's is a system message: no tint anywhere, a one-pixel rule around
+ * the cell, and the intent carried by a lit header strip rather than a wash.
+ * The Form error summary is an Alert with data-intent="danger", so it
+ * inherits this treatment for free — one look for both, exactly as the
+ * reference theme intends.
+ */
+.hz-theme-terminal .hz-alert {
+	--_c: var(--hz-intent-neutral, #00a844);
+
+	box-sizing: border-box;
+	padding: 0.875rem 1rem;
+	border: 1px solid var(--_c);
+	border-inline-start: 4px solid var(--_c);
+	border-radius: 0;
+	background-color: var(--hz-color-surface, #0b0f0b);
+	/* The cell glows in its own intent rather than casting a shadow — there
+	 * is no light in here except the tube. */
+	box-shadow: 0 0 16px -4px color-mix(in srgb, var(--_c) 50%, transparent);
+	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
+}
+
+/* Square, whatever data-rounded says. */
+.hz-theme-terminal .hz-alert[data-rounded] {
+	border-radius: 0;
+}
+
+.hz-theme-terminal .hz-alert[data-intent='primary'] {
+	--_c: var(--hz-intent-primary, #00ff41);
+}
+.hz-theme-terminal .hz-alert[data-intent='secondary'] {
+	--_c: var(--hz-intent-secondary, #00e5ff);
+}
+.hz-theme-terminal .hz-alert[data-intent='danger'] {
+	--_c: var(--hz-intent-danger, #ff3b30);
+}
+.hz-theme-terminal .hz-alert[data-intent='warning'] {
+	--_c: var(--hz-intent-warning, #ffb000);
+}
+.hz-theme-terminal .hz-alert[data-intent='success'] {
+	--_c: var(--hz-intent-success, #00ff41);
+}
+.hz-theme-terminal .hz-alert[data-intent='info'] {
+	--_c: var(--hz-intent-info, #00e5ff);
+}
+
+/* The title is the strip: solid intent, surface-colored text. No color-mix,
+ * so it reads the same at any palette. */
+.hz-theme-terminal .hz-alert .hz-alert-title {
+	margin-bottom: 0.5rem;
+	padding: 0.125rem 0.375rem;
+	background-color: var(--_c);
+	color: var(--hz-color-surface, #0b0f0b);
+	font-size: var(--hz-font-size-xs, 0.75rem);
+	font-weight: var(--hz-font-weight-bold, 700);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+	/* Shrink-wrap the strip to the words. */
+	display: inline-block;
+}
+
+.hz-theme-terminal .hz-alert .hz-alert-content {
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	color: var(--hz-color-text, #33ff66);
+}
+
+.hz-theme-terminal .hz-alert .hz-alert-content > :first-child {
+	margin-top: 0;
+}
+
+.hz-theme-terminal .hz-alert .hz-alert-content > :last-child {
+	margin-bottom: 0;
+}
+
+.hz-theme-terminal .hz-alert .hz-alert-icon {
+	color: var(--_c);
+}
+
+.hz-theme-terminal .hz-alert .hz-alert-dismiss {
+	padding: 0;
+	border: 2px solid var(--hz-color-text, #33ff66);
+	border-radius: 0;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+	transition: none;
+}
+
+.hz-theme-terminal .hz-alert .hz-alert-dismiss .hz-icon {
+	width: 1em;
+	height: 1em;
+}
+
+.hz-theme-terminal .hz-alert .hz-alert-dismiss:hover {
+	background-color: var(--hz-color-text, #33ff66);
+	color: var(--hz-color-surface, #0b0f0b);
+}
+
+.hz-theme-terminal .hz-alert .hz-alert-dismiss:focus-visible {
+	outline: 2px solid var(--hz-color-text, #33ff66);
+	outline-offset: 2px;
+	box-shadow: none;
+}

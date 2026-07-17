@@ -1,0 +1,53 @@
+/**
+ * Example theme — Terminal (tokens)
+ * Phosphor-on-black palette for the standalone CRT sheet. Scoped to the
+ * .hz-theme-terminal class rather than :root, so the theme travels with
+ * the class and can share a page with anything else.
+ *
+ * Terminal declines to be a light theme: both modes are dark. Light is the
+ * tube at rest, dark is lights-out — brighter phosphor on true black.
+ *
+ * This is only the palette — terminal.css imports it plus the component
+ * sheets. See terminal.css for the usage contract.
+ *
+ * @hyzer-labs/ui token overrides
+ *
+ * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).
+ * Config-touched tokens plus every token that derives from them: a
+ * scoped sheet must re-declare the derived Layer-2 chain, because a
+ * var() indirection declared at :root already resolved there and
+ * inherits down as a fixed value.
+ * Import this sheet AFTER @hyzer-labs/ui/tokens.css so the overrides
+ * win by source order.
+ */
+.hz-theme-terminal {
+	--hz-color-primary: #00ff41;
+	--hz-color-secondary: #00e5ff;
+	--hz-color-success: #00ff41;
+	--hz-color-warning: #ffb000;
+	--hz-color-danger: #ff3b30;
+	--hz-color-info: #00e5ff;
+	--hz-color-surface: #0b0f0b;
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface));
+	--hz-color-text: #33ff66;
+	--hz-color-text-muted: #00a844;
+	--hz-color-border: #00ff41;
+	--hz-intent-neutral: var(--hz-color-text-muted);
+	--hz-intent-primary: var(--hz-color-primary);
+	--hz-intent-secondary: var(--hz-color-secondary);
+	--hz-intent-danger: var(--hz-color-danger);
+	--hz-intent-warning: var(--hz-color-warning);
+	--hz-intent-success: var(--hz-color-success);
+	--hz-intent-info: var(--hz-color-info);
+	--hz-intent-phosphor: var(--hz-color-primary);
+	--hz-intent-amber: #ffb000;
+}
+
+.hz-theme-terminal[data-theme='dark'],
+[data-theme='dark'] .hz-theme-terminal {
+	--hz-color-surface: #000000;
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface));
+	--hz-color-text: #4dff80;
+	--hz-color-text-muted: #00c853;
+	--hz-color-border: #33ff66;
+}

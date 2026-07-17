@@ -2,6 +2,30 @@
 	import { Stack, Card, Cluster } from '$lib';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import Example from '../../../docs/Example.svelte';
+	import { hooks } from '../../../docs/hooks';
+	import { isSection, manifest, sectionPages } from '../../../docs/manifest';
+
+	// The manifest already maps a component name to its page — re-deriving the
+	// slug here would just be a second place to get TextInput → text-input wrong.
+	const hrefByComponent = new Map(
+		manifest
+			.filter(isSection)
+			.flatMap(sectionPages)
+			.map((p) => [p.label, p.href])
+	);
+
+	// spec 31 R10: the roll-up is derived from the same module the component
+	// pages read, so this table can't drift from them. Each page owns the
+	// detail; this page shows the whole surface at once.
+	const customProps = Object.entries(hooks)
+		.flatMap(([component, h]) =>
+			(h.props ?? []).map((row) => ({
+				component,
+				...row,
+				href: hrefByComponent.get(component)
+			}))
+		)
+		.sort((a, b) => a.name.localeCompare(b.name));
 
 	const hooksCode = [
 		'/* Every component exposes a stable root class and data-* hooks for its',
@@ -80,8 +104,9 @@
 	<section aria-labelledby="hooks-heading">
 		<h2 id="hooks-heading">Classes and data hooks</h2>
 		<p>
-			The hooks are part of each component's contract and are documented on its page (the
-			<code>class</code> row of every props table names the root class). Variants land as
+			The hooks are part of each component's contract, and every component page lists its own under
+			<strong>Theme hooks</strong> — root class, <code>data-*</code> vocabulary, custom properties,
+			and the part classes for its children. Variants land as
 			<code>data-variant</code>/<code>data-intent</code>/<code>data-size</code>; interactive state
 			as <code>data-state</code> and friends — always present, so CSS can target any combination.
 		</p>
@@ -102,9 +127,10 @@
 	<section aria-labelledby="hook-props-heading">
 		<h2 id="hook-props-heading">Custom-property hooks</h2>
 		<p>
-			Beyond the tokens, some reference-theme derivations expose their own knob as a custom property
-			— override it on any selector, per mode if you scope it under
-			<code>[data-theme="dark"]</code>:
+			Beyond the tokens, some components expose their own knob as a custom property — override it on
+			any selector, per mode if you scope it under <code>[data-theme="dark"]</code>. Every one the
+			library ships is below; each component's page carries the same rows alongside its
+			<code>data-*</code> and part classes.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -116,42 +142,15 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td><code>--hz-button-accent</code> / <code>--hz-button-on-accent</code></td>
-						<td>Button</td>
-						<td
-							>The accent pair every variant derives from — restyle solid, outline, and ghost at
-							once.</td
-						>
-					</tr>
-					<tr>
-						<td><code>--hz-alert-tint</code></td>
-						<td>Alert</td>
-						<td>Background tint strength (10% light / 22% dark by default).</td>
-					</tr>
-					<tr>
-						<td><code>--hz-badge-tint</code></td>
-						<td>Badge (soft)</td>
-						<td>Soft background tint strength (14% light / 28% dark by default).</td>
-					</tr>
-					<tr>
-						<td><code>--hz-toggle-width</code> / <code>--hz-toggle-height</code></td>
-						<td>Toggle</td>
-						<td>Switch track dimensions; the thumb derives from the height.</td>
-					</tr>
-					<tr>
-						<td><code>--hz-footer-col-min</code></td>
-						<td>Footer</td>
-						<td>Minimum column width for the auto-fit link grid.</td>
-					</tr>
-					<tr>
-						<td><code>--hz-breakout-shift</code></td>
-						<td>Container</td>
-						<td
-							>Breakout alignment offset — set to <code>0</code> in start-aligned layouts so the bleed
-							only grows rightward.</td
-						>
-					</tr>
+					{#each customProps as row (row.component + row.name)}
+						<tr>
+							<td><code>{row.name}</code></td>
+							<td>
+								{#if row.href}<a href={row.href}>{row.component}</a>{:else}{row.component}{/if}
+							</td>
+							<td>{row.note}</td>
+						</tr>
+					{/each}
 				</tbody>
 			</table>
 		</div>

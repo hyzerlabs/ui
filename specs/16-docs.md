@@ -120,6 +120,26 @@ committed sheets / override tokens in CSS / optional `hyzer.config.ts` +
 | Styling Components | `/theming/components` | `hz-*`/`data-*` hooks, class prop, Card treatments + `.hz-card-title` |
 | Example Themes | `/theming/examples` | ocean/sunset configs → engine-scoped live demos |
 
+IA amendment (2026-07-16, specs/31) — **this supersedes the section lists and
+R4 above.** Layout, Navigation, Forms, Media and Components were five top-level
+peers, but four of them named component *categories*, not peers of Components.
+They are now one **Components** section whose five groups (Layout, Navigation,
+Forms, Media, General) are presentational sidebar headers with no routes of
+their own, and all 38 component pages live at a flat `/components/<name>`.
+The old nested URLs 404 — no redirects; the site is its own only consumer.
+R4's "nested-by-section routing" therefore no longer holds for components;
+routing is flat, and the manifest (`src/docs/manifest.ts`) is the IA's single
+source of truth. A **Pages** section (`/pages/<name>`) joins the top level for
+full-page sample compositions, starting with Homepage.
+
+Every component page also gains a **Theme hooks** section (specs/31 R9): its
+root class, `data-*` vocabulary, custom properties, and part classes, in the
+props table's format. The source is one curated module, `src/docs/hooks.ts`,
+which also generates the custom-property table on `/theming/components` — so a
+hook is described in exactly one place. `src/docs/hooks.spec.ts` holds the
+curation against the shipped source in both directions (no documented hook that
+doesn't exist; no theme-declared hook left undocumented).
+
 The theme folder restructured the same day: per-component sheets live under
 `theme/components/`, example override sheets (engine-generated from
 `*.config.ts`, drift-tested, AA-gated) under `theme/examples/`; cherry-pick

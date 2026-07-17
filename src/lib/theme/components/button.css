@@ -45,6 +45,23 @@
 		--hz-button-accent: var(--hz-intent-neutral, #6b7280);
 	}
 
+	/* The rest of the intent vocabulary. Button's `intent` prop spans the whole
+	 * IntentRegistry (it stamps data-intent and lets the theme decide), so the
+	 * reference theme maps every intent it ships. A consumer-registered intent
+	 * lands here too — define --hz-intent-<name> and add the one rule:
+	 *   .hz-button[data-intent='phosphor'] { --hz-button-accent: var(--hz-intent-phosphor); } */
+	.hz-button:where([data-intent='warning']) {
+		--hz-button-accent: var(--hz-intent-warning, #b45309);
+	}
+
+	.hz-button:where([data-intent='success']) {
+		--hz-button-accent: var(--hz-intent-success, #15803d);
+	}
+
+	.hz-button:where([data-intent='info']) {
+		--hz-button-accent: var(--hz-intent-info, #0e7490);
+	}
+
 	/* Sizes */
 	.hz-button:where([data-size='sm']) {
 		font-size: var(--hz-font-size-sm, 0.875rem);
