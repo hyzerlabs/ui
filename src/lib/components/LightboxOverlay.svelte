@@ -162,6 +162,7 @@
 	aria-label={dialogName}
 	tabindex="-1"
 	data-state={dataState}
+	data-gallery={items.length > 1 ? '' : undefined}
 	oncancel={handleCancel}
 	onclick={handleDialogClick}
 	onkeydown={handleDialogKeydown}
@@ -201,6 +202,79 @@
 
 	.hz-lightbox:not([open]) {
 		display: none;
+	}
+
+	/* Multi-item gallery (spec 33): the Carousel lays its slides out in a
+	 * sliding track, and `flex: 0 0 100%` slides need a definite width AND
+	 * height to resolve against. The dialog is shrink-to-fit (it hugs a single
+	 * image), which can't supply either — the track collapses to zero (or blows
+	 * out to the sum of every slide, with a scrollbar). So a gallery gets a
+	 * fixed stage, and a flex chain carries a definite height down to each slide
+	 * so the media centres and is contained (no scrollbar). Single-item mode has
+	 * no carousel — it renders the media directly and still hugs it. */
+	.hz-lightbox[data-gallery] {
+		width: min(96vw, 80rem);
+		height: min(92dvh, 52rem);
+		/* Belt-and-braces: the media below is contained, but clip anything
+		 * marginal so the stage never grows a scrollbar. */
+		overflow: hidden;
+	}
+
+	/* A definite-height flex chain from the stage down to each slide, so the
+	 * media can fill its slide and `object-fit: contain` letterbox within it —
+	 * intrinsic image sizing (which can overflow by a pixel or a lot) never
+	 * gets a say. Single-item mode has no carousel and keeps hugging (below). */
+	.hz-lightbox[data-gallery] :global(.hz-lightbox-carousel) {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: 100%;
+	}
+
+	.hz-lightbox[data-gallery] :global(.hz-carousel-viewport) {
+		flex: 1;
+		min-height: 0;
+	}
+
+	.hz-lightbox[data-gallery] :global(.hz-carousel-track) {
+		height: 100%;
+	}
+
+	.hz-lightbox[data-gallery] :global(.hz-carousel-slide) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 1rem;
+	}
+
+	.hz-lightbox[data-gallery] :global(.hz-lightbox-figure) {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		min-height: 0;
+		gap: 0.5rem;
+	}
+
+	/* Media fills the slide; the bitmap/video letterboxes inside via contain. */
+	.hz-lightbox[data-gallery] :global(.hz-lightbox-img) {
+		width: 100%;
+		height: 100%;
+		min-height: 0;
+	}
+
+	.hz-lightbox[data-gallery] :global(.hz-lightbox-img .hz-image__img) {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+
+	.hz-lightbox[data-gallery] :global(.hz-lightbox-video) {
+		width: 100%;
+		max-width: min(92vw, 64rem);
+		max-height: 100%;
 	}
 
 	.hz-lightbox-figure {

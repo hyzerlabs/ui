@@ -362,6 +362,24 @@ describe('pointer drag', () => {
 		expect(plainClick.defaultPrevented).toBe(false);
 	});
 
+	it('suppresses native drag-start on the track so a drag begun on an image works', () => {
+		// An <img> is draggable by default; its ghost-drag would cancel the
+		// pointer sequence. The track cancels dragstart while draggable.
+		const { container } = render(Carousel, base);
+		const { track } = parts(container);
+		const ev = new Event('dragstart', { bubbles: true, cancelable: true });
+		track.dispatchEvent(ev);
+		expect(ev.defaultPrevented).toBe(true);
+	});
+
+	it('draggable={false} leaves native drag-start alone', () => {
+		const { container } = render(Carousel, { ...base, draggable: false });
+		const { track } = parts(container);
+		const ev = new Event('dragstart', { bubbles: true, cancelable: true });
+		track.dispatchEvent(ev);
+		expect(ev.defaultPrevented).toBe(false);
+	});
+
 	it('draggable={false} ignores pointer drag but keeps button nav', async () => {
 		const { container } = render(Carousel, { ...base, draggable: false });
 		const { track } = parts(container);

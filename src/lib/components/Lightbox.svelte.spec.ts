@@ -387,8 +387,10 @@ describe('multi-item mode', () => {
 		const dialog = openViewer(container, 1);
 		await tick();
 		const slides = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide'));
-		expect(slides[1].hidden).toBe(false);
-		expect(slides[0].hidden).toBe(true);
+		// The Carousel marks the shown slide with data-active (off-screen slides
+		// are inert, not hidden — spec 33 R2).
+		expect(slides[1].hasAttribute('data-active')).toBe(true);
+		expect(slides[0].hasAttribute('data-active')).toBe(false);
 		await closeViewer(dialog);
 	});
 
@@ -399,7 +401,7 @@ describe('multi-item mode', () => {
 		(dialog.querySelector('.hz-carousel-next') as HTMLButtonElement).click();
 		await tick();
 		const slides = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide'));
-		expect(slides[0].hidden).toBe(false); // wrapped 3rd → 1st
+		expect(slides[0].hasAttribute('data-active')).toBe(true); // wrapped 3rd → 1st
 		await closeViewer(dialog);
 	});
 
@@ -412,7 +414,7 @@ describe('multi-item mode', () => {
 		);
 		await tick();
 		const slides = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide'));
-		expect(slides[1].hidden).toBe(false);
+		expect(slides[1].hasAttribute('data-active')).toBe(true);
 		await closeViewer(dialog);
 	});
 
@@ -421,7 +423,7 @@ describe('multi-item mode', () => {
 		const dialog = openViewer(container, 2);
 		await tick();
 		const activeSlide = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide')).find(
-			(s) => !s.hidden
+			(s) => s.hasAttribute('data-active')
 		) as HTMLElement;
 		expect(
 			activeSlide.querySelector('.hz-lightbox-video video, .hz-lightbox-video iframe')
@@ -493,8 +495,10 @@ describe('trigger snippet', () => {
 		const dialog = openViewer(container, 1);
 		await tick();
 		const slides = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide'));
-		expect(slides[1].hidden).toBe(false);
-		expect(slides[0].hidden).toBe(true);
+		// The Carousel marks the shown slide with data-active (off-screen slides
+		// are inert, not hidden — spec 33 R2).
+		expect(slides[1].hasAttribute('data-active')).toBe(true);
+		expect(slides[0].hasAttribute('data-active')).toBe(false);
 		await closeViewer(dialog);
 		expect(document.activeElement).toBe(triggers[1]);
 	});
@@ -557,7 +561,7 @@ describe('trigger snippet', () => {
 		const dialog = openViewer(container, 3);
 		await tick();
 		const activeSlide = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide')).find(
-			(s) => !s.hidden
+			(s) => s.hasAttribute('data-active')
 		) as HTMLElement;
 		expect(
 			activeSlide.querySelector('.hz-lightbox-video video, .hz-lightbox-video iframe')

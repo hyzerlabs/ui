@@ -221,6 +221,14 @@
 		endDrag(false);
 	}
 
+	// Native drag-and-drop of slide content (images are draggable by default)
+	// would start its own ghost-drag on mousedown and cancel the pointer
+	// sequence — so a drag begun on an image wouldn't work. Suppress it while
+	// dragging is enabled; the drag still fires a click for non-dragged presses.
+	function onDragStart(e: DragEvent) {
+		if (draggable && count > 1) e.preventDefault();
+	}
+
 	// A press that turned into a drag must not also fire the click it lands on
 	// (e.g. a link inside a slide). Capture phase so it beats the target's own
 	// handler; one-shot, so a subsequent real click passes through (R6).
@@ -259,12 +267,14 @@
 			bind:this={trackEl}
 			style:transform={trackTransform}
 			style:cursor={draggable && count > 1 ? (dragging ? 'grabbing' : 'grab') : undefined}
+			style:user-select={draggable && count > 1 ? 'none' : undefined}
 			data-dragging={dragging ? '' : undefined}
 			{onpointerdown}
 			{onpointermove}
 			{onpointerup}
 			{onpointercancel}
 			{onclickcapture}
+			ondragstart={onDragStart}
 		>
 			{#each items as item, i (i)}
 				<div
@@ -353,7 +363,7 @@
 	 * tracks the finger 1:1, and honored only when motion is welcome. */
 	@media (prefers-reduced-motion: no-preference) {
 		.hz-carousel-track:not([data-dragging]) {
-			transition: transform var(--hz-duration-base, 300ms) var(--hz-ease-standard, ease);
+			transition: transform var(--hz-duration-base, 250ms) var(--hz-ease-standard, ease);
 		}
 	}
 

@@ -299,9 +299,11 @@ describe('pointer open (R22/R24)', () => {
 		const slides = Array.from(dialog.querySelectorAll<HTMLElement>('.hz-carousel-slide'));
 
 		expect(slides).toHaveLength(3);
-		expect(slides[1].hidden).toBe(false);
-		expect(slides[0].hidden).toBe(true);
-		expect(slides[2].hidden).toBe(true);
+		// data-active marks the shown slide; off-screen slides are inert, not
+		// hidden (spec 33 R2).
+		expect(slides[1].hasAttribute('data-active')).toBe(true);
+		expect(slides[0].hasAttribute('data-active')).toBe(false);
+		expect(slides[2].hasAttribute('data-active')).toBe(false);
 
 		await closeOverlay(dialog);
 		cleanup();

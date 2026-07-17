@@ -36,6 +36,13 @@ export default defineConfig({
 				test: {
 					name: 'server',
 					environment: 'node',
+					// A few server tests import the whole `$lib` barrel, which cold-
+					// compiles every component through the SvelteKit SSR transform
+					// (~0.6s alone). Run together with the browser project, Playwright
+					// saturates the CPU and starves that transform past the 5s default,
+					// so those imports flake. This is headroom for the cold compile
+					// under load — a genuine hang still fails, just later.
+					testTimeout: 20000,
 					include: ['src/**/*.{test,spec}.{js,ts}'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}
