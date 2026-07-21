@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import type { NavItem } from '$lib/types';
+	import type { NavItem, NavChild } from '$lib/types';
 	import { cx, uid, isNavHeading } from '$lib/utils';
 	import Link from './Link.svelte';
 	import IconMenu from '$lib/icons/IconMenu.svelte';
@@ -84,21 +84,40 @@
 	// Horizontal bars are single-open (opening one closes the others).
 	let openIndex = $state<number | null>(null);
 
-	// Vertical sidebars are multi-open: any number of sections at once.
-	const openSections = new SvelteSet<number>();
+	// Vertical sidebars are multi-open and can nest (spec 34). Open nodes are
+	// tracked by a stable PATH string (top-level index, then child indices —
+	// "3", "3.1"), not object identity: the docs shell rebuilds `items` on
+	// navigation, and path keys survive that while identity would not.
+	const openPaths = new SvelteSet<string>();
 
-	// Sections flagged defaultOpen start open — and re-open whenever `items`
-	// is rebuilt (e.g. a docs shell recomputing the active section on
+	// Nodes flagged defaultOpen start open — at any depth — and re-open whenever
+	// `items` is rebuilt (e.g. a docs shell recomputing the active section on
 	// navigation). Additive only: it never closes what the user opened.
 	$effect(() => {
 		if (!isVertical) return;
-		items.forEach((item, i) => {
-			if (item.defaultOpen && item.children) openSections.add(i);
-		});
+		const walk = (nodes: NavChild[], prefix: string) => {
+			nodes.forEach((node, j) => {
+				if (isNavHeading(node)) return;
+				const path = prefix ? `${prefix}.${j}` : `${j}`;
+				if (node.defaultOpen && node.children) openPaths.add(path);
+				if (node.children) walk(node.children, path);
+			});
+		};
+		walk(items, '');
 	});
 
+	function isOpenPath(path: string): boolean {
+		return openPaths.has(path);
+	}
+
+	function togglePath(path: string) {
+		if (openPaths.has(path)) openPaths.delete(path);
+		else openPaths.add(path);
+	}
+
+	// Horizontal single-open (menus). Vertical uses isOpenPath/togglePath above.
 	function isOpen(index: number): boolean {
-		return isVertical ? openSections.has(index) : openIndex === index;
+		return openIndex === index;
 	}
 
 	// Mobile menu open state.
@@ -110,13 +129,9 @@
 	// Mobile toggle button element.
 	let toggleEl = $state<HTMLButtonElement | null>(null);
 
+	// Horizontal dropdowns only (single-open). Vertical toggles via togglePath.
 	function toggleDesktop(index: number) {
-		if (isVertical) {
-			if (openSections.has(index)) openSections.delete(index);
-			else openSections.add(index);
-		} else {
-			openIndex = openIndex === index ? null : index;
-		}
+		openIndex = openIndex === index ? null : index;
 	}
 
 	function closeDesktop() {
@@ -282,128 +297,225 @@
 			<div class="hz-nav-logo">{@render logo()}</div>
 		{/if}
 
-		<!-- Desktop link list -->
-		<ul class="hz-nav-links" role="list">
-			{#each items as item, i (i)}
-				{#if item.href && item.children}
-					<!-- R7: navigable link + separate chevron trigger -->
-					<li class="hz-nav-dropdown" data-has-children>
-						<Link
-							href={item.href}
-							variant="nav"
-							external={item.external}
-							ariaCurrent={item.ariaCurrent}
-						>
-							{item.label}
-						</Link>
-						<button
-							bind:this={triggerEls[i]}
-							class="hz-nav-chevron"
-							aria-expanded={isOpen(i) ? 'true' : 'false'}
-							aria-haspopup={isVertical ? undefined : 'true'}
-							aria-controls={panelIds[i]}
-							aria-label="{item.label} submenu"
-							onclick={() => toggleDesktop(i)}
-							onkeydown={isVertical ? undefined : (e) => onTriggerKeydown(e, i)}
-						>
-							{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
-						</button>
-						<!-- R9: dropdown panel. Horizontal is a role="menu" popover; vertical
+		<!-- spec 34: vertical sidebars nest — a child with children is a
+		     collapsible sub-section. Recursive snippet; horizontal keeps its
+		     one-tier menu rendering below. -->
+		{#snippet verticalNode(item: NavItem, path: string, depth: number)}
+			<li class="hz-nav-dropdown" data-has-children data-depth={depth}>
+				{#if item.href}
+					<Link
+						href={item.href}
+						variant="nav"
+						external={item.external}
+						ariaCurrent={item.ariaCurrent}
+					>
+						{item.label}
+					</Link>
+					<button
+						class="hz-nav-chevron"
+						aria-expanded={isOpenPath(path) ? 'true' : 'false'}
+						aria-controls={getPanelId(item)}
+						aria-label="{item.label} submenu"
+						onclick={() => togglePath(path)}
+					>
+						{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+					</button>
+				{:else}
+					<button
+						class="hz-nav-trigger"
+						aria-expanded={isOpenPath(path) ? 'true' : 'false'}
+						aria-controls={getPanelId(item)}
+						onclick={() => togglePath(path)}
+					>
+						{item.label}
+						{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+					</button>
+				{/if}
+				<ul
+					id={getPanelId(item)}
+					class="hz-nav-panel"
+					data-state={isOpenPath(path) ? 'open' : 'closed'}
+				>
+					{#each item.children ?? [] as child, j (j)}
+						{#if isNavHeading(child)}
+							<li class="hz-nav-heading">{child.heading}</li>
+						{:else if child.children}
+							{@render verticalNode(child, `${path}.${j}`, depth + 1)}
+						{:else}
+							<li>
+								<Link
+									href={child.href ?? '#'}
+									variant="nav"
+									external={child.external}
+									ariaCurrent={child.ariaCurrent}
+								>
+									{child.label}
+								</Link>
+							</li>
+						{/if}
+					{/each}
+				</ul>
+			</li>
+		{/snippet}
+
+		<!-- Vertical link list — nested disclosure (spec 34) -->
+		{#if isVertical}
+			<ul class="hz-nav-links" role="list">
+				{#each items as item, i (i)}
+					{#if item.children}
+						{@render verticalNode(item, `${i}`, 0)}
+					{:else if item.href}
+						<li>
+							<Link
+								href={item.href}
+								variant="nav"
+								external={item.external}
+								ariaCurrent={item.ariaCurrent}
+							>
+								{item.label}
+							</Link>
+						</li>
+					{:else}
+						<li>{item.label}</li>
+					{/if}
+				{/each}
+			</ul>
+		{/if}
+
+		<!-- Desktop link list (horizontal menus) -->
+		{#if !isVertical}
+			<ul class="hz-nav-links" role="list">
+				{#each items as item, i (i)}
+					{#if item.href && item.children}
+						<!-- R7: navigable link + separate chevron trigger -->
+						<li class="hz-nav-dropdown" data-has-children>
+							<Link
+								href={item.href}
+								variant="nav"
+								external={item.external}
+								ariaCurrent={item.ariaCurrent}
+							>
+								{item.label}
+							</Link>
+							<button
+								bind:this={triggerEls[i]}
+								class="hz-nav-chevron"
+								aria-expanded={isOpen(i) ? 'true' : 'false'}
+								aria-haspopup={isVertical ? undefined : 'true'}
+								aria-controls={panelIds[i]}
+								aria-label="{item.label} submenu"
+								onclick={() => toggleDesktop(i)}
+								onkeydown={isVertical ? undefined : (e) => onTriggerKeydown(e, i)}
+							>
+								{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+							</button>
+							<!-- R9: dropdown panel. Horizontal is a role="menu" popover; vertical
 						     is a plain disclosure list (sidebar sections aren't menus). -->
-						<ul
-							id={panelIds[i]}
-							class="hz-nav-panel"
-							role={isVertical ? undefined : 'menu'}
-							data-state={isOpen(i) ? 'open' : 'closed'}
-							onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
-						>
-							{#each item.children as child, j (j)}
-								{#if isNavHeading(child)}
-									<!-- spec 31 R2: group label — static text, no focus stop.
+							<ul
+								id={panelIds[i]}
+								class="hz-nav-panel"
+								role={isVertical ? undefined : 'menu'}
+								data-state={isOpen(i) ? 'open' : 'closed'}
+								onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
+							>
+								{#each item.children as child, j (j)}
+									{#if isNavHeading(child)}
+										<!-- spec 31 R2: group label — static text, no focus stop.
 									     Keyboard traversal targets [role=menuitem]/links, so it
 									     is skipped without any logic here. -->
-									<li class="hz-nav-heading" role={isVertical ? undefined : 'presentation'}>
-										{child.heading}
-									</li>
-								{:else}
-									<li role={isVertical ? undefined : 'none'}>
-										<Link
-											href={child.href ?? '#'}
-											variant="nav"
-											external={child.external}
-											ariaCurrent={child.ariaCurrent}
-											role={isVertical ? undefined : 'menuitem'}
-										>
-											{child.label}
-										</Link>
-									</li>
-								{/if}
-							{/each}
-						</ul>
-					</li>
-				{:else if item.children}
-					<!-- R6: trigger-only (no href) -->
-					<li class="hz-nav-dropdown" data-has-children>
-						<button
-							bind:this={triggerEls[i]}
-							class="hz-nav-trigger"
-							aria-expanded={isOpen(i) ? 'true' : 'false'}
-							aria-haspopup={isVertical ? undefined : 'true'}
-							aria-controls={panelIds[i]}
-							onclick={() => toggleDesktop(i)}
-							onkeydown={isVertical ? undefined : (e) => onTriggerKeydown(e, i)}
-						>
-							{item.label}
-							{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
-						</button>
-						<!-- R9: dropdown panel (see above — menu vs disclosure) -->
-						<ul
-							id={panelIds[i]}
-							class="hz-nav-panel"
-							role={isVertical ? undefined : 'menu'}
-							data-state={isOpen(i) ? 'open' : 'closed'}
-							onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
-						>
-							{#each item.children as child, j (j)}
-								{#if isNavHeading(child)}
-									<!-- spec 31 R2: group label — see the note on the panel above. -->
-									<li class="hz-nav-heading" role={isVertical ? undefined : 'presentation'}>
-										{child.heading}
-									</li>
-								{:else}
-									<li role={isVertical ? undefined : 'none'}>
-										<Link
-											href={child.href ?? '#'}
-											variant="nav"
-											external={child.external}
-											ariaCurrent={child.ariaCurrent}
-											role={isVertical ? undefined : 'menuitem'}
-										>
-											{child.label}
-										</Link>
-									</li>
-								{/if}
-							{/each}
-						</ul>
-					</li>
-				{:else if item.href}
-					<!-- R5: link-only -->
-					<li>
-						<Link
-							href={item.href}
-							variant="nav"
-							external={item.external}
-							ariaCurrent={item.ariaCurrent}
-						>
-							{item.label}
-						</Link>
-					</li>
-				{:else}
-					<!-- Edge case: neither href nor children → plain text -->
-					<li>{item.label}</li>
-				{/if}
-			{/each}
-		</ul>
+										<li class="hz-nav-heading" role={isVertical ? undefined : 'presentation'}>
+											{child.heading}
+										</li>
+									{:else if child.children && !child.href}
+										<!-- spec 34 R2: horizontal menus don't nest — an href-less group
+									     degrades to a static label; its pages aren't rendered here. A
+									     child WITH an href stays a link (grandchildren flattened). -->
+										<li class="hz-nav-heading" role="presentation">{child.label}</li>
+									{:else}
+										<li role={isVertical ? undefined : 'none'}>
+											<Link
+												href={child.href ?? '#'}
+												variant="nav"
+												external={child.external}
+												ariaCurrent={child.ariaCurrent}
+												role={isVertical ? undefined : 'menuitem'}
+											>
+												{child.label}
+											</Link>
+										</li>
+									{/if}
+								{/each}
+							</ul>
+						</li>
+					{:else if item.children}
+						<!-- R6: trigger-only (no href) -->
+						<li class="hz-nav-dropdown" data-has-children>
+							<button
+								bind:this={triggerEls[i]}
+								class="hz-nav-trigger"
+								aria-expanded={isOpen(i) ? 'true' : 'false'}
+								aria-haspopup={isVertical ? undefined : 'true'}
+								aria-controls={panelIds[i]}
+								onclick={() => toggleDesktop(i)}
+								onkeydown={isVertical ? undefined : (e) => onTriggerKeydown(e, i)}
+							>
+								{item.label}
+								{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+							</button>
+							<!-- R9: dropdown panel (see above — menu vs disclosure) -->
+							<ul
+								id={panelIds[i]}
+								class="hz-nav-panel"
+								role={isVertical ? undefined : 'menu'}
+								data-state={isOpen(i) ? 'open' : 'closed'}
+								onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
+							>
+								{#each item.children as child, j (j)}
+									{#if isNavHeading(child)}
+										<!-- spec 31 R2: group label — see the note on the panel above. -->
+										<li class="hz-nav-heading" role={isVertical ? undefined : 'presentation'}>
+											{child.heading}
+										</li>
+									{:else if child.children && !child.href}
+										<!-- spec 34 R2: horizontal menus don't nest — an href-less group
+									     degrades to a static label; its pages aren't rendered here. A
+									     child WITH an href stays a link (grandchildren flattened). -->
+										<li class="hz-nav-heading" role="presentation">{child.label}</li>
+									{:else}
+										<li role={isVertical ? undefined : 'none'}>
+											<Link
+												href={child.href ?? '#'}
+												variant="nav"
+												external={child.external}
+												ariaCurrent={child.ariaCurrent}
+												role={isVertical ? undefined : 'menuitem'}
+											>
+												{child.label}
+											</Link>
+										</li>
+									{/if}
+								{/each}
+							</ul>
+						</li>
+					{:else if item.href}
+						<!-- R5: link-only -->
+						<li>
+							<Link
+								href={item.href}
+								variant="nav"
+								external={item.external}
+								ariaCurrent={item.ariaCurrent}
+							>
+								{item.label}
+							</Link>
+						</li>
+					{:else}
+						<!-- Edge case: neither href nor children → plain text -->
+						<li>{item.label}</li>
+					{/if}
+				{/each}
+			</ul>
+		{/if}
 
 		<!-- Desktop actions slot -->
 		{#if actions}
@@ -431,39 +543,46 @@
 		data-state={mobileOpen ? 'open' : 'closed'}
 		onkeydown={onMobileKeydown}
 	>
+		<!-- R14 + spec 34: native <details> disclosure, nested recursively so
+		     collapsible groups fold in the drawer too. -->
+		{#snippet mobileNode(item: NavItem)}
+			<li>
+				<details class="hz-nav-mobile-section" open={item.defaultOpen ? true : undefined}>
+					<summary>
+						{item.label}
+						{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+					</summary>
+					<ul>
+						{#each item.children ?? [] as child, j (j)}
+							{#if isNavHeading(child)}
+								<!-- spec 31 R2: group label — static text, no focus stop.
+								     The mobile focus trap collects links/buttons/summaries,
+								     so it is skipped without any logic here. -->
+								<li class="hz-nav-heading">{child.heading}</li>
+							{:else if child.children}
+								{@render mobileNode(child)}
+							{:else}
+								<li>
+									<Link
+										href={child.href ?? '#'}
+										variant="nav"
+										external={child.external}
+										ariaCurrent={child.ariaCurrent}
+									>
+										{child.label}
+									</Link>
+								</li>
+							{/if}
+						{/each}
+					</ul>
+				</details>
+			</li>
+		{/snippet}
+
 		<ul role="list">
 			{#each items as item, i (i)}
 				{#if item.children}
-					<!-- R14: native <details> disclosure -->
-					<li>
-						<details class="hz-nav-mobile-section">
-							<summary>
-								{item.label}
-								{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
-							</summary>
-							<ul>
-								{#each item.children as child, j (j)}
-									{#if isNavHeading(child)}
-										<!-- spec 31 R2: group label — static text, no focus stop.
-										     The mobile focus trap collects links/buttons/summaries,
-										     so it is skipped without any logic here. -->
-										<li class="hz-nav-heading">{child.heading}</li>
-									{:else}
-										<li>
-											<Link
-												href={child.href ?? '#'}
-												variant="nav"
-												external={child.external}
-												ariaCurrent={child.ariaCurrent}
-											>
-												{child.label}
-											</Link>
-										</li>
-									{/if}
-								{/each}
-							</ul>
-						</details>
-					</li>
+					{@render mobileNode(item)}
 				{:else if item.href}
 					<li>
 						<Link

@@ -896,7 +896,7 @@ export const hooks: Record<string, ComponentHooks> = {
 		]
 	},
 
-	// --------------------------------------------------------------- General
+	// ---------------------------------------------------------------- Common
 	Alert: {
 		root: 'hz-alert',
 		attrs: [

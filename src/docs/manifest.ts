@@ -81,6 +81,24 @@ export const manifest: ManifestEntry[] = [
 		label: 'Components',
 		groups: [
 			{
+				label: 'Common',
+				pages: [
+					{ label: 'Alert', href: '/components/alert' },
+					{ label: 'Badge', href: '/components/badge' },
+					{ label: 'Blockquote', href: '/components/blockquote' },
+					{ label: 'Button', href: '/components/button' },
+					{ label: 'Link', href: '/components/link' },
+					{ label: 'Card', href: '/components/card' },
+					{ label: 'Divider', href: '/components/divider' },
+					{ label: 'Dropdown', href: '/components/dropdown' },
+					{ label: 'Carousel', href: '/components/carousel' },
+					{ label: 'Hero', href: '/components/hero' },
+					{ label: 'Modal', href: '/components/modal' },
+					{ label: 'Accordion', href: '/components/accordion' },
+					{ label: 'Tabs', href: '/components/tabs' }
+				]
+			},
+			{
 				label: 'Layout',
 				pages: [
 					{ label: 'Container', href: '/components/container' },
@@ -101,6 +119,14 @@ export const manifest: ManifestEntry[] = [
 				]
 			},
 			{
+				label: 'Media',
+				pages: [
+					{ label: 'Image', href: '/components/image' },
+					{ label: 'Lightbox', href: '/components/lightbox' },
+					{ label: 'Video', href: '/components/video' }
+				]
+			},
+			{
 				label: 'Forms',
 				pages: [
 					{ label: 'Form', href: '/components/form' },
@@ -115,32 +141,6 @@ export const manifest: ManifestEntry[] = [
 					{ label: 'RangeSlider', href: '/components/range-slider' },
 					{ label: 'ColorInput', href: '/components/color-input' },
 					{ label: 'Toggle', href: '/components/toggle' }
-				]
-			},
-			{
-				label: 'Media',
-				pages: [
-					{ label: 'Image', href: '/components/image' },
-					{ label: 'Lightbox', href: '/components/lightbox' },
-					{ label: 'Video', href: '/components/video' }
-				]
-			},
-			{
-				label: 'General',
-				pages: [
-					{ label: 'Alert', href: '/components/alert' },
-					{ label: 'Badge', href: '/components/badge' },
-					{ label: 'Blockquote', href: '/components/blockquote' },
-					{ label: 'Button', href: '/components/button' },
-					{ label: 'Link', href: '/components/link' },
-					{ label: 'Card', href: '/components/card' },
-					{ label: 'Divider', href: '/components/divider' },
-					{ label: 'Dropdown', href: '/components/dropdown' },
-					{ label: 'Carousel', href: '/components/carousel' },
-					{ label: 'Hero', href: '/components/hero' },
-					{ label: 'Modal', href: '/components/modal' },
-					{ label: 'Accordion', href: '/components/accordion' },
-					{ label: 'Tabs', href: '/components/tabs' }
 				]
 			}
 		]

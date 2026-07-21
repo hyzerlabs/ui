@@ -123,8 +123,8 @@ committed sheets / override tokens in CSS / optional `hyzer.config.ts` +
 IA amendment (2026-07-16, specs/31) — **this supersedes the section lists and
 R4 above.** Layout, Navigation, Forms, Media and Components were five top-level
 peers, but four of them named component *categories*, not peers of Components.
-They are now one **Components** section whose five groups (Layout, Navigation,
-Forms, Media, General) are presentational sidebar headers with no routes of
+They are now one **Components** section whose five groups (Common, Layout,
+Navigation, Media, Forms) are presentational sidebar headers with no routes of
 their own, and all 38 component pages live at a flat `/components/<name>`.
 The old nested URLs 404 — no redirects; the site is its own only consumer.
 R4's "nested-by-section routing" therefore no longer holds for components;

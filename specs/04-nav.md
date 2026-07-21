@@ -207,6 +207,18 @@ exists; "absent" = not rendered at all.
     - The reference theme styles `.hz-nav-heading` as muted, small, uppercase
       text — a label, not a link.
 
+### Amendment (2026-07-17, specs/34) — nested vertical disclosure
+
+23. **R23 — vertical orientation supports nested disclosure.** This reverses
+    the earlier "no nesting beyond one tier" for the **vertical** orientation:
+    a `children` entry that is itself a `NavItem` with its own `children`
+    renders as a nested collapsible sub-section (recursive). Open state is
+    keyed by a stable path so it survives `items` rebuilds; `defaultOpen`
+    cascades per level. **Horizontal is unchanged** — its menus stay one tier;
+    an href-less nested group degrades to a `.hz-nav-heading` label, a nested
+    child *with* an href stays a flattened link. See specs/34 Part A for the
+    full contract and a11y.
+
 ### Structural CSS (shipped)
 
 Authored by the Builder in the component's scoped `<style>`. Illustrative only —

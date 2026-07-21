@@ -32,9 +32,9 @@
 		)?.label;
 	}
 
-	// A section's pages as Nav children. Grouped sections (Components) emit a
-	// heading entry before each band — spec 31 R2's children-only subtype, so
-	// the five group labels cost no second disclosure level.
+	// A section's pages as Nav children. Grouped sections (Components) emit each
+	// band as a nested collapsible sub-section (spec 34) — the group opens when
+	// it holds the active page, so navigating deep-links straight to it.
 	function navChildren(section: (typeof manifest)[number] & object): NavChild[] {
 		if (!isSection(section)) return [];
 		const link = (p: { label: string; href: string }) => ({
@@ -42,7 +42,11 @@
 			ariaCurrent: isActive(p.href) ? ('page' as const) : undefined
 		});
 		return isGrouped(section)
-			? section.groups.flatMap((g) => [{ heading: g.label }, ...g.pages.map(link)])
+			? section.groups.map((g) => ({
+					label: g.label,
+					defaultOpen: g.pages.some((p) => isActive(p.href)),
+					children: g.pages.map(link)
+				}))
 			: section.children.map(link);
 	}
 
@@ -276,6 +280,10 @@
 	/* Left sidebar                                                          */
 	/* ------------------------------------------------------------------ */
 
+	/* The sidebar is a fixed column that does NOT scroll itself — the header
+	 * (logo/toggle/search) stays put and the nav region below scrolls. That
+	 * keeps the scrollbar gutter out of the header (it belongs only to the
+	 * scrolling list). */
 	.docs-sidebar {
 		width: 15rem;
 		border-right: 1px solid var(--hz-color-border, #6b7280);
@@ -286,18 +294,31 @@
 		left: 0;
 		z-index: 100;
 		height: 100dvh;
-		overflow-y: auto;
-		padding: 1.25rem 0;
+		overflow: hidden;
 		background: var(--hz-color-surface, #fff);
 	}
 
 	.docs-sidebar-header {
+		flex-shrink: 0;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		padding: 0 1rem 1rem;
+		padding: 1.25rem 1rem 1rem;
 		border-bottom: 1px solid var(--hz-color-border, #6b7280);
-		margin-bottom: 0.75rem;
+	}
+
+	/* The one scrolling region — so the gutter (reserved to stop reflow when a
+	 * group expands, spec 34) and the mode-aware scrollbar colours apply here,
+	 * not to the header above. */
+	.docs-sidenav-wrap {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+		scrollbar-gutter: stable;
+		/* Transparent track inherits the surface (no jarring light strip in dark
+		 * mode); a subtle text-tinted thumb adapts to either mode. */
+		scrollbar-color: color-mix(in srgb, var(--hz-color-text, #000) 22%, transparent) transparent;
+		padding: 0.75rem 0 1.25rem;
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -356,9 +377,11 @@
 
 	/* Top-level rows — section toggles (.hz-nav-trigger buttons, since
 	 * sections are label-only) AND standalone links like Introduction get
-	 * the same uppercase chrome treatment so the column reads as one list. */
+	 * the same uppercase chrome treatment so the column reads as one list.
+	 * Scoped to the top level so nested group toggles (spec 34) don't inherit
+	 * the full-size treatment. */
 	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-link),
-	.docs-sidenav-wrap :global(.hz-nav-trigger) {
+	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-nav-trigger) {
 		flex: 1;
 		padding: 0.375rem 0.5rem 0.375rem 1rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
@@ -374,7 +397,7 @@
 	}
 
 	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-link:hover),
-	.docs-sidenav-wrap :global(.hz-nav-trigger:hover) {
+	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-nav-trigger:hover) {
 		color: var(--hz-color-text, #000);
 	}
 
@@ -392,9 +415,40 @@
 		padding: 0;
 	}
 
-	/* Group labels inside the Components section (spec 31 R2). Quieter and
-	 * smaller than the section toggles above them, indented to sit between
-	 * the toggle and the page links they label. */
+	/* Group toggles inside Components (spec 34) — collapsible now, styled like
+	 * the quiet labels they replaced: smaller, uppercase, muted, with a chevron
+	 * pushed to the right that rotates when the group is open. */
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-trigger) {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 0.5rem 1rem 0.5rem 1.75rem;
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text-muted, #6b7280);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		border-radius: 0;
+	}
+
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-trigger:hover) {
+		color: var(--hz-color-text, #000);
+	}
+
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-trigger .hz-icon) {
+		width: 0.75rem;
+		height: 0.75rem;
+		flex-shrink: 0;
+		transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-trigger[aria-expanded='true'] .hz-icon) {
+		transform: rotate(180deg);
+	}
+
+	/* Static group labels (spec 31 R2) — kept for consumers still using the
+	 * heading subtype; the docs Components groups are collapsible triggers now. */
 	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-heading) {
 		padding: 0.75rem 1rem 0.25rem 1.75rem;
 		font-size: var(--hz-font-size-xs, 0.75rem);
@@ -404,19 +458,20 @@
 		letter-spacing: 0.06em;
 	}
 
-	/* First group's label sits directly under the toggle — no extra gap. */
-	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-heading:first-child) {
-		padding-top: 0.25rem;
-	}
-
-	/* Page links — active gets the right-side accent border */
+	/* Page links — active gets a LEFT accent bar (inset box-shadow, so it costs
+	 * no layout and hugs the reading edge rather than the scrollbar-gutter edge
+	 * on the right). One level deep (Foundation/Theming/Pages) sit at 1.75rem;
+	 * two levels deep (a Components group's pages) indent further. */
 	.docs-sidenav-wrap :global(.hz-nav-panel .hz-link) {
 		display: block;
 		padding: 0.3125rem 1rem 0.3125rem 1.75rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
-		border-right: 2px solid transparent;
 		border-radius: 0;
+	}
+
+	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-panel .hz-link) {
+		padding-left: 2.5rem;
 	}
 
 	.docs-sidenav-wrap :global(.hz-nav-panel .hz-link:hover) {
@@ -426,7 +481,7 @@
 
 	.docs-sidenav-wrap :global(.hz-nav-panel .hz-link[aria-current='page']) {
 		color: var(--hz-color-primary, #2563eb);
-		border-right-color: var(--hz-color-primary, #2563eb);
+		box-shadow: inset 2px 0 0 var(--hz-color-primary, #2563eb);
 		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 8%, transparent);
 		font-weight: var(--hz-font-weight-medium, 500);
 	}

@@ -319,47 +319,55 @@ test.describe('R9 — theme toggle', () => {
 // specs/31 — grouped Components section, flat URLs, Pages, Theme hooks
 // ---------------------------------------------------------------------------
 
-test.describe('specs/31 R2/R6 — grouped sidebar', () => {
-	test('the Components section opens to five group headers and 38 links', async ({ page }) => {
+test.describe('specs/31 + 34 — grouped, collapsible sidebar', () => {
+	test('Components shows five collapsible group toggles in order', async ({ page }) => {
 		await page.goto('/components/button');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
 
-		// The active section auto-expands, so the panel is already open here.
-		const panel = sidebar.locator('.hz-nav-panel').filter({ has: page.locator('.hz-nav-heading') });
-		await expect(panel.locator('.hz-nav-heading')).toHaveText([
-			'Layout',
-			'Navigation',
-			'Forms',
-			'Media',
-			'General'
-		]);
-		await expect(panel.locator('a')).toHaveCount(38);
+		// The active section auto-expands, so its group toggles are visible.
+		const groupToggles = sidebar.locator('.hz-nav-panel .hz-nav-trigger');
+		await expect(groupToggles).toHaveText([/Common/, /Layout/, /Navigation/, /Media/, /Forms/]);
 	});
 
-	test('a group header is not focusable and Tab skips it (R2)', async ({ page }) => {
+	test('the active group auto-expands; a collapsed group toggles open (spec 34)', async ({
+		page
+	}) => {
 		await page.goto('/components/button');
-		const heading = page.locator('.hz-nav-heading').first();
-		await expect(heading).toBeVisible();
-		// Static text: no link, no button, nothing to land on.
-		await expect(heading.locator('a, button')).toHaveCount(0);
-		expect(await heading.evaluate((el) => el.matches(':focus-within'))).toBe(false);
-		expect(await heading.getAttribute('tabindex')).toBeNull();
+		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
+		const common = sidebar.getByRole('button', { name: /Common/ });
+		const layout = sidebar.getByRole('button', { name: /Layout/ });
+
+		// Common holds Button → expanded; its link is visible. Layout is collapsed.
+		await expect(common).toHaveAttribute('aria-expanded', 'true');
+		await expect(sidebar.getByRole('link', { name: 'Button', exact: true })).toBeVisible();
+		await expect(layout).toHaveAttribute('aria-expanded', 'false');
+		await expect(sidebar.getByRole('link', { name: 'Container', exact: true })).toBeHidden();
+
+		// Expanding Layout reveals its pages.
+		await layout.click();
+		await expect(layout).toHaveAttribute('aria-expanded', 'true');
+		await expect(sidebar.getByRole('link', { name: 'Container', exact: true })).toBeVisible();
+
+		// Collapsing it hides them again.
+		await layout.click();
+		await expect(layout).toHaveAttribute('aria-expanded', 'false');
+		await expect(sidebar.getByRole('link', { name: 'Container', exact: true })).toBeHidden();
 	});
 
 	test('navigates to a moved page at its flat URL and marks it current', async ({ page }) => {
 		await page.goto('/components/button');
+		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
+		// Select is in Forms, collapsed on a Common page — expand it first (spec 34).
+		await sidebar.getByRole('button', { name: /Forms/ }).click();
 		// Select moved from /forms/select — the sidebar link must be the flat one.
-		await page
-			.getByRole('navigation', { name: 'Docs navigation' })
-			.getByRole('link', { name: 'Select', exact: true })
-			.click();
+		await sidebar.getByRole('link', { name: 'Select', exact: true }).click();
 		await expect(page).toHaveURL('/components/select');
 		await expect(page.locator('h1')).toHaveText('Select');
-		await expect(
-			page
-				.getByRole('navigation', { name: 'Docs navigation' })
-				.getByRole('link', { name: 'Select', exact: true })
-		).toHaveAttribute('aria-current', 'page');
+		// On the Select page, Forms auto-expands (it holds the active page).
+		await expect(sidebar.getByRole('link', { name: 'Select', exact: true })).toHaveAttribute(
+			'aria-current',
+			'page'
+		);
 	});
 });
 

@@ -98,11 +98,11 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		const section = manifest.find((e) => isSection(e) && e.label === 'Components');
 		if (!section || !isSection(section) || !isGrouped(section)) throw new Error('not grouped');
 		expect(section.groups.map((g) => g.label)).toEqual([
+			'Common',
 			'Layout',
 			'Navigation',
-			'Forms',
 			'Media',
-			'General'
+			'Forms'
 		]);
 		expect(section.groups.every((g) => g.pages.length > 0)).toBe(true);
 		expect(componentPages).toHaveLength(38);

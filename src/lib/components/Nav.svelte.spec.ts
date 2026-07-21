@@ -1039,3 +1039,104 @@ describe('mobileBreakpoint="none" and defaultOpen', () => {
 		expect(trigger.getAttribute('aria-expanded')).toBe('false');
 	});
 });
+
+// ---------------------------------------------------------------------------
+// spec 34 — nested vertical disclosure
+// ---------------------------------------------------------------------------
+
+describe('spec 34 — nested vertical disclosure', () => {
+	// Components → groups → pages: a child that itself has children.
+	const nested: NavItem[] = [
+		{
+			label: 'Components',
+			children: [
+				{
+					label: 'Common',
+					children: [
+						{ label: 'Alert', href: '/components/alert' },
+						{ label: 'Button', href: '/components/button' }
+					]
+				},
+				{
+					label: 'Layout',
+					children: [{ label: 'Stack', href: '/components/stack' }]
+				}
+			]
+		}
+	];
+
+	function triggerByLabel(container: HTMLElement, label: string): HTMLButtonElement {
+		return Array.from(container.querySelectorAll<HTMLButtonElement>('.hz-nav-trigger')).find((b) =>
+			b.textContent?.includes(label)
+		)!;
+	}
+
+	it('vertical renders a child-with-children as a nested trigger + panel', () => {
+		const { container } = render(Nav, { items: nested, orientation: 'vertical' });
+		// Three triggers: Components, Common, Layout.
+		const triggers = Array.from(container.querySelectorAll('.hz-nav-trigger'));
+		expect(triggers.map((t) => t.textContent?.trim().split('\n')[0])).toEqual([
+			'Components',
+			'Common',
+			'Layout'
+		]);
+		// The nested trigger's panel controls its own pages.
+		const common = triggerByLabel(container, 'Common');
+		const panel = document.getElementById(common.getAttribute('aria-controls')!);
+		expect(panel?.querySelectorAll('a')).toHaveLength(2);
+	});
+
+	it('a nested trigger toggles independently of its parent', async () => {
+		const { container } = render(Nav, { items: nested, orientation: 'vertical' });
+		const components = triggerByLabel(container, 'Components');
+		const common = triggerByLabel(container, 'Common');
+		components.click();
+		await tick();
+		common.click();
+		await tick();
+		expect(components.getAttribute('aria-expanded')).toBe('true');
+		expect(common.getAttribute('aria-expanded')).toBe('true');
+		// Collapsing the group leaves the parent open.
+		common.click();
+		await tick();
+		expect(common.getAttribute('aria-expanded')).toBe('false');
+		expect(components.getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('a nested node flagged defaultOpen starts open at its level', async () => {
+		const withOpen: NavItem[] = [
+			{
+				label: 'Components',
+				defaultOpen: true,
+				children: [
+					{ label: 'Common', defaultOpen: true, children: [{ label: 'Alert', href: '/a' }] }
+				]
+			}
+		];
+		const { container } = render(Nav, { items: withOpen, orientation: 'vertical' });
+		await tick();
+		expect(triggerByLabel(container, 'Components').getAttribute('aria-expanded')).toBe('true');
+		expect(triggerByLabel(container, 'Common').getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('open state is keyed by path, so a rebuilt items array keeps it open', async () => {
+		const { container, rerender } = render(Nav, { items: nested, orientation: 'vertical' });
+		triggerByLabel(container, 'Layout').click();
+		await tick();
+		expect(triggerByLabel(container, 'Layout').getAttribute('aria-expanded')).toBe('true');
+		// Rebuild items with fresh object identities but the same structure.
+		await rerender({ items: structuredClone(nested), orientation: 'vertical' });
+		await tick();
+		expect(triggerByLabel(container, 'Layout').getAttribute('aria-expanded')).toBe('true');
+	});
+
+	it('horizontal degrades a nested child to a static label (no deeper render)', () => {
+		const { container } = render(Nav, { items: nested }); // horizontal (default)
+		const components = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
+		const panel = document.getElementById(components.getAttribute('aria-controls')!);
+		// The nested group is a static label, not a nested trigger; its pages
+		// aren't rendered as a nested menu.
+		expect(panel?.querySelector('.hz-nav-heading')?.textContent).toContain('Common');
+		expect(panel?.querySelectorAll('.hz-nav-trigger')).toHaveLength(0);
+	});
+});
