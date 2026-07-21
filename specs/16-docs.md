@@ -137,6 +137,11 @@ group (`/components/header`), documenting the bar/branding/actions/mobile-drawer
 component split out of Nav; the Nav page slims to pure navigation. The
 Components section now covers 39 pages.
 
+IA amendment (2026-07-20): the **Pages** section is renamed **Patterns**
+(`/patterns/<name>`) — it holds example compositions built from the primitives,
+both full pages and smaller recipes (command palette, forms). Homepage moved
+`/pages/homepage` → `/patterns/homepage`.
+
 Every component page also gains a **Theme hooks** section (specs/31 R9): its
 root class, `data-*` vocabulary, custom properties, and part classes, in the
 props table's format. The source is one curated module, `src/docs/hooks.ts`,

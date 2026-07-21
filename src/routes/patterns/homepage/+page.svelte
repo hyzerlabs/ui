@@ -8,7 +8,7 @@
 	import { consumerSource } from '../../../docs/consumerSource';
 
 	const composed = [
-		{ label: 'Nav', href: '/components/nav' },
+		{ label: 'Header', href: '/components/header' },
 		{ label: 'Hero', href: '/components/hero' },
 		{ label: 'Container', href: '/components/container' },
 		{ label: 'Grid', href: '/components/grid' },

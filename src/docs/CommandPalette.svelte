@@ -24,6 +24,11 @@
 		placeholder?: string;
 		/** Cap on rendered results. */
 		limit?: number;
+		/**
+		 * Bind the global Cmd/Ctrl+K shortcut. The shell turns this off on the
+		 * command-palette pattern page so that page's own demo owns the shortcut.
+		 */
+		shortcut?: boolean;
 	}
 
 	let {
@@ -31,7 +36,8 @@
 		onSelect,
 		mode = 'inline',
 		placeholder = 'Search docs…',
-		limit = 50
+		limit = 50,
+		shortcut = true
 	}: Props = $props();
 
 	let query = $state('');
@@ -115,6 +121,7 @@
 
 	// Global Cmd/Ctrl+K: open the modal, or focus the inline field.
 	$effect(() => {
+		if (!shortcut) return;
 		function onGlobal(e: KeyboardEvent) {
 			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
 				e.preventDefault();

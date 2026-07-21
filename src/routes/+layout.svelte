@@ -184,7 +184,14 @@
 						{#if dark}<span aria-hidden="true">☀︎</span>{:else}<span aria-hidden="true">☾</span>{/if}
 					</button>
 				</div>
-				<CommandPalette items={searchItems} onSelect={onSearchSelect} mode="modal" />
+				<!-- The /patterns/command-palette page ships its own ⌘K demo; yield the
+				     shortcut there so the two don't both fire. -->
+				<CommandPalette
+					items={searchItems}
+					onSelect={onSearchSelect}
+					mode="modal"
+					shortcut={page.url.pathname !== '/patterns/command-palette'}
+				/>
 			</div>
 
 			<!-- Nav tree — the library's vertical Nav, dogfooded as the docs

@@ -156,8 +156,11 @@ export const manifest: ManifestEntry[] = [
 		]
 	},
 	{
-		label: 'Pages',
-		children: [{ label: 'Homepage', href: '/pages/homepage' }]
+		label: 'Patterns',
+		children: [
+			{ label: 'Homepage', href: '/patterns/homepage' },
+			{ label: 'Command palette', href: '/patterns/command-palette' }
+		]
 	}
 ];
 

@@ -402,10 +402,10 @@ test.describe('specs/31 R9/R10 — theme hooks', () => {
 	});
 });
 
-test.describe('specs/31 R5 — Pages sample', () => {
+test.describe('specs/31 R5 — Patterns sample', () => {
 	test('the Homepage sample bleeds wider than the prose column', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/pages/homepage');
+		await page.goto('/patterns/homepage');
 
 		const proseWidth = await page.locator('h1').evaluate((el) => el.getBoundingClientRect().width);
 		const sampleWidth = await page
@@ -415,7 +415,7 @@ test.describe('specs/31 R5 — Pages sample', () => {
 	});
 
 	test('the sample nav landmark is named apart from the docs sidebar', async ({ page }) => {
-		await page.goto('/pages/homepage');
+		await page.goto('/patterns/homepage');
 		// Nested <nav>s: distinct accessible names or they collide.
 		await expect(page.getByRole('navigation', { name: 'Sample site navigation' })).toBeVisible();
 		await expect(page.getByRole('navigation', { name: 'Docs navigation' })).toBeAttached();
