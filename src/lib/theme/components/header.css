@@ -1,0 +1,57 @@
+/**
+ * @hyzer-labs/ui reference theme — Header
+ * The bar chrome: surface, border, padding, the hamburger control, and the
+ * mobile drawer. Composes Nav (specs/35); Nav owns the navigation styling.
+ */
+@layer hz-theme {
+	.hz-header {
+		background-color: var(--hz-color-surface, #fff);
+		color: var(--hz-color-text, #000);
+	}
+
+	.hz-header:where([data-variant='transparent']) {
+		background-color: transparent;
+	}
+
+	/* bordered is a prop, not a variant — it composes with any surface */
+	.hz-header:where([data-bordered]) {
+		border-bottom: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+	}
+
+	/* Sticky bars stay opaque over scrolled content. */
+	.hz-header:where([data-sticky]) {
+		background-color: var(--hz-color-surface, #fff);
+	}
+
+	.hz-header-inner {
+		padding: 0.75rem 1.5rem;
+	}
+
+	/* Hamburger — the same icon-button treatment the nav controls use. */
+	.hz-header-toggle {
+		appearance: none;
+		background: none;
+		border: none;
+		padding: 0.25rem;
+		font: inherit;
+		color: inherit;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		cursor: pointer;
+		align-items: center;
+		gap: 0.25rem;
+		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-header-toggle:where(:hover) {
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 10%, transparent);
+	}
+
+	/* Drawer surface. */
+	.hz-header-drawer {
+		padding: 0.75rem 1.5rem 1rem;
+		background-color: var(--hz-color-surface, #fff);
+		border-top: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 40%, transparent);
+	}
+}

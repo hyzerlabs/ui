@@ -7,7 +7,7 @@
 	 * that its own nav/footer links are bare `#` — readers browse the sample,
 	 * they don't navigate away from it.
 	 */
-	import { Nav, Hero, Container, Grid, Stack, Cluster, Card, Badge, Button, Footer } from '$lib';
+	import { Header, Hero, Container, Grid, Stack, Cluster, Card, Badge, Button, Footer } from '$lib';
 	import type { NavItem, FooterColumn } from '$lib/types';
 
 	const navItems: NavItem[] = [
@@ -98,16 +98,16 @@
 	];
 </script>
 
-<!-- The sample's own nav landmark. Its label distinguishes it from the docs
+<!-- The sample's own header. Its nav's label distinguishes it from the docs
      sidebar nav it renders inside — nested landmarks need distinct names. -->
-<Nav items={navItems} ariaLabel="Sample site navigation" bordered>
-	{#snippet logo()}
+<Header items={navItems} ariaLabel="Sample site navigation" bordered>
+	{#snippet brand()}
 		<strong>Hyzer</strong>
 	{/snippet}
 	{#snippet actions()}
 		<Button intent="primary" size="sm">Find a course</Button>
 	{/snippet}
-</Nav>
+</Header>
 
 <!-- headingLevel=2: the route's own h1 is the page title, so the sample's top
      heading sits a level below it rather than competing for the document's h1. -->

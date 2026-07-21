@@ -202,8 +202,6 @@
 				<Nav
 					items={sidebarNavItems}
 					orientation="vertical"
-					mobileBreakpoint="none"
-					variant="transparent"
 					ariaLabel="Docs navigation"
 					class="docs-side-nav"
 				/>

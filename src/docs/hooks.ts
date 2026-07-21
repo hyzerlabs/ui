@@ -299,39 +299,21 @@ export const hooks: Record<string, ComponentHooks> = {
 		root: 'hz-nav',
 		attrs: [
 			{
-				name: 'data-variant',
-				values: "'default' | 'transparent'",
-				note: 'Surface treatment. Default default.'
-			},
-			{
 				name: 'data-orientation',
 				values: "'horizontal' | 'vertical'",
-				note: 'Selects the whole layout mode — a horizontal bar with popover panels, or a sidebar column with inline disclosure sections. Default horizontal.'
-			},
-			{
-				name: 'data-bordered',
-				values: 'present when bordered',
-				note: 'Bottom hairline. Composes with any variant.'
-			},
-			{ name: 'data-sticky', values: 'present when sticky', note: 'Sticks the bar to the top.' },
-			{
-				name: 'data-mobile-breakpoint',
-				values: "'sm' | 'md' | 'lg' | 'none'",
-				note: 'Which width collapses the bar into the drawer. none never collapses. Default md.'
+				note: 'Selects the layout mode — a horizontal row with popover dropdown panels, or a sidebar column with inline nested disclosure sections. Default horizontal.'
 			},
 			{
 				name: 'data-state',
 				values: "'open' | 'closed'",
-				note: 'On .hz-nav-panel and .hz-nav-mobile — the open/closed vocabulary to animate against.'
+				note: 'On .hz-nav-panel — the dropdown/disclosure open/closed vocabulary to animate against.'
 			}
 		],
 		parts: [
-			{ name: '.hz-nav-inner', values: 'child element', note: 'The flex bar; owns its padding.' },
-			{ name: '.hz-nav-logo', values: 'child element', note: 'Wrapper for the logo snippet.' },
 			{
 				name: '.hz-nav-links',
 				values: 'child element',
-				note: 'The desktop link list — the element the collapse rules show and hide.'
+				note: 'The link list — a row (horizontal) or a column (vertical).'
 			},
 			{
 				name: '.hz-nav-dropdown',
@@ -357,18 +339,52 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: '.hz-nav-heading',
 				values: 'child element',
 				note: 'A group label inside a panel: static text, no focus stop.'
+			}
+		]
+	},
+	Header: {
+		root: 'hz-header',
+		attrs: [
+			{
+				name: 'data-variant',
+				values: "'default' | 'transparent'",
+				note: 'Bar surface treatment. Default default.'
 			},
 			{
-				name: '.hz-nav-actions',
-				values: 'child element',
-				note: 'Wrapper for the actions snippet.'
+				name: 'data-bordered',
+				values: 'present when bordered',
+				note: 'Bottom hairline. Composes with any variant.'
 			},
-			{ name: '.hz-nav-toggle', values: 'child element', note: 'The hamburger button.' },
-			{ name: '.hz-nav-mobile', values: 'child element', note: 'The mobile drawer.' },
+			{ name: 'data-sticky', values: 'present when sticky', note: 'Sticks the bar to the top.' },
 			{
-				name: '.hz-nav-mobile-section',
+				name: 'data-mobile-breakpoint',
+				values: "'sm' | 'md' | 'lg' | 'none'",
+				note: 'Which width collapses the bar into the drawer. none never collapses. Default md.'
+			},
+			{
+				name: 'data-state',
+				values: "'open' | 'closed'",
+				note: 'On .hz-header-drawer — the drawer open/closed vocabulary to animate against.'
+			}
+		],
+		parts: [
+			{
+				name: '.hz-header-inner',
 				values: 'child element',
-				note: 'The native <details> disclosure inside the drawer.'
+				note: 'The flex bar; owns its padding.'
+			},
+			{ name: '.hz-header-brand', values: 'child element', note: 'Wrapper for the brand snippet.' },
+			{
+				name: '.hz-header-actions',
+				values: 'child element',
+				note: 'Wrapper for the actions snippet (in the bar).'
+			},
+			{ name: '.hz-header-toggle', values: 'child element', note: 'The hamburger button.' },
+			{ name: '.hz-header-drawer', values: 'child element', note: 'The mobile drawer.' },
+			{
+				name: '.hz-header-drawer-actions',
+				values: 'child element',
+				note: 'The actions repeated inside the drawer.'
 			}
 		]
 	},

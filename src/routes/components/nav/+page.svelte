@@ -1,52 +1,19 @@
 <script lang="ts">
-	import { Button, Container, Nav, Tabs } from '$lib';
+	import { Nav, Tabs } from '$lib';
 	import type { NavItem } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
-	import ResizableDemo from '../../../docs/ResizableDemo.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
 
 	const props: PropRow[] = [
-		{
-			name: 'items',
-			type: 'NavItem[]',
-			default: '—',
-			note: 'Required. See NavItem below.'
-		},
-		{
-			name: 'sticky',
-			type: 'boolean',
-			default: 'false',
-			note: 'position: sticky at the top of the nearest scroll container.'
-		},
-		{ name: 'variant', type: "'default' | 'transparent'", default: "'default'" },
-		{
-			name: 'bordered',
-			type: 'boolean',
-			default: 'false',
-			note: 'Bottom hairline — composes with any variant.'
-		},
+		{ name: 'items', type: 'NavItem[]', default: '—', note: 'Required. See NavItem below.' },
 		{
 			name: 'orientation',
 			type: "'horizontal' | 'vertical'",
 			default: "'horizontal'",
-			note: 'vertical renders a sidebar column — submenus become inline, multi-open disclosure sections. Collapse below the breakpoint still applies.'
-		},
-		{
-			name: 'mobileBreakpoint',
-			type: "'sm' | 'md' | 'lg' | 'none'",
-			default: "'md'",
-			note: 'Collapse threshold (640/968/1200px). Horizontal bars measure their own width (container query); vertical sidebars measure the viewport — their own width is always narrow. none never collapses (for shells that own their responsive behavior).'
+			note: 'horizontal: a row of links with dropdown menus. vertical: a sidebar column with inline, nested, multi-open disclosure sections.'
 		},
 		{ name: 'ariaLabel', type: 'string', default: "'Main navigation'" },
-		{ name: 'logo', type: 'Snippet', default: '—' },
-		{
-			name: 'actions',
-			type: 'Snippet',
-			default: '—',
-			note: 'Rendered in the bar and inside the mobile menu.'
-		},
-		{ name: 'menuIcon', type: 'Snippet', default: '—', note: 'Replaces the hamburger icon.' },
 		{ name: 'chevronIcon', type: 'Snippet', default: '—', note: 'Replaces the dropdown chevron.' },
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-nav class.' }
 	];
@@ -57,13 +24,13 @@
 			name: 'href',
 			type: 'string',
 			default: '—',
-			note: 'Omit (with children present) for a trigger-only dropdown parent.'
+			note: 'Omit (with children present) for a trigger-only dropdown / section parent.'
 		},
 		{
 			name: 'children',
-			type: 'NavItem[]',
+			type: 'NavChild[]',
 			default: '—',
-			note: 'Makes the item a dropdown (horizontal) / disclosure section (vertical & mobile).'
+			note: 'Makes the item a dropdown (horizontal) or a nested disclosure section (vertical). May contain items or { heading } group labels.'
 		},
 		{ name: 'external', type: 'boolean', default: '—', note: 'Adds the external-link treatment.' },
 		{
@@ -80,15 +47,7 @@
 		}
 	];
 
-	// Demo links are '#' so readers can't accidentally navigate away from the
-	// docs (the code panes show realistic routes — href values don't render).
-	const barItems: NavItem[] = [
-		{ label: 'Home', href: '#' },
-		{ label: 'Components', href: '#' },
-		{ label: 'Foundation', href: '#' }
-	];
-
-	// Full spread for the dropdown/mobile demos.
+	// Demo links are '#' so readers can't navigate away from the docs.
 	const demoItems: NavItem[] = [
 		{ label: 'Home', href: '#' },
 		{
@@ -110,188 +69,88 @@
 		{ label: 'Media', href: '#' }
 	];
 
-	// Docs-style sections for the vertical (sidebar) demo.
 	const sidebarItems: NavItem[] = [
 		{ label: 'Getting started', href: '#' },
 		{
 			label: 'Foundation',
+			defaultOpen: true,
 			children: [
 				{ label: 'Colors', href: '#' },
 				{ label: 'Typography', href: '#' },
-				{ label: 'Spacing', href: '#' }
+				{ label: 'Spacing', href: '#', ariaCurrent: 'page' }
 			]
 		},
 		{
 			label: 'Components',
 			children: [
-				{ label: 'Button', href: '#' },
-				{ label: 'Card', href: '#' },
-				{ label: 'Modal', href: '#' }
+				{ heading: 'Common' },
+				{ label: 'Alert', href: '#' },
+				{ label: 'Badge', href: '#' },
+				{ heading: 'Forms' },
+				{ label: 'Select', href: '#' }
 			]
 		}
 	];
 
-	const surfaceCombos = [
-		{ id: 'default', label: 'default', variant: 'default', bordered: false },
-		{ id: 'transparent', label: 'transparent', variant: 'transparent', bordered: false },
-		{ id: 'bordered', label: 'bordered', variant: 'default', bordered: true },
-		{
-			id: 'transparent-bordered',
-			label: 'transparent + bordered',
-			variant: 'transparent',
-			bordered: true
-		}
-	] as const;
-
-	const smallItemsCode = [
-		'const items: NavItem[] = [',
-		"\t{ label: 'Home', href: '/' },",
-		"\t{ label: 'Components', href: '/components' },",
-		"\t{ label: 'Foundation', href: '/foundation' }",
-		'];'
-	].join('\n');
-
-	// mobileBreakpoint="sm" keeps the bar expanded in this docs column — the
-	// bar collapses on its own width, and the column is narrower than md.
-	function comboCode(combo: (typeof surfaceCombos)[number]): string {
-		const attrs = [
-			combo.variant !== 'default' ? `variant="${combo.variant}"` : null,
-			combo.bordered ? 'bordered' : null
-		]
-			.filter(Boolean)
-			.join(' ');
-		return [
-			smallItemsCode,
-			'',
-			`<Nav {items}${attrs ? ` ${attrs}` : ''} mobileBreakpoint="sm" />`
-		].join('\n');
-	}
+	const demoTabs = [
+		{ id: 'dropdowns', label: 'Dropdowns' },
+		{ id: 'vertical', label: 'Vertical' }
+	];
 
 	const dropdownCode = [
-		'const items: NavItem[] = [',
-		"\t{ label: 'Home', href: '/' },",
-		'\t{',
-		"\t\tlabel: 'Components',",
-		"\t\thref: '/components', // navigable link + separate chevron trigger",
-		"\t\tchildren: [{ label: 'Button', href: '/components/button' } /* … */]",
-		'\t},',
-		'\t{',
-		"\t\tlabel: 'Resources', // no href — the whole label is the trigger",
-		"\t\tchildren: [{ label: 'GitHub', href: 'https://…', external: true } /* … */]",
-		'\t},',
-		"\t{ label: 'Media', href: '/media' }",
-		'];',
-		'',
-		'<Nav {items} mobileBreakpoint="sm" />'
+		'<Nav',
+		'\titems={[',
+		"\t\t{ label: 'Home', href: '/' },",
+		"\t\t{ label: 'Components', href: '/components', children: [",
+		"\t\t\t{ label: 'Button', href: '/components/button' }",
+		'\t\t] }',
+		'\t]}',
+		'\tariaLabel="Main navigation"',
+		'/>'
 	].join('\n');
 
 	const verticalCode = [
-		'const items: NavItem[] = [',
-		"\t{ label: 'Getting started', href: '/' },",
-		"\t{ label: 'Foundation', children: [/* … */] },",
-		"\t{ label: 'Components', children: [/* … */] }",
-		'];',
+		'<Nav items={sidebarItems} orientation="vertical" ariaLabel="Docs navigation" />',
 		'',
-		'<Nav {items} orientation="vertical" ariaLabel="Docs navigation" />'
+		'<!-- children can nest, and carry { heading } group labels between links;',
+		'     defaultOpen starts a section open. -->'
 	].join('\n');
-
-	const slotsCode = [
-		'<Nav {items} mobileBreakpoint="sm">',
-		'\t{#snippet logo()}',
-		'\t\t<a href="/">Hyzer Labs</a>',
-		'\t{/snippet}',
-		'\t{#snippet actions()}',
-		'\t\t<Button size="sm">Sign in</Button>',
-		'\t{/snippet}',
-		'</Nav>'
-	].join('\n');
-
-	const mobileCode = [
-		'<!-- Horizontal bars collapse below 968px (md) of their own width -->',
-		'<Nav {items} />'
-	].join('\n');
-
-	const demoTabs = [
-		{ id: 'variants', label: 'Variants' },
-		{ id: 'dropdowns', label: 'Dropdowns' },
-		{ id: 'vertical', label: 'Vertical' },
-		{ id: 'slots', label: 'Logo & actions' },
-		{ id: 'mobile', label: 'Mobile' }
-	];
 </script>
 
 <DocPage
 	name="Nav"
-	description="Primary navigation with responsive collapse, dropdown menus, a vertical sidebar mode, and accessible keyboard navigation."
+	description="Navigation, pure and simple: a horizontal row of links with dropdown menus, or a vertical sidebar column with nested, multi-open disclosure sections. Wrap it in a Header for a full top bar with branding, actions, and a mobile drawer."
 	importLine={'import {Nav} from "@hyzer-labs/ui"'}
 	{props}
 	types={[{ name: 'NavItem', props: navItemType }]}
-	a11yNote="Nav renders a `<nav>` landmark with an accessible name via `ariaLabel`. Horizontal dropdown triggers expose `aria-expanded`/`aria-controls` and support Enter, Space, ArrowDown (opens and focuses the menu), and Escape; open menus rove with ArrowUp/ArrowDown/Home/End. Vertical submenus are plain disclosure sections, not menus. The mobile menu is a focus-trapped region that closes on Esc and returns focus to the toggle."
+	a11yNote="Horizontal dropdowns follow the APG menu-button pattern: the trigger carries `aria-haspopup`/`aria-expanded`, the panel is a `role=menu` with roving arrow-key focus, and `Escape` closes and returns focus to the trigger. Vertical sections are plain disclosure (`aria-expanded` on each `<button>`) — not menus — with native keyboard traversal. A `heading` entry is static, non-focusable text read in sequence before the links it labels."
 	a11yLinks={[
 		{
-			label: 'APG Disclosure pattern',
-			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/'
-		},
-		{
-			label: 'APG Disclosure Navigation example',
-			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/examples/disclosure-navigation/'
+			label: 'APG Menu Button pattern',
+			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/menu-button/'
 		}
 	]}
 >
-	<Tabs items={demoTabs} ariaLabel="Nav demos" defaultTab="variants">
+	<Tabs items={demoTabs} ariaLabel="Nav demos" defaultTab="dropdowns">
 		{#snippet panel(item)}
 			<div class="tab-content">
-				{#if item.id === 'variants'}
+				{#if item.id === 'dropdowns'}
 					<p class="tab-note">
-						Demos sit on a tinted backdrop so the surface treatments read: <code>default</code>
-						paints the surface color, <code>transparent</code> lets the backdrop through.
-						<code>bordered</code> is a separate boolean prop (a bottom hairline), so it composes with
-						either variant.
-					</p>
-					<Tabs
-						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}
-						ariaLabel="Nav surface"
-						defaultTab="default"
-					>
-						{#snippet panel(vItem)}
-							{@const combo = surfaceCombos.find((c) => c.id === vItem.id)!}
-							<div class="inner-tab">
-								<Example code={comboCode(combo)}>
-									<div class="nav-demo-wrap">
-										<Nav
-											items={barItems}
-											variant={combo.variant}
-											bordered={combo.bordered}
-											mobileBreakpoint="sm"
-											ariaLabel="Demo navigation ({combo.label})"
-										/>
-									</div>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
-				{:else if item.id === 'dropdowns'}
-					<p class="tab-note">
-						An item with <code>children</code> becomes a dropdown, in one of two forms: with an
-						<code>href</code> the label stays a navigable link and a separate chevron button opens the
-						menu (so click-to-navigate and open-the-menu never fight); without one, the whole label is
-						the trigger. Try it with a keyboard — Enter/Space toggle, ArrowDown opens and focuses the
-						menu.
+						An item with <code>children</code> becomes a dropdown. With an <code>href</code> the label
+						stays a navigable link and a separate chevron opens the menu; without one, the whole label
+						is the trigger. Keyboard: Enter/Space toggle, ArrowDown opens and focuses the menu, Escape
+						closes.
 					</p>
 					<Example code={dropdownCode}>
 						<div class="nav-demo-wrap">
-							<Nav
-								items={demoItems}
-								mobileBreakpoint="sm"
-								ariaLabel="Demo navigation (dropdowns)"
-							/>
+							<Nav items={demoItems} ariaLabel="Demo navigation (dropdowns)" />
 						</div>
 					</Example>
-				{:else if item.id === 'vertical'}
+				{:else}
 					<p class="tab-note">
 						<code>orientation="vertical"</code> renders a sidebar column: submenus become inline disclosure
-						sections that collapse independently — open several at once. Below the breakpoint (viewport-based
-						for sidebars) it still collapses to the hamburger.
+						sections that collapse independently and nest — open several at once. This is what the docs
+						sidebar you're reading uses.
 					</p>
 					<Example code={verticalCode}>
 						<div class="nav-demo-wrap sidebar-demo">
@@ -302,48 +161,6 @@
 							/>
 						</div>
 					</Example>
-				{:else if item.id === 'slots'}
-					<Example code={slotsCode}>
-						<div class="nav-demo-wrap">
-							<Nav items={barItems} mobileBreakpoint="sm" ariaLabel="Demo navigation (slots)">
-								{#snippet logo()}
-									<!-- deliberate "#" so demos don't navigate -->
-									<!-- svelte-ignore a11y_invalid_attribute -->
-									<a href="#" class="demo-logo">Hyzer Labs</a>
-								{/snippet}
-								{#snippet actions()}
-									<Button size="sm">Sign in</Button>
-								{/snippet}
-							</Nav>
-						</div>
-					</Example>
-				{:else}
-					<p class="tab-note">
-						Horizontal collapse is a container query against the nav's own width — drag the slider
-						under 968px and the bar hands over to the hamburger; the open menu traps focus and
-						closes on Esc.
-					</p>
-					<Container breakout padding="none">
-						<Example code={mobileCode}>
-							<ResizableDemo
-								initial={600}
-								describe={(w) => (w >= 968 ? 'full bar' : 'collapsed — try the hamburger')}
-							>
-								<div class="nav-demo-wrap">
-									<Nav items={demoItems} ariaLabel="Demo navigation (mobile)">
-										{#snippet logo()}
-											<!-- deliberate "#" so demos don't navigate -->
-											<!-- svelte-ignore a11y_invalid_attribute -->
-											<a href="#" class="demo-logo">Hyzer Labs</a>
-										{/snippet}
-										{#snippet actions()}
-											<Button size="sm">Sign in</Button>
-										{/snippet}
-									</Nav>
-								</div>
-							</ResizableDemo>
-						</Example>
-					</Container>
 				{/if}
 			</div>
 		{/snippet}
@@ -351,32 +168,13 @@
 </DocPage>
 
 <style>
-	/* Open dropdowns must escape the example frame instead of clipping. */
-	.tab-content :global(.doc-example) {
-		overflow: visible;
-	}
-	.tab-content :global(.doc-example > .code-block) {
-		border-radius: 0 0 var(--hz-radius-md, 0.5rem) var(--hz-radius-md, 0.5rem);
-	}
-
-	/* Tinted backdrop (no border — it muddied the nav's own edges): shows
-	 * the difference between surface, transparent, and bordered variants. */
 	.nav-demo-wrap {
-		background: linear-gradient(
-			135deg,
-			color-mix(in srgb, var(--hz-color-primary, #2563eb) 14%, transparent),
-			color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 14%, transparent)
-		);
+		border: 1px solid var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
+		padding: 0.5rem 1rem;
 	}
 
 	.sidebar-demo {
-		max-width: 18rem;
-	}
-
-	.demo-logo {
-		font-weight: var(--hz-font-weight-bold, 700);
-		text-decoration: none;
-		color: inherit;
+		max-width: 16rem;
 	}
 </style>

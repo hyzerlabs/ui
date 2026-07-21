@@ -9,18 +9,6 @@ import type { NavItem } from '$lib/types';
 // Snippet helpers
 // ---------------------------------------------------------------------------
 
-const logoSnippet = createRawSnippet(() => ({
-	render: () => `<span data-testid="logo">Logo</span>`
-}));
-
-const actionsSnippet = createRawSnippet(() => ({
-	render: () => `<button data-testid="actions-btn">Sign in</button>`
-}));
-
-const menuIconSnippet = createRawSnippet(() => ({
-	render: () => `<span data-testid="custom-menu-icon">MENU</span>`
-}));
-
 const chevronIconSnippet = createRawSnippet(() => ({
 	render: () => `<span data-testid="custom-chevron-icon">V</span>`
 }));
@@ -91,57 +79,12 @@ describe('R1 — root landmark', () => {
 		await expect.element(page.getByRole('navigation')).toHaveAttribute('aria-label', 'Site nav');
 	});
 
-	it('data-variant defaults to "default"', async () => {
-		render(Nav, { items: [] });
-		await expect.element(page.getByRole('navigation')).toHaveAttribute('data-variant', 'default');
-	});
-
-	it('data-sticky is absent when sticky=false (default)', async () => {
-		render(Nav, { items: [] });
-		await expect.element(page.getByRole('navigation')).not.toHaveAttribute('data-sticky');
-	});
-
-	it('data-sticky is present when sticky=true', async () => {
-		const { container } = render(Nav, { items: [], sticky: true });
-		const nav = container.querySelector('nav') as HTMLElement;
-		expect(nav.hasAttribute('data-sticky')).toBe(true);
-	});
-
-	it('data-mobile-breakpoint defaults to "md"', async () => {
-		render(Nav, { items: [] });
-		await expect
-			.element(page.getByRole('navigation'))
-			.toHaveAttribute('data-mobile-breakpoint', 'md');
-	});
-
-	it.each(['default', 'transparent'] as const)(
-		'variant="%s" is reflected in data-variant',
-		async (variant) => {
-			render(Nav, { items: [], variant });
-			await expect.element(page.getByRole('navigation')).toHaveAttribute('data-variant', variant);
-		}
-	);
-
-	it('data-bordered is absent by default and present with bordered — composes with variant', () => {
-		const { container } = render(Nav, { items: [] });
-		expect((container.querySelector('nav') as HTMLElement).hasAttribute('data-bordered')).toBe(
-			false
+	it('reflects data-orientation', async () => {
+		const { container } = render(Nav, { items: [], orientation: 'vertical' });
+		expect((container.querySelector('nav') as HTMLElement).getAttribute('data-orientation')).toBe(
+			'vertical'
 		);
-		const { container: c2 } = render(Nav, { items: [], bordered: true, variant: 'transparent' });
-		const nav = c2.querySelector('nav') as HTMLElement;
-		expect(nav.hasAttribute('data-bordered')).toBe(true);
-		expect(nav.getAttribute('data-variant')).toBe('transparent');
 	});
-
-	it.each(['sm', 'md', 'lg'] as const)(
-		'mobileBreakpoint="%s" is reflected in data-mobile-breakpoint',
-		async (bp) => {
-			render(Nav, { items: [], mobileBreakpoint: bp });
-			await expect
-				.element(page.getByRole('navigation'))
-				.toHaveAttribute('data-mobile-breakpoint', bp);
-		}
-	);
 });
 
 // ---------------------------------------------------------------------------
@@ -157,64 +100,11 @@ describe('R2 — items=[] renders without errors', () => {
 		expect(links.length).toBe(0);
 	});
 });
-
-// ---------------------------------------------------------------------------
-// R3 — logo / actions snippets
-// ---------------------------------------------------------------------------
-
-describe('R3 — logo and actions snippets', () => {
-	it('logo snippet renders when provided', () => {
-		const { container } = render(Nav, { items: [], logo: logoSnippet });
-		expect(container.querySelector('[data-testid="logo"]')).not.toBeNull();
-	});
-
-	it('logo snippet is absent when not provided', () => {
-		const { container } = render(Nav, { items: [] });
-		expect(container.querySelector('[data-testid="logo"]')).toBeNull();
-	});
-
-	it('actions snippet renders in the desktop bar when provided', () => {
-		const { container } = render(Nav, { items: [], actions: actionsSnippet });
-		const actionsEls = container.querySelectorAll('[data-testid="actions-btn"]');
-		// actions appears at least once (desktop bar) — may appear twice (+ mobile menu)
-		expect(actionsEls.length).toBeGreaterThanOrEqual(1);
-	});
-
-	it('actions snippet renders inside mobile menu when provided', () => {
-		const { container } = render(Nav, { items: [], actions: actionsSnippet });
-		const mobileMenu = container.querySelector('.hz-nav-mobile') as HTMLElement;
-		expect(mobileMenu.querySelector('[data-testid="actions-btn"]')).not.toBeNull();
-	});
-
-	it('no empty logo wrapper when logo is absent', () => {
-		const { container } = render(Nav, { items: [] });
-		expect(container.querySelector('.hz-nav-logo')).toBeNull();
-	});
-
-	it('no empty actions wrapper when actions is absent', () => {
-		const { container } = render(Nav, { items: [] });
-		expect(container.querySelector('.hz-nav-actions')).toBeNull();
-	});
-});
-
 // ---------------------------------------------------------------------------
 // R4 — icon override snippets
 // ---------------------------------------------------------------------------
 
 describe('R4 — menuIcon and chevronIcon overrides', () => {
-	it('default render uses a shipped SVG for the menu toggle icon', () => {
-		const { container } = render(Nav, { items: [] });
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLElement;
-		expect(toggle.querySelector('svg')).not.toBeNull();
-	});
-
-	it('menuIcon snippet replaces the default hamburger icon', () => {
-		const { container } = render(Nav, { items: [], menuIcon: menuIconSnippet });
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLElement;
-		expect(toggle.querySelector('[data-testid="custom-menu-icon"]')).not.toBeNull();
-		expect(toggle.querySelector('svg')).toBeNull();
-	});
-
 	it('default render uses shipped SVG chevron inside trigger button', () => {
 		const { container } = render(Nav, { items: [triggerItem] });
 		const trigger = container.querySelector('.hz-nav-trigger') as HTMLElement;
@@ -464,110 +354,6 @@ describe('R11 — dismiss', () => {
 		expect(panel.getAttribute('data-state')).toBe('closed');
 	});
 });
-
-// ---------------------------------------------------------------------------
-// R12 — Mobile toggle button
-// ---------------------------------------------------------------------------
-
-describe('R12 — mobile toggle button', () => {
-	it('toggle button has correct aria attributes', () => {
-		const { container } = render(Nav, { items: [] });
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLButtonElement;
-		expect(toggle).not.toBeNull();
-		expect(toggle.getAttribute('aria-label')).toBe('Toggle navigation menu');
-		expect(toggle.getAttribute('aria-expanded')).toBe('false');
-		expect(toggle.hasAttribute('aria-controls')).toBe(true);
-	});
-
-	it('aria-expanded becomes "true" after clicking the toggle', async () => {
-		const { container } = render(Nav, { items: [] });
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLButtonElement;
-		toggle.click();
-		await tick();
-		expect(toggle.getAttribute('aria-expanded')).toBe('true');
-	});
-});
-
-// ---------------------------------------------------------------------------
-// R13 — Mobile menu container
-// ---------------------------------------------------------------------------
-
-describe('R13 — mobile menu container', () => {
-	it('mobile menu id matches toggle aria-controls; data-state starts "closed"', () => {
-		const { container } = render(Nav, { items: [] });
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLButtonElement;
-		const menuId = toggle.getAttribute('aria-controls') as string;
-		const menu = document.getElementById(menuId) as HTMLElement;
-		expect(menu).not.toBeNull();
-		expect(menu.classList.contains('hz-nav-mobile')).toBe(true);
-		expect(menu.getAttribute('data-state')).toBe('closed');
-	});
-
-	it('data-state becomes "open" after clicking the toggle', async () => {
-		const { container } = render(Nav, { items: [] });
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLButtonElement;
-		const menuId = toggle.getAttribute('aria-controls') as string;
-		toggle.click();
-		await tick();
-		const menu = document.getElementById(menuId) as HTMLElement;
-		expect(menu.getAttribute('data-state')).toBe('open');
-	});
-});
-
-// ---------------------------------------------------------------------------
-// R14 — Mobile dropdown items use <details>/<summary>
-// ---------------------------------------------------------------------------
-
-describe('R14 — mobile dropdown items use details/summary', () => {
-	it('items with children render as <details class="hz-nav-mobile-section">', () => {
-		const { container } = render(Nav, { items: [triggerItem] });
-		const details = container.querySelector('.hz-nav-mobile .hz-nav-mobile-section') as HTMLElement;
-		expect(details).not.toBeNull();
-		expect(details.tagName).toBe('DETAILS');
-	});
-
-	it('<summary> contains the item label', () => {
-		const { container } = render(Nav, { items: [triggerItem] });
-		const summary = container.querySelector('.hz-nav-mobile-section summary') as HTMLElement;
-		expect(summary.textContent).toContain('Products');
-	});
-
-	it('details has no role="menu" (native disclosure, not ARIA menu)', () => {
-		const { container } = render(Nav, { items: [triggerItem] });
-		const details = container.querySelector('.hz-nav-mobile .hz-nav-mobile-section') as HTMLElement;
-		expect(details.getAttribute('role')).toBeNull();
-	});
-
-	it('flat link items render as plain list links in the mobile menu', () => {
-		const { container } = render(Nav, { items: [linkItem] });
-		const mobileMenu = container.querySelector('.hz-nav-mobile') as HTMLElement;
-		const a = mobileMenu.querySelector('a') as HTMLAnchorElement;
-		expect(a).not.toBeNull();
-		expect(mobileMenu.querySelector('details')).toBeNull();
-	});
-});
-
-// ---------------------------------------------------------------------------
-// R15 — Mobile focus trap (Escape → closes and returns focus to toggle)
-// ---------------------------------------------------------------------------
-
-describe('R15 — mobile focus trap', () => {
-	it('Escape closes the mobile menu and returns focus to the toggle button', async () => {
-		const { container } = render(Nav, { items: [linkItem] });
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLButtonElement;
-		// Open the menu
-		toggle.click();
-		await tick();
-		expect(toggle.getAttribute('aria-expanded')).toBe('true');
-		// Dispatch Escape on the mobile menu element
-		const mobileMenu = container.querySelector('.hz-nav-mobile') as HTMLElement;
-		fireKey(mobileMenu, 'Escape');
-		await tick();
-		expect(toggle.getAttribute('aria-expanded')).toBe('false');
-		expect(document.activeElement).toBe(toggle);
-	});
-});
-
 // ---------------------------------------------------------------------------
 // R16 — Keyboard map: desktop dropdown triggers and menus
 // Run at desktop viewport so .hz-nav-links is visible and elements are focusable.
@@ -679,71 +465,6 @@ describe('R16 — keyboard map for desktop dropdowns', () => {
 		expect(document.activeElement).toBe(menuItems[0]);
 	});
 });
-
-// ---------------------------------------------------------------------------
-// R17 — Responsive collapse (viewport CSS assertions)
-// ---------------------------------------------------------------------------
-
-describe('R17 — responsive collapse', () => {
-	afterEach(async () => {
-		// Reset to a neutral viewport after each viewport test.
-		await page.viewport(1024, 768);
-	});
-
-	it('md: hz-nav-links hidden and hz-nav-toggle visible below 968px', async () => {
-		const { container } = render(Nav, { items: [linkItem], mobileBreakpoint: 'md' });
-		await page.viewport(967, 600);
-		const links = container.querySelector('.hz-nav-links') as HTMLElement;
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLElement;
-		expect(getComputedStyle(links).display).toBe('none');
-		expect(getComputedStyle(toggle).display).not.toBe('none');
-	});
-
-	it('md: hz-nav-links visible and hz-nav-toggle hidden at 968px', async () => {
-		const { container } = render(Nav, { items: [linkItem], mobileBreakpoint: 'md' });
-		await page.viewport(968, 600);
-		const links = container.querySelector('.hz-nav-links') as HTMLElement;
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLElement;
-		expect(getComputedStyle(links).display).not.toBe('none');
-		expect(getComputedStyle(toggle).display).toBe('none');
-	});
-
-	it('sm: hz-nav-links hidden below 640px', async () => {
-		const { container } = render(Nav, { items: [linkItem], mobileBreakpoint: 'sm' });
-		await page.viewport(639, 600);
-		const links = container.querySelector('.hz-nav-links') as HTMLElement;
-		expect(getComputedStyle(links).display).toBe('none');
-	});
-
-	it('sm: hz-nav-links visible at 640px', async () => {
-		const { container } = render(Nav, { items: [linkItem], mobileBreakpoint: 'sm' });
-		await page.viewport(640, 600);
-		const links = container.querySelector('.hz-nav-links') as HTMLElement;
-		expect(getComputedStyle(links).display).not.toBe('none');
-	});
-
-	it('lg: hz-nav-links hidden below 1200px', async () => {
-		const { container } = render(Nav, { items: [linkItem], mobileBreakpoint: 'lg' });
-		await page.viewport(1199, 600);
-		const links = container.querySelector('.hz-nav-links') as HTMLElement;
-		expect(getComputedStyle(links).display).toBe('none');
-	});
-
-	it('lg: hz-nav-links visible at 1200px', async () => {
-		const { container } = render(Nav, { items: [linkItem], mobileBreakpoint: 'lg' });
-		await page.viewport(1200, 600);
-		const links = container.querySelector('.hz-nav-links') as HTMLElement;
-		expect(getComputedStyle(links).display).not.toBe('none');
-	});
-
-	it('md: hz-nav-mobile is hidden at desktop viewport', async () => {
-		const { container } = render(Nav, { items: [], mobileBreakpoint: 'md' });
-		await page.viewport(1024, 768);
-		const mobile = container.querySelector('.hz-nav-mobile') as HTMLElement;
-		expect(getComputedStyle(mobile).display).toBe('none');
-	});
-});
-
 // ---------------------------------------------------------------------------
 // R18 — open/closed visibility (structural CSS)
 // ---------------------------------------------------------------------------
@@ -762,26 +483,6 @@ describe('R18 — open/closed visibility', () => {
 		await tick();
 		const panel = container.querySelector('[role="menu"]') as HTMLElement;
 		expect(getComputedStyle(panel).display).not.toBe('none');
-	});
-
-	it('closed mobile menu computes display: none', () => {
-		const { container } = render(Nav, { items: [] });
-		const menu = container.querySelector('.hz-nav-mobile') as HTMLElement;
-		expect(getComputedStyle(menu).display).toBe('none');
-	});
-
-	it('open mobile menu is visible (at mobile viewport, below breakpoint)', async () => {
-		// At desktop viewports the responsive CSS hides .hz-nav-mobile with !important.
-		// Set a mobile-sized viewport so the mobile menu can appear.
-		await page.viewport(600, 800);
-		const { container } = render(Nav, { items: [], mobileBreakpoint: 'md' });
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLButtonElement;
-		toggle.click();
-		await tick();
-		const menu = container.querySelector('.hz-nav-mobile') as HTMLElement;
-		expect(getComputedStyle(menu).display).not.toBe('none');
-		// Reset viewport.
-		await page.viewport(1024, 768);
 	});
 });
 
@@ -822,11 +523,6 @@ describe('R20 — rest forwarding', () => {
 		await expect
 			.element(page.getByRole('navigation'))
 			.toHaveAttribute('aria-label', 'Main navigation');
-	});
-
-	it('rest cannot overwrite managed data-variant', async () => {
-		render(Nav, { items: [], 'data-variant': 'override' } as Record<string, unknown>);
-		await expect.element(page.getByRole('navigation')).toHaveAttribute('data-variant', 'default');
 	});
 
 	it('hz-nav class is always present even when class prop is set', () => {
@@ -969,31 +665,6 @@ describe('orientation', () => {
 		expect(panel.getAttribute('data-state')).toBe('open');
 		expect(getComputedStyle(panel).position).toBe('static');
 	});
-
-	it('horizontal collapse responds to the nav’s own width (container query)', () => {
-		const { container } = render(Nav, { items: [linkItem] });
-		const nav = container.querySelector('.hz-nav') as HTMLElement;
-		const links = container.querySelector('.hz-nav-links') as HTMLElement;
-		const toggle = container.querySelector('.hz-nav-toggle') as HTMLElement;
-		nav.style.width = '500px'; // below the md default (968px)
-		expect(getComputedStyle(links).display).toBe('none');
-		expect(getComputedStyle(toggle).display).toBe('flex');
-		nav.style.width = '1000px';
-		expect(getComputedStyle(links).display).toBe('flex');
-		expect(getComputedStyle(toggle).display).toBe('none');
-	});
-
-	it('vertical collapse tracks the viewport, not the nav width', async () => {
-		const { container } = render(Nav, { items: sections, orientation: 'vertical' });
-		const nav = container.querySelector('.hz-nav') as HTMLElement;
-		const links = container.querySelector('.hz-nav-links') as HTMLElement;
-		nav.style.width = '260px'; // narrow sidebar — must NOT trigger collapse
-		await page.viewport(1024, 768); // ≥ md
-		expect(getComputedStyle(links).display).toBe('flex');
-		await page.viewport(500, 768); // < md → hamburger
-		expect(getComputedStyle(links).display).toBe('none');
-		await page.viewport(1024, 768);
-	});
 });
 
 // ---------------------------------------------------------------------------
@@ -1001,27 +672,6 @@ describe('orientation', () => {
 // ---------------------------------------------------------------------------
 
 describe('mobileBreakpoint="none" and defaultOpen', () => {
-	it('the bar distributes its regions with space-between', () => {
-		const { container } = render(Nav, { items: [linkItem] });
-		const inner = container.querySelector('.hz-nav-inner') as HTMLElement;
-		expect(getComputedStyle(inner).justifyContent).toBe('space-between');
-	});
-
-	it('mobileBreakpoint="none" never collapses: links visible, toggle and mobile menu off', () => {
-		const { container } = render(Nav, { items: [linkItem], mobileBreakpoint: 'none' });
-		const nav = container.querySelector('.hz-nav') as HTMLElement;
-		nav.style.width = '400px'; // far below every threshold
-		expect(getComputedStyle(container.querySelector('.hz-nav-links') as HTMLElement).display).toBe(
-			'flex'
-		);
-		expect(getComputedStyle(container.querySelector('.hz-nav-toggle') as HTMLElement).display).toBe(
-			'none'
-		);
-		expect(getComputedStyle(container.querySelector('.hz-nav-mobile') as HTMLElement).display).toBe(
-			'none'
-		);
-	});
-
 	it('vertical sections flagged defaultOpen start open', async () => {
 		const { container } = render(Nav, {
 			items: [{ ...triggerItem, defaultOpen: true }],

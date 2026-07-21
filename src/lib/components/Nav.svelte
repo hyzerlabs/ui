@@ -4,30 +4,19 @@
 	import type { NavItem, NavChild } from '$lib/types';
 	import { cx, uid, isNavHeading } from '$lib/utils';
 	import Link from './Link.svelte';
-	import IconMenu from '$lib/icons/IconMenu.svelte';
 	import IconChevronDown from '$lib/icons/IconChevronDown.svelte';
 
-	type NavVariant = 'default' | 'transparent';
-	type NavBreakpoint = 'sm' | 'md' | 'lg' | 'none';
 	type NavOrientation = 'horizontal' | 'vertical';
 
 	interface Props {
 		items: NavItem[];
-		sticky?: boolean;
-		variant?: NavVariant;
-		/** Bottom hairline border — composes with any variant. */
-		bordered?: boolean;
 		/**
 		 * Vertical renders a sidebar-style column: submenus become collapsible
-		 * inline disclosure sections (multiple may be open at once) and the
-		 * hamburger collapse is disabled.
+		 * inline disclosure sections (multiple may be open at once, nested —
+		 * spec 34). Horizontal renders a row of links with dropdown menus.
 		 */
 		orientation?: NavOrientation;
-		mobileBreakpoint?: NavBreakpoint;
 		ariaLabel?: string;
-		logo?: Snippet;
-		actions?: Snippet;
-		menuIcon?: Snippet;
 		chevronIcon?: Snippet;
 		class?: string;
 		[key: string]: unknown;
@@ -35,15 +24,8 @@
 
 	let {
 		items: rawItems,
-		sticky = false,
-		variant = 'default',
-		bordered = false,
 		orientation = 'horizontal',
-		mobileBreakpoint = 'md',
 		ariaLabel = 'Main navigation',
-		logo,
-		actions,
-		menuIcon,
 		chevronIcon,
 		class: className,
 		...rest
@@ -77,22 +59,17 @@
 	// Derived so the array stays in sync if `items` ever changes.
 	const panelIds = $derived(items.map(getPanelId));
 
-	// Stable menu ID generated once per component instance.
-	const menuId = uid('hz-nav-menu');
-
-	// Open state: index of the currently-open desktop dropdown, or null.
-	// Horizontal bars are single-open (opening one closes the others).
+	// Horizontal dropdowns are single-open (opening one closes the others).
 	let openIndex = $state<number | null>(null);
 
 	// Vertical sidebars are multi-open and can nest (spec 34). Open nodes are
 	// tracked by a stable PATH string (top-level index, then child indices —
-	// "3", "3.1"), not object identity: the docs shell rebuilds `items` on
-	// navigation, and path keys survive that while identity would not.
+	// "3", "3.1"), not object identity: a shell that rebuilds `items` on
+	// navigation keeps its open state, which identity would not survive.
 	const openPaths = new SvelteSet<string>();
 
 	// Nodes flagged defaultOpen start open — at any depth — and re-open whenever
-	// `items` is rebuilt (e.g. a docs shell recomputing the active section on
-	// navigation). Additive only: it never closes what the user opened.
+	// `items` is rebuilt. Additive only: it never closes what the user opened.
 	$effect(() => {
 		if (!isVertical) return;
 		const walk = (nodes: NavChild[], prefix: string) => {
@@ -115,21 +92,14 @@
 		else openPaths.add(path);
 	}
 
-	// Horizontal single-open (menus). Vertical uses isOpenPath/togglePath above.
+	// Horizontal single-open. Vertical uses isOpenPath/togglePath above.
 	function isOpen(index: number): boolean {
 		return openIndex === index;
 	}
 
-	// Mobile menu open state.
-	let mobileOpen = $state(false);
-
-	// Trigger button elements — populated via bind:this in the template.
+	// Trigger button elements — for Escape-returns-focus on horizontal menus.
 	let triggerEls = $state<(HTMLButtonElement | null)[]>([]);
 
-	// Mobile toggle button element.
-	let toggleEl = $state<HTMLButtonElement | null>(null);
-
-	// Horizontal dropdowns only (single-open). Vertical toggles via togglePath.
 	function toggleDesktop(index: number) {
 		openIndex = openIndex === index ? null : index;
 	}
@@ -138,17 +108,8 @@
 		openIndex = null;
 	}
 
-	function toggleMobile() {
-		mobileOpen = !mobileOpen;
-	}
-
-	function closeMobile() {
-		mobileOpen = false;
-		toggleEl?.focus();
-	}
-
 	// ------------------------------------------------------------------
-	// Keyboard: desktop dropdown triggers
+	// Keyboard: horizontal dropdown triggers
 	// ------------------------------------------------------------------
 
 	function onTriggerKeydown(e: KeyboardEvent, index: number) {
@@ -208,61 +169,12 @@
 		menuItems[itemIndex]?.focus();
 	}
 
-	// ------------------------------------------------------------------
-	// Keyboard: mobile focus trap
-	// ------------------------------------------------------------------
-
-	function onMobileKeydown(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
-			e.preventDefault();
-			closeMobile();
-			return;
-		}
-		if (e.key !== 'Tab') return;
-
-		const mobileEl = document.getElementById(menuId);
-		if (!mobileEl) return;
-
-		const focusable = Array.from(
-			mobileEl.querySelectorAll<HTMLElement>(
-				'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), details > summary'
-			)
-		).filter((el) => !el.closest('[tabindex="-1"]'));
-
-		if (focusable.length === 0) return;
-
-		const first = focusable[0];
-		const last = focusable[focusable.length - 1];
-		const active = document.activeElement as HTMLElement;
-
-		if (e.shiftKey) {
-			if (active === first || !mobileEl.contains(active)) {
-				e.preventDefault();
-				last.focus();
-			}
-		} else {
-			if (active === last || !mobileEl.contains(active)) {
-				e.preventDefault();
-				first.focus();
-			}
-		}
-	}
-
-	// ------------------------------------------------------------------
-	// Outside-click: close open desktop dropdown
-	// ------------------------------------------------------------------
-
+	// Outside-click / document Escape close the open horizontal dropdown.
 	function onDocumentClick(e: MouseEvent) {
 		if (openIndex === null) return;
 		const target = e.target as HTMLElement;
-		if (!target.closest('.hz-nav')) {
-			closeDesktop();
-		}
+		if (!target.closest('.hz-nav')) closeDesktop();
 	}
-
-	// ------------------------------------------------------------------
-	// Document-level Escape: close open desktop dropdown
-	// ------------------------------------------------------------------
 
 	function onDocumentKeydown(e: KeyboardEvent) {
 		if (e.key === 'Escape' && openIndex !== null) {
@@ -286,303 +198,74 @@
 	{...rest}
 	class={cx('hz-nav', className)}
 	aria-label={ariaLabel}
-	data-variant={variant}
-	data-bordered={bordered ? '' : undefined}
 	data-orientation={orientation}
-	data-sticky={sticky ? '' : undefined}
-	data-mobile-breakpoint={mobileBreakpoint}
 >
-	<div class="hz-nav-inner">
-		{#if logo}
-			<div class="hz-nav-logo">{@render logo()}</div>
-		{/if}
-
-		<!-- spec 34: vertical sidebars nest — a child with children is a
-		     collapsible sub-section. Recursive snippet; horizontal keeps its
-		     one-tier menu rendering below. -->
-		{#snippet verticalNode(item: NavItem, path: string, depth: number)}
-			<li class="hz-nav-dropdown" data-has-children data-depth={depth}>
-				{#if item.href}
-					<Link
-						href={item.href}
-						variant="nav"
-						external={item.external}
-						ariaCurrent={item.ariaCurrent}
-					>
-						{item.label}
-					</Link>
-					<button
-						class="hz-nav-chevron"
-						aria-expanded={isOpenPath(path) ? 'true' : 'false'}
-						aria-controls={getPanelId(item)}
-						aria-label="{item.label} submenu"
-						onclick={() => togglePath(path)}
-					>
-						{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
-					</button>
-				{:else}
-					<button
-						class="hz-nav-trigger"
-						aria-expanded={isOpenPath(path) ? 'true' : 'false'}
-						aria-controls={getPanelId(item)}
-						onclick={() => togglePath(path)}
-					>
-						{item.label}
-						{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
-					</button>
-				{/if}
-				<ul
-					id={getPanelId(item)}
-					class="hz-nav-panel"
-					data-state={isOpenPath(path) ? 'open' : 'closed'}
+	<!-- spec 34: vertical sidebars nest — a child with children is a collapsible
+	     sub-section. Recursive snippet; horizontal keeps one-tier menus below. -->
+	{#snippet verticalNode(item: NavItem, path: string, depth: number)}
+		<li class="hz-nav-dropdown" data-has-children data-depth={depth}>
+			{#if item.href}
+				<Link
+					href={item.href}
+					variant="nav"
+					external={item.external}
+					ariaCurrent={item.ariaCurrent}
 				>
-					{#each item.children ?? [] as child, j (j)}
-						{#if isNavHeading(child)}
-							<li class="hz-nav-heading">{child.heading}</li>
-						{:else if child.children}
-							{@render verticalNode(child, `${path}.${j}`, depth + 1)}
-						{:else}
-							<li>
-								<Link
-									href={child.href ?? '#'}
-									variant="nav"
-									external={child.external}
-									ariaCurrent={child.ariaCurrent}
-								>
-									{child.label}
-								</Link>
-							</li>
-						{/if}
-					{/each}
-				</ul>
-			</li>
-		{/snippet}
+					{item.label}
+				</Link>
+				<button
+					class="hz-nav-chevron"
+					aria-expanded={isOpenPath(path) ? 'true' : 'false'}
+					aria-controls={getPanelId(item)}
+					aria-label="{item.label} submenu"
+					onclick={() => togglePath(path)}
+				>
+					{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+				</button>
+			{:else}
+				<button
+					class="hz-nav-trigger"
+					aria-expanded={isOpenPath(path) ? 'true' : 'false'}
+					aria-controls={getPanelId(item)}
+					onclick={() => togglePath(path)}
+				>
+					{item.label}
+					{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+				</button>
+			{/if}
+			<ul
+				id={getPanelId(item)}
+				class="hz-nav-panel"
+				data-state={isOpenPath(path) ? 'open' : 'closed'}
+			>
+				{#each item.children ?? [] as child, j (j)}
+					{#if isNavHeading(child)}
+						<li class="hz-nav-heading">{child.heading}</li>
+					{:else if child.children}
+						{@render verticalNode(child, `${path}.${j}`, depth + 1)}
+					{:else}
+						<li>
+							<Link
+								href={child.href ?? '#'}
+								variant="nav"
+								external={child.external}
+								ariaCurrent={child.ariaCurrent}
+							>
+								{child.label}
+							</Link>
+						</li>
+					{/if}
+				{/each}
+			</ul>
+		</li>
+	{/snippet}
 
+	{#if isVertical}
 		<!-- Vertical link list — nested disclosure (spec 34) -->
-		{#if isVertical}
-			<ul class="hz-nav-links" role="list">
-				{#each items as item, i (i)}
-					{#if item.children}
-						{@render verticalNode(item, `${i}`, 0)}
-					{:else if item.href}
-						<li>
-							<Link
-								href={item.href}
-								variant="nav"
-								external={item.external}
-								ariaCurrent={item.ariaCurrent}
-							>
-								{item.label}
-							</Link>
-						</li>
-					{:else}
-						<li>{item.label}</li>
-					{/if}
-				{/each}
-			</ul>
-		{/if}
-
-		<!-- Desktop link list (horizontal menus) -->
-		{#if !isVertical}
-			<ul class="hz-nav-links" role="list">
-				{#each items as item, i (i)}
-					{#if item.href && item.children}
-						<!-- R7: navigable link + separate chevron trigger -->
-						<li class="hz-nav-dropdown" data-has-children>
-							<Link
-								href={item.href}
-								variant="nav"
-								external={item.external}
-								ariaCurrent={item.ariaCurrent}
-							>
-								{item.label}
-							</Link>
-							<button
-								bind:this={triggerEls[i]}
-								class="hz-nav-chevron"
-								aria-expanded={isOpen(i) ? 'true' : 'false'}
-								aria-haspopup={isVertical ? undefined : 'true'}
-								aria-controls={panelIds[i]}
-								aria-label="{item.label} submenu"
-								onclick={() => toggleDesktop(i)}
-								onkeydown={isVertical ? undefined : (e) => onTriggerKeydown(e, i)}
-							>
-								{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
-							</button>
-							<!-- R9: dropdown panel. Horizontal is a role="menu" popover; vertical
-						     is a plain disclosure list (sidebar sections aren't menus). -->
-							<ul
-								id={panelIds[i]}
-								class="hz-nav-panel"
-								role={isVertical ? undefined : 'menu'}
-								data-state={isOpen(i) ? 'open' : 'closed'}
-								onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
-							>
-								{#each item.children as child, j (j)}
-									{#if isNavHeading(child)}
-										<!-- spec 31 R2: group label — static text, no focus stop.
-									     Keyboard traversal targets [role=menuitem]/links, so it
-									     is skipped without any logic here. -->
-										<li class="hz-nav-heading" role={isVertical ? undefined : 'presentation'}>
-											{child.heading}
-										</li>
-									{:else if child.children && !child.href}
-										<!-- spec 34 R2: horizontal menus don't nest — an href-less group
-									     degrades to a static label; its pages aren't rendered here. A
-									     child WITH an href stays a link (grandchildren flattened). -->
-										<li class="hz-nav-heading" role="presentation">{child.label}</li>
-									{:else}
-										<li role={isVertical ? undefined : 'none'}>
-											<Link
-												href={child.href ?? '#'}
-												variant="nav"
-												external={child.external}
-												ariaCurrent={child.ariaCurrent}
-												role={isVertical ? undefined : 'menuitem'}
-											>
-												{child.label}
-											</Link>
-										</li>
-									{/if}
-								{/each}
-							</ul>
-						</li>
-					{:else if item.children}
-						<!-- R6: trigger-only (no href) -->
-						<li class="hz-nav-dropdown" data-has-children>
-							<button
-								bind:this={triggerEls[i]}
-								class="hz-nav-trigger"
-								aria-expanded={isOpen(i) ? 'true' : 'false'}
-								aria-haspopup={isVertical ? undefined : 'true'}
-								aria-controls={panelIds[i]}
-								onclick={() => toggleDesktop(i)}
-								onkeydown={isVertical ? undefined : (e) => onTriggerKeydown(e, i)}
-							>
-								{item.label}
-								{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
-							</button>
-							<!-- R9: dropdown panel (see above — menu vs disclosure) -->
-							<ul
-								id={panelIds[i]}
-								class="hz-nav-panel"
-								role={isVertical ? undefined : 'menu'}
-								data-state={isOpen(i) ? 'open' : 'closed'}
-								onkeydown={isVertical ? undefined : (e) => onMenuKeydown(e, i)}
-							>
-								{#each item.children as child, j (j)}
-									{#if isNavHeading(child)}
-										<!-- spec 31 R2: group label — see the note on the panel above. -->
-										<li class="hz-nav-heading" role={isVertical ? undefined : 'presentation'}>
-											{child.heading}
-										</li>
-									{:else if child.children && !child.href}
-										<!-- spec 34 R2: horizontal menus don't nest — an href-less group
-									     degrades to a static label; its pages aren't rendered here. A
-									     child WITH an href stays a link (grandchildren flattened). -->
-										<li class="hz-nav-heading" role="presentation">{child.label}</li>
-									{:else}
-										<li role={isVertical ? undefined : 'none'}>
-											<Link
-												href={child.href ?? '#'}
-												variant="nav"
-												external={child.external}
-												ariaCurrent={child.ariaCurrent}
-												role={isVertical ? undefined : 'menuitem'}
-											>
-												{child.label}
-											</Link>
-										</li>
-									{/if}
-								{/each}
-							</ul>
-						</li>
-					{:else if item.href}
-						<!-- R5: link-only -->
-						<li>
-							<Link
-								href={item.href}
-								variant="nav"
-								external={item.external}
-								ariaCurrent={item.ariaCurrent}
-							>
-								{item.label}
-							</Link>
-						</li>
-					{:else}
-						<!-- Edge case: neither href nor children → plain text -->
-						<li>{item.label}</li>
-					{/if}
-				{/each}
-			</ul>
-		{/if}
-
-		<!-- Desktop actions slot -->
-		{#if actions}
-			<div class="hz-nav-actions">{@render actions()}</div>
-		{/if}
-
-		<!-- Mobile toggle -->
-		<button
-			bind:this={toggleEl}
-			class="hz-nav-toggle"
-			aria-expanded={mobileOpen ? 'true' : 'false'}
-			aria-controls={menuId}
-			aria-label="Toggle navigation menu"
-			onclick={toggleMobile}
-		>
-			{#if menuIcon}{@render menuIcon()}{:else}<IconMenu />{/if}
-		</button>
-	</div>
-
-	<!-- Mobile menu -->
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div
-		id={menuId}
-		class="hz-nav-mobile"
-		data-state={mobileOpen ? 'open' : 'closed'}
-		onkeydown={onMobileKeydown}
-	>
-		<!-- R14 + spec 34: native <details> disclosure, nested recursively so
-		     collapsible groups fold in the drawer too. -->
-		{#snippet mobileNode(item: NavItem)}
-			<li>
-				<details class="hz-nav-mobile-section" open={item.defaultOpen ? true : undefined}>
-					<summary>
-						{item.label}
-						{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
-					</summary>
-					<ul>
-						{#each item.children ?? [] as child, j (j)}
-							{#if isNavHeading(child)}
-								<!-- spec 31 R2: group label — static text, no focus stop.
-								     The mobile focus trap collects links/buttons/summaries,
-								     so it is skipped without any logic here. -->
-								<li class="hz-nav-heading">{child.heading}</li>
-							{:else if child.children}
-								{@render mobileNode(child)}
-							{:else}
-								<li>
-									<Link
-										href={child.href ?? '#'}
-										variant="nav"
-										external={child.external}
-										ariaCurrent={child.ariaCurrent}
-									>
-										{child.label}
-									</Link>
-								</li>
-							{/if}
-						{/each}
-					</ul>
-				</details>
-			</li>
-		{/snippet}
-
-		<ul role="list">
+		<ul class="hz-nav-links" role="list">
 			{#each items as item, i (i)}
 				{#if item.children}
-					{@render mobileNode(item)}
+					{@render verticalNode(item, `${i}`, 0)}
 				{:else if item.href}
 					<li>
 						<Link
@@ -599,49 +282,128 @@
 				{/if}
 			{/each}
 		</ul>
-
-		<!-- Actions also appear inside the mobile menu (R3) -->
-		{#if actions}
-			<div class="hz-nav-mobile-actions">{@render actions()}</div>
-		{/if}
-	</div>
+	{:else}
+		<!-- Horizontal link list — one-tier dropdown menus -->
+		<ul class="hz-nav-links" role="list">
+			{#each items as item, i (i)}
+				{#if item.href && item.children}
+					<!-- navigable link + separate chevron trigger -->
+					<li class="hz-nav-dropdown" data-has-children>
+						<Link
+							href={item.href}
+							variant="nav"
+							external={item.external}
+							ariaCurrent={item.ariaCurrent}
+						>
+							{item.label}
+						</Link>
+						<button
+							bind:this={triggerEls[i]}
+							class="hz-nav-chevron"
+							aria-expanded={isOpen(i) ? 'true' : 'false'}
+							aria-haspopup="true"
+							aria-controls={panelIds[i]}
+							aria-label="{item.label} submenu"
+							onclick={() => toggleDesktop(i)}
+							onkeydown={(e) => onTriggerKeydown(e, i)}
+						>
+							{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+						</button>
+						<ul
+							id={panelIds[i]}
+							class="hz-nav-panel"
+							role="menu"
+							data-state={isOpen(i) ? 'open' : 'closed'}
+							onkeydown={(e) => onMenuKeydown(e, i)}
+						>
+							{#each item.children as child, j (j)}
+								{#if isNavHeading(child)}
+									<li class="hz-nav-heading" role="presentation">{child.heading}</li>
+								{:else if child.children && !child.href}
+									<!-- spec 34 R2: horizontal menus don't nest — an href-less group
+									     degrades to a static label; a child WITH an href stays a link. -->
+									<li class="hz-nav-heading" role="presentation">{child.label}</li>
+								{:else}
+									<li role="none">
+										<Link
+											href={child.href ?? '#'}
+											variant="nav"
+											external={child.external}
+											ariaCurrent={child.ariaCurrent}
+											role="menuitem"
+										>
+											{child.label}
+										</Link>
+									</li>
+								{/if}
+							{/each}
+						</ul>
+					</li>
+				{:else if item.children}
+					<!-- trigger-only (no href) -->
+					<li class="hz-nav-dropdown" data-has-children>
+						<button
+							bind:this={triggerEls[i]}
+							class="hz-nav-trigger"
+							aria-expanded={isOpen(i) ? 'true' : 'false'}
+							aria-haspopup="true"
+							aria-controls={panelIds[i]}
+							onclick={() => toggleDesktop(i)}
+							onkeydown={(e) => onTriggerKeydown(e, i)}
+						>
+							{item.label}
+							{#if chevronIcon}{@render chevronIcon()}{:else}<IconChevronDown />{/if}
+						</button>
+						<ul
+							id={panelIds[i]}
+							class="hz-nav-panel"
+							role="menu"
+							data-state={isOpen(i) ? 'open' : 'closed'}
+							onkeydown={(e) => onMenuKeydown(e, i)}
+						>
+							{#each item.children as child, j (j)}
+								{#if isNavHeading(child)}
+									<li class="hz-nav-heading" role="presentation">{child.heading}</li>
+								{:else if child.children && !child.href}
+									<li class="hz-nav-heading" role="presentation">{child.label}</li>
+								{:else}
+									<li role="none">
+										<Link
+											href={child.href ?? '#'}
+											variant="nav"
+											external={child.external}
+											ariaCurrent={child.ariaCurrent}
+											role="menuitem"
+										>
+											{child.label}
+										</Link>
+									</li>
+								{/if}
+							{/each}
+						</ul>
+					</li>
+				{:else if item.href}
+					<!-- link-only -->
+					<li>
+						<Link
+							href={item.href}
+							variant="nav"
+							external={item.external}
+							ariaCurrent={item.ariaCurrent}
+						>
+							{item.label}
+						</Link>
+					</li>
+				{:else}
+					<!-- Edge case: neither href nor children → plain text -->
+					<li>{item.label}</li>
+				{/if}
+			{/each}
+		</ul>
+	{/if}
 </nav>
 
 <style>
-	/* ------------------------------------------------------------------ */
-	/* Bar layout                                                           */
-	/* ------------------------------------------------------------------ */
-
-	/*
-	 * The nav is its own size container: the responsive collapse rules below
-	 * are container queries against the nav's width (its descendants query
-	 * it), consistent with Grid/Split. Breakpoint thresholds mirror the
-	 * width tokens but stay literal — CSS cannot read custom properties in
-	 * container queries.
-	 */
-	.hz-nav {
-		position: relative;
-		container-type: inline-size;
-	}
-
-	.hz-nav[data-sticky] {
-		position: sticky;
-		top: 0;
-		z-index: 100;
-	}
-
-	.hz-nav-inner {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--hz-space-md, 2rem);
-	}
-
-	.hz-nav-logo {
-		flex-shrink: 0;
-	}
-
 	.hz-nav-links {
 		display: flex;
 		flex-direction: row;
@@ -650,20 +412,14 @@
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		flex: 1;
-	}
-
-	.hz-nav-actions {
-		flex-shrink: 0;
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Desktop dropdown (R9, R18)                                          */
+	/* Horizontal dropdown                                                  */
 	/* ------------------------------------------------------------------ */
 
 	/* Flex-centers the link + chevron pair so dropdown items align with the
-	 * plain link items on the bar's center line (a block li would baseline-
-	 * align its inline children instead). */
+	 * plain link items on the center line. */
 	.hz-nav-dropdown {
 		position: relative;
 		display: flex;
@@ -682,7 +438,6 @@
 		min-width: max-content;
 	}
 
-	/* closed → hidden; open → visible */
 	.hz-nav-dropdown .hz-nav-panel[data-state='closed'] {
 		display: none;
 	}
@@ -692,167 +447,9 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Mobile menu (R13, R18)                                              */
+	/* Vertical (sidebar) orientation — column with inline, nested,         */
+	/* multi-open disclosure sections (spec 34).                            */
 	/* ------------------------------------------------------------------ */
-
-	.hz-nav-mobile {
-		width: 100%;
-	}
-
-	.hz-nav-mobile[data-state='closed'] {
-		display: none;
-	}
-
-	.hz-nav-mobile[data-state='open'] {
-		display: block;
-	}
-
-	.hz-nav-mobile ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: flex;
-		flex-direction: column;
-		gap: var(--hz-space-xs, 0.5rem);
-	}
-
-	.hz-nav-mobile-section {
-		width: 100%;
-	}
-
-	.hz-nav-mobile-section summary {
-		display: flex;
-		align-items: center;
-		gap: var(--hz-space-xs, 0.5rem);
-		cursor: pointer;
-		list-style: none;
-	}
-
-	.hz-nav-mobile-section summary::-webkit-details-marker {
-		display: none;
-	}
-
-	.hz-nav-mobile-actions {
-		margin-top: var(--hz-space-sm, 1rem);
-	}
-
-	/* ------------------------------------------------------------------ */
-	/* R17: Responsive collapse                                            */
-	/*                                                                     */
-	/* Collapsed (hamburger) below the breakpoint for BOTH orientations.   */
-	/* What un-collapses differs:                                          */
-	/*  - horizontal bars measure their OWN width (container query — a bar */
-	/*    in a narrow slot should collapse regardless of the window)       */
-	/*  - vertical sidebars measure the VIEWPORT (the sidebar itself is    */
-	/*    always narrow; whether the page has room is a window question)   */
-	/* Thresholds mirror --hz-width-sm/md/lg but stay literal — CSS cannot */
-	/* read custom properties in media or container queries.               */
-	/* ------------------------------------------------------------------ */
-
-	.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-links,
-	.hz-nav[data-mobile-breakpoint='md'] .hz-nav-links,
-	.hz-nav[data-mobile-breakpoint='lg'] .hz-nav-links {
-		display: none;
-	}
-
-	.hz-nav[data-mobile-breakpoint='sm'] .hz-nav-toggle,
-	.hz-nav[data-mobile-breakpoint='md'] .hz-nav-toggle,
-	.hz-nav[data-mobile-breakpoint='lg'] .hz-nav-toggle {
-		display: flex;
-	}
-
-	/* 'none' — never collapses (e.g. embedded in a shell that owns its own
-	 * responsive behavior). No collapse rule matches, so links stay visible;
-	 * the toggle and mobile menu are simply off. */
-	.hz-nav[data-mobile-breakpoint='none'] .hz-nav-toggle,
-	.hz-nav[data-mobile-breakpoint='none'] .hz-nav-mobile {
-		display: none;
-	}
-
-	/* sm — 640px */
-	@container (min-width: 640px) {
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='sm'] .hz-nav-links {
-			display: flex;
-		}
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='sm'] .hz-nav-toggle {
-			display: none;
-		}
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='sm'] .hz-nav-mobile {
-			display: none !important;
-		}
-	}
-
-	@media (min-width: 640px) {
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='sm'] .hz-nav-links {
-			display: flex;
-		}
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='sm'] .hz-nav-toggle {
-			display: none;
-		}
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='sm'] .hz-nav-mobile {
-			display: none !important;
-		}
-	}
-
-	/* md — 968px */
-	@container (min-width: 968px) {
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='md'] .hz-nav-links {
-			display: flex;
-		}
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='md'] .hz-nav-toggle {
-			display: none;
-		}
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='md'] .hz-nav-mobile {
-			display: none !important;
-		}
-	}
-
-	@media (min-width: 968px) {
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='md'] .hz-nav-links {
-			display: flex;
-		}
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='md'] .hz-nav-toggle {
-			display: none;
-		}
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='md'] .hz-nav-mobile {
-			display: none !important;
-		}
-	}
-
-	/* lg — 1200px */
-	@container (min-width: 1200px) {
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='lg'] .hz-nav-links {
-			display: flex;
-		}
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='lg'] .hz-nav-toggle {
-			display: none;
-		}
-		.hz-nav[data-orientation='horizontal'][data-mobile-breakpoint='lg'] .hz-nav-mobile {
-			display: none !important;
-		}
-	}
-
-	@media (min-width: 1200px) {
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='lg'] .hz-nav-links {
-			display: flex;
-		}
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='lg'] .hz-nav-toggle {
-			display: none;
-		}
-		.hz-nav[data-orientation='vertical'][data-mobile-breakpoint='lg'] .hz-nav-mobile {
-			display: none !important;
-		}
-	}
-
-	/* ------------------------------------------------------------------ */
-	/* Vertical (sidebar) orientation — column layout with inline,          */
-	/* collapsible, multi-open sections. Collapse behavior above applies.   */
-	/* ------------------------------------------------------------------ */
-
-	.hz-nav[data-orientation='vertical'] .hz-nav-inner {
-		flex-direction: column;
-		align-items: stretch;
-	}
 
 	.hz-nav[data-orientation='vertical'] .hz-nav-links {
 		flex-direction: column;

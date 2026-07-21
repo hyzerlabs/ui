@@ -219,6 +219,19 @@ exists; "absent" = not rendered at all.
     child *with* an href stays a flattened link. See specs/34 Part A for the
     full contract and a11y.
 
+### Amendment (2026-07-20, specs/35) — Nav is navigation-only
+
+24. **R24 — the bar chrome moved to Header.** Nav no longer renders a bar. The
+    `logo`/`actions` snippets, `sticky`/`variant`/`bordered`/`mobileBreakpoint`/
+    `menuIcon` props, the `.hz-nav-inner`/`.hz-nav-logo`/`.hz-nav-actions`
+    hamburger and `.hz-nav-mobile` drawer, and the responsive collapse are now
+    the **Header** component's (specs/35), which composes Nav — horizontal in
+    the bar, vertical in the drawer. Nav keeps `items`, `orientation`,
+    `ariaLabel`, `chevronIcon`, `class`, and everything under `.hz-nav-links`
+    (dropdown menus, nested vertical disclosure, headings). The requirements
+    above describe the pre-split component; where they concern the bar/mobile,
+    read them against Header now. Greenfield — a breaking change, and fine.
+
 ### Structural CSS (shipped)
 
 Authored by the Builder in the component's scoped `<style>`. Illustrative only —

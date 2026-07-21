@@ -132,6 +132,11 @@ routing is flat, and the manifest (`src/docs/manifest.ts`) is the IA's single
 source of truth. A **Pages** section (`/pages/<name>`) joins the top level for
 full-page sample compositions, starting with Homepage.
 
+IA amendment (2026-07-20, specs/35): a **Header** page joins the Navigation
+group (`/components/header`), documenting the bar/branding/actions/mobile-drawer
+component split out of Nav; the Nav page slims to pure navigation. The
+Components section now covers 39 pages.
+
 Every component page also gains a **Theme hooks** section (specs/31 R9): its
 root class, `data-*` vocabulary, custom properties, and part classes, in the
 props table's format. The source is one curated module, `src/docs/hooks.ts`,

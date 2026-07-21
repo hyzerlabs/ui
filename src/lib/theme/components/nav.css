@@ -1,28 +1,10 @@
 /**
  * @hyzer-labs/ui reference theme — Nav
- * Layout, collapse behavior, and dropdown positioning are structural;
- * the theme owns surfaces, borders, and the icon-button controls.
+ * The navigation itself: dropdown-panel surfaces, vertical disclosure, the
+ * group-label banding, and the chevron/trigger controls. The bar chrome that
+ * used to live here moved to header.css (specs/35).
  */
 @layer hz-theme {
-	.hz-nav {
-		background-color: var(--hz-color-surface, #fff);
-		color: var(--hz-color-text, #000);
-	}
-
-	.hz-nav:where([data-variant='transparent']) {
-		background-color: transparent;
-	}
-
-	/* bordered is a prop, not a variant — it composes with any surface */
-	.hz-nav:where([data-bordered]) {
-		border-bottom: var(--hz-border-width-thin, 1px) solid
-			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
-	}
-
-	.hz-nav-inner {
-		padding: 0.75rem 1.5rem;
-	}
-
 	/* Dropdown panels — floating popovers on horizontal bars */
 	.hz-nav:where([data-orientation='horizontal']) :where(.hz-nav-panel) {
 		min-width: 12rem;
@@ -60,10 +42,9 @@
 		letter-spacing: 0.06em;
 	}
 
-	/* Icon-button controls: dropdown chevron, children-only trigger, hamburger */
+	/* Icon-button controls: the dropdown chevron and the children-only trigger. */
 	.hz-nav-chevron,
-	.hz-nav-trigger,
-	.hz-nav-toggle {
+	.hz-nav-trigger {
 		appearance: none;
 		background: none;
 		border: none;
@@ -80,8 +61,7 @@
 	}
 
 	.hz-nav-chevron:where(:hover),
-	.hz-nav-trigger:where(:hover),
-	.hz-nav-toggle:where(:hover) {
+	.hz-nav-trigger:where(:hover) {
 		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 10%, transparent);
 	}
 
@@ -93,23 +73,5 @@
 	.hz-nav-chevron:where([aria-expanded='true']) .hz-icon,
 	.hz-nav-trigger:where([aria-expanded='true']) .hz-icon {
 		transform: rotate(180deg);
-	}
-
-	/* Mobile menu */
-	.hz-nav-mobile {
-		padding: 0.75rem 1.5rem 1rem;
-		background-color: var(--hz-color-surface, #fff);
-		border-top: var(--hz-border-width-thin, 1px) solid
-			color-mix(in srgb, var(--hz-color-border, #6b7280) 40%, transparent);
-	}
-
-	.hz-nav-mobile-section :where(summary) {
-		padding: 0.375rem 0;
-		font-weight: var(--hz-font-weight-medium, 500);
-		cursor: pointer;
-	}
-
-	.hz-nav:where([data-sticky]) {
-		background-color: var(--hz-color-surface, #fff);
 	}
 }
