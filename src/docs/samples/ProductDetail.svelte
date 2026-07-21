@@ -1,0 +1,217 @@
+<script lang="ts">
+	/**
+	 * A product detail page composed entirely from the library.
+	 *
+	 * This is consumer code: it imports only public exports. The buy panel is
+	 * live — the plastic RadioGroup drives the derived price, the Carousel
+	 * pages through colorways, and "Add to cart" raises a dismissible success
+	 * Alert. Product art is generated SVG data URIs so the sample stays
+	 * self-contained.
+	 */
+	import {
+		Breadcrumbs,
+		Stack,
+		Cluster,
+		Split,
+		Carousel,
+		Image,
+		Badge,
+		Button,
+		Alert,
+		RadioGroup,
+		Select,
+		Accordion,
+		Divider
+	} from '$lib';
+	import type { BreadcrumbItem, FormOption } from '$lib/types';
+
+	interface Colorway {
+		id: string;
+		label: string;
+		bg: string;
+		fg: string;
+	}
+
+	const breadcrumbs: BreadcrumbItem[] = [
+		{ label: 'Home', href: '#' },
+		{ label: 'Shop', href: '#' },
+		{ label: 'Distance drivers', href: '#' },
+		{ label: 'Voyager' }
+	];
+
+	const colorways: Colorway[] = [
+		{ id: 'cosmic', label: 'Cosmic blue', bg: '1e3a8a', fg: '60a5fa' },
+		{ id: 'ember', label: 'Ember orange', bg: '7c2d12', fg: 'fb923c' },
+		{ id: 'meadow', label: 'Meadow green', bg: '14532d', fg: '4ade80' }
+	];
+
+	// Self-contained product art — a real shop would serve photos here.
+	function discArt(colorway: Colorway): string {
+		return (
+			`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E` +
+			`%3Crect width='800' height='600' fill='%23${colorway.bg}'/%3E` +
+			`%3Ccircle cx='400' cy='300' r='200' fill='%23${colorway.fg}'/%3E` +
+			`%3Ccircle cx='400' cy='300' r='140' fill='none' stroke='%23ffffff' stroke-opacity='0.4' stroke-width='8'/%3E` +
+			`%3C/svg%3E`
+		);
+	}
+
+	const flight = [
+		{ label: 'Speed', value: '12' },
+		{ label: 'Glide', value: '5' },
+		{ label: 'Turn', value: '-1' },
+		{ label: 'Fade', value: '3' }
+	];
+
+	const plasticPrices: Record<string, number> = { base: 14.99, pro: 17.99, champion: 19.99 };
+
+	const plastics: FormOption[] = [
+		{ value: 'base', label: 'Base — $14.99' },
+		{ value: 'pro', label: 'Pro — $17.99' },
+		{ value: 'champion', label: 'Champion — $19.99' }
+	];
+
+	const weights: FormOption[] = ['165', '168', '170', '173', '175'].map((w) => ({
+		value: w,
+		label: `${w} g`
+	}));
+
+	let plastic = $state('champion');
+	let weight = $state('173');
+	let added = $state(false);
+
+	const price = $derived(plasticPrices[plastic]);
+	const plasticLabel = $derived(
+		plastics.find((p) => p.value === plastic)?.label.split(' — ')[0] ?? plastic
+	);
+
+	const sections = [
+		{ id: 'description', title: 'Description' },
+		{ id: 'specs', title: 'Specs' },
+		{ id: 'shipping', title: 'Shipping & returns' }
+	];
+</script>
+
+<Stack gap="lg" padding="lg">
+	<Breadcrumbs items={breadcrumbs} ariaLabel="Shop breadcrumbs" />
+
+	<Split fraction="1/2" gap="lg" stackBelow="md">
+		<Carousel
+			items={colorways}
+			ariaLabel="Voyager colorways"
+			indicator="dots"
+			loop
+			slideLabel={(colorway) => colorway.label}
+		>
+			{#snippet slide(colorway)}
+				<Image
+					src={discArt(colorway)}
+					alt="Voyager in {colorway.label}"
+					aspectRatio="4/3"
+					fit="cover"
+					rounded="md"
+				/>
+			{/snippet}
+		</Carousel>
+
+		<Stack gap="md">
+			<Stack gap="xs">
+				<p class="eyebrow">Hyzer Labs Originals</p>
+				<h2>Voyager</h2>
+				<Cluster gap="sm">
+					{#each flight as f (f.label)}
+						<Badge variant="outline" size="sm">{f.label} {f.value}</Badge>
+					{/each}
+				</Cluster>
+			</Stack>
+
+			<p class="price">${price.toFixed(2)}</p>
+
+			<p class="muted">
+				A workhorse distance driver with a long, controllable flight and a dependable finish.
+				Predictable enough for hyzer lines off the tee, stable enough to hold a headwind.
+			</p>
+
+			<RadioGroup name="plastic" label="Plastic" options={plastics} bind:value={plastic} />
+
+			<Select name="weight" label="Weight" options={weights} bind:value={weight} />
+
+			<Cluster gap="sm">
+				<Button intent="primary" size="lg" onclick={() => (added = true)}>Add to cart</Button>
+				<Button variant="outline" size="lg">Add to wishlist</Button>
+			</Cluster>
+
+			{#if added}
+				<Alert
+					intent="success"
+					title="Added to cart"
+					headingLevel={3}
+					onDismiss={() => (added = false)}
+				>
+					Voyager — {plasticLabel}, {weight} g.
+				</Alert>
+			{/if}
+		</Stack>
+	</Split>
+
+	<Divider spacing="sm" />
+
+	<Accordion items={sections} type="single" defaultOpen="description" headingLevel={3}>
+		{#snippet panel(section)}
+			{#if section.id === 'description'}
+				<p>
+					The Voyager was tuned for players who want one driver that does it all: full flex lines in
+					the woods, big sweeping hyzers in the open, and a flat, late fade that keeps it in the
+					fairway. The rim is comfortable for smaller hands, and the flight stays true as the disc
+					beats in.
+				</p>
+			{:else if section.id === 'specs'}
+				<ul>
+					<li>Diameter: 21.1 cm</li>
+					<li>Rim width: 2.2 cm</li>
+					<li>Available weights: 165–175 g</li>
+					<li>PDGA approved</li>
+				</ul>
+			{:else}
+				<p>
+					Free standard shipping on orders over $35. Unthrown discs can be returned within 30 days;
+					field-tested discs can be exchanged within 14 days if the flight isn't right for you.
+				</p>
+			{/if}
+		{/snippet}
+	</Accordion>
+</Stack>
+
+<style>
+	h2 {
+		margin: 0;
+		font-size: var(--hz-font-size-xl, 1.65rem);
+		font-weight: var(--hz-font-weight-bold, 700);
+	}
+
+	p,
+	ul {
+		margin: 0;
+	}
+
+	ul {
+		padding-inline-start: 1.25rem;
+	}
+
+	.eyebrow {
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.price {
+		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-weight: var(--hz-font-weight-bold, 700);
+	}
+
+	.muted {
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+</style>
