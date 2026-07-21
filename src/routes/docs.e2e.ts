@@ -481,3 +481,60 @@ test.describe('specs/33 — carousel', () => {
 		expect(await dot.evaluate(probesTaller)).toBe(true);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// specs/34 Part B — command palette search
+// ---------------------------------------------------------------------------
+
+test.describe('specs/34 — command palette (modal)', () => {
+	test('the search trigger opens a modal; typing + Enter navigates', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/');
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		const dialog = page.getByRole('dialog', { name: 'Search documentation' });
+		await expect(dialog).toBeVisible();
+		const input = dialog.getByRole('combobox', { name: 'Search documentation' });
+		await expect(input).toBeFocused();
+		await input.fill('toggle');
+		await expect(page.getByRole('option', { name: /Toggle/ })).toBeVisible();
+		await input.press('Enter');
+		await expect(page).toHaveURL('/components/toggle');
+		await expect(dialog).toBeHidden();
+	});
+
+	test('a result shows its section/group breadcrumb and click navigates', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/');
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		const input = page.getByRole('combobox', { name: 'Search documentation' });
+		await input.fill('select');
+		const option = page.getByRole('option', { name: /Select/ }).first();
+		await expect(option).toContainText('Components · Forms');
+		await option.click();
+		await expect(page).toHaveURL('/components/select');
+	});
+
+	test('the backdrop dismisses the modal', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/');
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		const dialog = page.getByRole('dialog', { name: 'Search documentation' });
+		await expect(dialog).toBeVisible();
+		await page.locator('.cmd-backdrop').click({ position: { x: 5, y: 5 } });
+		await expect(dialog).toBeHidden();
+	});
+
+	test('no horizontal overflow at 375px with the palette open', async ({ page }) => {
+		await page.setViewportSize({ width: 375, height: 700 });
+		await page.goto('/');
+		await page.getByRole('button', { name: 'Toggle navigation menu' }).first().click();
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		const input = page.getByRole('combobox', { name: 'Search documentation' });
+		await input.fill('co');
+		await expect(page.getByRole('listbox')).toBeVisible();
+		const overflow = await page.evaluate(
+			() => document.documentElement.scrollWidth > document.documentElement.clientWidth
+		);
+		expect(overflow).toBe(false);
+	});
+});

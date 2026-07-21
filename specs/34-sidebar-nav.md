@@ -95,10 +95,16 @@ Docs chrome, not a library component — it lives in `src/docs/CommandPalette.sv
 and is hosted by the docs shell. It searches the manifest, so it never drifts
 from the nav.
 
-8. **R8 — Trigger and placement.** A search input sits in the sidebar header,
-   below the logo/theme-toggle row. `Cmd/Ctrl+K` from anywhere focuses/opens
-   it; `/` may also focus it. Clicking it opens it. It shows a hint of the
-   shortcut.
+8. **R8 — Trigger and placement.** The palette lives in the sidebar header,
+   below the logo/theme-toggle row, and supports two `mode`s (implemented
+   2026-07-20): `inline` renders a live input with the results dropping down
+   under it (fixed-positioned, since the sidebar clips overflow); `modal`
+   renders a search-styled trigger that opens a centered overlay with a
+   **backdrop scrim** so nothing behind shows through. `Cmd/Ctrl+K` from
+   anywhere focuses the inline field or opens the modal; both show the shortcut
+   hint. The docs shell uses `mode="modal"`; it's a one-prop switch. The
+   results list carries the same scrollbar treatment as the sidebar
+   (transparent track, mode-adaptive thumb) and an opaque surface.
 9. **R9 — Results.** Typing filters every routable page (the manifest's
    flattened pages) by a case-insensitive match on the page label and its
    section/group path (so "toggle", "forms toggle", and "form" all find

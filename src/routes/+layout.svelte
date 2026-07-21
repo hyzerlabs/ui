@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
+	import { goto } from '$app/navigation';
 	import { Nav } from '$lib';
 	import type { NavChild } from '$lib/types';
 	import { isGrouped, isSection, manifest, sectionPages } from '../docs/manifest';
+	import CommandPalette, { type CommandItem } from '../docs/CommandPalette.svelte';
 	import '$lib/theme/reset.css';
 	import '$lib/tokens/tokens.css';
 	// Reference theme — the docs site is its living example. Demos render the
@@ -69,6 +71,29 @@
 					}
 		)
 	);
+
+	// Search index for the command palette — every routable page with its
+	// section/group breadcrumb, straight from the manifest so it can't drift.
+	const searchItems: CommandItem[] = manifest.flatMap((entry) => {
+		if (!isSection(entry)) return [{ label: entry.label, href: entry.href, context: '' }];
+		if (isGrouped(entry))
+			return entry.groups.flatMap((g) =>
+				g.pages.map((p) => ({
+					label: p.label,
+					href: p.href,
+					context: `${entry.label} · ${g.label}`
+				}))
+			);
+		return entry.children.map((p) => ({ label: p.label, href: p.href, context: entry.label }));
+	});
+
+	function onSearchSelect(href: string) {
+		// hrefs come from the manifest — already app-absolute, valid routes; the
+		// docs site has no base path, so a raw goto is correct here.
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
+		goto(href);
+		closeMobileNav();
+	}
 
 	// R9 — initialize from localStorage and sync to DOM
 	$effect(() => {
@@ -145,18 +170,21 @@
 			data-open={mobileNavOpen ? '' : undefined}
 			aria-label="Docs navigation"
 		>
-			<!-- Sidebar header: logo + theme toggle -->
+			<!-- Sidebar header: logo + theme toggle row, then the search box -->
 			<div class="docs-sidebar-header">
-				<a href="/" class="docs-logo" onclick={closeMobileNav}>@hyzer-labs/ui</a>
-				<button
-					type="button"
-					class="docs-icon-btn"
-					aria-pressed={dark ? 'true' : 'false'}
-					aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
-					onclick={toggleTheme}
-				>
-					{#if dark}<span aria-hidden="true">☀︎</span>{:else}<span aria-hidden="true">☾</span>{/if}
-				</button>
+				<div class="docs-sidebar-headrow">
+					<a href="/" class="docs-logo" onclick={closeMobileNav}>@hyzer-labs/ui</a>
+					<button
+						type="button"
+						class="docs-icon-btn"
+						aria-pressed={dark ? 'true' : 'false'}
+						aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+						onclick={toggleTheme}
+					>
+						{#if dark}<span aria-hidden="true">☀︎</span>{:else}<span aria-hidden="true">☾</span>{/if}
+					</button>
+				</div>
+				<CommandPalette items={searchItems} onSelect={onSearchSelect} mode="modal" />
 			</div>
 
 			<!-- Nav tree — the library's vertical Nav, dogfooded as the docs
@@ -301,10 +329,16 @@
 	.docs-sidebar-header {
 		flex-shrink: 0;
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		flex-direction: column;
+		gap: 0.75rem;
 		padding: 1.25rem 1rem 1rem;
 		border-bottom: 1px solid var(--hz-color-border, #6b7280);
+	}
+
+	.docs-sidebar-headrow {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 	}
 
 	/* The one scrolling region — so the gutter (reserved to stop reflow when a

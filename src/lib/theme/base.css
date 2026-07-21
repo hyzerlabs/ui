@@ -17,6 +17,19 @@
 		outline: var(--hz-border-width-thick, 2px) solid var(--hz-color-primary, #2563eb);
 		outline-offset: 2px;
 	}
+
+	/* General-content links (a bare <a> in prose) get accessible, mode-aware
+	 * colours — the browser defaults (blue / purple) fail on a dark surface.
+	 * :where() keeps this at zero specificity, so .hz-link and any consumer or
+	 * component link class always win. This lives in the theme, not reset.css,
+	 * because it needs the tokens (reset must work token-free). */
+	:where(a) {
+		color: var(--hz-color-primary, #2563eb);
+	}
+
+	:where(a:visited) {
+		color: var(--hz-color-secondary, #7c3aed);
+	}
 }
 
 /*
