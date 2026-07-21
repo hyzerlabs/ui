@@ -538,3 +538,65 @@ test.describe('specs/34 — command palette (modal)', () => {
 		expect(overflow).toBe(false);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// "On this page" rail — right-hand TOC (docs chrome)
+// ---------------------------------------------------------------------------
+
+test.describe('On this page rail', () => {
+	const toc = 'nav[aria-label="On this page"]';
+
+	test('lists the section headings on a component page at 1536px', async ({ page }) => {
+		await page.setViewportSize({ width: 1536, height: 900 });
+		await page.goto('/components/button');
+		const rail = page.locator(toc);
+		await expect(rail).toBeVisible();
+		for (const label of ['Import', 'Demo', 'Props', 'Accessibility']) {
+			await expect(rail.getByRole('link', { name: label })).toBeVisible();
+		}
+		// At the top of the page the first section is the active one.
+		await expect(rail.locator('a[aria-current="location"]')).toHaveText('Import');
+	});
+
+	test('clicking an entry jumps to the section and marks it current', async ({ page }) => {
+		await page.setViewportSize({ width: 1536, height: 900 });
+		await page.goto('/components/button');
+		await page.locator(toc).getByRole('link', { name: 'Accessibility' }).click();
+		await expect(page).toHaveURL('/components/button#a11y-heading');
+		await expect(page.locator('h2#a11y-heading')).toBeInViewport();
+		await expect(page.locator(`${toc} a[aria-current="location"]`)).toHaveText('Accessibility');
+	});
+
+	test('scroll-spy tracks the reading position', async ({ page }) => {
+		await page.setViewportSize({ width: 1536, height: 900 });
+		await page.goto('/components/button');
+		await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+		// Pinned to the bottom, the last section wins even if its heading
+		// never crosses the threshold.
+		await expect(page.locator(`${toc} a[aria-current="location"]`)).toHaveText('Accessibility');
+	});
+
+	test('hidden below the 1440px breakpoint (breakouts need the width)', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/components/button');
+		await expect(page.locator(toc)).toBeHidden();
+	});
+
+	test('demo headings inside sample frames are not collected', async ({ page }) => {
+		await page.setViewportSize({ width: 1536, height: 900 });
+		// The homepage pattern's Hero renders an id'd h2 inside .sample-frame;
+		// excluded, the page has only "Source" left — under the 2-entry
+		// minimum, so the rail does not render at all.
+		await page.goto('/patterns/homepage');
+		expect(await page.locator(toc).count()).toBe(0);
+	});
+
+	test('no horizontal overflow at 1536px with the rail and a breakout demo', async ({ page }) => {
+		await page.setViewportSize({ width: 1536, height: 900 });
+		await page.goto('/patterns/product-listing');
+		const overflow = await page.evaluate(
+			() => document.documentElement.scrollWidth > document.documentElement.clientWidth
+		);
+		expect(overflow).toBe(false);
+	});
+});

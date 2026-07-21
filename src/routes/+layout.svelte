@@ -6,6 +6,7 @@
 	import type { NavChild } from '$lib/types';
 	import { isGrouped, isSection, manifest, sectionPages } from '../docs/manifest';
 	import CommandPalette, { type CommandItem } from '../docs/CommandPalette.svelte';
+	import Toc from '../docs/Toc.svelte';
 	import '$lib/theme/reset.css';
 	import '$lib/tokens/tokens.css';
 	// Reference theme — the docs site is its living example. Demos render the
@@ -224,6 +225,10 @@
 				{@render children()}
 			</div>
 		</main>
+
+		<!-- "On this page" rail — fixed in the gutter .docs-main reserves at
+		     ≥1440px. A sibling of main, so it's its own nav landmark. -->
+		<Toc />
 	</div>
 
 	<!-- Simple footer — no nav link columns -->
@@ -542,6 +547,18 @@
 
 	.docs-main-inner {
 		max-width: 56rem;
+	}
+
+	/* Reserve the "On this page" gutter (Toc.svelte shows under the same
+	 * breakpoint — keep the two in sync). Because .docs-main is the size
+	 * container, cqw tracks its content box, so breakout demos shrink to
+	 * stop short of the rail instead of sliding beneath it. At 1440px that
+	 * leaves 1440 − 240 − 32 − 192 = 976px of content — still past the
+	 * 968px md threshold the split-hero demos need. */
+	@media (min-width: 1440px) {
+		.docs-main {
+			padding-right: 12rem;
+		}
 	}
 
 	/* ------------------------------------------------------------------ */
