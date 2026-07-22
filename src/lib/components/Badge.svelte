@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import type { BadgeIntent, BadgeVariant, BadgeSize, Rounded } from '$lib/types';
 	import { cx } from '$lib/utils';
-	import IconX from '$lib/icons/IconX.svelte';
+	import IconX from '$lib/icons/generated/x.svelte';
 
 	interface Props {
 		children: Snippet;

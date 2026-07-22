@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Accordion, Tabs } from '$lib';
-	import { IconPlus } from '$lib/icons';
+	import IconPlus from '$lib/icons/generated/plus.svelte';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';

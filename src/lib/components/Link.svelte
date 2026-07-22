@@ -2,7 +2,7 @@
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
 	import { cx } from '$lib/utils';
-	import { IconExternalLink } from '$lib/icons';
+	import IconExternalLink from '$lib/icons/generated/external-link.svelte';
 
 	type LinkVariant = 'default' | 'subtle' | 'nav';
 

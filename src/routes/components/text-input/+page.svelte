@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { TextInput, Tabs, Stack } from '$lib';
-	import { IconSearch } from '$lib/icons';
+	import IconSearch from '$lib/icons/generated/search.svelte';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';

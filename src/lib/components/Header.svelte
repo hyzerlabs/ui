@@ -3,7 +3,7 @@
 	import type { NavItem } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
 	import Nav from './Nav.svelte';
-	import IconMenu from '$lib/icons/IconMenu.svelte';
+	import IconMenu from '$lib/icons/generated/menu.svelte';
 
 	type HeaderVariant = 'default' | 'transparent';
 	type HeaderBreakpoint = 'sm' | 'md' | 'lg' | 'none';

@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import type { Intent, Rounded } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
-	import IconX from '$lib/icons/IconX.svelte';
+	import IconX from '$lib/icons/generated/x.svelte';
 
 	type AlertIntent = 'neutral' | Intent;
 

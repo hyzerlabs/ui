@@ -87,8 +87,28 @@
 		'# A patch sheet with only your overrides — import it AFTER tokens.css:',
 		'hyzer generate --mode overrides',
 		'',
-		'# Validate without writing; fail CI on any AA miss:',
+		'# Validate without writing; fail CI on any AA miss (and any unknown icon):',
 		'hyzer generate --check --strict'
+	].join('\n');
+
+	const iconsConfigCode = [
+		'// hyzer.config.ts',
+		"import { defineConfig } from '@hyzer-labs/ui/config';",
+		'',
+		'export default defineConfig({',
+		"\t// kebab-case Lucide names — 'plus' is already core (deduped, no warning)",
+		"\ticons: ['plus', 'trash-2', 'settings', 'serch']",
+		'});'
+	].join('\n');
+
+	const iconsReportCode = [
+		'$ hyzer generate',
+		'wrote src/styles/tokens.css (full, 84 tokens)',
+		'wrote src/styles/icons.ts (16 icons)',
+		'contrast: 96 pairings checked — all pass WCAG AA',
+		'  ? icons: "serch" is not a valid Lucide icon name — omitted from the barrel',
+		'icons: 1 unknown name(s) (warnings; use --strict to fail the build)',
+		'icons: 16 included (14 core, 2 configured)'
 	].join('\n');
 </script>
 
@@ -153,6 +173,28 @@
 			<code>@hyzer-labs/ui/config</code> (<code>resolveConfig</code>, <code>generateCss</code>,
 			<code>contrastReport</code>) for build scripts of your own.
 		</p>
+	</section>
+
+	<section aria-labelledby="icons-config-heading">
+		<h2 id="icons-config-heading">Trimming the icon set</h2>
+		<p>
+			The same config extends to <a href="/foundation/icons">icons</a>: an optional
+			<code>icons: string[]</code> list of kebab-case Lucide names. <code>hyzer generate</code>
+			emits an <code>icons.ts</code> module next to the tokens sheet — named re-exports from
+			<code>@hyzer-labs/ui/icons/&lt;name&gt;</code> deep paths for the union of your list and the library's
+			always-shipped core set (the chevrons, close, menu, and friends its own components depend on) —
+			so your app's autocomplete surface is its own icon vocabulary, not the full 1,700-plus name Lucide
+			set.
+		</p>
+		<CodeBlock code={iconsConfigCode} />
+		<p>
+			Core icons are deduplicated into the core group with no warning if you list one explicitly. An
+			unknown name is a report warning by default; <code>--strict</code> turns it into a failing run
+			(the icon is still omitted from the emitted barrel either way). Omitting the
+			<code>icons</code> key entirely skips the file and the report section — <code>icons: []</code>
+			is a valid, minimal config: the core-only barrel.
+		</p>
+		<CodeBlock code={iconsReportCode} />
 	</section>
 
 	<section aria-labelledby="verify-heading">

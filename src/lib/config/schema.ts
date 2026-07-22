@@ -80,6 +80,15 @@ export interface HyzerConfig {
 	output?: string;
 	tokens?: HyzerTokensOverride;
 	dark?: HyzerDarkOverride;
+	/**
+	 * Kebab-case Lucide icon names (specs/36 R5) — the upstream canonical
+	 * form; the run report echoes the generated `Icon<PascalName>` export
+	 * name. `hyzer generate` emits a trimmed `icons.ts` barrel: the union of
+	 * this list and the always-shipped `CORE_ICONS` set. Unknown names are
+	 * collected as warnings, not fatal here — validity against the Lucide
+	 * manifest is a runtime question (see `src/lib/config/icons.ts`).
+	 */
+	icons?: string[];
 }
 
 /** Identity helper — gives `hyzer.config.ts` full typing and autocomplete. */
@@ -139,6 +148,13 @@ export interface ResolvedConfig {
 	/** The `[data-theme="dark"]` block: role/palette overrides + intent overrides. */
 	dark: { color: TokenEntry[]; intent: TokenEntry[] };
 	output?: string;
+	/**
+	 * Deduplicated, order-preserved raw `icons` config (specs/36 R5) —
+	 * `undefined` when the key is absent, `[]` is a valid "core-only" value.
+	 * Not yet cross-checked against the Lucide manifest; see
+	 * `src/lib/config/icons.ts`.
+	 */
+	icons?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -285,7 +301,11 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 			'The hyzer config must be an object (the defineConfig default export).'
 		);
 	}
-	assertKnownKeys(config as Record<string, unknown>, ['output', 'tokens', 'dark'], 'config');
+	assertKnownKeys(
+		config as Record<string, unknown>,
+		['output', 'tokens', 'dark', 'icons'],
+		'config'
+	);
 	const tokens = config.tokens;
 	assertKnownKeys(tokens as Record<string, unknown> | undefined, TOKEN_GROUP_KEYS, 'config.tokens');
 	assertKnownKeys(
@@ -315,6 +335,16 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	);
 	if (config.output !== undefined && typeof config.output !== 'string') {
 		throw new HyzerConfigError('config.output must be a string path.');
+	}
+	if (config.icons !== undefined) {
+		if (
+			!Array.isArray(config.icons) ||
+			config.icons.some((n) => typeof n !== 'string' || n.trim() === '')
+		) {
+			throw new HyzerConfigError(
+				'config.icons must be an array of non-empty strings (kebab-case Lucide names).'
+			);
+		}
 	}
 	if (tokens?.density?.unit !== undefined && typeof tokens.density.unit !== 'string') {
 		throw new HyzerConfigError('config.tokens.density.unit must be a string.');
@@ -456,7 +486,8 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 			levels: density.levels
 		},
 		dark,
-		output: config.output
+		output: config.output,
+		icons: config.icons !== undefined ? [...new Set(config.icons)] : undefined
 	};
 
 	validateReferences(resolved);

@@ -2,7 +2,7 @@
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
 	import type { Intent, Variant } from '$lib/types';
-	import { IconLoader } from '$lib/icons';
+	import IconLoader from '$lib/icons/generated/loader.svelte';
 	import { cx } from '$lib/utils';
 
 	/**

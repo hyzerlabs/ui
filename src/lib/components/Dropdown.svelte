@@ -4,7 +4,7 @@
 	import type { DropdownEntry, DropdownItem, DropdownTriggerProps } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
 	import Button from './Button.svelte';
-	import IconChevronDown from '$lib/icons/IconChevronDown.svelte';
+	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 
 	interface Props {
 		items: DropdownEntry[];

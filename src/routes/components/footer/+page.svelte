@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { Container, Footer, Link, Tabs } from '$lib';
-	import { IconGithub, IconRss } from '$lib/icons';
+	import IconGlobe from '$lib/icons/generated/globe.svelte';
+	import IconMail from '$lib/icons/generated/mail.svelte';
+	import IconRss from '$lib/icons/generated/rss.svelte';
 	import type { FooterColumn } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
@@ -141,7 +143,8 @@
 		'<Footer {columns} headingLevel={3}>',
 		'\t{#snippet logo()}<strong>@hyzer-labs/ui</strong>{/snippet}',
 		'\t{#snippet social()}',
-		'\t\t<Link href="https://github.com/hyzerlabs/ui" ariaLabel="GitHub"><IconGithub /></Link>',
+		'\t\t<Link href="https://hyzer.sh" ariaLabel="Website"><IconGlobe /></Link>',
+		'\t\t<Link href="mailto:hello@hyzer.sh" ariaLabel="Email"><IconMail /></Link>',
 		'\t\t<Link href="/rss.xml" ariaLabel="RSS feed"><IconRss /></Link>',
 		'\t{/snippet}',
 		'\t{#snippet bottom()}',
@@ -234,13 +237,21 @@
 						{/snippet}
 					</Tabs>
 				{:else if item.id === 'slots'}
+					<p class="tab-note">
+						<code>social</code> is a plain snippet — any icon works, including brand marks. The
+						library ships the full Lucide set (generic glyphs like <code>globe</code>,
+						<code>mail</code>, and <code>rss</code> below); real brand marks (GitHub, X, etc.) are
+						bring-your-own — drop an SVG, an icon-font glyph, or a package like
+						<code>simple-icons</code> straight into the snippet.
+					</p>
 					<Example code={slotsCode}>
 						<Footer columns={demoColumns} headingLevel={3}>
 							{#snippet logo()}<strong>@hyzer-labs/ui</strong>{/snippet}
 							{#snippet social()}
-								<Link href="https://github.com/hyzerlabs/ui" ariaLabel="GitHub">
-									<IconGithub />
+								<Link href="https://hyzer.sh" ariaLabel="Website">
+									<IconGlobe />
 								</Link>
+								<Link href="mailto:hello@hyzer.sh" ariaLabel="Email"><IconMail /></Link>
 								<Link href="#" ariaLabel="RSS feed"><IconRss /></Link>
 							{/snippet}
 							{#snippet bottom()}

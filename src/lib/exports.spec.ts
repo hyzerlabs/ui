@@ -72,9 +72,9 @@ describe('subpath exports', () => {
 		expect(typeof mod.rgbToHex).toBe('function');
 	});
 
-	it('$lib/icons — exports all 21 icon components (R10)', async () => {
+	it('$lib/icons — exports the full generated Lucide barrel + IconProps (specs/36 R3)', async () => {
 		const mod = await import('$lib/icons');
-		// UI icons (R7)
+		// Core set (specs/36 R4) — always present.
 		expect(mod.IconChevronDown).toBeDefined();
 		expect(mod.IconChevronRight).toBeDefined();
 		expect(mod.IconChevronUp).toBeDefined();
@@ -89,14 +89,15 @@ describe('subpath exports', () => {
 		expect(mod.IconLoader).toBeDefined();
 		expect(mod.IconArrowLeft).toBeDefined();
 		expect(mod.IconArrowRight).toBeDefined();
-		// Brand icons (R8)
-		expect(mod.IconGithub).toBeDefined();
-		expect(mod.IconLinkedin).toBeDefined();
-		expect(mod.IconTwitterX).toBeDefined();
-		expect(mod.IconFacebook).toBeDefined();
-		expect(mod.IconInstagram).toBeDefined();
-		expect(mod.IconYoutube).toBeDefined();
-		expect(mod.IconRss).toBeDefined();
+		// A sample well beyond the old 21 hand-written names — proves the full
+		// Lucide set ships, not just the core.
+		expect(mod.IconGlobe).toBeDefined();
+		expect(mod.IconMail).toBeDefined();
+		expect(mod.IconAxis3d).toBeDefined();
+		expect(mod.IconAArrowDown).toBeDefined();
+		// The 7 hand-drawn brand marks are deleted outright (specs/36 R2) — no
+		// replacement export of the same name.
+		expect((mod as Record<string, unknown>).IconGithub).toBeUndefined();
 	});
 
 	it('$lib/utils — exports cx, uid, and the contrast utilities', async () => {
@@ -184,6 +185,8 @@ describe('package.json metadata', () => {
 		expect(exports['./tokens']).toBeDefined();
 		expect(exports['./tokens.css']).toBeDefined();
 		expect(exports['./icons']).toBeDefined();
+		// specs/36 R3 — deep per-icon subpath for Tier-2 imports.
+		expect(exports['./icons/*']).toBeDefined();
 		expect(exports['./utils']).toBeDefined();
 		expect(exports['./types']).toBeDefined();
 		expect(exports['./theme']).toBeDefined();

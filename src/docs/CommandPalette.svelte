@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-	import IconSearch from '$lib/icons/IconSearch.svelte';
+	import IconSearch from '$lib/icons/generated/search.svelte';
 	import { uid } from '$lib/utils';
 
 	interface Props {

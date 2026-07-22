@@ -171,51 +171,56 @@ test.describe('Modal demo edge case', () => {
 });
 
 // ---------------------------------------------------------------------------
-// R8 — Icons page
+// specs/36 R8 — Icons catalog page
 // ---------------------------------------------------------------------------
 
-// All 21 icon export names — sourced from src/lib/icons/index.ts (R8)
-const ICON_NAMES = [
-	'IconChevronDown',
-	'IconChevronRight',
-	'IconChevronUp',
-	'IconChevronLeft',
-	'IconX',
-	'IconMenu',
-	'IconExternalLink',
-	'IconCheck',
-	'IconMinus',
-	'IconPlus',
-	'IconSearch',
-	'IconLoader',
-	'IconArrowLeft',
-	'IconArrowRight',
-	'IconGithub',
-	'IconLinkedin',
-	'IconTwitterX',
-	'IconFacebook',
-	'IconInstagram',
-	'IconYoutube',
-	'IconRss'
-] as const;
+// A handful of core export names (specs/36 R4) — always present, both in
+// the dedicated "Core icons" section and (badged) in the full catalog.
+const CORE_ICON_NAMES = ['IconChevronDown', 'IconX', 'IconMenu', 'IconSearch'] as const;
 
-test.describe('R8 — icons page', () => {
-	test('all 21 icon export names appear as visible text on /foundation/icons', async ({ page }) => {
+test.describe('specs/36 R8 — icons catalog page', () => {
+	test('the manifest count renders as text, not one DOM node per icon', async ({ page }) => {
 		await page.goto('/foundation/icons');
-
-		expect(ICON_NAMES).toHaveLength(21);
-
-		for (const name of ICON_NAMES) {
-			// Each icon tile contains the export name as visible text
-			await expect(page.getByText(name, { exact: true }).first()).toBeVisible();
-		}
+		// The full Lucide set is well over a thousand icons — assert the
+		// count is shown as a number, not that this many DOM nodes exist.
+		await expect(page.getByText(/\d{3,5} icons/).first()).toBeVisible();
+		await expect(page.getByText(/\d+ of \d{3,5} icons shown/)).toBeVisible();
 	});
 
-	test('21 svg.hz-icon elements render on /foundation/icons', async ({ page }) => {
+	test('core icons render in a dedicated "Core icons" section, each badged "core"', async ({
+		page
+	}) => {
 		await page.goto('/foundation/icons');
-		const icons = page.locator('svg.hz-icon');
-		// At least 21 — more may render in the size/stroke demo section
-		expect(await icons.count()).toBeGreaterThanOrEqual(21);
+		const heading = page.getByRole('heading', { name: 'Core icons' });
+		await expect(heading).toBeVisible();
+		for (const name of CORE_ICON_NAMES) {
+			await expect(page.getByText(name, { exact: true }).first()).toBeVisible();
+		}
+		await expect(page.getByText('core', { exact: true }).first()).toBeVisible();
+	});
+
+	test('a props demo section illustrates size, stroke, and decorative vs. labelled', async ({
+		page
+	}) => {
+		await page.goto('/foundation/icons');
+		await expect(page.getByRole('heading', { name: 'Size & stroke' })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Decorative vs. labelled' })).toBeVisible();
+		await expect(page.getByText('Decorative (no ariaLabel → aria-hidden)')).toBeVisible();
+	});
+
+	test('searching narrows the catalog to a known icon and updates the shown count', async ({
+		page
+	}) => {
+		await page.goto('/foundation/icons');
+		const search = page.getByRole('textbox', { name: 'Search icons' });
+		await search.fill('a-arrow-down');
+		await expect(page.getByText('IconAArrowDown', { exact: true }).first()).toBeVisible();
+		await expect(page.getByText(/^1 of \d{3,5} icons shown$/)).toBeVisible();
+	});
+
+	test('a bring-your-own brand marks note is present (no brand-icon section)', async ({ page }) => {
+		await page.goto('/foundation/icons');
+		await expect(page.getByText(/bring your own brand mark/i)).toBeVisible();
 	});
 });
 

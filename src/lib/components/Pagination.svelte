@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { cx } from '$lib/utils';
-	import IconChevronLeft from '$lib/icons/IconChevronLeft.svelte';
-	import IconChevronRight from '$lib/icons/IconChevronRight.svelte';
+	import IconChevronLeft from '$lib/icons/generated/chevron-left.svelte';
+	import IconChevronRight from '$lib/icons/generated/chevron-right.svelte';
 	import Button from './Button.svelte';
 
 	interface Props {

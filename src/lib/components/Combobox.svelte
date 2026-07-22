@@ -3,7 +3,7 @@
 	import { cx, uid } from '$lib/utils';
 	import Field from './Field.svelte';
 	import Badge from './Badge.svelte';
-	import IconChevronDown from '$lib/icons/IconChevronDown.svelte';
+	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 
 	interface Props extends FieldBase {
 		options: FormOption[];

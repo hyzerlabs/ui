@@ -4,10 +4,10 @@
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
-	import IconCheck from '$lib/icons/IconCheck.svelte';
-	import IconPlus from '$lib/icons/IconPlus.svelte';
-	import IconX from '$lib/icons/IconX.svelte';
-	import IconMenu from '$lib/icons/IconMenu.svelte';
+	import IconCheck from '$lib/icons/generated/check.svelte';
+	import IconPlus from '$lib/icons/generated/plus.svelte';
+	import IconX from '$lib/icons/generated/x.svelte';
+	import IconMenu from '$lib/icons/generated/menu.svelte';
 
 	const props: PropRow[] = [
 		{

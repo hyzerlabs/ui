@@ -3,7 +3,7 @@
 	import type { BreadcrumbItem } from '$lib/types';
 	import { cx } from '$lib/utils';
 	import Link from './Link.svelte';
-	import IconChevronRight from '$lib/icons/IconChevronRight.svelte';
+	import IconChevronRight from '$lib/icons/generated/chevron-right.svelte';
 
 	interface Props {
 		items: BreadcrumbItem[];

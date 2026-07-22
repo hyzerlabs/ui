@@ -146,3 +146,66 @@ describe('hyzer generate — modes and flags', () => {
 		expect(b.errors.join('\n')).toContain('Usage');
 	});
 });
+
+// ---------------------------------------------------------------------------
+// specs/36 R6 — icons config: trimmed barrel emission, report, --strict
+// ---------------------------------------------------------------------------
+
+describe('hyzer generate — icons config', () => {
+	it('no icons key writes no icons.ts and prints no icons report section', async () => {
+		const { cwd, logs, io } = sandbox();
+		expect(await run(['generate'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'icons.ts'))).toBe(false);
+		expect(logs.join('\n')).not.toContain('icons:');
+	});
+
+	it('icons: [] writes the core-only barrel next to the tokens sheet', async () => {
+		const { cwd, logs, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { icons: [] };`);
+		expect(await run(['generate'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'icons.ts'), 'utf8');
+		expect(written).toContain(
+			`export { default as IconChevronDown } from '@hyzer-labs/ui/icons/chevron-down';`
+		);
+		expect(logs.join('\n')).toContain('icons: 14 included (14 core, 0 configured)');
+	});
+
+	it('honors a custom output directory (icons.ts lands next to the tokens sheet)', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer.config.mjs'),
+			`export default { output: 'styles/tokens.css', icons: ['settings'] };`
+		);
+		expect(await run(['generate'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'styles/icons.ts'))).toBe(true);
+		const written = readFileSync(join(cwd, 'styles/icons.ts'), 'utf8');
+		expect(written).toContain(
+			`export { default as IconSettings } from '@hyzer-labs/ui/icons/settings';`
+		);
+	});
+
+	it('an unknown icon name warns by default and fails with --strict; the barrel is still written without it', async () => {
+		const first = sandbox();
+		writeFileSync(join(first.cwd, 'hyzer.config.mjs'), `export default { icons: ['serch'] };`);
+		expect(await run(['generate'], first.io)).toBe(0);
+		expect(first.errors.join('\n')).toContain(
+			'icons: "serch" is not a valid Lucide icon name — omitted from the barrel'
+		);
+		expect(first.errors.join('\n')).toContain('icons: 1 unknown name(s)');
+		expect(first.errors.join('\n')).toContain('use --strict');
+		expect(readFileSync(join(first.cwd, 'icons.ts'), 'utf8')).not.toContain('serch');
+
+		const second = sandbox();
+		writeFileSync(join(second.cwd, 'hyzer.config.mjs'), `export default { icons: ['serch'] };`);
+		expect(await run(['generate', '--strict'], second.io)).toBe(1);
+		expect(existsSync(join(second.cwd, 'icons.ts'))).toBe(true);
+	});
+
+	it('--check reports the icons section without writing icons.ts', async () => {
+		const { cwd, logs, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { icons: ['settings'] };`);
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'icons.ts'))).toBe(false);
+		expect(logs.join('\n')).toContain('icons: 15 included (14 core, 1 configured)');
+	});
+});

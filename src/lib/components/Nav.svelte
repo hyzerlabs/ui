@@ -4,7 +4,7 @@
 	import type { NavItem, NavChild } from '$lib/types';
 	import { cx, uid, isNavHeading } from '$lib/utils';
 	import Link from './Link.svelte';
-	import IconChevronDown from '$lib/icons/IconChevronDown.svelte';
+	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 
 	type NavOrientation = 'horizontal' | 'vertical';
 

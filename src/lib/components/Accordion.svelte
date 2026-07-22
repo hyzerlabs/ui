@@ -2,7 +2,7 @@
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
 	import { cx, uid } from '$lib/utils';
-	import IconChevronDown from '$lib/icons/IconChevronDown.svelte';
+	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 
 	// ---------------------------------------------------------------------------
 	// Types

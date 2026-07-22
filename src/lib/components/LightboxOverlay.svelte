@@ -13,7 +13,7 @@
 	import Carousel from './Carousel.svelte';
 	import Video from './Video.svelte';
 	import Image from './Image.svelte';
-	import IconX from '$lib/icons/IconX.svelte';
+	import IconX from '$lib/icons/generated/x.svelte';
 
 	interface Props {
 		items: LightboxItem[];

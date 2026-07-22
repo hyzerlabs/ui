@@ -12,12 +12,13 @@
 
 import { parseArgs } from 'node:util';
 import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
 	resolveConfig,
 	generateCss,
 	contrastReport,
+	resolveIcons,
 	HyzerConfigError,
 	type HyzerConfig,
 	type ResolvedConfig
@@ -137,6 +138,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 
 	const report = contrastReport(resolved);
 	const failures = report.rows.filter((row) => !row.pass);
+	const iconsResult = resolveIcons(resolved);
 
 	// --- write ----------------------------------------------------------------
 	const mode = parsed.mode ?? 'full';
@@ -154,6 +156,12 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 			resolved.dark.color.length +
 			resolved.dark.intent.length;
 		log(`wrote ${outPath} (${mode}, ${tokenCount} tokens)`);
+
+		if (iconsResult) {
+			const iconsPath = join(dirname(outPath), 'icons.ts');
+			writeFileSync(iconsPath, iconsResult.module);
+			log(`wrote ${iconsPath} (${iconsResult.names.length} icons)`);
+		}
 	}
 
 	// --- contrast report -------------------------------------------------------
@@ -170,7 +178,23 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 		error(`contrast: ${failures.length} of ${report.rows.length} pairings fail WCAG AA${suffix}`);
 	}
 
-	return parsed.strict && failures.length > 0 ? 1 : 0;
+	// --- icons report (specs/36 R6) ---------------------------------------------
+	let iconsFailed = false;
+	if (iconsResult) {
+		for (const name of iconsResult.unknown) {
+			error(`  ? icons: "${name}" is not a valid Lucide icon name — omitted from the barrel`);
+		}
+		if (iconsResult.unknown.length > 0) {
+			iconsFailed = true;
+			const suffix = parsed.strict ? '' : ' (warnings; use --strict to fail the build)';
+			error(`icons: ${iconsResult.unknown.length} unknown name(s)${suffix}`);
+		}
+		log(
+			`icons: ${iconsResult.names.length} included (${iconsResult.coreCount} core, ${iconsResult.configuredCount} configured)`
+		);
+	}
+
+	return parsed.strict && (failures.length > 0 || iconsFailed) ? 1 : 0;
 }
 
 function parseCliArgs(argv: string[]) {

@@ -3,7 +3,7 @@
 	import type { Snippet } from 'svelte';
 	import { cx, uid } from '$lib/utils';
 	import Button from './Button.svelte';
-	import IconX from '$lib/icons/IconX.svelte';
+	import IconX from '$lib/icons/generated/x.svelte';
 
 	type ModalSize = 'sm' | 'md' | 'lg' | 'full';
 

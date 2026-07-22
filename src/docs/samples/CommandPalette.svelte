@@ -8,7 +8,7 @@
 	 * code (bare `#`-free: it navigates to real routes via SvelteKit's goto).
 	 */
 	import { Modal } from '$lib';
-	import IconSearch from '$lib/icons/IconSearch.svelte';
+	import IconSearch from '$lib/icons/generated/search.svelte';
 	import { uid } from '$lib/utils';
 	import { goto } from '$app/navigation';
 

@@ -28,3 +28,4 @@ export {
 	type ContrastReport,
 	type ContrastReportRow
 } from './report.js';
+export { resolveIcons, type IconsResult } from './icons.js';
