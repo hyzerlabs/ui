@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Virtualizer, Tabs } from '$lib';
+	import { Virtualizer, Tabs, Alert } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import type { PropRow } from '../../../docs/PropsTable.svelte';
@@ -155,6 +155,15 @@
 	]}
 	a11yNote="Virtualizer is role-neutral by design: it applies no `role`, `aria-*`, or `tabindex` of its own — it's a rendering optimization, not a widget, so all semantics come from the `row` snippet and `...rest` on the viewport. Because windowing removes off-screen rows from the DOM, any count-dependent semantics must be supplied explicitly: set `aria-setsize` to the total item count and `aria-posinset` to the row's absolute index plus one, using the absolute index the snippet receives, so assistive tech announces 'item N of total' correctly despite the elided DOM — see the List semantics demo below. A keyboard-scrollable viewport is opt-in via a `tabindex` of 0 (plus a `role`/label) through `...rest`; the component adds no key handling of its own. Virtualization can scroll a focused row out of the DOM — a known windowing hazard — so patterns that need a persistently focused off-screen row (e.g. `aria-activedescendant` listboxes) should keep the active row rendered rather than reaching for the raw Virtualizer."
 >
+	<Alert intent="info" title="Tabular data">
+		Windowing a real <code>&lt;table&gt;</code> doesn't work — a
+		<code>&lt;tr&gt;</code> outside a <code>&lt;table&gt;</code> loses its row semantics. For
+		tabular data, prefer the real <a href="/components/table">Table</a> component up to some
+		thousands of rows; past that, see the
+		<a href="/patterns/virtualized-table">Virtualized table</a>
+		pattern, which builds ARIA table semantics — <code>role="table"</code>, <code>"row"</code>,
+		<code>"columnheader"</code>, <code>"cell"</code> — around this component instead.
+	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Virtualizer demos" defaultTab="uniform">
 		{#snippet panel(item)}
 			<div class="tab-content">

@@ -1414,5 +1414,57 @@ export const hooks: Record<string, ComponentHooks> = {
 			},
 			{ name: '.hz-tabs-panel', values: 'child element', note: 'One panel.' }
 		]
+	},
+	Table: {
+		root: 'hz-table hz-table-wrap',
+		attrs: [
+			{
+				name: 'data-sticky',
+				values: 'present when stickyHeader',
+				note: 'On .hz-table-wrap. Pins thead against the wrap’s own scroll — cap the wrap’s max-height (e.g. via your own class through Table’s `class` prop, which lands on the wrap) to see it scroll.'
+			},
+			{
+				name: 'data-stack',
+				values: "'sm' | 'md' | 'lg'",
+				note: 'On .hz-table-wrap. Mirrors the stack prop — stacked below the named --hz-width-* threshold, a real table at/above it. Absent (default): never stacks.'
+			},
+			{
+				name: 'data-selected',
+				values: 'present on a selected row',
+				note: 'On tbody tr. Pairs with aria-selected="true" — both present only when selected.'
+			},
+			{
+				name: 'data-align',
+				values: "'start' | 'center' | 'end'",
+				note: 'On th/td, mirroring a column’s align. Logical values, so start/end flip under RTL with no extra rule.'
+			},
+			{
+				name: 'aria-sort',
+				values: "'ascending' | 'descending'",
+				note: 'Not a data-* hook, but load-bearing for styling the active-column indicator: present only on the sorted column’s th, never on the others.'
+			}
+		],
+		parts: [
+			{
+				name: '.hz-table-sort',
+				values: 'child element',
+				note: 'The sort trigger — a real button wrapping a sortable column’s header text, with the active-column chevron alongside it.'
+			},
+			{
+				name: '.hz-table-empty',
+				values: 'child element',
+				note: 'The full-width cell rendered when items is empty and not loading.'
+			},
+			{
+				name: '.hz-table-skeleton',
+				values: 'child element',
+				note: 'A loading placeholder row — on tbody tr; aria-hidden, so it never reaches assistive tech.'
+			},
+			{
+				name: '.hz-table--striped',
+				values: 'opt-in class',
+				note: 'Zebra striping. Pass it via class — like Card’s treatment classes, this is a theme look, not a prop.'
+			}
+		]
 	}
 };

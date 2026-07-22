@@ -254,6 +254,29 @@ export interface DropdownTriggerProps {
 	class?: string;
 }
 
+/**
+ * A column definition for Table — the field `key` doubles as the column id
+ * (sort target, stacked-mode `data-label` source) and `header` is both the
+ * header cell text and the stacked-mode label.
+ */
+export interface TableColumn<T> {
+	key: string;
+	header: string;
+	sortable?: boolean;
+	/** Sort accessor override; default is `row[key]`. The escape hatch for mixed-type columns. */
+	sortBy?: (row: T) => string | number;
+	/** Logical alignment — 'start'/'end' flip under RTL. */
+	align?: 'start' | 'center' | 'end';
+	/** CSS width for the column's `<col>`. */
+	width?: string;
+}
+
+/** Table's bindable sort state — the active column and its direction. */
+export interface TableSort {
+	key: string;
+	direction: 'asc' | 'desc';
+}
+
 /** Why a file was rejected by FileUpload's client-side validation. */
 export type FileRejectionReason = 'type' | 'size' | 'too-many';
 

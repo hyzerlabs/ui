@@ -605,3 +605,90 @@ test.describe('On this page rail', () => {
 		expect(overflow).toBe(false);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// specs/37 — Table
+// ---------------------------------------------------------------------------
+
+test.describe('specs/37 — Table', () => {
+	test('/components/table renders a real table', async ({ page }) => {
+		await page.goto('/components/table');
+		await expect(page.locator('table.hz-table').filter({ visible: true }).first()).toBeVisible();
+	});
+
+	test('sorting a demo column reorders visible rows', async ({ page }) => {
+		await page.goto('/components/table');
+		// The "Basic" demo (default-active tab) has sortable columns already.
+		const firstRowHeader = page
+			.locator('table.hz-table tbody tr th')
+			.filter({ visible: true })
+			.first();
+		await expect(firstRowHeader).toHaveText('Voyager');
+		await page.getByRole('button', { name: 'Name' }).click();
+		await expect(firstRowHeader).toHaveText('Aviar');
+	});
+
+	test('selection updates the demo readout', async ({ page }) => {
+		await page.goto('/components/table');
+		await page.getByRole('tab', { name: 'Selection' }).click();
+		await expect(page.getByText('Selected: none')).toBeVisible();
+		await page.getByRole('checkbox', { name: 'Voyager' }).check();
+		await expect(page.getByText('Selected: Voyager')).toBeVisible();
+	});
+
+	// No-overflow at 375/768/1280 is covered by the "R-Responsive" sweep above
+	// (it runs over every manifest route, and /components/table is now one).
+
+	test('the stacked demo renders column headers as inline labels at mobile viewport', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 375, height: 800 });
+		await page.goto('/components/table');
+		await page.getByRole('tab', { name: 'Stacked mode' }).click();
+		// "Type" is the second column — a plain <td> (the first, "Name", is the
+		// row's <th scope="row">, which also carries data-label but is a
+		// separate code path — this asserts the more common cell case).
+		const typeCell = page.locator('td[data-label="Type"]').filter({ visible: true }).first();
+		await expect(typeCell).toBeVisible();
+		// The label itself is CSS content (data-label + ::before) — read the
+		// computed pseudo-element content to prove the theme rendered it.
+		const beforeContent = await typeCell.evaluate((el) => getComputedStyle(el, '::before').content);
+		expect(beforeContent).toContain('Type');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/37 R11 — virtualized table pattern
+// ---------------------------------------------------------------------------
+
+test.describe('specs/37 R11 — virtualized table pattern', () => {
+	test('rendered row elements stay far below the dataset size (windowing proof)', async ({
+		page
+	}) => {
+		await page.goto('/patterns/virtualized-table');
+		const rowCount = await page.locator('.sample-frame [role="row"]').count();
+		// 6,000 rows total (plus 1 header row) — only a small windowed slice is
+		// ever mounted, regardless of dataset size.
+		expect(rowCount).toBeGreaterThan(1);
+		expect(rowCount).toBeLessThan(100);
+	});
+
+	test('scrolling the window changes the visible rows', async ({ page }) => {
+		await page.goto('/patterns/virtualized-table');
+		const viewport = page.locator('.sample-frame .hz-vtable-tbody');
+		const firstCellText = () => page.locator('.sample-frame .hz-vtable-cell').first().textContent();
+		const before = await firstCellText();
+		await viewport.evaluate((el) => {
+			el.scrollTop = el.scrollHeight / 2;
+		});
+		await expect.poll(firstCellText).not.toBe(before);
+	});
+
+	test('sorting reorders rows within the window', async ({ page }) => {
+		await page.goto('/patterns/virtualized-table');
+		const firstCellText = () => page.locator('.sample-frame .hz-vtable-cell').first().textContent();
+		const before = await firstCellText();
+		await page.getByRole('button', { name: 'Player' }).click();
+		await expect.poll(firstCellText).not.toBe(before);
+	});
+});

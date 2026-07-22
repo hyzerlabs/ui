@@ -95,7 +95,8 @@ export const manifest: ManifestEntry[] = [
 					{ label: 'Hero', href: '/components/hero' },
 					{ label: 'Modal', href: '/components/modal' },
 					{ label: 'Accordion', href: '/components/accordion' },
-					{ label: 'Tabs', href: '/components/tabs' }
+					{ label: 'Tabs', href: '/components/tabs' },
+					{ label: 'Table', href: '/components/table' }
 				]
 			},
 			{
@@ -162,7 +163,8 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Command palette', href: '/patterns/command-palette' },
 			{ label: 'Product listing', href: '/patterns/product-listing' },
 			{ label: 'Product detail', href: '/patterns/product-detail' },
-			{ label: 'Checkout form', href: '/patterns/checkout-form' }
+			{ label: 'Checkout form', href: '/patterns/checkout-form' },
+			{ label: 'Virtualized table', href: '/patterns/virtualized-table' }
 		]
 	}
 ];

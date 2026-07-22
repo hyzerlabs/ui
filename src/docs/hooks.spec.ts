@@ -94,7 +94,7 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		expect(orphans).toEqual([]);
 	});
 
-	it('the Components section covers all 39 pages across five groups', () => {
+	it('the Components section covers all 40 pages across five groups', () => {
 		const section = manifest.find((e) => isSection(e) && e.label === 'Components');
 		if (!section || !isSection(section) || !isGrouped(section)) throw new Error('not grouped');
 		expect(section.groups.map((g) => g.label)).toEqual([
@@ -105,8 +105,8 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 			'Forms'
 		]);
 		expect(section.groups.every((g) => g.pages.length > 0)).toBe(true);
-		// 38 + Header (spec 35).
-		expect(componentPages).toHaveLength(39);
+		// 38 + Header (spec 35) + Table (spec 37).
+		expect(componentPages).toHaveLength(40);
 	});
 });
 

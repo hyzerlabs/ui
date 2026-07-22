@@ -1,0 +1,367 @@
+/**
+ * @hyzer-labs/ui reference theme — Table (specs/37)
+ * Wrap scroll affordance, header surface, row borders, density-aware cell
+ * padding, sort-button chrome + active-column indicator, sticky header
+ * shadow, skeleton shimmer, stacked-mode layout, and data-align handling.
+ * Selection checkboxes restate field.css's native checkbox visual, scoped to
+ * `.hz-table` instead of `.hz-field` (Table does not compose Checkbox — see
+ * the component comment).
+ */
+@layer hz-theme {
+	.hz-table-wrap {
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+
+	.hz-table {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text, #000);
+	}
+
+	.hz-table caption {
+		padding: 0.75rem 1rem;
+		text-align: start;
+		font-weight: var(--hz-font-weight-semibold, 600);
+		caption-side: top;
+	}
+
+	/*
+	 * Density-aware cell padding. --hz-space-near/-away are body-scale
+	 * distances (4rem/8rem by default) meant for section-level spacing — too
+	 * large for a table cell — so the block/inline pair here scales them down
+	 * by a fixed factor rather than using them directly. That keeps a cell
+	 * comfortable at the default density (0.5rem / 1rem) while still
+	 * tightening automatically inside a data-density-shift region, exactly
+	 * like every other density-aware distance in the theme.
+	 */
+	.hz-table :where(th, td) {
+		padding-block: calc(var(--hz-space-near, 4rem) / 8);
+		padding-inline: calc(var(--hz-space-away, 8rem) / 8);
+		text-align: start;
+		vertical-align: middle;
+		border-bottom: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
+	}
+
+	.hz-table thead th {
+		background-color: var(
+			--hz-color-surface-muted,
+			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
+		);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		border-bottom-width: var(--hz-border-width-thick, 2px);
+	}
+
+	.hz-table tbody th[scope='row'] {
+		font-weight: var(--hz-font-weight-medium, 500);
+	}
+
+	.hz-table tbody tr:last-child :where(th, td) {
+		border-bottom: none;
+	}
+
+	/* data-align — logical values, so 'start'/'end' flip under RTL for free. */
+	.hz-table :where(th, td)[data-align='start'] {
+		text-align: start;
+	}
+	.hz-table :where(th, td)[data-align='center'] {
+		text-align: center;
+	}
+	.hz-table :where(th, td)[data-align='end'] {
+		text-align: end;
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* R3 — sort button chrome + active-column indicator                     */
+	/* -------------------------------------------------------------------- */
+
+	.hz-table-sort {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		appearance: none;
+		background: none;
+		border: none;
+		padding: 0;
+		margin: 0;
+		font: inherit;
+		font-weight: inherit;
+		color: inherit;
+		cursor: pointer;
+	}
+
+	.hz-table-sort:where(:hover:not(:disabled)) {
+		color: var(--hz-color-primary, #2563eb);
+	}
+
+	.hz-table-sort:where(:disabled) {
+		cursor: not-allowed;
+		opacity: 0.6;
+	}
+
+	.hz-table-sort:focus-visible {
+		outline: var(--hz-border-width-thick, 2px) solid var(--hz-color-primary, #2563eb);
+		outline-offset: 2px;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+	}
+
+	.hz-table-sort-icon {
+		display: inline-flex;
+		color: var(--hz-color-primary, #2563eb);
+	}
+
+	.hz-table-sort-icon .hz-icon {
+		width: 0.875em;
+		height: 0.875em;
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* R5 — sticky header, pinned against the wrap's own scroll               */
+	/* -------------------------------------------------------------------- */
+
+	.hz-table-wrap[data-sticky] thead th {
+		position: sticky;
+		top: 0;
+		z-index: 1;
+		box-shadow:
+			0 1px 0 0 color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent),
+			0 4px 6px -4px rgb(0 0 0 / 0.15);
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* R6 — empty state + loading skeleton                                   */
+	/* -------------------------------------------------------------------- */
+
+	.hz-table-empty {
+		padding: 2rem 1rem;
+		text-align: center;
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-table-skeleton-bar {
+		display: block;
+		height: 0.875em;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		background: linear-gradient(
+			90deg,
+			color-mix(in srgb, var(--hz-color-gray, #6b7280) 16%, var(--hz-color-surface, #fff)) 25%,
+			color-mix(in srgb, var(--hz-color-gray, #6b7280) 28%, var(--hz-color-surface, #fff)) 50%,
+			color-mix(in srgb, var(--hz-color-gray, #6b7280) 16%, var(--hz-color-surface, #fff)) 75%
+		);
+		background-size: 200% 100%;
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		.hz-table-skeleton-bar {
+			animation: hz-table-shimmer 1.4s ease-in-out infinite;
+		}
+	}
+
+	@keyframes hz-table-shimmer {
+		from {
+			background-position: 200% 0;
+		}
+		to {
+			background-position: -200% 0;
+		}
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* Selection checkboxes — the field family's native checkbox visual,      */
+	/* restated for `.hz-table` (Table does not compose Checkbox.svelte).    */
+	/* -------------------------------------------------------------------- */
+
+	.hz-table-cell-select {
+		width: 1px; /* col width hint; the content sets the real minimum */
+		white-space: nowrap;
+	}
+
+	.hz-table :where(input.hz-table-checkbox) {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin: 0;
+		accent-color: var(--hz-color-primary, #2563eb);
+		flex-shrink: 0;
+	}
+
+	.hz-table input.hz-table-checkbox:focus-visible {
+		outline: 2px solid transparent;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #2563eb) 25%, transparent);
+	}
+
+	.hz-table input.hz-table-checkbox:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* Zebra striping — opt-in root class, not a prop.                       */
+	/* -------------------------------------------------------------------- */
+
+	.hz-table-wrap.hz-table--striped tbody tr:not(.hz-table-skeleton):nth-child(even) {
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 5%, transparent);
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* R7 — stacked mode. Literal px breakpoints mirroring --hz-width-sm/md/  */
+	/* lg (Grid BAND precedent, specs/29) — a container query cannot read a   */
+	/* custom property, so these thresholds are fixed system constants, not  */
+	/* var() reads. Default (below every threshold): stacked. The matching   */
+	/* @container block reverts to the real table layout at/above the named  */
+	/* width. R1's stamped roles keep table semantics under these display    */
+	/* overrides.                                                            */
+	/* -------------------------------------------------------------------- */
+
+	.hz-table-wrap[data-stack] {
+		container-type: inline-size;
+	}
+
+	/* thead — visually hidden (sr-only technique), still present for AT. */
+	.hz-table-wrap[data-stack] thead {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border-width: 0;
+	}
+
+	.hz-table-wrap[data-stack] tbody tr {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+		padding: 0.75rem 1rem;
+	}
+
+	/* The checkbox cell stays leading — a row, not a label/value pair. */
+	.hz-table-wrap[data-stack] tbody td.hz-table-cell-select {
+		display: flex;
+		align-items: center;
+		border-bottom: none;
+		padding: 0;
+	}
+
+	/* The empty-state cell keeps its centered padding — it has no data-label
+	 * pair to lay out, so the label/value flex treatment doesn't apply. */
+	.hz-table-wrap[data-stack] tbody :where(th, td):not(.hz-table-cell-select):not(.hz-table-empty) {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0;
+		border-bottom: none;
+		text-align: start;
+	}
+
+	/* The column's header, as an inline label, driven by data-label. */
+	.hz-table-wrap[data-stack] tbody [data-label]::before {
+		content: attr(data-label);
+		flex-shrink: 0;
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.hz-table-wrap[data-stack] tbody tr {
+		border-bottom: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
+	}
+
+	.hz-table-wrap[data-stack] tbody tr:last-child {
+		border-bottom: none;
+	}
+
+	/* sm — 640px */
+	@container (min-width: 640px) {
+		.hz-table-wrap[data-stack='sm'] thead {
+			position: static;
+			width: auto;
+			height: auto;
+			margin: 0;
+			overflow: visible;
+			clip: auto;
+			white-space: normal;
+		}
+		.hz-table-wrap[data-stack='sm'] tbody tr {
+			display: table-row;
+			border-bottom: none;
+			padding: 0;
+		}
+		.hz-table-wrap[data-stack='sm'] tbody :where(th, td) {
+			display: table-cell;
+			padding-block: calc(var(--hz-space-near, 4rem) / 8);
+			padding-inline: calc(var(--hz-space-away, 8rem) / 8);
+			border-bottom: var(--hz-border-width-thin, 1px) solid
+				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
+		}
+		.hz-table-wrap[data-stack='sm'] tbody [data-label]::before {
+			content: none;
+		}
+	}
+
+	/* md — 968px */
+	@container (min-width: 968px) {
+		.hz-table-wrap[data-stack='md'] thead {
+			position: static;
+			width: auto;
+			height: auto;
+			margin: 0;
+			overflow: visible;
+			clip: auto;
+			white-space: normal;
+		}
+		.hz-table-wrap[data-stack='md'] tbody tr {
+			display: table-row;
+			border-bottom: none;
+			padding: 0;
+		}
+		.hz-table-wrap[data-stack='md'] tbody :where(th, td) {
+			display: table-cell;
+			padding-block: calc(var(--hz-space-near, 4rem) / 8);
+			padding-inline: calc(var(--hz-space-away, 8rem) / 8);
+			border-bottom: var(--hz-border-width-thin, 1px) solid
+				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
+		}
+		.hz-table-wrap[data-stack='md'] tbody [data-label]::before {
+			content: none;
+		}
+	}
+
+	/* lg — 1200px */
+	@container (min-width: 1200px) {
+		.hz-table-wrap[data-stack='lg'] thead {
+			position: static;
+			width: auto;
+			height: auto;
+			margin: 0;
+			overflow: visible;
+			clip: auto;
+			white-space: normal;
+		}
+		.hz-table-wrap[data-stack='lg'] tbody tr {
+			display: table-row;
+			border-bottom: none;
+			padding: 0;
+		}
+		.hz-table-wrap[data-stack='lg'] tbody :where(th, td) {
+			display: table-cell;
+			padding-block: calc(var(--hz-space-near, 4rem) / 8);
+			padding-inline: calc(var(--hz-space-away, 8rem) / 8);
+			border-bottom: var(--hz-border-width-thin, 1px) solid
+				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
+		}
+		.hz-table-wrap[data-stack='lg'] tbody [data-label]::before {
+			content: none;
+		}
+	}
+
+	/* stack + stickyHeader: stacked mode wins below the breakpoint (there is
+	 * no thead box to pin — it's sr-only-clipped); sticky resumes once the
+	 * @container blocks above restore the real table layout. No extra rule
+	 * is needed — the sr-only thead simply has nothing for `position: sticky`
+	 * to visibly pin until then. */
+}
