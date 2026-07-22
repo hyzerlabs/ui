@@ -692,3 +692,91 @@ test.describe('specs/37 R11 — virtualized table pattern', () => {
 		await expect.poll(firstCellText).not.toBe(before);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// specs/38 — Toc
+// ---------------------------------------------------------------------------
+
+test.describe('specs/38 — Toc', () => {
+	// Every demo watches its own bounded article (title="On this article"),
+	// never the docs page itself — the dogfooded shell rail ("On this page")
+	// keeps its separate name.
+	const demoToc = 'nav[aria-label="On this article"]';
+
+	test('the basic demo lists the article headings', async ({ page }) => {
+		await page.goto('/components/toc');
+		const rail = page.locator(demoToc);
+		await expect(rail).toBeVisible();
+		for (const label of ['Choosing a disc', 'Grip and stance', 'Reading the wind']) {
+			await expect(rail.getByRole('link', { name: label })).toBeVisible();
+		}
+	});
+
+	test('clicking an entry scrolls its own bounded article, not the page', async ({ page }) => {
+		await page.goto('/components/toc');
+		const article = page.locator('.toc-demo-article--basic');
+		const windowScrollYBefore = await page.evaluate(() => window.scrollY);
+
+		await page.locator(demoToc).getByRole('link', { name: 'Reading the wind' }).click();
+		await expect.poll(() => article.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+		await expect(page.locator(`${demoToc} a[aria-current="location"]`)).toHaveText(
+			'Reading the wind'
+		);
+		expect(await page.evaluate(() => window.scrollY)).toBe(windowScrollYBefore);
+	});
+
+	test('scrolling the bounded article updates the active entry', async ({ page }) => {
+		await page.goto('/components/toc');
+		const article = page.locator('.toc-demo-article--basic');
+		await article.evaluate((el) => {
+			el.scrollTop = el.scrollHeight - el.clientHeight;
+		});
+		await expect(page.locator(`${demoToc} a[aria-current="location"]`)).toHaveText(
+			'Reading the wind'
+		);
+	});
+
+	test('the nested-levels demo nests h3s under their h2', async ({ page }) => {
+		await page.goto('/components/toc');
+		await page.getByRole('tab', { name: 'Nested levels' }).click();
+		const rail = page.locator(demoToc);
+		await expect(rail.getByRole('link', { name: 'Getting started' })).toBeVisible();
+		const nestedSublist = rail.locator('.hz-toc-list .hz-toc-list').first();
+		await expect(nestedSublist.getByRole('link', { name: 'Installation' })).toBeVisible();
+		await expect(nestedSublist.getByRole('link', { name: 'Configuration' })).toBeVisible();
+	});
+
+	test('the collapse demo shows a disclosure trigger below the breakpoint', async ({ page }) => {
+		await page.setViewportSize({ width: 800, height: 900 });
+		await page.goto('/components/toc');
+		await page.getByRole('tab', { name: 'Collapse mode' }).click();
+		const rail = page.locator(demoToc);
+		const trigger = rail.locator('.hz-toc-trigger');
+		await expect(trigger).toBeVisible();
+		await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+		await trigger.click();
+		await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+		await expect(rail.getByRole('link', { name: 'Warm-up' })).toBeVisible();
+	});
+
+	test('the collapse demo shows the plain title (no trigger) above the breakpoint', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 900 });
+		await page.goto('/components/toc');
+		await page.getByRole('tab', { name: 'Collapse mode' }).click();
+		const rail = page.locator(demoToc);
+		await expect(rail.locator('.hz-toc-title')).toBeVisible();
+		await expect(rail.locator('.hz-toc-trigger')).toBeHidden();
+	});
+
+	test('the callback demo readout tracks bind:active and onActive together', async ({ page }) => {
+		await page.goto('/components/toc');
+		await page.getByRole('tab', { name: 'Callback / bindable active' }).click();
+		const rail = page.locator(demoToc);
+		await rail.getByRole('link', { name: 'Details' }).click();
+		await expect(page.getByText('Active: Details')).toBeVisible();
+		await expect(page.getByText('last onActive: Details')).toBeVisible();
+	});
+});

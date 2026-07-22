@@ -87,7 +87,7 @@
 		"gen:icons": "tsx scripts/gen-icons.ts"
 	},
 	"peerDependencies": {
-		"svelte": "^5.0.0"
+		"svelte": "^5.7.0"
 	},
 	"devDependencies": {
 		"@arethetypeswrong/cli": "^0.18.4",

@@ -1,0 +1,126 @@
+/**
+ * @hyzer-labs/ui reference theme — Toc (specs/38)
+ * Muted small-type links with a left hairline, per-level indent, the sidebar
+ * active idiom (primary text + inset accent bar), an uppercase eyebrow title,
+ * and cosmetic chrome for the mobile disclosure trigger/panel.
+ *
+ * The collapse MECHANICS (which of title/trigger shows, whether the panel is
+ * visible, and the breakpoint media queries themselves) are structural and
+ * live in Toc.svelte's own scoped <style> — the Header precedent: a headless
+ * component ships correct structure with no theme imported at all. Only the
+ * chrome (colors, padding, hover, the chevron's rotation) is here.
+ */
+@layer hz-theme {
+	.hz-toc {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.hz-toc-title {
+		margin: 0 0 0.5rem;
+		padding-inline-start: 0.75rem;
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text-muted, #6b7280);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+	}
+
+	.hz-toc-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		border-inline-start: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+	}
+
+	/* Nested lists (h3 under h2, …) drop the hairline — the top-level list
+	 * already draws it the full height of the tree. */
+	.hz-toc-list .hz-toc-list {
+		border-inline-start: none;
+	}
+
+	.hz-toc-link {
+		display: block;
+		padding-block: 0.25rem;
+		padding-inline-start: 0.75rem;
+		color: var(--hz-color-text-muted, #6b7280);
+		text-decoration: none;
+		overflow-wrap: break-word;
+	}
+
+	/* Per-level indent, keyed off data-level rather than nesting depth — a
+	 * flat levels={[3]} list still reads as h3-deep even though it never
+	 * nests (R1's "no phantom h2 nesting"). */
+	.hz-toc-link[data-level='2'] {
+		padding-inline-start: 0.75rem;
+	}
+	.hz-toc-link[data-level='3'] {
+		padding-inline-start: 1.5rem;
+	}
+	.hz-toc-link[data-level='4'] {
+		padding-inline-start: 2.25rem;
+	}
+	.hz-toc-link[data-level='5'] {
+		padding-inline-start: 3rem;
+	}
+	.hz-toc-link[data-level='6'] {
+		padding-inline-start: 3.75rem;
+	}
+
+	.hz-toc-link:hover {
+		color: var(--hz-color-text, #000);
+	}
+
+	/* Same active idiom as the sidebar Nav: primary text + a left accent bar,
+	 * drawn with an inset shadow over the list's hairline so it costs no
+	 * layout. Logical (inset-inline-start), so it follows RTL. */
+	.hz-toc-link[aria-current='location'] {
+		color: var(--hz-color-primary, #2563eb);
+		box-shadow: inset 2px 0 0 var(--hz-color-primary, #2563eb);
+		font-weight: var(--hz-font-weight-medium, 500);
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* R6 — mobile disclosure chrome (trigger + chevron). Show/hide itself is */
+	/* structural — see the note above.                                      */
+	/* -------------------------------------------------------------------- */
+
+	.hz-toc-trigger {
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		margin: 0 0 0.5rem;
+		padding: 0.375rem 0.75rem;
+		appearance: none;
+		background: none;
+		border: none;
+		font: inherit;
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text-muted, #6b7280);
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		cursor: pointer;
+	}
+
+	.hz-toc-trigger:hover {
+		color: var(--hz-color-text, #000);
+		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 8%, transparent);
+	}
+
+	.hz-toc-trigger .hz-icon {
+		flex-shrink: 0;
+		transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-toc-trigger[aria-expanded='true'] .hz-icon {
+		transform: rotate(180deg);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hz-toc-trigger .hz-icon {
+			transition: none;
+		}
+	}
+}

@@ -474,6 +474,54 @@ export const hooks: Record<string, ComponentHooks> = {
 			{ name: '.hz-footer-bottom', values: 'child element', note: 'The bottom bar.' }
 		]
 	},
+	Toc: {
+		root: 'hz-toc',
+		attrs: [
+			{
+				name: 'data-breakpoint',
+				values: "'sm' | 'md' | 'lg' | 'none'",
+				note: 'Which width the rail collapses below into a disclosure. none (default) never collapses. A real @media breakpoint, not a container query — the rail’s own box is typically narrow regardless of page width.'
+			},
+			{
+				name: 'data-collapsed',
+				values: 'present while the mobile disclosure is closed',
+				note: 'Only stamped when data-breakpoint is not none. Absent once the panel opens, and inert above the breakpoint, where the panel is always shown.'
+			},
+			{
+				name: '[aria-current]',
+				values: "'location'",
+				note: 'On .hz-toc-link — the scroll-spy’s active entry. Not a data-* hook.'
+			},
+			{
+				name: 'data-level (on .hz-toc-link)',
+				values: '<number> — the collected heading level (2, 3, …)',
+				note: 'Per-entry, not root-level — drives the indent.'
+			}
+		],
+		parts: [
+			{ name: '.hz-toc-title', values: 'child element', note: 'The plain (non-heading) title.' },
+			{
+				name: '.hz-toc-trigger',
+				values: 'child element',
+				note: 'The mobile disclosure button (title + chevron). Always rendered, shown only below the breakpoint — the theme swaps it in for .hz-toc-title by data-breakpoint and the viewport, the Header toggle precedent.'
+			},
+			{
+				name: '.hz-toc-panel',
+				values: 'child element',
+				note: 'Wraps the list; what the trigger shows/hides below the breakpoint.'
+			},
+			{
+				name: '.hz-toc-list',
+				values: 'child element',
+				note: 'A nested <ul>, one per level below the top.'
+			},
+			{
+				name: '.hz-toc-link',
+				values: 'child element',
+				note: 'One entry.'
+			}
+		]
+	},
 
 	// ----------------------------------------------------------------- Media
 	Image: {

@@ -2,11 +2,10 @@
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { Nav } from '$lib';
+	import { Nav, Toc } from '$lib';
 	import type { NavChild } from '$lib/types';
 	import { isGrouped, isSection, manifest, sectionPages } from '../docs/manifest';
 	import CommandPalette, { type CommandItem } from '../docs/CommandPalette.svelte';
-	import Toc from '../docs/Toc.svelte';
 	import '$lib/theme/reset.css';
 	import '$lib/tokens/tokens.css';
 	// Reference theme — the docs site is its living example. Demos render the
@@ -226,9 +225,15 @@
 			</div>
 		</main>
 
-		<!-- "On this page" rail — fixed in the gutter .docs-main reserves at
-		     ≥1440px. A sibling of main, so it's its own nav landmark. -->
-		<Toc />
+		<!-- "On this page" rail — dogfooded specs/38 Toc (R9). Fixed in the
+		     gutter .docs-main reserves at ≥1440px; a sibling of main, so it's
+		     its own nav landmark. h2-only, ≥2 entries, and the .doc-example /
+		     .sample-frame exclusions keep demo content out — same behavior as
+		     the prototype it replaced. Positioning stays shell CSS (below,
+		     unlayered so it wins over hz-theme without a specificity fight) —
+		     the component itself owns no page-level layout (spec 38, Out of
+		     Scope). -->
+		<Toc class="docs-toc-rail" container=".docs-main-inner" exclude=".doc-example, .sample-frame" />
 	</div>
 
 	<!-- Simple footer — no nav link columns -->
@@ -549,8 +554,8 @@
 		max-width: 56rem;
 	}
 
-	/* Reserve the "On this page" gutter (Toc.svelte shows under the same
-	 * breakpoint — keep the two in sync). Because .docs-main is the size
+	/* Reserve the "On this page" gutter (.docs-toc-rail below shows under the
+	 * same breakpoint — keep the two in sync). Because .docs-main is the size
 	 * container, cqw tracks its content box, so breakout demos shrink to
 	 * stop short of the rail instead of sliding beneath it. At 1440px that
 	 * leaves 1440 − 240 − 32 − 192 = 976px of content — still past the
@@ -558,6 +563,31 @@
 	@media (min-width: 1440px) {
 		.docs-main {
 			padding-right: 12rem;
+		}
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* "On this page" rail — dogfooded Toc (specs/38 R9). Page-level          */
+	/* positioning is a consumer layout concern (Out of Scope) — the          */
+	/* component ships no display/position of its own, so the shell owns it   */
+	/* entirely here, unlayered so it wins over hz-theme without a            */
+	/* specificity fight (the sidebar Nav treatment above is the precedent).  */
+	/* ------------------------------------------------------------------ */
+
+	:global(.docs-toc-rail) {
+		display: none;
+	}
+
+	@media (min-width: 1440px) {
+		:global(.docs-toc-rail) {
+			display: block;
+			position: fixed;
+			top: 2rem;
+			right: 1.5rem;
+			width: 10rem;
+			max-height: calc(100dvh - 4rem);
+			overflow-y: auto;
+			scrollbar-color: color-mix(in srgb, var(--hz-color-text, #000) 22%, transparent) transparent;
 		}
 	}
 

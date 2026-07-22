@@ -97,6 +97,17 @@ export interface FooterColumn {
 	links: NavItem[];
 }
 
+/**
+ * A single heading collected by Toc — flat, not a tree. Nesting (deeper
+ * levels under the nearest preceding shallower entry) is derived from
+ * `level` at render time, not carried in the type.
+ */
+export interface TocEntry {
+	id: string;
+	label: string;
+	level: number;
+}
+
 /** Component size variants */
 export type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 

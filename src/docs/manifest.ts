@@ -117,7 +117,8 @@ export const manifest: ManifestEntry[] = [
 					{ label: 'Nav', href: '/components/nav' },
 					{ label: 'Breadcrumbs', href: '/components/breadcrumbs' },
 					{ label: 'Pagination', href: '/components/pagination' },
-					{ label: 'Footer', href: '/components/footer' }
+					{ label: 'Footer', href: '/components/footer' },
+					{ label: 'Toc', href: '/components/toc' }
 				]
 			},
 			{
