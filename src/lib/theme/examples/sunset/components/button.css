@@ -21,8 +21,8 @@
 	transition:
 		box-shadow var(--sunset-ease),
 		translate var(--sunset-ease),
-		background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
-		color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease),
+		color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 }
 
 /* Hollow variants become the surface, lifted — not an outline. The accent

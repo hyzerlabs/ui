@@ -14,8 +14,8 @@
 	.hz-card {
 		background-color: var(--hz-color-surface, #fff);
 		transition:
-			box-shadow var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
-			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+			box-shadow var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease),
+			border-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	/* Rounding — overflow keeps media flush with the corners. */
@@ -41,17 +41,17 @@
 	}
 
 	.hz-card:where(.hz-card--elevated) {
-		box-shadow: var(--hz-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+		box-shadow: var(--hz-shadow-md, 0 10px 15px -3px rgb(0 0 0 / 0.1));
 	}
 
 	/* Clickable affordance */
 	.hz-card:where(.hz-card--outlined[data-clickable]:hover) {
 		border-color: color-mix(in srgb, var(--hz-color-border, #6b7280) 80%, transparent);
-		box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+		box-shadow: var(--hz-shadow-sm, 0 4px 6px -1px rgb(0 0 0 / 0.1));
 	}
 
 	.hz-card:where(.hz-card--elevated[data-clickable]:hover) {
-		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+		box-shadow: var(--hz-shadow-lg, 0 20px 25px -5px rgb(0 0 0 / 0.18));
 	}
 
 	/* Opt-in title convention (specs/30) — consumers bring their own heading

@@ -54,8 +54,8 @@
 		font-family: inherit;
 		font-size: var(--hz-font-size-base, 1rem);
 		transition:
-			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
-			box-shadow var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+			border-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease),
+			box-shadow var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-field :where(select, textarea, .hz-slider-number, .hz-color-hex) {
@@ -222,7 +222,7 @@
 		border: none;
 		border-radius: var(--hz-radius-full, 9999px);
 		background-color: var(--hz-color-primary, #2563eb);
-		box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+		box-shadow: var(--hz-shadow-sm, 0 4px 6px -1px rgb(0 0 0 / 0.1));
 		/* The track is the element itself — recentre the thumb on it. */
 		margin-top: calc((var(--hz-slider-track-height) - var(--hz-slider-thumb-size)) / 2);
 	}
@@ -233,7 +233,7 @@
 		border: none;
 		border-radius: var(--hz-radius-full, 9999px);
 		background-color: var(--hz-color-primary, #2563eb);
-		box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
+		box-shadow: var(--hz-shadow-sm, 0 4px 6px -1px rgb(0 0 0 / 0.1));
 	}
 
 	.hz-field--slider input.hz-slider:disabled {
@@ -488,7 +488,7 @@
 		var(--hz-color-gray, #6b7280) 50%,
 		var(--hz-color-surface, #fff)
 	);
-	transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	flex-shrink: 0;
 }
 
@@ -520,8 +520,8 @@
 	height: calc(var(--hz-toggle-height) - 4px);
 	border-radius: var(--hz-radius-full, 9999px);
 	background-color: var(--hz-color-white, #fff);
-	box-shadow: var(--hz-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.05));
-	transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+	box-shadow: var(--hz-shadow-sm, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+	transition: transform var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 }
 
 .hz-field--toggle input.hz-toggle[data-state='on']::before {

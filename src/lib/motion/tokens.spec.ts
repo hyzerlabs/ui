@@ -17,7 +17,7 @@ describe('durations mirrors $lib/tokens motion.duration (R2 parity)', () => {
 	});
 
 	it('matches the spec-documented values (specs/39 R2)', () => {
-		expect(durations).toEqual({ fast: 150, base: 250, slow: 400 });
+		expect(durations).toEqual({ fast: 250, base: 400, slow: 550 });
 	});
 });
 

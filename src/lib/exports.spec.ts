@@ -103,7 +103,7 @@ describe('subpath exports', () => {
 	it('$lib/motion — exports token mirrors, transitions, reveal attachments, and viewTransition (specs/39 R1/R2/R3/R4/R5)', async () => {
 		const mod = await import('$lib/motion');
 		// R2 — token mirrors.
-		expect(mod.durations).toEqual({ fast: 150, base: 250, slow: 400 });
+		expect(mod.durations).toEqual({ fast: 250, base: 400, slow: 550 });
 		expect(typeof mod.easingCss.standard).toBe('string');
 		expect(typeof mod.easingCss.in).toBe('string');
 		expect(typeof mod.easingCss.out).toBe('string');

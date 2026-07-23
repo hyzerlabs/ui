@@ -103,8 +103,8 @@ describe('R6 — type scale token resolves on :root', () => {
 });
 
 describe('R6 — motion tokens resolve on :root', () => {
-	it('--hz-duration-base resolves to "250ms"', () => {
-		expect(rootVar('--hz-duration-base')).toBe('250ms');
+	it('--hz-duration-base resolves to "400ms"', () => {
+		expect(rootVar('--hz-duration-base')).toBe('400ms');
 	});
 
 	it('--hz-ease-standard resolves to the standard cubic-bezier', () => {

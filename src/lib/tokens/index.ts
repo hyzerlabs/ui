@@ -180,10 +180,14 @@ export const border = {
 // Elevation / shadows (R6)
 // ---------------------------------------------------------------------------
 
+// Rescaled bolder 2026-07-22 (user decision, audit): the old sm was barely
+// perceptible in either mode, so the scale shifted up — old md → sm, old
+// lg → md, and lg is a new step: the md-family halo geometry grown and at
+// nearly double the intensity.
 export const shadow = {
-	sm: '0 1px 2px rgb(0 0 0 / 0.05)',
-	md: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
-	lg: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+	sm: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+	md: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)',
+	lg: '0 20px 25px -5px rgb(0 0 0 / 0.18), 0 8px 10px -6px rgb(0 0 0 / 0.18)'
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -203,10 +207,12 @@ export const zIndex = {
 // ---------------------------------------------------------------------------
 
 export const motion = {
+	// Durations bumped 2026-07-22 (user decision, audit): the old scale read
+	// too abrupt — every step moved up ~100–150ms.
 	duration: {
-		fast: '150ms',
-		base: '250ms',
-		slow: '400ms'
+		fast: '250ms',
+		base: '400ms',
+		slow: '550ms'
 	},
 	ease: {
 		standard: 'cubic-bezier(0.2, 0, 0, 1)',

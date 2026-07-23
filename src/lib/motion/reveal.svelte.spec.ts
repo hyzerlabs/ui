@@ -114,6 +114,64 @@ describe('reveal — hidden-state application (R4)', () => {
 	});
 });
 
+describe('reveal — effect styles (amendment 2026-07-22)', () => {
+	it("effect: 'fade' hides via opacity only — no transform, no clip-path", () => {
+		const el = makeEl();
+		reveal({ effect: 'fade' })(el);
+		expect(el.style.opacity).toBe('0');
+		expect(el.style.transform).toBe('');
+		expect(el.style.clipPath).toBe('');
+	});
+
+	it("effect: 'slide' hides collapsed to the vertical center line (default axis y), opacity untouched", () => {
+		const el = makeEl();
+		reveal({ effect: 'slide' })(el);
+		// Chromium serializes inset() shorthand-collapsed with px units.
+		expect(el.style.clipPath).toBe('inset(50% 0px)');
+		expect(el.style.opacity).toBe('');
+	});
+
+	it("effect: 'slide', axis: 'x' collapses to the horizontal center line", () => {
+		const el = makeEl();
+		reveal({ effect: 'slide', axis: 'x' })(el);
+		expect(el.style.clipPath).toBe('inset(0px 50%)');
+	});
+
+	it("effect: 'scale' hides via opacity + scale(start), default 0 (the scale transition's default)", () => {
+		const el = makeEl();
+		reveal({ effect: 'scale' })(el);
+		expect(el.style.opacity).toBe('0');
+		expect(el.style.transform).toBe('scale(0)');
+	});
+
+	it("effect: 'scale' honors an explicit start", () => {
+		const el = makeEl();
+		reveal({ effect: 'scale', start: 0.8 })(el);
+		expect(el.style.transform).toBe('scale(0.8)');
+	});
+
+	it('a slide entrance plays and clears its clip-path when finished', async () => {
+		const el = makeEl();
+		reveal({ effect: 'slide', duration: 20 })(el);
+		lastIO().trigger(el, true);
+		const animation = el.getAnimations()[0];
+		expect(animation).toBeDefined();
+		await animation.finished;
+		await Promise.resolve();
+		await Promise.resolve();
+		expect(el.style.clipPath).toBe('');
+	});
+
+	it('revealGroup applies one effect to every child (slide on a stagger)', () => {
+		const { container, children } = makeGroup(3);
+		revealGroup({ effect: 'slide', stagger: 100 })(container);
+		for (const child of children) {
+			expect(child.style.clipPath).toBe('inset(50% 0px)');
+			expect(child.style.opacity).toBe('');
+		}
+	});
+});
+
 describe('reveal — IO trigger plays the entrance (R4)', () => {
 	it('plays a WAAPI entrance and clears the inline hidden style once it finishes', async () => {
 		const el = makeEl();

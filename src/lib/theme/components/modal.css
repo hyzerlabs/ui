@@ -9,7 +9,7 @@
 		border-radius: var(--hz-radius-lg, 1rem);
 		background-color: var(--hz-color-surface, #fff);
 		color: var(--hz-color-text, #000);
-		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+		box-shadow: var(--hz-shadow-lg, 0 20px 25px -5px rgb(0 0 0 / 0.18));
 	}
 
 	.hz-modal:where([data-size='full']) {

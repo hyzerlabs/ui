@@ -11,7 +11,7 @@
 	 * IntentRegistry knows about is fair game — including intents a consumer
 	 * added themselves.
 	 */
-	type ButtonIntent = 'neutral' | Intent;
+	type ButtonIntent = Intent;
 	type ButtonSize = 'sm' | 'md' | 'lg';
 	type ButtonType = 'button' | 'submit' | 'reset';
 

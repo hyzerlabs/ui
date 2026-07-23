@@ -13,7 +13,7 @@
 		border: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
 		border-radius: var(--hz-radius-md, 0.5rem);
-		box-shadow: var(--hz-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+		box-shadow: var(--hz-shadow-md, 0 10px 15px -3px rgb(0 0 0 / 0.1));
 	}
 
 	.hz-nav :where(.hz-nav-panel .hz-link) {
@@ -57,7 +57,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 0.25rem;
-		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-nav-chevron:where(:hover),
@@ -67,7 +67,7 @@
 
 	.hz-nav-chevron .hz-icon,
 	.hz-nav-trigger .hz-icon {
-		transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: transform var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-nav-chevron:where([aria-expanded='true']) .hz-icon,
@@ -84,7 +84,7 @@
 	 * should feel snappy rather than choreographed. base.css collapses the
 	 * animation under prefers-reduced-motion. */
 	.hz-nav :where(.hz-nav-panel[data-state='open']) {
-		animation: hz-nav-panel-in var(--hz-duration-fast, 150ms)
+		animation: hz-nav-panel-in var(--hz-duration-fast, 250ms)
 			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
 	}
 

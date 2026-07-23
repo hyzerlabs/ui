@@ -80,9 +80,14 @@ function renderComponent(kebab: string, nodes: LucideNode[]): string {
 	import type { IconProps } from '../types.js';
 	import { cx } from '$lib/utils';
 
-	let { size = 24, strokeWidth = 2, class: className, ariaLabel, ...rest }: IconProps = $props();
+	let { size = 24, strokeWidth = 2, class: className, ariaLabel, intent, style, ...rest }: IconProps = $props();
 
 	const decorative = $derived(!ariaLabel);
+	// Intent colors via the css var (stroke is currentColor); consumer style
+	// comes after so it can still override. Amendment 2026-07-22 (specs/36).
+	const mergedStyle = $derived(
+		intent ? 'color: var(--hz-intent-' + intent + ');' + (style ?? '') : style
+	);
 </script>
 
 <svg
@@ -90,6 +95,8 @@ function renderComponent(kebab: string, nodes: LucideNode[]): string {
 	fill="none"
 	stroke="currentColor"
 	{...rest}
+	style={mergedStyle}
+	data-intent={intent}
 	class={cx('hz-icon', className)}
 	width={size}
 	height={size}

@@ -363,7 +363,7 @@
 	 * tracks the finger 1:1, and honored only when motion is welcome. */
 	@media (prefers-reduced-motion: no-preference) {
 		.hz-carousel-track:not([data-dragging]) {
-			transition: transform var(--hz-duration-base, 250ms) var(--hz-ease-standard, ease);
+			transition: transform var(--hz-duration-base, 400ms) var(--hz-ease-standard, ease);
 		}
 	}
 

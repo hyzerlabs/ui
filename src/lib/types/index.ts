@@ -157,6 +157,10 @@ export type LayoutAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
  * theme/examples/terminal for a worked example.
  */
 export interface IntentRegistry {
+	/** The no-status default — a full member of the vocabulary since the
+	 * 2026-07-22 audit fold (previously unioned on per component as
+	 * `'neutral' | Intent`). */
+	neutral: true;
 	primary: true;
 	secondary: true;
 	danger: true;
@@ -208,8 +212,10 @@ export interface FormError {
 	message: string;
 }
 
-/** Badge appearance unions (shared so Combobox chips can be typed). */
-export type BadgeIntent = 'neutral' | Intent;
+/** Badge appearance unions (shared so Combobox chips can be typed).
+ * BadgeIntent is now an alias — `neutral` folded into {@link Intent}
+ * (2026-07-22 audit); kept for import-site continuity. */
+export type BadgeIntent = Intent;
 export type BadgeVariant = 'soft' | 'solid' | 'outline';
 export type BadgeSize = 'sm' | 'md';
 
@@ -253,14 +259,13 @@ export type DropdownEntry = DropdownItem | DropdownSeparator;
  * Button appearance passed through to the Dropdown trigger — consumers who only
  * import Dropdown can still set the trigger's look. Behavioral trigger props
  * (label, aria, open/keyboard handlers) are component-managed and excluded.
- * (Button's `intent`/`size` are local literal unions, not exported shared types,
- * so they are inlined here — the same rationale by which `ComboboxChipProps`
- * referenced the now-shared Badge unions; extract them only if a second consumer
- * appears.)
+ * (Button's `size` stays a local literal union, so it is inlined here;
+ * `intent` speaks the shared vocabulary since the 2026-07-22 fold — the
+ * previous inlined copy had drifted to a stale 4-value subset.)
  */
 export interface DropdownTriggerProps {
 	variant?: Variant;
-	intent?: 'primary' | 'secondary' | 'danger' | 'neutral';
+	intent?: Intent;
 	size?: 'sm' | 'md' | 'lg';
 	class?: string;
 }

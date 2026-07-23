@@ -13,7 +13,7 @@
 	box-shadow: var(--sunset-well);
 	transition:
 		box-shadow var(--sunset-ease),
-		border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		border-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 }
 
 /* Focus deepens the well and adds the theme's halo. Redefining

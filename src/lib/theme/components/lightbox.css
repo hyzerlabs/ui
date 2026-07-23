@@ -14,7 +14,7 @@
 
 	.hz-lightbox :where(.hz-lightbox-img) {
 		border-radius: var(--hz-radius-md, 0.5rem);
-		box-shadow: var(--hz-shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+		box-shadow: var(--hz-shadow-lg, 0 20px 25px -5px rgb(0 0 0 / 0.18));
 		/* Lightbox-R15: `.hz-lightbox-img` is now Image's wrapper box, sized to
 		 * exactly hug its bitmap (see LightboxOverlay.svelte) — overflow:hidden
 		 * clips the bitmap's square corners to the wrapper's rounded ones, the
@@ -41,7 +41,7 @@
 		background: rgb(0 0 0 / 0.55);
 		color: var(--hz-color-white, #fff);
 		cursor: pointer;
-		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-lightbox :where(.hz-lightbox-close:hover) {
@@ -50,7 +50,7 @@
 
 	/* Trigger affordance — subtle lift on hover */
 	.hz-lightbox-trigger {
-		transition: opacity var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: opacity var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-lightbox-trigger:where(:hover) {

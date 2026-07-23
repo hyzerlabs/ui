@@ -34,7 +34,7 @@ export type {
 
 // Motion-R4 — scroll-reveal attachments.
 export { reveal, revealGroup } from './reveal.js';
-export type { RevealOptions, RevealGroupOptions } from './reveal.js';
+export type { RevealOptions, RevealGroupOptions, RevealEffect } from './reveal.js';
 
 // Motion-R5 — view-transition helper.
 export { viewTransition } from './viewTransition.js';

@@ -20,7 +20,7 @@
 	box-shadow: var(--sunset-raise);
 	transition:
 		box-shadow var(--sunset-ease),
-		color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 }
 
 .hz-theme-sunset .hz-tabs-trigger:hover {

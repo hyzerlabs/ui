@@ -40,7 +40,7 @@
 		cursor: pointer;
 		align-items: center;
 		gap: 0.25rem;
-		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-header-toggle:where(:hover) {
@@ -59,7 +59,7 @@
 	 * menu get (motion tokens, entry only, collapsed by base.css under
 	 * prefers-reduced-motion). */
 	.hz-header-drawer:where([data-state='open']) {
-		animation: hz-header-drawer-in var(--hz-duration-fast, 150ms)
+		animation: hz-header-drawer-in var(--hz-duration-fast, 250ms)
 			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
 	}
 

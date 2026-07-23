@@ -19,8 +19,8 @@
 		background-color: var(--hz-color-surface, #fff);
 		text-align: center;
 		transition:
-			border-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
-			background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+			border-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease),
+			background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-file-dropzone-text {
@@ -50,7 +50,7 @@
 		color: var(--hz-color-text, #000);
 		font: inherit;
 		font-weight: var(--hz-font-weight-medium, 500);
-		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-file-button:where(:hover):not(:disabled) {
@@ -110,8 +110,8 @@
 		color: var(--hz-color-text-muted, #6b7280);
 		cursor: pointer;
 		transition:
-			background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
-			color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+			background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease),
+			color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-file-remove:where(:hover) {

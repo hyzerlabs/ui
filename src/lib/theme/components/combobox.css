@@ -34,7 +34,7 @@
 		color: var(--hz-color-text-muted, #6b7280);
 		padding: 0.25rem;
 		border-radius: var(--hz-radius-sm, 0.25rem);
-		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-combobox-toggle:where(:hover) {
@@ -47,7 +47,7 @@
 	}
 
 	.hz-combobox-toggle .hz-icon {
-		transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: transform var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	/* Toggle icon rotation while the popup is open. */
@@ -63,7 +63,7 @@
 		border: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
 		border-radius: var(--hz-radius-md, 0.5rem);
-		box-shadow: var(--hz-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+		box-shadow: var(--hz-shadow-md, 0 10px 15px -3px rgb(0 0 0 / 0.1));
 	}
 
 	.hz-combobox-listbox {

@@ -25,8 +25,8 @@
 		cursor: pointer;
 		white-space: nowrap;
 		transition:
-			color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease),
-			box-shadow var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+			color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease),
+			box-shadow var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-tabs-trigger:where(:hover) {

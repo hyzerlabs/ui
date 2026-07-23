@@ -94,7 +94,7 @@
 		border-radius: var(--hz-radius-full, 9999px);
 		background: transparent;
 		color: inherit;
-		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-alert :where(.hz-alert-dismiss) .hz-icon {

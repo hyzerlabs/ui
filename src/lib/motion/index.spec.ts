@@ -17,7 +17,7 @@ describe('SSR import (R1)', () => {
 	it('every documented export is present', async () => {
 		const mod = await import('./index.js');
 
-		expect(mod.durations).toEqual({ fast: 150, base: 250, slow: 400 });
+		expect(mod.durations).toEqual({ fast: 250, base: 400, slow: 550 });
 		expect(mod.easingCss).toBeDefined();
 		expect(typeof mod.easeStandard).toBe('function');
 		expect(typeof mod.easeIn).toBe('function');

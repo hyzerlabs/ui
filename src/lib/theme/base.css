@@ -4,6 +4,17 @@
  * and the reduced-motion guard.
  */
 @layer hz-theme {
+	/* The UA-painted layers — scrollbar gutters, overscroll canvas, form
+	 * control chrome — follow the active palette. Without this they stay
+	 * light under a dark theme: the "white gutter" effect. */
+	:root {
+		color-scheme: light;
+	}
+
+	:root[data-theme='dark'] {
+		color-scheme: dark;
+	}
+
 	body {
 		margin: 0;
 		background-color: var(--hz-color-surface, #ffffff);

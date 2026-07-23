@@ -24,9 +24,11 @@ const ALLOWED_ABBREVIATIONS: Record<string, string[]> = {
 	'--hz-font-family-mono': ['monospace', 'ui-monospace, monospace'],
 	// The generic easing keyword stands in for the standard curve.
 	'--hz-ease-standard': ['ease'],
-	// Single-layer approximations of the two-layer shadow values.
-	'--hz-shadow-md': ['0 4px 6px -1px rgb(0 0 0 / 0.1)'],
-	'--hz-shadow-lg': ['0 10px 15px -3px rgb(0 0 0 / 0.1)']
+	// Single-layer approximations of the two-layer shadow values
+	// (rescaled 2026-07-22: old md → sm, old lg → md, new bolder lg).
+	'--hz-shadow-sm': ['0 4px 6px -1px rgb(0 0 0 / 0.1)'],
+	'--hz-shadow-md': ['0 10px 15px -3px rgb(0 0 0 / 0.1)'],
+	'--hz-shadow-lg': ['0 20px 25px -5px rgb(0 0 0 / 0.18)']
 };
 
 // ---------------------------------------------------------------------------

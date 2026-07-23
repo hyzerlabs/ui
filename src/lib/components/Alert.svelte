@@ -4,7 +4,7 @@
 	import { cx, uid } from '$lib/utils';
 	import IconX from '$lib/icons/generated/x.svelte';
 
-	type AlertIntent = 'neutral' | Intent;
+	type AlertIntent = Intent;
 
 	interface Props {
 		children: Snippet;

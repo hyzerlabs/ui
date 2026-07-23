@@ -8,7 +8,7 @@
 		text-decoration: underline;
 		text-underline-offset: 0.15em;
 		border-radius: var(--hz-radius-sm, 0.25rem);
-		transition: color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-link:where(:hover) {

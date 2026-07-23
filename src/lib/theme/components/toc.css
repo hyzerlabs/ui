@@ -111,7 +111,7 @@
 
 	.hz-toc-trigger .hz-icon {
 		flex-shrink: 0;
-		transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: transform var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-toc-trigger[aria-expanded='true'] .hz-icon {

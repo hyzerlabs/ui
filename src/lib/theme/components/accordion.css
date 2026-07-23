@@ -16,7 +16,7 @@
 
 	.hz-accordion-trigger {
 		padding: 0.875rem 1rem;
-		transition: background-color var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-accordion-trigger:where(:hover) {
@@ -39,7 +39,7 @@
 
 	.hz-accordion-icon {
 		color: var(--hz-color-text-muted, #6b7280);
-		transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: transform var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.hz-accordion-item:where([data-state='open']) .hz-accordion-icon {
@@ -56,7 +56,7 @@
 	 * by the height transition below where supported, instantly elsewhere.
 	 * base.css collapses both under prefers-reduced-motion. */
 	.hz-accordion-item[data-state='open'] .hz-accordion-panel {
-		animation: hz-accordion-panel-in var(--hz-duration-base, 250ms)
+		animation: hz-accordion-panel-in var(--hz-duration-base, 400ms)
 			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
 	}
 
@@ -79,8 +79,8 @@
 			height: 0;
 			overflow: clip;
 			transition:
-				height var(--hz-duration-base, 250ms) var(--hz-ease-standard, ease),
-				content-visibility var(--hz-duration-base, 250ms) allow-discrete;
+				height var(--hz-duration-base, 400ms) var(--hz-ease-standard, ease),
+				content-visibility var(--hz-duration-base, 400ms) allow-discrete;
 		}
 
 		.hz-accordion-item[open]::details-content {

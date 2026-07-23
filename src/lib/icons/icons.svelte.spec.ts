@@ -98,6 +98,37 @@ describe('R2 — color inheritance', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Amendment 2026-07-22 (specs/36, audit R9) — intent coloring
+// ---------------------------------------------------------------------------
+
+describe('intent coloring (amendment 2026-07-22)', () => {
+	it('no intent: no data-intent, no style', () => {
+		const { container } = render(IconChevronDown);
+		const svg = container.querySelector('svg');
+		expect(svg!.hasAttribute('data-intent')).toBe(false);
+		expect(svg!.hasAttribute('style')).toBe(false);
+	});
+
+	it('intent="danger" stamps data-intent and color: var(--hz-intent-danger)', () => {
+		const { container } = render(IconChevronDown, { intent: 'danger' });
+		const svg = container.querySelector('svg');
+		expect(svg!.getAttribute('data-intent')).toBe('danger');
+		expect(svg!.getAttribute('style')).toContain('color: var(--hz-intent-danger)');
+	});
+
+	it('consumer style comes after the intent color and can override it', () => {
+		const { container } = render(IconChevronDown, {
+			intent: 'danger',
+			style: 'color: rgb(1, 2, 3);'
+		});
+		const svg = container.querySelector('svg');
+		const style = svg!.getAttribute('style')!;
+		expect(style.indexOf('--hz-intent-danger')).toBeLessThan(style.indexOf('rgb(1, 2, 3)'));
+		expect(getComputedStyle(svg!).color).toBe('rgb(1, 2, 3)');
+	});
+});
+
+// ---------------------------------------------------------------------------
 // R2 — Class hook
 // ---------------------------------------------------------------------------
 
