@@ -142,6 +142,12 @@
 		{ label: 'APG Accordion pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/accordion/' }
 	]}
 >
+	<p class="demo-note">
+		Panels ship no display/height/overflow of their own so you can animate the open/close yourself —
+		the reference theme's own summary-icon rotation honors <code>--hz-duration-*</code> /
+		<code>--hz-ease-*</code>. See <a href="/foundation/motion">Motion</a> for the token values and
+		the <code>@hyzer-labs/ui/motion</code> script-side helpers built on them.
+	</p>
 	<Tabs items={demoTabs} ariaLabel="Accordion demos" defaultTab="modes">
 		{#snippet panel(item)}
 			<div class="tab-content">
@@ -258,6 +264,11 @@
 	}
 	.open-readout {
 		margin: 0 0 0.75rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+	.demo-note {
+		margin: 0 0 1rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 	}

@@ -58,6 +58,10 @@
 			"svelte": "./dist/icons/generated/*.svelte",
 			"default": "./dist/icons/generated/*.svelte"
 		},
+		"./motion": {
+			"types": "./dist/motion/index.d.ts",
+			"default": "./dist/motion/index.js"
+		},
 		"./utils": {
 			"types": "./dist/utils/index.d.ts",
 			"default": "./dist/utils/index.js"

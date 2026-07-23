@@ -100,6 +100,30 @@ describe('subpath exports', () => {
 		expect((mod as Record<string, unknown>).IconGithub).toBeUndefined();
 	});
 
+	it('$lib/motion — exports token mirrors, transitions, reveal attachments, and viewTransition (specs/39 R1/R2/R3/R4/R5)', async () => {
+		const mod = await import('$lib/motion');
+		// R2 — token mirrors.
+		expect(mod.durations).toEqual({ fast: 150, base: 250, slow: 400 });
+		expect(typeof mod.easingCss.standard).toBe('string');
+		expect(typeof mod.easingCss.in).toBe('string');
+		expect(typeof mod.easingCss.out).toBe('string');
+		expect(typeof mod.easeStandard).toBe('function');
+		expect(typeof mod.easeIn).toBe('function');
+		expect(typeof mod.easeOut).toBe('function');
+		expect(typeof mod.cubicBezier).toBe('function');
+		expect(typeof mod.parseCubicBezier).toBe('function');
+		// R3 — token-bridged transitions.
+		expect(typeof mod.fade).toBe('function');
+		expect(typeof mod.fly).toBe('function');
+		expect(typeof mod.slide).toBe('function');
+		expect(typeof mod.scale).toBe('function');
+		// R4 — scroll-reveal attachments.
+		expect(typeof mod.reveal).toBe('function');
+		expect(typeof mod.revealGroup).toBe('function');
+		// R5 — view-transition helper.
+		expect(typeof mod.viewTransition).toBe('function');
+	});
+
 	it('$lib/utils — exports cx, uid, and the contrast utilities', async () => {
 		const mod = await import('$lib/utils');
 		expect(typeof mod.cx).toBe('function');
@@ -187,6 +211,8 @@ describe('package.json metadata', () => {
 		expect(exports['./icons']).toBeDefined();
 		// specs/36 R3 — deep per-icon subpath for Tier-2 imports.
 		expect(exports['./icons/*']).toBeDefined();
+		// specs/39 R1 — the motion module's export-map key.
+		expect(exports['./motion']).toBeDefined();
 		expect(exports['./utils']).toBeDefined();
 		expect(exports['./types']).toBeDefined();
 		expect(exports['./theme']).toBeDefined();

@@ -110,6 +110,11 @@
 	]}
 >
 	<p class="demo-note">No dialog is open on page load — click a trigger to open one.</p>
+	<p class="demo-note">
+		The open/close animation honors <code>--hz-duration-*</code> / <code>--hz-ease-*</code> — see
+		<a href="/foundation/motion">Motion</a> for the token values and the
+		<code>@hyzer-labs/ui/motion</code> script-side helpers built on them.
+	</p>
 	<Tabs items={demoTabs} ariaLabel="Modal demos" defaultTab="sizes">
 		{#snippet panel(item)}
 			<div class="tab-content">

@@ -107,6 +107,11 @@
 		{ label: 'APG Carousel pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/carousel/' }
 	]}
 >
+	<p class="demo-note">
+		The slide-track settle animation honors <code>--hz-duration-*</code> / <code>--hz-ease-*</code>
+		— see <a href="/foundation/motion">Motion</a> for the token values and the
+		<code>@hyzer-labs/ui/motion</code> script-side helpers built on them.
+	</p>
 	<Tabs items={demoTabs} ariaLabel="Carousel demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">
@@ -149,3 +154,11 @@
 		{/snippet}
 	</Tabs>
 </DocPage>
+
+<style>
+	.demo-note {
+		margin: 0 0 1rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+</style>

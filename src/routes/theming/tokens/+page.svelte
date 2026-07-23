@@ -124,7 +124,14 @@
 			(semantic roles and intents) is pure <code>var()</code> indirection that chains through it.
 			Override a hue and everything referencing it follows; remap or extend Layer 2 when you want a
 			different wiring. Token names and defaults live on
-			<a href="/foundation/colors">Colors &amp; Intent</a>.
+			<a href="/foundation/colors">Colors &amp; Intent</a>. Duration and easing tokens (<code
+				>--hz-duration-*</code
+			>
+			/ <code>--hz-ease-*</code>) follow the same override rules and are documented on
+			<a href="/foundation/motion">Motion</a>
+			— the same page introduces
+			<code>@hyzer-labs/ui/motion</code>, script-side helpers (transitions, a scroll-reveal
+			attachment, a view-transition wrapper) built on those tokens.
 		</p>
 	</div>
 

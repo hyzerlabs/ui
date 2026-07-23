@@ -780,3 +780,113 @@ test.describe('specs/38 — Toc', () => {
 		await expect(page.getByText('last onActive: Details')).toBeVisible();
 	});
 });
+
+// ---------------------------------------------------------------------------
+// specs/39 — Motion
+// ---------------------------------------------------------------------------
+
+test.describe('specs/39 — Motion', () => {
+	// R6/Test Plan: the half-width bar bug is a visual regression — this
+	// MEASURES the dot's resolved position against the track's own right
+	// edge (not the presence of a "moved" class) at two viewports, so a
+	// re-introduction of the fixed-offset bug would fail this even though
+	// the class name would still be applied correctly.
+	for (const vp of [
+		{ name: '375px', width: 375, height: 900 },
+		{ name: '1280px', width: 1280, height: 900 }
+	]) {
+		test(`duration demo dot reaches the track's far edge at ${vp.name}`, async ({ page }) => {
+			await page.setViewportSize({ width: vp.width, height: vp.height });
+			await page.goto('/foundation/motion');
+
+			const section = page.locator('section', { has: page.locator('#duration-demo-heading') });
+			await section.getByRole('button', { name: 'Animate' }).click();
+			// transition-duration is at most --hz-duration-slow (400ms).
+			await page.waitForTimeout(600);
+
+			const tracks = section.locator('.demo-track');
+			const count = await tracks.count();
+			expect(count).toBeGreaterThan(0);
+			for (let i = 0; i < count; i++) {
+				const track = tracks.nth(i);
+				const dot = track.locator('.demo-dot');
+				const trackBox = await track.boundingBox();
+				const dotBox = await dot.boundingBox();
+				if (!trackBox || !dotBox) throw new Error('missing bounding box');
+				const gap = trackBox.x + trackBox.width - (dotBox.x + dotBox.width);
+				// The resting inset is 0.25rem (4px at the default root size) —
+				// generous tolerance for subpixel/zoom rounding, but nowhere near
+				// the ~14rem/40vw gap the half-travel bug used to leave behind.
+				expect(gap).toBeGreaterThanOrEqual(0);
+				expect(gap).toBeLessThan(16);
+			}
+		});
+	}
+
+	test('a transition demo toggles its box via the R3 helpers', async ({ page }) => {
+		await page.goto('/foundation/motion');
+		const section = page.locator('section', { has: page.locator('#transitions-heading') });
+		await expect(section.locator('.transition-box').filter({ visible: true })).toBeVisible();
+
+		await section.getByRole('button', { name: 'Hide' }).click();
+		await expect(section.locator('.transition-box').filter({ visible: true })).toHaveCount(0);
+
+		await section.getByRole('button', { name: 'Show' }).click();
+		await expect(section.locator('.transition-box').filter({ visible: true })).toBeVisible();
+	});
+
+	test('switching the transition sub-tab swaps the demo (fly)', async ({ page }) => {
+		await page.goto('/foundation/motion');
+		await page.getByRole('tab', { name: 'Fly' }).click();
+		const section = page.locator('section', { has: page.locator('#transitions-heading') });
+		await expect(section.locator('.transition-box').filter({ visible: true })).toHaveText('Fly');
+	});
+
+	test('the reveal demo shows its cards once scrolled into view', async ({ page }) => {
+		await page.goto('/foundation/motion');
+		const heading = page.locator('#reveal-heading');
+		await heading.scrollIntoViewIfNeeded();
+		const firstCard = page.locator('.reveal-card').first();
+		await expect
+			.poll(async () => firstCard.evaluate((el) => getComputedStyle(el).opacity))
+			.toBe('1');
+	});
+
+	test('the reveal demo Replay button re-runs the entrance', async ({ page }) => {
+		await page.goto('/foundation/motion');
+		const section = page.locator('section', { has: page.locator('#reveal-heading') });
+		await section.scrollIntoViewIfNeeded();
+		const firstCard = section.locator('.reveal-card').first();
+		await expect
+			.poll(async () => firstCard.evaluate((el) => getComputedStyle(el).opacity))
+			.toBe('1');
+
+		await section.getByRole('button', { name: 'Replay' }).click();
+		await expect
+			.poll(async () => firstCard.evaluate((el) => getComputedStyle(el).opacity))
+			.toBe('1');
+	});
+
+	test('the view-transition demo swaps layout with no error, supported or not', async ({
+		page
+	}) => {
+		const errors: string[] = [];
+		page.on('pageerror', (e) => errors.push(e.message));
+
+		await page.goto('/foundation/motion');
+		const section = page.locator('section', { has: page.locator('#view-transition-heading') });
+		const button = section.getByRole('button', { name: /Switch to/ });
+		const layout = section.locator('.layout-demo');
+
+		await expect(layout).not.toHaveClass(/layout-demo--list/);
+		await button.click();
+		await expect(layout).toHaveClass(/layout-demo--list/);
+		await button.click();
+		await expect(layout).not.toHaveClass(/layout-demo--list/);
+
+		expect(errors).toEqual([]);
+	});
+
+	// No-overflow at 375/768/1280 is covered by the "R-Responsive" sweep above
+	// (it runs over every manifest route, and /foundation/motion is one).
+});
