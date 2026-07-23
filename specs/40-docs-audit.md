@@ -4,7 +4,7 @@
 > requirement (`Rn`) as pass/fail. Write scope: `src/docs/data/` (new),
 > `src/docs/consumerSource.ts` + spec, `src/docs/samples/`, every
 > `src/routes/**/+page.svelte`'s copy, `src/docs/hooks.ts` prose,
-> `specs/36-findings.md` (new), and component sources **only** where a finding
+> `specs/40-findings.md` (new), and component sources **only** where a finding
 > requires it (each such change amended into the component's original spec).
 
 ### Goal
@@ -76,7 +76,7 @@ that cannot drift (roadmap: audit → publish → MCP → site refactors).
    a dated amendment in the component's original spec, updated tests, and a
    findings-log entry. No silent API drift — the findings log is the record
    the 0.1.0 release notes are written from.
-10. **R10 — Findings log and completion.** `specs/36-findings.md` holds one
+10. **R10 — Findings log and completion.** `specs/40-findings.md` holds one
     table: page → findings → resolution (fixed / copy-only / API change /
     no-op). A page is done when its checklist is all-green and its row is
     filled. The audit is done when every route in the manifest has a row and
