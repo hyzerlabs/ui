@@ -2,6 +2,17 @@
 	import { Stack, Tabs } from '$lib';
 	import { typography } from '$lib/tokens';
 	import Example from '../../../docs/Example.svelte';
+	import CodeBlock from '../../../docs/CodeBlock.svelte';
+
+	// Bring-your-own-fonts recipe — a webfont import plus one token override.
+	const customFontCode = [
+		'/* app.css — after the library sheets */',
+		"@import '@fontsource-variable/inter';",
+		'',
+		':root {',
+		"\t--hz-font-family-sans: 'Inter Variable', system-ui, sans-serif;",
+		'}'
+	].join('\n');
 
 	// R7 — derive from token metadata
 	const fontSizes = Object.entries(typography.fontSize).map(([key, value]) => ({
@@ -42,7 +53,16 @@
 	};
 
 	const familyTabs = fontFamilies.map((f) => ({ id: f.key, label: familyLabels[f.key] ?? f.key }));
-	const weightTabs = fontWeights.map((w) => ({ id: w.key, label: w.key }));
+
+	// The serif and mono stacks resolve to system faces that commonly ship
+	// only regular and bold (Georgia, Menlo, Consolas…); 500/600 snap to the
+	// nearest available weight and render as duplicates of those two. Only
+	// sans (system-ui) reliably carries the full range, so the other
+	// families demo only the weights that actually render distinctly.
+	const weightTabsFor = (family: string) =>
+		fontWeights
+			.filter((w) => family === 'sans' || w.key === 'normal' || w.key === 'bold')
+			.map((w) => ({ id: w.key, label: w.key }));
 
 	const familyValue = (key: string) => fontFamilies.find((f) => f.key === key)?.value ?? 'inherit';
 	const weightValue = (key: string) => fontWeights.find((w) => w.key === key)?.value ?? '400';
@@ -66,13 +86,21 @@
 	<title>Typography — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Typography</h1>
-		<p>Three font families, a six-step type scale, four weights, and three line heights.</p>
+		<p class="doc-description">
+			Three font families, a six-step type scale, four weights, and three line heights.
+		</p>
 	</div>
 
-	<section aria-labelledby="families-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="families-heading"
+	>
 		<h2 id="families-heading">Font families</h2>
 		<p>
 			Each family is a system stack — nothing is downloaded. Pick a family and a weight to see the
@@ -84,7 +112,14 @@
 					<p class="tab-note">
 						<code>--hz-font-family-{fItem.id}</code> — {familyNotes[fItem.id]}
 					</p>
-					<Tabs items={weightTabs} ariaLabel="Font weight" defaultTab="normal">
+					{#if fItem.id !== 'sans'}
+						<p class="tab-note">
+							Only <code>normal</code> and <code>bold</code> are shown — the system faces this stack
+							resolves to ship those two weights, so <code>medium</code> and
+							<code>semibold</code> would snap to the nearest available and render as duplicates.
+						</p>
+					{/if}
+					<Tabs items={weightTabsFor(fItem.id)} ariaLabel="Font weight" defaultTab="normal">
 						{#snippet panel(wItem)}
 							<div class="inner-tab">
 								<Example code={familyCode(fItem.id, wItem.id)}>
@@ -128,9 +163,15 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="scale-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="scale-heading"
+	>
 		<h2 id="scale-heading">Font size scale</h2>
 		<Stack gap="sm">
 			{#each fontSizes as token (token.cssVar)}
@@ -141,9 +182,15 @@
 				</div>
 			{/each}
 		</Stack>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="weights-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="weights-heading"
+	>
 		<h2 id="weights-heading">Font weights</h2>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -165,9 +212,15 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="line-heights-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="line-heights-heading"
+	>
 		<h2 id="line-heights-heading">Line heights</h2>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -193,28 +246,30 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="custom-fonts-heading"
+	>
+		<h2 id="custom-fonts-heading">Using your own fonts</h2>
+		<p>
+			Every family, size, weight, and line height is a plain CSS custom property — override one
+			directly, or set <code>typography</code> in the <code>hyzer</code> config; see
+			<a href="/theming/tokens">Theming &rarr; Tokens &amp; Overrides</a>.
+		</p>
+
+		<p>Load a webfont and point the family token at it, and every component follows:</p>
+		<CodeBlock code={customFontCode} />
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
 	p {
 		margin: 0;
-	}
-
-	section > p {
-		margin-bottom: 1rem;
 	}
 
 	code {
@@ -274,9 +329,10 @@
 		flex: 1;
 	}
 
+	/* Margin zeroed — always a direct child of a .doc-section Stack
+	 * (gap="away", data-density-shift), which now owns the space above it. */
 	.token-table-wrapper {
 		overflow-x: auto;
-		margin-top: 1rem;
 	}
 
 	.token-table {

@@ -27,3 +27,75 @@
 .demo-col {
 	max-width: 24rem;
 }
+
+/*
+ * Docs tables — PropsTable and ThemeHooks dogfood the library's Table
+ * component but keep the docs' original flat look. This block is the
+ * theme-override pattern from /theming/components, demonstrated by the
+ * docs' own chrome: the reference theme paints .hz-table from
+ * @layer hz-theme, so these unlayered rules win on every property they
+ * set — no specificity games, no !important.
+ */
+
+.docs-table.hz-table-wrap {
+	border: none;
+	border-radius: 0;
+}
+
+.docs-table .hz-table {
+	font-size: var(--hz-font-size-sm, 0.875rem);
+}
+
+.docs-table .hz-table th,
+.docs-table .hz-table td {
+	text-align: left;
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid var(--hz-color-border, #6b7280);
+	vertical-align: top;
+}
+
+.docs-table .hz-table thead th {
+	background-color: transparent;
+	font-weight: var(--hz-font-weight-semibold, 600);
+	white-space: nowrap;
+}
+
+/*
+ * Shared page scaffold — the h1/lead/section-heading rhythm used by both
+ * DocPage (component pages) and the foundation pages. Keeping this here
+ * (rather than duplicated in each page's scoped <style>) is what keeps the
+ * two families of docs pages typographically identical.
+ */
+
+.doc-intro h1 {
+	margin: 0 0 0.5rem;
+	font-size: var(--hz-font-size-2xl, 2.75rem);
+	font-weight: var(--hz-font-weight-bold, 700);
+	line-height: var(--hz-line-height-tight, 1.2);
+}
+
+.doc-description {
+	margin: 0;
+	font-size: var(--hz-font-size-lg, 1.4rem);
+	color: var(--hz-color-text, inherit);
+	line-height: var(--hz-line-height-base, 1.5);
+}
+
+/* Margin zeroed — .doc-section is now a Stack (gap="away", one level denser
+ * than the page root via its own data-density-shift), which owns the space
+ * below the heading instead. */
+.doc-section h2 {
+	margin: 0;
+	font-size: var(--hz-font-size-xl, 1.65rem);
+	font-weight: var(--hz-font-weight-semibold, 600);
+}
+
+/* "References:" line under an accessibility note — DocPage's a11yLinks row
+ * and the foundation pages' hand-written equivalents share it. Margin
+ * zeroed — a direct child of a .doc-section Stack (gap="away",
+ * data-density-shift) now owns the space above it. */
+.a11y-refs {
+	margin: 0;
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	color: var(--hz-color-text-muted, #6b7280);
+}

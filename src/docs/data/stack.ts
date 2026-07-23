@@ -24,7 +24,8 @@ export const stackDoc: ComponentDoc = {
 			note: 'Both axes. Shared LayoutPadding scale — near/away tighten inside data-density-shift regions.'
 		},
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-stack class.' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-stack class.' },
+		{ name: 'children', type: 'Snippet', default: '—' }
 	],
 	a11yNote:
 		'Stack is a layout primitive with no ARIA semantics. The reading and focus order follow the DOM order of children.'

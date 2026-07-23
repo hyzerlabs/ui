@@ -10,7 +10,8 @@
 		revealGroup,
 		viewTransition,
 		easingCss,
-		parseCubicBezier
+		parseCubicBezier,
+		type RevealGroupOptions
 	} from '$lib/motion';
 	import Example from '../../../docs/Example.svelte';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
@@ -33,7 +34,7 @@
 	// positioned inside the track and animates `left` as a percentage of the
 	// TRACK'S OWN width (see the .demo-dot / .demo-dot-moved rules below) —
 	// never a fixed rem/vw offset — so it reaches the track's far edge at
-	// every viewport size, not just wide ones.
+	// every viewport size, not only wide ones.
 	// -------------------------------------------------------------------------
 	let durationDemoAnimated = $state(false);
 
@@ -122,15 +123,53 @@
 		replayKey += 1;
 	}
 
-	const revealCode = [
-		"import { revealGroup } from '@hyzer-labs/ui/motion';",
-		'',
-		'<div class="strip" {@attach revealGroup({ stagger: 80 })}>',
-		'\t{#each cards as card}',
-		'\t\t<div class="card">{card}</div>',
-		'\t{/each}',
-		'</div>'
-	].join('\n');
+	// Entrance variants — `effect` picks the animation style for the whole
+	// group (amendment 2026-07-22), mirroring the transition family 1:1:
+	// the four tabs here correspond to the four transition demos above
+	// (fade/fly/slide/scale), each on the same 160ms stagger.
+	const revealModes: {
+		id: string;
+		label: string;
+		options: RevealGroupOptions;
+		args: string;
+	}[] = [
+		{
+			id: 'fade',
+			label: 'Fade',
+			options: { effect: 'fade', stagger: 160 },
+			args: "{ effect: 'fade', stagger: 160 }"
+		},
+		{
+			id: 'fly',
+			label: 'Fly',
+			options: { stagger: 160 },
+			args: '{ stagger: 160 }'
+		},
+		{
+			id: 'slide',
+			label: 'Slide',
+			options: { effect: 'slide', stagger: 160 },
+			args: "{ effect: 'slide', stagger: 160 }"
+		},
+		{
+			id: 'scale',
+			label: 'Scale',
+			options: { effect: 'scale', stagger: 160 },
+			args: "{ effect: 'scale', stagger: 160 }"
+		}
+	];
+	const revealModeById = (id: string) => revealModes.find((m) => m.id === id) ?? revealModes[0];
+
+	const revealCode = (id: string) =>
+		[
+			"import { revealGroup } from '@hyzer-labs/ui/motion';",
+			'',
+			`<div class="strip" {@attach revealGroup(${revealModeById(id).args})}>`,
+			'\t{#each cards as card}',
+			'\t\t<div class="card">{card}</div>',
+			'\t{/each}',
+			'</div>'
+		].join('\n');
 
 	// -------------------------------------------------------------------------
 	// View transition — a same-page demo (grid/list layout swap) so it works
@@ -180,10 +219,10 @@
 	<title>Motion — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Motion</h1>
-		<p>
+		<p class="doc-description">
 			Duration and easing tokens, plus <code>@hyzer-labs/ui/motion</code> — token-bridged
 			transitions, JS easing evaluators, a scroll-reveal attachment, and a view-transition helper.
 			Every helper in the module is reduced-motion-aware by default: it collapses automatically, and
@@ -193,7 +232,13 @@
 		</p>
 	</div>
 
-	<section aria-labelledby="duration-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="duration-heading"
+	>
 		<h2 id="duration-heading">Duration tokens</h2>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -213,9 +258,15 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="ease-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="ease-heading"
+	>
 		<h2 id="ease-heading">Easing tokens</h2>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -235,14 +286,20 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="duration-demo-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="duration-demo-heading"
+	>
 		<h2 id="duration-demo-heading">Duration demo</h2>
 		<p>
 			Each bar animates with a different duration token (standard easing). The dot is positioned
 			with an inset-based <code>left</code>, computed as a percentage of the track's own width — it
-			reaches the far end of the track at every viewport size, not just wide ones.
+			reaches the far end of the track at every viewport size, not only wide ones.
 		</p>
 		<button
 			type="button"
@@ -265,9 +322,15 @@
 				</div>
 			{/each}
 		</Stack>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="easing-comparison-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="easing-comparison-heading"
+	>
 		<h2 id="easing-comparison-heading">Easing comparison</h2>
 		<p>
 			The same {EASING_DEMO_DURATION}ms duration, three curves. <code>standard</code> is the house
@@ -313,9 +376,15 @@
 				</figure>
 			{/each}
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="transitions-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="transitions-heading"
+	>
 		<h2 id="transitions-heading">Transitions</h2>
 		<p class="tab-note">
 			Drop-in replacements for <code>svelte/transition</code>'s <code>fade</code>/<code>fly</code
@@ -355,28 +424,60 @@
 			meaning:
 		</p>
 		<CodeBlock code={essentialCode} />
-	</section>
+	</Stack>
 
-	<section aria-labelledby="reveal-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="reveal-heading"
+	>
 		<h2 id="reveal-heading">Scroll reveal</h2>
 		<p class="tab-note">
 			<code>revealGroup</code> hides a container's children on the client only (SSR and no-JS readers
 			always see the content), then plays a staggered WAAPI entrance the first time the container intersects
 			the viewport. Scroll this card strip into view, or press Replay.
 		</p>
-		<Example code={revealCode}>
-			<button type="button" class="demo-trigger" onclick={replayReveal}>Replay</button>
-			{#key replayKey}
-				<div class="reveal-strip" {@attach revealGroup({ stagger: 80 })}>
-					{#each revealCards as card (card)}
-						<div class="reveal-card">{card}</div>
-					{/each}
+		<p class="tab-note">
+			<code>effect</code> picks the animation style for the whole group and mirrors the transition
+			family above 1:1 — <code>fade</code>, <code>fly</code> (the default), <code>slide</code>,
+			<code>scale</code> — while <code>stagger</code> offsets each child by DOM order.
+			<code>fly</code> steers by its <code>x</code>/<code>y</code> offsets: positive <code>y</code>
+			rises from below (the default, <code>y: 16</code>), negative <code>y</code> drops from above,
+			<code>x</code> travels in from the side. <code>slide</code> expands from the center line of
+			<code>axis</code> without moving the box, and <code>scale</code> grows from
+			<code>start</code>.
+		</p>
+		<Tabs
+			items={revealModes.map((m) => ({ id: m.id, label: m.label }))}
+			ariaLabel="Reveal entrance"
+			defaultTab="fade"
+		>
+			{#snippet panel(item)}
+				<div class="tab-content">
+					<Example code={revealCode(item.id)}>
+						<button type="button" class="demo-trigger" onclick={replayReveal}>Replay</button>
+						{#key `${replayKey}-${item.id}`}
+							<div class="reveal-strip" {@attach revealGroup(revealModeById(item.id).options)}>
+								{#each revealCards as card (card)}
+									<div class="reveal-card">{card}</div>
+								{/each}
+							</div>
+						{/key}
+					</Example>
 				</div>
-			{/key}
-		</Example>
-	</section>
+			{/snippet}
+		</Tabs>
+	</Stack>
 
-	<section aria-labelledby="view-transition-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="view-transition-heading"
+	>
 		<h2 id="view-transition-heading">View transitions</h2>
 		<p class="tab-note">
 			<code>viewTransition(update)</code> wraps <code>document.startViewTransition</code> —
@@ -413,9 +514,15 @@
 				'}'
 			].join('\n')}
 		/>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="reduced-motion-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="reduced-motion-heading"
+	>
 		<h2 id="reduced-motion-heading">Reduced motion</h2>
 		<p>
 			Every helper in <code>@hyzer-labs/ui/motion</code> collapses automatically under
@@ -433,24 +540,21 @@
 			<code>@media (prefers-reduced-motion: reduce)</code> collapse on its CSS transitions — that stays
 			exactly as-is; this module doesn't replace it, it extends the same default to script-driven motion.
 		</p>
-	</section>
+		<p>
+			Override <code>--hz-duration-*</code> or <code>--hz-ease-*</code> with a plain CSS custom
+			property, or set <code>motion</code> in the <code>hyzer</code> config; see
+			<a href="/theming/tokens">Theming &rarr; Tokens &amp; Overrides</a>.
+		</p>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-xl, 1.5rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margin zeroed — every top-level p on this page is a direct child of a
+	 * .doc-section Stack (gap="away", data-density-shift), which now owns the
+	 * rhythm; nested paragraphs (.tab-note, inside Example/.tab-content) keep
+	 * their own more-specific overrides, unaffected. */
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	code {
@@ -493,6 +597,15 @@
 		color: inherit;
 		font: inherit;
 		cursor: pointer;
+	}
+
+	/* The duration-demo and easing-comparison sections use this button as a
+	 * direct child of the .doc-section Stack (gap="away", data-density-shift),
+	 * which already provides the space below it — zero the margin there. The
+	 * transitions/reveal/view-transition sections' triggers live inside
+	 * Example, unaffected, and keep the margin above. */
+	:global(.doc-section) > .demo-trigger {
+		margin-bottom: 0;
 	}
 
 	.demo-row {
@@ -547,11 +660,12 @@
 		}
 	}
 
+	/* Margin zeroed — direct child of the easing-comparison section Stack
+	 * (gap="away", data-density-shift), which now owns the space above it. */
 	.curve-plots {
 		display: flex;
 		gap: 1.5rem;
 		flex-wrap: wrap;
-		margin-top: 1.5rem;
 	}
 
 	.curve-plot {
@@ -602,7 +716,11 @@
 		display: flex;
 		gap: 1rem;
 		overflow-x: auto;
-		padding: 0.25rem;
+		/* The entrance offsets (±16px y) animate inside this block padding;
+		   overflow-y hidden keeps the strip from growing a vertical
+		   scrollbar mid-animation. */
+		overflow-y: hidden;
+		padding: 1.25rem 0.25rem;
 	}
 
 	.reveal-card {

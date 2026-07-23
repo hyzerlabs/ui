@@ -362,3 +362,12 @@ palette entry and differs from its light counterpart (R7).
   follow-up iteration.
 - Tokenizing `@media` breakpoint thresholds (CSS limitation).
 - Editing the `specs/06-media.md` / `original-specs/07-image.md` prose tables.
+
+### Amendments
+
+- **2026-07-22 (audit, user decision):** shadow scale rescaled bolder — the
+  old `sm` was barely perceptible. Old `md` → `sm`, old `lg` → `md`, and
+  `lg` is a new larger step at ~1.8× the alpha
+  (`0 20px 25px -5px rgb(0 0 0 / 0.18), 0 8px 10px -6px rgb(0 0 0 / 0.18)`).
+  Theme fallbacks and the fallback-parity abbreviation registry updated;
+  generated sheets (tokens.css + example token sheets) regenerated.

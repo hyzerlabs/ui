@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Stack, Grid, Cluster, Badge, Alert, Button } from '$lib';
+	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 	import { color, intent } from '$lib/tokens';
 
 	// R7 — derive palette and role tokens from metadata; never hardcoded
@@ -51,9 +52,23 @@
 		value
 	}));
 
+	/** The dark theme's re-authored value for a key, if it has one. Drives
+	 * every mode-aware label on this page. */
+	function darkValueFor(key: string): string | undefined {
+		return (color.theme.dark as Record<string, string>)[key];
+	}
+
+	/** The dark-mode hex companion for a palette key, if the dark theme
+	 * re-authors one (black/white don't flip). Drives the mode-aware hex
+	 * labels on the palette cards. */
+	function darkHexFor(key: string): string | undefined {
+		const value = darkValueFor(key);
+		return value?.startsWith('#') ? value : undefined;
+	}
+
 	// R7 — the intent role tokens, derived from metadata.
 	const intentNotes: Record<string, string> = {
-		neutral: 'Badge/Alert extension and their default — no particular status.',
+		neutral: 'The default — no particular status.',
 		primary: 'The brand action.',
 		secondary: 'The supporting accent.',
 		danger: 'Destructive actions and error states.',
@@ -74,10 +89,10 @@
 	<title>Colors & Intent — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Colors & Intent</h1>
-		<p>
+		<p class="doc-description">
 			A two-layer color model: a palette (Layer 1) of single-value colors authored per mode, and a
 			semantic role layer (Layer 2) of pure <code>var()</code> references into it — structural roles
 			for what a color does in the layout, and the <a href="#intent">intent vocabulary</a> for what a
@@ -86,28 +101,48 @@
 		</p>
 	</div>
 
-	<section aria-labelledby="palette-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="palette-heading"
+	>
 		<h2 id="palette-heading">Palette tokens</h2>
 		<p>These tokens ship fixed values. Override them to retheme the entire palette at once.</p>
 		<Grid columns={{ sm: 2, md: 3, lg: 4 }} gap="sm">
 			{#each paletteTokens as token (token.cssVar)}
 				<div class="color-card">
+					<!-- Painted from the live token (not the authored hex) so the swatch
+					     follows the site's mode toggle; the visible hex label switches
+					     with it via the mode-only spans below. Decorative — the labels
+					     carry the values. -->
 					<div
 						class="swatch"
-						style="background-color: {token.value}"
-						role="img"
-						aria-label="{token.value} color swatch"
+						style="background-color: var({token.cssVar}, {token.value})"
+						aria-hidden="true"
 					></div>
 					<div class="color-meta">
 						<code class="var-name">{token.cssVar}</code>
-						<code class="var-value">{token.value}</code>
+						{#if darkHexFor(token.key)}
+							<code class="var-value mode-light">{token.value}</code>
+							<code class="var-value mode-dark">{darkHexFor(token.key)}</code>
+						{:else}
+							<code class="var-value">{token.value}</code>
+						{/if}
 					</div>
 				</div>
 			{/each}
 		</Grid>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="roles-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="roles-heading"
+	>
 		<h2 id="roles-heading">Semantic roles & intent</h2>
 		<p>
 			Components never reference the palette directly — they resolve through role tokens, the single
@@ -122,7 +157,7 @@
 				<thead>
 					<tr>
 						<th scope="col">Token</th>
-						<th scope="col">Light value</th>
+						<th scope="col">Value</th>
 						<th scope="col">Swatch</th>
 					</tr>
 				</thead>
@@ -130,13 +165,25 @@
 					{#each roleTokens as token (token.cssVar)}
 						<tr>
 							<td><code>{token.cssVar}</code></td>
-							<td><code>{token.value}</code></td>
+							<!-- Roles the dark theme re-authors (surface, surface-muted, text)
+							     show the value for the mode you're looking at; the rest are the
+							     same var() chain in both modes. -->
 							<td>
+								{#if darkValueFor(token.key)}
+									<code class="mode-light">{token.value}</code>
+									<code class="mode-dark">{darkValueFor(token.key)}</code>
+								{:else}
+									<code>{token.value}</code>
+								{/if}
+							</td>
+							<td>
+								<!-- The token itself, not its authored value: surface's value is
+								     var(--hz-color-white), which stays white under the dark
+								     toggle — the dark theme overrides the ROLE, so paint it. -->
 								<div
 									class="swatch swatch-sm"
-									style="background-color: {token.value}"
-									role="img"
-									aria-label="color swatch"
+									style="background-color: var({token.cssVar})"
+									aria-hidden="true"
 								></div>
 							</td>
 						</tr>
@@ -148,18 +195,18 @@
 		<p>
 			Intent is the shared vocabulary components use when color carries meaning: the
 			<code>Intent</code> type in <code>@hyzer-labs/ui/types</code> —
-			<code>primary | secondary | danger | warning | success | info</code>. Components speak it
-			consistently rather than inventing their own scales: Button, Badge and Alert all take the full
-			set plus a <code>neutral</code> default. Intent color is reinforcement, never the only signal —
-			the text carries the meaning.
+			<code>neutral</code> plus the six status hues. Every intent-bearing component takes the full
+			set, with <code>neutral</code> as the default when nothing is being signalled. Intent color is reinforcement,
+			never the only signal — the text carries the meaning.
 		</p>
 		<p>
 			Each intent has its own role token, one indirection above the palette: override
-			<code>--hz-intent-*</code> to retarget status colors specifically — a danger red that isn't your
-			brand red — or override the palette and the intents follow. Every intent-bearing surface (Button,
-			Badge, and Alert intents, plus field error states) resolves through this layer.
+			<code>--hz-intent-*</code> to retarget status colors specifically — a danger red that isn't
+			your brand red — or override the palette and the intents follow. Every intent-bearing surface
+			(<code>Button</code>, <code>Badge</code>, and <code>Alert</code> intents, plus field error states)
+			resolves through this layer.
 		</p>
-		<Alert intent="info" title="These six are a starting set, not a ceiling" headingLevel={4}>
+		<Alert intent="info" title="These seven are a starting set, not a ceiling" headingLevel={4}>
 			A component only stamps <code>data-intent="&lt;name&gt;"</code> and lets the theme decide what
 			the name means, so the vocabulary is yours to grow. Define
 			<code>--hz-intent-&lt;name&gt;</code> in your config and it gets
@@ -205,14 +252,21 @@
 			<Cluster gap="sm" align="center">
 				<Button intent="danger">Delete round</Button>
 				<Badge intent="danger">OB</Badge>
+				<IconTriangleAlert intent="danger" />
 			</Cluster>
 			<Alert intent="danger" title="Course closed" headingLevel={4}>
 				Lightning in the area — clear the course now.
 			</Alert>
 		</Stack>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="dark-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="dark-heading"
+	>
 		<h2 id="dark-heading">Dark theme overrides</h2>
 		<p>
 			Dark mode is a set of palette-layer overrides in <code>[data-theme="dark"]</code>. Out of the
@@ -250,30 +304,21 @@
 			<a href="/foundation/contrast">Contrast &amp; Accessibility</a>; for override recipes and the
 			config/CLI workflow, see <a href="/theming/tokens">Theming → Tokens &amp; Overrides</a>.
 		</p>
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.5rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed — every h3/p on this page is a direct child of a
+	 * .doc-section Stack (gap="away", data-density-shift), which now owns
+	 * the rhythm. */
 	h3 {
-		margin: 1.5rem 0 0.5rem;
+		margin: 0;
 		font-size: var(--hz-font-size-lg, 1.125rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	.color-card {
@@ -292,6 +337,21 @@
 	.swatch-sm {
 		width: 2rem;
 		height: 1.5rem;
+	}
+
+	/* Mode-aware hex labels: exactly one of the pair renders, matching the
+	 * live swatch above it. Driven purely by the html[data-theme] attribute
+	 * the site toggle stamps — no script, SSR-safe. */
+	.mode-dark {
+		display: none;
+	}
+
+	:global([data-theme='dark']) .mode-light {
+		display: none;
+	}
+
+	:global([data-theme='dark']) .mode-dark {
+		display: inline;
 	}
 
 	.color-meta {

@@ -105,6 +105,15 @@
 	const surfaceTabs = surfaces.map((s) => ({ id: s.key, label: s.label }));
 	const surfaceByKey = (key: string) => surfaces.find((s) => s.key === key) ?? surfaces[0];
 
+	// The demo panels are deliberately mode-PINNED (painted from static
+	// hexes), but which panel you land on should match the mode you're in —
+	// a dark-mode reader shouldn't open onto a wall of white. The site
+	// toggle persists to localStorage (layout R9); seed the uncontrolled
+	// Tabs from it. SSR/prerender renders the light default and hydration
+	// reconciles.
+	const prefersDark =
+		typeof localStorage !== 'undefined' && localStorage.getItem('hz-theme') === 'dark';
+
 	/** The value a text token resolves to on a given surface's mode. */
 	function onSurface(token: { light: string; dark: string }, mode: 'light' | 'dark'): string {
 		return mode === 'light' ? token.light : token.dark;
@@ -193,8 +202,10 @@
 		}
 	];
 
-	let fg = $state('primary');
-	let bg = $state('surface-light');
+	// Seeded from the persisted mode like the demo tabs above: a dark-mode
+	// reader starts from the dark primary-on-surface pairing.
+	let fg = $state(prefersDark ? 'intent-dark:primary' : 'primary');
+	let bg = $state(prefersDark ? 'surface-dark' : 'surface-light');
 
 	const fgHex = $derived(swatchMap.get(fg)?.hex ?? color.black);
 	const bgHex = $derived(swatchMap.get(bg)?.hex ?? color.white);
@@ -223,22 +234,26 @@
 	<title>Contrast & Accessibility — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Contrast &amp; Accessibility</h1>
-		<p>
+		<p class="doc-description">
 			WCAG 2.1 grades text contrast by ratio and text size — large text is at least 24px, or 18.66px
-			bold. Section 508 incorporates WCAG 2.0 AA, so an AA pass at the given size is also a 508
+			bold — and Section 508 incorporates WCAG 2.0 AA, so an AA pass at a given size is also a 508
 			pass. Every ratio on this page is computed from the
-			<a href="/foundation/colors">token metadata</a>, resolved per mode — light values on light
-			surfaces, the dark companions on dark — and the same math runs in CI, so a palette change that
-			breaks AA fails the build. The functions themselves
-			<a href="#api-heading">ship in the library</a>, so a theme that overrides the palette can run
-			the same checks.
+			<a href="/foundation/colors">token metadata</a>, resolved per mode, with the same
+			<a href="#api-heading">functions the library ships</a> — so a palette change that breaks AA fails
+			the build, and a theme that overrides the palette can run the identical check.
 		</p>
 	</div>
 
-	<section aria-labelledby="requirements-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="requirements-heading"
+	>
 		<h2 id="requirements-heading">Requirements</h2>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -260,9 +275,15 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="checker-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="checker-heading"
+	>
 		<h2 id="checker-heading">Pairing checker</h2>
 		<p>
 			Pick any two tokens — palette, intent roles in either mode, or resolved surface roles — and
@@ -310,9 +331,15 @@
 				</table>
 			</div>
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="text-surfaces-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="text-surfaces-heading"
+	>
 		<h2 id="text-surfaces-heading">Text on surfaces</h2>
 		<p>
 			Every token the theme paints text with — the semantic text roles and all seven intents — on
@@ -321,7 +348,11 @@
 				>[data-theme="dark"]</code
 			>) on dark ones.
 		</p>
-		<Tabs items={surfaceTabs} ariaLabel="Background surface" defaultTab="surface-light">
+		<Tabs
+			items={surfaceTabs}
+			ariaLabel="Background surface"
+			defaultTab={prefersDark ? 'surface-dark' : 'surface-light'}
+		>
 			{#snippet panel(item)}
 				{@const surface = surfaceByKey(item.id)}
 				<div class="tab-content">
@@ -392,12 +423,19 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="solid-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="solid-heading"
+	>
 		<h2 id="solid-heading">Solid intent backgrounds</h2>
 		<p>
-			The solid Button and Badge case. The reference theme paints solid text with
+			The solid <code>Button</code> and <code>Badge</code> case. The reference theme paints solid
+			text with
 			<code>--hz-color-surface</code> — white in light mode, black in dark — because the dark companions
 			are lighter than the surfaces they sit on.
 		</p>
@@ -429,9 +467,15 @@
 				</div>
 			{/each}
 		</Grid>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="soft-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="soft-heading"
+	>
 		<h2 id="soft-heading">Soft intent surfaces (Alert &amp; Badge)</h2>
 		<p>
 			The reference theme derives these surfaces with <code>color-mix()</code>: backgrounds mix
@@ -442,10 +486,14 @@
 			Tune the background strength with the <code>--hz-alert-tint</code> and
 			<code>--hz-badge-tint</code>
 			<a href="/theming/components#hook-props-heading">hooks</a>. Everything below is that
-			derivation over the mode's resolved values — proof the tints hold contrast, not just the raw
+			derivation over the mode's resolved values — proof the tints hold contrast, not only the raw
 			hues.
 		</p>
-		<Tabs items={modeTabs} ariaLabel="Soft surface mode" defaultTab="light">
+		<Tabs
+			items={modeTabs}
+			ariaLabel="Soft surface mode"
+			defaultTab={prefersDark ? 'dark' : 'light'}
+		>
 			{#snippet panel(mItem)}
 				{@const mode = mItem.id as 'light' | 'dark'}
 				{@const pageBg = mode === 'light' ? color.white : color.black}
@@ -495,9 +543,15 @@
 				</div>
 			{/snippet}
 		</Tabs>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="api-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="api-heading"
+	>
 		<h2 id="api-heading">Check your own palette</h2>
 		<p>
 			The math behind this page is part of the library — <code>hexToRgb</code>,
@@ -514,9 +568,15 @@
 			generate step runs this same report over your config — see
 			<a href="/theming/tokens">Theming → Tokens &amp; Overrides</a>.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="resources-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="resources-heading"
+	>
 		<h2 id="resources-heading">Resources</h2>
 		<ul class="resource-list">
 			<li>
@@ -550,24 +610,16 @@
 				AA.
 			</li>
 		</ul>
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margin zeroed — every top-level p on this page is a direct child of a
+	 * .doc-section Stack (gap="away", data-density-shift), which now owns the
+	 * rhythm; nested paragraphs (.checker-preview, .ratio-readout, .tab-note …)
+	 * keep their own more-specific overrides below/in docs.css, unaffected. */
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	code {
@@ -744,6 +796,14 @@
 	.token-table-wrapper {
 		overflow-x: auto;
 		margin-top: 1rem;
+	}
+
+	/* Direct child of a .doc-section Stack (gap="away", data-density-shift)
+	 * already provides this space (requirements/text-surfaces sections); the
+	 * nested instance inside .checker below keeps its margin — that flex
+	 * block's own gap predates this refactor and isn't a .doc-section child. */
+	:global(.doc-section) > .token-table-wrapper {
+		margin-top: 0;
 	}
 
 	.token-table {

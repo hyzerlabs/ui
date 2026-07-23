@@ -185,8 +185,8 @@
 											Taller cell with a second line of content to change its height.
 										</div>
 										<div class="demo-cell">
-											Tallest cell — three lines of content so the cross-axis difference between the
-											align values is easy to see in the row.
+											Tallest cell — three lines of content, so the cross-axis difference between
+											align values shows clearly in the row.
 										</div>
 									</Grid>
 								</Example>

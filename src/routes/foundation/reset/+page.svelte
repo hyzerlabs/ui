@@ -13,10 +13,10 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 	<title>CSS Reset — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>CSS Reset</h1>
-		<p>
+		<p class="doc-description">
 			An optional, structural adaptation of
 			<a href="https://www.joshwcomeau.com/css/custom-css-reset/">Josh Comeau's custom CSS reset</a
 			>. It normalizes box sizing, margins, media elements, and text wrapping — and deliberately
@@ -25,7 +25,13 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 		</p>
 	</div>
 
-	<section aria-labelledby="import-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="import-heading"
+	>
 		<h2 id="import-heading">Import order</h2>
 		<p>
 			Import the reset before other stylesheets. Every rule lives in the
@@ -33,9 +39,15 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 			theme and any unlayered CSS of yours always win ties — the reset never fights you.
 		</p>
 		<CodeBlock code={importOrder} />
-	</section>
+	</Stack>
 
-	<section aria-labelledby="source-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="source-heading"
+	>
 		<h2 id="source-heading">What it does</h2>
 		<ul>
 			<li><code>box-sizing: border-box</code> everywhere.</li>
@@ -52,28 +64,18 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 			</li>
 		</ul>
 		<CodeBlock code={resetSource.trim()} />
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-xl, 1.5rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed — p/ul on this page are direct children of a .doc-section
+	 * Stack (gap="away", data-density-shift), which now owns the rhythm. */
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	ul {
-		margin: 0 0 1rem;
+		margin: 0;
 		padding-left: 1.25rem;
 		display: flex;
 		flex-direction: column;

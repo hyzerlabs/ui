@@ -27,7 +27,13 @@ export const splitDoc: ComponentDoc = {
 			note: 'Both axes, on the split root — stackBelow measures the padded-down width. Shared LayoutPadding scale.'
 		},
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-split class.' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-split class.' },
+		{
+			name: 'children',
+			type: 'Snippet',
+			default: '—',
+			note: 'Two direct children become the columns.'
+		}
 	],
 	a11yNote:
 		'Split is a layout primitive with no ARIA semantics. DOM order determines reading and focus order regardless of visual arrangement.'

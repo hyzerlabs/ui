@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { Table } from '$lib';
+	import type { TableColumn } from '$lib/types';
+
 	export interface PropRow {
 		name: string;
 		type: string;
@@ -9,63 +12,42 @@
 
 	interface Props {
 		props: PropRow[];
+		/** Accessible name for the table — docs tables have no visible caption. */
+		label?: string;
 	}
 
-	let { props }: Props = $props();
+	let { props, label = 'Props' }: Props = $props();
+
+	// Dogfood (2026-07-22): docs tables render through the library's own
+	// Table component; the docs' flat look survives as the .docs-table
+	// override in docs.css — a live example of the theme-override pattern.
+	const hasNotes = $derived(props.some((p) => p.note));
+	const columns = $derived.by((): TableColumn<PropRow>[] => {
+		const cols: TableColumn<PropRow>[] = [
+			{ key: 'name', header: 'Name' },
+			{ key: 'type', header: 'Type' },
+			{ key: 'default', header: 'Default' }
+		];
+		if (hasNotes) cols.push({ key: 'note', header: 'Note' });
+		return cols;
+	});
 </script>
 
-<div class="props-table-wrapper">
-	<table class="props-table">
-		<thead>
-			<tr>
-				<th scope="col">Name</th>
-				<th scope="col">Type</th>
-				<th scope="col">Default</th>
-				{#if props.some((p) => p.note)}
-					<th scope="col">Note</th>
-				{/if}
-			</tr>
-		</thead>
-		<tbody>
-			{#each props as row (row.name)}
-				<tr>
-					<td><code>{row.name}</code></td>
-					<td><code class="type">{row.type}</code></td>
-					<td><code>{row.default}</code></td>
-					{#if props.some((p) => p.note)}
-						<td class="note">{row.note ?? ''}</td>
-					{/if}
-				</tr>
-			{/each}
-		</tbody>
-	</table>
-</div>
+<Table items={props} {columns} ariaLabel={label} class="docs-table">
+	{#snippet cell(row, column)}
+		{#if column.key === 'name'}
+			<code>{row.name}</code>
+		{:else if column.key === 'type'}
+			<code class="type">{row.type}</code>
+		{:else if column.key === 'default'}
+			<code>{row.default}</code>
+		{:else}
+			{row.note ?? ''}
+		{/if}
+	{/snippet}
+</Table>
 
 <style>
-	.props-table-wrapper {
-		overflow-x: auto;
-		max-width: 100%;
-	}
-
-	.props-table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-	}
-
-	.props-table th,
-	.props-table td {
-		text-align: left;
-		padding: 0.5rem 0.75rem;
-		border-bottom: 1px solid var(--hz-color-border, #6b7280);
-		vertical-align: top;
-	}
-
-	.props-table th {
-		font-weight: var(--hz-font-weight-semibold, 600);
-		white-space: nowrap;
-	}
-
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
@@ -73,10 +55,5 @@
 
 	code.type {
 		color: var(--hz-color-primary, #2563eb);
-	}
-
-	.note {
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text, inherit);
 	}
 </style>

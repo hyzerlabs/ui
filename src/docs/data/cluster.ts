@@ -30,7 +30,8 @@ export const clusterDoc: ComponentDoc = {
 			note: 'Both axes. Shared LayoutPadding scale — near/away tighten inside data-density-shift regions.'
 		},
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-cluster class.' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-cluster class.' },
+		{ name: 'children', type: 'Snippet', default: '—' }
 	],
 	a11yNote:
 		'Cluster is a layout primitive with no ARIA semantics. Reading and focus order follow DOM order.'

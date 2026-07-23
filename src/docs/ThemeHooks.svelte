@@ -3,14 +3,25 @@
 	 * A component's styling contract, rendered in the props table's format
 	 * (spec 31 R9) — same table look, different subject: what you can style
 	 * rather than what you can pass.
+	 *
+	 * Dogfood (2026-07-22): rendered through the library's own Table; the
+	 * docs' flat look survives as the .docs-table override in docs.css.
 	 */
-	import type { ComponentHooks } from './hooks';
+	import { Table } from '$lib';
+	import type { TableColumn } from '$lib/types';
+	import type { ComponentHooks, HookRow } from './hooks';
 
 	interface Props {
 		hooks: ComponentHooks;
 	}
 
 	let { hooks }: Props = $props();
+
+	const columns: TableColumn<HookRow>[] = [
+		{ key: 'name', header: 'Hook' },
+		{ key: 'values', header: 'Values' },
+		{ key: 'note', header: 'Styles' }
+	];
 
 	// Each block renders only if it has rows — a layout primitive may have
 	// attrs and no custom properties, and that's a complete contract.
@@ -29,26 +40,17 @@
 
 {#each blocks as block (block.key)}
 	<h3 class="hooks-heading">{block.title}</h3>
-	<div class="hooks-table-wrapper">
-		<table class="hooks-table">
-			<thead>
-				<tr>
-					<th scope="col">Hook</th>
-					<th scope="col">Values</th>
-					<th scope="col">Styles</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each block.rows as row (row.name)}
-					<tr>
-						<td><code>{row.name}</code></td>
-						<td><code class="values">{row.values}</code></td>
-						<td class="note">{row.note}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</div>
+	<Table items={block.rows} {columns} ariaLabel={block.title} class="docs-table">
+		{#snippet cell(row, column)}
+			{#if column.key === 'name'}
+				<code>{row.name}</code>
+			{:else if column.key === 'values'}
+				<code class="values">{row.values}</code>
+			{:else}
+				{row.note}
+			{/if}
+		{/snippet}
+	</Table>
 {/each}
 
 <style>
@@ -62,30 +64,6 @@
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
-	.hooks-table-wrapper {
-		overflow-x: auto;
-		max-width: 100%;
-	}
-
-	.hooks-table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-	}
-
-	.hooks-table th,
-	.hooks-table td {
-		text-align: left;
-		padding: 0.5rem 0.75rem;
-		border-bottom: 1px solid var(--hz-color-border, #6b7280);
-		vertical-align: top;
-	}
-
-	.hooks-table th {
-		font-weight: var(--hz-font-weight-semibold, 600);
-		white-space: nowrap;
-	}
-
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
@@ -93,10 +71,5 @@
 
 	code.values {
 		color: var(--hz-color-primary, #2563eb);
-	}
-
-	.note {
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text, inherit);
 	}
 </style>

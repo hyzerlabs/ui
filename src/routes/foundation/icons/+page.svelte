@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Stack, TextInput, Virtualizer, Badge } from '$lib';
+	import { Stack, TextInput, Virtualizer, Badge, Slider } from '$lib';
+	import Example from '../../../docs/Example.svelte';
 	import type { Component } from 'svelte';
 	import { CORE_ICONS } from '../../../lib/icons/core';
 	import { pascalize } from '../../../lib/icons/pascalize';
@@ -43,6 +44,28 @@
 	const COLUMNS = 4;
 	const ROW_HEIGHT = 128;
 
+	// Interactive size/stroke demo — sliders drive the icon and the code
+	// fence together.
+	let demoSize = $state(24);
+	let demoStroke = $state(2);
+	const sizeStrokeCode = $derived(`<IconCheck size={${demoSize}} strokeWidth={${demoStroke}} />`);
+
+	const intentNames = [
+		'neutral',
+		'primary',
+		'secondary',
+		'danger',
+		'warning',
+		'success',
+		'info'
+	] as const;
+	const intentCode = [
+		'<IconCheck intent="success" />',
+		'',
+		'<!-- or bring your own class -->',
+		'<IconCheck class="my-tint" />'
+	].join('\n');
+
 	const rows = $derived.by(() => {
 		const out: string[][] = [];
 		for (let i = 0; i < filtered.length; i += COLUMNS) {
@@ -71,19 +94,17 @@
 		{/await}
 		<span class="icon-name">
 			<span class="icon-name-text">Icon{pascalize(name)}</span>
-			{#if coreSet.has(name)}<Badge size="sm">core</Badge>{/if}
 		</span>
-		<div class="icon-import-row">
-			<code class="icon-import" title={importLineFor(name)}>{importLineFor(name)}</code>
-			<button
-				type="button"
-				class="icon-copy"
-				onclick={() => copyImportLine(name)}
-				aria-label={`Copy import line for Icon${pascalize(name)}`}
-			>
-				{copiedName === name ? 'Copied' : 'Copy'}
-			</button>
-		</div>
+		{#if coreSet.has(name)}<Badge size="sm" intent="primary">core</Badge>{/if}
+		<button
+			type="button"
+			class="icon-copy"
+			title={importLineFor(name)}
+			onclick={() => copyImportLine(name)}
+			aria-label={`Copy import line for Icon${pascalize(name)}`}
+		>
+			{copiedName === name ? 'Copied' : 'Copy import'}
+		</button>
 	</div>
 {/snippet}
 
@@ -91,10 +112,10 @@
 	<title>Icons — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Icons</h1>
-		<p>
+		<p class="doc-description">
 			The full <a href="https://lucide.dev" rel="noreferrer">Lucide</a> set (ISC) ships as generated
 			per-icon Svelte components — <strong>{allNames.length} icons</strong>, Lucide v{LUCIDE_VERSION}.
 			Every icon accepts <code>size</code>, <code>strokeWidth</code>, and <code>ariaLabel</code>.
@@ -102,6 +123,21 @@
 			<code>ariaLabel</code> is absent the icon is decorative (<code>aria-hidden="true"</code>);
 			when present it is labelled.
 		</p>
+		<p class="note">
+			Brand marks aren't included. Every icon-accepting component takes a snippet, so bring your own
+			as needed — an inline SVG, an icon font glyph, or a package like
+			<code>simple-icons</code> — the same way you'd pass any of these.
+		</p>
+	</div>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="usage-heading"
+	>
+		<h2 id="usage-heading">Usage</h2>
 		<p>
 			Import from the barrel (<code>@hyzer-labs/ui/icons</code>) for zero config — bundler
 			tree-shaking keeps your app lean. Prefer a deep import (<code
@@ -113,62 +149,97 @@
 			project-local barrel — see
 			<a href="/theming/tokens#config-heading">Tokens &amp; Overrides</a>.
 		</p>
-		<p class="note">
-			No brand marks ship — the 7 hand-drawn Simple Icons marks this library used to vendor were
-			removed; every icon-accepting component takes a snippet, so bring your own brand mark (an
-			inline SVG, an icon font glyph, or a package like <code>simple-icons</code>) the same way
-			you'd pass any of these.
-		</p>
-	</div>
+	</Stack>
 
-	<section aria-labelledby="core-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="core-heading"
+	>
 		<h2 id="core-heading">Core icons</h2>
 		<p>
 			These <strong>{CORE_ICONS.length}</strong> icons — marked
-			<Badge size="sm">core</Badge> — ship in every <code>hyzer generate</code> barrel no matter
-			what your <code>icons</code> config says, even <code>icons: []</code>. They're the glyphs this
-			library's own components render internally (the chevrons, close, menu, search, and friends),
-			so trimming your icon vocabulary can never accidentally break a component you're already
-			using.
+			<Badge size="sm" intent="primary">core</Badge> — ship in every <code>hyzer generate</code>
+			barrel no matter what your <code>icons</code> config says, even <code>icons: []</code>.
+			They're the glyphs this library's own components render internally (the chevrons, close, menu,
+			search, and friends), so trimming your icon vocabulary can never accidentally break a
+			component you're already using.
 		</p>
 		<div class="core-grid">
 			{#each CORE_ICONS as name (name)}
 				{@render iconTile(name)}
 			{/each}
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="size-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="size-heading"
+	>
 		<h2 id="size-heading">Size &amp; stroke</h2>
-		<div class="demo-row">
-			<div class="demo-item">
-				<DemoCheck size={16} ariaLabel="Check icon at size 16" />
-				<code>size=16</code>
+		<Example code={sizeStrokeCode}>
+			<div class="size-demo">
+				<div class="size-demo-controls">
+					<Slider name="icon-size" label="size" min={12} max={64} step={4} bind:value={demoSize} />
+					<Slider
+						name="icon-stroke"
+						label="strokeWidth"
+						min={0.5}
+						max={4}
+						step={0.5}
+						bind:value={demoStroke}
+					/>
+				</div>
+				<div class="size-demo-preview">
+					<DemoCheck size={demoSize} strokeWidth={demoStroke} ariaLabel="Check icon preview" />
+				</div>
 			</div>
-			<div class="demo-item">
-				<DemoCheck size={24} ariaLabel="Check icon at size 24 (default)" />
-				<code>size=24 (default)</code>
-			</div>
-			<div class="demo-item">
-				<DemoCheck size={40} ariaLabel="Check icon at size 40" />
-				<code>size=40</code>
-			</div>
-			<div class="demo-item">
-				<DemoCheck size={24} strokeWidth={1} ariaLabel="Check icon stroke 1" />
-				<code>strokeWidth=1</code>
-			</div>
-			<div class="demo-item">
-				<DemoCheck size={24} strokeWidth={3} ariaLabel="Check icon stroke 3" />
-				<code>strokeWidth=3</code>
-			</div>
-			<div class="demo-item">
-				<DemoCheck size={24} class="demo-tinted" ariaLabel="Check icon with a consumer class" />
-				<code>class="…"</code>
-			</div>
-		</div>
-	</section>
+		</Example>
+	</Stack>
 
-	<section aria-labelledby="a11y-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="intent-heading"
+	>
+		<h2 id="intent-heading">Intent</h2>
+		<p class="tab-note">
+			<code>intent</code> colors the glyph from the shared vocabulary (<code
+				>color: var(--hz-intent-*)</code
+			>) — see
+			<a href="/foundation/colors#intent">Foundation &rarr; Colors &amp; Intent</a>. A
+			<code>class</code> is a separate hook, yours to style.
+		</p>
+		<Example code={intentCode}>
+			<div class="demo-row">
+				{#each intentNames as intentName (intentName)}
+					<div class="demo-item">
+						<DemoCheck intent={intentName} />
+						<code>{intentName}</code>
+					</div>
+				{/each}
+				<div class="demo-item">
+					<DemoCheck class="demo-tinted" />
+					<code>class="…"</code>
+				</div>
+			</div>
+		</Example>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="a11y-heading"
+	>
 		<h2 id="a11y-heading">Decorative vs. labelled</h2>
 		<div class="demo-row">
 			<div class="demo-item">
@@ -182,9 +253,15 @@
 				<span>Labelled (ariaLabel="Search")</span>
 			</div>
 		</div>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="catalog-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="catalog-heading"
+	>
 		<h2 id="catalog-heading">Browse &amp; search</h2>
 		<TextInput
 			name="icon-search"
@@ -198,7 +275,7 @@
 		</p>
 
 		{#if rows.length > 0}
-			<Virtualizer items={rows} itemHeight={ROW_HEIGHT} height={480} class="icon-grid">
+			<Virtualizer items={rows} itemHeight={ROW_HEIGHT} height={768} class="icon-grid">
 				{#snippet row(rowItems)}
 					<div class="icon-row">
 						{#each rowItems as name (name)}
@@ -210,27 +287,22 @@
 		{:else}
 			<p class="empty">No icons match "{query.trim()}".</p>
 		{/if}
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-xl, 1.5rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margin zeroed — top-level p's directly inside a .doc-section Stack
+	 * (gap="away", data-density-shift) let the gap own the rhythm; .doc-intro's
+	 * own p's (doc-description, .note) are nested inside that wrapper div, not
+	 * the section Stacks, and keep their own margins (docs.css / this file). */
 	p {
-		margin: 0 0 0.75rem;
+		margin: 0;
 	}
 
+	/* Nested inside .doc-intro (a plain div, not a section Stack) — keeps its
+	 * original margin (unaffected by the section-Stack conversion below). */
 	.note {
+		margin: 0 0 0.75rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 	}
@@ -265,13 +337,33 @@
 		gap: 0.75rem;
 	}
 
-	.core-grid .icon-tile {
-		border: 1px solid var(--hz-color-border, #6b7280);
-		border-radius: var(--hz-radius-md, 0.5rem);
+	.size-demo {
+		display: flex;
+		gap: 1.5rem;
+		align-items: center;
+		flex-wrap: wrap;
 	}
 
+	.size-demo-controls {
+		flex: 1;
+		min-width: 14rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	.size-demo-preview {
+		flex: 0 0 6rem;
+		min-height: 6rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	/* Margin zeroed — direct child of the catalog section Stack (gap="away",
+	 * data-density-shift), which now owns the space around it. */
 	.count {
-		margin: 0.5rem 0 0.75rem;
+		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 	}
@@ -291,7 +383,6 @@
 		box-sizing: border-box;
 		height: 100%;
 		padding: 0.5rem;
-		border-bottom: 1px solid var(--hz-color-border, #6b7280);
 	}
 
 	.icon-tile {
@@ -314,22 +405,6 @@
 		font-family: var(--hz-font-family-mono, monospace);
 		word-break: break-all;
 		line-height: var(--hz-line-height-tight, 1.2);
-	}
-
-	.icon-import-row {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-		max-width: 100%;
-	}
-
-	.icon-import {
-		max-width: 8rem;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		font-size: var(--hz-font-size-xs, 0.6875rem);
-		color: var(--hz-color-text-muted, #6b7280);
 	}
 
 	.icon-copy {

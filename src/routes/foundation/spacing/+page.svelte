@@ -56,10 +56,10 @@
 	<title>Spacing & Sizing — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Spacing &amp; Sizing</h1>
-		<p>Three sizing systems, each answering a different question:</p>
+		<p class="doc-description">Three sizing systems, each answering a different question:</p>
 		<ul class="system-list">
 			<li>
 				<strong>Spacing scale</strong> — fixed steps (<code>--hz-space-xs</code> …
@@ -78,7 +78,13 @@
 		</ul>
 	</div>
 
-	<section aria-labelledby="space-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="space-heading"
+	>
 		<h2 id="space-heading">Spacing tokens</h2>
 		<Stack gap="sm">
 			{#each spaceTokens as token (token.cssVar)}
@@ -96,9 +102,15 @@
 				</div>
 			{/each}
 		</Stack>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="density-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="density-heading"
+	>
 		<h2 id="density-heading">Density spacing</h2>
 		<p>
 			An alternate spacing model, adapted from
@@ -170,17 +182,29 @@
 			</Stack>
 		</div>
 		<p class="tab-note">
-			Sections sit 8rem apart (<code>away</code>, no shift). Each section is one shift, so its
-			heading, cards, and the card padding all share <code>near</code> = 2rem; the
-			title/description/tags rhythm is <code>near</code> at two shifts = 0.8rem; the tag gaps are
-			<code>near</code> at three shifts = 0.4rem.
+			On a fresh top-level page (shift 0) this composition reads: sections apart at <code>away</code
+			>
+			= 8rem; heading, cards, and card padding sharing <code>near</code> at one shift = 2rem; the
+			title/description/tags rhythm at two shifts = 0.8rem; and the tag gaps at three shifts =
+			0.4rem — the numbers in the code below. This docs shell and the section around this demo are
+			already two shifts deep, so embedded here the demo's own shifts push straight past the floor:
+			sections still sit apart at this page's <code>away</code> (2rem, unshifted), but heading,
+			cards, title/description/tags, and tag gaps all land on the same <code>near</code> = 0.4rem floor
+			— a live example of the "three levels is the floor" rule above.
 		</p>
 
 		<h3>Usage</h3>
+		<p class="tab-note">As it would render starting from a fresh top-level page:</p>
 		<CodeBlock code={densityUsage} />
-	</section>
+	</Stack>
 
-	<section aria-labelledby="width-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="width-heading"
+	>
 		<h2 id="width-heading">Width / breakpoint tokens</h2>
 		<p>
 			Overriding these tokens retunes <code>Container</code> max-widths, <code>Split</code>'s
@@ -208,30 +232,30 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+		<p class="override-note">
+			Override the spacing scale, the density unit, or a width token with a plain CSS custom
+			property, or set <code>space</code>, <code>density</code>, and <code>width</code> in the
+			<code>hyzer</code> config; see
+			<a href="/theming/tokens">Theming &rarr; Tokens &amp; Overrides</a>.
+		</p>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-xl, 1.5rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed — h3/p (including the former .override-note, now plain
+	 * p) on this page are direct children of a .doc-section Stack (gap="away",
+	 * data-density-shift), which now owns the rhythm. The live density demo
+	 * below (.density-demo and its nested Stacks) is untouched — that's the
+	 * density system's own worked example, not the page-level scaffold this
+	 * refactor targets. */
 	h3 {
-		margin: 1.5rem 0 0.5rem;
+		margin: 0;
 		font-size: var(--hz-font-size-lg, 1.25rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	.system-list {
@@ -278,11 +302,12 @@
 		max-width: 100%;
 	}
 
+	/* Margin zeroed — direct child of the density-heading section Stack
+	 * (gap="away", data-density-shift), which now owns the space around it. */
 	.density-demo {
 		border: 1px dashed var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
 		padding: var(--hz-space-near, 4rem);
-		margin-bottom: 1rem;
 	}
 
 	.demo-heading {

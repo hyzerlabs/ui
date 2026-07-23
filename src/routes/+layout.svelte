@@ -218,10 +218,19 @@
 		<!-- Main content. The main element is a size container so Container
 		     breakout (100cqw) spans the full content area; the inner div caps
 		     the prose column, start-aligned — --hz-breakout-shift: 0 tells
-		     breakouts to grow rightward only. -->
+		     breakouts to grow rightward only. One data-density-shift wrapper
+		     brings the density grid (tokens.css) to level 1 — near=2rem,
+		     away=4rem — so the page-root Stack (gap="away") reads 4rem between
+		     sections. Each .doc-section Stack carries a second data-density-shift
+		     of its own (level 2 — away=2rem), so its own gap="away" reads
+		     roomier than the page rhythm but still tighter than "between
+		     sections" — the density ladder doing double duty as the docs'
+		     visual hierarchy. -->
 		<main id="main-content" class="docs-main" tabindex="-1">
 			<div class="docs-main-inner">
-				{@render children()}
+				<div data-density-shift>
+					{@render children()}
+				</div>
 			</div>
 		</main>
 
@@ -489,7 +498,7 @@
 		width: 0.75rem;
 		height: 0.75rem;
 		flex-shrink: 0;
-		transition: transform var(--hz-duration-fast, 150ms) var(--hz-ease-standard, ease);
+		transition: transform var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
 	.docs-sidenav-wrap :global(.hz-nav-panel .hz-nav-trigger[aria-expanded='true'] .hz-icon) {
@@ -674,7 +683,7 @@
 
 	/* Docs chrome (not a base-level style): inline code in running text gets a
 	   subtle chip treatment. Scoped to paragraph/list context so pre blocks and
-	   props-table cells stay plain. */
+	   table cells (props/hooks tables render code plain) stay plain. */
 	:global(p code),
 	:global(li code) {
 		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 14%, transparent);
@@ -682,6 +691,13 @@
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
+	}
+
+	/* 14% gray is invisible over black (same reason surface-muted jumps
+	   6% → 25% in the dark palette) — strengthen the chip tint in dark. */
+	:global([data-theme='dark'] p code),
+	:global([data-theme='dark'] li code) {
+		background-color: color-mix(in srgb, var(--hz-color-gray, #9ca3af) 28%, transparent);
 	}
 
 	/* Utility: visually-hidden text for screen readers */

@@ -10,7 +10,7 @@ export const containerDoc: ComponentDoc = {
 			name: 'padding',
 			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
 			default: "'md'",
-			note: 'near/away are the density distances — they tighten inside data-density-shift regions.'
+			note: 'Both axes. Shared LayoutPadding scale — near/away tighten inside data-density-shift regions.'
 		},
 		{ name: 'center', type: 'boolean', default: 'true' },
 		{
@@ -20,7 +20,8 @@ export const containerDoc: ComponentDoc = {
 			note: 'Escapes the parent column to span the nearest inline-size container (viewport when none). Overrides max.'
 		},
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-container class.' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-container class.' },
+		{ name: 'children', type: 'Snippet', default: '—' }
 	],
 	a11yNote:
 		"Container is a layout primitive with no ARIA semantics. Supply a meaningful landmark element via the `as` prop (e.g. as='main') when appropriate."

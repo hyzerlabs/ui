@@ -190,3 +190,12 @@ docs `build` green; the R9 barrel-import guard green.
   breaking-change window, specs/37 R9, with its own finding).
 - Trimming the *published package* per-consumer — npm ships the full set;
   trimming is an app-side concern (that's the point of the config tier).
+
+### Amendments
+
+- **2026-07-22 (audit R9, user request):** every generated icon gains an
+  `intent?: 'neutral' | Intent` prop — stamps `data-intent` and prepends
+  `color: var(--hz-intent-<intent>)` to the inline style (stroke is
+  `currentColor`; consumer `style` still wins). No fallback hex is baked
+  in, so config-registered custom intents work unchanged. Covered in
+  `icons.svelte.spec.ts`; demoed on `/foundation/colors`' intent section.

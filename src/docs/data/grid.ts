@@ -31,7 +31,8 @@ export const gridDoc: ComponentDoc = {
 			note: 'Both axes, on the grid root — the column breakpoints measure the padded-down width. Shared LayoutPadding scale.'
 		},
 		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-grid class.' }
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-grid class.' },
+		{ name: 'children', type: 'Snippet', default: '—' }
 	],
 	a11yNote:
 		'Grid is a layout primitive with no ARIA semantics. Reading and focus order follow DOM order.'

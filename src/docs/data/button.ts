@@ -9,9 +9,9 @@ export const buttonDoc: ComponentDoc = {
 		{ name: 'variant', type: "'solid' | 'outline' | 'ghost' | 'link'", default: "'solid'" },
 		{
 			name: 'intent',
-			type: "'primary' | 'secondary' | 'danger' | 'neutral'",
+			type: "'neutral' | 'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info'",
 			default: "'primary'",
-			note: 'See Foundation → Colors & Intent.'
+			note: 'The full intent registry, not a hand-picked subset — see Foundation → Colors & Intent.'
 		},
 		{ name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
 		{ name: 'disabled', type: 'boolean', default: 'false' },
@@ -30,6 +30,12 @@ export const buttonDoc: ComponentDoc = {
 			type: 'string',
 			default: '—',
 			note: 'Required for icon-only buttons.'
+		},
+		{
+			name: 'onclick',
+			type: '(e: MouseEvent) => void',
+			default: '—',
+			note: 'Swallowed while disabled or loading.'
 		},
 		{
 			name: 'class',

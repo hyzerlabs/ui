@@ -54,37 +54,61 @@
 	<title>{name} — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="sm">
+<Stack gap="away">
 	<div class="doc-intro">
 		<h1>{name}</h1>
 		<p class="doc-description">{description}</p>
 	</div>
 
-	<section aria-labelledby="import-heading" class="doc-section">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="import-heading"
+	>
 		<h2 id="import-heading">Import</h2>
 		<pre><code>{importLine}</code></pre>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="demo-heading" class="doc-section">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="demo-heading"
+	>
 		<h2 id="demo-heading">Demo</h2>
 		{#if children}
 			{@render children()}
 		{/if}
-	</section>
+	</Stack>
 
 	{#if props.length > 0}
-		<section aria-labelledby="props-heading" class="doc-section">
+		<Stack
+			as="section"
+			gap="away"
+			data-density-shift
+			class="doc-section"
+			aria-labelledby="props-heading"
+		>
 			<h2 id="props-heading">Props</h2>
-			<PropsTable {props} />
+			<PropsTable {props} label="{name} props" />
 			{#each types as t (t.name)}
 				<h3 class="type-heading"><code>{t.name}</code></h3>
-				<PropsTable props={t.props} />
+				<PropsTable props={t.props} label="{t.name} properties" />
 			{/each}
-		</section>
+		</Stack>
 	{/if}
 
 	{#if componentHooks}
-		<section aria-labelledby="hooks-heading" class="doc-section">
+		<Stack
+			as="section"
+			gap="away"
+			data-density-shift
+			class="doc-section"
+			aria-labelledby="hooks-heading"
+		>
 			<h2 id="hooks-heading">Theme hooks</h2>
 			<p class="hooks-intro">
 				What this component promises your CSS. The reference theme styles exactly these — from
@@ -92,11 +116,17 @@
 				<a href="/theming/components">Styling Components</a> for the how.
 			</p>
 			<ThemeHooks hooks={componentHooks} />
-		</section>
+		</Stack>
 	{/if}
 
 	{#if a11yNote}
-		<section aria-labelledby="a11y-heading" class="doc-section">
+		<Stack
+			as="section"
+			gap="away"
+			data-density-shift
+			class="doc-section"
+			aria-labelledby="a11y-heading"
+		>
 			<h2 id="a11y-heading">Accessibility</h2>
 			<p>
 				<!-- Backtick-split: odd segments are inline code. -->
@@ -111,45 +141,23 @@
 						{/if}<a href={link.href}>{link.label}</a>{/each}
 				</p>
 			{/if}
-		</section>
+		</Stack>
 	{/if}
 </Stack>
 
 <style>
-	.doc-intro h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-		line-height: var(--hz-line-height-tight, 1.2);
-	}
-
-	.doc-description {
-		margin: 0;
-		font-size: var(--hz-font-size-lg, 1.4rem);
-		color: var(--hz-color-text, inherit);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
-	.doc-section h2 {
-		margin: 0 0 1rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed — a direct child of the Props section Stack (gap="away",
+	 * data-density-shift) now owns the rhythm around this heading. */
 	.type-heading {
-		margin: 1.5rem 0 0.75rem;
+		margin: 0;
 		font-size: var(--hz-font-size-base, 1rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
-	.a11y-refs {
-		margin: 0.75rem 0 0;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-
+	/* Direct child of the Theme hooks section Stack (gap="away",
+	 * data-density-shift) — see the .type-heading note above. */
 	.hooks-intro {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	pre {

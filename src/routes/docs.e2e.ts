@@ -220,7 +220,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 
 	test('a bring-your-own brand marks note is present (no brand-icon section)', async ({ page }) => {
 		await page.goto('/foundation/icons');
-		await expect(page.getByText(/bring your own brand mark/i)).toBeVisible();
+		await expect(page.getByText(/brand marks aren't included/i)).toBeVisible();
 	});
 });
 
@@ -469,6 +469,11 @@ test.describe('specs/33 — carousel', () => {
 		await gotoCarousel(page); // basic tab — prev/next visible
 		const prev = page.locator('.hz-carousel-prev').first();
 		const next = page.locator('.hz-carousel-next').first();
+		// probesTaller reads getBoundingClientRect()/elementFromPoint, both
+		// viewport-relative — the density-scaffold docs pages (specs/40) run
+		// roomier now, so the control isn't guaranteed to already be within the
+		// fixed 800px test viewport; scroll it there first.
+		await prev.scrollIntoViewIfNeeded();
 		await expect(prev).toBeVisible();
 		expect(await prev.evaluate(probesTaller)).toBe(true);
 		expect(await next.evaluate(probesTaller)).toBe(true);
@@ -479,6 +484,9 @@ test.describe('specs/33 — carousel', () => {
 		await page.goto('/components/carousel');
 		await page.getByRole('tab', { name: 'Dots' }).click();
 		const dot = page.locator('.hz-carousel-dot').first();
+		// See the prev/next test above — scroll the viewport-relative probe
+		// target into view before measuring it.
+		await dot.scrollIntoViewIfNeeded();
 		await expect(dot).toBeVisible();
 		// The painted dot is ~8px; a taller ::before carries the tap target.
 		const painted = await dot.evaluate((el) => el.getBoundingClientRect().height);
@@ -715,9 +723,16 @@ test.describe('specs/38 — Toc', () => {
 	test('clicking an entry scrolls its own bounded article, not the page', async ({ page }) => {
 		await page.goto('/components/toc');
 		const article = page.locator('.toc-demo-article--basic');
+		const entry = page.locator(demoToc).getByRole('link', { name: 'Reading the wind' });
+		// The density-scaffold docs pages (specs/40) run roomier now, so this
+		// demo isn't guaranteed to already fit the initial viewport — bring the
+		// entry into view (a page-level scroll unrelated to the assertion
+		// below) before capturing the baseline, so the click itself is the only
+		// thing that could move window.scrollY from here on.
+		await entry.scrollIntoViewIfNeeded();
 		const windowScrollYBefore = await page.evaluate(() => window.scrollY);
 
-		await page.locator(demoToc).getByRole('link', { name: 'Reading the wind' }).click();
+		await entry.click();
 		await expect.poll(() => article.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
 		await expect(page.locator(`${demoToc} a[aria-current="location"]`)).toHaveText(
 			'Reading the wind'
@@ -837,16 +852,21 @@ test.describe('specs/39 — Motion', () => {
 
 	test('switching the transition sub-tab swaps the demo (fly)', async ({ page }) => {
 		await page.goto('/foundation/motion');
-		await page.getByRole('tab', { name: 'Fly' }).click();
+		// The reveal-entrance tabs mirror the transition tabs 1:1, so "Fly"
+		// exists twice on the page — scope to the transition tablist.
+		await page.getByLabel('Transition demos').getByRole('tab', { name: 'Fly' }).click();
 		const section = page.locator('section', { has: page.locator('#transitions-heading') });
 		await expect(section.locator('.transition-box').filter({ visible: true })).toHaveText('Fly');
 	});
 
 	test('the reveal demo shows its cards once scrolled into view', async ({ page }) => {
 		await page.goto('/foundation/motion');
-		const heading = page.locator('#reveal-heading');
-		await heading.scrollIntoViewIfNeeded();
 		const firstCard = page.locator('.reveal-card').first();
+		// Scroll the card strip itself into view — the density-scaffold docs
+		// pages (specs/40) run roomier now, so the heading alone (further from
+		// the strip than before) no longer guarantees the revealGroup's
+		// IntersectionObserver target is actually in the viewport too.
+		await firstCard.scrollIntoViewIfNeeded();
 		await expect
 			.poll(async () => firstCard.evaluate((el) => getComputedStyle(el).opacity))
 			.toBe('1');

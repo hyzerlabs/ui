@@ -90,7 +90,7 @@ export const comboboxDoc: ComponentDoc = {
 		{
 			name: 'ComboboxChipProps',
 			props: [
-				{ name: 'intent', type: "'neutral' | Intent", default: "'neutral'" },
+				{ name: 'intent', type: 'Intent', default: "'neutral'" },
 				{ name: 'variant', type: "'soft' | 'solid' | 'outline'", default: "'soft'" },
 				{
 					name: 'size',

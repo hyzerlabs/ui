@@ -64,7 +64,7 @@
 					</Container>
 				{:else if item.id === 'padding'}
 					<p class="tab-note">
-						The tinted zone is the container; the solid box is its content. The gap between them is
+						The tinted zone is the Container; the solid box is its content. The gap between them is
 						the padding, applied on both axes.
 					</p>
 					<Tabs

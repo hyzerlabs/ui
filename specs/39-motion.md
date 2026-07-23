@@ -143,3 +143,21 @@ measure, not trust class names).
   dependency.
 - Retrofitting existing components to the new helpers (they animate via
   theme CSS on the same tokens; the audit may add pointers, specs/40).
+
+### Amendments
+
+- **2026-07-22 (audit, user request):** `reveal`/`revealGroup` gain an
+  `effect: 'fade' | 'fly' | 'slide' | 'scale'` option (default `'fly'`,
+  the prior behavior) plus `axis` and `start`, mirroring the transition
+  family 1:1. `slide` expands from the center line of `axis` via
+  clip-path — not a layout collapse, the element keeps its box so
+  SSR/no-JS renders stay identical (user decision: center-out). `scale`
+  grows from `start`, default 0 like the scale transition. One effect
+  styles a whole group; `stagger` composes with all of them. Covered in
+  reveal.svelte.spec.ts; the motion page demos the four styles in the
+  same order as the transition tabs.
+
+- **2026-07-22 (audit, user decision):** duration tokens retuned — `fast:
+  250`, `base: 400`, `slow: 550` (ms; R2's documented `150/250/400`
+  superseded). Metadata is the source; mirrors, generated sheets, theme
+  fallbacks, and the literal-value specs all updated together.

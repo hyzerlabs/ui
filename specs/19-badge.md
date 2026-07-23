@@ -132,3 +132,12 @@ smoke render.
   keyboard patterns beyond the button (Combobox owns chip-list focus
   management).
 - Auto-deriving the dismiss label from children content.
+
+### Amendments
+
+- **2026-07-22 (audit R9):** `neutral` folded into the `IntentRegistry`
+  itself — `Intent` now includes it, and the per-component
+  `'neutral' | Intent` unions this spec introduced (`BadgeIntent`, later
+  copied by Button/Alert/icons) collapse to plain `Intent`. `BadgeIntent`
+  survives as an alias. `DropdownTriggerProps.intent`'s inlined copy had
+  drifted to a stale 4-value subset — now `Intent` as well.
