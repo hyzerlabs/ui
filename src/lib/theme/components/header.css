@@ -54,4 +54,19 @@
 		border-top: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 40%, transparent);
 	}
+
+	/* Drawer entrance — the same fade + rise the Nav panels and Dropdown
+	 * menu get (motion tokens, entry only, collapsed by base.css under
+	 * prefers-reduced-motion). */
+	.hz-header-drawer:where([data-state='open']) {
+		animation: hz-header-drawer-in var(--hz-duration-fast, 150ms)
+			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
+	}
+
+	@keyframes hz-header-drawer-in {
+		from {
+			opacity: 0;
+			translate: 0 -0.25rem;
+		}
+	}
 }

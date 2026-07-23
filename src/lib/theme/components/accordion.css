@@ -49,4 +49,42 @@
 	.hz-accordion-panel {
 		padding: 0 1rem 1rem;
 	}
+
+	/* Panel entrance — content fades + rises in when the item opens, on the
+	 * motion tokens (the component ships no panel motion by contract,
+	 * Accordion-R2/Theming Hooks). Replays on every open; close is handled
+	 * by the height transition below where supported, instantly elsewhere.
+	 * base.css collapses both under prefers-reduced-motion. */
+	.hz-accordion-item[data-state='open'] .hz-accordion-panel {
+		animation: hz-accordion-panel-in var(--hz-duration-base, 250ms)
+			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
+	}
+
+	@keyframes hz-accordion-panel-in {
+		from {
+			opacity: 0;
+			translate: 0 -0.25rem;
+		}
+	}
+
+	/* Smooth height open/close where the platform can interpolate to auto.
+	 * Browsers without interpolate-size keep the native instant toggle plus
+	 * the entrance animation above — same content, less choreography. */
+	@supports (interpolate-size: allow-keywords) {
+		.hz-accordion-item {
+			interpolate-size: allow-keywords;
+		}
+
+		.hz-accordion-item::details-content {
+			height: 0;
+			overflow: clip;
+			transition:
+				height var(--hz-duration-base, 250ms) var(--hz-ease-standard, ease),
+				content-visibility var(--hz-duration-base, 250ms) allow-discrete;
+		}
+
+		.hz-accordion-item[open]::details-content {
+			height: auto;
+		}
+	}
 }

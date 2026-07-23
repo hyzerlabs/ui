@@ -78,3 +78,21 @@
 	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
 	font-size: var(--hz-font-size-sm, 0.875rem);
 }
+
+/* Motion opt-out (specs/32 R2 coverage): the reference theme animates the
+ * panel entrance and interpolates <details> height. A terminal is instant —
+ * a selected line, not a reveal — so each of those properties is re-declared
+ * at its no-motion value. */
+.hz-theme-terminal .hz-accordion-item {
+	interpolate-size: normal;
+}
+
+.hz-theme-terminal .hz-accordion-item::details-content {
+	height: auto;
+	overflow: visible;
+	transition: none;
+}
+
+.hz-theme-terminal .hz-accordion-item[data-state='open'] .hz-accordion-panel {
+	animation: none;
+}

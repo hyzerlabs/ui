@@ -74,4 +74,24 @@
 	.hz-nav-trigger:where([aria-expanded='true']) .hz-icon {
 		transform: rotate(180deg);
 	}
+
+	/* Panel entrance — the same fade + 4px rise Dropdown's menu gets, on the
+	 * motion tokens. Covers both orientations (floating popovers and inline
+	 * sidebar sections open the same way: data-state flips from the
+	 * component's display: none). Entry only — closing stays instant so a
+	 * dismissed panel leaves the accessibility tree at once. Kept at
+	 * duration-fast in both modes: navigation is used repeatedly, so it
+	 * should feel snappy rather than choreographed. base.css collapses the
+	 * animation under prefers-reduced-motion. */
+	.hz-nav :where(.hz-nav-panel[data-state='open']) {
+		animation: hz-nav-panel-in var(--hz-duration-fast, 150ms)
+			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
+	}
+
+	@keyframes hz-nav-panel-in {
+		from {
+			opacity: 0;
+			translate: 0 -0.25rem;
+		}
+	}
 }
