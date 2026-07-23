@@ -1,39 +1,8 @@
 <script lang="ts">
 	import { Badge, Tabs, Cluster, Stack } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { badgeDoc } from '../../../docs/data/badge.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The badge content.' },
-		{
-			name: 'intent',
-			type: "'neutral' | 'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info'",
-			default: "'neutral'",
-			note: 'See Foundation → Colors & Intent.'
-		},
-		{ name: 'variant', type: "'soft' | 'solid' | 'outline'", default: "'soft'" },
-		{ name: 'size', type: "'sm' | 'md'", default: "'md'" },
-		{
-			name: 'rounded',
-			type: "'none' | 'sm' | 'md' | 'lg' | 'full'",
-			default: "'full'",
-			note: 'The shared Rounded scale — 1:1 with the --hz-radius-* tokens.'
-		},
-		{
-			name: 'onDismiss',
-			type: '() => void',
-			default: '—',
-			note: 'Renders the trailing remove button (the chip form).'
-		},
-		{
-			name: 'dismissLabel',
-			type: 'string',
-			default: "'Remove'",
-			note: 'In lists, pass a per-item label — "Remove" alone is ambiguous.'
-		},
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-badge class.' }
-	];
 
 	const intents = [
 		'neutral',
@@ -110,13 +79,7 @@
 	];
 </script>
 
-<DocPage
-	name="Badge"
-	description="A small inline status chip with intent coloring, soft/solid/outline variants, the shared rounded scale, and an optional dismiss button — the building block for selected-option chips."
-	importLine={'import {Badge} from "@hyzer-labs/ui"'}
-	{props}
-	a11yNote="A badge is plain inline text — no role, no label; it announces as part of the surrounding content. Never let the intent color be the only signal: the text carries the meaning. The dismiss button is a real `<button>` named by `dismissLabel` with a decorative icon — when rendering several chips, give each a per-item label like `Remove Destroyer`."
->
+<DocPage name="Badge" {...badgeDoc}>
 	<Tabs items={demoTabs} ariaLabel="Badge demos" defaultTab="intents">
 		{#snippet panel(item)}
 			<div class="tab-content">

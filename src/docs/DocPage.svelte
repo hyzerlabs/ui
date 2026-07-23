@@ -7,7 +7,7 @@
 	import { hooks } from './hooks';
 
 	/** A named supporting type (e.g. AccordionItem) shown as its own table under Props. */
-	interface TypeTable {
+	export interface TypeTable {
 		name: string;
 		props: PropRow[];
 	}

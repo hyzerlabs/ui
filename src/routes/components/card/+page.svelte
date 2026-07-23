@@ -1,21 +1,8 @@
 <script lang="ts">
 	import { Card, Tabs, Button } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { cardDoc } from '../../../docs/data/card.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{ name: 'padding', type: "'none' | 'sm' | 'md' | 'lg'", default: "'md'" },
-		{ name: 'rounded', type: "'none' | 'sm' | 'md' | 'lg'", default: "'md'" },
-		{ name: 'href', type: 'string', default: '—', note: 'Makes the whole card clickable.' },
-		{ name: 'ariaLabel', type: 'string', default: '—', note: 'Required when href is set.' },
-		{ name: 'horizontal', type: 'boolean', default: 'false' },
-		{ name: 'mediaPosition', type: "'start' | 'end'", default: "'start'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-card class.' },
-		{ name: 'media', type: 'Snippet', default: '—' },
-		{ name: 'children', type: 'Snippet', default: '—' },
-		{ name: 'actions', type: 'Snippet', default: '—' }
-	];
 
 	const paddings = ['none', 'sm', 'md', 'lg'] as const;
 	const roundeds = ['none', 'sm', 'md', 'lg'] as const;
@@ -81,13 +68,7 @@
 	}
 </script>
 
-<DocPage
-	name="Card"
-	description="A content container with optional media, actions, horizontal layout, and clickable-overlay support."
-	importLine={'import {Card} from "@hyzer-labs/ui"'}
-	{props}
-	a11yNote="When `href` is set the entire card is wrapped in a link — supply `ariaLabel` with a descriptive name. Inner interactive elements remain clickable above the overlay via z-index."
->
+<DocPage name="Card" {...cardDoc}>
 	<p class="demo-note">
 		Card is headless — the dashed outline below is docs scaffolding so its box is visible.
 	</p>

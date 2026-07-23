@@ -1,42 +1,8 @@
 <script lang="ts">
 	import { Checkbox, Tabs, Stack } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { checkboxDoc } from '../../../docs/data/checkbox.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{ name: 'name', type: 'string', default: '—', note: 'Required. Form field name.' },
-		{
-			name: 'label',
-			type: 'string',
-			default: '—',
-			note: 'Required. Always in the DOM; sr-only with hideLabel.'
-		},
-		{ name: 'checked', type: 'boolean', default: 'false', note: 'Bindable.' },
-		{
-			name: 'indeterminate',
-			type: 'boolean',
-			default: 'false',
-			note: 'Set via the DOM .indeterminate property; visual only, checked is unaffected.'
-		},
-		{ name: 'value', type: 'string', default: '—', note: 'Submitted value when checked.' },
-		{ name: 'description', type: 'string', default: '—', note: 'Help text below the label.' },
-		{
-			name: 'error',
-			type: 'string',
-			default: '—',
-			note: 'Inline error message; sets the error state.'
-		},
-		{ name: 'required', type: 'boolean', default: 'false' },
-		{ name: 'disabled', type: 'boolean', default: 'false' },
-		{ name: 'hideLabel', type: 'boolean', default: 'false' },
-		{
-			name: 'class',
-			type: 'string',
-			default: '—',
-			note: 'Merged after the hz-field hz-field--checkbox classes.'
-		}
-	];
 
 	let ace = $state(false);
 
@@ -94,20 +60,7 @@
 	];
 </script>
 
-<DocPage
-	name="Checkbox"
-	description="A labeled checkbox with description, inline error, and an indeterminate state for select-all patterns."
-	importLine={'import {Checkbox} from "@hyzer-labs/ui"'}
-	{props}
-	a11yNote="The input is associated with its label via `id`/`for` (label rendered after the box). `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`. `indeterminate` is applied through the DOM `.indeterminate` property, so screen readers announce the mixed state natively."
-	a11yLinks={[
-		{ label: 'APG Checkbox pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/' },
-		{
-			label: 'MDN: <input type="checkbox">',
-			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox'
-		}
-	]}
->
+<DocPage name="Checkbox" {...checkboxDoc}>
 	<Tabs items={demoTabs} ariaLabel="Checkbox demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">

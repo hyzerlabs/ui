@@ -19,7 +19,15 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '../..');
 
 const SCAN_DIRS = ['src/routes', 'src/docs'];
-const ALLOWED_FILES = new Set(['src/routes/foundation/icons/+page.svelte']);
+const ALLOWED_FILES = new Set([
+	'src/routes/foundation/icons/+page.svelte',
+	// Audit-R3 (specs/40): the command-palette pattern sample imports named
+	// exports from the barrel on purpose — its ?raw source is shown verbatim
+	// (through consumerSource) as the copy-pasteable recipe, so the import a
+	// reader sees has to be the real, working `@hyzer-labs/ui/icons` shape,
+	// not a deep generated/ path no consumer app has. One sample, scoped cost.
+	'src/docs/samples/CommandPalette.svelte'
+]);
 const FILE_PATTERN = /\.(svelte|ts)$/;
 const TEST_PATTERN = /\.(spec|e2e)\.ts$/;
 

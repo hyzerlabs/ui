@@ -1,38 +1,9 @@
 <script lang="ts">
 	import { Container, Grid, Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { gridDoc } from '../../../docs/data/grid.js';
 	import Example from '../../../docs/Example.svelte';
 	import ResizableDemo from '../../../docs/ResizableDemo.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{
-			name: 'columns',
-			type: 'number | { sm?: number; md?: number; lg?: number; xl?: number } | { min: string }',
-			default: '{ sm: 1, md: 2, lg: 3 }',
-			note: 'Band keys name the band ending at their width token: sm below 640px, md to 968px, lg to 1200px, xl beyond — fixed system constants (queries can’t read tokens). { min } is the fluid, fully var-driven mode.'
-		},
-		{
-			name: 'gap',
-			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
-			default: "'md'",
-			note: 'near/away are the density distances — they tighten inside data-density-shift regions.'
-		},
-		{
-			name: 'align',
-			type: "'start' | 'center' | 'end' | 'stretch' | 'baseline'",
-			default: "'stretch'",
-			note: 'Shared LayoutAlign scale (Stack/Cluster/Grid).'
-		},
-		{
-			name: 'padding',
-			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
-			default: "'none'",
-			note: 'Both axes, on the grid root — the column breakpoints measure the padded-down width. Shared LayoutPadding scale.'
-		},
-		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-grid class.' }
-	];
 
 	const gapValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
 	const alignValues = ['start', 'center', 'end', 'stretch', 'baseline'] as const;
@@ -108,13 +79,7 @@
 	];
 </script>
 
-<DocPage
-	name="Grid"
-	description="Responsive CSS grid that adapts its column count to its own width via container queries."
-	importLine={'import {Grid} from "@hyzer-labs/ui"'}
-	{props}
-	a11yNote="Grid is a layout primitive with no ARIA semantics. Reading and focus order follow DOM order."
->
+<DocPage name="Grid" {...gridDoc}>
 	<Tabs items={demoTabs} ariaLabel="Grid demos" defaultTab="responsive">
 		{#snippet panel(item)}
 			<div class="tab-content">

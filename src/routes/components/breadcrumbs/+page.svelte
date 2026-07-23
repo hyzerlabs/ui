@@ -2,42 +2,8 @@
 	import { Breadcrumbs, Tabs } from '$lib';
 	import type { BreadcrumbItem } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { breadcrumbsDoc } from '../../../docs/data/breadcrumbs.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{
-			name: 'items',
-			type: 'BreadcrumbItem[]',
-			default: '—',
-			note: 'Required. See BreadcrumbItem below.'
-		},
-		{ name: 'ariaLabel', type: 'string', default: "'Breadcrumb'" },
-		{
-			name: 'separator',
-			type: 'Snippet',
-			default: '—',
-			note: 'Replaces the chevron between items; rendered aria-hidden.'
-		},
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-breadcrumbs class.' }
-	];
-
-	const breadcrumbItemType: PropRow[] = [
-		{ name: 'label', type: 'string', default: '—', note: 'Required.' },
-		{
-			name: 'href',
-			type: 'string',
-			default: '—',
-			note: 'Omit on the last item to render the current page as plain text.'
-		},
-		{ name: 'external', type: 'boolean', default: '—', note: 'Adds the external-link treatment.' },
-		{
-			name: 'ariaCurrent',
-			type: "'page' | 'step' | 'true'",
-			default: '—',
-			note: 'The last item gets aria-current="page" automatically; set this to override.'
-		}
-	];
 
 	// Demo links are '#' so readers can't accidentally navigate away.
 	const trail: BreadcrumbItem[] = [
@@ -84,20 +50,7 @@
 	];
 </script>
 
-<DocPage
-	name="Breadcrumbs"
-	description="A wrapping breadcrumb trail of navigation links with chevron separators and automatic current-page semantics."
-	importLine={'import {Breadcrumbs} from "@hyzer-labs/ui"'}
-	{props}
-	types={[{ name: 'BreadcrumbItem', props: breadcrumbItemType }]}
-	a11yNote="Breadcrumbs renders a `<nav aria-label=&quot;Breadcrumb&quot;>` landmark wrapping an ordered list. The last item is the current page — `aria-current=&quot;page&quot;` is applied automatically (as plain text when it has no `href`). Separators are decorative and `aria-hidden`."
-	a11yLinks={[
-		{
-			label: 'APG Breadcrumb pattern',
-			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/'
-		}
-	]}
->
+<DocPage name="Breadcrumbs" {...breadcrumbsDoc}>
 	<Tabs items={demoTabs} ariaLabel="Breadcrumbs demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">

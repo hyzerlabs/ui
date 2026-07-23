@@ -2,46 +2,8 @@
 	import { Accordion, Tabs } from '$lib';
 	import IconPlus from '$lib/icons/generated/plus.svelte';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { accordionDoc } from '../../../docs/data/accordion.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{
-			name: 'items',
-			type: 'AccordionItem[]',
-			default: '—',
-			note: 'Required. See AccordionItem below.'
-		},
-		{ name: 'type', type: "'single' | 'multiple'", default: "'single'" },
-		{ name: 'defaultOpen', type: 'string | string[]', default: '[]' },
-		{
-			name: 'collapsible',
-			type: 'boolean',
-			default: 'true',
-			note: 'false keeps one panel open in single mode.'
-		},
-		{ name: 'headingLevel', type: '2 | 3 | 4 | 5 | 6', default: '3' },
-		{
-			name: 'panel',
-			type: 'Snippet<[AccordionItem]>',
-			default: '—',
-			note: 'Required. Renders each panel.'
-		},
-		{ name: 'icon', type: 'Snippet', default: '—', note: 'Replaces the default chevron.' },
-		{ name: 'onToggle', type: '(openIds: string[]) => void', default: '—' },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-accordion class.' }
-	];
-
-	const itemType = [
-		{ name: 'id', type: 'string', default: '—', note: 'Required. Must be unique.' },
-		{
-			name: 'title',
-			type: 'string | Snippet',
-			default: '—',
-			note: 'Required. String for plain text; snippet for inner markup.'
-		},
-		{ name: 'disabled', type: 'boolean', default: 'false' }
-	];
 
 	const items = [
 		{ id: 'what', title: 'What is @hyzer-labs/ui?' },
@@ -131,17 +93,7 @@
 	].join('\n');
 </script>
 
-<DocPage
-	name="Accordion"
-	description="A disclosure component using native <details>/<summary> elements, supporting single and multiple open modes with keyboard navigation. Item titles accept plain strings or snippets."
-	importLine={'import {Accordion} from "@hyzer-labs/ui"'}
-	{props}
-	types={[{ name: 'AccordionItem', props: itemType }]}
-	a11yNote="Built on native `<details>` — no ARIA needed for disclosure semantics. Arrow keys navigate between summaries; Home/End jump to first/last. Disabled items have `aria-disabled='true'` and block interaction. Summaries wrap a real heading (`headingLevel`) so panels join the document outline."
-	a11yLinks={[
-		{ label: 'APG Accordion pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/accordion/' }
-	]}
->
+<DocPage name="Accordion" {...accordionDoc}>
 	<p class="demo-note">
 		Panels ship no display/height/overflow of their own so you can animate the open/close yourself —
 		the reference theme's own summary-icon rotation honors <code>--hz-duration-*</code> /

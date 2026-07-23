@@ -1,43 +1,8 @@
 <script lang="ts">
 	import { Image, Tabs, Alert } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { imageDoc } from '../../../docs/data/image.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{ name: 'src', type: 'string', default: '—', note: 'Required. Fallback in picture mode.' },
-		{
-			name: 'alt',
-			type: 'string',
-			default: '—',
-			note: 'Required. Empty string for decorative.'
-		},
-		{
-			name: 'sources',
-			type: 'ImageSource[]',
-			default: '—',
-			note: 'Renders a <picture>: { srcset, type?, media?, sizes? } per source, in priority order. src remains the fallback and drives the load state.'
-		},
-		{ name: 'width', type: 'number', default: '—' },
-		{ name: 'height', type: 'number', default: '—' },
-		{ name: 'loading', type: "'lazy' | 'eager'", default: "'lazy'" },
-		{
-			name: 'aspectRatio',
-			type: "'auto' | '1/1' | '4/3' | '16/9' | '21/9' | string",
-			default: "'auto'"
-		},
-		{ name: 'fit', type: "'cover' | 'contain' | 'fill' | 'none'", default: "'cover'" },
-		{ name: 'rounded', type: "boolean | 'sm' | 'md' | 'lg' | 'full'", default: 'false' },
-		{ name: 'placeholder', type: "'blur' | 'color' | 'none'", default: "'none'" },
-		{
-			name: 'placeholderSrc',
-			type: 'string',
-			default: '—',
-			note: 'Low-res image for placeholder="blur"; required in that mode.'
-		},
-		{ name: 'placeholderColor', type: 'string', default: "'var(--hz-color-gray)'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-image class.' }
-	];
 
 	// Inline SVG data-URIs — no committed binary assets. Real photo assets
 	// coming soon.
@@ -118,13 +83,7 @@
 	];
 </script>
 
-<DocPage
-	name="Image"
-	description="Responsive image with aspect-ratio, object-fit, rounded corners, color/blur placeholder states, and a picture mode for art direction."
-	importLine={'import {Image} from "@hyzer-labs/ui"'}
-	{props}
-	a11yNote="Pass a descriptive alt text for informative images. Pass alt='' for decorative images — the component sets role='presentation' automatically."
->
+<DocPage name="Image" {...imageDoc}>
 	<Alert intent="info" title="Image + Lightbox">
 		Image renders media, Lightbox provides viewing. <code>Image</code> has no click-to-view of its
 		own — for that, pass an <code>Image</code> into a <a href="/components/lightbox">Lightbox</a>

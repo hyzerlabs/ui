@@ -1,40 +1,8 @@
 <script lang="ts">
 	import { Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { tabsDoc } from '../../../docs/data/tabs.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{ name: 'items', type: 'TabItem[]', default: '—', note: 'Required. See TabItem below.' },
-		{ name: 'ariaLabel', type: 'string', default: '—', note: 'Required. Labels the tablist.' },
-		{ name: 'defaultTab', type: 'string', default: '—', note: 'ID of the initially active tab.' },
-		{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'" },
-		{
-			name: 'activation',
-			type: "'auto' | 'manual'",
-			default: "'auto'",
-			note: 'auto activates on arrow-key focus; manual waits for Enter/Space.'
-		},
-		{
-			name: 'panel',
-			type: 'Snippet<[TabItem]>',
-			default: '—',
-			note: 'Required. Renders each panel.'
-		},
-		{ name: 'onChange', type: '(activeId: string) => void', default: '—' },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-tabs class.' }
-	];
-
-	const itemType = [
-		{ name: 'id', type: 'string', default: '—', note: 'Required. Must be unique.' },
-		{
-			name: 'label',
-			type: 'string | Snippet',
-			default: '—',
-			note: 'Required. String for plain text; snippet for inner markup.'
-		},
-		{ name: 'disabled', type: 'boolean', default: 'false' }
-	];
 
 	const discTabs = [
 		{ id: 'overview', label: 'Overview' },
@@ -108,17 +76,7 @@
 	].join('\n');
 </script>
 
-<DocPage
-	name="Tabs"
-	description="An accessible tab interface with roving tabindex, arrow-key navigation, and horizontal or vertical orientation. Tab labels accept plain strings or snippets."
-	importLine={'import {Tabs} from "@hyzer-labs/ui"'}
-	{props}
-	types={[{ name: 'TabItem', props: itemType }]}
-	a11yNote="Implements the WAI-ARIA tabs pattern: `role='tablist'/'tab'/'tabpanel'`, `aria-selected`, and roving `tabindex` — Tab is one stop for the whole tablist; arrow keys move between triggers, Home/End jump to first/last. Panels are only their own tab stop when they contain no focusable content. `ariaLabel` is required to name the tablist. Disabled tabs stay focusable via arrows but carry `aria-disabled='true'` and never activate."
-	a11yLinks={[
-		{ label: 'APG Tabs pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/tabs/' }
-	]}
->
+<DocPage name="Tabs" {...tabsDoc}>
 	<Tabs items={demoTabs} ariaLabel="Tabs demos" defaultTab="orientation">
 		{#snippet panel(item)}
 			<div class="tab-content">

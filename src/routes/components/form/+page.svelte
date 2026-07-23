@@ -6,51 +6,9 @@
 	import { Form, TextInput, Button, Stack, Tabs, toFormErrors } from '$lib';
 	import type { FormError } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { formDoc } from '../../../docs/data/form.js';
 	import Example from '../../../docs/Example.svelte';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{
-			name: 'errors',
-			type: 'FormError[]',
-			default: '[]',
-			note: 'The summary renders when non-empty. See FormError below.'
-		},
-		{
-			name: 'onSubmit',
-			type: '(e: SubmitEvent) => void',
-			default: '—',
-			note: 'Omit for native submission / use:enhance (the default path); provide it for client-side validation — preventDefault runs first.'
-		},
-		{ name: 'summaryTitle', type: 'string', default: "'There is a problem'" },
-		{
-			name: 'summaryHeadingLevel',
-			type: '2 | 3 | 4 | 5 | 6',
-			default: '2',
-			note: "Match the page's heading structure."
-		},
-		{
-			name: 'focusTarget',
-			type: "'summary' | 'firstField'",
-			default: "'summary'",
-			note: 'What receives focus after a submit with errors.'
-		},
-		{ name: 'novalidate', type: 'boolean', default: 'false' },
-		{ name: 'ariaLabel', type: 'string', default: '—', note: 'Names the form landmark.' },
-		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The form content.' },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-form class.' }
-	];
-
-	const formErrorType: PropRow[] = [
-		{
-			name: 'name',
-			type: 'string',
-			default: '—',
-			note: 'Field name to link to. Empty or unresolved names become non-interactive form-level errors, listed last.'
-		},
-		{ name: 'message', type: 'string', default: '—', note: 'Required.' }
-	];
 
 	// --- SvelteKit + enhance ---
 	const signupSchema = z.object({
@@ -227,17 +185,7 @@
 	];
 </script>
 
-<DocPage
-	name="Form"
-	description="A form wrapper that renders an accessible error summary and manages focus on failed submits — while staying out of the way of native submission and SvelteKit's use:enhance."
-	importLine={'import {Form, toFormErrors} from "@hyzer-labs/ui"'}
-	{props}
-	types={[{ name: 'FormError', props: formErrorType }]}
-	a11yNote="The error summary is the first child of the form, has `role=&quot;alert&quot;` (announced when it appears), and is focused when errors arrive after a submit — or the first invalid field is, with `focusTarget=&quot;firstField&quot;`. Each summary item links to its field and focuses it on activation, scrolling smoothly unless `prefers-reduced-motion` is set. Set `summaryHeadingLevel` so the summary title fits your page's heading outline."
-	a11yLinks={[
-		{ label: 'MDN: <form>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form' }
-	]}
->
+<DocPage name="Form" {...formDoc}>
 	<Tabs items={demoTabs} ariaLabel="Form demos" defaultTab="kit">
 		{#snippet panel(item)}
 			<div class="tab-content">

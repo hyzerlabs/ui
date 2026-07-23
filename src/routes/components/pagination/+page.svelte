@@ -1,37 +1,8 @@
 <script lang="ts">
 	import { Pagination, Tabs, Stack, Slider } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { paginationDoc } from '../../../docs/data/pagination.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{ name: 'count', type: 'number', default: '—', note: 'Required. Total pages.' },
-		{ name: 'page', type: 'number', default: '1', note: 'Bindable. 1-based.' },
-		{
-			name: 'siblings',
-			type: 'number',
-			default: '1',
-			note: 'Pages shown on each side of the current page.'
-		},
-		{ name: 'boundaries', type: 'number', default: '1', note: 'Pages pinned at each end.' },
-		{
-			name: 'href',
-			type: '(page: number) => string',
-			default: '—',
-			note: 'Link mode: items render as real anchors; omit for button mode.'
-		},
-		{ name: 'onchange', type: '(page: number) => void', default: '—' },
-		{ name: 'ariaLabel', type: 'string', default: "'Pagination'", note: 'Names the landmark.' },
-		{ name: 'prevLabel', type: 'string', default: "'Previous page'" },
-		{ name: 'nextLabel', type: 'string', default: "'Next page'" },
-		{
-			name: 'pageLabel',
-			type: '(page: number) => string',
-			default: '`Page ${page}`',
-			note: 'Accessible name per page item.'
-		},
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-pagination class.' }
-	];
 
 	let page = $state(1);
 
@@ -72,16 +43,7 @@
 	];
 </script>
 
-<DocPage
-	name="Pagination"
-	description="A navigation landmark of page controls — previous/next, boundary and sibling windows with ellipsis truncation, and button or real-link modes."
-	importLine={'import {Pagination} from "@hyzer-labs/ui"'}
-	{props}
-	a11yNote="Pagination renders a `<nav>` landmark named by `ariaLabel` — give it a distinct name when a page hosts several. Every control is a `Button`, so the current item carries `aria-current=&quot;page&quot;`, page items get full accessible names via `pageLabel` (&quot;Page 7&quot;, not a bare number), and ellipses are decorative. In link mode everything is a real `<a>`; at the ends the previous/next controls render as disabled Buttons without an `href` — a link can't be disabled, and a dead link announcing itself helps no one. Tab order is native; there are no roving-focus tricks."
-	a11yLinks={[
-		{ label: 'MDN: <nav>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav' }
-	]}
->
+<DocPage name="Pagination" {...paginationDoc}>
 	<Tabs items={demoTabs} ariaLabel="Pagination demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">

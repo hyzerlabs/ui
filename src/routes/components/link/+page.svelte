@@ -1,26 +1,8 @@
 <script lang="ts">
 	import { Link, Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { linkDoc } from '../../../docs/data/link.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{ name: 'href', type: 'string', default: '—', note: 'Required.' },
-		{ name: 'external', type: 'boolean', default: 'false' },
-		{
-			name: 'externalIcon',
-			type: 'boolean',
-			default: 'true',
-			note: 'Auto external glyph; iconEnd replaces it, false suppresses it.'
-		},
-		{ name: 'variant', type: "'default' | 'subtle' | 'nav'", default: "'default'" },
-		{ name: 'ariaCurrent', type: "'page' | 'step' | 'true'", default: '—' },
-		{ name: 'ariaLabel', type: 'string', default: '—' },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-link class.' },
-		{ name: 'children', type: 'Snippet', default: '—' },
-		{ name: 'iconStart', type: 'Snippet', default: '—' },
-		{ name: 'iconEnd', type: 'Snippet', default: '—' }
-	];
 
 	const variants = ['default', 'subtle', 'nav'] as const;
 
@@ -54,17 +36,7 @@
 	].join('\n');
 </script>
 
-<DocPage
-	name="Link"
-	description="An accessible anchor component with variant styles, external link support, and icon slots. Links inherit the surrounding text size."
-	importLine={'import {Link} from "@hyzer-labs/ui"'}
-	{props}
-	a11yNote="External links automatically add `target=&quot;_blank&quot;`, `rel=&quot;noopener noreferrer&quot;`, a decorative external glyph, and a visually-hidden &quot;(opens in new tab)&quot; string. `ariaCurrent` sets `aria-current` on the anchor for nav links."
-	a11yLinks={[
-		{ label: 'APG Link pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/link/' },
-		{ label: 'MDN: <a>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a' }
-	]}
->
+<DocPage name="Link" {...linkDoc}>
 	<Tabs items={demoTabs} ariaLabel="Link demos" defaultTab="variants">
 		{#snippet panel(item)}
 			<div class="tab-content">

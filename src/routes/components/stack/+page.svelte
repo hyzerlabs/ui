@@ -1,31 +1,8 @@
 <script lang="ts">
 	import { Stack, Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
+	import { stackDoc } from '../../../docs/data/stack.js';
 	import Example from '../../../docs/Example.svelte';
-	import type { PropRow } from '../../../docs/PropsTable.svelte';
-
-	const props: PropRow[] = [
-		{
-			name: 'gap',
-			type: "'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'near' | 'away'",
-			default: "'md'",
-			note: 'near/away are the density distances — they tighten inside data-density-shift regions.'
-		},
-		{
-			name: 'align',
-			type: "'start' | 'center' | 'end' | 'stretch' | 'baseline'",
-			default: "'stretch'",
-			note: 'Shared LayoutAlign scale (Stack/Cluster/Grid).'
-		},
-		{
-			name: 'padding',
-			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
-			default: "'none'",
-			note: 'Both axes. Shared LayoutPadding scale — near/away tighten inside data-density-shift regions.'
-		},
-		{ name: 'as', type: 'string', default: "'div'" },
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-stack class.' }
-	];
 
 	const gapValues = ['none', 'xs', 'sm', 'md', 'lg', 'xl', 'near', 'away'] as const;
 	const alignValues = ['start', 'center', 'end', 'stretch', 'baseline'] as const;
@@ -80,13 +57,7 @@
 	];
 </script>
 
-<DocPage
-	name="Stack"
-	description="Lays children out in a vertical column with consistent spacing between items."
-	importLine={'import {Stack} from "@hyzer-labs/ui"'}
-	{props}
-	a11yNote="Stack is a layout primitive with no ARIA semantics. The reading and focus order follow the DOM order of children."
->
+<DocPage name="Stack" {...stackDoc}>
 	<Tabs items={demoTabs} ariaLabel="Stack demos" defaultTab="gap">
 		{#snippet panel(item)}
 			<div class="tab-content">
