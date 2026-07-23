@@ -85,8 +85,8 @@
 			<div class="tab-content">
 				{#if item.id === 'intents'}
 					<p class="tab-note">
-						The <a href="/foundation/colors#intent">intent vocabulary</a> plus the
-						<code>neutral</code> default. The text carries the meaning; color reinforces it.
+						The <a href="/foundation/colors#intent">intent vocabulary</a>. The text carries the
+						meaning; color reinforces it.
 					</p>
 					<Example code={intentsCode}>
 						<Cluster gap="xs">

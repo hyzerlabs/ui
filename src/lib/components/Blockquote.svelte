@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { cx } from '$lib/utils';
+	import type { Intent } from '$lib/types';
 
 	interface Props {
 		children: Snippet;
@@ -8,11 +9,27 @@
 		citeUrl?: string;
 		/** Attribution-row alignment under the quote (logical values, per Hero). */
 		align?: 'start' | 'center' | 'end';
+		/** Colors only the accent line — border-inline-start. No default: absent
+		 * renders exactly today's uncolored look. */
+		intent?: Intent;
+		/** Only meaningful when `intent` is set. 'line' (default) colors just
+		 * the accent line — today's look. 'full' also colors the quote text
+		 * with the intent; the attribution row stays muted either way. */
+		intentScope?: 'line' | 'full';
 		class?: string;
 		[key: string]: unknown;
 	}
 
-	let { children, cite, citeUrl, align = 'start', class: className, ...rest }: Props = $props();
+	let {
+		children,
+		cite,
+		citeUrl,
+		align = 'start',
+		intent,
+		intentScope = 'line',
+		class: className,
+		...rest
+	}: Props = $props();
 </script>
 
 <!--
@@ -23,7 +40,20 @@
 -->
 <!-- Blockquote-R4b: data-align always present; the THEME aligns the
      attribution row on it — the quote body is deliberately untouched. -->
-<figure {...rest} class={cx('hz-blockquote', className)} data-align={align}>
+<!-- Blockquote-R9: data-intent present only when set — no intent leaves
+     the accent bar exactly as it renders today. -->
+<!-- Blockquote-R10: data-intent-scope present only when intent is set — it
+     has no meaning without an intent to scope, so it mirrors data-intent's
+     own presence rule rather than being always-stamped like data-align.
+     Its value is always the resolved intentScope ('line' or 'full'), giving
+     the theme a clean [data-intent-scope='full'] selector to key off. -->
+<figure
+	{...rest}
+	class={cx('hz-blockquote', className)}
+	data-align={align}
+	data-intent={intent}
+	data-intent-scope={intent ? intentScope : undefined}
+>
 	<blockquote class="hz-blockquote-quote" cite={citeUrl}>
 		{@render children()}
 	</blockquote>

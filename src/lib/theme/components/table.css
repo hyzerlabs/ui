@@ -238,7 +238,11 @@
 		padding: 0.75rem 1rem;
 	}
 
-	/* The checkbox cell stays leading — a row, not a label/value pair. */
+	/* The checkbox cell stays leading — a row, not a label/value pair.
+	 * BUG FIX (2026-07-23): this rule had no @container counterpart at all —
+	 * a selectable + stacked table's checkbox column never returned to a
+	 * normal table-cell once the container widened past the threshold. Each
+	 * @container block below now carries a matching-specificity reset. */
 	.hz-table-wrap[data-stack] tbody td.hz-table-cell-select {
 		display: flex;
 		align-items: center;
@@ -247,8 +251,22 @@
 	}
 
 	/* The empty-state cell keeps its centered padding — it has no data-label
-	 * pair to lay out, so the label/value flex treatment doesn't apply. */
-	.hz-table-wrap[data-stack] tbody :where(th, td):not(.hz-table-cell-select):not(.hz-table-empty) {
+	 * pair to lay out, so the label/value flex treatment doesn't apply.
+	 * BUG FIX (2026-07-23): the two :not() exclusions used to sit outside
+	 * :where(), each adding a class-level specificity point (0,4,1) total —
+	 * higher than the un-stacking @container overrides below (0,2,1), so
+	 * this rule always won regardless of container width and cells never
+	 * actually returned to table-cell/table-row layout once the container
+	 * widened back past the threshold. Folding the exclusions into the same
+	 * :where() zeroes their specificity (0,2,1), matching the overrides so
+	 * source order (this rule first, the @container rule later) decides it
+	 * correctly in both directions. */
+	.hz-table-wrap[data-stack]
+		tbody
+		:where(
+			th:not(.hz-table-cell-select):not(.hz-table-empty),
+			td:not(.hz-table-cell-select):not(.hz-table-empty)
+		) {
 		display: flex;
 		align-items: baseline;
 		justify-content: space-between;
@@ -298,8 +316,26 @@
 			border-bottom: var(--hz-border-width-thin, 1px) solid
 				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
 		}
+		/* data-align restores per-column alignment (BUG FIX, see above) — the
+		 * higher [data-align='…'] specificity wins over the general reset's
+		 * implicit start above, matching the non-stacked data-align rules. */
+		.hz-table-wrap[data-stack='sm'] tbody :where(th, td)[data-align='center'] {
+			text-align: center;
+		}
+		.hz-table-wrap[data-stack='sm'] tbody :where(th, td)[data-align='end'] {
+			text-align: end;
+		}
 		.hz-table-wrap[data-stack='sm'] tbody [data-label]::before {
 			content: none;
+		}
+		/* Checkbox cell reversal (BUG FIX, see above). */
+		.hz-table-wrap[data-stack='sm'] tbody td.hz-table-cell-select {
+			display: table-cell;
+			align-items: unset;
+			padding-block: calc(var(--hz-space-near, 4rem) / 8);
+			padding-inline: calc(var(--hz-space-away, 8rem) / 8);
+			border-bottom: var(--hz-border-width-thin, 1px) solid
+				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
 		}
 	}
 
@@ -326,8 +362,22 @@
 			border-bottom: var(--hz-border-width-thin, 1px) solid
 				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
 		}
+		.hz-table-wrap[data-stack='md'] tbody :where(th, td)[data-align='center'] {
+			text-align: center;
+		}
+		.hz-table-wrap[data-stack='md'] tbody :where(th, td)[data-align='end'] {
+			text-align: end;
+		}
 		.hz-table-wrap[data-stack='md'] tbody [data-label]::before {
 			content: none;
+		}
+		.hz-table-wrap[data-stack='md'] tbody td.hz-table-cell-select {
+			display: table-cell;
+			align-items: unset;
+			padding-block: calc(var(--hz-space-near, 4rem) / 8);
+			padding-inline: calc(var(--hz-space-away, 8rem) / 8);
+			border-bottom: var(--hz-border-width-thin, 1px) solid
+				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
 		}
 	}
 
@@ -354,8 +404,22 @@
 			border-bottom: var(--hz-border-width-thin, 1px) solid
 				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
 		}
+		.hz-table-wrap[data-stack='lg'] tbody :where(th, td)[data-align='center'] {
+			text-align: center;
+		}
+		.hz-table-wrap[data-stack='lg'] tbody :where(th, td)[data-align='end'] {
+			text-align: end;
+		}
 		.hz-table-wrap[data-stack='lg'] tbody [data-label]::before {
 			content: none;
+		}
+		.hz-table-wrap[data-stack='lg'] tbody td.hz-table-cell-select {
+			display: table-cell;
+			align-items: unset;
+			padding-block: calc(var(--hz-space-near, 4rem) / 8);
+			padding-inline: calc(var(--hz-space-away, 8rem) / 8);
+			border-bottom: var(--hz-border-width-thin, 1px) solid
+				color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
 		}
 	}
 

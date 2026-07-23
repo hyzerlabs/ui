@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { Table, Tabs, Pagination, Stack, Cluster, Button, Alert } from '$lib';
+	import { Table, Tabs, Pagination, Stack, Cluster, Button, Alert, Container } from '$lib';
 	import { SvelteSet } from 'svelte/reactivity';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { tableDoc } from '../../../docs/data/table.js';
 	import Example from '../../../docs/Example.svelte';
+	import ResizableDemo from '../../../docs/ResizableDemo.svelte';
 	import type { TableColumn, TableSort } from '$lib/types';
 
 	interface Disc {
@@ -106,6 +107,26 @@
 	].join('\n');
 
 	// ------------------------------------------------------------------
+	// Demo 2b — no sorting (plain, PropsTable-style columns config)
+	// ------------------------------------------------------------------
+
+	const plainColumns: TableColumn<Disc>[] = [
+		{ key: 'name', header: 'Name' },
+		{ key: 'type', header: 'Type' },
+		{ key: 'price', header: 'Price', align: 'end' }
+	];
+
+	const plainCode = [
+		'const columns: TableColumn<Disc>[] = [',
+		"\t{ key: 'name', header: 'Name' },",
+		"\t{ key: 'type', header: 'Type' },",
+		"\t{ key: 'price', header: 'Price', align: 'end' }",
+		'];',
+		'',
+		'<Table {items} {columns} caption="Discs" />'
+	].join('\n');
+
+	// ------------------------------------------------------------------
 	// Demo 3 — selection
 	// ------------------------------------------------------------------
 
@@ -148,11 +169,19 @@
 	// Demo 5 — stacked mode
 	// ------------------------------------------------------------------
 
+	// sm (640px) is the recommended default threshold — tables only stack on
+	// genuinely narrow viewports (user decision 2026-07-23); md/lg stay
+	// available for tables with many/wide columns that need to shed the
+	// table layout earlier.
 	const stackedCode = [
-		'<Table {items} {columns} caption="Discs" stack="md" />',
+		'<Table {items} {columns} caption="Discs" stack="sm" />',
 		'',
-		'/* stacks below --hz-width-md (968px); a real table at/above it */'
+		'/* stacks below --hz-width-sm (640px); a real table at/above it */'
 	].join('\n');
+
+	function stackedDescribe(w: number): string {
+		return w >= 640 ? 'table (640px+)' : 'stacked (< 640px)';
+	}
 
 	// ------------------------------------------------------------------
 	// Demo 6 — empty / loading
@@ -202,12 +231,22 @@
 
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
-		{ id: 'sorting', label: 'Sorting' },
+		{ id: 'sort', label: 'Sort' },
 		{ id: 'selection', label: 'Selection' },
 		{ id: 'sticky', label: 'Sticky header' },
 		{ id: 'stacked', label: 'Stacked mode' },
 		{ id: 'empty-loading', label: 'Empty / loading' },
 		{ id: 'pagination', label: 'With Pagination' }
+	];
+
+	// Sort tab — nested sub-tabs (inner-Tabs pattern, per the layout pages'
+	// padding-value sub-tabs) so client-sort/external-sort/no-sorting sit as
+	// natural siblings instead of stacked Examples under one crowded tab, and
+	// the top tab row doesn't grow another entry per sort variant.
+	const sortTabs = [
+		{ id: 'client', label: 'Client-side' },
+		{ id: 'external', label: 'External' },
+		{ id: 'no-sorting', label: 'No sorting' }
 	];
 </script>
 
@@ -226,29 +265,50 @@
 					<Example code={basicCode}>
 						<Table items={discs} {columns} caption="Discs" />
 					</Example>
-				{:else if item.id === 'sorting'}
-					<p class="tab-note">
-						<code>clientSort</code> (default) reorders <code>items</code> itself. With
-						<code>clientSort={'{false}'}</code>, Table only reports/marks the sort state — the
-						second demo reorders its own local array in response.
-					</p>
-					<Example code={clientSortCode}>
-						<Table
-							items={discs}
-							{columns}
-							caption="Discs sorted client-side"
-							bind:sort={clientSortState}
-						/>
-					</Example>
-					<Example code={externalSortCode}>
-						<Table
-							items={externallyOrdered}
-							{columns}
-							clientSort={false}
-							bind:sort={externalSort}
-							caption="Discs, externally ordered"
-						/>
-					</Example>
+				{:else if item.id === 'sort'}
+					<Tabs items={sortTabs} ariaLabel="Sort demos" defaultTab="client">
+						{#snippet panel(sortItem)}
+							<div class="inner-tab">
+								{#if sortItem.id === 'client'}
+									<p class="tab-note">
+										<code>clientSort</code> (default) reorders <code>items</code> itself.
+									</p>
+									<Example code={clientSortCode}>
+										<Table
+											items={discs}
+											{columns}
+											caption="Discs sorted client-side"
+											bind:sort={clientSortState}
+										/>
+									</Example>
+								{:else if sortItem.id === 'external'}
+									<p class="tab-note">
+										With <code>clientSort={'{false}'}</code>, Table only reports/marks the sort
+										state — this demo reorders its own local array in response.
+									</p>
+									<Example code={externalSortCode}>
+										<Table
+											items={externallyOrdered}
+											{columns}
+											clientSort={false}
+											bind:sort={externalSort}
+											caption="Discs, externally ordered"
+										/>
+									</Example>
+								{:else}
+									<p class="tab-note">
+										Columns are sortable only when their own <code>sortable</code> flag says so —
+										the plain columns config below (like the docs' own <code>PropsTable</code>)
+										omits it, so no column renders a sort button and none carries
+										<code>aria-sort</code>.
+									</p>
+									<Example code={plainCode}>
+										<Table items={discs} columns={plainColumns} caption="Discs" />
+									</Example>
+								{/if}
+							</div>
+						{/snippet}
+					</Tabs>
 				{:else if item.id === 'selection'}
 					<p class="selection-readout" aria-live="polite">
 						Selected: {selectedNames.length === 0 ? 'none' : selectedNames.join(', ')}
@@ -276,12 +336,18 @@
 					</Example>
 				{:else if item.id === 'stacked'}
 					<p class="tab-note">
-						Below <code>--hz-width-md</code> (968px) each row becomes a label/value block instead of scrolling
-						horizontally. Resize your viewport (or view this page on mobile) to see it engage.
+						Below <code>--hz-width-sm</code> (640px) each row becomes a label/value block instead of
+						scrolling horizontally — <code>sm</code> is the recommended default so tables only stack
+						on genuinely narrow viewports; <code>md</code>/<code>lg</code> are still available for tables
+						with many or wide columns. Drag the slider across the threshold to see it engage.
 					</p>
-					<Example code={stackedCode}>
-						<Table items={discs} {columns} caption="Discs" stack="md" />
-					</Example>
+					<Container breakout padding="none">
+						<Example code={stackedCode}>
+							<ResizableDemo initial={720} min={320} max={1000} describe={stackedDescribe}>
+								<Table items={discs} {columns} caption="Discs" stack="sm" />
+							</ResizableDemo>
+						</Example>
+					</Container>
 				{:else if item.id === 'empty-loading'}
 					<Stack gap="sm">
 						<Cluster gap="sm">

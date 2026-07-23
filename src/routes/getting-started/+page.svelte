@@ -66,22 +66,34 @@
 	<title>Getting Started — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Getting Started</h1>
-		<p>
+		<p class="doc-description">
 			Three tiers of adoption — each one optional, each one a superset of the last. The library
 			makes the accessibility and functional choices; you only ever decide how things look.
 		</p>
 	</div>
 
-	<section aria-labelledby="install-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="install-heading"
+	>
 		<h2 id="install-heading">Install</h2>
 		<p>Svelte 5 is the only peer dependency. TypeScript configs want Node 22.18 or newer.</p>
 		<CodeBlock code={installCode} />
-	</section>
+	</Stack>
 
-	<section aria-labelledby="tier-one-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="tier-one-heading"
+	>
 		<h2 id="tier-one-heading">1. Import and go</h2>
 		<p>
 			Import the committed token sheet and the reference theme once, globally, and use components.
@@ -93,9 +105,15 @@
 			The theme is optional — skip it and the components are headless: full functionality and
 			accessibility, no appearance opinions beyond native element defaults.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="tier-two-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="tier-two-heading"
+	>
 		<h2 id="tier-two-heading">2. Override tokens in CSS</h2>
 		<p>
 			Every visual decision resolves through a <code>--hz-*</code> custom property. Redefine any of
@@ -109,9 +127,15 @@
 			>, and <a href="/foundation/contrast">Contrast &amp; Accessibility</a> shows how to verify a new
 			palette.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="tier-three-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="tier-three-heading"
+	>
 		<h2 id="tier-three-heading">3. Generate your own tokens (optional)</h2>
 		<p>
 			For build-layer control, describe your system in <code>hyzer.config.ts</code> and let the
@@ -126,28 +150,15 @@
 			ours instead of replacing it — see <a href="/theming/tokens">Tokens &amp; Overrides</a> for when
 			to pick which.
 		</p>
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed below — every <p> and CodeBlock is a direct child of
+	 * either .doc-intro or a .doc-section Stack (gap="away", data-density-
+	 * shift), which owns the space between them. */
 	p {
-		margin: 0 0 1rem;
-	}
-
-	section :global(.code-block) {
-		margin-bottom: 1rem;
+		margin: 0;
 	}
 
 	.step-note {

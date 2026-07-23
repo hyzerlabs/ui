@@ -503,6 +503,140 @@ test.describe('specs/33 — carousel', () => {
 });
 
 // ---------------------------------------------------------------------------
+// specs/43 — carousel drag mode (controls="focus" + seamless)
+// ---------------------------------------------------------------------------
+
+test.describe('specs/43 — carousel drag mode', () => {
+	// The Drag tab's demo composes draggable + loop + seamless + controls="focus".
+	async function gotoDrag(page: import('@playwright/test').Page) {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/components/carousel');
+		await page.getByRole('tab', { name: 'Drag' }).click();
+		const root = page.locator('.hz-carousel[data-seamless]').first();
+		await expect(root).toBeVisible();
+		return root;
+	}
+
+	test('resting view shows no controls (visually hidden until reveal)', async ({ page }) => {
+		const root = await gotoDrag(page);
+		await expect(root.locator('.hz-carousel-controls')).toHaveCSS('opacity', '0');
+	});
+
+	test('Tab reveals the whole control row and focus is visible', async ({ page }) => {
+		const root = await gotoDrag(page);
+		const controls = root.locator('.hz-carousel-controls');
+		const prev = root.locator('.hz-carousel-prev');
+		await prev.focus();
+		await expect(controls).toHaveCSS('opacity', '1');
+		await expect(prev).toBeFocused();
+	});
+
+	test('hover reveals the control row (pointer / 2.5.7 alternative)', async ({ page }) => {
+		const root = await gotoDrag(page);
+		await root.hover();
+		await expect(root.locator('.hz-carousel-controls')).toHaveCSS('opacity', '1');
+	});
+
+	test('a pointer drag advances the demo', async ({ page }) => {
+		const root = await gotoDrag(page);
+		const status = root.locator('.hz-carousel-status');
+		await expect(status).toHaveText('1 / 3');
+		const viewport = root.locator('.hz-carousel-viewport');
+		// The Drag tab's longer tab-note pushes the demo below the fixed 800px
+		// test viewport — page.mouse coordinates need the element on-screen.
+		await viewport.scrollIntoViewIfNeeded();
+		const box = await viewport.boundingBox();
+		if (!box) throw new Error('no viewport box');
+		// Near the top of the (short, text-height) viewport — the revealed
+		// control row is bottom-anchored, and once :hover reveals it (the
+		// cursor is over the carousel for the whole gesture), its own prev/
+		// next/dot hit areas would otherwise sit on top of a bottom-centered
+		// drag path, same as controls="visible"'s row already does to a drag
+		// that starts exactly on a button.
+		const cy = box.y + box.height * 0.15;
+		await page.mouse.move(box.x + box.width * 0.8, cy);
+		await page.mouse.down();
+		await page.mouse.move(box.x + box.width * 0.1, cy, { steps: 4 });
+		await page.mouse.up();
+		await expect(status).toHaveText('2 / 3');
+	});
+
+	test('a prev/next click at the boundary wraps seamlessly, with no sustained backward sweep', async ({
+		page
+	}) => {
+		const root = await gotoDrag(page);
+		await root.hover();
+		const next = root.locator('.hz-carousel-next');
+		const status = root.locator('.hz-carousel-status');
+		await next.click();
+		await next.click();
+		await expect(status).toHaveText('3 / 3');
+
+		// Sample the track's translateX during the wrap that "next" is about to
+		// trigger. A plain go() rewind (spec 33, no seamless) would show many
+		// consecutive frames climbing back toward 0 as it sweeps through the
+		// intervening slides; the seamless clone settle should show at most one
+		// single-frame jump, at the silent reset.
+		const samples = await root.locator('.hz-carousel-track').evaluate((el) => {
+			return new Promise<number[]>((resolve) => {
+				const out: number[] = [];
+				const start = performance.now();
+				function frame() {
+					const m = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+					out.push(m.m41);
+					if (performance.now() - start < 700) requestAnimationFrame(frame);
+					else resolve(out);
+				}
+				const nextButton = el.parentElement?.parentElement?.querySelector(
+					'.hz-carousel-next'
+				) as HTMLElement | null;
+				nextButton?.click();
+				requestAnimationFrame(frame);
+			});
+		});
+
+		await expect(status).toHaveText('1 / 3');
+
+		let run = 0;
+		let maxRun = 0;
+		for (let i = 1; i < samples.length; i++) {
+			if (samples[i] > samples[i - 1] + 0.5) {
+				run++;
+				maxRun = Math.max(maxRun, run);
+			} else {
+				run = 0;
+			}
+		}
+		expect(maxRun).toBeLessThanOrEqual(1);
+	});
+
+	test('no horizontal overflow at 375px', async ({ page }) => {
+		await page.setViewportSize({ width: 375, height: 812 });
+		await page.goto('/components/carousel');
+		await page.getByRole('tab', { name: 'Drag' }).click();
+		const overflow = await page.evaluate(
+			() => document.documentElement.scrollWidth > document.documentElement.clientWidth
+		);
+		expect(overflow).toBe(false);
+	});
+
+	test('prefers-reduced-motion disables the reveal fade', async ({ page }) => {
+		await page.emulateMedia({ reducedMotion: 'reduce' });
+		const root = await gotoDrag(page);
+		// The R3/R4 opacity transition is gated behind
+		// `@media (prefers-reduced-motion: no-preference)`, so it doesn't apply
+		// at all under `reduce` — base.css's global reduced-motion guard then
+		// forces every transition-duration to 0.01ms (not the R3 fade's own
+		// --hz-duration-fast token), so the reveal is instant either way.
+		const durationMs = await root.locator('.hz-carousel-controls').evaluate((el) => {
+			const d = getComputedStyle(el).transitionDuration; // e.g. "0.01ms" or "0s"
+			return parseFloat(d) * (d.trim().endsWith('ms') ? 1 : 1000);
+		});
+		expect(durationMs).toBeLessThanOrEqual(1);
+	});
+});
+
+// ---------------------------------------------------------------------------
 // specs/34 Part B — command palette search
 // ---------------------------------------------------------------------------
 
@@ -654,21 +788,48 @@ test.describe('specs/37 — Table', () => {
 	// No-overflow at 375/768/1280 is covered by the "R-Responsive" sweep above
 	// (it runs over every manifest route, and /components/table is now one).
 
-	test('the stacked demo renders column headers as inline labels at mobile viewport', async ({
+	test('the stacked demo renders column headers as inline labels below the sm threshold, and reverts to a real table row above it (both directions)', async ({
 		page
 	}) => {
-		await page.setViewportSize({ width: 375, height: 800 });
 		await page.goto('/components/table');
 		await page.getByRole('tab', { name: 'Stacked mode' }).click();
+		// The demo is a ResizableDemo (stack="sm", 640px threshold) — drag the
+		// bounded box under/over 640px via its exact-entry input rather than
+		// the page viewport, which no longer drives the demo's own width.
+		const widthInput = page.getByLabel('Demo width (exact value)');
 		// "Type" is the second column — a plain <td> (the first, "Name", is the
 		// row's <th scope="row">, which also carries data-label but is a
 		// separate code path — this asserts the more common cell case).
 		const typeCell = page.locator('td[data-label="Type"]').filter({ visible: true }).first();
+
+		await widthInput.fill('500');
+		await widthInput.press('Enter');
 		await expect(typeCell).toBeVisible();
+		await expect(typeCell).toHaveCSS('display', 'flex');
 		// The label itself is CSS content (data-label + ::before) — read the
 		// computed pseudo-element content to prove the theme rendered it.
-		const beforeContent = await typeCell.evaluate((el) => getComputedStyle(el, '::before').content);
-		expect(beforeContent).toContain('Type');
+		const beforeContentStacked = await typeCell.evaluate(
+			(el) => getComputedStyle(el, '::before').content
+		);
+		expect(beforeContentStacked).toContain('Type');
+
+		// Regression guard (specs/37 amendment, 2026-07-23): widening back
+		// past the threshold used to leave cells stuck in the stacked flex
+		// layout (a specificity tie the un-stacking @container rule lost) —
+		// this must actually revert to a real table row, not just stay
+		// "visible".
+		await widthInput.fill('900');
+		await widthInput.press('Enter');
+		await expect(typeCell).toHaveCSS('display', 'table-cell');
+		const beforeContentTable = await typeCell.evaluate(
+			(el) => getComputedStyle(el, '::before').content
+		);
+		expect(beforeContentTable).not.toContain('Type');
+
+		// And back down again — fully reversible, not a one-shot fix.
+		await widthInput.fill('500');
+		await widthInput.press('Enter');
+		await expect(typeCell).toHaveCSS('display', 'flex');
 	});
 });
 

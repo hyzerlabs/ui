@@ -9,7 +9,8 @@
 	const demoTabs = [
 		{ id: 'variants', label: 'Variants' },
 		{ id: 'external', label: 'External' },
-		{ id: 'aria-current', label: 'aria-current' }
+		{ id: 'aria-current', label: 'aria-current' },
+		{ id: 'byo-class', label: 'Bring your own class' }
 	];
 
 	// Example-code builders — derived from the selected sub-tab so the code
@@ -33,6 +34,40 @@
 		'<!-- This link points at the page you are on, so it carries aria-current="page" -->',
 		'<Link href="/components/link" ariaCurrent="page">Link docs (this page)</Link>',
 		'<Link href="/components/button">Button docs</Link>'
+	].join('\n');
+
+	// Bring-your-own-class demo: a fun, exaggerated hover underline (thick
+	// gradient underline that grows to full width), the exact recipe from
+	// the author's personal site. Built via '</' + 'style>' concatenation —
+	// a literal closing-style-tag substring inside this script block's
+	// string breaks Svelte's parser.
+	const fancyLinkCode = [
+		'<Link href="#" class="fancy-link">Hover me</Link>',
+		'',
+		'<' + 'style>',
+		'\t.fancy-link {',
+		'\t\ttext-decoration: none;',
+		'\t\tbackground-image: linear-gradient(',
+		'\t\t\t90deg,',
+		'\t\t\tvar(--hz-intent-primary),',
+		'\t\t\tvar(--hz-intent-secondary)',
+		'\t\t);',
+		'\t\tbackground-repeat: no-repeat;',
+		'\t\tbackground-position: 0 100%;',
+		'\t\tbackground-size: 0% 4px;',
+		'\t\ttransition: background-size 300ms ease;',
+		'\t}',
+		'',
+		'\t.fancy-link:hover {',
+		'\t\tbackground-size: 100% 4px;',
+		'\t}',
+		'',
+		'\t@media (prefers-reduced-motion: reduce) {',
+		'\t\t.fancy-link {',
+		'\t\t\ttransition: none;',
+		'\t\t}',
+		'\t}',
+		'</' + 'style>'
 	].join('\n');
 </script>
 
@@ -64,7 +99,7 @@
 							View on GitHub
 						</Link>
 					</Example>
-				{:else}
+				{:else if item.id === 'aria-current'}
 					<Example code={ariaCurrentCode}>
 						<nav aria-label="aria-current demo">
 							<Link href="/components/link" ariaCurrent="page">Link docs (this page)</Link>
@@ -72,8 +107,37 @@
 							<Link href="/components/button">Button docs</Link>
 						</nav>
 					</Example>
+				{:else}
+					<p class="tab-note">
+						<code>class</code> merges after <code>hz-link</code> — bring your own class and it wins:
+						this unlayered consumer CSS beats the theme without needing <code>!important</code>.
+					</p>
+					<Example code={fancyLinkCode}>
+						<Link href="#" class="fancy-link">Hover me</Link>
+					</Example>
 				{/if}
 			</div>
 		{/snippet}
 	</Tabs>
 </DocPage>
+
+<style>
+	:global(.fancy-link) {
+		text-decoration: none;
+		background-image: linear-gradient(90deg, var(--hz-intent-primary), var(--hz-intent-secondary));
+		background-repeat: no-repeat;
+		background-position: 0 100%;
+		background-size: 0% 4px;
+		transition: background-size 300ms ease;
+	}
+
+	:global(.fancy-link:hover) {
+		background-size: 100% 4px;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		:global(.fancy-link) {
+			transition: none;
+		}
+	}
+</style>

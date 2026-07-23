@@ -29,7 +29,19 @@ export const carouselDoc: ComponentDoc = {
 			name: 'draggable',
 			type: 'boolean',
 			default: 'true',
-			note: 'Pointer drag to slide (drag wraps when loop is set). Off leaves keyboard, buttons, and dots working.'
+			note: 'Pointer drag to slide (drag wraps when loop is set — seamlessly, when seamless is also set). Off leaves keyboard, buttons, and dots working.'
+		},
+		{
+			name: 'controls',
+			type: "'visible' | 'focus'",
+			default: "'visible'",
+			note: 'focus keeps the prev/next buttons and indicator in the DOM and fully operable, hidden only visually until :hover/:focus-within reveals the whole row together — the WCAG 2.5.7 non-dragging alternative, always reachable.'
+		},
+		{
+			name: 'seamless',
+			type: 'boolean',
+			default: 'false',
+			note: 'Opt-in continuous boundary wrap: every ±1 loop step — drag, buttons, dots, arrow keys — settles through a hidden clone instead of sweeping back through the row. Only meaningful with loop; an inert no-op without it.'
 		},
 		{
 			name: 'indicator',
@@ -61,8 +73,12 @@ export const carouselDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-carousel class.' }
 	],
 	a11yNote:
-		'Follows the APG grouped-carousel pattern: the region and each slide carry `aria-roledescription`, slides are named (\'2 of 5\'-style by default, customizable via `slideLabel`), and because there is no auto-rotation the viewport is an `aria-live="polite"` region — slide changes announce themselves. Arrow keys, Home, and End steer while focus is inside the carousel.',
+		'Follows the APG grouped-carousel pattern: the region and each slide carry `aria-roledescription`, slides are named (\'2 of 5\'-style by default, customizable via `slideLabel`), and because there is no auto-rotation the viewport is an `aria-live="polite"` region — slide changes announce themselves. Arrow keys, Home, and End steer while focus is inside the carousel. `controls="focus"` hides the control row visually only — never `display`/`visibility`/`aria-hidden`/`inert` — so it stays reachable by Tab and revealed on hover, the WCAG 2.5.7 non-dragging alternative to the drag gesture.',
 	a11yLinks: [
-		{ label: 'APG Carousel pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/carousel/' }
+		{ label: 'APG Carousel pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/carousel/' },
+		{
+			label: 'WCAG 2.5.7 Dragging Movements',
+			href: 'https://www.w3.org/WAI/WCAG21/Understanding/dragging-movements.html'
+		}
 	]
 };

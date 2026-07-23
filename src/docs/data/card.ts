@@ -6,7 +6,12 @@ export const cardDoc: ComponentDoc = {
 		'A content container with optional media, actions, horizontal layout, and clickable-overlay support.',
 	importLine: 'import { Card } from "@hyzer-labs/ui"',
 	props: [
-		{ name: 'padding', type: "'none' | 'sm' | 'md' | 'lg'", default: "'md'" },
+		{
+			name: 'padding',
+			type: "'none' | 'sm' | 'md' | 'lg'",
+			default: "'md'",
+			note: "Set 'none' to opt out and control padding entirely from your own class."
+		},
 		{ name: 'rounded', type: "'none' | 'sm' | 'md' | 'lg'", default: "'md'" },
 		{ name: 'href', type: 'string', default: '—', note: 'Makes the whole card clickable.' },
 		{ name: 'ariaLabel', type: 'string', default: '—', note: 'Required when href is set.' },

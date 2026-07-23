@@ -89,10 +89,10 @@
 	<title>Styling Components — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Styling Components</h1>
-		<p>
+		<p class="doc-description">
 			Components expose a stable styling contract: an <code>hz-*</code> root class, a
 			<code>data-*</code> attribute per variant/state, and a <code>class</code> prop merged after
 			the root class. The reference theme styles exactly these hooks — from
@@ -101,7 +101,13 @@
 		</p>
 	</div>
 
-	<section aria-labelledby="hooks-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="hooks-heading"
+	>
 		<h2 id="hooks-heading">Classes and data hooks</h2>
 		<p>
 			The hooks are part of each component's contract, and every component page lists its own under
@@ -111,9 +117,15 @@
 			as <code>data-state</code> and friends — always present, so CSS can target any combination.
 		</p>
 		<CodeBlock code={hooksCode} />
-	</section>
+	</Stack>
 
-	<section aria-labelledby="class-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="class-heading"
+	>
 		<h2 id="class-heading">The <code>class</code> prop</h2>
 		<CodeBlock code={classPropCode} />
 		<p class="note">
@@ -122,9 +134,15 @@
 			prefer styling the <code>hz-*</code> hooks from stylesheets you control rather than re-declaring
 			resets a theme would need to fight.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="hook-props-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="hook-props-heading"
+	>
 		<h2 id="hook-props-heading">Custom-property hooks</h2>
 		<p>
 			Beyond the tokens, some components expose their own knob as a custom property — override it on
@@ -137,6 +155,7 @@
 				<thead>
 					<tr>
 						<th scope="col">Hook</th>
+						<th scope="col">Values</th>
 						<th scope="col">Component</th>
 						<th scope="col">Tunes</th>
 					</tr>
@@ -145,6 +164,7 @@
 					{#each customProps as row (row.component + row.name)}
 						<tr>
 							<td><code>{row.name}</code></td>
+							<td><code class="values">{row.values}</code></td>
 							<td>
 								{#if row.href}<a href={row.href}>{row.component}</a>{:else}{row.component}{/if}
 							</td>
@@ -160,9 +180,15 @@
 			<a href="/foundation/contrast">Contrast &amp; Accessibility</a> — if you retune them, re-check the
 			soft pairings there.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="treatments-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="treatments-heading"
+	>
 		<h2 id="treatments-heading">Theme conventions: Card treatments &amp; titles</h2>
 		<p>
 			Some looks are deliberately theme classes rather than component props — Card's surface
@@ -183,9 +209,15 @@
 				</Card>
 			</Cluster>
 		</Example>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="headless-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="headless-heading"
+	>
 		<h2 id="headless-heading">Going fully headless</h2>
 		<p>
 			Skip the reference theme and the same hooks are your blank canvas — components render as
@@ -199,24 +231,16 @@
 			<a href="/theming/examples">Example Themes</a> shows two full token-override sheets and the configs
 			that generate them.
 		</p>
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed below — every <p>, CodeBlock, Example, and
+	 * .token-table-wrapper is a direct child of either .doc-intro or a
+	 * .doc-section Stack (gap="away", data-density-shift), which owns the
+	 * space between them. */
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	code {
@@ -224,17 +248,16 @@
 		font-size: 0.875em;
 	}
 
-	section :global(.code-block) {
-		margin-bottom: 1rem;
+	code.values {
+		color: var(--hz-intent-primary, #2563eb);
 	}
 
-	section :global(.hz-card) {
+	:global(.doc-section .hz-card) {
 		max-width: 18rem;
 	}
 
 	.token-table-wrapper {
 		overflow-x: auto;
-		margin-bottom: 1rem;
 	}
 
 	.token-table {

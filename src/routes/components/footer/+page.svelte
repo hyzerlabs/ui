@@ -114,8 +114,25 @@
 		{ id: 'variants', label: 'Variants' },
 		{ id: 'links', label: 'Link variants' },
 		{ id: 'slots', label: 'Logo, social & bottom' },
-		{ id: 'columns', label: 'Responsive columns' }
+		{ id: 'columns', label: 'Responsive columns' },
+		{ id: 'themed-bg', label: 'Themed background' }
 	];
+
+	// Themed background demo (item 9): Footer has no --hz-footer-bg hook —
+	// its only background surface is `.hz-footer`'s own background-color
+	// declaration. Theming it is a bring-your-own-class override (the Link
+	// fancy-underline precedent), not a new prop. A soft tint keeps the
+	// existing text color's contrast intact (same low-percentage color-mix
+	// recipe Badge's soft variant and Table's zebra striping already use).
+	const themedBgCode = [
+		'<Footer {columns} headingLevel={3} class="brand-footer" />',
+		'',
+		'<' + 'style>',
+		'\t.brand-footer {',
+		'\t\tbackground: color-mix(in srgb, var(--hz-intent-primary) 10%, var(--hz-color-surface));',
+		'\t}',
+		'</' + 'style>'
+	].join('\n');
 </script>
 
 <DocPage name="Footer" {...footerDoc}>
@@ -128,7 +145,10 @@
 						>),
 						<code>minimal</code> is transparent with tighter padding — the surface underneath shows
 						through. <code>bordered</code> is a separate boolean prop (a top hairline), so it
-						composes with either variant. Each column's <code>links</code> reuses
+						composes with either variant. Each demo sits on a tinted backdrop (not part of Footer)
+						so
+						<code>minimal</code> visibly shows the surface underneath. Each column's
+						<code>links</code> reuses
 						<a href="/components/nav">Nav</a>'s <code>NavItem</code> shape (<code>label</code>/<code
 							>href</code
 						>/<code>external</code>/<code>ariaCurrent</code>).
@@ -142,12 +162,14 @@
 							{@const combo = surfaceCombos.find((c) => c.id === vItem.id)!}
 							<div class="inner-tab">
 								<Example code={comboCode(combo)}>
-									<Footer
-										columns={demoColumns}
-										headingLevel={3}
-										variant={combo.variant}
-										bordered={combo.bordered}
-									/>
+									<div class="surface-backdrop">
+										<Footer
+											columns={demoColumns}
+											headingLevel={3}
+											variant={combo.variant}
+											bordered={combo.bordered}
+										/>
+									</div>
 								</Example>
 							</div>
 						{/snippet}
@@ -198,7 +220,7 @@
 							{/snippet}
 						</Footer>
 					</Example>
-				{:else}
+				{:else if item.id === 'columns'}
 					<p class="tab-note">
 						Columns auto-fit the footer's own width — as many as have at least
 						<code>--hz-footer-col-min</code> (12rem, consumer-tunable via that custom property) of room,
@@ -211,6 +233,16 @@
 							</ResizableDemo>
 						</Example>
 					</Container>
+				{:else}
+					<p class="tab-note">
+						Footer has no dedicated background hook — <code>class</code> merges after
+						<code>hz-footer</code>, and this unlayered consumer CSS beats the theme without needing
+						<code>!important</code>. A low-percentage <code>color-mix</code> tint keeps the existing text
+						color's contrast intact.
+					</p>
+					<Example code={themedBgCode}>
+						<Footer columns={demoColumns} headingLevel={3} class="brand-footer" />
+					</Example>
 				{/if}
 			</div>
 		{/snippet}
@@ -220,5 +252,26 @@
 <style>
 	.copy {
 		margin: 0;
+	}
+
+	/* Tinted, borderless backdrop so variant="minimal" has something to
+	 * visibly show through — the same regression class previously fixed on
+	 * the Nav demo pages. */
+	.surface-backdrop {
+		padding: 1.5rem;
+		border-radius: var(--hz-radius-md, 0.5rem);
+		background: linear-gradient(
+			135deg,
+			color-mix(in srgb, var(--hz-intent-primary, #2563eb) 16%, var(--hz-color-surface, #fff)),
+			color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 16%, var(--hz-color-surface, #fff))
+		);
+	}
+
+	:global(.brand-footer) {
+		background: color-mix(
+			in srgb,
+			var(--hz-intent-primary, #2563eb) 10%,
+			var(--hz-color-surface, #fff)
+		);
 	}
 </style>

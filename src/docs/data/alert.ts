@@ -3,7 +3,7 @@ import type { ComponentDoc } from './types.js';
 
 export const alertDoc: ComponentDoc = {
 	description:
-		'An inline feedback banner on the shared intent scale, with an optional heading and dismiss button — announcement semantics are opt-in, and the Form error summary is one of these.',
+		'An inline feedback banner on the shared intent scale, with an optional heading and dismiss button. Announcement semantics are opt-in, and the Form error summary is one of these.',
 	importLine: 'import { Alert } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The alert body.' },

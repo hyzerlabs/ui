@@ -53,6 +53,7 @@
 		'/>',
 		'',
 		'<RangeSlider name="par" label="Par range" max={6} error="Pick a par range to filter holes." />',
+		'<RangeSlider name="entry" label="Entry fee split" required />',
 		'<RangeSlider name="locked" label="Course length filter (locked)" min={3000} max={12000} valueMin={5000} valueMax={9000} unit="ft" disabled />'
 	].join('\n');
 
@@ -88,7 +89,9 @@
 						</div>
 					</Example>
 				{:else if item.id === 'ticks'}
-					<p class="tab-note">Same ticks API as Slider — visual marks, not detents.</p>
+					<p class="tab-note">
+						Same ticks API as <a href="/components/slider">Slider</a> — visual marks, not detents.
+					</p>
 					<Example code={ticksCode}>
 						<div class="demo-col">
 							<RangeSlider
@@ -147,6 +150,7 @@
 									max={6}
 									error="Pick a par range to filter holes."
 								/>
+								<RangeSlider name="required-demo" label="Entry fee split" required />
 								<RangeSlider
 									name="disabled-demo"
 									label="Course length filter (locked)"

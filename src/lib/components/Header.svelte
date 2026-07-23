@@ -222,6 +222,23 @@
 		display: flex;
 	}
 
+	/*
+	 * Collapsed bar: with the bar Nav display:none, it no longer soaks up
+	 * the row's free space (its flex: 1 stops applying once removed from
+	 * flow), so justify-content: space-between floats .hz-header-actions in
+	 * the middle of the row between the brand and the hamburger. An auto
+	 * inline-start margin claims that free space instead, pinning actions
+	 * to the end, next to the toggle — the standard mobile-header pattern
+	 * (user decision 2026-07-23). Above the breakpoint the visible Nav's
+	 * flex: 1 already consumes the free space first, so this margin
+	 * resolves to 0 and the bar layout is unaffected.
+	 */
+	.hz-header[data-mobile-breakpoint='sm'] .hz-header-actions,
+	.hz-header[data-mobile-breakpoint='md'] .hz-header-actions,
+	.hz-header[data-mobile-breakpoint='lg'] .hz-header-actions {
+		margin-inline-start: auto;
+	}
+
 	/* 'none' — never collapses (e.g. embedded in a shell that owns its own
 	 * responsive behavior). Bar stays inline; toggle and drawer are off. */
 	.hz-header[data-mobile-breakpoint='none'] .hz-header-toggle,

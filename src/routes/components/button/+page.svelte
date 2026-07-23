@@ -27,11 +27,21 @@
 			.join('\n');
 	}
 
-	function sizeCode(size: string): string {
-		return intents
-			.map((intent) => `<Button size="${size}" intent="${intent}">${intent}</Button>`)
+	function sizeRowCode(size: (typeof sizes)[number]): string {
+		return variants
+			.map((variant) => {
+				const sizeAttr = size === 'md' ? '' : ` size="${size}"`;
+				const variantAttr = variant === 'solid' ? '' : ` variant="${variant}"`;
+				return `<Button${sizeAttr}${variantAttr}>${variant}</Button>`;
+			})
 			.join('\n');
 	}
+
+	const sizesCode = sizes
+		.map(
+			(size) => `<!-- size="${size}"${size === 'md' ? ' (default)' : ''} -->\n${sizeRowCode(size)}`
+		)
+		.join('\n\n');
 
 	const statesCode = [
 		'<Button loading>Save</Button>',
@@ -85,23 +95,21 @@
 						{/snippet}
 					</Tabs>
 				{:else if item.id === 'sizes'}
-					<Tabs
-						items={sizes.map((s) => ({ id: s, label: s }))}
-						ariaLabel="Button size"
-						defaultTab="md"
-					>
-						{#snippet panel(sItem)}
-							<div class="inner-tab">
-								<Example code={sizeCode(sItem.id)}>
+					<p class="tab-note">Every size, shown across all four variants.</p>
+					<Example code={sizesCode}>
+						<div class="size-demo">
+							{#each sizes as size (size)}
+								<div class="size-row">
+									<span class="size-row-label">{size}</span>
 									<Cluster gap="sm" align="center">
-										{#each intents as intent (intent)}
-											<Button size={sItem.id as (typeof sizes)[number]} {intent}>{intent}</Button>
+										{#each variants as variant (variant)}
+											<Button {size} {variant}>{variant}</Button>
 										{/each}
 									</Cluster>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+								</div>
+							{/each}
+						</div>
+					</Example>
 				{:else if item.id === 'states'}
 					<p class="tab-note">
 						While <code>loading</code>, the button sets <code>aria-busy="true"</code> and renders a
@@ -153,3 +161,25 @@
 		{/snippet}
 	</Tabs>
 </DocPage>
+
+<style>
+	.size-demo {
+		display: flex;
+		flex-direction: column;
+		gap: var(--hz-space-sm, 1rem);
+	}
+
+	.size-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--hz-space-sm, 1rem);
+	}
+
+	.size-row-label {
+		min-width: 2rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+</style>

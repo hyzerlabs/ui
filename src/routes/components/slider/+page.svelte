@@ -104,7 +104,9 @@
 				{:else if item.id === 'ticks'}
 					<p class="tab-note">
 						Ticks are visual marks, not detents — stepping stays on the <code>step</code> grid. Bare
-						numbers make unlabeled marks; <code>{'{ value, label }'}</code> adds the caption.
+						numbers make unlabeled marks; <code>{'{ value, label }'}</code> adds the caption. For a
+						min–max interval instead of a single value, see
+						<a href="/components/range-slider">RangeSlider</a> — it shares this ticks API.
 					</p>
 					<Example code={ticksCode}>
 						<div class="demo-col">

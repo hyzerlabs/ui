@@ -25,6 +25,19 @@ export const blockquoteDoc: ComponentDoc = {
 			default: "'start'",
 			note: 'Aligns the attribution row under the quote; the quote body is untouched.'
 		},
+		{
+			name: 'intent',
+			type: 'Intent',
+			default: '—',
+			note: 'See Foundation → Colors & Intent.',
+			noteHref: '/foundation/colors#intent'
+		},
+		{
+			name: 'intentScope',
+			type: "'line' | 'full'",
+			default: "'line'",
+			note: 'Only relevant with intent set. line colors just the accent line; full also colors the quote text. Attribution stays muted either way.'
+		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-blockquote class.' }
 	],
 	a11yNote:

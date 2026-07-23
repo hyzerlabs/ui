@@ -78,7 +78,7 @@ export const sliderDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'The range input is the labelled (`id`/`for`), named, form-participating control; its slider semantics (value, min, max) are native, and arrow keys step it. The number field is an exact-entry affordance with its own accessible name (`inputLabel`) and no `name` — it never submits. `description` and `error` chain into `aria-describedby` on the range (description first) and an `error` sets `aria-invalid`. `unit` is decorative and `aria-hidden` — put meaning-bearing units in the label or description.',
+		"The range input is the labelled (`id`/`for`), named, form-participating control; its slider semantics (value, min, max) are native, and arrow keys step it. The number field is an exact-entry affordance with its own accessible name (`inputLabel`) and no `name` — it never submits. `description` and `error` chain into `aria-describedby` on the range (description first) and an `error` sets `aria-invalid`; `required` renders the label indicator only — `aria-required` isn't part of the slider role's supported ARIA attributes, so it is never applied. `unit` is decorative and `aria-hidden` — put meaning-bearing units in the label or description.",
 	a11yLinks: [
 		{ label: 'APG Slider pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/slider/' },
 		{

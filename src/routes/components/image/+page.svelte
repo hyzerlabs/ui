@@ -51,7 +51,6 @@
 			'\tsrc="/photos/course.jpg"',
 			'\talt="Hole 7 fairway"',
 			'\tplaceholder="color"',
-			'\tplaceholderColor="var(--hz-color-border)"',
 			'/>'
 		].join('\n');
 	}
@@ -194,7 +193,6 @@
 												alt="Color placeholder demo"
 												aspectRatio="16/9"
 												placeholder="color"
-												placeholderColor="var(--hz-color-border)"
 											/>
 										{/if}
 									</div>

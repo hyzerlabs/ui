@@ -77,16 +77,17 @@
 <!--
 	Pagination-R1: a named nav landmark over one list — prev, windowed pages
 	with aria-hidden ellipses, next. Every control COMPOSES Button
-	(Pagination-R6): chevrons are icon-only neutral outline Buttons, pages are
-	neutral ghost Buttons with the current one solid primary. Button owns the
-	link/button duality and the disabled contract (aria-disabled + swallowed
-	clicks; in link mode a disabled control renders without an href).
+	(Pagination-R6): chevrons are icon-only neutral ghost Buttons (borderless,
+	matching the page-number buttons' own ghost look), pages are neutral ghost
+	Buttons with the current one solid primary. Button owns the link/button
+	duality and the disabled contract (aria-disabled + swallowed clicks; in
+	link mode a disabled control renders without an href).
 -->
 <nav {...rest} class={cx('hz-pagination', className)} aria-label={ariaLabel}>
 	<ul class="hz-pagination-list">
 		<li>
 			<Button
-				variant="outline"
+				variant="ghost"
 				intent="neutral"
 				size="sm"
 				class="hz-pagination-prev"
@@ -129,7 +130,7 @@
 
 		<li>
 			<Button
-				variant="outline"
+				variant="ghost"
 				intent="neutral"
 				size="sm"
 				class="hz-pagination-next"

@@ -117,10 +117,10 @@
 	<title>Tokens & Overrides — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Tokens &amp; Overrides</h1>
-		<p>
+		<p class="doc-description">
 			Two layers, one rule. Layer 1 is the palette (<code>--hz-palette-*</code>) — single-value
 			hues, authored per mode. Layer 2 (semantic roles, <code>--hz-color-*</code>, and intents,
 			<code>--hz-intent-*</code>) is pure <code>var()</code> indirection that chains through it.
@@ -142,7 +142,13 @@
 		</p>
 	</div>
 
-	<section aria-labelledby="css-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="css-heading"
+	>
 		<h2 id="css-heading">In plain CSS — no build step</h2>
 		<p>
 			Import your stylesheet after <code>tokens.css</code> and redefine what you need. These are the four
@@ -163,9 +169,15 @@
 				</div>
 			{/snippet}
 		</Tabs>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="config-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="config-heading"
+	>
 		<h2 id="config-heading">With the <code>hyzer</code> CLI — a config as source of truth</h2>
 		<p>
 			The same engine that generates this library's own <code>tokens.css</code> ships in the
@@ -186,9 +198,15 @@
 			<code>@hyzer-labs/ui/config</code> (<code>resolveConfig</code>, <code>generateCss</code>,
 			<code>contrastReport</code>) for build scripts of your own.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="icons-config-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="icons-config-heading"
+	>
 		<h2 id="icons-config-heading">Trimming the icon set</h2>
 		<p>
 			The same config extends to <a href="/foundation/icons">icons</a>: an optional
@@ -208,42 +226,37 @@
 			is a valid, minimal config: the core-only barrel.
 		</p>
 		<CodeBlock code={iconsReportCode} />
-	</section>
+	</Stack>
 
-	<section aria-labelledby="verify-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="verify-heading"
+	>
 		<h2 id="verify-heading">Verify your palette</h2>
 		<p>
 			The contrast math is public API — assert your pairings in a unit test exactly as this library
 			does, or read the full methodology and the live pairing checker on
 			<a href="/foundation/contrast#api-heading">Contrast &amp; Accessibility</a>.
 		</p>
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed below — every <p> and CodeBlock outside .doc-intro is a
+	 * direct child of a .doc-section Stack (gap="away", data-density-shift),
+	 * which owns the space between them. .doc-intro's own p's (doc-description,
+	 * .doctrine-note) are nested inside that plain div and keep their own
+	 * margins (docs.css / this file). */
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
-	}
-
-	section :global(.code-block) {
-		margin-bottom: 1rem;
 	}
 
 	.note {

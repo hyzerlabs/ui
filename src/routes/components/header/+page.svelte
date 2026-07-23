@@ -83,8 +83,9 @@
 					</Container>
 				{:else if item.id === 'surface'}
 					<p class="tab-note">
-						<code>variant</code> sets the bar surface; <code>bordered</code> adds a bottom hairline that
-						composes with either.
+						<code>variant</code> sets the bar surface; <code>bordered</code> adds a bottom hairline
+						that composes with either. Each demo sits on a tinted backdrop (not part of Header) so
+						<code>transparent</code> visibly shows the surface underneath.
 					</p>
 					<Tabs
 						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}
@@ -96,13 +97,15 @@
 							<div class="inner-tab">
 								<Container breakout padding="none">
 									<Example code={surfaceCode(combo)}>
-										<Header
-											items={demoItems}
-											variant={combo.variant}
-											bordered={combo.bordered}
-											mobileBreakpoint="sm"
-											ariaLabel="Demo header ({combo.label})"
-										/>
+										<div class="surface-backdrop">
+											<Header
+												items={demoItems}
+												variant={combo.variant}
+												bordered={combo.bordered}
+												mobileBreakpoint="sm"
+												ariaLabel="Demo header ({combo.label})"
+											/>
+										</div>
 									</Example>
 								</Container>
 							</div>
@@ -110,8 +113,11 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						Drag under 968px and the bar collapses to the hamburger; open it to see the vertical Nav
-						+ actions in the drawer, focus-trapped and Esc-to-close.
+						Drag under 968px and the bar collapses to the hamburger; <code>actions</code> stays in
+						the collapsed bar too, pinned to the end next to the hamburger (override
+						<code>margin-inline-start</code> on <code>.hz-header-actions</code> to center it or place
+						it elsewhere). Open the drawer to see the vertical Nav + actions repeated below it, focus-trapped
+						and Esc-to-close.
 					</p>
 					<Container breakout padding="none">
 						<Example code={mobileCode}>
@@ -144,8 +150,16 @@
 		color: inherit;
 	}
 
-	.inner-tab :global(.hz-header) {
-		border: 1px solid var(--hz-color-border, #6b7280);
+	/* Tinted, borderless backdrop so variant="transparent" has something to
+	 * visibly show through — the same regression class previously fixed on
+	 * the Footer and Nav demo pages. */
+	.surface-backdrop {
+		padding: 1.5rem;
 		border-radius: var(--hz-radius-md, 0.5rem);
+		background: linear-gradient(
+			135deg,
+			color-mix(in srgb, var(--hz-intent-primary, #2563eb) 16%, var(--hz-color-surface, #fff)),
+			color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 16%, var(--hz-color-surface, #fff))
+		);
 	}
 </style>

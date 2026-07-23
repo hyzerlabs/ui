@@ -34,10 +34,24 @@
 
 	const dotsCode = '<Carousel items={quotes} indicator="dots" ariaLabel="Customer quotes" />';
 
+	const dragCode = [
+		'<!-- controls="focus": the row is hidden until hover/focus reveals it -->',
+		'<!-- seamless: every ±1 loop wrap settles through a clone, never a -->',
+		'<!-- backward sweep through the row -->',
+		'<Carousel',
+		'\tdraggable',
+		'\tloop',
+		'\tseamless',
+		'\tcontrols="focus"',
+		'\tariaLabel="Customer quotes (drag)"',
+		'/>'
+	].join('\n');
+
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
 		{ id: 'dots', label: 'Dots' },
-		{ id: 'loop', label: 'Loop' }
+		{ id: 'loop', label: 'Loop' },
+		{ id: 'drag', label: 'Drag' }
 	];
 </script>
 
@@ -72,13 +86,42 @@
 							{/snippet}
 						</Carousel>
 					</Example>
-				{:else}
+				{:else if item.id === 'loop'}
 					<p class="tab-note">
 						Without <code>loop</code> the controls disable at the ends; with it, navigation wraps both
 						ways — including a drag flicked past the first or last slide.
 					</p>
 					<Example code={loopCode}>
 						<Carousel items={quotes} loop ariaLabel="Customer quotes (looping)">
+							{#snippet slide(quote)}
+								<Blockquote cite={quote.who}>{quote.text}</Blockquote>
+							{/snippet}
+						</Carousel>
+					</Example>
+				{:else}
+					<p class="tab-note">
+						<code>controls="focus"</code> keeps the prev/next buttons and indicator in the DOM and
+						fully operable — hidden only visually until <code>:hover</code>/<code
+							>:focus-within</code
+						>
+						reveals the whole row together (Tab into the carousel, or hover it with a mouse). This is
+						the WCAG 2.5.7 non-dragging alternative to the drag gesture: never
+						<code>display</code>,
+						<code>visibility</code>, <code>aria-hidden</code>, or <code>inert</code>, so it stays
+						reachable by keyboard and screen readers regardless of the visual reveal.
+						<code>seamless</code> makes every wrap — a drag flicked past the last slide, the buttons,
+						the dots, or the arrow keys — settle forward through a hidden clone instead of sweeping backward
+						through the row.
+					</p>
+					<Example code={dragCode}>
+						<Carousel
+							items={quotes}
+							draggable
+							loop
+							seamless
+							controls="focus"
+							ariaLabel="Customer quotes (drag)"
+						>
 							{#snippet slide(quote)}
 								<Blockquote cite={quote.who}>{quote.text}</Blockquote>
 							{/snippet}

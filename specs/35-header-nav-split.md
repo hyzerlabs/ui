@@ -149,3 +149,47 @@ sidebar; prerender crawl green over the new route.
   sidebar; Header covers the top-bar case).
 - Changing Nav's disclosure behavior (spec 34 stands).
 - Multi-row / mega-menu headers.
+
+### Amendments
+
+**2026-07-23 — mobile bar actions end-aligned (theme, user decision).**
+Below `mobileBreakpoint`, the bar Nav (`flex: 1`) leaves flow entirely
+(`display: none`), so it stops absorbing the row's free space; with only
+`.hz-header-brand`, `.hz-header-actions`, and `.hz-header-toggle` left,
+`.hz-header-inner`'s `justify-content: space-between` spread `actions`
+into the middle of the row instead of next to the hamburger — not the
+standard mobile-header pattern. Fixed with a scoped structural rule (in
+`Header.svelte`'s own `<style>`, alongside the existing collapse
+selectors, not `header.css` — this is layout behavior, not decoration):
+`.hz-header-actions` gets `margin-inline-start: auto` under each
+`data-mobile-breakpoint` value, but **only** in the same selectors that
+show the toggle (i.e., only engages once the bar is actually collapsed).
+Above the breakpoint the visible Nav's `flex: 1` already claims the free
+space first, so the auto margin resolves to `0` and the desktop bar is
+unaffected (verified in-browser at both widths). No new prop — a site
+wanting the old centered look overrides `margin-inline-start` on
+`.hz-header-actions` (documented in `hooks.ts`); the Header docs page's
+Mobile tab-note says so.
+
+**2026-07-23 — BUG FIX: Default vs. Bordered demos looked identical (docs
+page only, component untouched).** The `/components/header` Surface tab's
+`Default`/`Bordered`/`Transparent` combos were visually indistinguishable
+because the docs page's own scoped CSS,
+`.inner-tab :global(.hz-header) { border: 1px solid …; border-radius: …; }`,
+unconditionally wrapped every rendered `Header` in that tab in a full
+4-sided framing border — regardless of the actual `bordered` prop. That
+border was far more visually dominant than Header's real `bordered`
+treatment (a 1px **bottom-only** hairline, `header.css`'s
+`[data-bordered]` rule), so all three combos read as "the same bordered
+box." Investigated and confirmed Header's own border treatment is not
+broken (`data-bordered` correctly present only when `bordered` is passed,
+`border-bottom` correctly absent otherwise — verified in-browser via
+computed style: Default `border-bottom-width: 0px`, Bordered/Transparent
+`1px`) — this was a demo-composition bug, not a component bug. Fix:
+removed the `.inner-tab :global(.hz-header)` framing-border rule from
+`src/routes/components/header/+page.svelte`; the existing
+`.surface-backdrop` gradient tint (added for the Transparent combo) is
+sufficient visual containment on its own — Default now renders as a solid
+white rectangle on the tint with no border, Bordered/Transparent both show
+their real bottom hairline, and Transparent's background shows the
+gradient through. No `Header.svelte`/`header.css` changes.

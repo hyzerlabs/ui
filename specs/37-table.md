@@ -210,3 +210,90 @@ visible window, sort reorders within it; sweep + hooks spec green.
 - Built-in pagination (compose `Pagination`; R9 demos it).
 - Async data helpers — `loading` is a boolean, fetching is the app's job.
 - APG grid keyboard navigation (interactive-grid widget ≠ data table).
+
+### Amendments
+
+**2026-07-23 — stacked-mode default threshold + docs (user decision).**
+Investigated the R7 mechanism: `table.css`'s three named thresholds
+(`sm`/`md`/`lg` → 640/968/1200px) are literal `@container` px constants
+mirroring the width tokens (the Grid BAND precedent, specs/29) — a
+container-query condition cannot read a custom property, so this is not
+fully `var()`-driven the way Split's flex-basis `stackBelow` switcher is
+(`specs/29`); each named bucket still maps 1:1 to its token value today
+and stays overridable by a consumer writing their own `@container` rule
+against `.hz-table-wrap[data-stack]`. No component/theme code changed —
+`stack` stays opt-in with no default (off = scroll wrap only), per R7.
+What changed: the **recommended** threshold, mirroring `Split`'s
+`stackBelow` default of `'sm'` — the `/components/table` docs page's
+stacked-mode demo moved from `stack="md"` (968px, which stacked even at
+ordinary desktop widths inside the docs prose column, making the effect
+effectively undemonstrable) to `stack="sm"` (640px — "genuinely narrow
+viewports"), wrapped in `Container breakout` + `ResizableDemo` (Split's
+`stackBelow` demo precedent) so the 640px threshold can actually be
+crossed live. `src/docs/data/table.ts`'s `stack` prop note now recommends
+`'sm'` for most tables, reserving `md`/`lg` for wide/many-column tables.
+
+**2026-07-23 — non-sorting example (user decision).** Added a "No
+sorting" demo: a minimal `columns` config with no `sortable` flags (the
+docs' own `PropsTable` look). Traced against source
+(`Table.svelte`'s `ariaSortFor`/`toggleSort`): a column only renders a
+sort `<button>` and can only ever carry `aria-sort` when its own
+`sortable` is `true` — an all-plain `columns` array renders zero sort
+affordances and stamps no `aria-sort` anywhere, confirmed by this demo
+and stated in its tab-note.
+
+**2026-07-23 — BUG FIX: stacked mode never un-stacked (theme CSS
+specificity).** Regression surfaced by the stacked-mode-default-threshold
+entry above: once the docs demo could actually be driven back and forth
+across the threshold (via `ResizableDemo`), widening past it left cells
+stuck in the stacked flex layout instead of returning to a real
+`<table>` row. Root cause, in `table.css`'s R7 rules: the base
+(below-every-threshold) cell selector,
+`.hz-table-wrap[data-stack] tbody :where(th, td):not(.hz-table-cell-select):not(.hz-table-empty)`,
+chained its two `:not()` exclusions **outside** the `:where()` — each
+`:not(.class)` contributes a class-level specificity point regardless of
+nesting depth, so the full selector resolved to `(0,4,1)`, higher than
+every `@container` un-stacking override's `.hz-table-wrap[data-stack='sm'] tbody :where(th, td)`
+at `(0,2,1)`. Equal specificity (relying on source order, base-then-override)
+was the load-bearing assumption everywhere else in R7 (`tbody tr`/`thead`
+both tie at `(0,2,2)`/`(0,2,1)` and the later `@container` rule correctly
+wins) — the cell rule alone broke that invariant, so it won unconditionally
+regardless of container width. A second, previously-undemonstrated
+instance of the same bug: `td.hz-table-cell-select` (the selection
+checkbox cell) had **no** `@container` counterpart at all, so a
+`selectable` + `stack` table's checkbox column could never un-stack
+either. Fix: folded the `:not()` exclusions into the `:where()` argument
+list (`:where(th:not(...):not(...), td:not(...):not(...))`), zeroing
+their specificity to `(0,2,1)` — a true tie with the overrides, restoring
+correct source-order resolution; added matching-specificity
+`.hz-table-cell-select` reset rules to all three `@container` blocks
+(sm/md/lg); added `[data-align='center']`/`[data-align='end']` overrides
+to each block too — a related find while fixing the above: the base
+rule's unconditional `text-align: start` (needed so multi-line stacked
+label/value rows don't inherit an off `data-align` value) had the same
+higher-than-tie specificity as the display fix and permanently overrode a
+column's real `data-align`, even unstacked; the two new per-block
+overrides restore it at a specificity that wins over the general
+un-stacking rule. Tests: new `Table.stack.svelte.spec.ts` (kept separate
+from `Table.svelte.spec.ts` — loading `table.css` clip-hides the stacked
+thead by default, which breaks that file's unrelated userEvent
+sort/select interaction tests at their default unset width) forces
+explicit pixel widths on `.hz-table-wrap` and asserts computed
+`display`/`text-align` on both sides of the threshold, including a
+toggle-back-and-forth case. `docs.e2e.ts`'s stacked-mode test strengthened
+to assert the un-stacked `display: table-cell` state (and the `::before`
+label disappearing) after re-widening past 640px, then re-narrow again —
+it previously only ever drove the demo one direction (narrow) and never
+proved the reverse.
+
+**2026-07-23 — Sort tab restructure (user feedback).** The "Sorting" and
+"No sorting" top-level demo tabs collapsed into one top-level "Sort" tab
+with three nested sub-tabs (`Client-side`/`External`/`No sorting`, the
+inner-`Tabs` idiom already used for the layout pages' padding-value
+sub-tabs) — the top tab row no longer grows one entry per sort variant,
+and future client-sort/external-sort variations get a natural sibling
+sub-tab instead of another stacked `Example` crammed into one panel (the
+prior "Sorting" tab stacked both the client-sort and external-sort demos
+in a single panel; they're now sibling sub-tabs too). `docs.e2e.ts` was
+not affected — its sorting assertion drives the default-active "Basic"
+tab, not the restructured one.

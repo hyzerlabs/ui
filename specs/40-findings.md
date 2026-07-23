@@ -399,3 +399,433 @@ groups; black/white become mode-invariant ROLE tokens keeping their
   distinguishable). Contrast page's mode-pinned tab seeding mirrors the
   same resolution order. Colors page's toggle CodeBlock updated to stay
   verbatim, + one prose sentence. check 0/0, lint clean.
+
+- **Density demo rework (user, 2026-07-23, post-ba0fd2e):** the spacing
+  page's density composition now sits in a standard Example (preview +
+  copyable fresh-page code) instead of the bespoke bordered div + separate
+  Usage CodeBlock. The preview compensates for its two ambient density
+  levels — one ambient level costs one rung, so each near becomes away and
+  the demo's own intermediate shifts are dropped: heading/cards/padding
+  render at 2rem, card rhythm 0.8rem, tags 0.4rem (true fresh-page values;
+  only the 8rem section gap caps at 2rem). Old floor-collapse tab-note
+  replaced with the compensation explanation; unused .density-demo rule
+  removed. Gates: check 0/0, lint clean, e2e 381.
+
+## Components — Media
+
+Props checked both directions (documented ⊆ source via `data.spec.ts`;
+source ⊆ documented via a manual field-by-field diff of each `Props`
+interface against its data module, including `ImageSource` and both
+`LightboxItem` variants against `$lib/types`). A11y claims traced against
+`Image.svelte`, `Video.svelte`, `Lightbox.svelte`, and the internal
+`LightboxOverlay.svelte` (never in the barrel), plus `specs/25-lightbox.md`'s
+requirement table for the dialog/focus-return/paging/composition claims
+specifically called out for this batch. Theme hooks (`hooks.ts`) held
+against `media.css`, `lightbox.css`, and each component's own template —
+found gaps, listed below. Placeholder-asset conventions verified: Image's
+demos are labelled SVG data-URIs (`demoSvg()`), Video/Lightbox video items
+use `src="about:blank"`, no third-party media URL is ever rendered (fence
+text referencing YouTube/Vimeo URLs is inert `<pre>` content, not a live
+request). No component source or theme CSS in this batch overlaps the
+concurrent component-updates batch's scope (blockquote/button/link/table/
+header/footer/pagination/carousel, hooks.ts entries for those, or Carousel
+itself) — the one place Lightbox composes Carousel, its claims were verified
+read-only against the existing `Carousel.svelte` source without editing it.
+
+| Page | Findings | Resolution |
+| --- | --- | --- |
+| Image (`/components/image`) | Three findings. (1) The `sources` prop documented `ImageSource`'s shape inline in its note instead of a `types` sub-table — every other page with a supporting item type (Nav's `NavItem`, Table's `TableColumn`, Lightbox's own `LightboxItem`) gets one; Image was the outlier. (2) The page had no `a11yLinks` at all — every other page with a native-element mapping links MDN; Image renders `<img>` and, in picture mode, `<picture>`. (3) `rounded`'s boolean-or-scale union has no prop-table note explaining what `rounded={true}` renders as — confirmed via `data-rounded`'s bare-presence CSS selector (`media.css`) that `true` is shorthand for `md`; `hooks.ts` already carried this fact, the props table didn't. Separately (not a doc-copy issue): the Placeholders tab's `color` sub-demo passed `placeholderColor="var(--hz-color-border)"` in both the live demo and its code fence — that string is the prop's own default, so the line was a no-op that violated the non-default-attrs-only fence convention (the exact Header-`ariaLabel` shape from the Navigation batch). Confirmed clean otherwise: all 13 `Props` fields have exact-matching rows; `sources` media-query claim ("viewport queries per the platform") accurate; `alt=''` → `role="presentation"` claim matches source; demo fences non-default-attrs-only elsewhere; both color modes clean (token-only local CSS). | fixed/copy — added an `ImageSource` sub-table (`types`) and repointed the `sources` note at it; added `a11yLinks` (MDN `<img>`, MDN `<picture>`); added a `rounded` note ("true is shorthand for md"); dropped the redundant `placeholderColor` from both the live demo and its fence |
+| Video (`/components/video`) | Two findings. (1) `hooks.ts`'s Video entry documented `data-aspect-ratio` and `data-state` but not `data-provider` — a real, unconditionally-stamped attribute (`data-provider={provider}` in `Video.svelte`) with a closed three-value union, the same shape as the two documented rows. (2) No `a11yLinks` — every other native-element page links MDN; added `<video>`. Also: no cross-link to `Lightbox` despite `Lightbox`'s viewer rendering every video item through this component (the reciprocal of the Image↔Lightbox pairing already documented) — same gap shape as the Nav↔Header and Footer↔Nav findings from the Navigation batch. Confirmed clean otherwise: all 10 `Props` fields match exactly; `title` → iframe `title`/native `aria-label` claim, `autoplay` requires `muted` + reduced-motion suppression claim, both trace to source; provider-detection and embed-URL claims (YouTube/Vimeo host + ID extraction, `controls=0`/`loop`/`autoplay+mute` query params) match `Video.svelte` line for line; demo fences match rendered demos (aspect/providers/poster tabs), `about:blank` + SVG posters only, no real media URLs; both color modes clean. | fixed/copy — added `data-provider` row to `hooks.ts`; added `a11yLinks` (MDN `<video>`); added a cross-link to `/components/lightbox` in the providers tab-note |
+| Lightbox (`/components/lightbox`) | Two findings, both in `hooks.ts` — the parts/attrs tables were incomplete against the real DOM. (1) `data-gallery` (on the viewer `<dialog>`, present when `items.length > 1`) drives a real, substantial layout branch in `Lightbox.svelte`'s own scoped CSS (the fixed gallery stage vs. single-item hugging) but had no row. (2) `.hz-lightbox-carousel` (the class passed to the embedded `Carousel`) and `.hz-lightbox-video` (the wrapper around a video item's `Video`) are real, unconditionally-stamped public classes with no rows, unlike every other DOM class the overlay renders. Also: the gallery tab-note's "videos play via the Video component" left `Video` as unlinked plain text — the Image↔Lightbox pairing on the same page links `Image`, so this was the one asymmetric mention. Every claim named in this batch's brief traced clean against source: dialog semantics mirror Modal-R8–R16 (`LightboxOverlay.svelte`'s own comments cite this explicitly); focus returns to the **opening** trigger via the `returnFocusTo` seam captured at `openAt(i)` time (Lightbox-R13); dialog-level `ArrowLeft`/`ArrowRight` paging works from anywhere in the dialog, independent of the embedded Carousel's own key handling; the embedded `Carousel` is passed `loop`, and the gallery tab-note's "wrap-around" claim matches; thumbnails open at their own index (`openAt(i)` seeds `startIndex = i`); videos render via `Video` (confirmed, now linked). Prop table: the 4-sibling `src / alt / thumbSrc / caption` row-split (data.spec.ts's parity floor) is intact and correct; both `LightboxItem` variant sub-tables match `$lib/types` exactly; `a11yLinks` (APG Dialog, APG Carousel) correct. Composition check: `lightboxGroup`/`LightboxGroupOptions` are documented via the dedicated "Group attachment" demo tab + tab-note per `specs/25-lightbox.md` Lightbox-R30 (no separate props sub-table required by that spec — verified, not a gap). All four demo tabs' fences match their rendered demos (including the illustrative fuller-API fences precedented by Nav/Video, e.g. the picture-sources and provider-list fences); placeholder-asset conventions hold (`demoSvg()` SVGs, `about:blank` video item); both color modes clean (token-only local CSS). No change required or made to `Carousel.svelte`/`carousel.css` (concurrent batch's scope) — this page's Carousel claims were verified read-only. | fixed — added `data-gallery` attr row and `.hz-lightbox-carousel`/`.hz-lightbox-video` part rows to `hooks.ts`; linked `Video` in the gallery tab-note |
+
+Gate results for this batch: `svelte-check` 0 errors/warnings; `prettier
+--check` + `eslint` clean; unit `73 files / 2360 tests` passed; e2e `380/381`
+— the one failure (`specs/37 — Table … stacked demo … column headers`) is in
+the Table page, which is mid-edit on the concurrent component-updates batch
+(`table.ts`/`table/+page.svelte` show as modified in the working tree
+outside this batch's scope) and untouched by this pass; unrelated to Image/
+Lightbox/Video.
+
+## Nine-item component-updates batch (user-directed, 2026-07-23)
+
+User-directed batch, not a checklist pass — nine numbered items across
+Blockquote, Button, Link, Table, Header, Footer, Pagination, and Carousel.
+
+| Item | Change | Resolution |
+| --- | --- | --- |
+| 1. Blockquote intent | `Blockquote` gains optional `intent?: Intent` (no default — absent renders the exact pre-change look). Colors **only** the accent line (`border-inline-start`); typography/padding/attribution untouched. `data-intent` reflects onto the root, present only when set. Implemented with the `--_c` intent-switch pattern (`banner.css`/`badge.css` precedent): `.hz-blockquote` sets `--_c: var(--hz-color-border)`, each `[data-intent]` re-points it at `--hz-intent-*`. | fixed (API) — `Blockquote.svelte`, `theme/components/blockquote.css`; `Blockquote.svelte.spec.ts` gained a Blockquote-R9 suite (absent-by-default, `data-intent` reflection, all seven intents' computed `border-inline-start-color`, typography/attribution untouched); `src/docs/data/blockquote.ts` gained an `intent` row (type `Intent`, noteHref `/foundation/colors#intent`, Banner/Alert/Button/Badge precedent); `hooks.ts` Blockquote entry gained `data-intent`; docs page gained an Intent demo tab (all seven values, one `Example` each); specs/26-blockquote.md gained a dated Amendments section |
+| 2. Button sizes demo | Sizes tab showed one variant (implicit solid) per size. Reworked to a row per size showing all four variants (solid/outline/ghost/link) across, single intent (default `primary`, omitted from the fence). | docs only — `src/routes/components/button/+page.svelte`: `sizeRowCode`/`sizesCode` builders (non-default attrs only: `size` omitted for `md`, `variant` omitted for `solid`), single `Example` with a `.size-demo`/`.size-row`/`.size-row-label` layout (scoped CSS) instead of the old per-size sub-`Tabs` |
+| 3. Link bring-your-own-class | New "Bring your own class" demo tab: a `Link` with `class="fancy-link"` and an exaggerated gradient-underline hover effect (`background-image`/`background-size`, animates to full width on hover), `prefers-reduced-motion` respected via an explicit `@media` query in both the shown fence and the page's real CSS. Fence shows markup + CSS together as one code string. **Parser gotcha hit and fixed**: a literal `<style>`/`</style>` tag text anywhere in a `<script>` block's string content (even a plain `//` comment mentioning it, and even the closing tag alone split as `'</' + 'style>'` while the opening tag stayed a literal `'<style>'`) breaks `svelte-check`'s extraction (`` `<script>` was left open ``) even though the real Svelte compiler tolerates it — both the opening and closing tag literals had to be built via string concatenation (`'<' + 'style>'`, `'</' + 'style>'`), and the doc comment reworded to avoid the literal substring too. | docs only — `src/routes/components/link/+page.svelte`: new tab, `fancyLinkCode` builder, `:global(.fancy-link)` scoped CSS (page-level, unlayered — beats the theme without `!important`); tab-note states the class-merge-order/unlayered-wins rule |
+| 4. Table stacked-mode default threshold | Investigated `table.css`'s R7 mechanism: the three named thresholds are literal `@container` px constants (640/968/1200, Grid BAND precedent) — not `var()`-driven the way Split's flex-basis `stackBelow` switcher is (a container-query condition can't read a custom property), but each bucket still maps 1:1 to its token value and stays overridable by a consumer's own `@container` rule. No component/theme code changed — `stack` stays opt-in, off by default. USER DECISION: the **recommended** threshold moves to `'sm'` (640px, mirroring Split's `stackBelow` default), so tables only stack on genuinely narrow viewports. The docs demo previously used `stack="md"` (968px), which stacked even at ordinary desktop widths inside the prose column, making the effect effectively undemonstrable. | docs — Table page's stacked-mode demo moved to `stack="sm"`, wrapped in `Container breakout` + `ResizableDemo` (Split's precedent) so the 640px threshold is actually crossable; `src/docs/data/table.ts`'s `stack` note and `hooks.ts`'s `data-stack` note both recommend `'sm'` for most tables; specs/37-table.md gained a dated Amendments section. **e2e regression + fix**: the existing stacked-mode e2e test relied on the page `viewport` to trigger stacking — no longer works since the demo box has its own bounded width. Rewrote it to drive the `ResizableDemo`'s exact-entry number input (`getByLabel('Demo width (exact value)').fill('500')`) instead of the viewport; verified green |
+| 5. Table non-sorting example | New "No sorting" demo tab: a minimal `columns` config with no `sortable` flags (the docs' own `PropsTable` look). Traced against source (`Table.svelte`'s `ariaSortFor`/`toggleSort`): a column can only render a sort button or carry `aria-sort` when its own `sortable` is `true`, so an all-plain config renders zero sort affordances and stamps no `aria-sort` anywhere — stated in the tab-note. | docs — `src/routes/components/table/+page.svelte`: `plainColumns`/`plainCode`, new tab; specs/37-table.md amendment (same entry as item 4) |
+| 6. Header/Footer transparent-demo backdrop | `variant="transparent"` (Header) / `variant="minimal"` (Footer) both set `background-color: transparent` — sitting on the docs' plain white `.doc-example-preview`, both were visually indistinguishable from "no chrome at all" (default variant's background is also `--hz-color-surface`, i.e. the same white, so even the non-transparent combos barely registered). No prior "tinted backdrop" implementation was found in git history for either page (searched via `git log -p -S backdrop`) despite the task's framing as a restore — implemented fresh as a fix. | fixed — both pages: a `.surface-backdrop` scoped wrapper div (diagonal `primary`→`secondary` gradient tint, borderless, `Hero`'s bg-block gradient recipe reused) wraps every surface-combo demo (Header's 3, Footer's 4) so `transparent`/`minimal` visibly show the surface through and the opaque combos are visibly contrasted against it; tab-notes on both pages state the backdrop isn't part of the component |
+| 7. Pagination + Carousel chevrons un-circled | User decision: Button's derived icon-only circle (Button R4b) reads wrong for prev/next chevrons on both composed controls — "same as carousel" (both already used it identically, so the fix is symmetric, not a copy from one to the other). Chose **`var(--hz-radius-md)`** (the outline button's normal corner radius) over a custom value — matches the theme's existing button radius language exactly, no new token. Scoped to `[data-icon-only]` on `.hz-pagination-prev`/`.hz-pagination-next` and `.hz-carousel-prev`/`.hz-carousel-next` only; Button's global icon-only circle is untouched (Banner's dismiss and every other icon-only `Button` use keep the circle). Both override rules rely on `pagination.css`/`carousel.css` importing after `button.css` in `theme.css` to win the cascade tie (`:where()`-zeroed specificity vs. `:where()`-zeroed specificity, later import wins) — verified in-browser (screenshot) at both pages. | fixed (theme) — `theme/components/pagination.css`, `theme/components/carousel.css`; specs/21-pagination.md and specs/33-carousel.md both gained dated Amendments sections |
+| 8. Header mobile actions end-aligned | Coordinator-added mid-task. Investigated via in-browser screenshot (not obvious from CSS alone): below `mobileBreakpoint`, the bar `Nav` (`flex: 1`) leaves flow (`display: none`) and stops absorbing the row's free space, so `.hz-header-inner`'s `justify-content: space-between` floated `.hz-header-actions` in the *middle* of the collapsed bar, between the brand and the hamburger, instead of sitting next to it — confirmed with a before/after screenshot pair. Fixed with a scoped structural rule (`Header.svelte`'s own `<style>`, alongside the existing collapse selectors — this is layout behavior, not decoration, so it doesn't belong in `header.css`): `.hz-header-actions` gets `margin-inline-start: auto`, scoped to the same selectors that show the toggle (only engages once actually collapsed). Above the breakpoint the visible Nav's `flex: 1` claims the free space first, so the auto margin resolves to 0 — verified the desktop bar is pixel-identical before/after. No new prop. | fixed (theme) — `src/lib/components/Header.svelte`; `hooks.ts`'s `.hz-header-actions` row documents the default + the override path; Header docs page's Mobile tab-note states it; specs/35-header-nav-split.md gained a dated Amendments section |
+| 9. Footer themed-background docs example | Coordinator-added mid-task, explicitly no new prop. Investigated the hook surface: `footer.css` has **no** `--hz-footer-bg`-style custom property — the only background surface is `.hz-footer`'s own `background-color` declaration (unlike Banner/Badge's `--_c`-hook pattern). No API invented; documented the bring-your-own-class route instead (the Link item-3 precedent) — a low-percentage `color-mix(var(--hz-intent-primary) 10%, var(--hz-color-surface))` tint keeps the existing (untouched) text color's contrast intact. | docs only — `src/routes/components/footer/+page.svelte`: new "Themed background" tab, `themedBgCode` (markup + CSS in one fence, same `'<' + 'style>'`/`'</' + 'style>'` concatenation as item 3), `.brand-footer` scoped CSS; tab-note states class-merges-after-hz-footer/unlayered-beats-theme |
+
+Files touched: `src/lib/components/Blockquote.svelte`, `Header.svelte`;
+`src/lib/theme/components/blockquote.css`, `pagination.css`, `carousel.css`;
+`src/lib/components/Blockquote.svelte.spec.ts`; `src/docs/data/blockquote.ts`,
+`table.ts`; `src/docs/hooks.ts`; `src/routes/components/{blockquote,button,
+link,table,header,footer}/+page.svelte`; `src/routes/docs.e2e.ts`;
+`specs/26-blockquote.md`, `specs/37-table.md`, `specs/35-header-nav-split.md`,
+`specs/21-pagination.md`, `specs/33-carousel.md` (all dated Amendments
+sections, none rewritten).
+
+No spec amendments were written for items 2/3/6/9 — pure docs-page changes
+with no library API/behavior/theme change to pin.
+
+Gates: `svelte-check` 0 errors/warnings; `prettier --check` + `eslint`
+clean; unit `73 files / 2360 tests` passed (10 new — the Blockquote-R9
+intent suite); `build` (prerender, `@sveltejs/adapter-static`) succeeded;
+e2e `381/381` passed (one pre-existing failure from the Table stacked-mode
+demo rework, caused by wrapping the demo in a bounded-width `ResizableDemo`
+so the page-`viewport`-driven assertion no longer applied, fixed by driving
+the demo's own exact-entry input instead — see item 4/5).
+
+## Components — Forms
+
+The largest group (12 pages): Form, TextInput, Textarea, Select, Combobox,
+FileUpload, Checkbox, RadioGroup, Slider, RangeSlider, ColorInput, Toggle.
+Props checked both directions (documented ⊆ source via `data.spec.ts`;
+source ⊆ documented via a manual field-by-field diff of every `Props`
+interface — including Select's discriminated `multiple`/`value` union and
+Combobox's `ComboboxChipProps` — against its data module) against
+`Form.svelte`, `Field.svelte`, and all twelve field components, plus every
+supporting type (`FormError`, `FormOption`, `SelectOption`, `SliderTick`,
+`FileRejection`, `ComboboxChipProps`) against `$lib/types`. A11y claims
+traced clause by clause against source and specs/13, 14, 17, 18, 22, 24:
+`aria-describedby` desc→error chaining, `data-state` error-beats-disabled
+precedence (shared `Field.svelte`/inline `dataState` derivations), the
+`aria-required`/`aria-invalid` wiring per component (including the Slider/
+RangeSlider/ColorInput family's deliberate **omission** of `aria-required` —
+the slider role has no such ARIA attribute, per specs/17 Slider-R4/Range-R4
+and specs/18 Color-R3), Combobox's APG combobox (list-autocomplete) pattern
+with `aria-activedescendant` virtual focus — deliberately the opposite of
+Dropdown's roving-tabindex menu pattern audited in the Common batch — and
+Toggle's native-checkbox-as-`role="switch"` posture. Every "Description &
+states" tab checked against the established single-tab convention (demo
+order description → error → required → disabled); every demo checked in
+both color modes (token-only local CSS throughout, nothing hardcoded) and
+for overflow at 375/768/1280px via the e2e sweep. Theme hooks (`hooks.ts`)
+held against `field.css`, `form.css`, `combobox.css`, `file-upload.css` —
+every `FIELD_STATE`/`FIELD_PARTS`/`SLIDER_PROPS` shared row and every
+per-component row traced to a real selector/declaration; all accurate, no
+gaps found. `zod` confirmed still a `devDependency` only (Form page's demos
+are the only place it's imported).
+
+**Select data module reconstruction (the flagged R1 extraction gap).**
+Batch 1's parting note flagged `select.ts` as needing manual reconstruction
+against `Select.svelte`'s real `Props` — the mechanical R1 script was known
+to struggle with Select's discriminated `multiple`/`value` union. On
+inspection, `select.ts`'s current content is already a byte-for-byte carry
+of a **hand-authored** `PropRow[]` array that predates specs/40 (present in
+the route file back through the specs/31 IA migration, commit `a3e9c7d`) —
+R1's extraction moved that existing table as-is into the new module rather
+than regenerating it from the union type, so it never inherited the script's
+known weakness. Manually reconstructed/verified field-by-field against
+`Select.svelte` anyway, per the task: all 12 documented props (`name`,
+`label`, `options`, `multiple`, `value`, `placeholder`, `description`,
+`error`, `required`, `disabled`, `hideLabel`, `class`) match the union'd
+`Props` exactly, including `value`'s dual default (`''` single / `[]`
+multiple) and the `multiple`-gates-`value`'s-type note; both `types`
+sub-tables (`FormOption`, `SelectOption`'s group arm) match `$lib/types`
+exactly; `a11yNote`/`a11yLinks` trace cleanly to the native `<select>`'s
+aria wiring. **No defect found** — the flagged gap did not materialize for
+this page, but the verification was performed in full per the task's
+instruction, not skipped on the strength of the module looking plausible.
+
+| Page | Findings | Resolution |
+| --- | --- | --- |
+| Form (`/components/form`) | Clean. `errors`/`onSubmit`/`summaryTitle`/`summaryHeadingLevel`/`focusTarget`/`novalidate`/`ariaLabel`/`children`/`class` and the `FormError` sub-table (`name`/`message`) match `Form.svelte` exactly; `importLine`'s `toFormErrors` named import matches the barrel export (`$lib/index.ts`). a11yNote (summary-as-`role="alert"` Alert, focus-on-submit via `focusTarget`, per-item jump-and-focus with reduced-motion-safe scrolling, `summaryHeadingLevel` heading-outline guidance) traces clause by clause to `Form.svelte`'s `handleItemActivation`/focus `$effect`. Four demo tabs (SvelteKit + enhance — real `use:enhance`/`fromAction` wiring, only the server hop simulated; Zod validation; Error summary anatomy — DOM-order-vs-array-order distinction; Focus target) all match their rendered demos; `zod` stays dev-only. | no-op |
+| TextInput (`/components/text-input`) | Clean. All 15 `Props` fields (`name` through `class`, including `prefix`/`suffix` snippets and the 9-way `type` union) match `TextInput.svelte` exactly; a11yNote (label association, `hideLabel` sr-only, `aria-describedby` chain, `aria-required`/`aria-invalid`, `prefix`/`suffix` decorative `aria-hidden`) traces cleanly. Four demo tabs (Basic; Input types — 9 sub-tabs pairing `type` with `autocomplete`/`inputmode`; Prefix & suffix; Description & states, order description→error→required→disabled) all match rendered demos in both color modes. | no-op |
+| Textarea (`/components/textarea`) | Clean. `name`/`label`/`value`/`rows`/`resize`/`maxlength`/`description`/`error`/`required`/`disabled`/`hideLabel`/`class` match `Textarea.svelte`; the `resize` note's `field-sizing: content` / JS-fallback / `rows`-as-minimum claims trace to the component's `$effect` and `textarea.css` rules. Three tabs (Basic; Resize — 4 sub-tabs, the `vertical` fence correctly omits the default value; Description & states) clean. | no-op |
+| Select (`/components/select`) | See the Select reconstruction note above — no defect, full manual verification performed. Page itself clean: the "Select vs Combobox" `Alert` callout is reciprocal with Combobox's own callout and both link correctly; four demo tabs (Basic; Option groups; Multiple — live `FormData.getAll` readout; Description & states) all match rendered demos. | no-op |
+| Combobox (`/components/combobox`) | Two findings, both a11yNote completeness gaps (the note is long and combobox-specific; the shared Field-family boilerplate every sibling page states got dropped in the process). (1) No mention anywhere that `description`/`error` chain into `aria-describedby` or that `required`/`error` set `aria-required`/`aria-invalid` on the input — real, unconditional attributes in `Combobox.svelte`, stated by every sibling page's a11yNote. (2) The `ComboboxChipProps.intent` sub-table row (type `Intent`, forwarded straight to `Badge`) had no `note`/`noteHref` — every other `Intent`-typed prop row in the library (Button/Badge/Alert/Banner, per the earlier audit round) links `/foundation/colors#intent`; this nested row was the one outlier. Confirmed clean otherwise: all 14 `Props` fields, both `types` sub-tables (`FormOption`, `ComboboxChipProps`), and the dense keyboard/APG a11yNote content all trace exactly to `Combobox.svelte`; the "vs Select" callout, custom-filter/styled-chips/description-states tabs all match rendered demos. | copy — added the `aria-describedby`/`aria-required`/`aria-invalid` clause to `a11yNote`; added `note`/`noteHref` to the `ComboboxChipProps.intent` row |
+| FileUpload (`/components/file-upload`) | One finding, the same a11yNote completeness gap as Combobox: no mention that `description`/`error` chain into `aria-describedby` or that `required`/`error` set `aria-required`/`aria-invalid` on the native input — both real per `FileUpload.svelte` and specs/24's Labelling requirement, and already correctly distinguished from the native `required` **attribute** (never applied — consumer/`Form` validates) in the page's own states tab-note. Confirmed clean otherwise: all 18 `Props` fields and the `FileRejection` sub-table match exactly; a11yNote's WCAG 2.5.7 non-drag-operability, dropzone `aria-hidden`/tab-order, per-file `Remove {name}` labelling, and `aria-live` status-region claims all trace to source; six demo tabs (Basic; Multiple; Dropzone; Validation; Form submission; Description & states — the one page whose states demo uses a Basic/Dropzone grid instead of a flat stack, still in description→error→required→disabled row order) all clean in both color modes. | copy — added the `aria-describedby`/`aria-required`/`aria-invalid` clause to `a11yNote` |
+| Checkbox (`/components/checkbox`) | One finding: the a11yNote's closing usage-guidance sentence ("Reach for Toggle over `Checkbox`...", inherited from Toggle's page — see that row) had no reciprocal on this page, and a11yNote text can't carry a real link anyway (`DocPage`'s backtick-split only ever produces `<code>`, never `<a>`) — the same "guidance stranded in unlinkable prose" shape as the Navigation batch's Footer/Nav and Media batch's Video/Lightbox findings. Confirmed clean otherwise: all 13 `Props` fields, the `indeterminate`-is-a-DOM-property-not-`checked` claim, and the select-all demo pattern all trace to `Checkbox.svelte`; three demo tabs (Basic; Indeterminate — live select-all; Description & states) clean. | fixed — added a `Checkbox` vs `Toggle` `Alert intent="info"` callout (Select/Combobox precedent) with a real link to `/components/toggle` |
+| RadioGroup (`/components/radio-group`) | Two findings. (1) The `FormOption.disabled` sub-table note read "Disables just this option" — "just" as a bare intensifier is a banned word (Editorial standards). (2) a11yNote listed the radiogroup container's `aria-describedby`/`aria-invalid` but omitted `aria-required` — a real, unconditional attribute (`aria-required={required ? 'true' : undefined}` on the same `div`) that every sibling page's a11yNote states for its own required/aria-required pairing. Confirmed clean otherwise: all 12 `Props` fields and the `FormOption` sub-table match `RadioGroup.svelte`; three demo tabs (Basic; Orientation; Description & states) clean. | copy — "Disables just this option" → "Disables only this option"; added `aria-required` to the a11yNote's attribute list |
+| Slider (`/components/slider`) | One finding: a11yNote covered `aria-describedby`/`aria-invalid` but never stated that `required` does **not** set `aria-required` — a deliberate omission (specs/17 Slider-R4: "not in the slider role's supported ARIA set"), already stated for ColorInput's identical case but missing here despite the prop table's own "Label indicator only" note hinting at it. Also added a reciprocal cross-link to RangeSlider in the Ticks tab-note (RangeSlider's matching note already named "Slider" in plain, unlinked text — see that row). Confirmed clean otherwise: all 15 `Props` fields and the `SliderTick` sub-table match `Slider.svelte`; five demo tabs (Basic; Range & step; Ticks; Slider only; Description & states) clean in both color modes, including the live-bound Basic tab's reactive code fence. | copy — added the `aria-required`-omission clause to `a11yNote`; linked "RangeSlider" in the Ticks tab-note |
+| RangeSlider (`/components/range-slider`) | Three findings. (1) Same `aria-required`-omission gap as Slider, plus the note never mentioned `aria-invalid` either (a real attribute on both range inputs) — RangeSlider's a11yNote was the least complete of the three exact-entry siblings. (2) The Ticks tab-note said "Same ticks API as Slider" in plain, unlinked text — a real cross-link gap (Navigation/Media batch precedent). (3) The "Description & states" demo was missing its `required` example — every sibling field page demonstrates description→error→required→disabled in that order; RangeSlider's states tab and its code fence jumped straight from error to disabled, the one outlier in the whole Forms group. Confirmed clean otherwise: all 17 `Props` fields and the `SliderTick` sub-table match `RangeSlider.svelte` exactly, including the `{name}-min`/`{name}-max` submission-name note. | fixed/copy — added `aria-invalid` + the `aria-required`-omission clause to `a11yNote`; linked "Slider" in the Ticks tab-note; added the missing `required` demo (fence + rendered) to the Description & states tab |
+| ColorInput (`/components/color-input`) | Clean. All 10 `Props` fields match `ColorInput.svelte`; a11yNote's platform-normalizes-to-hex claim, hex-field commit/normalize/restore behavior (`#rgb` expansion, garbage restore), and the `aria-required`-not-applied rationale (already correctly stated — the model for the Slider/RangeSlider fix above) all trace to source and specs/18. Three demo tabs (Basic — live pick↔hex sync; Swatch only; Description & states) clean in both color modes. | no-op |
+| Toggle (`/components/toggle`) | Two findings. (1) a11yNote stated the `aria-describedby` chain but never that `required`/`error` set `aria-required`/`aria-invalid` — both real, unconditional attributes on the native checkbox. (2) The note's closing sentence ("Reach for Toggle over `Checkbox` when the setting reads as on/off...") was real, accurate usage guidance stranded in unlinkable a11y prose — a11yNote text only ever renders backticks as `<code>`, never as a link, so "Checkbox" was dead text with no way to click through. Confirmed clean otherwise: all 9 `Props` fields, the native-`role="switch"`-checkbox posture, and `data-state="on"/"off"` claims all trace to `Toggle.svelte`; two demo tabs (Basic; Description & states) clean. | fixed/copy — added the `aria-required`/`aria-invalid` clause to `a11yNote`; moved the Toggle-vs-Checkbox guidance out of `a11yNote` into a new `Toggle` vs `Checkbox` `Alert intent="info"` callout (Select/Combobox precedent) with a real link to `/components/checkbox` |
+
+**Open questions:** none — every finding this batch was a copy/parity/demo
+fix within the audit's existing scope; no API-shaped questions surfaced.
+
+Gate results for this batch: `svelte-check` 0 errors/warnings; `prettier
+--check` + `eslint` clean (outside two pre-existing, out-of-scope Carousel
+files owned by the concurrent specs/43 batch); unit `73 files / 2377 tests`
+passed; `build` (prerender, `@sveltejs/adapter-static`) succeeded with no
+dead `#`/fragment hrefs; e2e `381/381` passed.
+
+## specs/43 — Carousel drag mode (controls-free presentation + seamless loop-wrap)
+
+Not an audit-checklist pass — a feature build (Builder role) implementing
+`specs/43-carousel-drag.md` against `Carousel.svelte`. Logged here per that
+spec's instruction to append one entry when done, since it edits Carousel-
+adjacent files this log already tracks (`hooks.ts`, `src/docs/data/
+carousel.ts`, the Carousel docs page).
+
+New `controls?: 'visible' | 'focus'` (default `'visible'`) stamps
+`data-controls` on the root always; `'focus'` visually hides the whole
+control row (opacity only, never `display`/`visibility`/`aria-hidden`/
+`inert`) until `:hover`/`:focus-within` reveals it together — the WCAG 2.5.7
+non-dragging alternative stays in the DOM and fully operable throughout.
+New `seamless?: boolean` (default `false`, meaningful only with `loop`) makes
+every ±1 boundary wrap — drag settle, buttons, an adjacent-wrap dot click,
+arrow keys — settle through an inert/`aria-hidden`/`data-clone` copy of the
+opposite-end slide instead of `go()`'s plain rewind, so the track never
+sweeps backward through the intervening slides; multi-slide dot jumps and
+Home/End still animate directly, no clone (adjacent-only rule). Both props
+are orthogonal to `draggable` and to each other. Without the `seamless`
+opt-in the DOM stays byte-identical to specs/33 (no clone machinery renders),
+so Lightbox (which passes neither prop) is unaffected — verified by its full
+suite staying green.
+
+Mid-task, the coordinator additionally asked for Carousel's prev/next
+chevrons to go borderless (`Button variant="ghost"`, replacing the
+`variant="outline"` this spec's Accessibility section had named) — a
+component-level change, dated into the same `specs/33-carousel.md`
+Amendments section as the same-day un-circling change. The resulting
+contrast tension (ghost has no opaque background of its own) is resolved by
+the scrim the spec already grants the theme: `controls="focus"`'s revealed
+row carries its own translucent backdrop (`color-mix` over
+`--hz-color-surface`), so contrast holds at the row level regardless of the
+buttons' own background; the default `controls="visible"` row is never
+overlaid on slide media, so it needs no backdrop.
+
+One real bug surfaced (and fixed) building the e2e coverage, not just a test
+workaround: the focus-mode overlay's bottom-anchored `.hz-carousel-controls`
+box can overlap a short carousel's track even while fully transparent
+(`opacity: 0`) — an invisible hit target was silently swallowing pointer
+presses meant for the track underneath. Fixed with `pointer-events: none` on
+the row (always, so its own padding/background never blocks a drag or click
+on the slide behind it) and on its direct children while hidden, flipping to
+`auto` on the children only once revealed — so the real controls intercept a
+press exactly like `controls="visible"`'s row already does, and nothing
+more. Keyboard reach is untouched (`pointer-events` has no effect on Tab
+order or on Enter/Space activating a focused control).
+
+Files touched: `src/lib/components/Carousel.svelte` (+`.spec.ts`);
+`src/lib/theme/components/carousel.css`; `src/docs/hooks.ts` (`data-controls`
+/`data-seamless`/`data-clone` rows); `src/docs/data/carousel.ts` (`controls`/
+`seamless` prop rows, amended `draggable` note, WCAG 2.5.7 `a11yLinks`
+entry); `src/routes/components/carousel/+page.svelte` (new Drag demo tab);
+`src/routes/docs.e2e.ts` (new specs/43 describe block); `specs/33-carousel.md`
+(dated Amendments entry for the borderless-chevron decision).
+
+Gates: `svelte-check` 0 errors/warnings; `prettier --check` + `eslint` clean
+on every touched file; unit `73 files / 2381 tests` passed (21 new — R1–R7
+controls/seamless suites in `Carousel.svelte.spec.ts`; full Lightbox suite,
+37/37, confirmed regression-free); `build` (prerender,
+`@sveltejs/adapter-static`) succeeded; e2e `388/388` passed, including the
+new specs/43 describe block (resting-view hidden, Tab/hover reveal, drag
+still advances the demo, a boundary wrap's sampled track transform shows no
+sustained backward-sweep run, no 375px overflow, reduced-motion disables the
+reveal fade) and the existing specs/33 suite unchanged.
+
+## Theming (+ Getting Started overlap)
+
+Heavier on verification than rewriting per the task brief — specs/42 (palette
+split) had just rewritten these pages' substance. Every override recipe, CLI
+sample, and config snippet on all four pages was traced against
+`src/lib/config/schema.ts` (`resolveConfig`/`mergeGroup`/`flattenRampGroup`),
+`src/lib/config/generate.ts` (full/overrides-mode dark-block composition,
+`darkSelector`), `src/lib/cli/main.ts` (exact CLI output strings), and
+`src/lib/config/report.ts` (`contrastReport` pairing-id shape) — every sample
+would resolve/validate/print exactly as shown, including the numeric claims
+(`(full, 84 tokens)`, `14 core, 2 configured`, the `text:intent-fairway/
+surface-muted` pairing id, `Node ≥ 22.18`, `engines.node` in `package.json`).
+The resolution doctrine (components/theme resolve via roles/intents only;
+dark may override any tier incl. palette) is stated verbatim on
+`/theming/tokens` per specs/42 R4.3 and not contradicted on the other three
+pages. `/theming/examples` was checked against the live ocean/sunset/terminal
+configs and generated sheets (`ocean.config.ts`, `sunset/sunset.config.ts`,
+`terminal/terminal.config.ts`, their committed `.tokens.css`/`.css` output);
+the selector-scoped mechanism claims match the actual implementation exactly:
+Ocean is regenerated at runtime via `generateCss(resolveConfig(oceanConfig),
+{ mode: 'overrides', selector: '.theme-ocean' })` and injected through
+`svelte:head`'s `{@html}` (the page's own code comment states why — Ocean's
+committed sheet targets `:root` by design, so the docs page needs a scoped
+twin instead of importing the real file), while Sunset/Terminal import their
+real, build-time-generated `.hz-theme-*`-scoped sheets directly — both paths
+verified in-browser in both color modes (screenshots), including Ocean's and
+Sunset's dark-mode palette flip and Terminal's intentionally-dark-in-both-
+modes design.
+
+The rollup mechanism on `/theming/components` (reads `hooks.ts`'s `props`
+arrays, keyed by component, joined against the manifest for hrefs) was
+verified faithful in structure (every `hooks.ts` component key matches a
+manifest label 1:1, so every row's link resolves) but **was silently
+dropping the `values` column** — `HookRow.values` (type/default, e.g. `<length>
+— default 0.375rem`) is real information not always restated in `note`
+(confirmed via spot-checks: `--hz-toggle-width`'s note never states its
+`2.5rem` default, only `values` does), yet the rollup table only rendered
+Hook/Component/Tunes. Per-component pages render all three columns via
+`ThemeHooks.svelte` (Hook/Values/Styles) — the rollup was the one place this
+information was lost. This is a rendering completeness gap in the *rollup
+page*, not a `hooks.ts` content defect, so it was fixed directly per the
+task's scope (not logged as a hooks.ts finding).
+
+| Page | Findings | Resolution |
+| --- | --- | --- |
+| Theming Overview (`/theming/overview`) | Clean copy/claims — the tier table, `@layer hz-reset, hz-theme` pin, and "where to override what" table all traced true. Predated the density scaffold: bare `<section>`s, a `Stack gap="xl"` root (8rem — the largest rung, not the section-rhythm one), and local `h1`/`h2`/`p` margin rules duplicating what `docs.css`'s `.doc-intro`/`.doc-section` classes already provide (screenshot-verified an oversized ~8rem gap between sections vs. the 2rem the scaffold produces). | scaffold — converted to the Foundation-batch pattern: `.doc-intro`/`.doc-description` for the lead, `Stack as="section" gap="away" data-density-shift class="doc-section"` for all three sections, root `Stack gap="away"`; local margin rules zeroed |
+| Tokens & Overrides (`/theming/tokens`) | All four plain-CSS override recipes, the `hyzer.config.ts` sample (split `tokens.palette`/`tokens.color`/`dark.palette` groups, a `brandRed` ramp resolving to `--hz-palette-brand-red-900`, an intent pointing at it), and both CLI transcripts traced byte-accurate against `schema.ts`/`generate.ts`/`main.ts`/`report.ts` — every number (84 tokens, 96 pairings, 14 core/2 configured, the `AA Large` level, the exact pairing id) is real output the shown command would print. The specs/42 doctrine callout is present verbatim. Same pre-scaffold structure as Overview (bare sections, `gap="xl"` root, duplicated local heading/paragraph CSS). | scaffold — same conversion as Overview; `.doctrine-note` and the intro's other local classes kept their own margins (nested inside the plain `.doc-intro` div, not a Stack) |
+| Styling Components (`/theming/components`) | The hooks/class-prop/Card-treatment claims all traced true against `hooks.ts` and the shipped theme CSS (`card.css`'s `.hz-card--outlined`/`--elevated`/`.hz-card-title` selectors match exactly). The rollup table (see above) was dropping the `values` (type/default) column that every per-component Theme Hooks table shows. Same pre-scaffold structure as the other three pages. | fixed (rollup completeness) — added a `Values` column (`<code class="values">`, same blue-tint convention as `ThemeHooks.svelte`) between Hook and Component; scaffold conversion (four sections + intro); one `section :global(.hz-card)` demo-sizing selector had to become a fully global `:global(.doc-section .hz-card)` — `Stack as="section"` renders the tag dynamically via `svelte:element`, so `svelte-check` can no longer statically prove a bare `section` selector matches, the same reason `.hz-card` itself needed `:global()` already |
+| Example Themes (`/theming/examples`) | Ocean/Sunset/Terminal content verified against the live configs and generated sheets (see above) — accurate, AA-graded in both modes, no drift. One banned word: "grows the system rather than just recoloring it" ("just" as a bare intensifier — same contrastive-idiom shape as the Contrast/Motion pages' "not just" fixes from the Foundation batch). One copy-paste completeness gap: the "Growing the vocabulary" section's illustrative `registryCode` config sample was the one config fence on the site with no `import { defineConfig } from '@hyzer-labs/ui/config'` line, unlike every sibling sample (tokens page, getting-started, the three example configs shown elsewhere on this same page). Same pre-scaffold structure as the other three pages, plus two nested-content spacing cases the generic "every `<p>` is a Stack child" fix doesn't cover: the intro `<div>` sandwiches a comparison table between two paragraphs (not itself a Stack), and the "How these work" Accordion's `why-wins` panel renders two back-to-back `<p>`s with no Stack of their own. | copy — "just" → "only"; added the missing `defineConfig` import line to `registryCode`. scaffold — same conversion; intro's table/follow-on paragraph and the Accordion-panel paragraphs given targeted local margin rules (`:global(.hz-accordion-panel p)`, since Accordion's panel content isn't reachable via a literal template selector either) instead of relying on the zeroed generic `p` rule; a shared `:global(.tab-note:last-child) { margin-bottom: 0 }` rule stops docs.css's shared 1rem note margin from stacking on top of the section Stack's own gap in the three sections where a tab-note is the trailing element |
+| Getting Started (`/getting-started`) | Out of the four-page core scope but named as overlap — the tier-1/2/3 CSS, Svelte, and `hyzer.config.ts` samples (including the same `brandRed` ramp → `--hz-intent-fairway` chain, validated the same way as the tokens-page sample) all traced true; the Introduction page's link to it (specs/30 R4) confirmed present. Same pre-scaffold structure and the same oversized-gap defect as the four Theming pages (screenshot-confirmed `gap="xl"` root). Not explicitly named by the task's scaffold-adoption item (which lists only the four Theming pages), but structurally identical and part of the same reviewed family. | scaffold — same conversion applied for consistency, since leaving one page in the family on the old rhythm while its neighbors moved would be its own inconsistency; no copy findings |
+
+**Open questions (deferred, not fixed):** none API-shaped. One
+implementation-detail observation logged but deliberately **not acted on**:
+`/theming/overview` and `/theming/components` both claim the reference
+theme's rules are universally "wrapped in `:where()` so everything stays at
+single-class specificity." In practice a number of shipped sheets
+(`toc.css`'s `data-level`/`aria-current` selectors, and similar single-class
++ single-attribute selectors in `table.css`/`dropdown.css`/`combobox.css`/
+`file-upload.css`) sit at two-part specificity without a `:where()` wrap —
+`:where()` is reserved in practice for selectors stacking *multiple*
+modifiers (e.g. `[data-variant='outline'][data-intent='danger']`) back down
+to one. The literal universality of the claim is imprecise, but the outcome
+it promises ("your unlayered CSS wins by default") holds regardless, because
+cascade-layer priority beats specificity outright — an unlayered selector of
+any specificity already beats every layered rule. Given the pattern is
+widespread and pre-existing (unflagged by every prior batch that touched
+these components), fixing it would mean auditing/rewriting `:where()` usage
+across a dozen-plus theme files well outside this batch's scope; softening
+the docs claim instead would be the lower-risk fix if this is ever revisited.
+
+hooks.ts-content findings deferred per the task's instruction (concurrent
+builder is actively editing `hooks.ts`): none found. Every hooks.ts row
+referenced by the Theming pages (all `props` entries rolled up on
+`/theming/components`; the Card `parts` entries named on the same page) was
+checked against the shipped theme CSS and is accurate — the only defect was
+in the *rollup page's own rendering* (the missing Values column, fixed
+directly per the task's write-scope), not in `hooks.ts`'s content.
+
+Gates: `svelte-check` 0 errors/warnings; `prettier --check` + `eslint` clean;
+unit `74 files / 2384 tests` passed (no library code touched this batch —
+same count as the prior entry); `build` (prerender,
+`@sveltejs/adapter-static`) succeeded; e2e `388/388` passed, including the
+theme-hooks-rollup and theme-toggle describe blocks. No files owned by the
+concurrent blockquote/pagination/table/header/`hooks.ts` builder were
+touched.
+
+## User feedback round (four items) on the component-updates batch
+
+Four user-directed fixes on top of the "Nine-item component-updates batch"
+above, not a checklist pass.
+
+**1. Blockquote `intentScope` (API, opt-in full-intent coloring).** New
+`intentScope?: 'line' | 'full'` (default `'line'` — R9's exact prior
+behavior). `'full'` additionally colors the quote text with the intent;
+the attribution row stays muted under either value. Reflects as
+`data-intent-scope`, present **only when `intent` is set** (mirrors
+`data-intent`'s own presence rule — the scope attribute is meaningless
+without an intent to scope; the always-present `data-align` shape was
+considered and rejected). Implemented as a second `--_c`-style hook in
+`blockquote.css`: `--_tc` (text color) is unset by default, so
+`.hz-blockquote-quote`'s `color: var(--_tc, inherit)` falls through to
+`inherit` unless `[data-intent-scope='full']` sets `--_tc: var(--_c)`.
+DEMO REWORK: the Intent tab's seven stacked `Example`s collapsed into one
+interactive `Example` — a dogfooded `Select` (intent, 7 options) and
+`RadioGroup` (`intentScope`, horizontal, 2 options) drive both the live
+`Blockquote` and its derived code fence (icons page's slider-driven-fence
+pattern, adapted to selects/radios), fence omits `intentScope` when
+`'line'`. Files: `Blockquote.svelte`, `blockquote.css`,
+`Blockquote.svelte.spec.ts` (new Blockquote-R10 suite, 4 tests),
+`src/docs/data/blockquote.ts`, `hooks.ts`, `blockquote/+page.svelte`;
+specs/26 amendment (extends the fresh R9 dated section).
+
+**2. Pagination chevrons borderless (component, theme).** The prior
+un-circling fix (item 7 of the nine-item batch) left `outline`'s visible
+border on the prev/next chevrons — not the "borderless chevron" the user
+asked for. `Pagination.svelte`'s prev/next `Button`s: `variant="outline"`
+→ `variant="ghost"` (matching the page-number buttons' own variant).
+`pagination.css`'s `border-radius` override on `[data-icon-only]` is
+**not** moot under ghost — it still shapes the hover fill and
+`:focus-visible` ring, both of which follow border-radius independent of
+border color — kept, comment updated. Carousel explicitly out of scope
+(concurrent builder's territory) — that builder made the equivalent
+`ghost` change to Carousel's own chevrons independently, on their own
+schedule (see the specs/43 entry above), no collision. specs/21 amendment
+(extends the fresh dated section).
+
+**3. Table — bug + tab restructure.**
+   - **BUG (root cause found and fixed):** stacked mode never reverted
+     once un-stacked. `table.css`'s base stacked-cell selector,
+     `:where(th, td):not(.hz-table-cell-select):not(.hz-table-empty)`,
+     chained its two `:not()` exclusions **outside** `:where()` — each
+     contributes a class-level specificity point regardless of nesting,
+     inflating the selector to `(0,4,1)` against the un-stacking
+     `@container` override's `(0,2,1)`. The base rule won unconditionally
+     regardless of container width, so cells (and, a second
+     previously-undemonstrated instance, the `.hz-table-cell-select`
+     checkbox cell, which had **no** `@container` counterpart at all)
+     never returned to `table-cell`/proper `data-align` once the
+     container widened back past the threshold — confirmed in-browser via
+     a real preview build (Playwright probe) before touching any code:
+     `display: flex`/`text-align: start` persisted on every cell at
+     898px, well above the 640px `sm` threshold. Fix: folded the `:not()`
+     exclusions into the `:where()` argument list (zeroing their
+     specificity to a true `(0,2,1)` tie, restoring correct source-order
+     resolution); added matching-specificity `.hz-table-cell-select`
+     resets to all three `@container` blocks; added
+     `[data-align='center']`/`[data-align='end']` overrides to each block
+     (a related bug found while fixing the above — the base rule's
+     unconditional `text-align: start` had the same inflated specificity
+     and permanently overrode real column alignment even unstacked). New
+     `Table.stack.svelte.spec.ts` (kept separate from
+     `Table.svelte.spec.ts` — loading `table.css` clip-hides the stacked
+     thead by default, which broke that file's unrelated userEvent
+     sort/select tests at their default unset width) pins the fix with
+     forced pixel widths and computed-style assertions, including a
+     toggle-back-and-forth-more-than-once case. `docs.e2e.ts`'s stacked
+     demo test strengthened per the ask — it previously only ever drove
+     the demo one direction; now asserts `display: table-cell` (and the
+     `::before` label disappearing) after re-widening past 640px, then
+     re-narrows and re-asserts stacked, proving full reversibility, not a
+     one-shot fix.
+   - **TAB RESTRUCTURE:** the "Sorting" and "No sorting" top-level demo
+     tabs collapsed into one top-level "Sort" tab with three nested
+     sub-tabs (`Client-side`/`External`/`No sorting`), the established
+     inner-`Tabs` idiom (Stack/Container/Split's padding-value sub-tabs).
+     The prior "Sorting" tab had stacked both client-sort and
+     external-sort `Example`s in one panel — now true siblings, so future
+     sort variants get a natural home instead of another stacked
+     `Example`. `docs.e2e.ts`'s sorting test drives the default "Basic"
+     tab, unaffected.
+   - Files: `table.css`, `Table.stack.svelte.spec.ts` (new),
+     `table/+page.svelte`, `docs.e2e.ts`; specs/37 amendment (two dated
+     entries, one per fix).
+
+**4. Header default-vs-bordered demo bug (docs-only, component verified
+clean).** Investigated first: confirmed in-browser (computed
+`border-bottom-width`) that `Header.svelte`/`header.css`'s real
+`bordered` treatment is correct — a genuine 1px bottom-only hairline,
+present only with `data-bordered`. Root cause was the docs page's own
+scoped CSS: `.inner-tab :global(.hz-header) { border: 1px solid …;
+border-radius: …; }` unconditionally framed every rendered `Header` in
+the Surface tab with a full 4-sided border regardless of the actual
+`bordered` prop — far more visually dominant than the component's own
+subtle bottom hairline, so all three surface combos (Default/Bordered/
+Transparent) read as identically "bordered." Fix: removed the framing
+rule from `header/+page.svelte`; the existing `.surface-backdrop` gradient
+tint (added for the Transparent combo) is sufficient visual containment
+on its own. Verified in-browser post-fix: Default `border-bottom-width:
+0px`, Bordered/Transparent `1px`, Transparent's background transparent
+over the gradient — the three are now visibly distinct. No `Header.svelte`/
+`header.css` change. specs/35 amendment (extends the fresh dated section).
+
+Gate results for this round: `svelte-check` 0 errors/warnings; `prettier
+--check` + `eslint` clean; unit `74 files / 2384 tests` passed (this
+round adds 4 Blockquote-R10 tests to the existing `Blockquote.svelte.spec.ts`
+and a new `Table.stack.svelte.spec.ts` file with 3 tests; the +1 file/net
+count also reflects concurrent Carousel/Forms-batch work landing in the
+same working tree — see the measured totals in the two entries above);
+`build` (prerender, `@sveltejs/adapter-static`) succeeded;
+`palette-namespace.spec.ts`/`hooks.spec.ts`/`data.spec.ts` re-run green in
+isolation; e2e `388/388` passed (strengthened Table stacked-mode assertion
+included, no new failures). No files owned by the concurrent Carousel or
+Forms builders were touched; `docs.e2e.ts` edits were surgical (one table
+test strengthened, no header test existed to touch).

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Cluster, Stack } from '$lib';
 	import { space, width, density } from '$lib/tokens';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
+	import Example from '../../../docs/Example.svelte';
 
 	// R7 — derive from token metadata
 	const spaceTokens = Object.entries(space).map(([key, value]) => ({
@@ -153,19 +153,19 @@
 
 		<h3 id="density-demo-heading">Live demo</h3>
 		<p>
-			A real composition built from Stack and Cluster — page, sections, cards, tag rows. Every
-			distance is <code>gap="near"</code>, <code>gap="away"</code>, or
-			<code>padding="near"</code>; each nested region adds one <code>data-density-shift</code> and the
-			whole hierarchy tightens on its own.
+			A real composition built from Stack and Cluster — page, sections, cards, tag rows. The code is
+			what you'd write on a fresh top-level page: every distance is <code>gap="near"</code>,
+			<code>gap="away"</code>, or <code>padding="near"</code>; each nested region adds one
+			<code>data-density-shift</code> and the whole hierarchy tightens on its own.
 		</p>
-		<div class="density-demo" aria-labelledby="density-demo-heading">
+		<Example code={densityUsage}>
 			<Stack gap="away">
-				<Stack gap="near" data-density-shift>
+				<Stack gap="away">
 					<p class="demo-heading">Projects</p>
-					<Cluster gap="near" align="stretch">
+					<Cluster gap="away" align="stretch">
 						{#each [{ title: 'Flight Tracker', desc: 'Round scoring and disc flight stats for every throw.', tags: ['svelte', 'supabase', 'pwa'] }, { title: 'Course Atlas', desc: 'Community-maintained maps of local courses.', tags: ['sveltekit', 'maplibre'] }] as project (project.title)}
-							<Stack padding="near" class="density-card">
-								<Stack gap="near" data-density-shift>
+							<Stack padding="away" class="density-card">
+								<Stack gap="near">
 									<p class="card-title">{project.title}</p>
 									<p class="card-desc">{project.desc}</p>
 									<Cluster gap="near" data-density-shift>
@@ -178,27 +178,20 @@
 						{/each}
 					</Cluster>
 				</Stack>
-				<Stack gap="near" data-density-shift>
+				<Stack gap="away">
 					<p class="demo-heading">Archive</p>
 					<p class="card-desc">Retired experiments live here.</p>
 				</Stack>
 			</Stack>
-		</div>
+		</Example>
 		<p class="tab-note">
-			On a fresh top-level page (shift 0) this composition reads: sections apart at <code>away</code
-			>
-			= 8rem; heading, cards, and card padding sharing <code>near</code> at one shift = 2rem; the
-			title/description/tags rhythm at two shifts = 0.8rem; and the tag gaps at three shifts =
-			0.4rem — the numbers in the code below. This docs shell and the section around this demo are
-			already two shifts deep, so embedded here the demo's own shifts push straight past the floor:
-			sections still sit apart at this page's <code>away</code> (2rem, unshifted), but heading,
-			cards, title/description/tags, and tag gaps all land on the same <code>near</code> = 0.4rem floor
-			— a live example of the "three levels is the floor" rule above.
+			The preview compensates for where it sits. This section is already two density levels deep —
+			the docs shell and this page section each add a shift — and one ambient level costs one rung
+			on the ladder. So the live version swaps each <code>near</code> for <code>away</code> (one rung
+			back up) and drops the shifts the shell already provides: every distance then renders at its fresh-page
+			value — heading and cards at 2rem, card rhythm at 0.8rem, tag gaps at 0.4rem — except the 8rem section
+			spacing, which the ambient floor caps at 2rem here.
 		</p>
-
-		<h3>Usage</h3>
-		<p class="tab-note">As it would render starting from a fresh top-level page:</p>
-		<CodeBlock code={densityUsage} />
 	</Stack>
 
 	<Stack
@@ -270,10 +263,9 @@
 <style>
 	/* Margins zeroed — h3/p (including the former .override-note, now plain
 	 * p) on this page are direct children of a .doc-section Stack (gap="away",
-	 * data-density-shift), which now owns the rhythm. The live density demo
-	 * below (.density-demo and its nested Stacks) is untouched — that's the
-	 * density system's own worked example, not the page-level scaffold this
-	 * refactor targets. */
+	 * data-density-shift), which now owns the rhythm. The live density demo's
+	 * nested Stacks are untouched — that's the density system's own worked
+	 * example, not the page-level scaffold this refactor targets. */
 	h3 {
 		margin: 0;
 		font-size: var(--hz-font-size-lg, 1.25rem);
@@ -326,14 +318,6 @@
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		min-width: 2px;
 		max-width: 100%;
-	}
-
-	/* Margin zeroed — direct child of the density-heading section Stack
-	 * (gap="away", data-density-shift), which now owns the space around it. */
-	.density-demo {
-		border: 1px dashed var(--hz-color-border, #6b7280);
-		border-radius: var(--hz-radius-md, 0.5rem);
-		padding: var(--hz-space-near, 4rem);
 	}
 
 	.demo-heading {

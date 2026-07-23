@@ -80,7 +80,8 @@
 						One prop, three players: YouTube and Vimeo URLs become privacy-friendly iframes with the
 						correct allow/referrer policies; anything else renders a native
 						<code>&lt;video&gt;</code>. The demo below is the native player (embed demos land with
-						the real assets).
+						the real assets). <a href="/components/lightbox">Lightbox</a> plays every video item it shows
+						through this component.
 					</p>
 					<Example code={providersCode}>
 						<div class="demo-box">

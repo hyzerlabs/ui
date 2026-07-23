@@ -1,5 +1,5 @@
 <script lang="ts" generics="T">
-	import type { Snippet } from 'svelte';
+	import { tick, type Snippet } from 'svelte';
 	import { cx } from '$lib/utils';
 	import IconChevronLeft from '$lib/icons/generated/chevron-left.svelte';
 	import IconChevronRight from '$lib/icons/generated/chevron-right.svelte';
@@ -19,6 +19,20 @@
 		 * the native `draggable` attribute.
 		 */
 		draggable?: boolean;
+		/**
+		 * `'visible'` (default) is today's always-shown control row. `'focus'`
+		 * keeps the row in the DOM and fully operable but visually hides it
+		 * until `:hover`/`:focus-within` reveals it — the WCAG 2.5.7 drag
+		 * alternative, presentation-only (specs/43 R1–R4).
+		 */
+		controls?: 'visible' | 'focus';
+		/**
+		 * Opt-in continuous boundary wrap: with `loop`, every ±1 wrap step
+		 * (drag settle, buttons, an adjacent-wrap dot click, arrow keys) settles
+		 * through a hidden clone instead of sweeping back through the row.
+		 * Inert without `loop` (specs/43 R6).
+		 */
+		seamless?: boolean;
 		/** Position display: the "1 / 3" counter, or clickable slide-picker dots. */
 		indicator?: 'counter' | 'dots';
 		prevLabel?: string;
@@ -40,6 +54,8 @@
 		index = $bindable(0),
 		loop = false,
 		draggable = true,
+		controls = 'visible',
+		seamless = false,
 		indicator = 'counter',
 		prevLabel = 'Previous slide',
 		nextLabel = 'Next slide',
@@ -54,6 +70,9 @@
 	const count = $derived(items.length);
 	const canPrev = $derived(loop ? count > 1 : index > 0);
 	const canNext = $derived(loop ? count > 1 : index < count - 1);
+	// seamless is only meaningful with loop (specs/43 R6) — the hook reflects
+	// effective behavior, never advertising a wrap that cannot happen.
+	const seamlessActive = $derived(seamless && loop);
 
 	function go(next: number) {
 		if (count === 0) return;
@@ -64,15 +83,64 @@
 		}
 	}
 
+	// ------------------------------------------------------------------
+	// Seamless boundary wrap (specs/43 R6) — every ±1 wrap step crossing the
+	// first/last boundary settles through an inert clone of the opposite end
+	// instead of go()'s plain rewind, so the track never sweeps backward
+	// through the intervening slides. Adjacent-only: a caller decides the
+	// step's direction and only asks for a wrap at the exact boundary; any
+	// other move (multi-slide dot jump, Home/End) calls go() directly, no
+	// clone. go() remains the single funnel for the index/onchange contract —
+	// this only wraps its ±1 boundary move with a visual.
+	// ------------------------------------------------------------------
+
+	function wrapKind(current: number, dir: 1 | -1): 'forward' | 'backward' | null {
+		if (!seamlessActive || count <= 1) return null;
+		if (dir === 1 && current === count - 1) return 'forward';
+		if (dir === -1 && current === 0) return 'backward';
+		return null;
+	}
+
+	function step(dir: 1 | -1) {
+		const target = index + dir;
+		const kind = wrapKind(index, dir);
+		if (kind) {
+			seamlessWrap(target, kind);
+		} else {
+			go(target);
+		}
+	}
+
+	function dotClick(i: number) {
+		if (count > 0) {
+			if (i === (index + 1) % count) {
+				const kind = wrapKind(index, 1);
+				if (kind) {
+					seamlessWrap(i, kind);
+					return;
+				}
+			} else if (i === (index - 1 + count) % count) {
+				const kind = wrapKind(index, -1);
+				if (kind) {
+					seamlessWrap(i, kind);
+					return;
+				}
+			}
+		}
+		go(i);
+	}
+
 	function onKeydown(e: KeyboardEvent) {
 		if (e.key === 'ArrowLeft') {
 			e.preventDefault();
-			go(index - 1);
+			step(-1);
 		} else if (e.key === 'ArrowRight') {
 			e.preventDefault();
-			go(index + 1);
+			step(1);
 		} else if (e.key === 'Home') {
 			e.preventDefault();
+			// Absolute first, not a wrap neighbor — always a direct go(), never
+			// a clone, even when it numerically coincides with a boundary.
 			go(0);
 		} else if (e.key === 'End') {
 			e.preventDefault();
@@ -191,6 +259,7 @@
 			}
 		}
 		let target = index;
+		let dir: 1 | -1 | null = null;
 		if (commit) {
 			// Decide from the raw pointer delta, not the damped visual offset, so a
 			// flick at a rubber-banding end still registers.
@@ -199,16 +268,25 @@
 			if ((passedHalf || flicked) && lastDx !== 0) {
 				// Step one neighbor and defer to go(): it clamps when loop is off and
 				// wraps when it's on, so drag loops exactly when the consumer opts in.
-				target = index + (lastDx < 0 ? 1 : -1);
+				dir = lastDx < 0 ? 1 : -1;
+				target = index + dir;
 			}
 		}
-		// Clear the drag first (re-enables the transition), then move: the track
-		// animates in one smooth settle from where the finger left it to rest.
-		dragging = false;
-		dragOffset = 0;
 		pointerId = null;
 		axis = 'undecided';
-		go(target);
+		const kind = dir != null ? wrapKind(index, dir) : null;
+		if (kind) {
+			// Seamless (R6): fold the drag's live (possibly rubber-banded) offset
+			// into a continuous forward settle through a clone, rather than the
+			// plain go() rewind below.
+			seamlessWrap(target, kind);
+		} else {
+			// Clear the drag first (re-enables the transition), then move: the track
+			// animates in one smooth settle from where the finger left it to rest.
+			dragging = false;
+			dragOffset = 0;
+			go(target);
+		}
 	}
 
 	function onpointerup(e: PointerEvent) {
@@ -242,6 +320,115 @@
 
 	// translateX in one expression: rest position plus the live drag offset.
 	const trackTransform = $derived(`translateX(calc(-1 * ${index} * 100% + ${dragOffset}px))`);
+
+	// ------------------------------------------------------------------
+	// Seamless wrap settle (R6 mechanism) — an inert clone of the opposite
+	// end, appended/prepended next to the boundary; the track animates
+	// forward into it, then the transform silently resets (no transition) to
+	// the real target once index has already moved there. Because the clone
+	// mirrors the real target slide's content, the reset frame is visually
+	// identical to the settled frame — no perceptible jump.
+	// ------------------------------------------------------------------
+
+	// Non-null only while a wrap settle is in flight; overrides trackTransform
+	// on the track so the wrap's own animation isn't fighting the plain
+	// index/dragOffset-derived value.
+	let wrapTransform = $state<string | null>(null);
+	// Which end's clone is mounted, if any. 'end' = clone of items[0],
+	// appended after the real slides (forward wrap, last → first). 'start' =
+	// clone of the last item, prepended before the real slides (backward
+	// wrap, first → last) — R7 keeps both outside the real-slide index space.
+	let clone = $state<'start' | 'end' | null>(null);
+	let wrapBusy = false;
+
+	const displayTransform = $derived(wrapTransform ?? trackTransform);
+
+	function prefersReducedMotion(): boolean {
+		return (
+			typeof window !== 'undefined' &&
+			typeof window.matchMedia === 'function' &&
+			window.matchMedia('(prefers-reduced-motion: reduce)').matches
+		);
+	}
+
+	function nextFrame(): Promise<void> {
+		return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+	}
+
+	// Resolves once the track's transform transition ends, or after a
+	// generous fallback so a browser that skips the event (or a transition
+	// that resolves to the same computed value) never hangs the sequence.
+	function waitForSettle(): Promise<void> {
+		return new Promise((resolve) => {
+			const el = trackEl;
+			if (!el) {
+				resolve();
+				return;
+			}
+			let done = false;
+			const finish = () => {
+				if (done) return;
+				done = true;
+				el.removeEventListener('transitionend', onEnd);
+				resolve();
+			};
+			const onEnd = (e: TransitionEvent) => {
+				if (e.target === el && e.propertyName === 'transform') finish();
+			};
+			el.addEventListener('transitionend', onEnd);
+			setTimeout(finish, 600);
+		});
+	}
+
+	async function seamlessWrap(target: number, kind: 'forward' | 'backward') {
+		if (wrapBusy || prefersReducedMotion()) {
+			// No sweep to hide (33 R7 already makes every move instant) — the
+			// seamless path is a no-op visual here, so it must not introduce its
+			// own motion or clone.
+			dragging = false;
+			dragOffset = 0;
+			go(target);
+			return;
+		}
+		wrapBusy = true;
+		const fromIndex = index;
+		const fromOffset = dragOffset;
+		// A leading clone (backward wrap) physically occupies one flex slot
+		// before real slide 0 — the freeze value below compensates for that
+		// shift so mounting it introduces no visual change on its own.
+		const shift = kind === 'backward' ? 1 : 0;
+		const frozen = `translateX(calc(-1 * ${fromIndex + shift} * 100% + ${fromOffset}px))`;
+		const revealTarget =
+			kind === 'forward' ? `translateX(calc(-1 * ${count} * 100%))` : 'translateX(0%)';
+
+		if (shift !== 0 && trackEl) trackEl.style.transition = 'none';
+		clone = kind === 'forward' ? 'end' : 'start';
+		wrapTransform = frozen;
+		dragging = false;
+		dragOffset = 0;
+		await tick();
+		if (shift !== 0) {
+			// Let the compensated, transition-suppressed frame paint before
+			// re-enabling the transition for the reveal animation below.
+			await nextFrame();
+			await nextFrame();
+			if (trackEl) trackEl.style.transition = '';
+		}
+		await nextFrame();
+		wrapTransform = revealTarget;
+		await waitForSettle();
+		go(target);
+		// Silent reset (R6): index has already moved to the real target, whose
+		// clone-mirrored content is pixel-identical to what's on screen — swap
+		// the transform source back with the transition off so nothing moves.
+		if (trackEl) trackEl.style.transition = 'none';
+		wrapTransform = null;
+		clone = null;
+		await nextFrame();
+		await nextFrame();
+		if (trackEl) trackEl.style.transition = '';
+		wrapBusy = false;
+	}
 </script>
 
 <!--
@@ -258,6 +445,8 @@
 	role="group"
 	aria-roledescription="carousel"
 	aria-label={ariaLabel}
+	data-controls={controls}
+	data-seamless={seamlessActive ? '' : undefined}
 	onkeydown={onKeydown}
 >
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -265,7 +454,7 @@
 		<div
 			class="hz-carousel-track"
 			bind:this={trackEl}
-			style:transform={trackTransform}
+			style:transform={displayTransform}
 			style:cursor={draggable && count > 1 ? (dragging ? 'grabbing' : 'grab') : undefined}
 			style:user-select={draggable && count > 1 ? 'none' : undefined}
 			data-dragging={dragging ? '' : undefined}
@@ -276,6 +465,15 @@
 			{onclickcapture}
 			ondragstart={onDragStart}
 		>
+			{#if clone === 'start'}
+				<!-- Seamless (R6/R7): a clone of the last slide, prepended so a
+				     backward wrap (first → last) can settle forward into it. Outside
+				     the real-slide index space, always inert/aria-hidden, never
+				     counted in count/dots/status, never focusable. -->
+				<div class="hz-carousel-slide" data-clone inert aria-hidden="true">
+					{@render slide(items[count - 1], count - 1)}
+				</div>
+			{/if}
 			{#each items as item, i (i)}
 				<div
 					class="hz-carousel-slide"
@@ -288,19 +486,26 @@
 					{@render slide(item, i)}
 				</div>
 			{/each}
+			{#if clone === 'end'}
+				<!-- Seamless (R6/R7): a clone of the first slide, appended so a
+				     forward wrap (last → first) can settle forward into it. -->
+				<div class="hz-carousel-slide" data-clone inert aria-hidden="true">
+					{@render slide(items[0], 0)}
+				</div>
+			{/if}
 		</div>
 	</div>
 
 	{#if count > 1}
 		<div class="hz-carousel-controls">
 			<Button
-				variant="outline"
+				variant="ghost"
 				intent="neutral"
 				size="sm"
 				class="hz-carousel-prev"
 				ariaLabel={prevLabel}
 				disabled={!canPrev}
-				onclick={() => go(index - 1)}
+				onclick={() => step(-1)}
 			>
 				{#snippet iconStart()}<IconChevronLeft />{/snippet}
 			</Button>
@@ -316,7 +521,7 @@
 							aria-label={dotLabel(i, count)}
 							aria-current={i === index ? 'true' : undefined}
 							data-active={i === index ? '' : undefined}
-							onclick={() => go(i)}
+							onclick={() => dotClick(i)}
 						></button>
 					{/each}
 				</div>
@@ -325,13 +530,13 @@
 				<span class="hz-carousel-status" aria-hidden="true">{index + 1} / {count}</span>
 			{/if}
 			<Button
-				variant="outline"
+				variant="ghost"
 				intent="neutral"
 				size="sm"
 				class="hz-carousel-next"
 				ariaLabel={nextLabel}
 				disabled={!canNext}
-				onclick={() => go(index + 1)}
+				onclick={() => step(1)}
 			>
 				{#snippet iconStart()}<IconChevronRight />{/snippet}
 			</Button>

@@ -10,6 +10,20 @@
 		font-variant-numeric: tabular-nums;
 	}
 
+	/* Prev/next chevrons: Button's icon-only circle (button.css) reads wrong
+	 * here — un-circle to the normal button corner radius instead (user
+	 * decision 2026-07-23, "same as carousel"; scoped to this class, Button's
+	 * global icon-only circle is unchanged for Banner/other icon-only uses).
+	 * Still visible under ghost (the current variant, borderless per the
+	 * follow-up decision below): it shapes the hover fill and the
+	 * focus-visible ring, both of which follow border-radius regardless of
+	 * border color. This rule relies on pagination.css importing after
+	 * button.css in theme.css to win the tie against button.css's own
+	 * :where()-zeroed specificity. */
+	.hz-pagination :where(.hz-pagination-prev, .hz-pagination-next)[data-icon-only] {
+		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+
 	.hz-pagination :where(.hz-pagination-ellipsis) {
 		display: inline-flex;
 		align-items: center;

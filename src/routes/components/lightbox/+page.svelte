@@ -175,8 +175,8 @@
 					<p class="tab-note">
 						With <code>items</code>, one component renders the whole strip; each thumbnail opens the
 						viewer at its item, ArrowLeft/ArrowRight (or the controls) page through with
-						wrap-around, and videos play via the Video component. Focus returns to the thumbnail
-						that opened the viewer.
+						wrap-around, and videos play via the <a href="/components/video">Video</a> component. Focus
+						returns to the thumbnail that opened the viewer.
 					</p>
 					<Example code={galleryCode}>
 						<Lightbox items={galleryItems} class="gallery-strip" />

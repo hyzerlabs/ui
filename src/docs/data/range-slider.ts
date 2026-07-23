@@ -85,7 +85,7 @@ export const rangeSliderDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'The group is a `<fieldset>` whose `label` renders as the `<legend>`. Each thumb is a real range input with its own accessible name (`minThumbLabel`/`maxThumbLabel`) and native slider semantics — Tab reaches both, arrow keys step them, and a thumb dragged past its partner clamps rather than crossing. The number fields carry derived accessible names and never submit; the two thumbs submit as the base `name` plus `-min`/`-max` suffixes. `description` and `error` chain into `aria-describedby` on both ranges; ticks, the separator, and the readout are decorative and `aria-hidden`.',
+		"The group is a `<fieldset>` whose `label` renders as the `<legend>`. Each thumb is a real range input with its own accessible name (`minThumbLabel`/`maxThumbLabel`) and native slider semantics — Tab reaches both, arrow keys step them, and a thumb dragged past its partner clamps rather than crossing. The number fields carry derived accessible names and never submit; the two thumbs submit as the base `name` plus `-min`/`-max` suffixes. `description` and `error` chain into `aria-describedby` on both ranges, and an `error` also sets `aria-invalid` on both; `required` renders the legend indicator only — `aria-required` isn't part of the slider role's supported ARIA attributes, so it is never applied. Ticks, the separator, and the readout are decorative and `aria-hidden`.",
 	a11yLinks: [
 		{
 			label: 'APG Slider (Multi-Thumb) pattern',

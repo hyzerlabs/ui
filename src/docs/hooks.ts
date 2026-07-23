@@ -377,7 +377,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: '.hz-header-actions',
 				values: 'child element',
-				note: 'Wrapper for the actions snippet (in the bar).'
+				note: 'Wrapper for the actions snippet (in the bar). Below the mobile breakpoint, an auto inline-start margin pins it to the end, next to the hamburger — override margin-inline-start on this class (e.g. via a descendant selector off your own class prop) for centering or any other placement.'
 			},
 			{ name: '.hz-header-toggle', values: 'child element', note: 'The hamburger button.' },
 			{ name: '.hz-header-drawer', values: 'child element', note: 'The mobile drawer.' },
@@ -598,6 +598,11 @@ export const hooks: Record<string, ComponentHooks> = {
 				note: 'On the viewer dialog, mirroring the bindable open prop. Visibility itself runs off the native [open] attribute — this is the hook to animate against.'
 			},
 			{
+				name: 'data-gallery',
+				values: 'present with more than one item',
+				note: 'On the viewer dialog. Drives the fixed gallery stage sizing that a single item skips (it hugs its media instead).'
+			},
+			{
 				name: 'data-lightbox-trigger',
 				values: 'present on a grouped trigger',
 				note: 'Set by the lightboxGroup attachment rather than the component. Its only styling is a zoom-in cursor.'
@@ -627,6 +632,11 @@ export const hooks: Record<string, ComponentHooks> = {
 			},
 			{ name: '.hz-lightbox-close', values: 'child element', note: 'The close control.' },
 			{
+				name: '.hz-lightbox-carousel',
+				values: 'on the embedded Carousel',
+				note: 'Multi-item viewers only — see Carousel for its own parts underneath.'
+			},
+			{
 				name: '.hz-lightbox-figure',
 				values: 'child element',
 				note: 'The figure wrapping each item.'
@@ -636,12 +646,22 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: '.hz-lightbox-img',
 				values: "on an Image's wrapper",
 				note: 'Rides through Image’s class prop — so it names a div, not an img. Reach the picture itself through .hz-lightbox-img .hz-image__img.'
+			},
+			{
+				name: '.hz-lightbox-video',
+				values: 'child element',
+				note: 'The wrapper around a video item’s Video.'
 			}
 		]
 	},
 	Video: {
 		root: 'hz-video',
 		attrs: [
+			{
+				name: 'data-provider',
+				values: "'youtube' | 'vimeo' | 'native'",
+				note: 'Detected from src. Styling hook for provider-specific chrome.'
+			},
 			{
 				name: 'data-aspect-ratio',
 				values: "'16/9' | '4/3' | '1/1' | '9/16'",
@@ -1093,6 +1113,16 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: 'data-align',
 				values: "'start' | 'center' | 'end'",
 				note: 'Aligns the attribution row only — the quote body is deliberately left alone. Default start.'
+			},
+			{
+				name: 'data-intent',
+				values: 'any registered intent',
+				note: 'Present only when intent is set. Colors only the accent line (border-inline-start) — no intent leaves the accent line at its default border color.'
+			},
+			{
+				name: 'data-intent-scope',
+				values: "'line' | 'full'",
+				note: 'Present only when intent is set (mirrors data-intent — meaningless without an intent to scope). line (default) matches data-intent alone; full also colors the quote text. The attribution row is never affected.'
 			}
 		],
 		parts: [
@@ -1318,6 +1348,21 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: 'data-dragging',
 				values: 'present while a drag is underway',
 				note: 'On .hz-carousel-track. The settle transition is suppressed while it is present so the track follows the pointer 1:1; a grab/grabbing cursor pairs with it.'
+			},
+			{
+				name: 'data-controls',
+				values: "'visible' | 'focus'",
+				note: "On the root, always stamped, both values. Presentation only: the controls markup is identical either way. focus visually hides the whole control row until :hover/:focus-within reveals it together — the row stays in the DOM, in the a11y tree, and fully operable throughout (the WCAG 2.5.7 non-dragging alternative to drag). Default 'visible'."
+			},
+			{
+				name: 'data-seamless',
+				values: 'present only when seamless && loop',
+				note: 'On the root. Absent when seamless is set without loop — an inert no-op — so the hook reflects effective behavior, never advertising a wrap that cannot happen.'
+			},
+			{
+				name: 'data-clone',
+				values: 'present on a wrap-settle clone slide',
+				note: 'On .hz-carousel-slide. Rendered only mid-wrap, seamless loop, a distance-1 boundary crossing (drag, buttons, an adjacent-wrap dot, or arrow keys) — an inert, aria-hidden copy of the opposite-end slide the track settles into before silently resetting to the real target. Never counted in count, "{n} of {total}", or the dot rail; never focusable.'
 			}
 		],
 		props: [
@@ -1527,7 +1572,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-stack',
 				values: "'sm' | 'md' | 'lg'",
-				note: 'On .hz-table-wrap. Mirrors the stack prop — stacked below the named --hz-width-* threshold, a real table at/above it. Absent (default): never stacks.'
+				note: "On .hz-table-wrap. Mirrors the stack prop — stacked below the named --hz-width-* threshold, a real table at/above it. Absent (default): never stacks. 'sm' (640px) is the recommended default — genuinely narrow viewports only."
 			},
 			{
 				name: 'data-selected',

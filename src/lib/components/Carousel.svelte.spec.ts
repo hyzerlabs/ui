@@ -449,6 +449,267 @@ describe('indicator', () => {
 	});
 });
 
+// ---------------------------------------------------------------------------
+// specs/43 — controls presentation mode (R1–R5)
+// ---------------------------------------------------------------------------
+
+describe('controls prop (R1) — root hook, presentation only', () => {
+	it('data-controls defaults to "visible" and reflects the prop for both values', () => {
+		const { container } = render(Carousel, base);
+		expect(parts(container).root.getAttribute('data-controls')).toBe('visible');
+
+		const { container: focusContainer } = render(Carousel, { ...base, controls: 'focus' });
+		expect(parts(focusContainer).root.getAttribute('data-controls')).toBe('focus');
+	});
+
+	it('controls markup renders identically in both modes when count > 1', () => {
+		const { container } = render(Carousel, { ...base, controls: 'focus', indicator: 'dots' });
+		expect(container.querySelector('.hz-carousel-controls')).not.toBeNull();
+		expect(container.querySelector('.hz-carousel-prev')).not.toBeNull();
+		expect(container.querySelector('.hz-carousel-next')).not.toBeNull();
+		expect(container.querySelectorAll('.hz-carousel-dot')).toHaveLength(3);
+	});
+
+	it('a single item renders no controls in either mode (33 existing edge case)', () => {
+		const { container } = render(Carousel, { ...base, items: ['only'], controls: 'focus' });
+		expect(container.querySelector('.hz-carousel-controls')).toBeNull();
+	});
+});
+
+describe('controls="focus" — every control stays operable (R2, WCAG 2.5.7)', () => {
+	it('prev/next/dots are present, in the a11y tree, and not hidden via display/visibility/aria-hidden/inert', () => {
+		const { container } = render(Carousel, { ...base, controls: 'focus', indicator: 'dots' });
+		const controls = [
+			...Array.from(
+				container.querySelectorAll<HTMLElement>('.hz-carousel-prev, .hz-carousel-next')
+			),
+			...Array.from(container.querySelectorAll<HTMLElement>('.hz-carousel-dot'))
+		];
+		expect(controls.length).toBeGreaterThan(0);
+		for (const el of controls) {
+			expect(el.hasAttribute('aria-hidden')).toBe(false);
+			expect(el.hasAttribute('inert')).toBe(false);
+			expect(getComputedStyle(el).display).not.toBe('none');
+			expect(getComputedStyle(el).visibility).not.toBe('hidden');
+		}
+	});
+
+	it('is .click()-operable (the pointer/2.5.7 path) despite the visual hide', async () => {
+		const onchange = vi.fn();
+		const { container } = render(Carousel, { ...base, controls: 'focus', onchange });
+		const { next } = parts(container);
+		next.click();
+		await tick();
+		expect(visibleText(container)).toBe('beta');
+		expect(onchange).toHaveBeenCalledWith(1);
+	});
+
+	it('Arrow/Home/End still steer from anywhere inside the carousel', async () => {
+		const { container } = render(Carousel, { ...base, controls: 'focus' });
+		const { root } = parts(container);
+		function key(k: string) {
+			root.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
+		}
+		key('ArrowRight');
+		await tick();
+		expect(visibleText(container)).toBe('beta');
+		key('End');
+		await tick();
+		expect(visibleText(container)).toBe('gamma');
+		key('Home');
+		await tick();
+		expect(visibleText(container)).toBe('alpha');
+	});
+});
+
+describe('controls="focus" — drag is unchanged (R5)', () => {
+	it('drag advances/announces exactly as 33 and never moves document.activeElement', async () => {
+		const onchange = vi.fn();
+		const { container } = render(Carousel, { ...base, controls: 'focus', onchange });
+		const vp = container.querySelector('.hz-carousel-viewport') as HTMLElement;
+		vp.style.width = '200px'; // half = 100px, deterministic — mirrors the 33 distance test
+		const { track } = parts(container);
+		const before = document.activeElement;
+		pointer(track, 'pointerdown', 300);
+		pointer(track, 'pointermove', 140); // dx -160 > 100
+		pointer(track, 'pointerup', 140);
+		await tick();
+		expect(visibleText(container)).toBe('beta');
+		expect(onchange).toHaveBeenCalledWith(1);
+		expect(document.activeElement).toBe(before);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/43 — seamless boundary wrap (R6/R7)
+// ---------------------------------------------------------------------------
+
+describe('seamless prop (R6) — root hook', () => {
+	it('data-seamless is present only when seamless && loop', () => {
+		const both = render(Carousel, { ...base, seamless: true, loop: true });
+		expect(parts(both.container).root.hasAttribute('data-seamless')).toBe(true);
+
+		const noLoop = render(Carousel, { ...base, seamless: true, loop: false });
+		expect(parts(noLoop.container).root.hasAttribute('data-seamless')).toBe(false);
+
+		const noSeamless = render(Carousel, { ...base, seamless: false, loop: true });
+		expect(parts(noSeamless.container).root.hasAttribute('data-seamless')).toBe(false);
+	});
+
+	it('seamless without loop is an inert no-op: navigation stays bounded, no clone ever renders', async () => {
+		const { container } = render(Carousel, { ...base, seamless: true });
+		const { prev, next } = parts(container);
+		expect(prev.getAttribute('aria-disabled')).toBe('true');
+		next.click();
+		await tick();
+		next.click();
+		await tick();
+		expect(parts(container).next.getAttribute('aria-disabled')).toBe('true');
+		expect(container.querySelector('[data-clone]')).toBeNull();
+	});
+});
+
+describe('seamless off — spec 33 DOM stays byte-identical (no clone machinery)', () => {
+	it('with loop but seamless unset, boundary crossings never render a clone (go() rewind, as 33)', async () => {
+		const { container } = render(Carousel, { ...base, loop: true });
+		const { prev, next } = parts(container);
+		prev.click(); // wraps 0 -> last via go()'s rewind
+		await wait(500);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('gamma');
+		next.click(); // wraps back to first
+		await wait(500);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('alpha');
+	});
+});
+
+describe('seamless loop — every ±1 boundary path settles through a clone (R6/R7)', () => {
+	it('next button wrap (forward, last → first): index wraps, onchange fires once, a clone renders mid-wrap and is gone after', async () => {
+		const onchange = vi.fn();
+		const { container } = render(Carousel, { ...base, loop: true, seamless: true, onchange });
+		const { next } = parts(container);
+		next.click(); // 0 -> 1
+		await tick();
+		next.click(); // 1 -> 2 (last)
+		await wait(500);
+		next.click(); // wraps 2 -> 0, seamless
+		await wait(100);
+		const clone = container.querySelector('[data-clone]') as HTMLElement | null;
+		expect(clone).not.toBeNull();
+		expect(clone?.hasAttribute('inert')).toBe(true);
+		expect(clone?.getAttribute('aria-hidden')).toBe('true');
+		// The clone is never counted in the live status or the dot rail.
+		expect(container.querySelectorAll('.hz-carousel-slide:not([data-clone])')).toHaveLength(3);
+		await wait(700);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('alpha');
+		expect(onchange.mock.calls.filter((c) => c[0] === 0)).toHaveLength(1);
+	});
+
+	it('prev button wrap (backward, first → last): same seamless settle, single onchange', async () => {
+		const onchange = vi.fn();
+		const { container } = render(Carousel, { ...base, loop: true, seamless: true, onchange });
+		const { prev } = parts(container);
+		prev.click(); // wraps 0 -> last, seamless
+		await wait(100);
+		expect(container.querySelector('[data-clone]')).not.toBeNull();
+		await wait(700);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('gamma');
+		expect(onchange.mock.calls.filter((c) => c[0] === 2)).toHaveLength(1);
+	});
+
+	it('ArrowRight at the last slide / ArrowLeft at the first both wrap seamlessly', async () => {
+		const onchange = vi.fn();
+		const { container } = render(Carousel, { ...base, loop: true, seamless: true, onchange });
+		const { root } = parts(container);
+		root.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true })
+		);
+		await wait(100);
+		expect(container.querySelector('[data-clone]')).not.toBeNull();
+		await wait(700);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('gamma');
+		expect(onchange).toHaveBeenCalledWith(2);
+	});
+
+	it('a dot click that is an adjacent (±1) wrap step settles seamlessly', async () => {
+		const onchange = vi.fn();
+		const { container } = render(Carousel, {
+			...base,
+			loop: true,
+			seamless: true,
+			indicator: 'dots',
+			onchange
+		});
+		const dots = Array.from(container.querySelectorAll<HTMLButtonElement>('.hz-carousel-dot'));
+		dots[2].click(); // index 0 -> dot 2 (last) is the backward wrap neighbor
+		await wait(100);
+		expect(container.querySelector('[data-clone]')).not.toBeNull();
+		await wait(700);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('gamma');
+		expect(onchange).toHaveBeenCalledWith(2);
+	});
+
+	it('a drag flick past the last slide wraps seamlessly and leaves no clone behind', async () => {
+		const onchange = vi.fn();
+		const { container } = render(Carousel, { ...base, loop: true, seamless: true, onchange });
+		const vp = container.querySelector('.hz-carousel-viewport') as HTMLElement;
+		vp.style.width = '200px';
+		const { next, track } = parts(container);
+		next.click();
+		await tick();
+		next.click(); // now at the last slide
+		await wait(500);
+		pointer(track, 'pointerdown', 300);
+		pointer(track, 'pointermove', 140); // dx -160 > 100 half, forward wrap
+		pointer(track, 'pointerup', 140);
+		await wait(100);
+		expect(container.querySelector('[data-clone]')).not.toBeNull();
+		await wait(700);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('alpha');
+		expect(onchange).toHaveBeenCalledWith(0);
+	});
+});
+
+describe('seamless loop — adjacent-only rule (R6): no clone for multi-slide jumps or Home/End', () => {
+	it('a multi-slide dot jump across the boundary renders no clone', async () => {
+		const fourItems = ['alpha', 'beta', 'gamma', 'delta'];
+		const { container } = render(Carousel, {
+			items: fourItems,
+			ariaLabel: 'Demo carousel',
+			slide: slideSnippet,
+			loop: true,
+			seamless: true,
+			indicator: 'dots'
+		});
+		const dots = Array.from(container.querySelectorAll<HTMLButtonElement>('.hz-carousel-dot'));
+		dots[2].click(); // 0 -> 2, distance 2 — not an adjacent wrap step
+		await wait(500);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('gamma');
+	});
+
+	it('Home/End render no clone even when they land on a boundary neighbor', async () => {
+		const { container } = render(Carousel, { ...base, loop: true, seamless: true });
+		const { root, next } = parts(container);
+		next.click();
+		await tick();
+		next.click(); // now at the last slide
+		await wait(500);
+		root.dispatchEvent(
+			new KeyboardEvent('keydown', { key: 'Home', bubbles: true, cancelable: true })
+		);
+		await wait(300);
+		expect(container.querySelector('[data-clone]')).toBeNull();
+		expect(visibleText(container)).toBe('alpha');
+	});
+});
+
 describe('barrel export', () => {
 	it('Carousel is resolvable from $lib', async () => {
 		const { Carousel: C } = await import('$lib');

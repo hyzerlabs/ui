@@ -118,6 +118,8 @@
 
 	const registryCode = [
 		'// hyzer.config.ts — define the token, and it gets contrast-graded',
+		"import { defineConfig } from '@hyzer-labs/ui/config';",
+		'',
 		'export default defineConfig({',
 		'\ttokens: {',
 		'\t\tintent: {',
@@ -235,17 +237,17 @@
 	</Stack>
 {/snippet}
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Example Themes</h1>
-		<p>
+		<p class="doc-description">
 			Three complete themes ship with the package as teaching material, and they are deliberately
 			three <em>different amounts of freedom</em>. Each is generated from the
 			<code>hyzer.config.ts</code>
 			next to it, drift-tested in CI, and — like the base tokens — held to
 			<a href="/foundation/contrast">WCAG AA on every graded pairing</a>, in both modes.
 		</p>
-		<div class="token-table-wrapper">
+		<div class="token-table-wrapper intro-table">
 			<table class="token-table">
 				<thead>
 					<tr>
@@ -283,17 +285,23 @@
 				</tbody>
 			</table>
 		</div>
-		<p>
+		<p class="intro-follow">
 			Ocean is the control: it proves how far tokens alone get you. Terminal is the other end — it
 			never imports the reference theme, so every rule in it is its own, and it grows the system
-			rather than just recoloring it: two intents the library has never heard of, type-checked and
+			rather than only recoloring it: two intents the library has never heard of, type-checked and
 			contrast-graded like any built-in. If you only read one, read Terminal's
 			<code>button.css</code>: that is what "headless" actually buys you.
 		</p>
 	</div>
 
 	{#each examples as example (example.id)}
-		<section aria-labelledby="{example.id}-heading">
+		<Stack
+			as="section"
+			gap="away"
+			data-density-shift
+			class="doc-section"
+			aria-labelledby="{example.id}-heading"
+		>
 			<h2 id="{example.id}-heading">{example.label}</h2>
 			<p>{example.blurb}</p>
 			<CodeBlock code={example.imports.join('\n')} />
@@ -312,10 +320,16 @@
 					</div>
 				{/snippet}
 			</Tabs>
-		</section>
+		</Stack>
 	{/each}
 
-	<section aria-labelledby="instance-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="instance-heading"
+	>
 		<h2 id="instance-heading">One instance, styled by hand</h2>
 		<p>
 			The "Go pro" button in all three demos above is the same markup —
@@ -330,9 +344,15 @@
 			<code>.cta</code>. See below — this is the one place the class-scoped example themes behave
 			differently from the reference theme.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="intents-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="intents-heading"
+	>
 		<h2 id="intents-heading">Growing the vocabulary</h2>
 		<p>
 			The library ships six intents. That is a starting set, not a ceiling — a component only stamps <code
@@ -366,9 +386,15 @@
 			not the barrel that re-exports it — TypeScript merges an interface only into its declaring
 			module, so <code>declare module '@hyzer-labs/ui'</code> would silently do nothing.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="how-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="how-heading"
+	>
 		<h2 id="how-heading">How these work</h2>
 		<Accordion items={faq} headingLevel={3}>
 			{#snippet panel(item)}
@@ -401,9 +427,15 @@
 				{/if}
 			{/snippet}
 		</Accordion>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="fork-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="fork-heading"
+	>
 		<h2 id="fork-heading">Start from one</h2>
 		<p>
 			Copy a config into your project as <code>hyzer.config.ts</code>, run
@@ -418,24 +450,17 @@
 			scaffold, TextInput, Toggle, Tabs and Accordion. Sunset falls back to the reference theme for
 			anything else; Terminal, importing no theme, falls back to bare headless structure.
 		</p>
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed below — every <p>, CodeBlock, and .token-table-wrapper
+	 * outside .doc-intro is a direct child of a .doc-section Stack (gap="away",
+	 * data-density-shift), which owns the space between them. .doc-intro is a
+	 * plain div, not a Stack, so its own children (.doc-description, the
+	 * comparison table, the follow-up paragraph) keep explicit local margins. */
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	code {
@@ -443,13 +468,33 @@
 		font-size: 0.875em;
 	}
 
-	section :global(.code-block) {
-		margin-bottom: 1rem;
+	/* Trailing tab-note in three sections above — docs.css's shared 1rem
+	 * bottom margin would otherwise stack on top of the section's own gap. */
+	:global(.tab-note:last-child) {
+		margin-bottom: 0;
+	}
+
+	/* The "why-wins" Accordion panel renders two <p>'s with no Stack of their
+	 * own between them (Accordion's panel isn't density-shifted); restore
+	 * the gap locally instead of via the zeroed generic p rule above. */
+	:global(.hz-accordion-panel p) {
+		margin: 0 0 1rem;
+	}
+
+	:global(.hz-accordion-panel p:last-child) {
+		margin-bottom: 0;
 	}
 
 	.token-table-wrapper {
 		overflow-x: auto;
-		margin-bottom: 1rem;
+	}
+
+	.intro-table {
+		margin: 1rem 0;
+	}
+
+	.intro-follow {
+		margin: 0;
 	}
 
 	.token-table {

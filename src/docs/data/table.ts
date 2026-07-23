@@ -63,7 +63,7 @@ export const tableDoc: ComponentDoc = {
 			name: 'stack',
 			type: "'sm' | 'md' | 'lg'",
 			default: '—',
-			note: 'Stacks below the named width. Off by default (scroll wrap only).'
+			note: "Stacks below the named width. Off by default (scroll wrap only); 'sm' (640px) is recommended for most tables — reserve md/lg for wide or many-column tables that need to shed the table layout earlier."
 		},
 		{
 			name: 'cell',

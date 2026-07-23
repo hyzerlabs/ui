@@ -6,12 +6,54 @@
  * name).
  */
 @layer hz-theme {
+	.hz-blockquote {
+		/* Accent-line color hook — intent switches this via data-intent below.
+		 * No intent set keeps the border-color default, i.e. today's look. */
+		--_c: var(--hz-color-border, #6b7280);
+	}
+
 	.hz-blockquote :where(.hz-blockquote-quote) {
 		padding-block: var(--hz-space-sm, 1rem);
 		padding-inline-start: var(--hz-space-sm, 1rem);
-		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
+		border-inline-start: 3px solid var(--_c);
+		/* Blockquote-R10: --_tc (text color) is only ever set when
+		 * data-intent-scope="full" — unset otherwise, so this falls through
+		 * to inherit, i.e. today's look. */
+		color: var(--_tc, inherit);
 		font-size: var(--hz-font-size-xl, 1.65rem);
 		line-height: var(--hz-line-height-base, 1.5);
+	}
+
+	/* Intent → accent-line color ONLY. Everything else (typography,
+	 * attribution, padding) is untouched by intent. */
+	.hz-blockquote:where([data-intent='primary']) {
+		--_c: var(--hz-intent-primary, #2563eb);
+	}
+	.hz-blockquote:where([data-intent='secondary']) {
+		--_c: var(--hz-intent-secondary, #7c3aed);
+	}
+	.hz-blockquote:where([data-intent='danger']) {
+		--_c: var(--hz-intent-danger, #b91c1c);
+	}
+	.hz-blockquote:where([data-intent='warning']) {
+		--_c: var(--hz-intent-warning, #b45309);
+	}
+	.hz-blockquote:where([data-intent='success']) {
+		--_c: var(--hz-intent-success, #15803d);
+	}
+	.hz-blockquote:where([data-intent='info']) {
+		--_c: var(--hz-intent-info, #0e7490);
+	}
+	.hz-blockquote:where([data-intent='neutral']) {
+		--_c: var(--hz-intent-neutral, #6b7280);
+	}
+
+	/* Blockquote-R10: intentScope="full" opt-in — extends the intent color
+	 * from the accent line to the quote text. Reads whatever --_c currently
+	 * resolves to, so it always matches the active intent above. The
+	 * attribution row never reads --_tc, so it stays muted either way. */
+	.hz-blockquote:where([data-intent-scope='full']) {
+		--_tc: var(--_c);
 	}
 
 	.hz-blockquote :where(.hz-blockquote-attribution) {

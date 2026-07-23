@@ -212,6 +212,60 @@ Not a numbered library requirement but part of this contract's write scope:
   strings (`basicCode`, `dotsCode`, `loopCode`) to match the new markup so the
   shown code equals the rendered demo (docs convention, `specs/16-docs.md`).
 
+### Amendments
+
+**2026-07-23 — Blockquote-R9: intent (accent line only).** Blockquote gains an
+optional `intent?: Intent` prop (the shared `Intent` type from `$lib/types`,
+no default — `undefined` by default, not `'neutral'`). It colors **only**
+the accent line (`border-inline-start` on `.hz-blockquote-quote`); quote
+typography, block padding, and the attribution row are untouched. Reflects
+onto the root as `data-intent`, present only when `intent` is set — absent
+by default, which renders the exact pre-amendment look
+(`--hz-color-border`). Implemented with the `--_c` intent-switch pattern
+(theme hook, per `banner.css`/`badge.css`): `.hz-blockquote` sets
+`--_c: var(--hz-color-border)`, and each `[data-intent='…']` selector
+re-points `--_c` at the matching `--hz-intent-*` token; the border-color
+declaration reads `--_c` unconditionally. `src/docs/data/blockquote.ts`
+gains an `intent` prop row (type `Intent`, note "See Foundation → Colors &
+Intent." linking `/foundation/colors#intent`, the Banner/Alert/Button/Badge
+precedent); `hooks.ts`'s Blockquote entry documents `data-intent`; the docs
+page gains an Intent demo tab (all seven intent values, each on its own
+`Example`). Tests added to `Blockquote.svelte.spec.ts` (Blockquote-R9): no
+`data-intent` and default border color with no `intent`; `data-intent`
+reflects verbatim when set; each of the seven intents resolves the accent
+line to its `--hz-intent-*` token; intent leaves typography/attribution
+color unchanged.
+
+**2026-07-23 — Blockquote-R10: intentScope opt-in (full-intent coloring).**
+Blockquote gains `intentScope?: 'line' | 'full'` (default `'line'`, the
+R9 behavior — accent line only). `'full'` additionally colors the quote
+text (`.hz-blockquote-quote`'s `color`) with the same intent; the
+attribution row is never affected by either value, staying muted per R9.
+`intentScope` is only meaningful when `intent` is also set — it reflects
+onto the root as `data-intent-scope`, present **only when `intent` is
+set** (mirrors `data-intent`'s own presence rule, since the scope
+attribute has no meaning without an intent to scope; the
+always-present-with-a-default shape used by `data-align` was considered
+and rejected for this reason). Its value, when present, is always the
+resolved `intentScope` (`'line'` or `'full'`), giving the theme a stable
+`[data-intent-scope='full']` selector. Implemented as a second
+intent-switch hook in `blockquote.css`: `--_tc` (text color) is unset by
+default, so `.hz-blockquote-quote`'s `color: var(--_tc, inherit)` falls
+through to `inherit` unless `[data-intent-scope='full']` sets
+`--_tc: var(--_c)` (reading whatever the active intent already resolved
+`--_c` to). `src/docs/data/blockquote.ts` gains an `intentScope` prop row;
+`hooks.ts`'s Blockquote entry gains a `data-intent-scope` attr row;
+`Blockquote.svelte.spec.ts` gains a Blockquote-R10 suite (no attribute
+without intent even if `intentScope` is explicitly set;
+`data-intent-scope="line"` default with intent set and untouched
+quote-text color; `data-intent-scope="full"` colors the quote text to the
+intent; attribution stays muted under `'full'`). The docs page's Intent
+demo tab collapses into one interactive `Example`: a dogfooded `Select`
+(7 intents) and `RadioGroup` (`line`/`full`) drive both the live
+`Blockquote` and its derived code fence (non-default attrs only —
+`intentScope` omitted from the fence when `'line'`), the icons page's
+slider-driven-fence pattern applied to selects/radios instead of sliders.
+
 ### Out of Scope
 
 - **Pull-quote / decorative variants** (oversized, floated, colored-quote-mark

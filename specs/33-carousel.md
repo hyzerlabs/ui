@@ -169,3 +169,41 @@ overflow at 375px.
 - Auto-rotation / autoplay — the no-rotation + live-region posture is deliberate.
 - Momentum scrolling past a single slide per flick — one flick advances one
   slide.
+
+### Amendments
+
+**2026-07-23 — chevrons un-circled (theme, user decision).** Prev/next
+compose `Button` with no `children` (icon-only), which derives Button's
+full-circle pill form (Button R4b) — reads wrong for a carousel's
+chevrons. A scoped `carousel.css` override takes
+`.hz-carousel-prev`/`.hz-carousel-next` back to the outline button's
+normal corner radius (`var(--hz-radius-md)`), targeting `[data-icon-only]`
+so only these two controls are affected; the 44px touch-target `::before`
+(R8) is unchanged. Button's global icon-only circle is unchanged for
+every other icon-only `Button` use (e.g. Banner's dismiss). Pagination's
+chevrons get the identical override for visual consistency between the
+two composed-chevron controls (see `specs/21-pagination.md`).
+
+**2026-07-23 — chevrons borderless (component, user decision, same day as
+the un-circling above).** Prev/next now compose `Button variant="ghost"`
+instead of `variant="outline"` — "just the borderless chevron sitting
+there neatly": transparent background and no border at rest, with ghost's
+existing soft hover/active fill (`button.css`) as the only affordance.
+This is a **component-level** change (`Carousel.svelte`), not a CSS
+strip-override of the outline border. The un-circling override above
+stays live unchanged — it still shapes ghost's hover/active fill to
+`var(--hz-radius-md)` instead of Button's derived icon-only circle, not
+just the (now-absent) outline border. Contrast tension with specs/43
+(drag-mode spec, same day): specs/43's Accessibility section named
+`variant="outline"`'s opaque background as the reason focus-mode's
+revealed chevrons clear 1.4.11 non-text contrast over arbitrary slide
+imagery; with ghost that per-button guarantee is gone. Resolved via the
+scrim allowance specs/43 already grants the theme: `controls="focus"`'s
+`.hz-carousel-controls` overlay carries its own translucent backdrop
+(`carousel.css`, specs/43 R3), so contrast holds at the row level
+regardless of the individual buttons' own background. The default
+`controls="visible"` row is never overlaid on slide media (it sits in
+normal flow below the viewport), so it needs no backdrop of its own. A
+parallel, independently-decided change makes Pagination's chevrons ghost
+too (see `specs/21-pagination.md`) — the two composed-chevron controls
+stay visually consistent, as they did for the un-circling.

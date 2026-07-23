@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
 import Blockquote from './Blockquote.svelte';
+// Blockquote-R9 recipe pin — the reference theme must be loaded so the
+// accent-line color actually resolves per intent.
+import '../tokens/tokens.css';
+import '../theme/components/blockquote.css';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -19,6 +23,26 @@ const base = { children };
 
 function getFigure(container: HTMLElement): HTMLElement {
 	return container.querySelector('.hz-blockquote') as HTMLElement;
+}
+
+/** Resolve a CSS color expression via a throwaway probe, like Banner.svelte.spec.ts. */
+function resolveColor(varExpression: string): string {
+	const probe = document.createElement('div');
+	probe.style.cssText = `color: ${varExpression}`;
+	document.body.appendChild(probe);
+	const resolved = getComputedStyle(probe).color;
+	document.body.removeChild(probe);
+	return resolved;
+}
+
+/** Resolve a CSS font-size expression via a throwaway probe. */
+function resolveFontSize(varExpression: string): string {
+	const probe = document.createElement('div');
+	probe.style.cssText = `font-size: ${varExpression}`;
+	document.body.appendChild(probe);
+	const resolved = getComputedStyle(probe).fontSize;
+	document.body.removeChild(probe);
+	return resolved;
 }
 
 // ---------------------------------------------------------------------------
@@ -169,6 +193,95 @@ describe('Blockquote-R5 — class and rest forwarding', () => {
 		} as Record<string, unknown>);
 		const quote = getFigure(container).querySelector('.hz-blockquote-quote') as HTMLElement;
 		expect(quote.hasAttribute('data-testid')).toBe(false);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Blockquote-R9 — Intent (accent line only)
+// ---------------------------------------------------------------------------
+
+describe('Blockquote-R9 — intent', () => {
+	it('no intent by default: no data-intent attribute, accent line stays the default border color', () => {
+		const { container } = render(Blockquote, base);
+		const figure = getFigure(container);
+		expect(figure.hasAttribute('data-intent')).toBe(false);
+		const quote = figure.querySelector('.hz-blockquote-quote') as HTMLElement;
+		expect(getComputedStyle(quote).borderInlineStartColor).toBe(
+			resolveColor('var(--hz-color-border)')
+		);
+	});
+
+	it('intent reflects onto the root as data-intent', () => {
+		const { container } = render(Blockquote, { ...base, intent: 'danger' });
+		expect(getFigure(container).getAttribute('data-intent')).toBe('danger');
+	});
+
+	it.each(['primary', 'secondary', 'danger', 'warning', 'success', 'info', 'neutral'] as const)(
+		'intent="%s" colors only the accent line to --hz-intent-%s',
+		(intent) => {
+			const { container } = render(Blockquote, { ...base, intent });
+			const quote = getFigure(container).querySelector('.hz-blockquote-quote') as HTMLElement;
+			expect(getComputedStyle(quote).borderInlineStartColor).toBe(
+				resolveColor(`var(--hz-intent-${intent})`)
+			);
+		}
+	);
+
+	it('intent does not change the quote typography or attribution color', () => {
+		const { container } = render(Blockquote, {
+			...base,
+			cite: 'Paul McBeth',
+			intent: 'primary'
+		});
+		const figure = getFigure(container);
+		const quote = figure.querySelector('.hz-blockquote-quote') as HTMLElement;
+		const attribution = figure.querySelector('.hz-blockquote-attribution') as HTMLElement;
+		expect(getComputedStyle(quote).fontSize).toBe(resolveFontSize('var(--hz-font-size-xl)'));
+		expect(getComputedStyle(attribution).color).toBe(resolveColor('var(--hz-color-text-muted)'));
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Blockquote-R10 — intentScope (line vs. full)
+// ---------------------------------------------------------------------------
+
+describe('Blockquote-R10 — intentScope', () => {
+	it('no intent: no data-intent-scope attribute, even if intentScope is explicitly set', () => {
+		const { container } = render(Blockquote, { ...base, intentScope: 'full' });
+		expect(getFigure(container).hasAttribute('data-intent-scope')).toBe(false);
+	});
+
+	it('intent set, intentScope defaults to line: data-intent-scope="line", quote text color untouched', () => {
+		const { container } = render(Blockquote, { ...base, intent: 'primary' });
+		const figure = getFigure(container);
+		expect(figure.getAttribute('data-intent-scope')).toBe('line');
+		const quote = figure.querySelector('.hz-blockquote-quote') as HTMLElement;
+		expect(getComputedStyle(quote).color).not.toBe(resolveColor('var(--hz-intent-primary)'));
+	});
+
+	it('intent set with intentScope="full": data-intent-scope="full", quote text colors to the intent', () => {
+		const { container } = render(Blockquote, {
+			...base,
+			intent: 'primary',
+			intentScope: 'full'
+		});
+		const figure = getFigure(container);
+		expect(figure.getAttribute('data-intent-scope')).toBe('full');
+		const quote = figure.querySelector('.hz-blockquote-quote') as HTMLElement;
+		expect(getComputedStyle(quote).color).toBe(resolveColor('var(--hz-intent-primary)'));
+	});
+
+	it('intentScope="full" still leaves the attribution muted', () => {
+		const { container } = render(Blockquote, {
+			...base,
+			cite: 'Paul McBeth',
+			intent: 'primary',
+			intentScope: 'full'
+		});
+		const attribution = getFigure(container).querySelector(
+			'.hz-blockquote-attribution'
+		) as HTMLElement;
+		expect(getComputedStyle(attribution).color).toBe(resolveColor('var(--hz-color-text-muted)'));
 	});
 });
 

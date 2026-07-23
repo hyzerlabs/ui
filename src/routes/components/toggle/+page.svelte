@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Toggle, Tabs, Stack } from '$lib';
+	import { Toggle, Tabs, Stack, Alert } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { toggleDoc } from '../../../docs/data/toggle.js';
 	import Example from '../../../docs/Example.svelte';
@@ -32,6 +32,12 @@
 </script>
 
 <DocPage name="Toggle" {...toggleDoc}>
+	<Alert intent="info" title="Toggle vs Checkbox">
+		Reach for <code>Toggle</code> when a setting reads as on/off, like a preference — it renders
+		<code>role="switch"</code> and communicates state immediately. Use
+		<a href="/components/checkbox">Checkbox</a> for selections from a list, multi-select membership, or
+		the indeterminate select-all pattern.
+	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Toggle demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">

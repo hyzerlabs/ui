@@ -157,3 +157,32 @@ suite: prev/next are `.hz-button` Buttons (composition regression guard).
 - Page-size selectors, "showing X–Y of Z" summaries, jump-to-page inputs.
 - Infinite scroll / load-more patterns.
 - Keyboard shortcuts beyond native link/button behavior.
+
+### Amendments
+
+**2026-07-23 — chevrons un-circled (theme, user decision, "same as
+carousel").** Button's derived icon-only circle form (R1/Button R4b)
+reads wrong for prev/next chevrons — a scoped `pagination.css` override
+takes `.hz-pagination-prev`/`.hz-pagination-next` back to the outline
+button's normal corner radius (`var(--hz-radius-md)`) instead of the
+full-circle pill, targeting `[data-icon-only]` so only these two controls
+are affected. Button's global icon-only circle is unchanged — Banner's
+dismiss and every other icon-only `Button` use still gets the circle.
+Carousel's prev/next get the identical override in `carousel.css` for
+visual consistency between the two composed-chevron controls (see
+`specs/33-carousel.md`).
+
+**2026-07-23 — prev/next chevrons borderless (user feedback).** The
+un-circling above left `outline`'s visible border on the chevrons — "just
+the borderless chevron sitting there neatly" was the ask, and outline's
+`border-color: var(--hz-button-accent)` doesn't deliver that. `Pagination.svelte`'s
+prev/next `Button`s switch `variant="outline"` → `variant="ghost"`
+(neutral, sm — the same variant the page-number `Button`s already use, so
+prev/next/pages now share one visual language). The `pagination.css` radius
+override from the entry above is **not** moot under ghost: `border-radius`
+still shapes the hover fill and the `:focus-visible` ring (both follow the
+box's radius independent of border color), so it stays, scoped to the same
+`[data-icon-only]` selector — comment updated to state this. Carousel is
+explicitly out of scope for this change (a concurrent builder owns
+`carousel.css`/`Carousel.svelte`); Carousel's chevrons keep `outline` unless
+that builder makes the equivalent change on their own.

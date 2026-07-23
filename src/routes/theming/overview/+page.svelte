@@ -27,17 +27,23 @@
 	<title>Theming Overview — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Theming</h1>
-		<p>
+		<p class="doc-description">
 			The components are headless: they ship structure, behavior, and accessibility — the library
 			makes those choices so you don't have to — and every visual decision is yours to keep,
 			override, or replace. Styling arrives in opt-in tiers, each importable on its own.
 		</p>
 	</div>
 
-	<section aria-labelledby="tiers-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="tiers-heading"
+	>
 		<h2 id="tiers-heading">The tiers</h2>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -93,9 +99,15 @@
 			</table>
 		</div>
 		<CodeBlock code={importStack} />
-	</section>
+	</Stack>
 
-	<section aria-labelledby="layers-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="layers-heading"
+	>
 		<h2 id="layers-heading">The cascade-layer contract</h2>
 		<p>
 			Every reference-theme rule lives in the <code>hz-theme</code> cascade layer, wrapped in
@@ -108,9 +120,15 @@
 			The <code>class</code> prop on every component is merged <em>after</em> the component's
 			<code>hz-*</code> root class, so your class lands on the element ready to win.
 		</p>
-	</section>
+	</Stack>
 
-	<section aria-labelledby="where-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="where-heading"
+	>
 		<h2 id="where-heading">Where to override what</h2>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -159,24 +177,15 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
+	/* Margins zeroed below — every <p>, CodeBlock, and .token-table-wrapper
+	 * is now a direct child of either .doc-intro or a .doc-section Stack
+	 * (gap="away", data-density-shift), which owns the space between them. */
 	p {
-		margin: 0 0 1rem;
+		margin: 0;
 	}
 
 	code {
@@ -184,13 +193,8 @@
 		font-size: 0.875em;
 	}
 
-	section :global(.code-block) {
-		margin-bottom: 1rem;
-	}
-
 	.token-table-wrapper {
 		overflow-x: auto;
-		margin-bottom: 1rem;
 	}
 
 	.token-table {

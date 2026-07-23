@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Blockquote, Tabs } from '$lib';
+	import { Blockquote, Tabs, Select, RadioGroup } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { blockquoteDoc } from '../../../docs/data/blockquote.js';
 	import Example from '../../../docs/Example.svelte';
@@ -26,6 +26,70 @@
 
 	const alignValues = ['start', 'center', 'end'] as const;
 
+	const intents = [
+		'primary',
+		'secondary',
+		'danger',
+		'warning',
+		'success',
+		'info',
+		'neutral'
+	] as const;
+
+	const intentQuotes: Record<(typeof intents)[number], { text: string; cite: string }> = {
+		primary: {
+			text: 'A flick release generates more spin than most players ever use.',
+			cite: 'Simon Lizotte'
+		},
+		secondary: {
+			text: 'Doubles rewards the partner who plays the smart layup, not the hero shot.',
+			cite: 'Valerie Mandujano'
+		},
+		danger: {
+			text: 'Out-of-bounds lines are part of the hole — plan your line around them, not through them.',
+			cite: 'PDGA Rules Committee'
+		},
+		warning: {
+			text: 'In the wind, take twenty percent off every throw before you even pick a line.',
+			cite: 'Catrina Allen'
+		},
+		success: {
+			text: 'The putt you practiced a thousand times is the one that goes in on Sunday.',
+			cite: 'Paul McBeth'
+		},
+		info: {
+			text: 'Most courses post their layout at the first tee — read it before you throw one disc.',
+			cite: 'Course signage'
+		},
+		neutral: {
+			text: 'A round is eighteen separate decisions, not one long throw.',
+			cite: 'Des Reading'
+		}
+	};
+
+	const intentSelectOptions = intents.map((intent) => ({ value: intent, label: intent }));
+	const scopeOptions = [
+		{ value: 'line', label: 'Accent line only' },
+		{ value: 'full', label: 'Line + text' }
+	];
+
+	// Interactive intent demo — a Select (intent) and a RadioGroup
+	// (intentScope) drive the live Blockquote and its derived code fence
+	// together (icons page's slider-driven-fence pattern, using
+	// selects/radios instead of sliders).
+	let demoIntent = $state<(typeof intents)[number]>('primary');
+	let demoScope = $state<'line' | 'full'>('line');
+
+	const intentDemoCode = $derived.by(() => {
+		const q = intentQuotes[demoIntent];
+		const scopeAttr = demoScope === 'full' ? ' intentScope="full"' : '';
+		return [
+			`<Blockquote intent="${demoIntent}"${scopeAttr} cite="${q.cite}">`,
+			`\t${q.text}`,
+			'</Blockquote>'
+		].join('\n');
+	});
+
 	const longQuote =
 		'The course doesn’t care how far you throw — it cares where the disc stops. ' +
 		'After twelve titles I can tell you the short game decides more rounds than ' +
@@ -49,7 +113,8 @@
 		{ id: 'quote-only', label: 'Quote only' },
 		{ id: 'attributed', label: 'With attribution' },
 		{ id: 'sourced', label: 'With source URL' },
-		{ id: 'aligned', label: 'Attribution alignment' }
+		{ id: 'aligned', label: 'Attribution alignment' },
+		{ id: 'intent', label: 'Intent' }
 	];
 </script>
 
@@ -88,7 +153,7 @@
 							treated as if it came to rest on the ground.
 						</Blockquote>
 					</Example>
-				{:else}
+				{:else if item.id === 'aligned'}
 					<p class="tab-note">
 						<code>align</code> moves the attribution row — <code>start</code> (default),
 						<code>center</code>, or <code>end</code> — while the quote body stays put.
@@ -109,8 +174,60 @@
 							</div>
 						{/snippet}
 					</Tabs>
+				{:else}
+					<p class="tab-note">
+						<code>intent</code> colors the accent line (<code>border-inline-start</code>); the
+						<code>intentScope</code> control below opts the quote text into the same color too — the
+						attribution row stays muted either way. No intent renders exactly today's look. See the
+						<a href="/foundation/colors#intent">intent vocabulary</a>.
+					</p>
+					<Example code={intentDemoCode}>
+						<div class="intent-demo">
+							<div class="intent-demo-controls">
+								<Select
+									name="blockquote-intent"
+									label="intent"
+									options={intentSelectOptions}
+									bind:value={demoIntent}
+								/>
+								<RadioGroup
+									name="blockquote-intent-scope"
+									label="intentScope"
+									orientation="horizontal"
+									options={scopeOptions}
+									bind:value={demoScope}
+								/>
+							</div>
+							<Blockquote
+								intent={demoIntent}
+								intentScope={demoScope}
+								cite={intentQuotes[demoIntent].cite}
+							>
+								{intentQuotes[demoIntent].text}
+							</Blockquote>
+						</div>
+					</Example>
 				{/if}
 			</div>
 		{/snippet}
 	</Tabs>
 </DocPage>
+
+<style>
+	.intent-demo {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.intent-demo-controls {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1.5rem;
+		align-items: flex-start;
+	}
+
+	.intent-demo-controls > :global(*) {
+		flex: 1 1 12rem;
+	}
+</style>
