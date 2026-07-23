@@ -159,7 +159,8 @@
 	.hz-header[data-sticky] {
 		position: sticky;
 		top: 0;
-		z-index: 100;
+		/* Banner-R13: the shared sticky tier — Banner's pin uses the same token. */
+		z-index: var(--hz-z-sticky, 100);
 	}
 
 	.hz-header-inner {

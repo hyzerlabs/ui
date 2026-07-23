@@ -47,7 +47,7 @@
 	.hz-table thead th {
 		background-color: var(
 			--hz-color-surface-muted,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, var(--hz-color-surface, #fff))
 		);
 		font-weight: var(--hz-font-weight-semibold, 600);
 		border-bottom-width: var(--hz-border-width-thick, 2px);
@@ -92,7 +92,7 @@
 	}
 
 	.hz-table-sort:where(:hover:not(:disabled)) {
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 
 	.hz-table-sort:where(:disabled) {
@@ -101,14 +101,14 @@
 	}
 
 	.hz-table-sort:focus-visible {
-		outline: var(--hz-border-width-thick, 2px) solid var(--hz-color-primary, #2563eb);
+		outline: var(--hz-border-width-thick, 2px) solid var(--hz-intent-primary, #2563eb);
 		outline-offset: 2px;
 		border-radius: var(--hz-radius-sm, 0.25rem);
 	}
 
 	.hz-table-sort-icon {
 		display: inline-flex;
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 
 	.hz-table-sort-icon .hz-icon {
@@ -123,7 +123,7 @@
 	.hz-table-wrap[data-sticky] thead th {
 		position: sticky;
 		top: 0;
-		z-index: 1;
+		z-index: var(--hz-z-raised, 1);
 		box-shadow:
 			0 1px 0 0 color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent),
 			0 4px 6px -4px rgb(0 0 0 / 0.15);
@@ -145,9 +145,9 @@
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		background: linear-gradient(
 			90deg,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 16%, var(--hz-color-surface, #fff)) 25%,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 28%, var(--hz-color-surface, #fff)) 50%,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 16%, var(--hz-color-surface, #fff)) 75%
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 16%, var(--hz-color-surface, #fff)) 25%,
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 28%, var(--hz-color-surface, #fff)) 50%,
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 16%, var(--hz-color-surface, #fff)) 75%
 		);
 		background-size: 200% 100%;
 	}
@@ -181,14 +181,14 @@
 		width: 1.125rem;
 		height: 1.125rem;
 		margin: 0;
-		accent-color: var(--hz-color-primary, #2563eb);
+		accent-color: var(--hz-intent-primary, #2563eb);
 		flex-shrink: 0;
 	}
 
 	.hz-table input.hz-table-checkbox:focus-visible {
 		outline: 2px solid transparent;
 		border-radius: var(--hz-radius-sm, 0.25rem);
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #2563eb) 25%, transparent);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--hz-intent-primary, #2563eb) 25%, transparent);
 	}
 
 	.hz-table input.hz-table-checkbox:disabled {
@@ -201,7 +201,7 @@
 	/* -------------------------------------------------------------------- */
 
 	.hz-table-wrap.hz-table--striped tbody tr:not(.hz-table-skeleton):nth-child(even) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 5%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 5%, transparent);
 	}
 
 	/* -------------------------------------------------------------------- */

@@ -259,7 +259,7 @@
 	.media-block {
 		width: 100%;
 		min-height: 12rem;
-		background: var(--hz-color-gray, #6b7280);
+		background: var(--hz-intent-neutral, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
 	}
 	.bg-block {
@@ -267,8 +267,8 @@
 		height: 100%;
 		background: linear-gradient(
 			135deg,
-			color-mix(in srgb, var(--hz-color-primary, #2563eb) 18%, var(--hz-color-surface, #fff)),
-			color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 18%, var(--hz-color-surface, #fff))
+			color-mix(in srgb, var(--hz-intent-primary, #2563eb) 18%, var(--hz-color-surface, #fff)),
+			color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 18%, var(--hz-color-surface, #fff))
 		);
 	}
 </style>

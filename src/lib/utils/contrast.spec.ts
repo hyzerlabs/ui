@@ -9,7 +9,7 @@ import {
 	bestLevel,
 	bestLevelLarge
 } from './contrast';
-import { color } from '$lib/tokens';
+import { palette } from '$lib/tokens';
 
 describe('hexToRgb / rgbToHex', () => {
 	it('parses #rrggbb', () => {
@@ -112,34 +112,34 @@ describe('gradeContrast / bestLevel', () => {
 describe('token compliance (the palette contract)', () => {
 	// Mirrors the AA-by-construction posture in specs/15 (2026-07-14): every
 	// value the theme uses as text passes ≥ 4.5:1 on both surfaces of its
-	// mode. Palettes derive from the token metadata (specs/29 R8) — the
-	// thresholds are the contract, the hues travel with the schema.
-	const WHITE = color.white;
-	const BLACK = color.black;
-	const GRAY = color.gray;
+	// mode. Palettes derive from the token metadata (specs/29 R8, specs/42
+	// R1) — the thresholds are the contract, the hues travel with the schema.
+	const WHITE = palette.white;
+	const BLACK = palette.black;
+	const GRAY = palette.gray;
 	const mutedLight = mixSrgb(GRAY, WHITE, 0.06);
 	// In dark mode the muted surface mixes the DARK gray companion.
-	const mutedDark = mixSrgb(color.theme.dark.gray, BLACK, 0.25);
+	const mutedDark = mixSrgb(palette.theme.dark.gray, BLACK, 0.25);
 
 	const lightIntents = [
-		color.primary,
-		color.secondary,
-		color.danger,
-		color.warning,
-		color.success,
-		color.info,
+		palette.primary,
+		palette.secondary,
+		palette.danger,
+		palette.warning,
+		palette.success,
+		palette.info,
 		GRAY
 	];
 	// Dark mode is authored entirely at the palette layer; every intent
 	// chains through these companions (neutral through gray).
 	const darkIntents = [
-		color.theme.dark.primary,
-		color.theme.dark.secondary,
-		color.theme.dark.danger,
-		color.theme.dark.warning,
-		color.theme.dark.success,
-		color.theme.dark.info,
-		color.theme.dark.gray
+		palette.theme.dark.primary,
+		palette.theme.dark.secondary,
+		palette.theme.dark.danger,
+		palette.theme.dark.warning,
+		palette.theme.dark.success,
+		palette.theme.dark.info,
+		palette.theme.dark.gray
 	];
 
 	it('every light intent passes AA on both light surfaces and under white solid text', () => {
@@ -181,7 +181,7 @@ describe('token compliance (the palette contract)', () => {
 		expect(contrastRatio(GRAY, WHITE)).toBeGreaterThanOrEqual(4.5);
 		expect(contrastRatio(GRAY, mutedLight)).toBeGreaterThanOrEqual(4.5);
 		// text-muted chains through gray, which lightens in dark mode.
-		expect(contrastRatio(color.theme.dark.gray, BLACK)).toBeGreaterThanOrEqual(4.5);
-		expect(contrastRatio(color.theme.dark.gray, mutedDark)).toBeGreaterThanOrEqual(4.5);
+		expect(contrastRatio(palette.theme.dark.gray, BLACK)).toBeGreaterThanOrEqual(4.5);
+		expect(contrastRatio(palette.theme.dark.gray, mutedDark)).toBeGreaterThanOrEqual(4.5);
 	});
 });

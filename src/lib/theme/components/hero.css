@@ -13,7 +13,7 @@
 		font-weight: var(--hz-font-weight-semibold, 600);
 		text-transform: uppercase;
 		letter-spacing: 0.08em;
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 
 	.hz-hero-title {

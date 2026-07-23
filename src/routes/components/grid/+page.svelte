@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Container, Grid, Tabs } from '$lib';
+	import { Container, Grid, Stack, Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { gridDoc } from '../../../docs/data/grid.js';
 	import Example from '../../../docs/Example.svelte';
@@ -48,10 +48,9 @@
 
 	function paddingCode(padding: string): string {
 		return [
-			`<Grid columns={3} padding="${padding}">`,
-			'\t<div>Cell</div>',
-			'\t<!-- … -->',
-			'</Grid>'
+			`<Grid columns={3} padding="${padding}">…</Grid>`,
+			`<Grid columns={3} paddingInline="${padding}">…</Grid>`,
+			`<Grid columns={3} paddingBlock="${padding}">…</Grid>`
 		].join('\n');
 	}
 
@@ -195,9 +194,12 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						The tinted zone is the Grid; the space between its edge and the cells is the padding,
-						applied on both axes. It sits on the grid root, so the column breakpoints measure the
-						padded-down width.
+						The tinted zone is the Grid; the space between its edge and the cells is the padding. It
+						sits on the grid root, so the column breakpoints measure the padded-down width.
+						<code>padding</code> applies on both axes; <code>paddingInline</code> /
+						<code>paddingBlock</code> override one axis and win where set. The axis names are the
+						CSS logical properties, so they stay correct in RTL and vertical writing modes — see
+						<a href="/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs
 						items={paddingValues.map((v) => ({ id: v, label: v }))}
@@ -205,18 +207,26 @@
 						defaultTab="md"
 					>
 						{#snippet panel(padItem)}
+							{@const v = padItem.id as (typeof paddingValues)[number]}
 							<div class="inner-tab">
 								<Example code={paddingCode(padItem.id)}>
-									<Grid
-										columns={3}
-										gap="sm"
-										padding={padItem.id as (typeof paddingValues)[number]}
-										class="pad-frame"
-									>
-										{#each Array.from({ length: 3 }, (_, k) => k) as i (i)}
-											<div class="demo-cell">Cell {i + 1}</div>
-										{/each}
-									</Grid>
+									<Stack gap="sm">
+										<Grid columns={3} gap="sm" padding={v} class="pad-frame">
+											<div class="demo-cell">padding="{v}"</div>
+											<div class="demo-cell">Cell 2</div>
+											<div class="demo-cell">Cell 3</div>
+										</Grid>
+										<Grid columns={3} gap="sm" paddingInline={v} class="pad-frame">
+											<div class="demo-cell">paddingInline="{v}"</div>
+											<div class="demo-cell">Cell 2</div>
+											<div class="demo-cell">Cell 3</div>
+										</Grid>
+										<Grid columns={3} gap="sm" paddingBlock={v} class="pad-frame">
+											<div class="demo-cell">paddingBlock="{v}"</div>
+											<div class="demo-cell">Cell 2</div>
+											<div class="demo-cell">Cell 3</div>
+										</Grid>
+									</Stack>
 								</Example>
 							</div>
 						{/snippet}
@@ -229,14 +239,14 @@
 
 <style>
 	:global(.pad-frame) {
-		background: color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 12%, transparent);
-		border: 1px dashed var(--hz-color-secondary, #7c3aed);
+		background: color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 12%, transparent);
+		border: 1px dashed var(--hz-intent-secondary, #7c3aed);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 	}
 	.demo-cell {
 		padding: 1rem;
-		background: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
-		border: 1px solid var(--hz-color-primary, #2563eb);
+		background: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 15%, transparent);
+		border: 1px solid var(--hz-intent-primary, #2563eb);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		text-align: center;

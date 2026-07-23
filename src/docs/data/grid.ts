@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const gridDoc: ComponentDoc = {
 	description:
 		'Responsive CSS grid that adapts its column count to its own width via container queries.',
-	importLine: 'import {Grid} from "@hyzer-labs/ui"',
+	importLine: 'import { Grid } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'columns',
@@ -29,6 +29,18 @@ export const gridDoc: ComponentDoc = {
 			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
 			default: "'none'",
 			note: 'Both axes, on the grid root — the column breakpoints measure the padded-down width. Shared LayoutPadding scale.'
+		},
+		{
+			name: 'paddingInline',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: '—',
+			note: 'Per-axis override — wins over padding on the inline axis. Same LayoutPadding scale.'
+		},
+		{
+			name: 'paddingBlock',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: '—',
+			note: 'Per-axis override — wins over padding on the block axis. Same LayoutPadding scale.'
 		},
 		{ name: 'as', type: 'string', default: "'div'" },
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-grid class.' },

@@ -28,7 +28,7 @@
 }
 
 .hz-theme-sunset .hz-tabs-trigger[data-state='active'] {
-	color: var(--hz-color-primary, #c2410c);
+	color: var(--hz-intent-primary, #c2410c);
 	box-shadow: var(--sunset-press);
 }
 

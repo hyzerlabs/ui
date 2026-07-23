@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const splitDoc: ComponentDoc = {
 	description:
 		'Two-column layout with configurable proportions that stacks to a single column when its own width gets narrow.',
-	importLine: 'import {Split} from "@hyzer-labs/ui"',
+	importLine: 'import { Split } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'fraction', type: "'1/4' | '1/3' | '1/2' | '2/3' | '3/4' | 'auto'", default: "'1/2'" },
 		{
@@ -25,6 +25,18 @@ export const splitDoc: ComponentDoc = {
 			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
 			default: "'none'",
 			note: 'Both axes, on the split root — stackBelow measures the padded-down width. Shared LayoutPadding scale.'
+		},
+		{
+			name: 'paddingInline',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: '—',
+			note: 'Per-axis override — wins over padding on the inline axis. Same LayoutPadding scale.'
+		},
+		{
+			name: 'paddingBlock',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: '—',
+			note: 'Per-axis override — wins over padding on the block axis. Same LayoutPadding scale.'
 		},
 		{ name: 'as', type: 'string', default: "'div'" },
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-split class.' },

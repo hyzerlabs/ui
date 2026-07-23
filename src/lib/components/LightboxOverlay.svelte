@@ -318,6 +318,6 @@
 		position: absolute;
 		top: 0.5rem;
 		right: 0.5rem;
-		z-index: 1;
+		z-index: var(--hz-z-raised, 1);
 	}
 </style>

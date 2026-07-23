@@ -8,6 +8,8 @@
 		default: string;
 		/** Optional extra context — most props are self-explanatory; use sparingly. */
 		note?: string;
+		/** Renders the note as a link (e.g. a shared-type's foundation page). */
+		noteHref?: string;
 	}
 
 	interface Props {
@@ -41,6 +43,8 @@
 			<code class="type">{row.type}</code>
 		{:else if column.key === 'default'}
 			<code>{row.default}</code>
+		{:else if row.noteHref}
+			<a href={row.noteHref}>{row.note ?? ''}</a>
 		{:else}
 			{row.note ?? ''}
 		{/if}
@@ -54,6 +58,6 @@
 	}
 
 	code.type {
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 </style>

@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const rangeSliderDoc: ComponentDoc = {
 	description:
 		'A dual-thumb slider selecting a min–max interval on one track, with paired number fields for exact entry — thumbs can meet but never cross.',
-	importLine: 'import {RangeSlider} from "@hyzer-labs/ui"',
+	importLine: 'import { RangeSlider } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'name',

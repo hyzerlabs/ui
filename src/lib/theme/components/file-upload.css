@@ -32,8 +32,8 @@
 	/* FileUpload-R6: the active dragover state — a background AND border
 	 * change, not a hue-only signal (WCAG 1.4.1). */
 	.hz-file-dropzone[data-dragover] {
-		border-color: var(--hz-color-primary, #2563eb);
-		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 6%, transparent);
+		border-color: var(--hz-intent-primary, #2563eb);
+		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 6%, transparent);
 	}
 
 	.hz-file-button {
@@ -54,7 +54,7 @@
 	}
 
 	.hz-file-button:where(:hover):not(:disabled) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 10%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 10%, transparent);
 	}
 
 	.hz-file-button:where(:disabled) {
@@ -64,10 +64,10 @@
 
 	.hz-file-button:focus-visible {
 		outline: 2px solid transparent;
-		border-color: var(--hz-color-primary, #2563eb);
+		border-color: var(--hz-intent-primary, #2563eb);
 		box-shadow: var(
 			--hz-field-ring,
-			0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #2563eb) 25%, transparent)
+			0 0 0 3px color-mix(in srgb, var(--hz-intent-primary, #2563eb) 25%, transparent)
 		);
 	}
 
@@ -123,7 +123,7 @@
 		outline: 2px solid transparent;
 		box-shadow: var(
 			--hz-field-ring,
-			0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #2563eb) 25%, transparent)
+			0 0 0 3px color-mix(in srgb, var(--hz-intent-primary, #2563eb) 25%, transparent)
 		);
 	}
 

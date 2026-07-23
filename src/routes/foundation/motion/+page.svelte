@@ -630,7 +630,7 @@
 		height: 1.5rem;
 		padding: 0.25rem;
 		border-radius: var(--hz-radius-full, 9999px);
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 12%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 12%, transparent);
 	}
 
 	.demo-dot {
@@ -641,7 +641,7 @@
 		height: 1rem;
 		transform: translateY(-50%);
 		border-radius: var(--hz-radius-full, 9999px);
-		background-color: var(--hz-color-primary, #2563eb);
+		background-color: var(--hz-intent-primary, #2563eb);
 		transition-property: left;
 		transition-timing-function: var(--hz-ease-standard, ease);
 	}
@@ -677,7 +677,7 @@
 		width: 100%;
 		height: 8rem;
 		border-radius: var(--hz-radius-sm, 0.25rem);
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, transparent);
 	}
 
 	.curve-axis {
@@ -687,7 +687,7 @@
 
 	.curve-path {
 		fill: none;
-		stroke: var(--hz-color-primary, #2563eb);
+		stroke: var(--hz-intent-primary, #2563eb);
 		stroke-width: 3;
 	}
 
@@ -707,7 +707,7 @@
 	.transition-box {
 		padding: 0.75rem 1.5rem;
 		border-radius: var(--hz-radius-md, 0.5rem);
-		background-color: var(--hz-color-primary, #2563eb);
+		background-color: var(--hz-intent-primary, #2563eb);
 		color: var(--hz-color-surface, #fff);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
@@ -730,7 +730,7 @@
 		border-radius: var(--hz-radius-md, 0.5rem);
 		background-color: var(
 			--hz-color-surface-muted,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, var(--hz-color-surface, #fff))
 		);
 		text-align: center;
 		font-weight: var(--hz-font-weight-medium, 500);
@@ -752,7 +752,7 @@
 		border-radius: var(--hz-radius-md, 0.5rem);
 		background-color: var(
 			--hz-color-surface-muted,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, var(--hz-color-surface, #fff))
 		);
 	}
 </style>

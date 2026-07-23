@@ -1033,6 +1033,59 @@ export const hooks: Record<string, ComponentHooks> = {
 		],
 		parts: [{ name: '.hz-badge-dismiss', values: 'child element', note: 'The remove button.' }]
 	},
+	Banner: {
+		root: 'hz-banner',
+		attrs: [
+			{
+				name: 'data-intent',
+				values: "'neutral' | any registered intent",
+				note: 'Drives the solid fill via --hz-banner-bg; spans the intent registry.'
+			},
+			{
+				name: 'data-pin',
+				values: "'top' | 'bottom'",
+				note: 'Present only when pinned; sticks the bar to that edge via position: sticky.'
+			},
+			{
+				name: 'data-dismissible',
+				values: 'present when dismissible',
+				note: 'Present only when onDismiss is set — target it to style the dismissible form.'
+			}
+		],
+		props: [
+			{
+				name: '--hz-banner-bg',
+				values: '<color> — default var(--hz-intent-neutral)',
+				note: "The solid fill, switched per intent — override to restyle every intent's bar."
+			},
+			{
+				name: '--hz-banner-fg',
+				values: '<color> — default var(--hz-color-surface)',
+				note: 'On-fill text colour, the surface role so it flips with the mode and keeps text ≥ 4.5:1 in both.'
+			},
+			{
+				name: '--hz-banner-padding-block',
+				values: '<length> — default 1.5rem',
+				note: 'Vertical padding of the bar.'
+			},
+			{
+				name: '--hz-banner-padding-inline',
+				values: '<length> — default 2.5rem',
+				note: 'Horizontal padding of the bar.'
+			}
+		],
+		parts: [
+			{ name: '.hz-banner-icon', values: 'child element', note: 'The decorative leading icon.' },
+			{ name: '.hz-banner-content', values: 'child element', note: 'The message body.' },
+			{ name: '.hz-banner-actions', values: 'child element', note: 'The trailing actions slot.' },
+			{ name: '.hz-banner-dismiss', values: 'child element', note: 'The dismiss button.' },
+			{
+				name: '.hz-banner-title',
+				values: 'opt-in class',
+				note: 'Banner never emits this — put it on your own lead element (strong, a heading) and it goes block-level semibold, stacking over the body copy. The .hz-card-title convention.'
+			}
+		]
+	},
 	Blockquote: {
 		root: 'hz-blockquote',
 		attrs: [

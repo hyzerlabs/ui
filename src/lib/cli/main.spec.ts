@@ -37,15 +37,15 @@ describe('hyzer generate — config loading', () => {
 			join(cwd, 'hyzer.config.mjs'),
 			`export default {
 				output: 'styles/tokens.css',
-				tokens: { color: { primary: '#0f766e', fairway: '#3f6212' } }
+				tokens: { palette: { primary: '#0f766e', fairway: '#3f6212' } }
 			};`
 		);
 		const code = await run(['generate'], io);
 		expect(code).toBe(0);
 		expect(logs.join('\n')).toContain('hyzer.config.mjs');
 		const written = readFileSync(join(cwd, 'styles/tokens.css'), 'utf8');
-		expect(written).toContain('--hz-color-primary: #0f766e;');
-		expect(written).toContain('--hz-color-fairway: #3f6212;');
+		expect(written).toContain('--hz-palette-primary: #0f766e;');
+		expect(written).toContain('--hz-palette-fairway: #3f6212;');
 	});
 
 	it('--config and --out override discovery and the config output', async () => {
@@ -91,11 +91,11 @@ describe('hyzer generate — modes and flags', () => {
 		const { cwd, io } = sandbox();
 		writeFileSync(
 			join(cwd, 'hyzer.config.mjs'),
-			`export default { tokens: { color: { primary: '#0f766e' } } };`
+			`export default { tokens: { palette: { primary: '#0f766e' } } };`
 		);
 		expect(await run(['generate', '--mode', 'overrides'], io)).toBe(0);
 		const written = readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8');
-		expect(written).toContain('--hz-color-primary: #0f766e;');
+		expect(written).toContain('--hz-palette-primary: #0f766e;');
 		expect(written).not.toContain('--hz-space-md');
 	});
 
@@ -111,7 +111,7 @@ describe('hyzer generate — modes and flags', () => {
 		// The retired 3.19:1 warning orange.
 		writeFileSync(
 			join(first.cwd, 'hyzer.config.mjs'),
-			`export default { tokens: { color: { warning: '#d97706' } } };`
+			`export default { tokens: { palette: { warning: '#d97706' } } };`
 		);
 		expect(await run(['generate'], first.io)).toBe(0);
 		expect(first.errors.join('\n')).toContain('fail WCAG AA');
@@ -120,7 +120,7 @@ describe('hyzer generate — modes and flags', () => {
 		const second = sandbox();
 		writeFileSync(
 			join(second.cwd, 'hyzer.config.mjs'),
-			`export default { tokens: { color: { warning: '#d97706' } } };`
+			`export default { tokens: { palette: { warning: '#d97706' } } };`
 		);
 		expect(await run(['generate', '--strict'], second.io)).toBe(1);
 		expect(second.errors.join('\n')).toContain('✗ light text:intent-warning/surface');

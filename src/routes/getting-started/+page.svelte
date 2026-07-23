@@ -25,12 +25,12 @@
 	const tierTwoCss = [
 		'/* Your own stylesheet, imported after tokens.css — no build step. */',
 		':root {',
-		'\t--hz-color-primary: #0f766e; /* your brand */',
+		'\t--hz-palette-primary: #0f766e; /* your brand */',
 		'\t--hz-radius-md: 0.625rem;',
 		'}',
 		'',
 		"[data-theme='dark'] {",
-		'\t--hz-color-primary: #2dd4bf; /* its dark companion */',
+		'\t--hz-palette-primary: #2dd4bf; /* its dark companion */',
 		'}'
 	].join('\n');
 
@@ -41,13 +41,13 @@
 		'export default defineConfig({',
 		"\toutput: 'src/styles/tokens.css',",
 		'\ttokens: {',
-		'\t\tcolor: {',
+		'\t\tpalette: {',
 		"\t\t\tprimary: '#0f766e',",
 		"\t\t\tbrandRed: { 500: '#ef4444', 900: '#7f1d1d' } // ramps welcome",
 		'\t\t},',
-		"\t\tintent: { fairway: 'var(--hz-color-brand-red-900)' } // new intents too",
+		"\t\tintent: { fairway: 'var(--hz-palette-brand-red-900)' } // new intents too",
 		'\t},',
-		"\tdark: { color: { primary: '#2dd4bf' } }",
+		"\tdark: { palette: { primary: '#2dd4bf' } }",
 		'});'
 	].join('\n');
 

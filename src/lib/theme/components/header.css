@@ -44,7 +44,7 @@
 	}
 
 	.hz-header-toggle:where(:hover) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 10%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 10%, transparent);
 	}
 
 	/* Drawer surface. */

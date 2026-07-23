@@ -217,7 +217,7 @@
 	}
 
 	.cmdk-option[data-active] {
-		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 12%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 12%, transparent);
 	}
 
 	.cmdk-option-label {

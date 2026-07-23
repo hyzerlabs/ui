@@ -97,7 +97,10 @@ test.describe('R4 — nav links and aria-current', () => {
 test.describe('R5/R6 — real components render on component pages', () => {
 	test('/components/button renders button.hz-button', async ({ page }) => {
 		await page.goto('/components/button');
-		await expect(page.locator('button.hz-button').first()).toBeVisible();
+		// The docs shell's theme toggle is an .hz-button too (dogfooded), and
+		// its mobile-topbar instance is display:none at desktop width — assert
+		// on the demo area's visible buttons, not the shell's.
+		await expect(page.locator('button.hz-button').filter({ visible: true }).first()).toBeVisible();
 	});
 
 	test('/components/card renders .hz-card', async ({ page }) => {
@@ -199,12 +202,16 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 		await expect(page.getByText('core', { exact: true }).first()).toBeVisible();
 	});
 
-	test('a props demo section illustrates size, stroke, and decorative vs. labelled', async ({
+	test('the demo tabs cover size & stroke, intent, and decorative vs. labelled', async ({
 		page
 	}) => {
 		await page.goto('/foundation/icons');
-		await expect(page.getByRole('heading', { name: 'Size & stroke' })).toBeVisible();
-		await expect(page.getByRole('heading', { name: 'Decorative vs. labelled' })).toBeVisible();
+		const demoTabs = page.getByRole('tablist', { name: 'Icon demos' });
+		await expect(demoTabs.getByRole('tab', { name: 'Size & stroke' })).toBeVisible();
+		await expect(page.getByRole('slider', { name: 'size' })).toBeVisible();
+		await demoTabs.getByRole('tab', { name: 'Intent' }).click();
+		await expect(page.getByText('success', { exact: true })).toBeVisible();
+		await demoTabs.getByRole('tab', { name: 'Decorative vs. labelled' }).click();
 		await expect(page.getByText('Decorative (no ariaLabel → aria-hidden)')).toBeVisible();
 	});
 
@@ -232,7 +239,7 @@ test.describe('R7 — foundation colors page', () => {
 	test('each palette color token name appears on /foundation/colors', async ({ page }) => {
 		await page.goto('/foundation/colors');
 
-		// Palette tokens from metadata
+		// Palette tokens from metadata (specs/42 R1 — --hz-palette-* namespace)
 		const paletteKeys = [
 			'primary',
 			'secondary',
@@ -245,7 +252,7 @@ test.describe('R7 — foundation colors page', () => {
 			'gray'
 		];
 		for (const key of paletteKeys) {
-			const cssVar = `--hz-color-${key}`;
+			const cssVar = `--hz-palette-${key}`;
 			await expect(page.getByText(cssVar, { exact: true }).first()).toBeVisible();
 		}
 	});
@@ -299,19 +306,19 @@ test.describe('R9 — theme toggle', () => {
 		expect(lightSurface).not.toBe(darkSurface);
 	});
 
-	test('--hz-color-primary lightens to its dark companion after toggle (R9 dogfoods specs/15 R5)', async ({
+	test('--hz-intent-primary lightens to its dark companion after toggle (R9 dogfoods specs/15 R5, specs/42 R1)', async ({
 		page
 	}) => {
 		await page.goto('/');
 		const primaryBefore = await page.evaluate(() =>
-			getComputedStyle(document.documentElement).getPropertyValue('--hz-color-primary').trim()
+			getComputedStyle(document.documentElement).getPropertyValue('--hz-intent-primary').trim()
 		);
 		expect(primaryBefore).toBe('#2563eb');
 
 		await page.getByRole('button', { name: /theme/i }).click();
 
 		const primaryAfter = await page.evaluate(() =>
-			getComputedStyle(document.documentElement).getPropertyValue('--hz-color-primary').trim()
+			getComputedStyle(document.documentElement).getPropertyValue('--hz-intent-primary').trim()
 		);
 
 		// Dark mode is authored at the palette layer (specs/15 R5, revised

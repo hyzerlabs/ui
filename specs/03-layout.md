@@ -389,3 +389,21 @@ Computed-style assertions use `getComputedStyle(el)` on the rendered root.
 - New shared types in `src/lib/types/index.ts` — prop unions stay local.
 - Editing `original-specs/03-layout.md` to mirror the unified width/breakpoint
   scale (outside library write scope; this spec is authoritative).
+
+### Amendments
+
+- **2026-07-23 (audit, Layout round):** `paddingInline` / `paddingBlock` added
+  to all five primitives — optional per-axis overrides of the `padding`
+  shorthand (same `LayoutPadding` scale, no default), reflected as
+  `data-padding-inline` / `data-padding-block` (absent when unset) with rules
+  declared after the shorthand so the longhand wins on its axis. `padding`
+  stays the both-axes shorthand (user decision). This amendment also records
+  earlier shipped deviations never folded back into the tables above:
+  `padding` exists on all five primitives (not just Container) and applies to
+  **both axes** (Container R3's "horizontal" is superseded); the scale is the
+  shared `LayoutPadding` type from `$lib/types` (the declare-unions-locally
+  rule is relaxed) and includes the density distances `near`/`away`; Cluster
+  `justify` gained `'around'` and align scales unified on shared
+  `LayoutAlign`; Grid gained the `xl` band, the fluid `{ min }` mode, and
+  container-query breakpoints (inner `.hz-grid-layout`); Split's default
+  `stackBelow` is `'sm'` on the flex-switcher implementation.

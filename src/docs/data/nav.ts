@@ -3,8 +3,8 @@ import type { ComponentDoc } from './types.js';
 
 export const navDoc: ComponentDoc = {
 	description:
-		'Navigation, pure and simple: a horizontal row of links with dropdown menus, or a vertical sidebar column with nested, multi-open disclosure sections. Wrap it in a Header for a full top bar with branding, actions, and a mobile drawer.',
-	importLine: 'import {Nav} from "@hyzer-labs/ui"',
+		'A horizontal row of links with dropdown menus, or a vertical sidebar column with nested, multi-open disclosure sections. A semantically correct navigation landmark in any context — standalone, in a sidebar, or composed by Header into a full top bar.',
+	importLine: 'import { Nav } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'items', type: 'NavItem[]', default: '—', note: 'Required. See NavItem below.' },
 		{

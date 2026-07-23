@@ -13,6 +13,10 @@
 		reverse?: boolean;
 		stackBelow?: SplitStackBelow;
 		padding?: LayoutPadding;
+		/** Per-axis override — wins over `padding` on the inline axis. */
+		paddingInline?: LayoutPadding;
+		/** Per-axis override — wins over `padding` on the block axis. */
+		paddingBlock?: LayoutPadding;
 		as?: string;
 		class?: string;
 		children?: Snippet;
@@ -25,6 +29,8 @@
 		reverse = false,
 		stackBelow = 'sm',
 		padding = 'none',
+		paddingInline,
+		paddingBlock,
 		as = 'div',
 		class: className,
 		children,
@@ -35,7 +41,7 @@
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
 	(class, data-fraction, data-gap, data-reverse, data-stack-below,
-	data-padding) wins over any conflicting key a consumer accidentally
+	data-padding*) wins over any conflicting key a consumer accidentally
 	passes through rest.
 -->
 <svelte:element
@@ -47,6 +53,8 @@
 	data-reverse={reverse ? '' : undefined}
 	data-stack-below={stackBelow}
 	data-padding={padding}
+	data-padding-inline={paddingInline}
+	data-padding-block={paddingBlock}
 >
 	<div class="hz-split-layout">
 		{@render children?.()}
@@ -141,6 +149,44 @@
 	}
 	.hz-split[data-padding='away'] {
 		padding: var(--hz-space-away, 8rem);
+	}
+
+	/* per-axis overrides — declared after the shorthand so the longhand wins */
+	.hz-split[data-padding-inline='none'] {
+		padding-inline: 0;
+	}
+	.hz-split[data-padding-inline='sm'] {
+		padding-inline: var(--hz-space-sm, 1rem);
+	}
+	.hz-split[data-padding-inline='md'] {
+		padding-inline: var(--hz-space-md, 2rem);
+	}
+	.hz-split[data-padding-inline='lg'] {
+		padding-inline: var(--hz-space-lg, 4rem);
+	}
+	.hz-split[data-padding-inline='near'] {
+		padding-inline: var(--hz-space-near, 4rem);
+	}
+	.hz-split[data-padding-inline='away'] {
+		padding-inline: var(--hz-space-away, 8rem);
+	}
+	.hz-split[data-padding-block='none'] {
+		padding-block: 0;
+	}
+	.hz-split[data-padding-block='sm'] {
+		padding-block: var(--hz-space-sm, 1rem);
+	}
+	.hz-split[data-padding-block='md'] {
+		padding-block: var(--hz-space-md, 2rem);
+	}
+	.hz-split[data-padding-block='lg'] {
+		padding-block: var(--hz-space-lg, 4rem);
+	}
+	.hz-split[data-padding-block='near'] {
+		padding-block: var(--hz-space-near, 4rem);
+	}
+	.hz-split[data-padding-block='away'] {
+		padding-block: var(--hz-space-away, 8rem);
 	}
 
 	/* gap per spacing scale */

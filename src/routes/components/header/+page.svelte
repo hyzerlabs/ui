@@ -38,14 +38,14 @@
 	];
 
 	const barCode = [
-		'<Header items={navItems} bordered ariaLabel="Main navigation">',
+		'<Header items={navItems} bordered>',
 		'\t{#snippet brand()}<Logo />{/snippet}',
 		'\t{#snippet actions()}<Button size="sm">Sign in</Button>{/snippet}',
 		'</Header>'
 	].join('\n');
 
 	const surfaceCode = (c: (typeof surfaceCombos)[number]) =>
-		`<Header items={navItems} variant="${c.variant}"${c.bordered ? ' bordered' : ''} />`;
+		`<Header items={navItems}${c.variant !== 'default' ? ` variant="${c.variant}"` : ''}${c.bordered ? ' bordered' : ''} />`;
 
 	const mobileCode = [
 		'<!-- Below the breakpoint the bar hands over to a hamburger + drawer',
@@ -64,20 +64,23 @@
 			<div class="tab-content">
 				{#if item.id === 'bar'}
 					<p class="tab-note">
-						Pass <code>items</code> plus <code>brand</code> and <code>actions</code> snippets. The bar
-						lays them out; the same items drive the drawer on mobile.
+						Pass <code>items</code> plus <code>brand</code> and <code>actions</code> snippets —
+						Header composes a <a href="/components/nav">Nav</a> internally from the same items, horizontal
+						in the bar and vertical in the mobile drawer, so there is nothing to wrap.
 					</p>
-					<Example code={barCode}>
-						<Header items={demoItems} bordered ariaLabel="Demo header">
-							{#snippet brand()}
-								<!-- svelte-ignore a11y_invalid_attribute -->
-								<a href="#" class="demo-logo">Hyzer Labs</a>
-							{/snippet}
-							{#snippet actions()}
-								<Button size="sm">Sign in</Button>
-							{/snippet}
-						</Header>
-					</Example>
+					<Container breakout padding="none">
+						<Example code={barCode}>
+							<Header items={demoItems} bordered mobileBreakpoint="sm" ariaLabel="Demo header">
+								{#snippet brand()}
+									<!-- svelte-ignore a11y_invalid_attribute -->
+									<a href="#" class="demo-logo">Hyzer Labs</a>
+								{/snippet}
+								{#snippet actions()}
+									<Button size="sm">Sign in</Button>
+								{/snippet}
+							</Header>
+						</Example>
+					</Container>
 				{:else if item.id === 'surface'}
 					<p class="tab-note">
 						<code>variant</code> sets the bar surface; <code>bordered</code> adds a bottom hairline that
@@ -91,14 +94,17 @@
 						{#snippet panel(vItem)}
 							{@const combo = surfaceCombos.find((c) => c.id === vItem.id)!}
 							<div class="inner-tab">
-								<Example code={surfaceCode(combo)}>
-									<Header
-										items={demoItems}
-										variant={combo.variant}
-										bordered={combo.bordered}
-										ariaLabel="Demo header ({combo.label})"
-									/>
-								</Example>
+								<Container breakout padding="none">
+									<Example code={surfaceCode(combo)}>
+										<Header
+											items={demoItems}
+											variant={combo.variant}
+											bordered={combo.bordered}
+											mobileBreakpoint="sm"
+											ariaLabel="Demo header ({combo.label})"
+										/>
+									</Example>
+								</Container>
 							</div>
 						{/snippet}
 					</Tabs>

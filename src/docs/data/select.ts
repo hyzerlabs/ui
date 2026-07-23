@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const selectDoc: ComponentDoc = {
 	description:
 		'A labeled native select with flat options, option groups, a placeholder option, and standard field accessibility.',
-	importLine: 'import {Select} from "@hyzer-labs/ui"',
+	importLine: 'import { Select } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'name', type: 'string', default: '—', note: 'Required. Form field name.' },
 		{

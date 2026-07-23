@@ -25,7 +25,7 @@
 	}
 
 	:where(:focus-visible) {
-		outline: var(--hz-border-width-thick, 2px) solid var(--hz-color-primary, #2563eb);
+		outline: var(--hz-border-width-thick, 2px) solid var(--hz-intent-primary, #2563eb);
 		outline-offset: 2px;
 	}
 
@@ -35,11 +35,11 @@
 	 * component link class always win. This lives in the theme, not reset.css,
 	 * because it needs the tokens (reset must work token-free). */
 	:where(a) {
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 
 	:where(a:visited) {
-		color: var(--hz-color-secondary, #7c3aed);
+		color: var(--hz-intent-secondary, #7c3aed);
 	}
 }
 

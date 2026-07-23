@@ -33,7 +33,7 @@ export interface GenerateOptions {
 // ---------------------------------------------------------------------------
 
 const SECTION_BANNERS: Record<SectionId, string[]> = {
-	palette: ['Layer 1 — Palette', 'Single value per color; no per-color ramps.'],
+	palette: ['Layer 1 — Palette (--hz-palette-*)', 'Single value per color; no per-color ramps.'],
 	roles: [
 		'Layer 2 — Semantic roles (light defaults)',
 		'Reference the palette via var(); the dark block overrides these roles',
@@ -66,7 +66,7 @@ const SECTION_BANNERS: Record<SectionId, string[]> = {
 
 /** Inline notes emitted immediately before specific declarations. */
 const TOKEN_NOTES: Record<string, string[]> = {
-	'--hz-color-success': [
+	'--hz-palette-success': [
 		'Status hues tuned 2026-07-14 so every intent color passes WCAG AA',
 		'(≥ 4.5:1) as text on both light surfaces — and so white text passes',
 		'on every solid intent background.'
@@ -190,14 +190,14 @@ function varRefs(value: string): string[] {
  * touched, plus the transitive closure of tokens whose values depend on them.
  *
  * Why this exists. The two-layer color model is built on indirection —
- * `--hz-intent-primary: var(--hz-color-primary)` — and var() inside a custom
+ * `--hz-intent-primary: var(--hz-palette-primary)` — and var() inside a custom
  * property is substituted at computed-value time ON THE ELEMENT THE
  * DECLARATION APPLIES TO. At `:root` that is exactly what we want: an
- * override of `--hz-color-primary` lands on the same element as the intent
+ * override of `--hz-palette-primary` lands on the same element as the intent
  * declaration, so the cascade picks the new value and the whole chain
  * re-resolves.
  *
- * Scoped to a class it breaks. `.theme-ocean { --hz-color-primary: #0f766e }`
+ * Scoped to a class it breaks. `.theme-ocean { --hz-palette-primary: #0f766e }`
  * leaves `--hz-intent-primary` declared back at `:root`, where it already
  * computed to the BASE blue and inherits down as that resolved value — so
  * every component reading the intent vocabulary (Button, Badge, Alert) keeps
@@ -213,7 +213,7 @@ function scopedClosure(resolved: ResolvedConfig): Set<string> {
 	for (const section of resolved.sections) {
 		for (const e of section.entries) if (e.fromConfig) included.add(e.cssName);
 	}
-	for (const e of [...resolved.dark.color, ...resolved.dark.intent]) {
+	for (const e of [...resolved.dark.palette, ...resolved.dark.color, ...resolved.dark.intent]) {
 		if (e.fromConfig) included.add(e.cssName);
 	}
 
@@ -269,14 +269,12 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 	parts.push('', DENSITY_COMMENT, densityBlock(resolved));
 
 	parts.push('', DARK_COMMENT, `${darkSelector(selector)} {`);
-	const paletteDark = resolved.dark.color.filter(
-		(e) => !e.value.includes('var(') && !isRoleKey(e.key)
-	);
-	const roleDark = resolved.dark.color.filter((e) => !paletteDark.includes(e));
-	parts.push(...declarations(roleDark, '\t', false));
-	if (paletteDark.length > 0) {
+	// Role dark, then palette dark, then intent dark — sourced directly from
+	// the three resolved dark lists (specs/42 R2.3); no value-shape inference.
+	parts.push(...declarations(resolved.dark.color, '\t', false));
+	if (resolved.dark.palette.length > 0) {
 		parts.push('');
-		parts.push(...declarations(paletteDark, '\t', false));
+		parts.push(...declarations(resolved.dark.palette, '\t', false));
 	}
 	if (resolved.dark.intent.length > 0) {
 		parts.push('');
@@ -285,11 +283,6 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 	parts.push('}');
 
 	return parts.join('\n') + '\n';
-}
-
-/** Dark color entries for semantic roles vs. lightened palette hues. */
-function isRoleKey(key: string): boolean {
-	return ['surface', 'surfaceMuted', 'text', 'textMuted', 'border'].includes(key);
 }
 
 function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: string[]): string {
@@ -327,7 +320,7 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 	/**
 	 * The dark block needs the same treatment for a different reason. A base
 	 * dark entry like surface-muted's stronger tint
-	 * (`color-mix(… var(--hz-color-gray) 25%, var(--hz-color-surface))`) is
+	 * (`color-mix(… var(--hz-palette-gray) 25%, var(--hz-color-surface))`) is
 	 * declared at :root's dark block. Scoped, it never reaches the subtree, and
 	 * the scope's own light-block declaration would silently keep applying its
 	 * 6% light-mode tint in dark. Re-emit any dark entry that derives from a
@@ -337,6 +330,7 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 		emit !== null && varRefs(e.value).some((ref) => emit.has(ref));
 	const darkEntries = [
 		...resolved.dark.color.filter((e) => e.fromConfig || darkDerives(e)),
+		...resolved.dark.palette.filter((e) => e.fromConfig || darkDerives(e)),
 		...resolved.dark.intent.filter((e) => e.fromConfig || darkDerives(e))
 	];
 

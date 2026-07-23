@@ -153,3 +153,19 @@ inside the scoped wrapper differs from the page root).
 - An interactive theme-builder page (future; engine makes it possible).
 - Search bar, MCP server (separate roadmap items).
 - Any component or reference-theme rule changes.
+
+### Amendments
+
+- **2026-07-23 (specs/42 — palette namespace split):** the ocean/sunset/
+  terminal example configs move their raw hues (`primary, secondary, …`)
+  from `tokens.color` into **`tokens.palette`**, keeping `surface, text,
+  textMuted, border` in `tokens.color`; their `dark:` blocks split the same
+  way into `dark.palette` (hue brightening) and `dark.color` (role flips).
+  `terminal.config.ts`'s `phosphor` intent extension re-points at
+  `var(--hz-palette-primary)` (was `var(--hz-color-primary)`); the
+  `/theming/tokens` override recipes (plain-CSS and the config sample) use
+  `--hz-palette-*` / `tokens.palette` / `dark.palette` for hue overrides and
+  gain a doctrine callout on overriding any tier in
+  `[data-theme='dark']`, including the palette. This spec's `tokens.color`
+  hue examples describe the pre-split shape and are superseded — specs/42 is
+  the authority.

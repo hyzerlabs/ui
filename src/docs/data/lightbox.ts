@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const lightboxDoc: ComponentDoc = {
 	description:
 		'Click-to-enlarge media viewer: a thumbnail strip whose items open in an accessible, focus-trapped dialog — multiple images and videos page through an embedded Carousel.',
-	importLine: 'import {Lightbox} from "@hyzer-labs/ui"',
+	importLine: 'import { Lightbox } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'items',

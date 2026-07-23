@@ -16,7 +16,7 @@
 		type LargeContrastLevel
 	} from '$lib';
 	import type { SelectOption } from '$lib/types';
-	import { color, intent } from '$lib/tokens';
+	import { palette, intent } from '$lib/tokens';
 	import { softTints } from '$lib/config';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
@@ -27,49 +27,51 @@
 	// light values on light surfaces, dark companions on dark — including
 	// surface-muted's color-mix(). Panels are painted from these resolved
 	// hexes (not live tokens) so each panel stays pinned to its mode
-	// regardless of the site theme toggle.
+	// regardless of the site theme toggle. Raw hues come from the `palette`
+	// export (specs/42 R1) — `color` (the role tier) holds indirection
+	// strings like `var(--hz-palette-white)`, not hexes.
 	// -------------------------------------------------------------------------
 
 	const apiCode = [
 		"import { gradeContrast, contrastRatio, mixSrgb } from '@hyzer-labs/ui';",
-		"import { color } from '@hyzer-labs/ui/tokens';",
+		"import { palette } from '@hyzer-labs/ui/tokens';",
 		'',
-		'// Your override for --hz-color-primary',
+		'// Your override for --hz-palette-primary',
 		"const brand = '#0f766e';",
 		'',
-		'gradeContrast(brand, color.white).aaNormal; // text on surface',
-		'gradeContrast(color.white, brand).aaNormal; // solid button text',
+		'gradeContrast(brand, palette.white).aaNormal; // text on surface',
+		'gradeContrast(palette.white, brand).aaNormal; // solid button text',
 		'',
 		'// On surface-muted — the same 6% color-mix the theme derives',
-		'contrastRatio(brand, mixSrgb(color.gray, color.white, 0.06));'
+		'contrastRatio(brand, mixSrgb(palette.gray, palette.white, 0.06));'
 	].join('\n');
 
-	const paletteTokens = Object.entries(color)
+	const paletteTokens = Object.entries(palette)
 		.filter(([, v]) => typeof v === 'string' && (v as string).startsWith('#'))
-		.map(([key, value]) => ({ key, cssVar: `--hz-color-${key}`, value: value as string }));
+		.map(([key, value]) => ({ key, cssVar: `--hz-palette-${key}`, value: value as string }));
 
-	/** Resolve an intent target like `var(--hz-color-gray)` to its palette hex. */
+	/** Resolve an intent target like `var(--hz-palette-gray)` to its palette hex. */
 	function intentHex(target: string): string {
-		const key = target.match(/--hz-color-([a-z]+)/)?.[1] ?? 'gray';
-		return (color as Record<string, unknown>)[key] as string;
+		const key = target.match(/--hz-palette-([a-z]+)/)?.[1] ?? 'gray';
+		return (palette as Record<string, unknown>)[key] as string;
 	}
 
 	/**
 	 * What an intent resolves to in dark mode: intents are pure chains, so
 	 * the answer is simply the dark palette companion of its target hue
-	 * (color.theme.dark), falling back to the light value for hues the dark
+	 * (palette.theme.dark), falling back to the light value for hues the dark
 	 * block leaves alone (black/white).
 	 */
 	function intentDarkHex(target: string): string {
-		const paletteKey = target.match(/--hz-color-([a-z]+)/)?.[1] ?? 'gray';
-		return (color.theme.dark as Record<string, string>)[paletteKey] ?? intentHex(target);
+		const paletteKey = target.match(/--hz-palette-([a-z]+)/)?.[1] ?? 'gray';
+		return (palette.theme.dark as Record<string, string>)[paletteKey] ?? intentHex(target);
 	}
 
 	// Every token the theme paints text with, resolved per mode. text-muted
 	// chains through gray, which lightens in dark mode.
 	const textTokens = [
-		{ key: 'text', light: color.black, dark: color.white },
-		{ key: 'text-muted', light: color.gray, dark: color.theme.dark.gray },
+		{ key: 'text', light: palette.black, dark: palette.white },
+		{ key: 'text-muted', light: palette.gray, dark: palette.theme.dark.gray },
 		...Object.entries(intent).map(([k, target]) => ({
 			key: `intent-${k}`,
 			light: intentHex(target),
@@ -85,20 +87,20 @@
 
 	// The four backgrounds text actually sits on: both surface roles, both modes.
 	const surfaces = [
-		{ key: 'surface-light', label: 'surface · light', mode: 'light' as const, hex: color.white },
+		{ key: 'surface-light', label: 'surface · light', mode: 'light' as const, hex: palette.white },
 		{
 			key: 'surface-muted-light',
 			label: 'surface-muted · light',
 			mode: 'light' as const,
-			hex: mixSrgb(color.gray, color.white, 0.06)
+			hex: mixSrgb(palette.gray, palette.white, 0.06)
 		},
-		{ key: 'surface-dark', label: 'surface · dark', mode: 'dark' as const, hex: color.black },
+		{ key: 'surface-dark', label: 'surface · dark', mode: 'dark' as const, hex: palette.black },
 		{
 			key: 'surface-muted-dark',
 			label: 'surface-muted · dark',
 			mode: 'dark' as const,
 			// The dark muted surface mixes the DARK gray companion over black.
-			hex: mixSrgb(color.theme.dark.gray, color.black, 0.25)
+			hex: mixSrgb(palette.theme.dark.gray, palette.black, 0.25)
 		}
 	];
 
@@ -107,12 +109,14 @@
 
 	// The demo panels are deliberately mode-PINNED (painted from static
 	// hexes), but which panel you land on should match the mode you're in —
-	// a dark-mode reader shouldn't open onto a wall of white. The site
-	// toggle persists to localStorage (layout R9); seed the uncontrolled
-	// Tabs from it. SSR/prerender renders the light default and hydration
-	// reconciles.
-	const prefersDark =
-		typeof localStorage !== 'undefined' && localStorage.getItem('hz-theme') === 'dark';
+	// a dark-mode reader shouldn't open onto a wall of white. Mirror the
+	// layout's resolution order (R9): an explicit stored choice wins, else
+	// the system preference. SSR/prerender renders the light default and
+	// hydration reconciles.
+	const storedTheme = typeof localStorage !== 'undefined' ? localStorage.getItem('hz-theme') : null;
+	const prefersDark = storedTheme
+		? storedTheme === 'dark'
+		: typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 	/** The value a text token resolves to on a given surface's mode. */
 	function onSurface(token: { light: string; dark: string }, mode: 'light' | 'dark'): string {
@@ -131,8 +135,8 @@
 	const pct = (fraction: number) => Math.round(fraction * 100);
 
 	function softRecipe(c: string, mode: 'light' | 'dark') {
-		const surface = mode === 'light' ? color.white : color.black;
-		const text = mode === 'light' ? color.black : color.white;
+		const surface = mode === 'light' ? palette.white : palette.black;
+		const text = mode === 'light' ? palette.black : palette.white;
 		const tints = softTints[mode];
 		return {
 			badgeBg: mixSrgb(c, surface, tints.badgeBg),
@@ -168,7 +172,7 @@
 					{ label: string; hex: string }
 				]
 		),
-		['text-muted-dark', { label: 'text-muted · dark', hex: color.theme.dark.gray }],
+		['text-muted-dark', { label: 'text-muted · dark', hex: palette.theme.dark.gray }],
 		...surfaces.map(
 			(s) => [s.key, { label: s.label, hex: s.hex }] as [string, { label: string; hex: string }]
 		)
@@ -196,7 +200,7 @@
 		{
 			group: 'Text & surface roles (resolved)',
 			options: [
-				{ value: 'text-muted-dark', label: `text-muted · dark · ${color.theme.dark.gray}` },
+				{ value: 'text-muted-dark', label: `text-muted · dark · ${palette.theme.dark.gray}` },
 				...surfaces.map((s) => ({ value: s.key, label: `${s.label} · ${s.hex}` }))
 			]
 		}
@@ -207,8 +211,8 @@
 	let fg = $state(prefersDark ? 'intent-dark:primary' : 'primary');
 	let bg = $state(prefersDark ? 'surface-dark' : 'surface-light');
 
-	const fgHex = $derived(swatchMap.get(fg)?.hex ?? color.black);
-	const bgHex = $derived(swatchMap.get(bg)?.hex ?? color.white);
+	const fgHex = $derived(swatchMap.get(fg)?.hex ?? palette.black);
+	const bgHex = $derived(swatchMap.get(bg)?.hex ?? palette.white);
 	const grade = $derived(gradeContrast(fgHex, bgHex));
 
 	const checks = $derived([
@@ -444,7 +448,7 @@
 				<div class="intent-tile">
 					{#each ['light', 'dark'] as const as mode (mode)}
 						{@const bgIntent = mode === 'light' ? row.light : row.dark}
-						{@const onColor = mode === 'light' ? color.white : color.black}
+						{@const onColor = mode === 'light' ? palette.white : palette.black}
 						{@const ratio = contrastRatio(onColor, bgIntent)}
 						<div class="solid-block" style="background-color: {bgIntent};">
 							<span class="situ-lines" style="color: {onColor};">
@@ -496,7 +500,7 @@
 		>
 			{#snippet panel(mItem)}
 				{@const mode = mItem.id as 'light' | 'dark'}
-				{@const pageBg = mode === 'light' ? color.white : color.black}
+				{@const pageBg = mode === 'light' ? palette.white : palette.black}
 				<div class="tab-content">
 					<div class="situ-panel" style="background-color: {pageBg};">
 						{#each intents as row (row.key)}

@@ -21,32 +21,32 @@
  * win by source order.
  */
 .hz-theme-terminal {
-	--hz-color-primary: #00ff41;
-	--hz-color-secondary: #00e5ff;
-	--hz-color-success: #00ff41;
-	--hz-color-warning: #ffb000;
-	--hz-color-danger: #ff3b30;
-	--hz-color-info: #00e5ff;
+	--hz-palette-primary: #00ff41;
+	--hz-palette-secondary: #00e5ff;
+	--hz-palette-success: #00ff41;
+	--hz-palette-warning: #ffb000;
+	--hz-palette-danger: #ff3b30;
+	--hz-palette-info: #00e5ff;
 	--hz-color-surface: #0b0f0b;
-	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface));
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 6%, var(--hz-color-surface));
 	--hz-color-text: #33ff66;
 	--hz-color-text-muted: #00a844;
 	--hz-color-border: #00ff41;
 	--hz-intent-neutral: var(--hz-color-text-muted);
-	--hz-intent-primary: var(--hz-color-primary);
-	--hz-intent-secondary: var(--hz-color-secondary);
-	--hz-intent-danger: var(--hz-color-danger);
-	--hz-intent-warning: var(--hz-color-warning);
-	--hz-intent-success: var(--hz-color-success);
-	--hz-intent-info: var(--hz-color-info);
-	--hz-intent-phosphor: var(--hz-color-primary);
+	--hz-intent-primary: var(--hz-palette-primary);
+	--hz-intent-secondary: var(--hz-palette-secondary);
+	--hz-intent-danger: var(--hz-palette-danger);
+	--hz-intent-warning: var(--hz-palette-warning);
+	--hz-intent-success: var(--hz-palette-success);
+	--hz-intent-info: var(--hz-palette-info);
+	--hz-intent-phosphor: var(--hz-palette-primary);
 	--hz-intent-amber: #ffb000;
 }
 
 .hz-theme-terminal[data-theme='dark'],
 [data-theme='dark'] .hz-theme-terminal {
 	--hz-color-surface: #000000;
-	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface));
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 25%, var(--hz-color-surface));
 	--hz-color-text: #4dff80;
 	--hz-color-text-muted: #00c853;
 	--hz-color-border: #33ff66;

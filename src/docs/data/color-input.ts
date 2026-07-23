@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const colorInputDoc: ComponentDoc = {
 	description:
 		'A labeled native color picker paired with a synced hex field for exact keyboard entry — typed values commit on change, validated and normalized.',
-	importLine: 'import {ColorInput} from "@hyzer-labs/ui"',
+	importLine: 'import { ColorInput } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'name', type: 'string', default: '—', note: 'Required. Form field name.' },
 		{

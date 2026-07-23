@@ -322,7 +322,7 @@
 <style>
 	.success {
 		margin: 0 0 0.75rem;
-		color: var(--hz-color-success, #15803d);
+		color: var(--hz-intent-success, #15803d);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 	.code-note {

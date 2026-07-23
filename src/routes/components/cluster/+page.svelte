@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Cluster, Tabs } from '$lib';
+	import { Cluster, Stack, Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { clusterDoc } from '../../../docs/data/cluster.js';
 	import Example from '../../../docs/Example.svelte';
@@ -56,11 +56,9 @@
 
 	function paddingCode(padding: string): string {
 		return [
-			`<Cluster padding="${padding}">`,
-			'\t<span class="chip">One</span>',
-			'\t<span class="chip">Two</span>',
-			'\t<span class="chip">Three</span>',
-			'</Cluster>'
+			`<Cluster padding="${padding}">…</Cluster>`,
+			`<Cluster paddingInline="${padding}">…</Cluster>`,
+			`<Cluster paddingBlock="${padding}">…</Cluster>`
 		].join('\n');
 	}
 
@@ -153,8 +151,11 @@
 					</Tabs>
 				{:else if item.id === 'padding'}
 					<p class="tab-note">
-						The tinted zone is the Cluster; the space between its edge and the chips is the padding,
-						applied on both axes.
+						The tinted zone is the Cluster; the space between its edge and the chips is the padding.
+						<code>padding</code> applies on both axes; <code>paddingInline</code> /
+						<code>paddingBlock</code> override one axis and win where set. The axis names are the
+						CSS logical properties, so they stay correct in RTL and vertical writing modes — see
+						<a href="/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs
 						items={paddingValues.map((v) => ({ id: v, label: v }))}
@@ -162,13 +163,26 @@
 						defaultTab="md"
 					>
 						{#snippet panel(padItem)}
+							{@const v = padItem.id as (typeof paddingValues)[number]}
 							<div class="inner-tab">
 								<Example code={paddingCode(padItem.id)}>
-									<Cluster padding={padItem.id as (typeof paddingValues)[number]} class="pad-frame">
-										<span class="chip">One</span>
-										<span class="chip">Two</span>
-										<span class="chip">Three</span>
-									</Cluster>
+									<Stack gap="sm">
+										<Cluster padding={v} class="pad-frame">
+											<span class="chip">padding="{v}"</span>
+											<span class="chip">Two</span>
+											<span class="chip">Three</span>
+										</Cluster>
+										<Cluster paddingInline={v} class="pad-frame">
+											<span class="chip">paddingInline="{v}"</span>
+											<span class="chip">Two</span>
+											<span class="chip">Three</span>
+										</Cluster>
+										<Cluster paddingBlock={v} class="pad-frame">
+											<span class="chip">paddingBlock="{v}"</span>
+											<span class="chip">Two</span>
+											<span class="chip">Three</span>
+										</Cluster>
+									</Stack>
 								</Example>
 							</div>
 						{/snippet}
@@ -202,8 +216,8 @@
 
 <style>
 	:global(.pad-frame) {
-		background: color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 12%, transparent);
-		border: 1px dashed var(--hz-color-secondary, #7c3aed);
+		background: color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 12%, transparent);
+		border: 1px dashed var(--hz-intent-secondary, #7c3aed);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 	}
 	:global(.demo-frame) {
@@ -213,8 +227,8 @@
 	}
 	.chip {
 		padding: 0.25rem 0.75rem;
-		background: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
-		border: 1px solid var(--hz-color-primary, #2563eb);
+		background: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 15%, transparent);
+		border: 1px solid var(--hz-intent-primary, #2563eb);
 		border-radius: var(--hz-radius-full, 9999px);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		white-space: nowrap;

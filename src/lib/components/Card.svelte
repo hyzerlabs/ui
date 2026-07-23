@@ -183,12 +183,13 @@
 		display: block;
 	}
 
-	/* Overlay span inside the link — absolutely positioned, sits at z-index: 0. */
+	/* Overlay span inside the link — absolutely positioned, sits at
+	 * z-index: var(--hz-z-base, 0). */
 	.hz-card-link-overlay {
 		position: absolute;
 		inset: 0;
 		display: block;
-		z-index: 0;
+		z-index: var(--hz-z-base, 0);
 	}
 
 	/*
@@ -205,6 +206,6 @@
 	.hz-card[data-clickable]
 		:global(:where(a, button, input, select, textarea, [tabindex]):not(.hz-card-link)) {
 		position: relative;
-		z-index: 1;
+		z-index: var(--hz-z-raised, 1);
 	}
 </style>

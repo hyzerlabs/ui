@@ -1,12 +1,21 @@
 <script lang="ts">
-	import { Stack, TextInput, Virtualizer, Badge, Slider } from '$lib';
+	import { Stack, Tabs, TextInput, Virtualizer, Badge, Slider } from '$lib';
 	import Example from '../../../docs/Example.svelte';
+	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import type { Component } from 'svelte';
 	import { CORE_ICONS } from '../../../lib/icons/core';
 	import { pascalize } from '../../../lib/icons/pascalize';
 	import { ICON_NAMES, LUCIDE_VERSION } from '../../../lib/icons/generated/manifest';
 	import DemoCheck from '../../../lib/icons/generated/check.svelte';
 	import DemoSearch from '../../../lib/icons/generated/search.svelte';
+	import DemoSettings from '../../../lib/icons/generated/settings.svelte';
+	import DemoRocket from '../../../lib/icons/generated/rocket.svelte';
+	import DemoSparkles from '../../../lib/icons/generated/sparkles.svelte';
+	import DemoOctagonAlert from '../../../lib/icons/generated/octagon-alert.svelte';
+	import DemoTriangleAlert from '../../../lib/icons/generated/triangle-alert.svelte';
+	import DemoCircleCheck from '../../../lib/icons/generated/circle-check.svelte';
+	import DemoInfo from '../../../lib/icons/generated/info.svelte';
+	import PropsTable from '../../../docs/PropsTable.svelte';
 
 	// R9 — lazy per-glyph loading. This catalog page is the one place in the
 	// docs app allowed to reach across the whole generated set; it never
@@ -50,21 +59,67 @@
 	let demoStroke = $state(2);
 	const sizeStrokeCode = $derived(`<IconCheck size={${demoSize}} strokeWidth={${demoStroke}} />`);
 
-	const intentNames = [
-		'neutral',
-		'primary',
-		'secondary',
-		'danger',
-		'warning',
-		'success',
-		'info'
+	// One glyph per intent — different icons on purpose, to show how cheap
+	// per-context glyph + color pairing is with deep imports.
+	const intentGlyphs = [
+		{ intent: 'neutral', icon: DemoSettings, name: 'IconSettings' },
+		{ intent: 'primary', icon: DemoRocket, name: 'IconRocket' },
+		{ intent: 'secondary', icon: DemoSparkles, name: 'IconSparkles' },
+		{ intent: 'danger', icon: DemoOctagonAlert, name: 'IconOctagonAlert' },
+		{ intent: 'warning', icon: DemoTriangleAlert, name: 'IconTriangleAlert' },
+		{ intent: 'success', icon: DemoCircleCheck, name: 'IconCircleCheck' },
+		{ intent: 'info', icon: DemoInfo, name: 'IconInfo' }
 	] as const;
+
 	const intentCode = [
-		'<IconCheck intent="success" />',
+		...intentGlyphs.map((g) => `<${g.name} intent="${g.intent}" />`),
 		'',
 		'<!-- or bring your own class -->',
 		'<IconCheck class="my-tint" />'
 	].join('\n');
+
+	const importCode = [
+		"import { IconCheck } from '@hyzer-labs/ui/icons';",
+		'',
+		'// or skip the barrel with a deep import',
+		"import IconCheck from '@hyzer-labs/ui/icons/check';"
+	].join('\n');
+
+	const a11yCode = [
+		'<IconSearch />                    <!-- no ariaLabel: decorative, aria-hidden="true" -->',
+		'<IconSearch ariaLabel="Search" /> <!-- labelled: carries an accessible name -->'
+	].join('\n');
+
+	const demoTabs = [
+		{ id: 'size', label: 'Size & stroke' },
+		{ id: 'intent', label: 'Intent' },
+		{ id: 'a11y', label: 'Decorative vs. labelled' }
+	];
+
+	const iconProps = [
+		{ name: 'size', type: 'number', default: '24', note: 'Width and height in px.' },
+		{ name: 'strokeWidth', type: 'number', default: '2' },
+		{
+			name: 'intent',
+			type: 'Intent',
+			default: '—',
+			note: 'See Foundation → Colors & Intent.',
+			noteHref: '/foundation/colors#intent'
+		},
+		{
+			name: 'ariaLabel',
+			type: 'string',
+			default: '—',
+			note: 'Absent or empty → decorative (aria-hidden="true").'
+		},
+		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-icon class.' },
+		{
+			name: '…rest',
+			type: 'SVGAttributes<SVGSVGElement>',
+			default: '—',
+			note: 'Forwarded to the svg root.'
+		}
+	];
 
 	const rows = $derived.by(() => {
 		const out: string[][] = [];
@@ -116,10 +171,10 @@
 	<div class="doc-intro">
 		<h1>Icons</h1>
 		<p class="doc-description">
-			The full <a href="https://lucide.dev" rel="noreferrer">Lucide</a> set (ISC) ships as generated
-			per-icon Svelte components — <strong>{allNames.length} icons</strong>, Lucide v{LUCIDE_VERSION}.
-			Every icon accepts <code>size</code>, <code>strokeWidth</code>, and <code>ariaLabel</code>.
-			When
+			The full <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide</a> set (ISC)
+			ships as generated per-icon Svelte components — <strong>{allNames.length} icons</strong>,
+			Lucide v{LUCIDE_VERSION}. Every icon accepts <code>size</code>, <code>strokeWidth</code>, and
+			<code>ariaLabel</code>. When
 			<code>ariaLabel</code> is absent the icon is decorative (<code>aria-hidden="true"</code>);
 			when present it is labelled.
 		</p>
@@ -135,9 +190,9 @@
 		gap="away"
 		data-density-shift
 		class="doc-section"
-		aria-labelledby="usage-heading"
+		aria-labelledby="import-heading"
 	>
-		<h2 id="usage-heading">Usage</h2>
+		<h2 id="import-heading">Import</h2>
 		<p>
 			Import from the barrel (<code>@hyzer-labs/ui/icons</code>) for zero config — bundler
 			tree-shaking keeps your app lean. Prefer a deep import (<code
@@ -149,6 +204,106 @@
 			project-local barrel — see
 			<a href="/theming/tokens#config-heading">Tokens &amp; Overrides</a>.
 		</p>
+		<CodeBlock code={importCode} />
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="demo-heading"
+	>
+		<h2 id="demo-heading">Demo</h2>
+		<Tabs items={demoTabs} ariaLabel="Icon demos" defaultTab="size">
+			{#snippet panel(item)}
+				<div class="tab-content">
+					{#if item.id === 'size'}
+						<Example code={sizeStrokeCode}>
+							<div class="size-demo">
+								<div class="size-demo-controls">
+									<Slider
+										name="icon-size"
+										label="size"
+										min={12}
+										max={64}
+										step={4}
+										bind:value={demoSize}
+									/>
+									<Slider
+										name="icon-stroke"
+										label="strokeWidth"
+										min={0.5}
+										max={4}
+										step={0.5}
+										bind:value={demoStroke}
+									/>
+								</div>
+								<div class="size-demo-preview">
+									<DemoCheck
+										size={demoSize}
+										strokeWidth={demoStroke}
+										ariaLabel="Check icon preview"
+									/>
+								</div>
+							</div>
+						</Example>
+					{:else if item.id === 'intent'}
+						<p class="tab-note">
+							<code>intent</code> colors the glyph from the shared vocabulary (<code
+								>color: var(--hz-intent-*)</code
+							>) — see
+							<a href="/foundation/colors#intent">Foundation &rarr; Colors &amp; Intent</a>. A
+							<code>class</code> is a separate hook, yours to style.
+						</p>
+						<Example code={intentCode}>
+							<div class="demo-row">
+								{#each intentGlyphs as g (g.intent)}
+									<div class="demo-item">
+										<g.icon intent={g.intent} size={32} />
+										<code>{g.intent}</code>
+									</div>
+								{/each}
+								<div class="demo-item">
+									<DemoCheck class="demo-tinted" size={32} />
+									<code>class="…"</code>
+								</div>
+							</div>
+						</Example>
+					{:else}
+						<p class="tab-note">
+							Without <code>ariaLabel</code> an icon is decorative —
+							<code>aria-hidden="true"</code>, invisible to assistive tech. With it, the svg carries
+							an accessible name.
+						</p>
+						<Example code={a11yCode}>
+							<div class="demo-row">
+								<div class="demo-item">
+									<DemoSearch />
+									<span>Decorative (no ariaLabel → aria-hidden)</span>
+								</div>
+								<div class="demo-item">
+									<DemoSearch ariaLabel="Search" />
+									<span>Labelled (ariaLabel="Search")</span>
+								</div>
+							</div>
+						</Example>
+					{/if}
+				</div>
+			{/snippet}
+		</Tabs>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="props-heading"
+	>
+		<h2 id="props-heading">Props</h2>
+		<p>Every icon in the library shares the same interface.</p>
+		<PropsTable label="Icon props" props={iconProps} />
 	</Stack>
 
 	<Stack
@@ -171,87 +326,6 @@
 			{#each CORE_ICONS as name (name)}
 				{@render iconTile(name)}
 			{/each}
-		</div>
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="size-heading"
-	>
-		<h2 id="size-heading">Size &amp; stroke</h2>
-		<Example code={sizeStrokeCode}>
-			<div class="size-demo">
-				<div class="size-demo-controls">
-					<Slider name="icon-size" label="size" min={12} max={64} step={4} bind:value={demoSize} />
-					<Slider
-						name="icon-stroke"
-						label="strokeWidth"
-						min={0.5}
-						max={4}
-						step={0.5}
-						bind:value={demoStroke}
-					/>
-				</div>
-				<div class="size-demo-preview">
-					<DemoCheck size={demoSize} strokeWidth={demoStroke} ariaLabel="Check icon preview" />
-				</div>
-			</div>
-		</Example>
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="intent-heading"
-	>
-		<h2 id="intent-heading">Intent</h2>
-		<p class="tab-note">
-			<code>intent</code> colors the glyph from the shared vocabulary (<code
-				>color: var(--hz-intent-*)</code
-			>) — see
-			<a href="/foundation/colors#intent">Foundation &rarr; Colors &amp; Intent</a>. A
-			<code>class</code> is a separate hook, yours to style.
-		</p>
-		<Example code={intentCode}>
-			<div class="demo-row">
-				{#each intentNames as intentName (intentName)}
-					<div class="demo-item">
-						<DemoCheck intent={intentName} />
-						<code>{intentName}</code>
-					</div>
-				{/each}
-				<div class="demo-item">
-					<DemoCheck class="demo-tinted" />
-					<code>class="…"</code>
-				</div>
-			</div>
-		</Example>
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="a11y-heading"
-	>
-		<h2 id="a11y-heading">Decorative vs. labelled</h2>
-		<div class="demo-row">
-			<div class="demo-item">
-				<!-- aria-hidden="true" — decorative -->
-				<DemoSearch />
-				<span>Decorative (no ariaLabel → aria-hidden)</span>
-			</div>
-			<div class="demo-item">
-				<!-- labelled — carries accessible name -->
-				<DemoSearch ariaLabel="Search" />
-				<span>Labelled (ariaLabel="Search")</span>
-			</div>
 		</div>
 	</Stack>
 
@@ -328,7 +402,7 @@
 	}
 
 	.demo-item :global(.demo-tinted) {
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 
 	.core-grid {

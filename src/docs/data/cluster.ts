@@ -3,7 +3,7 @@ import type { ComponentDoc } from './types.js';
 
 export const clusterDoc: ComponentDoc = {
 	description: 'Lays children out in a horizontal row that wraps to new lines as needed.',
-	importLine: 'import {Cluster} from "@hyzer-labs/ui"',
+	importLine: 'import { Cluster } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'gap',
@@ -28,6 +28,18 @@ export const clusterDoc: ComponentDoc = {
 			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
 			default: "'none'",
 			note: 'Both axes. Shared LayoutPadding scale — near/away tighten inside data-density-shift regions.'
+		},
+		{
+			name: 'paddingInline',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: '—',
+			note: 'Per-axis override — wins over padding on the inline axis. Same LayoutPadding scale.'
+		},
+		{
+			name: 'paddingBlock',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: '—',
+			note: 'Per-axis override — wins over padding on the block axis. Same LayoutPadding scale.'
 		},
 		{ name: 'as', type: 'string', default: "'div'" },
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-cluster class.' },

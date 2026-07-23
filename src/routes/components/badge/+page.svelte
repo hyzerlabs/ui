@@ -175,7 +175,7 @@
 		background: none;
 		padding: 0;
 		font: inherit;
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 		text-decoration: underline;
 		cursor: pointer;
 	}

@@ -9,6 +9,7 @@
  */
 
 import {
+	palette,
 	color,
 	intent,
 	space,
@@ -33,15 +34,17 @@ import {
 export type TokenGroupOverride = Record<string, string>;
 
 /**
- * Color groups additionally accept one level of nesting for ramps — the
- * base palette ships none, but `{ red: { 50: '#fef2f2', 900: '#7f1d1d' } }`
- * generates `--hz-color-red-50` / `--hz-color-red-900`.
+ * The palette group additionally accepts one level of nesting for ramps —
+ * the base palette ships none, but `{ red: { 50: '#fef2f2', 900: '#7f1d1d' } }`
+ * generates `--hz-palette-red-50` / `--hz-palette-red-900`.
  */
-export type ColorGroupOverride = Record<string, string | Record<string, string>>;
+export type RampGroupOverride = Record<string, string | Record<string, string>>;
 
 export interface HyzerTokensOverride {
-	/** Palette + semantic role tokens (`--hz-color-*`); ramps supported. */
-	color?: ColorGroupOverride;
+	/** Raw hue tokens (`--hz-palette-*`); ramps supported (specs/42). */
+	palette?: RampGroupOverride;
+	/** Structural role tokens (`--hz-color-*`). */
+	color?: TokenGroupOverride;
 	/**
 	 * Intent roles (`--hz-intent-*`) — the remap/extension surface: point an
 	 * intent at any color or variable, or add new category intents.
@@ -67,11 +70,12 @@ export interface HyzerTokensOverride {
 /**
  * Dark-mode (`[data-theme="dark"]`) additions, merged over the base dark
  * authoring. The base authors dark entirely at the palette layer, but both
- * layers are open here: override/add hues (ramps supported) in `color`, and
- * remap or add intents per mode in `intent`.
+ * layers are open here: override/add hues (ramps supported) in `palette`,
+ * override roles in `color`, and remap or add intents per mode in `intent`.
  */
 export interface HyzerDarkOverride {
-	color?: ColorGroupOverride;
+	palette?: RampGroupOverride;
+	color?: TokenGroupOverride;
 	intent?: TokenGroupOverride;
 }
 
@@ -109,7 +113,7 @@ export class HyzerConfigError extends Error {
 // ---------------------------------------------------------------------------
 
 export interface TokenEntry {
-	/** Full custom-property name, e.g. `--hz-color-primary`. */
+	/** Full custom-property name, e.g. `--hz-palette-primary` or `--hz-color-surface`. */
 	cssName: string;
 	/** The metadata/config key, e.g. `primary` or `textMuted`. */
 	key: string;
@@ -145,8 +149,8 @@ export interface ResolvedConfig {
 		unitFromConfig: boolean;
 		levels: readonly { near: number; away: number }[];
 	};
-	/** The `[data-theme="dark"]` block: role/palette overrides + intent overrides. */
-	dark: { color: TokenEntry[]; intent: TokenEntry[] };
+	/** The `[data-theme="dark"]` block: palette + role overrides, plus intent overrides. */
+	dark: { palette: TokenEntry[]; color: TokenEntry[]; intent: TokenEntry[] };
 	output?: string;
 	/**
 	 * Deduplicated, order-preserved raw `icons` config (specs/36 R5) —
@@ -237,17 +241,13 @@ function mergeGroup(
 	return entries;
 }
 
-/** Palette entries are raw hex values; everything else in `color` is a role. */
-function isPaletteValue(value: string): boolean {
-	return value.startsWith('#');
-}
-
 /**
- * Flatten ramp objects in a color group: `{ red: { 50: '#fef2f2' } }` →
- * `{ 'red-50': '#fef2f2' }`. The base ships no ramps; consumers may add any.
+ * Flatten ramp objects in a palette group: `{ red: { 50: '#fef2f2' } }` →
+ * `{ 'red-50': '#fef2f2' }`. The base palette ships no ramps; consumers may
+ * add any (specs/42 R2.4 — ramp nesting lives under `tokens.palette` only).
  */
-function flattenColorGroup(
-	group: ColorGroupOverride | undefined,
+function flattenRampGroup(
+	group: RampGroupOverride | undefined,
 	where: string
 ): TokenGroupOverride | undefined {
 	if (!group) return undefined;
@@ -274,6 +274,7 @@ function flattenColorGroup(
 }
 
 const TOKEN_GROUP_KEYS = [
+	'palette',
 	'color',
 	'intent',
 	'space',
@@ -330,7 +331,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	);
 	assertKnownKeys(
 		config.dark as Record<string, unknown> | undefined,
-		['color', 'intent'],
+		['palette', 'color', 'intent'],
 		'config.dark'
 	);
 	if (config.output !== undefined && typeof config.output !== 'string') {
@@ -350,20 +351,24 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		throw new HyzerConfigError('config.tokens.density.unit must be a string.');
 	}
 
-	// --- color: one merged group, then split palette vs. roles ---------------
-	const colorEntries = mergeGroup(
+	// --- palette + roles: two independent groups, split by config shape,
+	// not value inference (specs/42 R2.2 — "clarity is kindness"). ------------
+	const paletteEntries = mergeGroup(
+		stringEntries(palette),
+		flattenRampGroup(tokens?.palette, 'config.tokens.palette'),
+		'--hz-palette-',
+		'config.tokens.palette'
+	);
+	const roleEntries = mergeGroup(
 		stringEntries(color),
-		flattenColorGroup(tokens?.color, 'config.tokens.color'),
+		tokens?.color,
 		'--hz-color-',
 		'config.tokens.color'
 	);
-	const baseColorClass = new Map(stringEntries(color).map(([k, v]) => [k, isPaletteValue(v)]));
-	const palette = colorEntries.filter((e) => baseColorClass.get(e.key) ?? isPaletteValue(e.value));
-	const roles = colorEntries.filter((e) => !(baseColorClass.get(e.key) ?? isPaletteValue(e.value)));
 
 	const sections: ResolvedSection[] = [
-		{ id: 'palette', entries: palette },
-		{ id: 'roles', entries: roles },
+		{ id: 'palette', entries: paletteEntries },
+		{ id: 'roles', entries: roleEntries },
 		{
 			id: 'intent',
 			entries: mergeGroup(
@@ -469,9 +474,15 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	// entries. config.dark.intent stays available as the consumer surface for
 	// mode-specific intent remaps.
 	const dark = {
+		palette: mergeGroup(
+			stringEntries(palette.theme.dark),
+			flattenRampGroup(config.dark?.palette, 'config.dark.palette'),
+			'--hz-palette-',
+			'config.dark.palette'
+		),
 		color: mergeGroup(
 			stringEntries(color.theme.dark),
-			flattenColorGroup(config.dark?.color, 'config.dark.color'),
+			config.dark?.color,
 			'--hz-color-',
 			'config.dark.color'
 		),
@@ -503,6 +514,7 @@ function validateReferences(resolved: ResolvedConfig): void {
 	const defined = new Set<string>(['--hz-density', '--hz-space-near', '--hz-space-away']);
 	const all: TokenEntry[] = [
 		...resolved.sections.flatMap((s) => s.entries),
+		...resolved.dark.palette,
 		...resolved.dark.color,
 		...resolved.dark.intent
 	];

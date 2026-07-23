@@ -21,6 +21,7 @@ export { default as Image } from './Image.svelte';
 export { default as Video } from './Video.svelte';
 export { default as Alert } from './Alert.svelte';
 export { default as Badge } from './Badge.svelte';
+export { default as Banner } from './Banner.svelte';
 export { default as Blockquote } from './Blockquote.svelte';
 export { default as Card } from './Card.svelte';
 export { default as Divider } from './Divider.svelte';

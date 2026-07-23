@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const paginationDoc: ComponentDoc = {
 	description:
 		'A navigation landmark of page controls — previous/next, boundary and sibling windows with ellipsis truncation, and button or real-link modes.',
-	importLine: 'import {Pagination} from "@hyzer-labs/ui"',
+	importLine: 'import { Pagination } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'count', type: 'number', default: '—', note: 'Required. Total pages.' },
 		{ name: 'page', type: 'number', default: '1', note: 'Bindable. 1-based.' },

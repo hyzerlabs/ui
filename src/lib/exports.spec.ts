@@ -45,6 +45,8 @@ describe('subpath exports', () => {
 		expect(mod.ColorInput).toBeDefined();
 		// Badge-R6: Badge exported from $lib.
 		expect(mod.Badge).toBeDefined();
+		// Banner-R10: Banner exported from $lib.
+		expect(mod.Banner).toBeDefined();
 		// Alert-R6: Alert exported from $lib.
 		expect(mod.Alert).toBeDefined();
 		// Blockquote-R6: Blockquote exported from $lib.
@@ -141,12 +143,14 @@ describe('subpath exports', () => {
 		expect(typeof mod.HyzerConfigError).toBe('function');
 	});
 
-	it('$lib/tokens — exports the token metadata groups (specs/15 R7/R9)', async () => {
+	it('$lib/tokens — exports the token metadata groups (specs/15 R7/R9, specs/42 R1)', async () => {
 		const mod = await import('$lib/tokens');
 		expect(mod.prefix).toBe('--hz');
+		expect(mod.palette).toBeDefined();
 		expect(mod.color).toBeDefined();
 		expect(mod.intent).toBeDefined();
-		expect(mod.color.theme.dark.primary).toBeDefined();
+		expect(mod.palette.theme.dark.primary).toBeDefined();
+		expect(mod.color.theme.dark.surface).toBeDefined();
 		expect(mod.typography).toBeDefined();
 		expect(mod.space).toBeDefined();
 	});

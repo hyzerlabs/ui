@@ -153,6 +153,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 		const tokenCount =
 			resolved.sections.reduce((n, s) => n + s.entries.length, 0) +
 			1 + // --hz-density
+			resolved.dark.palette.length +
 			resolved.dark.color.length +
 			resolved.dark.intent.length;
 		log(`wrote ${outPath} (${mode}, ${tokenCount} tokens)`);

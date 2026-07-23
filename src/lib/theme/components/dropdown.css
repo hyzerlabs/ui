@@ -31,7 +31,7 @@
 	 * :focus-visible, never aria-activedescendant or data-active. A
 	 * background/contrast change, not a hue-only signal (1.4.1). */
 	.hz-dropdown-item:where(:hover, :focus, :focus-visible) {
-		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 12%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 12%, transparent);
 		outline: none;
 	}
 

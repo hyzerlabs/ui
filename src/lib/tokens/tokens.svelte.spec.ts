@@ -70,17 +70,22 @@ describe('R1 — width tokens resolve correctly on :root', () => {
 	});
 });
 
-describe('R2/R3 — color tokens resolve on :root', () => {
-	it('--hz-color-gray is defined and non-empty', () => {
-		expect(rootVar('--hz-color-gray')).toBeTruthy();
+describe('R2/R3 — palette tokens resolve on :root (specs/42 R1)', () => {
+	it('--hz-palette-gray is defined and non-empty', () => {
+		expect(rootVar('--hz-palette-gray')).toBeTruthy();
 	});
 
-	it('--hz-color-primary is defined and non-empty', () => {
-		expect(rootVar('--hz-color-primary')).toBeTruthy();
+	it('--hz-palette-primary is defined and non-empty', () => {
+		expect(rootVar('--hz-palette-primary')).toBeTruthy();
 	});
 
-	it('--hz-color-info is defined and non-empty', () => {
-		expect(rootVar('--hz-color-info')).toBeTruthy();
+	it('--hz-palette-info is defined and non-empty', () => {
+		expect(rootVar('--hz-palette-info')).toBeTruthy();
+	});
+
+	it('--hz-palette-black / --hz-palette-white are defined and non-empty', () => {
+		expect(rootVar('--hz-palette-black')).toBeTruthy();
+		expect(rootVar('--hz-palette-white')).toBeTruthy();
 	});
 });
 
@@ -111,8 +116,8 @@ describe('R6 — motion tokens resolve on :root', () => {
 		expect(rootVar('--hz-ease-standard')).toBe('cubic-bezier(0.2, 0, 0, 1)');
 	});
 
-	it('--hz-z-toast resolves to "1200"', () => {
-		expect(rootVar('--hz-z-toast')).toBe('1200');
+	it('--hz-z-sticky resolves to "100"', () => {
+		expect(rootVar('--hz-z-sticky')).toBe('100');
 	});
 });
 
@@ -192,22 +197,27 @@ describe('density spacing tokens', () => {
 // ---------------------------------------------------------------------------
 
 describe('R4 — semantic role indirection in light mode', () => {
-	it('--hz-color-surface resolves to the same color as --hz-color-white', () => {
+	it('--hz-color-surface resolves to the same color as --hz-palette-white', () => {
 		const surface = resolveColor('var(--hz-color-surface)');
-		const white = resolveColor('var(--hz-color-white)');
+		const white = resolveColor('var(--hz-palette-white)');
 		expect(surface).toBe(white);
 	});
 
-	it('--hz-color-text resolves to the same color as --hz-color-black', () => {
+	it('--hz-color-text resolves to the same color as --hz-palette-black', () => {
 		const text = resolveColor('var(--hz-color-text)');
-		const black = resolveColor('var(--hz-color-black)');
+		const black = resolveColor('var(--hz-palette-black)');
 		expect(text).toBe(black);
 	});
 
 	it('--hz-color-surface-muted resolves to a 6% gray mix over surface', () => {
 		expect(resolveColor('var(--hz-color-surface-muted)')).toBe(
-			resolveColor('color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface))')
+			resolveColor('color-mix(in srgb, var(--hz-palette-gray) 6%, var(--hz-color-surface))')
 		);
+	});
+
+	it('--hz-color-black / --hz-color-white alias roles resolve to the palette pair', () => {
+		expect(resolveColor('var(--hz-color-black)')).toBe(resolveColor('var(--hz-palette-black)'));
+		expect(resolveColor('var(--hz-color-white)')).toBe(resolveColor('var(--hz-palette-white)'));
 	});
 });
 
@@ -230,19 +240,19 @@ describe('intent role indirection', () => {
 		}
 	});
 
-	it('--hz-intent-danger resolves to the same color as --hz-color-danger', () => {
-		expect(resolveColor('var(--hz-intent-danger)')).toBe(resolveColor('var(--hz-color-danger)'));
+	it('--hz-intent-danger resolves to the same color as --hz-palette-danger', () => {
+		expect(resolveColor('var(--hz-intent-danger)')).toBe(resolveColor('var(--hz-palette-danger)'));
 	});
 
-	it('--hz-intent-neutral resolves to the same color as --hz-color-gray', () => {
-		expect(resolveColor('var(--hz-intent-neutral)')).toBe(resolveColor('var(--hz-color-gray)'));
+	it('--hz-intent-neutral resolves to the same color as --hz-palette-gray', () => {
+		expect(resolveColor('var(--hz-intent-neutral)')).toBe(resolveColor('var(--hz-palette-gray)'));
 	});
 
 	it('overriding --hz-intent-danger retargets it without touching the palette', () => {
 		document.documentElement.style.setProperty('--hz-intent-danger', 'rgb(1, 2, 3)');
 		try {
 			expect(resolveColor('var(--hz-intent-danger)')).toBe('rgb(1, 2, 3)');
-			expect(resolveColor('var(--hz-color-danger)')).not.toBe('rgb(1, 2, 3)');
+			expect(resolveColor('var(--hz-palette-danger)')).not.toBe('rgb(1, 2, 3)');
 		} finally {
 			document.documentElement.style.removeProperty('--hz-intent-danger');
 		}
@@ -258,29 +268,29 @@ describe('R5 — dark theme override hook', () => {
 		document.documentElement.removeAttribute('data-theme');
 	});
 
-	it('data-theme="dark" on root flips --hz-color-surface to the same color as --hz-color-black', () => {
+	it('data-theme="dark" on root flips --hz-color-surface to the same color as --hz-palette-black', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
 		const surface = resolveColor('var(--hz-color-surface)');
-		const black = resolveColor('var(--hz-color-black)');
+		const black = resolveColor('var(--hz-palette-black)');
 		expect(surface).toBe(black);
 	});
 
-	it('data-theme="dark" on root flips --hz-color-text to the same color as --hz-color-white', () => {
+	it('data-theme="dark" on root flips --hz-color-text to the same color as --hz-palette-white', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
 		const text = resolveColor('var(--hz-color-text)');
-		const white = resolveColor('var(--hz-color-white)');
+		const white = resolveColor('var(--hz-palette-white)');
 		expect(text).toBe(white);
 	});
 
-	it('--hz-color-primary lightens to its dark companion', () => {
+	it('--hz-palette-primary lightens to its dark companion', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(resolveColor('var(--hz-color-primary)')).toBe('rgb(96, 165, 250)'); // #60a5fa
+		expect(resolveColor('var(--hz-palette-primary)')).toBe('rgb(96, 165, 250)'); // #60a5fa
 	});
 
-	it('--hz-color-gray lightens in dark mode (border/muted chains follow)', () => {
-		const before = resolveColor('var(--hz-color-gray)');
+	it('--hz-palette-gray lightens in dark mode (border/muted chains follow)', () => {
+		const before = resolveColor('var(--hz-palette-gray)');
 		document.documentElement.setAttribute('data-theme', 'dark');
-		const after = resolveColor('var(--hz-color-gray)');
+		const after = resolveColor('var(--hz-palette-gray)');
 		expect(after).not.toBe(before);
 		expect(after).toBe('rgb(156, 163, 175)'); // #9ca3af
 	});
@@ -308,27 +318,55 @@ describe('R5 — dark theme override hook', () => {
 
 	it('dark status intents still chain through the (lightened) palette', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(resolveColor('var(--hz-intent-danger)')).toBe(resolveColor('var(--hz-color-danger)'));
-		expect(resolveColor('var(--hz-color-danger)')).toBe('rgb(248, 113, 113)'); // #f87171
+		expect(resolveColor('var(--hz-intent-danger)')).toBe(resolveColor('var(--hz-palette-danger)'));
+		expect(resolveColor('var(--hz-palette-danger)')).toBe('rgb(248, 113, 113)'); // #f87171
 	});
 
 	it('dark mode is authored at the palette layer — intents stay pure chains', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(resolveColor('var(--hz-intent-primary)')).toBe(resolveColor('var(--hz-color-primary)'));
+		expect(resolveColor('var(--hz-intent-primary)')).toBe(
+			resolveColor('var(--hz-palette-primary)')
+		);
 		expect(resolveColor('var(--hz-intent-primary)')).toBe('rgb(96, 165, 250)'); // #60a5fa
-		expect(resolveColor('var(--hz-intent-neutral)')).toBe(resolveColor('var(--hz-color-gray)'));
+		expect(resolveColor('var(--hz-intent-neutral)')).toBe(resolveColor('var(--hz-palette-gray)'));
 	});
 
 	it('--hz-color-border chains through the lightened gray in dark mode', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
-		expect(resolveColor('var(--hz-color-border)')).toBe(resolveColor('var(--hz-color-gray)'));
+		expect(resolveColor('var(--hz-color-border)')).toBe(resolveColor('var(--hz-palette-gray)'));
 	});
 
 	it('data-theme="dark" strengthens --hz-color-surface-muted to a 25% gray mix over surface', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
 		expect(resolveColor('var(--hz-color-surface-muted)')).toBe(
-			resolveColor('color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface))')
+			resolveColor('color-mix(in srgb, var(--hz-palette-gray) 25%, var(--hz-color-surface))')
 		);
+	});
+
+	it('--hz-color-black / --hz-color-white anchor roles do NOT flip under data-theme="dark"', () => {
+		const lightBlack = resolveColor('var(--hz-color-black)');
+		const lightWhite = resolveColor('var(--hz-color-white)');
+		// In light mode the anchors sit opposite surface/text (white surface,
+		// black text) — distinct from the anchor of the same name.
+		expect(lightBlack).not.toBe(resolveColor('var(--hz-color-surface)'));
+		expect(lightWhite).not.toBe(resolveColor('var(--hz-color-text)'));
+		document.documentElement.setAttribute('data-theme', 'dark');
+		// The anchors themselves are unchanged...
+		expect(resolveColor('var(--hz-color-black)')).toBe(lightBlack);
+		expect(resolveColor('var(--hz-color-white)')).toBe(lightWhite);
+		// ...even though dark mode's flipped surface/text now happen to
+		// COINCIDE with them by design (surface flips TO black, text TO white)
+		// — that coincidence is the point of the anchors, not a contradiction.
+		expect(resolveColor('var(--hz-color-surface)')).toBe(lightBlack);
+		expect(resolveColor('var(--hz-color-text)')).toBe(lightWhite);
+	});
+
+	it('--hz-palette-black / --hz-palette-white are absolute — no dark companion at all', () => {
+		const lightBlack = resolveColor('var(--hz-palette-black)');
+		const lightWhite = resolveColor('var(--hz-palette-white)');
+		document.documentElement.setAttribute('data-theme', 'dark');
+		expect(resolveColor('var(--hz-palette-black)')).toBe(lightBlack);
+		expect(resolveColor('var(--hz-palette-white)')).toBe(lightWhite);
 	});
 
 	it('--hz-space-md is unchanged in dark mode', () => {
@@ -341,7 +379,7 @@ describe('R5 — dark theme override hook', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
 		document.documentElement.removeAttribute('data-theme');
 		const surface = resolveColor('var(--hz-color-surface)');
-		const white = resolveColor('var(--hz-color-white)');
+		const white = resolveColor('var(--hz-palette-white)');
 		expect(surface).toBe(white);
 	});
 });

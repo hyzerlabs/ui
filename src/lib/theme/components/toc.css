@@ -75,8 +75,8 @@
 	 * drawn with an inset shadow over the list's hairline so it costs no
 	 * layout. Logical (inset-inline-start), so it follows RTL. */
 	.hz-toc-link[aria-current='location'] {
-		color: var(--hz-color-primary, #2563eb);
-		box-shadow: inset 2px 0 0 var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
+		box-shadow: inset 2px 0 0 var(--hz-intent-primary, #2563eb);
 		font-weight: var(--hz-font-weight-medium, 500);
 	}
 
@@ -106,7 +106,7 @@
 
 	.hz-toc-trigger:hover {
 		color: var(--hz-color-text, #000);
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 8%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 8%, transparent);
 	}
 
 	.hz-toc-trigger .hz-icon {

@@ -10,29 +10,30 @@
 	];
 
 	const paletteCode = [
-		'/* Override any hue once; every role and intent that references it',
-		'   follows automatically. */',
+		'/* Override any hue once, in the --hz-palette-* namespace; every role',
+		'   and intent that references it follows automatically. */',
 		':root {',
-		'\t--hz-color-primary: #0f766e;',
-		'\t--hz-color-gray: #64748b; /* border, text-muted, and surface tints follow */',
+		'\t--hz-palette-primary: #0f766e;',
+		'\t--hz-palette-gray: #64748b; /* border, text-muted, and surface tints follow */',
 		'}'
 	].join('\n');
 
 	const intentCode = [
 		'/* The intent layer is a remap surface: point an intent at a different',
-		'   hue than the palette default, or add brand-new category tokens. */',
+		'   palette hue than its default, or add brand-new category tokens. */',
 		':root {',
-		'\t--hz-intent-danger: var(--hz-color-secondary); /* remap */',
-		'\t--hz-intent-fairway: #3f6212;                   /* extend */',
+		'\t--hz-intent-danger: var(--hz-palette-secondary); /* remap */',
+		'\t--hz-intent-fairway: #3f6212;                     /* extend */',
 		'}'
 	].join('\n');
 
 	const darkCode = [
-		'/* Dark mode is authored at the palette layer — the same hook the base',
-		'   sheet uses. Override a hue here and its intents, borders, and muted',
-		'   tints follow in dark only. */',
+		'/* Dark mode may override any tier, including the palette — the same',
+		'   hook the base sheet uses. Override a hue here and its intents,',
+		'   borders, and muted tints follow in dark only; your components keep',
+		'   resolving through roles/intents either way. */',
 		"[data-theme='dark'] {",
-		'\t--hz-color-primary: #2dd4bf;',
+		'\t--hz-palette-primary: #2dd4bf;',
 		'}',
 		'',
 		'/* Intents can be re-authored per mode too, if you want a mapping that',
@@ -57,17 +58,17 @@
 		'export default defineConfig({',
 		"\toutput: 'src/styles/tokens.css',",
 		'\ttokens: {',
-		'\t\tcolor: {',
+		'\t\tpalette: {',
 		"\t\t\tprimary: '#0f766e',                              // override",
 		"\t\t\tfairway: '#3f6212',                              // add a hue",
 		"\t\t\tbrandRed: { 50: '#fef2f2', 900: '#7f1d1d' }      // add a ramp",
 		'\t\t},',
-		"\t\tintent: { fairway: 'var(--hz-color-fairway)' },   // add an intent",
+		"\t\tintent: { fairway: 'var(--hz-palette-fairway)' }, // add an intent",
 		'\t\ttypography: { fontFamily: { sans: "\'Inter\', system-ui, sans-serif" } },',
 		"\t\tdensity: { unit: '0.5rem' }",
 		'\t},',
 		'\tdark: {',
-		"\t\tcolor: { primary: '#2dd4bf', fairway: '#a3e635' }",
+		"\t\tpalette: { primary: '#2dd4bf', fairway: '#a3e635' }",
 		'\t}',
 		'});'
 	].join('\n');
@@ -120,8 +121,9 @@
 	<div>
 		<h1>Tokens &amp; Overrides</h1>
 		<p>
-			Two layers, one rule. Layer 1 is the palette — single-value hues, authored per mode. Layer 2
-			(semantic roles and intents) is pure <code>var()</code> indirection that chains through it.
+			Two layers, one rule. Layer 1 is the palette (<code>--hz-palette-*</code>) — single-value
+			hues, authored per mode. Layer 2 (semantic roles, <code>--hz-color-*</code>, and intents,
+			<code>--hz-intent-*</code>) is pure <code>var()</code> indirection that chains through it.
 			Override a hue and everything referencing it follows; remap or extend Layer 2 when you want a
 			different wiring. Token names and defaults live on
 			<a href="/foundation/colors">Colors &amp; Intent</a>. Duration and easing tokens (<code
@@ -132,6 +134,11 @@
 			— the same page introduces
 			<code>@hyzer-labs/ui/motion</code>, script-side helpers (transitions, a scroll-reveal
 			attachment, a view-transition wrapper) built on those tokens.
+		</p>
+		<p class="doctrine-note">
+			Dark mode may override any tier in <code>[data-theme='dark']</code>, including the palette —
+			your components and the reference theme never read <code>--hz-palette-*</code> directly, so they
+			keep resolving through roles and intents either way.
 		</p>
 	</div>
 
@@ -163,9 +170,8 @@
 		<p>
 			The same engine that generates this library's own <code>tokens.css</code> ships in the
 			package. Describe your system once in <code>hyzer.config.ts</code> — overrides merge over the
-			base schema, new keys extend it, and nested color objects generate ramps (<code
-				>--hz-color-brand-red-900</code
-			>) even though the base palette ships none.
+			base schema, new keys extend it, and nested <code>tokens.palette</code> objects generate ramps
+			(<code>--hz-palette-brand-red-900</code>) even though the base palette ships none.
 		</p>
 		<CodeBlock code={configCode} />
 		<p>
@@ -242,6 +248,14 @@
 
 	.note {
 		margin: 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.doctrine-note {
+		margin: 0;
+		padding: 0.75rem 1rem;
+		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 	}

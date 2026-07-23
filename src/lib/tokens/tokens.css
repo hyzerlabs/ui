@@ -11,35 +11,37 @@
  */
 :root {
 	/* =====================================================================
-	 * Layer 1 — Palette
+	 * Layer 1 — Palette (--hz-palette-*)
 	 * Single value per color; no per-color ramps.
 	 * ===================================================================== */
-	--hz-color-primary: #2563eb;
-	--hz-color-secondary: #7c3aed;
+	--hz-palette-primary: #2563eb;
+	--hz-palette-secondary: #7c3aed;
 	/* Status hues tuned 2026-07-14 so every intent color passes WCAG AA
 	 * (≥ 4.5:1) as text on both light surfaces — and so white text passes
 	 * on every solid intent background. */
-	--hz-color-success: #15803d;
-	--hz-color-warning: #b45309;
-	--hz-color-danger: #b91c1c;
-	--hz-color-info: #0e7490;
-	--hz-color-black: #000000;
-	--hz-color-white: #ffffff;
-	--hz-color-gray: #6b7280;
+	--hz-palette-success: #15803d;
+	--hz-palette-warning: #b45309;
+	--hz-palette-danger: #b91c1c;
+	--hz-palette-info: #0e7490;
+	--hz-palette-black: #000000;
+	--hz-palette-white: #ffffff;
+	--hz-palette-gray: #6b7280;
 
 	/* =====================================================================
 	 * Layer 2 — Semantic roles (light defaults)
 	 * Reference the palette via var(); the dark block overrides these roles
 	 * (and the status hues below) — the indirection point for theming.
 	 * ===================================================================== */
-	--hz-color-surface: var(--hz-color-white);
+	--hz-color-surface: var(--hz-palette-white);
 	/* Subdued opaque surface (code blocks, footer, quiet panels): gray mixed
 	 * over surface, so it tracks surface overrides and covers what's behind
 	 * it. The dark block strengthens the mix — 6% is invisible over black. */
-	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface));
-	--hz-color-text: var(--hz-color-black);
-	--hz-color-text-muted: var(--hz-color-gray);
-	--hz-color-border: var(--hz-color-gray);
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 6%, var(--hz-color-surface));
+	--hz-color-text: var(--hz-palette-black);
+	--hz-color-text-muted: var(--hz-palette-gray);
+	--hz-color-border: var(--hz-palette-gray);
+	--hz-color-black: var(--hz-palette-black);
+	--hz-color-white: var(--hz-palette-white);
 
 	/* =====================================================================
 	 * Layer 2 — Intent roles
@@ -48,13 +50,13 @@
 	 * override --hz-intent-* to retarget status colors specifically without
 	 * touching the palette; override the palette and these follow.
 	 * ===================================================================== */
-	--hz-intent-neutral: var(--hz-color-gray);
-	--hz-intent-primary: var(--hz-color-primary);
-	--hz-intent-secondary: var(--hz-color-secondary);
-	--hz-intent-danger: var(--hz-color-danger);
-	--hz-intent-warning: var(--hz-color-warning);
-	--hz-intent-success: var(--hz-color-success);
-	--hz-intent-info: var(--hz-color-info);
+	--hz-intent-neutral: var(--hz-palette-gray);
+	--hz-intent-primary: var(--hz-palette-primary);
+	--hz-intent-secondary: var(--hz-palette-secondary);
+	--hz-intent-danger: var(--hz-palette-danger);
+	--hz-intent-warning: var(--hz-palette-warning);
+	--hz-intent-success: var(--hz-palette-success);
+	--hz-intent-info: var(--hz-palette-info);
 
 	/* =====================================================================
 	 * Type scale
@@ -134,10 +136,12 @@
 	 * Z-index
 	 * ===================================================================== */
 	--hz-z-base: 0;
+	--hz-z-raised: 1;
 	--hz-z-dropdown: 10;
+	--hz-z-sticky: 100;
+	--hz-z-popover: 200;
 	--hz-z-overlay: 1000;
 	--hz-z-modal: 1100;
-	--hz-z-toast: 1200;
 
 	/* =====================================================================
 	 * Motion
@@ -191,15 +195,15 @@ body [data-density-shift] [data-density-shift] [data-density-shift] {
  * activates this block for that subtree via normal CSS cascade.
  * ========================================================================== */
 [data-theme='dark'] {
-	--hz-color-surface: var(--hz-color-black);
-	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface));
-	--hz-color-text: var(--hz-color-white);
+	--hz-color-surface: var(--hz-palette-black);
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 25%, var(--hz-color-surface));
+	--hz-color-text: var(--hz-palette-white);
 
-	--hz-color-primary: #60a5fa;
-	--hz-color-secondary: #a78bfa;
-	--hz-color-danger: #f87171;
-	--hz-color-warning: #fbbf24;
-	--hz-color-success: #4ade80;
-	--hz-color-info: #22d3ee;
-	--hz-color-gray: #9ca3af;
+	--hz-palette-primary: #60a5fa;
+	--hz-palette-secondary: #a78bfa;
+	--hz-palette-danger: #f87171;
+	--hz-palette-warning: #fbbf24;
+	--hz-palette-success: #4ade80;
+	--hz-palette-info: #22d3ee;
+	--hz-palette-gray: #9ca3af;
 }

@@ -23,7 +23,7 @@
 	}
 
 	.hz-nav :where(.hz-nav-panel .hz-link:hover) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 10%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 10%, transparent);
 	}
 
 	/* Vertical (sidebar) sections — inline, indented under their trigger */
@@ -62,7 +62,7 @@
 
 	.hz-nav-chevron:where(:hover),
 	.hz-nav-trigger:where(:hover) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 10%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 10%, transparent);
 	}
 
 	.hz-nav-chevron .hz-icon,

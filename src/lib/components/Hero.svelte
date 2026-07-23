@@ -160,7 +160,7 @@
 	.hz-hero-background {
 		position: absolute;
 		inset: 0;
-		z-index: 0;
+		z-index: var(--hz-z-base, 0);
 	}
 
 	/* Content and media sit above the background in all layouts. */
@@ -168,12 +168,12 @@
 		display: flex;
 		flex-direction: column;
 		position: relative;
-		z-index: 1;
+		z-index: var(--hz-z-raised, 1);
 	}
 
 	.hz-hero-media {
 		position: relative;
-		z-index: 1;
+		z-index: var(--hz-z-raised, 1);
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -221,7 +221,7 @@
 	.hz-hero[data-layout='split'] :global(.hz-split) {
 		width: 100%;
 		position: relative;
-		z-index: 1;
+		z-index: var(--hz-z-raised, 1);
 	}
 
 	/* Split's gap="lg" sets both axes, but 4rem reads oversized vertically

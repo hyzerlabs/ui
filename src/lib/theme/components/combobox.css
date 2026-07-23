@@ -38,7 +38,7 @@
 	}
 
 	.hz-combobox-toggle:where(:hover) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 10%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 10%, transparent);
 		color: var(--hz-color-text, #000);
 	}
 
@@ -83,7 +83,7 @@
 	/* Combobox-R8: the active (virtually focused) option — a background
 	 * change, not a hue-only signal. */
 	.hz-combobox-option[data-active] {
-		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 12%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 12%, transparent);
 	}
 
 	/* Combobox-R9/R10: the committed selection — non-color-only affordance
@@ -94,7 +94,7 @@
 
 	.hz-combobox-option[data-selected]::after {
 		content: '\2713';
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 		flex-shrink: 0;
 	}
 

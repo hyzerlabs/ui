@@ -18,10 +18,10 @@
 
 /* Focus deepens the well and adds the theme's halo. Redefining
  * --hz-field-ring rather than the box-shadow means the halo keeps tracking
- * --hz-color-primary through a palette change, and the Toggle's focus rule
+ * --hz-intent-primary through a palette change, and the Toggle's focus rule
  * (which inherits this same property) follows along for free. */
 .hz-theme-sunset .hz-field {
-	--hz-field-ring: 0 0 0 3px color-mix(in srgb, var(--hz-color-primary, #c2410c) 30%, transparent);
+	--hz-field-ring: 0 0 0 3px color-mix(in srgb, var(--hz-intent-primary, #c2410c) 30%, transparent);
 }
 
 .hz-theme-sunset .hz-input-wrapper:focus-within,

@@ -44,7 +44,7 @@
 		rounded = false,
 		placeholder = 'none',
 		placeholderSrc,
-		placeholderColor = 'var(--hz-color-gray)',
+		placeholderColor = 'var(--hz-color-border)',
 		class: className,
 		...rest
 	}: Props = $props();

@@ -2,8 +2,10 @@
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import { Nav, Toc } from '$lib';
+	import { Button, Nav, Toc } from '$lib';
 	import type { NavChild } from '$lib/types';
+	import IconSun from '$lib/icons/generated/sun.svelte';
+	import IconMoon from '$lib/icons/generated/moon.svelte';
 	import { isGrouped, isSection, manifest, sectionPages } from '../docs/manifest';
 	import CommandPalette, { type CommandItem } from '../docs/CommandPalette.svelte';
 	import '$lib/theme/reset.css';
@@ -22,7 +24,6 @@
 	let { children }: Props = $props();
 
 	// R9 — theme toggle state (false = light, true = dark)
-	// eslint-disable-next-line svelte/prefer-writable-derived
 	let dark = $state(false);
 
 	// Mobile nav open state
@@ -95,23 +96,26 @@
 		closeMobileNav();
 	}
 
-	// R9 — initialize from localStorage and sync to DOM
+	// R9 — initialize: an explicit stored choice wins; with no stored key the
+	// site follows the system preference. Storage is only written on an
+	// actual toggle (below), so "follow the system" stays live until the
+	// user makes a choice — 'light' is stored explicitly for the same reason.
 	$effect(() => {
-		dark = localStorage.getItem('hz-theme') === 'dark';
+		const stored = localStorage.getItem('hz-theme');
+		dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
 	});
 
 	$effect(() => {
 		if (dark) {
 			document.documentElement.setAttribute('data-theme', 'dark');
-			localStorage.setItem('hz-theme', 'dark');
 		} else {
 			document.documentElement.removeAttribute('data-theme');
-			localStorage.removeItem('hz-theme');
 		}
 	});
 
 	function toggleTheme() {
 		dark = !dark;
+		localStorage.setItem('hz-theme', dark ? 'dark' : 'light');
 	}
 
 	function toggleMobileNav() {
@@ -135,15 +139,19 @@
 	<header class="docs-topbar">
 		<a href="/" class="docs-logo">@hyzer-labs/ui</a>
 		<div class="docs-topbar-end">
-			<button
-				type="button"
-				class="docs-icon-btn"
-				aria-pressed={dark ? 'true' : 'false'}
-				aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+			<!-- Dogfooded: the icon-only Button form (no children + iconStart). The
+			     colors page's Dark mode section shows this exact pattern. -->
+			<Button
+				variant="ghost"
+				intent="neutral"
+				ariaLabel={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+				aria-pressed={dark}
 				onclick={toggleTheme}
 			>
-				{#if dark}<span aria-hidden="true">☀︎</span>{:else}<span aria-hidden="true">☾</span>{/if}
-			</button>
+				{#snippet iconStart()}
+					{#if dark}<IconSun />{:else}<IconMoon />{/if}
+				{/snippet}
+			</Button>
 			<button
 				type="button"
 				class="docs-icon-btn"
@@ -174,15 +182,17 @@
 			<div class="docs-sidebar-header">
 				<div class="docs-sidebar-headrow">
 					<a href="/" class="docs-logo" onclick={closeMobileNav}>@hyzer-labs/ui</a>
-					<button
-						type="button"
-						class="docs-icon-btn"
-						aria-pressed={dark ? 'true' : 'false'}
-						aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+					<Button
+						variant="ghost"
+						intent="neutral"
+						ariaLabel={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+						aria-pressed={dark}
 						onclick={toggleTheme}
 					>
-						{#if dark}<span aria-hidden="true">☀︎</span>{:else}<span aria-hidden="true">☾</span>{/if}
-					</button>
+						{#snippet iconStart()}
+							{#if dark}<IconSun />{:else}<IconMoon />{/if}
+						{/snippet}
+					</Button>
 				</div>
 				<!-- The /patterns/command-palette page ships its own ⌘K demo; yield the
 				     shortcut there so the two don't both fire. -->
@@ -460,7 +470,7 @@
 	}
 
 	.docs-sidenav-wrap :global(.hz-nav-links > li > .hz-link[aria-current='page']) {
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 
 	.docs-sidenav-wrap :global(.hz-nav-chevron) {
@@ -538,9 +548,9 @@
 	}
 
 	.docs-sidenav-wrap :global(.hz-nav-panel .hz-link[aria-current='page']) {
-		color: var(--hz-color-primary, #2563eb);
-		box-shadow: inset 2px 0 0 var(--hz-color-primary, #2563eb);
-		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 8%, transparent);
+		color: var(--hz-intent-primary, #2563eb);
+		box-shadow: inset 2px 0 0 var(--hz-intent-primary, #2563eb);
+		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 8%, transparent);
 		font-weight: var(--hz-font-weight-medium, 500);
 	}
 
@@ -686,7 +696,7 @@
 	   table cells (props/hooks tables render code plain) stay plain. */
 	:global(p code),
 	:global(li code) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 14%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 14%, transparent);
 		padding: 0.125em 0.375em;
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		font-family: var(--hz-font-family-mono, monospace);
@@ -697,7 +707,7 @@
 	   6% → 25% in the dark palette) — strengthen the chip tint in dark. */
 	:global([data-theme='dark'] p code),
 	:global([data-theme='dark'] li code) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #9ca3af) 28%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #9ca3af) 28%, transparent);
 	}
 
 	/* Utility: visually-hidden text for screen readers */

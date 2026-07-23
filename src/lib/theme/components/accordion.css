@@ -20,7 +20,7 @@
 	}
 
 	.hz-accordion-trigger:where(:hover) {
-		background-color: color-mix(in srgb, var(--hz-color-gray, #6b7280) 8%, transparent);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 8%, transparent);
 	}
 
 	.hz-accordion-trigger:where([aria-disabled='true']) {

@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const heroDoc: ComponentDoc = {
 	description:
 		'A section component for page heroes supporting center, split, and overlay layouts. Text slots accept plain strings or snippets; in the overlay layout, media becomes the full-bleed background.',
-	importLine: 'import {Hero} from "@hyzer-labs/ui"',
+	importLine: 'import { Hero } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'layout', type: "'center' | 'split' | 'overlay'", default: "'center'" },
 		{ name: 'height', type: "'auto' | 'screen' | 'half'", default: "'auto'" },

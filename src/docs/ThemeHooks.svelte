@@ -70,6 +70,6 @@
 	}
 
 	code.values {
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 </style>

@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const footerDoc: ComponentDoc = {
 	description:
 		'Site footer with auto-fitting multi-column link groups, optional logo, social links, and a bottom bar.',
-	importLine: 'import {Footer} from "@hyzer-labs/ui"',
+	importLine: 'import { Footer } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'columns',
@@ -66,5 +66,5 @@ export const footerDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'Each column is a `<nav>` landmark labelled by its title heading — set `headingLevel` to match your page hierarchy. Links use the Link component; icon-only social links need an `ariaLabel`.'
+		'Each column is a `<nav>` landmark with `aria-label` set to its title — the visible heading repeats the same text but is not what names the landmark. Set `headingLevel` to match your page hierarchy. Links use the Link component; icon-only social links need an `ariaLabel`.'
 };

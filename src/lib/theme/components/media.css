@@ -24,7 +24,7 @@
 	.hz-image:where([data-state='error']) {
 		background-color: color-mix(
 			in srgb,
-			var(--hz-color-gray, #6b7280) 12%,
+			var(--hz-intent-neutral, #6b7280) 12%,
 			var(--hz-color-surface, #fff)
 		);
 		color: var(--hz-color-text-muted, #6b7280);

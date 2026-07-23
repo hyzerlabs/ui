@@ -30,10 +30,9 @@
 
 	function paddingCode(padding: string): string {
 		return [
-			`<Stack padding="${padding}">`,
-			'\t<div>Item 1</div>',
-			'\t<div>Item 2</div>',
-			'</Stack>'
+			`<Stack padding="${padding}">…</Stack>`,
+			`<Stack paddingInline="${padding}">…</Stack>`,
+			`<Stack paddingBlock="${padding}">…</Stack>`
 		].join('\n');
 	}
 
@@ -110,8 +109,11 @@
 					</Tabs>
 				{:else if item.id === 'padding'}
 					<p class="tab-note">
-						The tinted zone is the Stack; the space between its edge and the items is the padding,
-						applied on both axes.
+						The tinted zone is the Stack; the space between its edge and the items is the padding.
+						<code>padding</code> applies on both axes; <code>paddingInline</code> /
+						<code>paddingBlock</code> override one axis and win where set. The axis names are the
+						CSS logical properties, so they stay correct in RTL and vertical writing modes — see
+						<a href="/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs
 						items={paddingValues.map((v) => ({ id: v, label: v }))}
@@ -119,15 +121,19 @@
 						defaultTab="md"
 					>
 						{#snippet panel(padItem)}
+							{@const v = padItem.id as (typeof paddingValues)[number]}
 							<div class="inner-tab">
 								<Example code={paddingCode(padItem.id)}>
-									<Stack
-										gap="sm"
-										padding={padItem.id as (typeof paddingValues)[number]}
-										class="pad-frame"
-									>
-										<div class="demo-box">Item 1</div>
-										<div class="demo-box">Item 2</div>
+									<Stack gap="sm">
+										<Stack gap="sm" padding={v} class="pad-frame">
+											<div class="demo-box">padding="{v}"</div>
+										</Stack>
+										<Stack gap="sm" paddingInline={v} class="pad-frame">
+											<div class="demo-box">paddingInline="{v}"</div>
+										</Stack>
+										<Stack gap="sm" paddingBlock={v} class="pad-frame">
+											<div class="demo-box">paddingBlock="{v}"</div>
+										</Stack>
 									</Stack>
 								</Example>
 							</div>
@@ -168,19 +174,19 @@
 		border-radius: var(--hz-radius-sm, 0.25rem);
 	}
 	:global(.pad-frame) {
-		background: color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 12%, transparent);
-		border: 1px dashed var(--hz-color-secondary, #7c3aed);
+		background: color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 12%, transparent);
+		border: 1px dashed var(--hz-intent-secondary, #7c3aed);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 	}
 	:global(.shift-region) {
-		border: 1px dashed var(--hz-color-secondary, #7c3aed);
+		border: 1px dashed var(--hz-intent-secondary, #7c3aed);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		padding: 0.5rem;
 	}
 	.demo-box {
 		padding: 0.5rem 1rem;
-		background: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
-		border: 1px solid var(--hz-color-primary, #2563eb);
+		background: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 15%, transparent);
+		border: 1px solid var(--hz-intent-primary, #2563eb);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}

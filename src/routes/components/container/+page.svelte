@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Container, Tabs } from '$lib';
+	import { Container, Stack, Tabs } from '$lib';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { containerDoc } from '../../../docs/data/container.js';
@@ -21,7 +21,11 @@
 		.join('\n');
 
 	function paddingCode(padding: string): string {
-		return `<Container padding="${padding}">…</Container>`;
+		return [
+			`<Container padding="${padding}">…</Container>`,
+			`<Container padding="none" paddingInline="${padding}">…</Container>`,
+			`<Container padding="none" paddingBlock="${padding}">…</Container>`
+		].join('\n');
 	}
 
 	const centerCode = [
@@ -64,8 +68,12 @@
 					</Container>
 				{:else if item.id === 'padding'}
 					<p class="tab-note">
-						The tinted zone is the Container; the solid box is its content. The gap between them is
-						the padding, applied on both axes.
+						The tinted zone is the Container; the solid box is its content. <code>padding</code>
+						applies on both axes; <code>paddingInline</code> / <code>paddingBlock</code> override
+						one axis and win where set — e.g. <code>paddingBlock="none"</code> keeps the inline
+						gutters when a Stack owns the vertical rhythm. The axis names are the CSS logical
+						properties, so they stay correct in RTL and vertical writing modes — see
+						<a href="/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs
 						items={paddingValues.map((v) => ({ id: v, label: v }))}
@@ -73,16 +81,23 @@
 						defaultTab="md"
 					>
 						{#snippet panel(padItem)}
+							{@const v = padItem.id as (typeof paddingValues)[number]}
 							<div class="inner-tab">
-								<Example code={paddingCode(padItem.id)}>
-									<Container
-										max="full"
-										padding={padItem.id as (typeof paddingValues)[number]}
-										class="pad-container"
-									>
-										<div class="pad-content">padding="{padItem.id}"</div>
-									</Container>
-								</Example>
+								<Container breakout padding="none">
+									<Example code={paddingCode(padItem.id)}>
+										<Stack gap="sm">
+											<Container max="full" padding={v} class="pad-container">
+												<div class="pad-content">padding="{v}"</div>
+											</Container>
+											<Container max="full" padding="none" paddingInline={v} class="pad-container">
+												<div class="pad-content">paddingInline="{v}"</div>
+											</Container>
+											<Container max="full" padding="none" paddingBlock={v} class="pad-container">
+												<div class="pad-content">paddingBlock="{v}"</div>
+											</Container>
+										</Stack>
+									</Example>
+								</Container>
 							</div>
 						{/snippet}
 					</Tabs>
@@ -146,7 +161,7 @@
 		padding-block: 0.5rem;
 		background-image: linear-gradient(
 			to right,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 25%, transparent) 1px,
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 25%, transparent) 1px,
 			transparent 1px
 		);
 		background-size: 100px 100%;
@@ -157,8 +172,8 @@
 	 * explicit width they'd shrink-wrap their labels instead of hitting max. */
 	:global(.maxw-bar) {
 		width: 100%;
-		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
-		border: 1px solid var(--hz-color-primary, #2563eb);
+		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 15%, transparent);
+		border: 1px solid var(--hz-intent-primary, #2563eb);
 	}
 	.maxw-label {
 		display: block;
@@ -169,8 +184,8 @@
 	}
 
 	:global(.breakout-demo) {
-		background-color: color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 15%, transparent);
-		border: 1px dashed var(--hz-color-secondary, #7c3aed);
+		background-color: color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 15%, transparent);
+		border: 1px dashed var(--hz-intent-secondary, #7c3aed);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		margin-bottom: 0.75rem;
 	}
@@ -182,21 +197,25 @@
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 	.breakout-reference {
-		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
-		border: 1px dashed var(--hz-color-primary, #2563eb);
+		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 15%, transparent);
+		border: 1px dashed var(--hz-intent-primary, #2563eb);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		margin-bottom: 1rem;
 	}
 
+	/* width: 100% for the same reason as .maxw-bar — the demo containers are
+	 * flex items whose auto inline margins (from `center`) cancel
+	 * align-items: stretch, so without it they shrink-wrap their labels. */
 	:global(.pad-container) {
-		background-color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
-		border: 1px dashed var(--hz-color-primary, #2563eb);
+		width: 100%;
+		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 15%, transparent);
+		border: 1px dashed var(--hz-intent-primary, #2563eb);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 	}
 	.pad-content {
 		padding: 0.75rem 1rem;
 		background-color: var(--hz-color-surface, #fff);
-		border: 1px solid var(--hz-color-primary, #2563eb);
+		border: 1px solid var(--hz-intent-primary, #2563eb);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: var(--hz-font-size-sm, 0.875rem);

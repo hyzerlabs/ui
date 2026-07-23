@@ -10,8 +10,8 @@
 		'/* Dark mode: convey depth by lifting the surface and adding a',
 		'   soft halo — the token shadow stays as a secondary cue. */',
 		"[data-theme='dark'] .card {",
-		'\tbackground: color-mix(in srgb, var(--hz-color-gray) 14%, var(--hz-color-surface));',
-		'\tborder: 1px solid color-mix(in srgb, var(--hz-color-gray) 30%, transparent);',
+		'\tbackground: color-mix(in srgb, var(--hz-intent-neutral) 14%, var(--hz-color-surface));',
+		'\tborder: 1px solid color-mix(in srgb, var(--hz-intent-neutral) 30%, transparent);',
 		'\tbox-shadow:',
 		'\t\tvar(--hz-shadow-md),',
 		'\t\t0 0 30px rgb(255 255 255 / 17%);',
@@ -217,6 +217,13 @@
 				color language, so keep halos neutral and subordinate to the surface change. The tokens stay
 				identical in both modes; the treatment is the theme's call.
 			</li>
+			<li>
+				Stacking is visual only — <code>z-index</code> never reorders the DOM, so reading and focus order
+				are untouched by elevation. The tiers still carry focus consequences: a bar pinned on the sticky
+				tier can cover a focused element that scrolls beneath it (WCAG 2.4.11 — keep pinned bars short),
+				and layers that appear on hover or focus (the dropdown and popover tiers) must be dismissible,
+				hoverable, and persistent per WCAG 1.4.13.
+			</li>
 		</ul>
 		<p class="a11y-refs">
 			References:
@@ -230,6 +237,14 @@
 			·
 			<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors"
 				>MDN: forced-colors</a
+			>
+			·
+			<a href="https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html"
+				>WCAG 2.4.11 Focus Not Obscured</a
+			>
+			·
+			<a href="https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html"
+				>WCAG 1.4.13 Content on Hover or Focus</a
 			>
 		</p>
 	</Stack>
@@ -266,7 +281,7 @@
 	.radius-box {
 		width: 100%;
 		height: 4rem;
-		background-color: var(--hz-color-primary, #2563eb);
+		background-color: var(--hz-intent-primary, #2563eb);
 		border: 1px solid var(--hz-color-border, #6b7280);
 	}
 
@@ -315,10 +330,10 @@
 	:global([data-theme='dark']) .shadow-card {
 		background: color-mix(
 			in srgb,
-			var(--hz-color-gray, #9ca3af) calc(var(--_lift, 8) * 1%),
+			var(--hz-intent-neutral, #9ca3af) calc(var(--_lift, 8) * 1%),
 			var(--hz-color-surface, #000)
 		);
-		border: 1px solid color-mix(in srgb, var(--hz-color-gray, #9ca3af) 30%, transparent);
+		border: 1px solid color-mix(in srgb, var(--hz-intent-neutral, #9ca3af) 30%, transparent);
 		box-shadow:
 			var(--_shadow),
 			0 0 var(--_glow-r, 12px) rgb(255 255 255 / var(--_glow-a, 8%));

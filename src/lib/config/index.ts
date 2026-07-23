@@ -15,7 +15,7 @@ export {
 	type HyzerTokensOverride,
 	type HyzerDarkOverride,
 	type TokenGroupOverride,
-	type ColorGroupOverride,
+	type RampGroupOverride,
 	type ResolvedConfig,
 	type ResolvedSection,
 	type TokenEntry,

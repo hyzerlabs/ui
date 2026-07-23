@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const videoDoc: ComponentDoc = {
 	description:
 		'Video player supporting YouTube, Vimeo embeds, and native HTML5 video. Detects provider from URL and builds the correct embed.',
-	importLine: 'import {Video} from "@hyzer-labs/ui"',
+	importLine: 'import { Video } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'src',

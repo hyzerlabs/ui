@@ -10,7 +10,7 @@ import {
 	HyzerConfigError
 } from './index.js';
 import { toKebab } from './schema.js';
-import { color, intent, space, typography } from '../tokens/index.js';
+import { palette, color, intent, space, typography } from '../tokens/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -26,86 +26,111 @@ describe('R6 — committed tokens.css is generated output', () => {
 });
 
 // ---------------------------------------------------------------------------
-// resolveConfig — merge semantics (R2)
+// resolveConfig — merge semantics (R2, specs/42 palette/role split)
 // ---------------------------------------------------------------------------
 
 describe('resolveConfig — extend-only merge', () => {
 	it('defineConfig is a typed identity', () => {
-		const config = { tokens: { color: { primary: '#0f766e' } } };
+		const config = { tokens: { palette: { primary: '#0f766e' } } };
 		expect(defineConfig(config)).toBe(config);
 	});
 
 	it('zero config resolves every base token', () => {
 		const resolved = resolveConfig();
 		const names = resolved.sections.flatMap((s) => s.entries.map((e) => e.cssName));
-		expect(names).toContain('--hz-color-primary');
+		expect(names).toContain('--hz-palette-primary');
+		expect(names).toContain('--hz-color-surface');
+		expect(names).toContain('--hz-color-black');
+		expect(names).toContain('--hz-color-white');
 		expect(names).toContain('--hz-font-size-3xl');
-		expect(names).toContain('--hz-z-toast');
+		expect(names).toContain('--hz-z-sticky');
 		expect(names).toContain('--hz-ease-standard');
 		expect(resolved.sections.flatMap((s) => s.entries).every((e) => !e.fromConfig)).toBe(true);
 	});
 
 	it('overrides an existing key in place and marks it fromConfig', () => {
-		const resolved = resolveConfig({ tokens: { color: { primary: '#0f766e' } } });
-		const palette = resolved.sections.find((s) => s.id === 'palette')!.entries;
-		const primary = palette.find((e) => e.key === 'primary')!;
+		const resolved = resolveConfig({ tokens: { palette: { primary: '#0f766e' } } });
+		const paletteEntries = resolved.sections.find((s) => s.id === 'palette')!.entries;
+		const primary = paletteEntries.find((e) => e.key === 'primary')!;
 		expect(primary.value).toBe('#0f766e');
 		expect(primary.fromConfig).toBe(true);
 		// Order unchanged: primary stays first.
-		expect(palette[0].key).toBe('primary');
+		expect(paletteEntries[0].key).toBe('primary');
 	});
 
 	it('appends added keys after the base keys, in config order', () => {
 		const resolved = resolveConfig({
-			tokens: { color: { fairway: '#3f6212', chains: '#a16207' } }
+			tokens: { palette: { fairway: '#3f6212', chains: '#a16207' } }
 		});
-		const palette = resolved.sections.find((s) => s.id === 'palette')!.entries;
-		const keys = palette.map((e) => e.key);
-		expect(keys.slice(0, Object.keys(color).indexOf('gray') + 1)).not.toContain('fairway');
+		const paletteEntries = resolved.sections.find((s) => s.id === 'palette')!.entries;
+		const keys = paletteEntries.map((e) => e.key);
+		expect(keys.slice(0, Object.keys(palette).indexOf('gray') + 1)).not.toContain('fairway');
 		expect(keys.slice(-2)).toEqual(['fairway', 'chains']);
-		expect(palette.at(-2)!.cssName).toBe('--hz-color-fairway');
+		expect(paletteEntries.at(-2)!.cssName).toBe('--hz-palette-fairway');
 	});
 
-	it('classifies added color keys: hex → palette, var()/derived → roles', () => {
+	it('classifies added keys by group, not value shape: tokens.palette → palette, tokens.color → roles', () => {
 		const resolved = resolveConfig({
-			tokens: { color: { fairway: '#3f6212', accent: 'var(--hz-color-fairway)' } }
+			tokens: {
+				palette: { fairway: '#3f6212' },
+				color: { accent: 'var(--hz-palette-fairway)' }
+			}
 		});
-		const palette = resolved.sections.find((s) => s.id === 'palette')!.entries;
+		const paletteEntries = resolved.sections.find((s) => s.id === 'palette')!.entries;
 		const roles = resolved.sections.find((s) => s.id === 'roles')!.entries;
-		expect(palette.some((e) => e.key === 'fairway')).toBe(true);
+		expect(paletteEntries.some((e) => e.key === 'fairway')).toBe(true);
 		expect(roles.some((e) => e.key === 'accent')).toBe(true);
 	});
 
-	it('an overridden role keeps its section even with a literal value', () => {
+	it('an overridden role keeps its section even with a literal hex value', () => {
+		// specs/42 edge case: classification is by group membership now, not
+		// value shape, so a role overridden with a literal hex stays a role.
 		const resolved = resolveConfig({ tokens: { color: { surface: '#f8fafc' } } });
 		const roles = resolved.sections.find((s) => s.id === 'roles')!.entries;
 		expect(roles.find((e) => e.key === 'surface')!.value).toBe('#f8fafc');
 	});
 
-	it('kebab-cases added keys (brandTeal → --hz-color-brand-teal)', () => {
-		expect(toKebab('brandTeal')).toBe('brand-teal');
-		expect(toKebab('2xl')).toBe('2xl');
-		const resolved = resolveConfig({ tokens: { color: { brandTeal: '#0d9488' } } });
-		const names = resolved.sections.flatMap((s) => s.entries.map((e) => e.cssName));
-		expect(names).toContain('--hz-color-brand-teal');
+	it('a palette key added under tokens.color (not tokens.palette) is still a role', () => {
+		// A consumer adding a new hue to tokens.color (instead of tokens.palette)
+		// gets a --hz-color-* role, unambiguously — no value-shape inference.
+		const resolved = resolveConfig({ tokens: { color: { fairway: '#3f6212' } } });
+		const roles = resolved.sections.find((s) => s.id === 'roles')!.entries;
+		const paletteEntries = resolved.sections.find((s) => s.id === 'palette')!.entries;
+		expect(roles.some((e) => e.key === 'fairway' && e.cssName === '--hz-color-fairway')).toBe(true);
+		expect(paletteEntries.some((e) => e.key === 'fairway')).toBe(false);
 	});
 
-	it('merges dark additions over the base dark authoring', () => {
-		const resolved = resolveConfig({ dark: { color: { fairway: '#a3e635' } } });
-		expect(resolved.dark.color.at(-1)).toMatchObject({
-			cssName: '--hz-color-fairway',
+	it('kebab-cases added keys (brandTeal → --hz-palette-brand-teal)', () => {
+		expect(toKebab('brandTeal')).toBe('brand-teal');
+		expect(toKebab('2xl')).toBe('2xl');
+		const resolved = resolveConfig({ tokens: { palette: { brandTeal: '#0d9488' } } });
+		const names = resolved.sections.flatMap((s) => s.entries.map((e) => e.cssName));
+		expect(names).toContain('--hz-palette-brand-teal');
+	});
+
+	it('merges dark palette additions over the base dark authoring', () => {
+		const resolved = resolveConfig({ dark: { palette: { fairway: '#a3e635' } } });
+		expect(resolved.dark.palette.at(-1)).toMatchObject({
+			cssName: '--hz-palette-fairway',
 			value: '#a3e635',
 			fromConfig: true
 		});
 		// Base dark entries intact; intents contribute NO base dark entries —
 		// dark is authored entirely at the palette/role layer.
-		expect(resolved.dark.color.find((e) => e.key === 'danger')!.value).toBe(
-			color.theme.dark.danger
+		expect(resolved.dark.palette.find((e) => e.key === 'danger')!.value).toBe(
+			palette.theme.dark.danger
 		);
-		expect(resolved.dark.color.find((e) => e.key === 'primary')!.value).toBe(
-			color.theme.dark.primary
+		expect(resolved.dark.palette.find((e) => e.key === 'primary')!.value).toBe(
+			palette.theme.dark.primary
 		);
 		expect(resolved.dark.intent).toEqual([]);
+	});
+
+	it('merges dark role additions over the base dark authoring', () => {
+		const resolved = resolveConfig({ dark: { color: { surface: '#111827' } } });
+		const surface = resolved.dark.color.find((e) => e.key === 'surface')!;
+		expect(surface).toMatchObject({ value: '#111827', fromConfig: true });
+		expect(resolved.dark.color.find((e) => e.key === 'text')!.value).toBe(color.theme.dark.text);
 	});
 
 	it('density unit override flows into the resolved model', () => {
@@ -125,7 +150,7 @@ describe('resolveConfig — validation errors', () => {
 			/Unknown key "colours"/
 		);
 		expect(() => resolveConfig({ tokens: { colours: {} } } as never)).toThrow(
-			/color, intent, space/
+			/palette, color, intent, space/
 		);
 	});
 
@@ -136,6 +161,12 @@ describe('resolveConfig — validation errors', () => {
 		expect(() => resolveConfig({ dark: { shadow: {} } } as never)).toThrow(/config.dark/);
 	});
 
+	it('rejects unknown keys in config.dark, listing palette/color/intent', () => {
+		expect(() => resolveConfig({ dark: { shadow: {} } } as never)).toThrow(
+			/Valid keys: palette, color, intent/
+		);
+	});
+
 	it('rejects non-string token values', () => {
 		expect(() => resolveConfig({ tokens: { space: { xs: 8 } } } as never)).toThrow(
 			/must be a non-empty string/
@@ -143,24 +174,24 @@ describe('resolveConfig — validation errors', () => {
 	});
 
 	it('rejects kebab collisions between config and base keys', () => {
-		// Base color has textMuted → --hz-color-text-muted.
+		// Base roles has textMuted → --hz-color-text-muted.
 		expect(() => resolveConfig({ tokens: { color: { 'text-muted': '#333333' } } })).toThrow(
 			/kebab-cases to "--hz-color-text-muted"/
 		);
 	});
 
 	it('rejects var() references to undefined tokens', () => {
-		expect(() => resolveConfig({ tokens: { intent: { brand: 'var(--hz-color-nope)' } } })).toThrow(
-			/--hz-color-nope, which is not a defined token/
-		);
+		expect(() =>
+			resolveConfig({ tokens: { intent: { brand: 'var(--hz-palette-nope)' } } })
+		).toThrow(/--hz-palette-nope, which is not a defined token/);
 	});
 
 	it('accepts references to config-added tokens and derived density distances', () => {
 		expect(() =>
 			resolveConfig({
 				tokens: {
-					color: { fairway: '#3f6212' },
-					intent: { fairway: 'var(--hz-color-fairway)' },
+					palette: { fairway: '#3f6212' },
+					intent: { fairway: 'var(--hz-palette-fairway)' },
 					space: { gap: 'var(--hz-space-near)' }
 				}
 			})
@@ -174,9 +205,9 @@ describe('resolveConfig — validation errors', () => {
 
 describe('generateCss — full mode', () => {
 	it('emits added tokens at the end of their section', () => {
-		const css = generateCss(resolveConfig({ tokens: { color: { fairway: '#3f6212' } } }));
-		expect(css).toContain('\t--hz-color-fairway: #3f6212;');
-		expect(css.indexOf('--hz-color-gray:')).toBeLessThan(css.indexOf('--hz-color-fairway:'));
+		const css = generateCss(resolveConfig({ tokens: { palette: { fairway: '#3f6212' } } }));
+		expect(css).toContain('\t--hz-palette-fairway: #3f6212;');
+		expect(css.indexOf('--hz-palette-gray:')).toBeLessThan(css.indexOf('--hz-palette-fairway:'));
 	});
 
 	it('a density unit override rewrites --hz-density and keeps the derived cascade', () => {
@@ -185,33 +216,59 @@ describe('generateCss — full mode', () => {
 		expect(css).toContain('--hz-space-near: calc(var(--hz-density) * 10);');
 	});
 
-	it('config dark additions land in the dark block', () => {
+	it('config dark palette additions land in the dark block', () => {
 		const css = generateCss(
 			resolveConfig({
-				tokens: { color: { fairway: '#3f6212' } },
-				dark: { color: { fairway: '#a3e635' } }
+				tokens: { palette: { fairway: '#3f6212' } },
+				dark: { palette: { fairway: '#a3e635' } }
 			})
 		);
 		const darkBlock = css.slice(css.indexOf("[data-theme='dark']"));
-		expect(darkBlock).toContain('--hz-color-fairway: #a3e635;');
+		expect(darkBlock).toContain('--hz-palette-fairway: #a3e635;');
+	});
+
+	it('config dark role additions land in the dark block', () => {
+		const css = generateCss(resolveConfig({ dark: { color: { border: '#334155' } } }));
+		const darkBlock = css.slice(css.indexOf("[data-theme='dark']"));
+		expect(darkBlock).toContain('--hz-color-border: #334155;');
 	});
 
 	it('is deterministic', () => {
-		const config = { tokens: { color: { primary: '#0f766e', fairway: '#3f6212' } } };
+		const config = { tokens: { palette: { primary: '#0f766e', fairway: '#3f6212' } } };
 		expect(generateCss(resolveConfig(config))).toBe(generateCss(resolveConfig(config)));
+	});
+
+	it('emits role dark, then palette dark, then intent dark, in that order', () => {
+		const css = generateCss(
+			resolveConfig({
+				dark: {
+					color: { border: '#334155' },
+					intent: { primary: '#93c5fd' }
+				}
+			})
+		);
+		const darkBlock = css.slice(css.indexOf("[data-theme='dark']"));
+		const roleIdx = darkBlock.indexOf('--hz-color-border');
+		const paletteIdx = darkBlock.indexOf('--hz-palette-primary');
+		const intentIdx = darkBlock.indexOf('--hz-intent-primary');
+		expect(roleIdx).toBeGreaterThan(-1);
+		expect(paletteIdx).toBeGreaterThan(-1);
+		expect(intentIdx).toBeGreaterThan(-1);
+		expect(roleIdx).toBeLessThan(paletteIdx);
+		expect(paletteIdx).toBeLessThan(intentIdx);
 	});
 });
 
 describe('generateCss — overrides mode', () => {
 	it('emits only config-touched declarations', () => {
 		const css = generateCss(
-			resolveConfig({ tokens: { color: { primary: '#0f766e', fairway: '#3f6212' } } }),
+			resolveConfig({ tokens: { palette: { primary: '#0f766e', fairway: '#3f6212' } } }),
 			{ mode: 'overrides' }
 		);
 		expect(css).toContain(':root {');
-		expect(css).toContain('--hz-color-primary: #0f766e;');
-		expect(css).toContain('--hz-color-fairway: #3f6212;');
-		expect(css).not.toContain('--hz-color-gray');
+		expect(css).toContain('--hz-palette-primary: #0f766e;');
+		expect(css).toContain('--hz-palette-fairway: #3f6212;');
+		expect(css).not.toContain('--hz-palette-gray');
 		expect(css).not.toContain('--hz-space-md');
 		expect(css).not.toContain("[data-theme='dark']");
 	});
@@ -219,7 +276,7 @@ describe('generateCss — overrides mode', () => {
 	it('scopes under a custom selector, dark block composing with it', () => {
 		const css = generateCss(
 			resolveConfig({
-				tokens: { color: { primary: '#0f766e' } },
+				tokens: { palette: { primary: '#0f766e' } },
 				dark: { intent: { primary: '#5eead4' } }
 			}),
 			{ mode: 'overrides', selector: '.theme-ocean' }
@@ -234,43 +291,55 @@ describe('generateCss — overrides mode', () => {
 	/**
 	 * Regression — a scoped sheet that emits ONLY the touched palette entry is
 	 * inert for every component that reads the intent vocabulary. The var()
-	 * indirection in `--hz-intent-primary: var(--hz-color-primary)` is
+	 * indirection in `--hz-intent-primary: var(--hz-palette-primary)` is
 	 * substituted where it is DECLARED; left at :root it resolves to the base
 	 * palette and inherits down as that fixed value, so `.theme-x` overriding
 	 * the palette underneath changes nothing. Scoped mode must re-declare the
 	 * derived chain locally.
 	 */
 	it('scoped mode re-emits the chain derived from touched tokens', () => {
-		const css = generateCss(resolveConfig({ tokens: { color: { primary: '#0f766e' } } }), {
+		const css = generateCss(resolveConfig({ tokens: { palette: { primary: '#0f766e' } } }), {
 			mode: 'overrides',
 			selector: '.theme-ocean'
 		});
 		// The intent that reads primary must be re-declared under the scope...
-		expect(css).toContain('--hz-intent-primary: var(--hz-color-primary);');
+		expect(css).toContain('--hz-intent-primary: var(--hz-palette-primary);');
 		// ...but untouched, unrelated chains must not be dragged along.
 		expect(css).not.toContain('--hz-space-md');
 		expect(css).not.toContain('--hz-intent-success');
 	});
 
-	it('scoped mode re-emits chains a dark-only override disturbs', () => {
+	it('scoped mode re-emits chains a dark-only palette override disturbs', () => {
 		// `danger` is touched in dark only. --hz-intent-danger must still be
 		// declared in the light scope block, or the dark block feeds nothing.
-		const css = generateCss(resolveConfig({ dark: { color: { danger: '#fca5a5' } } }), {
+		const css = generateCss(resolveConfig({ dark: { palette: { danger: '#fca5a5' } } }), {
 			mode: 'overrides',
 			selector: '.theme-ocean'
 		});
 		expect(css).toContain('.theme-ocean {');
-		expect(css).toContain('--hz-intent-danger: var(--hz-color-danger);');
+		expect(css).toContain('--hz-intent-danger: var(--hz-palette-danger);');
+	});
+
+	it('scoped mode re-emits a role chain a dark-only role override disturbs', () => {
+		// surfaceMuted's dark mix derives from --hz-color-surface; touching
+		// surface only in dark must still re-declare surface-muted's light
+		// value under the scope.
+		const css = generateCss(resolveConfig({ dark: { color: { surface: '#0b1120' } } }), {
+			mode: 'overrides',
+			selector: '.theme-ocean'
+		});
+		expect(css).toContain('.theme-ocean {');
+		expect(css).toContain('--hz-color-surface-muted:');
 	});
 
 	it('root-scoped mode still emits only what the config touched', () => {
 		// At :root the override and the intent declaration land on the same
 		// element, so the cascade re-resolves the chain for free — emitting it
 		// would be noise.
-		const css = generateCss(resolveConfig({ tokens: { color: { primary: '#0f766e' } } }), {
+		const css = generateCss(resolveConfig({ tokens: { palette: { primary: '#0f766e' } } }), {
 			mode: 'overrides'
 		});
-		expect(css).toContain('--hz-color-primary: #0f766e;');
+		expect(css).toContain('--hz-palette-primary: #0f766e;');
 		expect(css).not.toContain('--hz-intent-primary');
 	});
 
@@ -325,7 +394,7 @@ describe('contrastReport', () => {
 
 	it('flags a palette override that breaks AA', () => {
 		// The old warning orange — 3.19:1 on white.
-		const report = contrastReport(resolveConfig({ tokens: { color: { warning: '#d97706' } } }));
+		const report = contrastReport(resolveConfig({ tokens: { palette: { warning: '#d97706' } } }));
 		const failing = report.rows.filter((r) => !r.pass).map((r) => `${r.mode}:${r.id}`);
 		expect(report.pass).toBe(false);
 		expect(failing).toContain('light:text:intent-warning/surface');
@@ -335,7 +404,7 @@ describe('contrastReport', () => {
 
 	it('lists unresolvable values instead of guessing', () => {
 		const report = contrastReport(
-			resolveConfig({ tokens: { color: { primary: 'oklch(0.5 0.2 250)' } } })
+			resolveConfig({ tokens: { palette: { primary: 'oklch(0.5 0.2 250)' } } })
 		);
 		expect(report.unresolved.some((u) => u.startsWith('--hz-intent-primary'))).toBe(true);
 	});
@@ -346,13 +415,13 @@ describe('contrastReport', () => {
 			(r) => r.mode === 'dark' && r.id === 'text:intent-danger/surface'
 		)!;
 		// Every intent chains through the dark palette hue.
-		expect(darkDanger.fg.hex).toBe(color.theme.dark.danger);
+		expect(darkDanger.fg.hex).toBe(palette.theme.dark.danger);
 		const darkPrimary = report.rows.find(
 			(r) => r.mode === 'dark' && r.id === 'text:intent-primary/surface'
 		)!;
-		expect(darkPrimary.fg.hex).toBe(color.theme.dark.primary);
+		expect(darkPrimary.fg.hex).toBe(palette.theme.dark.primary);
 		// Sanity: metadata still exposes the groups the engine consumes.
-		expect(intent.primary).toBe('var(--hz-color-primary)');
+		expect(intent.primary).toBe('var(--hz-palette-primary)');
 		expect(space.md).toBe('2rem');
 		expect(typography.fontSize['3xl']).toBe('3.5rem');
 	});
@@ -370,7 +439,7 @@ describe('two-tier dark authoring', () => {
 	});
 
 	it('a consumer dark palette override flows through to the intent', () => {
-		const resolved = resolveConfig({ dark: { color: { primary: '#1e3a8a' } } });
+		const resolved = resolveConfig({ dark: { palette: { primary: '#1e3a8a' } } });
 		const report = contrastReport(resolved);
 		const darkPrimary = report.rows.find(
 			(r) => r.mode === 'dark' && r.id === 'text:intent-primary/surface'
@@ -389,48 +458,49 @@ describe('two-tier dark authoring', () => {
 
 	it('a light intent remap/extension is a plain tokens.intent entry', () => {
 		const resolved = resolveConfig({
-			tokens: { intent: { warning: 'var(--hz-color-secondary)', fairway: '#3f6212' } }
+			tokens: { intent: { warning: 'var(--hz-color-text-muted)', fairway: '#3f6212' } }
 		});
 		const entries = resolved.sections.find((s) => s.id === 'intent')!.entries;
-		expect(entries.find((e) => e.key === 'warning')!.value).toBe('var(--hz-color-secondary)');
+		expect(entries.find((e) => e.key === 'warning')!.value).toBe('var(--hz-color-text-muted)');
 		expect(entries.at(-1)!.cssName).toBe('--hz-intent-fairway');
 	});
 });
 
 // ---------------------------------------------------------------------------
-// Consumer color ramps — the base ships none, the engine generates any
+// Consumer palette ramps — the base ships none, the engine generates any
+// (specs/42 R2.4 — ramp nesting lives under tokens.palette only)
 // ---------------------------------------------------------------------------
 
-describe('consumer color ramps', () => {
+describe('consumer palette ramps', () => {
 	it('generates flat and nested ramp keys as palette tokens', () => {
 		const resolved = resolveConfig({
 			tokens: {
-				color: {
+				palette: {
 					'red-50': '#fef2f2',
 					brandRed: { 100: '#fee2e2', 900: '#7f1d1d' }
 				}
 			}
 		});
-		const palette = resolved.sections.find((s) => s.id === 'palette')!.entries;
-		const names = palette.map((e) => e.cssName);
-		expect(names).toContain('--hz-color-red-50');
-		expect(names).toContain('--hz-color-brand-red-100');
-		expect(names).toContain('--hz-color-brand-red-900');
+		const paletteEntries = resolved.sections.find((s) => s.id === 'palette')!.entries;
+		const names = paletteEntries.map((e) => e.cssName);
+		expect(names).toContain('--hz-palette-red-50');
+		expect(names).toContain('--hz-palette-brand-red-100');
+		expect(names).toContain('--hz-palette-brand-red-900');
 		const css = generateCss(resolved);
-		expect(css).toContain('\t--hz-color-brand-red-900: #7f1d1d;');
+		expect(css).toContain('\t--hz-palette-brand-red-900: #7f1d1d;');
 	});
 
 	it('ramps work in the dark block and intents can reference ramp steps', () => {
 		const resolved = resolveConfig({
 			tokens: {
-				color: { brandRed: { 500: '#ef4444' } },
-				intent: { danger: 'var(--hz-color-brand-red-500)' }
+				palette: { brandRed: { 500: '#ef4444' } },
+				intent: { danger: 'var(--hz-palette-brand-red-500)' }
 			},
-			dark: { color: { brandRed: { 500: '#fca5a5' } } }
+			dark: { palette: { brandRed: { 500: '#fca5a5' } } }
 		});
 		const css = generateCss(resolved);
 		const darkBlock = css.slice(css.indexOf("[data-theme='dark']"));
-		expect(darkBlock).toContain('--hz-color-brand-red-500: #fca5a5;');
+		expect(darkBlock).toContain('--hz-palette-brand-red-500: #fca5a5;');
 		const report = contrastReport(resolved);
 		const darkDanger = report.rows.find(
 			(r) => r.mode === 'dark' && r.id === 'text:intent-danger/surface'
@@ -439,13 +509,19 @@ describe('consumer color ramps', () => {
 	});
 
 	it('rejects non-string ramp leaves and colliding flat/nested spellings', () => {
-		expect(() => resolveConfig({ tokens: { color: { red: { 50: 5 } } } } as never)).toThrow(
-			/config.tokens.color.red.50/
+		expect(() => resolveConfig({ tokens: { palette: { red: { 50: 5 } } } } as never)).toThrow(
+			/config.tokens.palette.red.50/
 		);
 		expect(() =>
 			resolveConfig({
-				tokens: { color: { 'brand-red-100': '#fee2e2', brandRed: { 100: '#fecaca' } } }
+				tokens: { palette: { 'brand-red-100': '#fee2e2', brandRed: { 100: '#fecaca' } } }
 			})
-		).toThrow(/kebab-cases to "--hz-color-brand-red-100"/);
+		).toThrow(/kebab-cases to "--hz-palette-brand-red-100"/);
+	});
+
+	it('tokens.color (roles) does not accept ramp nesting', () => {
+		expect(() =>
+			resolveConfig({ tokens: { color: { brandRed: { 100: '#fee2e2' } } } } as never)
+		).toThrow(/must be a non-empty string/);
 	});
 });

@@ -238,3 +238,24 @@ a note.
 - Migrating ocean/sunset to engine configs and the theme folder
   restructure — specs/30.
 - hyzer.sh's adoption (separate repo).
+
+### Amendments
+
+- **2026-07-23 (specs/42 — palette namespace split):** the config `color`
+  group this spec described (`tokens.color`, `dark.color`, emitting a single
+  `--hz-color-*` sheet split into palette-vs-role sections by a value-shape
+  heuristic) splits into two independent groups: **`tokens.palette`** (raw
+  hues, `--hz-palette-*`, one level of ramp nesting) and **`tokens.color`**
+  (structural roles only, `--hz-color-*`, no ramps); `dark.color` splits into
+  **`dark.palette`** + **`dark.color`** the same way. Classification is by
+  **group membership now, not value shape** — `isPaletteValue`, `isRoleKey`,
+  and the `baseColorClass` map this spec's engine used are deleted outright,
+  in both the resolver (`schema.ts`) and the emitter (`generate.ts`); a
+  consumer key's tier is explicit in the config shape, not inferred from
+  whether the value starts with `#`. The resolved `dark` model gains a third
+  list: `{ palette: TokenEntry[]; color: TokenEntry[]; intent: TokenEntry[] }`.
+  `SectionId` keeps `palette`/`roles` (unchanged from this spec), and
+  `validateReferences` treats `--hz-palette-*` as defined the same way it
+  already treated `--hz-color-*`. specs/42 is the authority for the current
+  config shape; this spec's `tokens.color`/`dark.color` examples describe the
+  pre-split shape and are superseded.

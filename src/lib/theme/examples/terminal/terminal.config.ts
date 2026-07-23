@@ -33,7 +33,7 @@ export const intro = [
 
 export default defineConfig({
 	tokens: {
-		color: {
+		palette: {
 			// Layer 1 — palette. Saturated phosphor and signal colors, all
 			// bright enough to burn through a black surface.
 			primary: '#00ff41',
@@ -41,8 +41,9 @@ export default defineConfig({
 			danger: '#ff3b30',
 			warning: '#ffb000',
 			success: '#00ff41',
-			info: '#00e5ff',
-
+			info: '#00e5ff'
+		},
+		color: {
 			// Layer 2 — semantic roles. There is no light mode: this IS the
 			// light mode. A CRT at rest still glows.
 			surface: '#0b0f0b',
@@ -59,7 +60,7 @@ export default defineConfig({
 			// The library ships six; nothing stops a theme adding more. These
 			// two are graded by the contrast report and typed via
 			// ./intents.d.ts, so they behave like first-class intents.
-			phosphor: 'var(--hz-color-primary)',
+			phosphor: 'var(--hz-palette-primary)',
 			amber: '#ffb000'
 		}
 	},

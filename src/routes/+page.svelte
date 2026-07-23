@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { Stack, Grid, Card } from '$lib';
+	import CodeBlock from '../docs/CodeBlock.svelte';
 	import { isSection, manifest, sectionPages, type ManifestSection } from '../docs/manifest';
+
+	const installCode = 'pnpm add @hyzer-labs/ui';
+	const usageCode = [
+		"import { Button, Nav, Form } from '@hyzer-labs/ui';",
+		"import '@hyzer-labs/ui/tokens.css';"
+	].join('\n');
 
 	// The card grid shows sections only — standalone entries (Introduction)
 	// are this page itself. Pages are flattened: the cards preview page names,
@@ -25,15 +32,12 @@
 
 	<section aria-labelledby="install-heading">
 		<h2 id="install-heading">Installation</h2>
-		<pre><code>pnpm add @hyzer-labs/ui</code></pre>
+		<CodeBlock code={installCode} />
 	</section>
 
 	<section aria-labelledby="usage-heading">
 		<h2 id="usage-heading">Usage</h2>
-		<pre><code
-				>import {'{ Button, Nav, Form }'} from '@hyzer-labs/ui';
-import '@hyzer-labs/ui/tokens.css';</code
-			></pre>
+		<CodeBlock code={usageCode} />
 	</section>
 
 	<section aria-labelledby="philosophy-heading">
@@ -104,13 +108,6 @@ import '@hyzer-labs/ui/tokens.css';</code
 		margin: 0 0 1rem;
 		font-size: var(--hz-font-size-xl, 1.5rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	pre {
-		padding: 1rem;
-		border: 1px solid var(--hz-color-border, #6b7280);
-		border-radius: var(--hz-radius-md, 0.5rem);
-		overflow-x: auto;
 	}
 
 	.philosophy-lead {

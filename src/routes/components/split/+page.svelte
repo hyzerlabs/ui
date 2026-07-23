@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Container, Split, Tabs } from '$lib';
+	import { Container, Split, Stack, Tabs } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { splitDoc } from '../../../docs/data/split.js';
 	import Example from '../../../docs/Example.svelte';
@@ -45,10 +45,9 @@
 
 	function paddingCode(padding: string): string {
 		return [
-			`<Split padding="${padding}">`,
-			'\t<div>First</div>',
-			'\t<div>Second</div>',
-			'</Split>'
+			`<Split padding="${padding}">…</Split>`,
+			`<Split paddingInline="${padding}">…</Split>`,
+			`<Split paddingBlock="${padding}">…</Split>`
 		].join('\n');
 	}
 
@@ -135,9 +134,12 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						The tinted zone is the Split; the space between its edge and the panes is the padding,
-						applied on both axes. It sits on the split root, so <code>stackBelow</code> measures the padded-down
-						width.
+						The tinted zone is the Split; the space between its edge and the panes is the padding.
+						It sits on the split root, so <code>stackBelow</code> measures the padded-down width.
+						<code>padding</code> applies on both axes; <code>paddingInline</code> /
+						<code>paddingBlock</code> override one axis and win where set. The axis names are the
+						CSS logical properties, so they stay correct in RTL and vertical writing modes — see
+						<a href="/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs
 						items={paddingValues.map((v) => ({ id: v, label: v }))}
@@ -145,16 +147,23 @@
 						defaultTab="md"
 					>
 						{#snippet panel(padItem)}
+							{@const v = padItem.id as (typeof paddingValues)[number]}
 							<div class="inner-tab">
 								<Example code={paddingCode(padItem.id)}>
-									<Split
-										gap="md"
-										padding={padItem.id as (typeof paddingValues)[number]}
-										class="pad-frame"
-									>
-										<div class="demo-pane demo-pane--a">First</div>
-										<div class="demo-pane demo-pane--b">Second</div>
-									</Split>
+									<Stack gap="sm">
+										<Split gap="md" padding={v} class="pad-frame">
+											<div class="demo-pane demo-pane--a">padding="{v}"</div>
+											<div class="demo-pane demo-pane--b">Second</div>
+										</Split>
+										<Split gap="md" paddingInline={v} class="pad-frame">
+											<div class="demo-pane demo-pane--a">paddingInline="{v}"</div>
+											<div class="demo-pane demo-pane--b">Second</div>
+										</Split>
+										<Split gap="md" paddingBlock={v} class="pad-frame">
+											<div class="demo-pane demo-pane--a">paddingBlock="{v}"</div>
+											<div class="demo-pane demo-pane--b">Second</div>
+										</Split>
+									</Stack>
 								</Example>
 							</div>
 						{/snippet}
@@ -167,8 +176,8 @@
 
 <style>
 	:global(.pad-frame) {
-		background: color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 12%, transparent);
-		border: 1px dashed var(--hz-color-secondary, #7c3aed);
+		background: color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 12%, transparent);
+		border: 1px dashed var(--hz-intent-secondary, #7c3aed);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 	}
 	.demo-pane {
@@ -181,11 +190,11 @@
 		min-height: 4rem;
 	}
 	.demo-pane--a {
-		background: color-mix(in srgb, var(--hz-color-primary, #2563eb) 20%, transparent);
-		border: 1px solid var(--hz-color-primary, #2563eb);
+		background: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 20%, transparent);
+		border: 1px solid var(--hz-intent-primary, #2563eb);
 	}
 	.demo-pane--b {
-		background: color-mix(in srgb, var(--hz-color-secondary, #7c3aed) 20%, transparent);
-		border: 1px solid var(--hz-color-secondary, #7c3aed);
+		background: color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 20%, transparent);
+		border: 1px solid var(--hz-intent-secondary, #7c3aed);
 	}
 </style>

@@ -12,12 +12,12 @@
 export const prefix = '--hz' as const;
 
 // ---------------------------------------------------------------------------
-// Color — two-layer model (R3, R4, R5)
+// Palette — Layer 1: raw hues, single value each, no ramps (specs/42 R1).
 // ---------------------------------------------------------------------------
 
-export const color = {
-	// Layer 1 — Palette (single value each, no ramps). Status hues tuned
-	// 2026-07-14: every intent color ≥ 4.5:1 as text on both light surfaces.
+export const palette = {
+	// Status hues tuned 2026-07-14: every intent color ≥ 4.5:1 as text on
+	// both light surfaces.
 	primary: '#2563eb',
 	secondary: '#7c3aed',
 	success: '#15803d',
@@ -28,26 +28,16 @@ export const color = {
 	white: '#ffffff',
 	gray: '#6b7280',
 
-	// Layer 2 — Semantic roles (indirection via var())
-	surface: 'var(--hz-color-white)',
-	surfaceMuted: 'color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface))',
-	text: 'var(--hz-color-black)',
-	textMuted: 'var(--hz-color-gray)',
-	border: 'var(--hz-color-gray)',
-
-	// Dark-theme override map (R5, revised 2026-07-15) — the two-tier rule:
-	// dark mode is authored ENTIRELY at this layer. Surface and text flip,
-	// surface-muted's tint strengthens (6% is invisible over black), and
-	// every hue lightens to a companion that keeps WCAG AA (≥ 4.5:1) as text
-	// on both dark surfaces. Roles and intents are pure var() chains in both
-	// modes, so all of Layer 2 follows automatically — text-muted and border
-	// track gray, the intents track their hues, and the reference theme
-	// paints solid intent text with --hz-color-surface so solids flip too.
+	// Dark-theme companion map (R5, revised 2026-07-15; moved to the palette
+	// tier by specs/42 R1) — the two-tier rule: dark mode is authored
+	// ENTIRELY at this layer. Every hue lightens to a companion that keeps
+	// WCAG AA (≥ 4.5:1) as text on both dark surfaces. Roles and intents are
+	// pure var() chains in both modes, so all of Layer 2 follows
+	// automatically — text-muted and border track gray, the intents track
+	// their hues, and the reference theme paints solid intent text with
+	// --hz-color-surface so solids flip too.
 	theme: {
 		dark: {
-			surface: 'var(--hz-color-black)',
-			surfaceMuted: 'color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface))',
-			text: 'var(--hz-color-white)',
 			primary: '#60a5fa',
 			secondary: '#a78bfa',
 			danger: '#f87171',
@@ -55,6 +45,34 @@ export const color = {
 			success: '#4ade80',
 			info: '#22d3ee',
 			gray: '#9ca3af'
+		}
+	}
+} as const;
+
+// ---------------------------------------------------------------------------
+// Color — Layer 2: semantic roles (specs/42 R1). Structural roles reference
+// the palette namespace via var(); `black`/`white` are mode-invariant alias
+// roles (absolute anchors for hover-darkening mixes and on-media controls)
+// that deliberately carry no dark override.
+// ---------------------------------------------------------------------------
+
+export const color = {
+	surface: 'var(--hz-palette-white)',
+	surfaceMuted: 'color-mix(in srgb, var(--hz-palette-gray) 6%, var(--hz-color-surface))',
+	text: 'var(--hz-palette-black)',
+	textMuted: 'var(--hz-palette-gray)',
+	border: 'var(--hz-palette-gray)',
+	black: 'var(--hz-palette-black)',
+	white: 'var(--hz-palette-white)',
+
+	// Dark-theme override map (R5, revised 2026-07-15) — role-tier only.
+	// black/white deliberately do NOT appear here: they are mode-invariant
+	// absolute anchors.
+	theme: {
+		dark: {
+			surface: 'var(--hz-palette-black)',
+			surfaceMuted: 'color-mix(in srgb, var(--hz-palette-gray) 25%, var(--hz-color-surface))',
+			text: 'var(--hz-palette-white)'
 		}
 	}
 } as const;
@@ -69,13 +87,13 @@ export const color = {
 // ---------------------------------------------------------------------------
 
 export const intent = {
-	neutral: 'var(--hz-color-gray)',
-	primary: 'var(--hz-color-primary)',
-	secondary: 'var(--hz-color-secondary)',
-	danger: 'var(--hz-color-danger)',
-	warning: 'var(--hz-color-warning)',
-	success: 'var(--hz-color-success)',
-	info: 'var(--hz-color-info)'
+	neutral: 'var(--hz-palette-gray)',
+	primary: 'var(--hz-palette-primary)',
+	secondary: 'var(--hz-palette-secondary)',
+	danger: 'var(--hz-palette-danger)',
+	warning: 'var(--hz-palette-warning)',
+	success: 'var(--hz-palette-success)',
+	info: 'var(--hz-palette-info)'
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -191,15 +209,23 @@ export const shadow = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Z-index (R6)
+// Z-index (R6, revised Banner-R13 — specs/41)
 // ---------------------------------------------------------------------------
 
+// `toast` retired 2026-07-23 (Banner-R13): no Toast component ships, so the
+// tier was dead. `raised` and `sticky` are new: `raised` covers small local
+// layering (a bg/content pair, a sticky table cell), `sticky` is the global
+// tier a pinned Header/Banner sits at. `popover` covers a floating menu that
+// must clear sticky chrome (Nav's dropdown panel) — distinct from the
+// in-flow `dropdown` tier Combobox/Dropdown popups already use.
 export const zIndex = {
 	base: '0',
+	raised: '1',
 	dropdown: '10',
+	sticky: '100',
+	popover: '200',
 	overlay: '1000',
-	modal: '1100',
-	toast: '1200'
+	modal: '1100'
 } as const;
 
 // ---------------------------------------------------------------------------

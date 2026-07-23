@@ -2,8 +2,9 @@
 import type { ComponentDoc } from './types.js';
 
 export const containerDoc: ComponentDoc = {
-	description: 'Centers content horizontally with a configurable max-width and padding.',
-	importLine: 'import {Container} from "@hyzer-labs/ui"',
+	description:
+		'Centers content horizontally with a configurable max-width and padding. Container decides how wide a region is — pair it with Stack, Cluster, Grid, or Split to arrange the content inside.',
+	importLine: 'import { Container } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'max', type: "'sm' | 'md' | 'lg' | 'xl' | 'full'", default: "'lg'" },
 		{
@@ -11,6 +12,18 @@ export const containerDoc: ComponentDoc = {
 			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
 			default: "'md'",
 			note: 'Both axes. Shared LayoutPadding scale — near/away tighten inside data-density-shift regions.'
+		},
+		{
+			name: 'paddingInline',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: '—',
+			note: 'Per-axis override — wins over padding on the inline axis. Same LayoutPadding scale.'
+		},
+		{
+			name: 'paddingBlock',
+			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
+			default: '—',
+			note: 'Per-axis override — wins over padding on the block axis. Same LayoutPadding scale.'
 		},
 		{ name: 'center', type: 'boolean', default: 'true' },
 		{

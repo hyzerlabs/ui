@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const comboboxDoc: ComponentDoc = {
 	description:
 		'A multi-select, filterable text input that follows the WAI-ARIA APG combobox (list-autocomplete) pattern, with each pick rendered as a dismissible chip.',
-	importLine: 'import {Combobox} from "@hyzer-labs/ui"',
+	importLine: 'import { Combobox } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'name',

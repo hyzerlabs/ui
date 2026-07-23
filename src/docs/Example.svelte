@@ -41,7 +41,7 @@
 		border-radius: 0;
 		background-color: var(
 			--hz-color-surface-muted,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, var(--hz-color-surface, #fff))
 		);
 	}
 </style>

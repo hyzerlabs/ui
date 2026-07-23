@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const blockquoteDoc: ComponentDoc = {
 	description:
 		'A semantic quote: a figure wrapping a blockquote, with an optional visible attribution and an optional machine-readable source URL.',
-	importLine: 'import {Blockquote} from "@hyzer-labs/ui"',
+	importLine: 'import { Blockquote } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The quoted content.' },
 		{

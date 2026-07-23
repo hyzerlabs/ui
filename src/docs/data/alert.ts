@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const alertDoc: ComponentDoc = {
 	description:
 		'An inline feedback banner on the shared intent scale, with an optional heading and dismiss button — announcement semantics are opt-in, and the Form error summary is one of these.',
-	importLine: 'import {Alert} from "@hyzer-labs/ui"',
+	importLine: 'import { Alert } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The alert body.' },
 		{
@@ -16,9 +16,10 @@ export const alertDoc: ComponentDoc = {
 		{ name: 'headingLevel', type: '2 | 3 | 4 | 5 | 6', default: '2' },
 		{
 			name: 'intent',
-			type: "'neutral' | 'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info'",
+			type: 'Intent',
 			default: "'neutral'",
-			note: 'See Foundation → Colors & Intent.'
+			note: 'See Foundation → Colors & Intent.',
+			noteHref: '/foundation/colors#intent'
 		},
 		{
 			name: 'rounded',

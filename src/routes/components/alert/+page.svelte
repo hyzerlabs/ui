@@ -73,6 +73,11 @@
 </script>
 
 <DocPage name="Alert" {...alertDoc}>
+	<Alert intent="info" title="Alert vs Banner">
+		Reach for <code>Alert</code> when the message is soft, inline, and contextual — feedback that
+		sits next to the thing it describes. For a full-width, solid, page-level announcement you can
+		pin to the top or bottom, use <a href="/components/banner">Banner</a> instead.
+	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Alert demos" defaultTab="intents">
 		{#snippet panel(item)}
 			<div class="tab-content">
@@ -155,7 +160,7 @@
 		background: none;
 		padding: 0;
 		font: inherit;
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 		text-decoration: underline;
 		cursor: pointer;
 	}

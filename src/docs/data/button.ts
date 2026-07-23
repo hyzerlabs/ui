@@ -4,14 +4,15 @@ import type { ComponentDoc } from './types.js';
 export const buttonDoc: ComponentDoc = {
 	description:
 		'A versatile button component supporting solid, outline, ghost, and link variants with intent colors, sizes, loading, and icon slots.',
-	importLine: 'import {Button} from "@hyzer-labs/ui"',
+	importLine: 'import { Button } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'variant', type: "'solid' | 'outline' | 'ghost' | 'link'", default: "'solid'" },
 		{
 			name: 'intent',
-			type: "'neutral' | 'primary' | 'secondary' | 'danger' | 'warning' | 'success' | 'info'",
+			type: 'Intent',
 			default: "'primary'",
-			note: 'The full intent registry, not a hand-picked subset — see Foundation → Colors & Intent.'
+			note: 'The full intent registry, not a hand-picked subset — see Foundation → Colors & Intent.',
+			noteHref: '/foundation/colors#intent'
 		},
 		{ name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
 		{ name: 'disabled', type: 'boolean', default: 'false' },

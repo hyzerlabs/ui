@@ -431,7 +431,10 @@
 		position: absolute;
 		top: 100%;
 		left: 0;
-		z-index: 200;
+		/* Banner-R13: a floating menu that must clear sticky chrome (a pinned
+		 * Header/Banner) — one tier above --hz-z-sticky, distinct from the
+		 * in-flow --hz-z-dropdown Combobox/Dropdown popups use. */
+		z-index: var(--hz-z-popover, 200);
 		list-style: none;
 		margin: 0;
 		padding: var(--hz-space-xs, 0.5rem) 0;

@@ -37,7 +37,7 @@
 
 .hz-theme-sunset .hz-accordion-trigger:hover {
 	background-color: transparent;
-	color: var(--hz-color-primary, #c2410c);
+	color: var(--hz-intent-primary, #c2410c);
 }
 
 .hz-theme-sunset .hz-accordion-icon {

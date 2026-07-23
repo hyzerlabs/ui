@@ -169,6 +169,42 @@ describe('R3 — padding prop', () => {
 });
 
 // ---------------------------------------------------------------------------
+// paddingInline / paddingBlock — per-axis overrides of the padding shorthand
+// ---------------------------------------------------------------------------
+
+describe('paddingInline / paddingBlock props', () => {
+	it('are absent by default — no data-padding-inline/-block attributes', () => {
+		const { container } = render(Container);
+		const el = container.querySelector('.hz-container') as HTMLElement;
+		expect(el.hasAttribute('data-padding-inline')).toBe(false);
+		expect(el.hasAttribute('data-padding-block')).toBe(false);
+	});
+
+	it('paddingInline overrides the inline axis; block keeps the shorthand', () => {
+		const { container } = render(Container, { paddingInline: 'lg' });
+		const el = container.querySelector('.hz-container') as HTMLElement;
+		expect(el.getAttribute('data-padding-inline')).toBe('lg');
+		expect(getComputedStyle(el).paddingLeft).toBe('64px');
+		expect(getComputedStyle(el).paddingTop).toBe('32px'); // padding default 'md'
+	});
+
+	it('paddingBlock overrides the block axis; inline keeps the shorthand', () => {
+		const { container } = render(Container, { paddingBlock: 'sm' });
+		const el = container.querySelector('.hz-container') as HTMLElement;
+		expect(el.getAttribute('data-padding-block')).toBe('sm');
+		expect(getComputedStyle(el).paddingTop).toBe('16px');
+		expect(getComputedStyle(el).paddingLeft).toBe('32px'); // padding default 'md'
+	});
+
+	it('longhand "none" zeroes its axis under a non-zero shorthand', () => {
+		const { container } = render(Container, { padding: 'md', paddingInline: 'none' });
+		const el = container.querySelector('.hz-container') as HTMLElement;
+		expect(getComputedStyle(el).paddingLeft).toBe('0px');
+		expect(getComputedStyle(el).paddingTop).toBe('32px');
+	});
+});
+
+// ---------------------------------------------------------------------------
 // breakout prop
 // ---------------------------------------------------------------------------
 

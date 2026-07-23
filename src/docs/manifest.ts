@@ -85,6 +85,7 @@ export const manifest: ManifestEntry[] = [
 				pages: [
 					{ label: 'Alert', href: '/components/alert' },
 					{ label: 'Badge', href: '/components/badge' },
+					{ label: 'Banner', href: '/components/banner' },
 					{ label: 'Blockquote', href: '/components/blockquote' },
 					{ label: 'Button', href: '/components/button' },
 					{ label: 'Link', href: '/components/link' },
@@ -113,11 +114,11 @@ export const manifest: ManifestEntry[] = [
 			{
 				label: 'Navigation',
 				pages: [
-					{ label: 'Header', href: '/components/header' },
 					{ label: 'Nav', href: '/components/nav' },
+					{ label: 'Header', href: '/components/header' },
+					{ label: 'Footer', href: '/components/footer' },
 					{ label: 'Breadcrumbs', href: '/components/breadcrumbs' },
 					{ label: 'Pagination', href: '/components/pagination' },
-					{ label: 'Footer', href: '/components/footer' },
 					{ label: 'Toc', href: '/components/toc' }
 				]
 			},

@@ -1,9 +1,51 @@
 <script lang="ts">
 	import { Stack, Grid, Cluster, Badge, Alert, Button } from '$lib';
 	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
-	import { color, intent } from '$lib/tokens';
+	import { palette, color, intent } from '$lib/tokens';
+	import CodeBlock from '../../../docs/CodeBlock.svelte';
+
+	// The docs shell's own theme toggle, verbatim — the Dark mode section
+	// shows the real thing (src/routes/+layout.svelte), not an idealization.
+	const toggleCode = [
+		"import { Button } from '@hyzer-labs/ui';",
+		"import IconSun from '@hyzer-labs/ui/icons/sun';",
+		"import IconMoon from '@hyzer-labs/ui/icons/moon';",
+		'',
+		'let dark = $state(false);',
+		'',
+		'// An explicit stored choice wins; with no stored key, follow the system.',
+		'$effect(() => {',
+		"\tconst stored = localStorage.getItem('hz-theme');",
+		"\tdark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;",
+		'});',
+		'$effect(() => {',
+		"\tif (dark) document.documentElement.setAttribute('data-theme', 'dark');",
+		"\telse document.documentElement.removeAttribute('data-theme');",
+		'});',
+		'',
+		'// Storage is only written on an actual toggle, so "follow the system"',
+		"// stays live until the user chooses — 'light' is stored explicitly.",
+		'function toggleTheme() {',
+		'\tdark = !dark;',
+		"\tlocalStorage.setItem('hz-theme', dark ? 'dark' : 'light');",
+		'}',
+		'',
+		'<Button',
+		'\tvariant="ghost"',
+		'\tintent="neutral"',
+		"\tariaLabel={dark ? 'Switch to light theme' : 'Switch to dark theme'}",
+		'\taria-pressed={dark}',
+		'\tonclick={toggleTheme}',
+		'>',
+		'\t{#snippet iconStart()}',
+		'\t\t{#if dark}<IconSun />{:else}<IconMoon />{/if}',
+		'\t{/snippet}',
+		'</Button>'
+	].join('\n');
 
 	// R7 — derive palette and role tokens from metadata; never hardcoded
+	// (specs/42 R1 — classification is by which export a token lives in, not
+	// by value shape: `palette` is Layer 1, `color` is Layer 2 roles.)
 
 	type ColorEntry = { key: string; cssVar: string; value: string };
 
@@ -26,44 +68,43 @@
 			}));
 	}
 
-	const paletteTokens = colorEntries(
-		Object.fromEntries(
-			Object.entries(color).filter(
-				([, v]) => typeof v === 'string' && (v as string).startsWith('#')
-			)
-		),
-		'--hz-color'
-	);
+	// Layer 1 — every raw hue in the `palette` export.
+	const paletteTokens = colorEntries(palette, '--hz-palette');
 
-	// Roles are everything that isn't a raw palette hex — var() indirections
-	// plus derived values like surface-muted's color-mix().
-	const roleTokens = colorEntries(
-		Object.fromEntries(
-			Object.entries(color).filter(
-				([, v]) => typeof v === 'string' && !(v as string).startsWith('#')
-			)
-		),
-		'--hz-color'
-	);
+	// Layer 2 — the seven structural roles in the `color` export: surface,
+	// surfaceMuted, text, textMuted, border, plus the black/white anchor
+	// aliases (specs/42 R1).
+	const roleTokens = colorEntries(color, '--hz-color');
 
-	const darkTokens: ColorEntry[] = Object.entries(color.theme.dark).map(([key, value]) => ({
-		key,
-		cssVar: `--hz-color-${toKebab(key)}`,
-		value
-	}));
+	// The dark block, combined for display: role overrides (surface,
+	// surface-muted, text) from `color.theme.dark`, then palette companions
+	// (every hue lightens) from `palette.theme.dark`. black/white appear in
+	// neither — they are the deliberately mode-invariant anchors.
+	const darkTokens: ColorEntry[] = [
+		...Object.entries(color.theme.dark).map(([key, value]) => ({
+			key,
+			cssVar: `--hz-color-${toKebab(key)}`,
+			value
+		})),
+		...Object.entries(palette.theme.dark).map(([key, value]) => ({
+			key,
+			cssVar: `--hz-palette-${toKebab(key)}`,
+			value
+		}))
+	];
 
-	/** The dark theme's re-authored value for a key, if it has one. Drives
-	 * every mode-aware label on this page. */
+	/** The dark theme's re-authored value for a ROLE key, if it has one.
+	 * Drives the mode-aware labels in the structural-roles table — only
+	 * surface/surfaceMuted/text re-author; black/white deliberately don't. */
 	function darkValueFor(key: string): string | undefined {
 		return (color.theme.dark as Record<string, string>)[key];
 	}
 
-	/** The dark-mode hex companion for a palette key, if the dark theme
-	 * re-authors one (black/white don't flip). Drives the mode-aware hex
-	 * labels on the palette cards. */
+	/** The dark-mode hex companion for a PALETTE key, if the dark theme
+	 * re-authors one (black/white have no companion at all). Drives the
+	 * mode-aware hex labels on the palette cards. */
 	function darkHexFor(key: string): string | undefined {
-		const value = darkValueFor(key);
-		return value?.startsWith('#') ? value : undefined;
+		return (palette.theme.dark as Record<string, string>)[key];
 	}
 
 	// R7 — the intent role tokens, derived from metadata.
@@ -93,11 +134,13 @@
 	<div class="doc-intro">
 		<h1>Colors & Intent</h1>
 		<p class="doc-description">
-			A two-layer color model: a palette (Layer 1) of single-value colors authored per mode, and a
-			semantic role layer (Layer 2) of pure <code>var()</code> references into it — structural roles
-			for what a color does in the layout, and the <a href="#intent">intent vocabulary</a> for what a
-			color means. Dark theme overrides land entirely on Layer 1; everything in Layer 2 chains through
-			automatically.
+			A two-layer color model, and the CSS namespace says which layer you're in. The palette (Layer
+			1, <code>--hz-palette-*</code>) is single-value hues authored per mode. The semantic role
+			layer (Layer 2, <code>--hz-color-*</code> and <code>--hz-intent-*</code>) is pure
+			<code>var()</code>
+			references into it — structural roles for what a color <em>does</em> in the layout, and the
+			<a href="#intent">intent vocabulary</a> for what a color <em>means</em>. Dark theme overrides
+			land mostly on Layer 1; everything in Layer 2 chains through automatically.
 		</p>
 	</div>
 
@@ -109,7 +152,13 @@
 		aria-labelledby="palette-heading"
 	>
 		<h2 id="palette-heading">Palette tokens</h2>
-		<p>These tokens ship fixed values. Override them to retheme the entire palette at once.</p>
+		<p>
+			<code>--hz-palette-*</code> — these tokens ship fixed values. Override them to retheme the
+			entire palette at once. Components and the reference theme never read these directly (see the
+			doctrine note below) — this page and
+			<a href="/foundation/contrast">Contrast &amp; Accessibility</a> are the exception, building and
+			grading the raw names for review.
+		</p>
 		<Grid columns={{ sm: 2, md: 3, lg: 4 }} gap="sm">
 			{#each paletteTokens as token (token.cssVar)}
 				<div class="color-card">
@@ -152,6 +201,11 @@
 			>) name what a color <em>means</em>.
 		</p>
 		<h3 id="structural-roles">Structural roles</h3>
+		<p>
+			Seven roles: <code>surface</code>, <code>surfaceMuted</code>, <code>text</code>,
+			<code>textMuted</code>, and <code>border</code> flip or track the palette per mode as the
+			table below shows; <code>black</code> and <code>white</code> are mode-invariant alias roles.
+		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>
@@ -166,8 +220,9 @@
 						<tr>
 							<td><code>{token.cssVar}</code></td>
 							<!-- Roles the dark theme re-authors (surface, surface-muted, text)
-							     show the value for the mode you're looking at; the rest are the
-							     same var() chain in both modes. -->
+							     show the value for the mode you're looking at; the rest — including
+							     the black/white anchors, which never re-author — are the same
+							     var() chain in both modes. -->
 							<td>
 								{#if darkValueFor(token.key)}
 									<code class="mode-light">{token.value}</code>
@@ -178,7 +233,7 @@
 							</td>
 							<td>
 								<!-- The token itself, not its authored value: surface's value is
-								     var(--hz-color-white), which stays white under the dark
+								     var(--hz-palette-white), which stays white under the dark
 								     toggle — the dark theme overrides the ROLE, so paint it. -->
 								<div
 									class="swatch swatch-sm"
@@ -191,6 +246,13 @@
 				</tbody>
 			</table>
 		</div>
+		<p class="role-note">
+			<code>--hz-color-black</code> and <code>--hz-color-white</code> are absolute anchors for
+			hover-darkening mixes (Button's solid/active states, Link's hover) and on-media controls
+			(Lightbox) — deliberately do not flip in dark. They appear in both the palette section above
+			(as the <code>black</code>/<code>white</code> palette source) and here (as anchor roles); that duality
+			is intentional — the role is what components actually read.
+		</p>
 		<h3 id="intent">Intent</h3>
 		<p>
 			Intent is the shared vocabulary components use when color carries meaning: the
@@ -267,14 +329,41 @@
 		class="doc-section"
 		aria-labelledby="dark-heading"
 	>
-		<h2 id="dark-heading">Dark theme overrides</h2>
+		<h2 id="dark-heading">Dark mode</h2>
 		<p>
-			Dark mode is a set of palette-layer overrides in <code>[data-theme="dark"]</code>. Out of the
-			box <code>--hz-color-surface</code> and <code>--hz-color-text</code> flip,
+			Dark mode is completely optional, and there are three equally supported postures. Do nothing
+			and the light values are simply the values — no toggle, no extra CSS. Prefer a dark-only site?
+			Set <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> once and stop there — the overrides
+			apply and no toggle ever needs to exist. Or wire a toggle that flips the attribute, like this docs
+			site does. Components resolve the same role and intent tokens in every posture, so nothing else
+			in your markup or CSS changes between them.
+		</p>
+		<p>
+			The toggle in this site's sidebar is exactly this — an icon-only <code>Button</code> flipping
+			the attribute and remembering the choice. Until a choice is stored, the site follows the
+			system's
+			<code>prefers-color-scheme</code>:
+		</p>
+		<CodeBlock code={toggleCode} />
+		<h3 id="dark-overrides-heading">Overrides</h3>
+		<p>
+			Dark mode is a set of overrides in <code>[data-theme="dark"]</code>. Out of the box
+			<code>--hz-color-surface</code> and <code>--hz-color-text</code> flip,
 			<code>--hz-color-surface-muted</code> strengthens its gray tint (6% is invisible over black),
-			and every hue lightens to a companion that keeps WCAG AA as text on dark surfaces. Nothing is
-			re-authored at Layer 2 — <code>text-muted</code> and <code>border</code> follow
-			<code>gray</code>, and every intent follows its hue:
+			and every hue in <code>--hz-palette-*</code> lightens to a companion that keeps WCAG AA as
+			text on dark surfaces. Almost nothing is re-authored beyond that at Layer 2 —
+			<code>text-muted</code> and <code>border</code> follow <code>gray</code>, and every intent
+			follows its hue:
+		</p>
+		<p class="doctrine-note">
+			Dark mode <strong>may override any tier, including the palette</strong> — and it already does,
+			right here. The rule is not that the palette is mode-static; the rule is that components and
+			theme sheets resolve through role (<code>--hz-color-*</code>) and intent (<code
+				>--hz-intent-*</code
+			>) tokens, <strong>never the palette directly</strong>. Palette is referenced in exactly one
+			place — the token source, where roles and intents are
+			<em>defined</em> (<code>--hz-color-surface: var(--hz-palette-white)</code>) — the whole point
+			of the indirection.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -319,6 +408,14 @@
 
 	p {
 		margin: 0;
+	}
+
+	.doctrine-note,
+	.role-note {
+		padding: 0.75rem 1rem;
+		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
 	}
 
 	.color-card {

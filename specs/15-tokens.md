@@ -371,3 +371,21 @@ palette entry and differs from its light counterpart (R7).
   (`0 20px 25px -5px rgb(0 0 0 / 0.18), 0 8px 10px -6px rgb(0 0 0 / 0.18)`).
   Theme fallbacks and the fallback-parity abbreviation registry updated;
   generated sheets (tokens.css + example token sheets) regenerated.
+- **2026-07-23 (specs/42 — palette namespace split):** the raw hues this spec
+  described as `--hz-color-<hue>` (`white, black, gray, primary, secondary,
+  danger, warning, success, info`) move to a dedicated `--hz-palette-*`
+  namespace, with `palette.theme.dark` carrying the dark-companion map this
+  spec called `color.theme.dark`. The `--hz-color-*` role set grows from five
+  to seven: `surface, surfaceMuted, text, textMuted, border` plus two new
+  mode-invariant alias roles, `black`/`white` (`black: 'var(--hz-palette-black)'`,
+  `white: 'var(--hz-palette-white)'`, no dark override — deliberate absolute
+  anchors for hover-darkening mixes and on-media controls). `--hz-intent-*`
+  re-points at the palette namespace (`primary: 'var(--hz-palette-primary)'`).
+  This section's historical `--hz-color-<hue>` mentions (R1–R7, the test-plan
+  assertions, the dark-hook example) describe the pre-split shape and are
+  superseded — specs/42 is the authority for the current names. specs/42 is
+  also authoritative for the doctrine this spec only implied: dark mode may
+  override any tier including the palette (unchanged), but components and
+  theme sheets resolve only through role/intent tokens, never palette tokens
+  directly — the token source (`tokens/index.ts`) is the sole sanctioned
+  palette consumer.

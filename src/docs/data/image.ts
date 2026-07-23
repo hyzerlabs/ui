@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const imageDoc: ComponentDoc = {
 	description:
 		'Responsive image with aspect-ratio, object-fit, rounded corners, color/blur placeholder states, and a picture mode for art direction.',
-	importLine: 'import {Image} from "@hyzer-labs/ui"',
+	importLine: 'import { Image } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'src', type: 'string', default: '—', note: 'Required. Fallback in picture mode.' },
 		{
@@ -36,7 +36,7 @@ export const imageDoc: ComponentDoc = {
 			default: '—',
 			note: 'Low-res image for placeholder="blur"; required in that mode.'
 		},
-		{ name: 'placeholderColor', type: 'string', default: "'var(--hz-color-gray)'" },
+		{ name: 'placeholderColor', type: 'string', default: "'var(--hz-color-border)'" },
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-image class.' }
 	],
 	a11yNote:

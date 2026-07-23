@@ -62,7 +62,9 @@ function declarationMaps(resolved: ResolvedConfig): { light: DeclMap; dark: Decl
 		for (const e of section.entries) light.set(e.cssName, e.value);
 	}
 	const dark: DeclMap = new Map(light);
-	for (const e of [...resolved.dark.color, ...resolved.dark.intent]) dark.set(e.cssName, e.value);
+	for (const e of [...resolved.dark.palette, ...resolved.dark.color, ...resolved.dark.intent]) {
+		dark.set(e.cssName, e.value);
+	}
 	return { light, dark };
 }
 

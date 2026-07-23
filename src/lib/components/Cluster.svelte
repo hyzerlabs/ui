@@ -12,6 +12,10 @@
 		align?: LayoutAlign;
 		wrap?: boolean;
 		padding?: LayoutPadding;
+		/** Per-axis override — wins over `padding` on the inline axis. */
+		paddingInline?: LayoutPadding;
+		/** Per-axis override — wins over `padding` on the block axis. */
+		paddingBlock?: LayoutPadding;
 		as?: string;
 		class?: string;
 		children?: Snippet;
@@ -24,6 +28,8 @@
 		align = 'center',
 		wrap = true,
 		padding = 'none',
+		paddingInline,
+		paddingBlock,
 		as = 'div',
 		class: className,
 		children,
@@ -33,7 +39,7 @@
 
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
-	(class, data-gap, data-justify, data-align, data-wrap, data-padding) wins
+	(class, data-gap, data-justify, data-align, data-wrap, data-padding*) wins
 	over any conflicting key a consumer accidentally passes through rest.
 -->
 <svelte:element
@@ -45,6 +51,8 @@
 	data-align={align}
 	data-wrap={wrap ? '' : undefined}
 	data-padding={padding}
+	data-padding-inline={paddingInline}
+	data-padding-block={paddingBlock}
 >
 	{@render children?.()}
 </svelte:element>
@@ -105,6 +113,44 @@
 	}
 	.hz-cluster[data-padding='away'] {
 		padding: var(--hz-space-away, 8rem);
+	}
+
+	/* per-axis overrides — declared after the shorthand so the longhand wins */
+	.hz-cluster[data-padding-inline='none'] {
+		padding-inline: 0;
+	}
+	.hz-cluster[data-padding-inline='sm'] {
+		padding-inline: var(--hz-space-sm, 1rem);
+	}
+	.hz-cluster[data-padding-inline='md'] {
+		padding-inline: var(--hz-space-md, 2rem);
+	}
+	.hz-cluster[data-padding-inline='lg'] {
+		padding-inline: var(--hz-space-lg, 4rem);
+	}
+	.hz-cluster[data-padding-inline='near'] {
+		padding-inline: var(--hz-space-near, 4rem);
+	}
+	.hz-cluster[data-padding-inline='away'] {
+		padding-inline: var(--hz-space-away, 8rem);
+	}
+	.hz-cluster[data-padding-block='none'] {
+		padding-block: 0;
+	}
+	.hz-cluster[data-padding-block='sm'] {
+		padding-block: var(--hz-space-sm, 1rem);
+	}
+	.hz-cluster[data-padding-block='md'] {
+		padding-block: var(--hz-space-md, 2rem);
+	}
+	.hz-cluster[data-padding-block='lg'] {
+		padding-block: var(--hz-space-lg, 4rem);
+	}
+	.hz-cluster[data-padding-block='near'] {
+		padding-block: var(--hz-space-near, 4rem);
+	}
+	.hz-cluster[data-padding-block='away'] {
+		padding-block: var(--hz-space-away, 8rem);
 	}
 
 	/* justify-content per data-justify */

@@ -181,7 +181,7 @@
 	.media-placeholder {
 		width: 100%;
 		min-height: 8rem;
-		background: var(--hz-color-gray, #6b7280);
+		background: var(--hz-intent-neutral, #6b7280);
 		min-width: 8rem;
 	}
 </style>

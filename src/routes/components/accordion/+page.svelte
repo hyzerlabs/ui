@@ -209,8 +209,8 @@
 		margin-inline-start: 0.375rem;
 		padding: 0.1em 0.5em;
 		border-radius: var(--hz-radius-full, 9999px);
-		background: color-mix(in srgb, var(--hz-color-primary, #2563eb) 14%, transparent);
-		color: var(--hz-color-primary, #2563eb);
+		background: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 14%, transparent);
+		color: var(--hz-intent-primary, #2563eb);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}

@@ -18,20 +18,20 @@
  * win by source order.
  */
 .hz-theme-sunset {
-	--hz-color-primary: #c2410c;
-	--hz-color-secondary: #be185d;
-	--hz-color-warning: #854d0e;
-	--hz-color-danger: #b91c1c;
+	--hz-palette-primary: #c2410c;
+	--hz-palette-secondary: #be185d;
+	--hz-palette-warning: #854d0e;
+	--hz-palette-danger: #b91c1c;
 	--hz-color-surface: #fffbf5;
-	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 6%, var(--hz-color-surface));
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 6%, var(--hz-color-surface));
 	--hz-color-text: #1c1917;
 	--hz-color-text-muted: #57534e;
 	--hz-color-border: #78716c;
 	--hz-intent-neutral: var(--hz-color-text-muted);
-	--hz-intent-primary: var(--hz-color-primary);
-	--hz-intent-secondary: var(--hz-color-secondary);
-	--hz-intent-danger: var(--hz-color-danger);
-	--hz-intent-warning: var(--hz-color-warning);
+	--hz-intent-primary: var(--hz-palette-primary);
+	--hz-intent-secondary: var(--hz-palette-secondary);
+	--hz-intent-danger: var(--hz-palette-danger);
+	--hz-intent-warning: var(--hz-palette-warning);
 	--hz-radius-md: 0.625rem;
 	--hz-radius-lg: 1.25rem;
 }
@@ -39,10 +39,10 @@
 .hz-theme-sunset[data-theme='dark'],
 [data-theme='dark'] .hz-theme-sunset {
 	--hz-color-surface: #1c1917;
-	--hz-color-surface-muted: color-mix(in srgb, var(--hz-color-gray) 25%, var(--hz-color-surface));
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 25%, var(--hz-color-surface));
 	--hz-color-text: #fafaf9;
-	--hz-color-primary: #fb923c;
-	--hz-color-secondary: #f9a8d4;
-	--hz-color-danger: #fca5a5;
 	--hz-color-text-muted: #b3aca6;
+	--hz-palette-primary: #fb923c;
+	--hz-palette-secondary: #f9a8d4;
+	--hz-palette-danger: #fca5a5;
 }

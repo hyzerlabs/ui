@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const virtualizerDoc: ComponentDoc = {
 	description:
 		'A headless windowing primitive that renders only the visible slice of a huge items array — uniform, known-variable, or runtime-measured row heights.',
-	importLine: 'import {Virtualizer} from "@hyzer-labs/ui"',
+	importLine: 'import { Virtualizer } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'items', type: 'T[]', default: '—', note: 'Required.' },
 		{

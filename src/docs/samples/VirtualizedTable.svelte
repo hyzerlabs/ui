@@ -221,7 +221,7 @@
 	.hz-vtable-header {
 		background-color: var(
 			--hz-color-surface-muted,
-			color-mix(in srgb, var(--hz-color-gray, #6b7280) 6%, var(--hz-color-surface, #fff))
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, var(--hz-color-surface, #fff))
 		);
 		font-weight: var(--hz-font-weight-semibold, 600);
 		/* Reserve the same gutter as the scrolling body below, so the header's

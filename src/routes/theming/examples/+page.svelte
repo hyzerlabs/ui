@@ -121,7 +121,7 @@
 		'export default defineConfig({',
 		'\ttokens: {',
 		'\t\tintent: {',
-		"\t\t\tphosphor: 'var(--hz-color-primary)',",
+		"\t\t\tphosphor: 'var(--hz-palette-primary)',",
 		"\t\t\tamber: '#ffb000'",
 		'\t\t}',
 		'\t}',
@@ -147,7 +147,7 @@
 		'\t}',
 		'',
 		'\t:global(.hz-theme-sunset .hz-button.cta) {',
-		'\t\tbackground: linear-gradient(135deg, var(--hz-color-primary), var(--hz-color-secondary));',
+		'\t\tbackground: linear-gradient(135deg, var(--hz-intent-primary), var(--hz-intent-secondary));',
 		'\t\tcolor: var(--hz-color-surface);',
 		'\t}',
 		'</' + 'style>'
@@ -488,7 +488,7 @@
 	:global(.theme-ocean .hz-button.cta) {
 		box-shadow:
 			0 0 0 3px var(--hz-color-surface),
-			0 0 0 5px var(--hz-color-primary);
+			0 0 0 5px var(--hz-intent-primary);
 	}
 
 	:global(.hz-theme-terminal .hz-button.cta) {
@@ -499,8 +499,8 @@
 	:global(.hz-theme-sunset .hz-button.cta) {
 		background: linear-gradient(
 			135deg,
-			var(--hz-color-primary, #c2410c),
-			var(--hz-color-secondary, #be185d)
+			var(--hz-intent-primary, #c2410c),
+			var(--hz-intent-secondary, #be185d)
 		);
 		color: var(--hz-color-surface, #fffbf5);
 	}

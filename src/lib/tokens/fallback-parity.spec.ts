@@ -28,7 +28,16 @@ const ALLOWED_ABBREVIATIONS: Record<string, string[]> = {
 	// (rescaled 2026-07-22: old md → sm, old lg → md, new bolder lg).
 	'--hz-shadow-sm': ['0 4px 6px -1px rgb(0 0 0 / 0.1)'],
 	'--hz-shadow-md': ['0 10px 15px -3px rgb(0 0 0 / 0.1)'],
-	'--hz-shadow-lg': ['0 20px 25px -5px rgb(0 0 0 / 0.18)']
+	'--hz-shadow-lg': ['0 20px 25px -5px rgb(0 0 0 / 0.18)'],
+	// specs/42 R3.1 bars theme sheets from referencing --hz-palette-* directly,
+	// but surface-muted's OWN definition is authored against --hz-palette-gray
+	// (tokens/index.ts) — a fallback that reproduces the recipe byte-for-byte
+	// can't satisfy both rules at once. footer.css / table.css's fallback
+	// mirror re-derives the identical resolved color through the ROLE-tier
+	// --hz-intent-neutral chain instead (neutral IS gray, in both modes).
+	'--hz-color-surface-muted': [
+		'color-mix(in srgb, var(--hz-intent-neutral) 6%, var(--hz-color-surface))'
+	]
 };
 
 // ---------------------------------------------------------------------------
@@ -172,7 +181,7 @@ describe('R7 — fallback parity across src/lib', () => {
 
 	it('the normalizer catches a genuinely wrong fallback', () => {
 		// Guard against the test silently accepting anything.
-		expect(acceptableValues('--hz-color-primary').has(normalize('#123456'))).toBe(false);
-		expect(acceptableValues('--hz-color-primary').has(normalize('#2563EB'))).toBe(true);
+		expect(acceptableValues('--hz-palette-primary').has(normalize('#123456'))).toBe(false);
+		expect(acceptableValues('--hz-palette-primary').has(normalize('#2563EB'))).toBe(true);
 	});
 });

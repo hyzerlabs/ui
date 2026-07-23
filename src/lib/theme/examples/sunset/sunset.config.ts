@@ -24,13 +24,14 @@ export const intro = [
 
 export default defineConfig({
 	tokens: {
-		color: {
+		palette: {
 			// Layer 1 — accent palette. Warning deepens from the base hue so
 			// it holds AA on the warm-tinted muted surface.
 			primary: '#c2410c',
 			secondary: '#be185d',
-			warning: '#854d0e',
-
+			warning: '#854d0e'
+		},
+		color: {
 			// Layer 2 — semantic roles (light)
 			surface: '#fffbf5',
 			text: '#1c1917',
@@ -47,16 +48,17 @@ export default defineConfig({
 		}
 	},
 	dark: {
-		color: {
-			surface: '#1c1917',
-			text: '#fafaf9',
-			textMuted: '#b3aca6',
-
+		palette: {
 			// Brighten accents that sit on the warm dark surface — sunset's
 			// stone-900 base and its muted tint sit lighter than pure black.
 			primary: '#fb923c',
 			secondary: '#f9a8d4',
 			danger: '#fca5a5'
+		},
+		color: {
+			surface: '#1c1917',
+			text: '#fafaf9',
+			textMuted: '#b3aca6'
 		}
 	}
 });

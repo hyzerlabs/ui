@@ -4,7 +4,7 @@
  */
 @layer hz-theme {
 	.hz-link {
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 		text-decoration: underline;
 		text-underline-offset: 0.15em;
 		border-radius: var(--hz-radius-sm, 0.25rem);
@@ -12,7 +12,7 @@
 	}
 
 	.hz-link:where(:hover) {
-		color: color-mix(in srgb, var(--hz-color-primary, #2563eb) 78%, var(--hz-color-black, #000));
+		color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 78%, var(--hz-color-black, #000));
 	}
 
 	/* Variant: subtle — inherits color, underline appears on hover */
@@ -35,7 +35,7 @@
 
 	.hz-link:where([data-variant='nav']:hover),
 	.hz-link:where([data-variant='nav'][aria-current]) {
-		color: var(--hz-color-primary, #2563eb);
+		color: var(--hz-intent-primary, #2563eb);
 	}
 
 	/* External-link icon inherits the link color via currentColor. */

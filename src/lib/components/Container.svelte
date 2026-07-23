@@ -8,6 +8,10 @@
 	interface Props {
 		max?: ContainerMax;
 		padding?: LayoutPadding;
+		/** Per-axis override — wins over `padding` on the inline axis. */
+		paddingInline?: LayoutPadding;
+		/** Per-axis override — wins over `padding` on the block axis. */
+		paddingBlock?: LayoutPadding;
 		center?: boolean;
 		/**
 		 * Escape the parent column and span the nearest inline-size container
@@ -23,6 +27,8 @@
 	let {
 		max = 'lg',
 		padding = 'md',
+		paddingInline,
+		paddingBlock,
 		center = true,
 		breakout = false,
 		as = 'div',
@@ -34,7 +40,7 @@
 
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
-	(class, data-max, data-padding, data-center, data-breakout) wins over any
+	(class, data-max, data-padding*, data-center, data-breakout) wins over any
 	conflicting key a consumer accidentally passes through rest.
 -->
 <svelte:element
@@ -43,6 +49,8 @@
 	class={cx('hz-container', className)}
 	data-max={max}
 	data-padding={padding}
+	data-padding-inline={paddingInline}
+	data-padding-block={paddingBlock}
 	data-center={center ? '' : undefined}
 	data-breakout={breakout ? '' : undefined}
 >
@@ -91,6 +99,44 @@
 	}
 	.hz-container[data-padding='away'] {
 		padding: var(--hz-space-away, 8rem);
+	}
+
+	/* per-axis overrides — declared after the shorthand so the longhand wins */
+	.hz-container[data-padding-inline='none'] {
+		padding-inline: 0;
+	}
+	.hz-container[data-padding-inline='sm'] {
+		padding-inline: var(--hz-space-sm, 1rem);
+	}
+	.hz-container[data-padding-inline='md'] {
+		padding-inline: var(--hz-space-md, 2rem);
+	}
+	.hz-container[data-padding-inline='lg'] {
+		padding-inline: var(--hz-space-lg, 4rem);
+	}
+	.hz-container[data-padding-inline='near'] {
+		padding-inline: var(--hz-space-near, 4rem);
+	}
+	.hz-container[data-padding-inline='away'] {
+		padding-inline: var(--hz-space-away, 8rem);
+	}
+	.hz-container[data-padding-block='none'] {
+		padding-block: 0;
+	}
+	.hz-container[data-padding-block='sm'] {
+		padding-block: var(--hz-space-sm, 1rem);
+	}
+	.hz-container[data-padding-block='md'] {
+		padding-block: var(--hz-space-md, 2rem);
+	}
+	.hz-container[data-padding-block='lg'] {
+		padding-block: var(--hz-space-lg, 4rem);
+	}
+	.hz-container[data-padding-block='near'] {
+		padding-block: var(--hz-space-near, 4rem);
+	}
+	.hz-container[data-padding-block='away'] {
+		padding-block: var(--hz-space-away, 8rem);
 	}
 
 	/* centering */

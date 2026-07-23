@@ -14,6 +14,7 @@ import type { ComponentDoc } from './types.js';
 import { accordionDoc } from './accordion.js';
 import { alertDoc } from './alert.js';
 import { badgeDoc } from './badge.js';
+import { bannerDoc } from './banner.js';
 import { blockquoteDoc } from './blockquote.js';
 import { buttonDoc } from './button.js';
 import { linkDoc } from './link.js';
@@ -68,6 +69,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
 	Accordion: accordionDoc,
 	Alert: alertDoc,
 	Badge: badgeDoc,
+	Banner: bannerDoc,
 	Blockquote: blockquoteDoc,
 	Button: buttonDoc,
 	Link: linkDoc,

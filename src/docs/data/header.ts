@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const headerDoc: ComponentDoc = {
 	description:
 		'A site header bar: branding, navigation, and actions, with a responsive hamburger + drawer built in. It composes Nav — horizontally in the bar, vertically in the drawer — so one item set drives both.',
-	importLine: 'import {Header} from "@hyzer-labs/ui"',
+	importLine: 'import { Header } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'items',

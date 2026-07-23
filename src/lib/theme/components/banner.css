@@ -1,0 +1,94 @@
+/**
+ * @hyzer-labs/ui reference theme — Banner
+ * Solid intent fill, Button's accent/on-accent recipe: fg is the surface
+ * role (flips with the mode), bg is the intent token. This is the exact
+ * `solid:intent-<name>` pairing the token engine's contrastReport grades AA
+ * for — keep the recipe identical (no extra colour-mix on the text) or the
+ * AA gate stops covering what actually ships (Banner-R9).
+ */
+@layer hz-theme {
+	.hz-banner {
+		/* Per-intent hooks — override these two to restyle every intent's bar.
+		 * On-fill text is the surface role, not white, so it flips with the
+		 * mode and stays >= 4.5:1 in both. */
+		--hz-banner-bg: var(--hz-intent-neutral, #6b7280);
+		--hz-banner-fg: var(--hz-color-surface, #ffffff);
+		/* Sizing hooks — override to tighten or grow the bar. */
+		--hz-banner-padding-block: 1.5rem;
+		--hz-banner-padding-inline: 2.5rem;
+
+		background-color: var(--hz-banner-bg);
+		color: var(--hz-banner-fg);
+		padding-block: var(--hz-banner-padding-block);
+		padding-inline: var(--hz-banner-padding-inline);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.hz-banner:where([data-intent='primary']) {
+		--hz-banner-bg: var(--hz-intent-primary, #2563eb);
+	}
+	.hz-banner:where([data-intent='secondary']) {
+		--hz-banner-bg: var(--hz-intent-secondary, #7c3aed);
+	}
+	.hz-banner:where([data-intent='danger']) {
+		--hz-banner-bg: var(--hz-intent-danger, #b91c1c);
+	}
+	.hz-banner:where([data-intent='warning']) {
+		--hz-banner-bg: var(--hz-intent-warning, #b45309);
+	}
+	.hz-banner:where([data-intent='success']) {
+		--hz-banner-bg: var(--hz-intent-success, #15803d);
+	}
+	.hz-banner:where([data-intent='info']) {
+		--hz-banner-bg: var(--hz-intent-info, #0e7490);
+	}
+
+	/* Opt-in title convention (Card's .hz-card-title precedent) — Banner never
+	 * emits this; put it on your own lead element (<strong>, a heading) and it
+	 * goes block-level so it stacks over the body copy without wrapper divs. */
+	.hz-banner :where(.hz-banner-title) {
+		display: block;
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	/* Links inside the bar read on the fill: colour is never the only signal
+	 * (1.4.1), so they stay underlined and inherit --hz-banner-fg rather than
+	 * a Link's usual --hz-intent-primary. :is() (not :where()) is load-bearing:
+	 * it lifts specificity to 0,2,0 so this beats link.css's .hz-link rules,
+	 * which import later and would otherwise paint primary-on-primary. */
+	.hz-banner :is(a, .hz-link) {
+		color: inherit;
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
+
+	/* A <Button> in actions is retargeted onto the bar's own fg/bg pair, so
+	 * solid and outline variants both stay legible against the intent fill. */
+	.hz-banner :where(.hz-button) {
+		--hz-button-accent: var(--hz-banner-fg);
+		--hz-button-on-accent: var(--hz-banner-bg);
+	}
+
+	.hz-banner :where(.hz-banner-dismiss) {
+		padding: 0.125rem;
+		border: none;
+		border-radius: var(--hz-radius-full, 9999px);
+		background: transparent;
+		color: inherit;
+		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-banner :where(.hz-banner-dismiss) .hz-icon {
+		width: 1em;
+		height: 1em;
+	}
+
+	.hz-banner :where(.hz-banner-dismiss:hover) {
+		background-color: color-mix(in srgb, currentColor 15%, transparent);
+	}
+
+	.hz-banner :where(.hz-banner-dismiss:focus-visible) {
+		outline: 2px solid transparent;
+		box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 40%, transparent);
+	}
+}

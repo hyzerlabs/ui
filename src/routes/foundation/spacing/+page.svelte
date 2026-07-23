@@ -114,8 +114,11 @@
 		<h2 id="density-heading">Density spacing</h2>
 		<p>
 			An alternate spacing model, adapted from
-			<a href="https://blog.damato.design/posts/complementary-space/">Complementary Space</a>:
-			instead of picking from a scale, use two distances — <code>--hz-space-near</code> between
+			<a
+				href="https://blog.damato.design/posts/complementary-space/"
+				target="_blank"
+				rel="noreferrer">Complementary Space</a
+			>: instead of picking from a scale, use two distances — <code>--hz-space-near</code> between
 			related things and
 			<code>--hz-space-away</code> between unrelated things. Both derive from the
 			<code>--hz-density</code> grid unit ({density.unit}), so overriding one custom property
@@ -239,6 +242,29 @@
 			<a href="/theming/tokens">Theming &rarr; Tokens &amp; Overrides</a>.
 		</p>
 	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="axes-heading"
+	>
+		<h2 id="axes-heading">Logical axes</h2>
+		<p>
+			Where a component takes spacing per axis — the layout primitives'
+			<code>paddingInline</code> and <code>paddingBlock</code> props — the names are the CSS logical
+			properties they set, not physical <code>x</code>/<code>y</code>. The inline axis runs along
+			the line of text; the block axis runs across it. That keeps the props correct in every writing
+			mode: in RTL layouts the inline axis flips with the text, and in vertical writing modes it
+			runs top-to-bottom, where a physical &ldquo;x&rdquo; would pad the wrong edges.
+		</p>
+		<p class="tab-note">
+			The library's own CSS follows the same rule — centering is <code>margin-inline: auto</code>,
+			gutters are <code>padding-inline</code> — so each prop maps 1:1 onto the property it drives.
+			<code>padding</code> remains the both-axes shorthand; the per-axis longhands win where set.
+		</p>
+	</Stack>
 </Stack>
 
 <style>
@@ -259,7 +285,7 @@
 	}
 
 	.system-list {
-		margin: 0;
+		margin: 0.5rem 0 0;
 		padding-left: 1.25rem;
 		display: flex;
 		flex-direction: column;
@@ -296,7 +322,7 @@
 
 	.space-bar {
 		height: 1rem;
-		background-color: var(--hz-color-primary, #2563eb);
+		background-color: var(--hz-intent-primary, #2563eb);
 		border-radius: var(--hz-radius-sm, 0.25rem);
 		min-width: 2px;
 		max-width: 100%;
@@ -335,8 +361,8 @@
 
 	.demo-chip {
 		padding: 0.125rem 0.625rem;
-		background: color-mix(in srgb, var(--hz-color-primary, #2563eb) 15%, transparent);
-		border: 1px solid var(--hz-color-primary, #2563eb);
+		background: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 15%, transparent);
+		border: 1px solid var(--hz-intent-primary, #2563eb);
 		border-radius: var(--hz-radius-full, 9999px);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		white-space: nowrap;

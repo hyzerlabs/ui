@@ -4,7 +4,7 @@ import type { ComponentDoc } from './types.js';
 export const formDoc: ComponentDoc = {
 	description:
 		"A form wrapper that renders an accessible error summary and manages focus on failed submits — while staying out of the way of native submission and SvelteKit's use:enhance.",
-	importLine: 'import {Form, toFormErrors} from "@hyzer-labs/ui"',
+	importLine: 'import { Form, toFormErrors } from "@hyzer-labs/ui"',
 	props: [
 		{
 			name: 'errors',

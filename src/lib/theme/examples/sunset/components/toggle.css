@@ -27,10 +27,10 @@
 }
 
 .hz-theme-sunset .hz-field--toggle input.hz-toggle[data-state='on'] {
-	background-color: color-mix(in srgb, var(--hz-color-primary, #c2410c) 85%, transparent);
+	background-color: color-mix(in srgb, var(--hz-intent-primary, #c2410c) 85%, transparent);
 	box-shadow:
 		var(--sunset-well),
-		inset 0 0 8px color-mix(in srgb, var(--hz-color-primary, #c2410c) 60%, transparent);
+		inset 0 0 8px color-mix(in srgb, var(--hz-intent-primary, #c2410c) 60%, transparent);
 }
 
 .hz-theme-sunset .hz-field--toggle input.hz-toggle::before {

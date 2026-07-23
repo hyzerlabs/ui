@@ -81,10 +81,12 @@
 			<div class="tab-content">
 				{#if item.id === 'dropdowns'}
 					<p class="tab-note">
-						An item with <code>children</code> becomes a dropdown. With an <code>href</code> the label
-						stays a navigable link and a separate chevron opens the menu; without one, the whole label
-						is the trigger. Keyboard: Enter/Space toggle, ArrowDown opens and focuses the menu, Escape
-						closes.
+						An item with <code>children</code> becomes a dropdown. With an <code>href</code> the
+						label stays a navigable link and a separate chevron opens the menu; without one, the
+						whole label is the trigger. Keyboard: Enter/Space toggle, ArrowDown opens and focuses
+						the menu, Escape closes. <a href="/components/header">Header</a> composes this Nav for
+						you — hand it the same <code>items</code> for a full top bar with branding, actions, and a
+						mobile drawer built in.
 					</p>
 					<Example code={dropdownCode}>
 						<div class="nav-demo-wrap">

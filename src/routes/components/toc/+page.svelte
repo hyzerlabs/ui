@@ -218,8 +218,8 @@
 							<article class="toc-demo-article toc-demo-article--collapse">
 								<h2>Warm-up</h2>
 								<p>
-									A handful of short putts and a couple of easy midrange throws — the point is
-									loosening up, not maxing out distance before the round starts.
+									A handful of short putts and a couple of midrange throws — the point is loosening
+									up, not maxing out distance before the round starts.
 								</p>
 								<p>
 									Stretch the shoulder before the wrist — a cold rotator cuff on the first tee is
@@ -239,7 +239,7 @@
 									the scorecard doesn't record how close it looked.
 								</p>
 								<p>
-									Track misses, not just makes. A putter that consistently misses low is telling you
+									Track misses, not only makes. A putter that consistently misses low is telling you
 									something about release height, not luck.
 								</p>
 								<h2>Back nine</h2>
@@ -283,8 +283,8 @@
 								</p>
 								<p>
 									Nothing here is Toc-specific plumbing: <code>bind:active</code> and
-									<code>onActive</code> are just the bindable prop and change callback, the same shape
-									as any other component in the library.
+									<code>onActive</code> are the bindable prop and change callback, the same shape as any
+									other component in the library.
 								</p>
 								<h2>Details</h2>
 								<p>

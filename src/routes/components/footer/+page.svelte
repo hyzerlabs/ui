@@ -127,8 +127,11 @@
 						<code>default</code> fills with the muted surface (<code>--hz-color-surface-muted</code
 						>),
 						<code>minimal</code> is transparent with tighter padding — the surface underneath shows
-						through. <code>bordered</code> is a separate boolean prop (a top hairline), so it composes
-						with either variant.
+						through. <code>bordered</code> is a separate boolean prop (a top hairline), so it
+						composes with either variant. Each column's <code>links</code> reuses
+						<a href="/components/nav">Nav</a>'s <code>NavItem</code> shape (<code>label</code>/<code
+							>href</code
+						>/<code>external</code>/<code>ariaCurrent</code>).
 					</p>
 					<Tabs
 						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}

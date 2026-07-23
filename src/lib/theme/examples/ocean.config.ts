@@ -20,15 +20,16 @@ export const intro = [
 
 export default defineConfig({
 	tokens: {
-		color: {
+		palette: {
 			// Layer 1 — accent palette. Warning/success deepen slightly from
 			// the base hues so they hold AA on the slate-tinted muted surface.
 			primary: '#0f766e',
 			secondary: '#155e75',
 			info: '#0369a1',
 			warning: '#92400e',
-			success: '#166534',
-
+			success: '#166534'
+		},
+		color: {
 			// Layer 2 — semantic roles (light)
 			surface: '#f8fafc',
 			text: '#0f172a',
@@ -40,15 +41,16 @@ export default defineConfig({
 		intent: { neutral: 'var(--hz-color-text-muted)' }
 	},
 	dark: {
-		color: {
-			surface: '#0b1120',
-			text: '#e2e8f0',
-			textMuted: '#94a3b8',
-
+		palette: {
 			// Brighten accents that sit on dark surfaces.
 			primary: '#2dd4bf',
 			secondary: '#22d3ee',
 			danger: '#fca5a5'
+		},
+		color: {
+			surface: '#0b1120',
+			text: '#e2e8f0',
+			textMuted: '#94a3b8'
 		}
 	}
 });
