@@ -2,13 +2,12 @@
 	/**
 	 * A checkout page composed entirely from the library.
 	 *
-	 * This is consumer code: it imports only public exports. It exercises the
-	 * whole Form workflow — submit-time validation builds a plain
-	 * field-name → message record, `toFormErrors` reshapes it, and Form renders
-	 * the linked error summary and moves focus to it. Inline field errors come
-	 * from the same array, so the summary and the fields can never disagree.
-	 * The order summary derives its totals from the same bound state the form
-	 * controls edit.
+	 * It imports only public exports and exercises the whole Form workflow —
+	 * submit-time validation builds a plain field-name → message record,
+	 * `toFormErrors` reshapes it, and Form renders the linked error summary
+	 * and moves focus to it. Inline field errors come from the same array, so
+	 * the summary and the fields can never disagree. The order summary
+	 * derives its totals from the same bound state the form controls edit.
 	 */
 	import {
 		Form,

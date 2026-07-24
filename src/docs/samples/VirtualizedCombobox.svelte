@@ -1,18 +1,21 @@
 <script lang="ts">
 	/**
-	 * A virtualized, accessible autocomplete: a from-scratch APG combobox
-	 * (list-autocomplete) shell over `Virtualizer`, the same house pattern as
-	 * the command-palette (from-scratch listbox composition) and
-	 * virtualized-table (ARIA-on-divs + Virtualizer) patterns. This is
-	 * consumer code — it imports only public exports.
+	 * A virtualized, accessible multi-select autocomplete: a from-scratch APG
+	 * combobox (list-autocomplete) shell over `Virtualizer`, the same house
+	 * pattern as the command-palette (from-scratch listbox composition) and
+	 * virtualized-table (ARIA-on-divs + Virtualizer) patterns. It imports
+	 * only public exports.
 	 *
 	 * WHY THIS IS A PATTERN, NOT PART OF COMBOBOX ITSELF: the real `Combobox`
-	 * component defers windowing (specs/23-virtualizer.md's Out of Scope) —
+	 * component renders every matching option rather than windowing the list —
 	 * its listbox renders one real `<li>` per matching option, which is fine
 	 * into the low thousands but not at real scale (see its own "Large list"
-	 * demo). This composition trades Combobox's ready-made chip/multi-select
-	 * machinery for Virtualizer's windowing, over a dataset (tens of
-	 * thousands of rows) where mounting every option would visibly lag.
+	 * demo). This composition keeps Combobox's own multi-select identity —
+	 * dismissible chips, toggle-to-select, popup stays open on commit — and
+	 * trades its plain-array listbox for Virtualizer's windowing, over a
+	 * dataset (tens of thousands of rows) where mounting every option would
+	 * visibly lag. The chip row, toggle semantics, and focus management below
+	 * mirror Combobox.svelte's own control exactly.
 	 *
 	 * THE HARD PART — aria-activedescendant over a windowed list: APG expects
 	 * the active option to be a real DOM node the input can point at via
@@ -37,7 +40,7 @@
 	 * jumps (Home/End over 25,000 rows) take an extra frame while
 	 * Virtualizer's own window catches up to the new scroll position.
 	 */
-	import { Virtualizer } from '$lib';
+	import { Virtualizer, Badge } from '$lib';
 	import { uid } from '$lib/utils';
 	import { SvelteSet } from 'svelte/reactivity';
 
@@ -104,6 +107,10 @@
 		})
 	);
 
+	// Looked up when rendering chips — cheaper than scanning 27,000 rows per
+	// selected item on every render.
+	const roundsById = new Map(rounds.map((r) => [r.id, r]));
+
 	const ROW_HEIGHT = 36;
 	const VIEWPORT_HEIGHT = 320;
 	const OVERSCAN = 12;
@@ -117,8 +124,15 @@
 	// changes wouldn't be a tracked dependency, so the effect would only
 	// ever re-fire off `renderedIndices` mutating, missing that case.
 	let pendingIndex = $state<number | null>(null);
-	let selected = $state<Round | null>(null);
+	// Selected round ids, in selection order — mirrors Combobox's own
+	// `value: string[]`. Membership is checked with `includes`/`indexOf`,
+	// same as Combobox, not a Set, so chip order matches selection order.
+	let selectedIds = $state<string[]>([]);
 	let inputEl = $state<HTMLInputElement | null>(null);
+
+	const selectedRounds = $derived(
+		selectedIds.map((id) => roundsById.get(id)).filter((r): r is Round => r !== undefined)
+	);
 
 	// Rows report their own mount/unmount here — the single source of truth
 	// for "is this index actually in the DOM right now".
@@ -197,11 +211,33 @@
 		moveTo(index);
 	}
 
+	/** Toggles `round`'s membership in `selectedIds` (append if absent,
+	    remove if present) — mirrors Combobox's toggleMembership exactly. */
+	function toggleMembership(round: Round) {
+		const idx = selectedIds.indexOf(round.id);
+		selectedIds =
+			idx === -1 ? [...selectedIds, round.id] : selectedIds.filter((id) => id !== round.id);
+	}
+
 	function commit(round: Round) {
-		selected = round;
-		query = round.label;
-		open = false;
-		moveTo(null);
+		toggleMembership(round);
+		// Clears the query so the list re-filters to the full dataset — the
+		// next active index is looked up against `rounds` directly (not
+		// `filtered`, which only recomputes on the next read) since an empty
+		// query always makes `filtered` equal to `rounds`. Mirrors
+		// Combobox's own commit exactly, including that the popup stays open
+		// (Combobox never closes on a selection) and focus returns to the
+		// input.
+		query = '';
+		const nextIdx = rounds.findIndex((r) => r.id === round.id);
+		moveTo(nextIdx === -1 ? null : nextIdx);
+		inputEl?.focus();
+	}
+
+	// Dismissing a chip removes that value and moves focus to the input.
+	// Popup open state is unchanged — mirrors Combobox's removeChip.
+	function removeChip(id: string) {
+		selectedIds = selectedIds.filter((v) => v !== id);
 		inputEl?.focus();
 	}
 
@@ -252,12 +288,16 @@
 				return;
 			}
 			case 'Enter': {
+				// Always preventDefault so an enclosing form does not submit.
 				e.preventDefault();
 				if (open && activeIndex !== null) {
 					const round = filtered[activeIndex];
-					if (round) commit(round);
-					return;
+					if (round) {
+						commit(round);
+						return;
+					}
 				}
+				// No active option: close with no change.
 				open = false;
 				moveTo(null);
 				return;
@@ -265,13 +305,24 @@
 			case 'Escape': {
 				e.preventDefault();
 				if (open) {
+					// Open → close + clear the query. Selections are untouched —
+					// Escape never clears them (chips carry their own dismiss).
 					open = false;
 					moveTo(null);
-					query = selected?.label ?? '';
-				} else {
 					query = '';
-					selected = null;
+				} else {
+					// Closed → clear the query text only.
+					query = '';
 				}
+				return;
+			}
+			case 'Backspace': {
+				// Text present: native editing (no interception).
+				if (query !== '') return;
+				// No chips to remove: no-op. No preventDefault needed either way
+				// — an already-empty input has nothing for the browser to do.
+				if (selectedIds.length === 0) return;
+				selectedIds = selectedIds.slice(0, -1);
 				return;
 			}
 			case 'Tab': {
@@ -292,7 +343,18 @@
 
 <div class="vcombo" onfocusout={onFocusOut}>
 	<label class="vcombo-label" for={inputId}>Search rounds</label>
-	<div class="vcombo-field">
+	<div class="vcombo-control">
+		<!-- One Badge chip per selected round, in selection order — mirrors
+		     Combobox's own chip row. -->
+		{#each selectedRounds as round (round.id)}
+			<Badge
+				size="sm"
+				onDismiss={() => removeChip(round.id)}
+				dismissLabel={`Remove ${round.label}`}
+			>
+				{round.label}
+			</Badge>
+		{/each}
 		<input
 			bind:this={inputEl}
 			id={inputId}
@@ -319,17 +381,21 @@
 				{:else}
 					<!--
 						The wrapper Virtualizer renders IS the role=listbox element
-						(role/aria-label ride its ...rest, like virtualized-table's
-						role=rowgroup) — its `id` doubles as the DOM node this
-						component queries for scrollTop control. Each row's own
-						element (inside the `row` snippet) carries role=option;
-						Virtualizer's own per-row wrapper div between the two has no
-						role, the same layering virtualized-table uses for role=row.
+						(role/aria-label/aria-multiselectable ride its ...rest, like
+						virtualized-table's role=rowgroup) — its `id` doubles as the
+						DOM node this component queries for scrollTop control. Each
+						row's own element (inside the `row` snippet) carries
+						role=option and aria-selected, derived from `selectedIds`
+						rather than DOM state so it stays correct as rows window
+						in and out. Virtualizer's own per-row wrapper div between
+						the two has no role, the same layering virtualized-table
+						uses for role=row.
 					-->
 					<Virtualizer
 						id={listId}
 						role="listbox"
 						aria-label="Rounds"
+						aria-multiselectable="true"
 						class="vcombo-listbox"
 						items={filtered}
 						itemHeight={ROW_HEIGHT}
@@ -341,7 +407,9 @@
 								Combobox-style virtual focus: options are plain, non-focusable
 								divs (no tabindex) — DOM focus never leaves the input, and
 								keyboard activation happens there (Enter), not on the option
-								itself. Mirrors Combobox.svelte's own li options.
+								itself. Mirrors Combobox.svelte's own li options, including
+								that a click/Enter TOGGLES membership without closing the
+								popup.
 							-->
 							<!-- svelte-ignore a11y_click_events_have_key_events -->
 							<!-- svelte-ignore a11y_interactive_supports_focus -->
@@ -349,8 +417,9 @@
 								id={optionId(i)}
 								role="option"
 								class="vcombo-option"
-								aria-selected={selected?.id === round.id ? 'true' : 'false'}
+								aria-selected={selectedIds.includes(round.id) ? 'true' : 'false'}
 								data-active={activeIndex === i ? '' : undefined}
+								data-selected={selectedIds.includes(round.id) ? '' : undefined}
 								onmousedown={(e) => e.preventDefault()}
 								onclick={() => commit(round)}
 								{@attach trackRendered(i)}
@@ -366,8 +435,10 @@
 
 	<p class="vcombo-proof">
 		{rounds.length.toLocaleString()} rows in the dataset — only the rows in view (plus overscan) are ever
-		in the DOM.{#if selected}
-			Selected: <strong>{selected.label}</strong>.{/if}
+		in the DOM.{#if selectedRounds.length > 0}
+			Selected: <strong
+				>{selectedRounds.length} round{selectedRounds.length === 1 ? '' : 's'}</strong
+			>.{/if}
 	</p>
 </div>
 
@@ -383,20 +454,36 @@
 		font-weight: var(--hz-font-weight-medium, 500);
 	}
 
-	.vcombo-field {
+	.vcombo-control {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.35rem;
+		box-sizing: border-box;
+		width: 100%;
+		padding: 0.4rem 0.5rem;
+		border: 1px solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		background: var(--hz-color-surface, #fff);
+		/* The popup's positioning ancestor — anchors directly under the
+		   control box regardless of how many chip rows it wraps to. */
 		position: relative;
 	}
 
 	.vcombo-input {
-		width: 100%;
+		flex: 1;
+		min-width: 8rem;
 		box-sizing: border-box;
-		padding: 0.55rem 0.75rem;
-		border: 1px solid var(--hz-color-border, #6b7280);
-		border-radius: var(--hz-radius-md, 0.5rem);
-		background: var(--hz-color-surface, #fff);
+		border: none;
+		background: transparent;
 		color: var(--hz-color-text, #000);
 		font: inherit;
 		font-size: var(--hz-font-size-sm, 0.875rem);
+		padding: 0.25rem 0;
+	}
+
+	.vcombo-input:focus {
+		outline: none;
 	}
 
 	.vcombo-popup {

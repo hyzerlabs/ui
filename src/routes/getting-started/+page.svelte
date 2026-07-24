@@ -7,7 +7,8 @@
 	const tierOneCss = [
 		'/* app.css — tokens first, then the reference theme */',
 		"@import '@hyzer-labs/ui/tokens.css';",
-		"@import '@hyzer-labs/ui/theme';"
+		"@import '@hyzer-labs/ui/theme';",
+		"@import '@hyzer-labs/ui/utilities.css'; /* optional — opt-in utility classes, see Utilities */"
 	].join('\n');
 
 	// The script close tag is split so Svelte's parser doesn't end this block.
@@ -58,7 +59,8 @@
 	const tierThreeImport = [
 		'/* app.css — import YOUR generated sheet instead of ours */',
 		"@import './styles/tokens.css';",
-		"@import '@hyzer-labs/ui/theme';"
+		"@import '@hyzer-labs/ui/theme';",
+		"@import './styles/hyzer-utilities.css'; /* optional — only if you opted in with utilities: true */"
 	].join('\n');
 </script>
 
@@ -83,8 +85,13 @@
 		aria-labelledby="install-heading"
 	>
 		<h2 id="install-heading">Install</h2>
-		<p>Svelte 5 is the only peer dependency. TypeScript configs want Node 22.18 or newer.</p>
 		<CodeBlock code={installCode} />
+		<ul class="note-list">
+			<li><strong>Svelte</strong> 5.7 or newer. Form's SvelteKit enhance attachment needs 5.32.</li>
+			<li><strong>Node</strong> 22.18 or newer. Only the <code>hyzer</code> CLI needs it.</li>
+			<li><strong>TypeScript</strong> is optional — types ship with the package.</li>
+			<li><strong>SvelteKit</strong> is optional — the library imports nothing from Kit.</li>
+		</ul>
 	</Stack>
 
 	<Stack
@@ -102,8 +109,8 @@
 		<CodeBlock code={tierOneCss} />
 		<CodeBlock code={tierOneSvelte} />
 		<p class="step-note">
-			The theme is optional — skip it and the components are headless: full functionality and
-			accessibility, no appearance opinions beyond native element defaults.
+			The theme is optional — skip it and the components stay headless: behavior and accessibility
+			stay intact, with no appearance opinions beyond native element defaults.
 		</p>
 	</Stack>
 
@@ -149,6 +156,11 @@
 			<code>hyzer generate --mode overrides</code> emits a patch sheet to import <em>after</em>
 			ours instead of replacing it — see <a href="/theming/tokens">Tokens &amp; Overrides</a> for when
 			to pick which.
+		</p>
+		<p class="step-note">
+			Add <code>utilities: true</code> to the config (or run with <code>--utilities</code>) to also
+			generate <code>hyzer-utilities.css</code>, the opt-in single-property helper classes — see
+			<a href="/foundation/utilities">Utilities</a>.
 		</p>
 	</Stack>
 </Stack>

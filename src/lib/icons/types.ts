@@ -1,7 +1,7 @@
 /**
  * Shared props interface for every @hyzer-labs/ui icon component — hand or
- * generated (specs/36 R2). All icons are generated Lucide (ISC) glyphs;
- * every one is stroke-based.
+ * generated. All icons are generated Lucide (ISC) glyphs; every one is
+ * stroke-based.
  */
 import type { SVGAttributes } from 'svelte/elements';
 import type { Intent } from '$lib/types';
@@ -15,7 +15,7 @@ export interface IconProps extends SVGAttributes<SVGSVGElement> {
 	 * Colors the glyph from the intent vocabulary: sets `color:
 	 * var(--hz-intent-<intent>)` (the stroke is `currentColor`) and stamps
 	 * `data-intent` for theme targeting. Without it the icon inherits the
-	 * surrounding text color. Amendment 2026-07-22 (specs/36, audit R9).
+	 * surrounding text color.
 	 */
 	intent?: Intent;
 	/** CSS class(es) appended after the base `hz-icon` class. */

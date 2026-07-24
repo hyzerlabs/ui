@@ -3,7 +3,7 @@ import type { ComponentDoc } from './types.js';
 
 export const tocDoc: ComponentDoc = {
 	description:
-		"A navigation rail: automatic heading collection, nested levels, scroll-spy, smooth scroll, and an optional mobile collapse — the docs site's own 'On this page' rail (R9), generalized behind props.",
+		"A navigation rail: automatic heading collection, nested levels, scroll-spy, smooth scroll, and an optional mobile collapse — the docs site's own 'On this page' rail, generalized behind props.",
 	importLine: 'import { Toc } from "@hyzer-labs/ui"',
 	props: [
 		{

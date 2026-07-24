@@ -76,9 +76,8 @@
 	const reportCode = [
 		'$ hyzer generate',
 		'config: hyzer.config.ts',
-		'wrote src/styles/tokens.css (full, 84 tokens)',
-		'  ✗ light text:intent-fairway/surface-muted — 4.21:1 (AA Large)',
-		'contrast: 1 of 96 pairings fail WCAG AA (warnings; use --strict to fail the build)'
+		'wrote src/styles/tokens.css (full, 89 tokens)',
+		'contrast: 104 pairings checked — all pass WCAG AA'
 	].join('\n');
 
 	const modesCode = [
@@ -87,6 +86,12 @@
 		'',
 		'# A patch sheet with only your overrides — import it AFTER tokens.css:',
 		'hyzer generate --mode overrides',
+		'',
+		'# Also write the opt-in utilities sheet, next to the tokens sheet:',
+		'hyzer generate --utilities',
+		'',
+		'# Flags compose — a patch sheet AND the utilities sheet, one run:',
+		'hyzer generate --mode overrides --utilities',
 		'',
 		'# Validate without writing; fail CI on any AA miss (and any unknown icon):',
 		'hyzer generate --check --strict'
@@ -104,12 +109,80 @@
 
 	const iconsReportCode = [
 		'$ hyzer generate',
-		'wrote src/styles/tokens.css (full, 84 tokens)',
-		'wrote src/styles/icons.ts (16 icons)',
-		'contrast: 96 pairings checked — all pass WCAG AA',
+		'wrote hyzer-tokens.css (full, 84 tokens)',
+		'wrote icons.ts (16 icons)',
+		'contrast: 92 pairings checked — all pass WCAG AA',
 		'  ? icons: "serch" is not a valid Lucide icon name — omitted from the barrel',
 		'icons: 1 unknown name(s) (warnings; use --strict to fail the build)',
 		'icons: 16 included (14 core, 2 configured)'
+	].join('\n');
+
+	const utilitiesConfigCode = [
+		'// hyzer.config.ts',
+		"import { defineConfig } from '@hyzer-labs/ui/config';",
+		'',
+		'export default defineConfig({',
+		'\t// true opts in with the default filename; { output } picks a custom path',
+		'\tutilities: true',
+		'});'
+	].join('\n');
+
+	const utilitiesReportCode = [
+		'$ hyzer generate',
+		'config: hyzer.config.ts',
+		'wrote hyzer-tokens.css (full, 84 tokens)',
+		'wrote hyzer-utilities.css',
+		'contrast: 92 pairings checked — all pass WCAG AA'
+	].join('\n');
+
+	// The complete option surface (src/lib/config/schema.ts) — every group is
+	// commented out, so this exact object is a valid, empty config as written
+	// (`defineConfig({})`); uncommenting any one line, or all of them, stays
+	// valid too (verified against resolveConfig — see specs/40-findings.md).
+	const fullReferenceConfigCode = [
+		'// hyzer.config.ts — every option group the schema accepts, commented out.',
+		'// Uncomment only what you need; each line is independently valid.',
+		"import { defineConfig } from '@hyzer-labs/ui/config';",
+		'',
+		'export default defineConfig({',
+		"\t// output: 'src/styles/tokens.css', // where `hyzer generate` writes the sheet",
+		'',
+		'\t// tokens: {',
+		'\t// \tpalette: {                          // raw hues (--hz-palette-*); ramps welcome',
+		"\t// \t\tprimary: '#0f766e',",
+		"\t// \t\tbrandRed: { 500: '#ef4444', 900: '#7f1d1d' }",
+		'\t// \t},',
+		"\t// \tcolor: { border: '#94a3b8' },       // structural role tokens (--hz-color-*)",
+		"\t// \tintent: { fairway: 'var(--hz-palette-primary)' }, // remap or add intents (--hz-intent-*)",
+		"\t// \tspace: { xs: '0.375rem' },          // the fixed margin/gap scale (--hz-space-*)",
+		"\t// \twidth: { md: '960px' },             // layout max-widths (--hz-width-*)",
+		'\t// \ttypography: {',
+		"\t// \t\tfontSize: { base: '1.05rem' },    // --hz-font-size-*",
+		'\t// \t\tfontFamily: { sans: "\'Inter\', system-ui, sans-serif" }, // --hz-font-family-*',
+		"\t// \t\tfontWeight: { semibold: '650' },  // --hz-font-weight-*",
+		"\t// \t\tlineHeight: { base: '1.6' }       // --hz-line-height-*",
+		'\t// \t},',
+		"\t// \tradius: { md: '0.625rem' },         // corner radii (--hz-radius-*)",
+		"\t// \tborder: { width: { thin: '1.5px' } }, // border widths (--hz-border-width-*)",
+		"\t// \tshadow: { md: '0 10px 15px -3px rgb(0 0 0 / 0.15)' }, // elevation (--hz-shadow-*)",
+		"\t// \tzIndex: { modal: '1200' },          // stacking order (--hz-z-*)",
+		'\t// \tmotion: {',
+		"\t// \t\tduration: { base: '350ms' },      // --hz-duration-*",
+		"\t// \t\tease: { standard: 'ease-out' }    // --hz-ease-*",
+		'\t// \t},',
+		"\t// \tdensity: { unit: '0.5rem' }         // the --hz-density grid unit (near/away cascade)",
+		'\t// },',
+		'',
+		'\t// dark: {                               // additions under [data-theme="dark"]',
+		"\t// \tpalette: { primary: '#2dd4bf' },    // hue overrides for dark",
+		"\t// \tcolor: { surface: '#020617' },      // role overrides for dark",
+		"\t// \tintent: { fairway: '#a3e635' }      // intent remaps for dark only",
+		'\t// },',
+		'',
+		"\t// icons: ['plus', 'trash-2', 'settings'], // trims the generated icons.ts barrel",
+		'',
+		"\t// utilities: true // opt in to hyzer-utilities.css (or { output: 'styles/hyzer-utilities.css' })",
+		'});'
 	].join('\n');
 </script>
 
@@ -121,11 +194,14 @@
 	<div class="doc-intro">
 		<h1>Tokens &amp; Overrides</h1>
 		<p class="doc-description">
-			Two layers, one rule. Layer 1 is the palette (<code>--hz-palette-*</code>) — single-value
+			Two layers, one rule: Layer 1 is the palette (<code>--hz-palette-*</code>) — single-value
 			hues, authored per mode. Layer 2 (semantic roles, <code>--hz-color-*</code>, and intents,
-			<code>--hz-intent-*</code>) is pure <code>var()</code> indirection that chains through it.
-			Override a hue and everything referencing it follows; remap or extend Layer 2 when you want a
-			different wiring. Token names and defaults live on
+			<code>--hz-intent-*</code>) is pure <code>var()</code> indirection that chains through it, so overriding
+			a hue cascades everywhere it's used.
+		</p>
+		<p class="detail-note">
+			Remap or extend Layer 2 directly when you want different wiring instead of a palette override.
+			Token names and defaults live on
 			<a href="/foundation/colors">Colors &amp; Intent</a>. Duration and easing tokens (<code
 				>--hz-duration-*</code
 			>
@@ -188,7 +264,7 @@
 		<CodeBlock code={configCode} />
 		<p>
 			Every run prints a WCAG contrast report over the resolved tokens — the same math and the same
-			pairings as this library's own CI gate, covering your custom intents too:
+			pairings used to validate this library's own token set, covering your custom intents too:
 		</p>
 		<CodeBlock code={reportCode} />
 		<CodeBlock code={modesCode} />
@@ -233,6 +309,42 @@
 		gap="away"
 		data-density-shift
 		class="doc-section"
+		aria-labelledby="utilities-config-heading"
+	>
+		<h2 id="utilities-config-heading">Generating the utilities sheet</h2>
+		<p>
+			The <a href="/foundation/utilities">opt-in utilities sheet</a> is engine output too: set
+			<code>utilities: true</code> in the config (or pass <code>--utilities</code> on the command
+			line, which overrides the config key when both are present) and <code>hyzer generate</code>
+			writes
+			<code>hyzer-utilities.css</code> next to the tokens sheet. An object form,
+			<code>utilities: {"{ output: '...' }"}</code>, picks a custom path. Omitting the key entirely
+			— the default — writes no utilities file at all.
+		</p>
+		<CodeBlock code={utilitiesConfigCode} />
+		<CodeBlock code={utilitiesReportCode} />
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="full-reference-heading"
+	>
+		<h2 id="full-reference-heading">Full reference</h2>
+		<p>
+			Every group <code>hyzer.config.ts</code> accepts, in one file, commented out — uncomment what you
+			need and delete the rest. The comments on each line name the tokens it drives.
+		</p>
+		<CodeBlock code={fullReferenceConfigCode} />
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
 		aria-labelledby="verify-heading"
 	>
 		<h2 id="verify-heading">Verify your palette</h2>
@@ -263,6 +375,10 @@
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.detail-note {
+		margin: 0.75rem 0;
 	}
 
 	.doctrine-note {

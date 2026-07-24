@@ -1,5 +1,5 @@
 /**
- * Example theme — Terminal (specs/32 R1)
+ * Example theme — Terminal
  *
  * A STANDALONE class-override theme: phosphor-on-black, sharp one-pixel
  * rules, mono caps, and light that blooms instead of falling. Styled directly
@@ -31,8 +31,8 @@
  * unlayered — they beat @layer hz-theme outright, which is why this sheet can
  * be demoed on a docs page that loads the reference theme globally.
  *
- * COVERAGE — this pass ships the demo set (specs/32): Button, Badge, Alert,
- * Card, the Field scaffold + TextInput, Toggle, Tabs, Accordion. Components
+ * COVERAGE — the demo set ships Button, Badge, Alert, Card, the Field
+ * scaffold + TextInput, Toggle, Tabs, Accordion. Components
  * outside that list fall back to bare headless structure. Growing to full
  * parity is additive: add a sheet under ./components and @import it below.
  *

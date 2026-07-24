@@ -24,14 +24,16 @@
 	<title>Product listing — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Product listing</h1>
-		<p class="lead">
-			A filterable shop page where the form controls are state sources, not decoration: Select,
-			Checkbox, and RangeSlider feed one derived list that the card Grid and Pagination render. The
-			filters are live — narrow the price range or check a disc type and watch the results and page
-			count follow.
+		<p class="doc-description">
+			A filterable shop page where the form controls are state sources, not decoration.
+		</p>
+		<p class="detail">
+			Select, Checkbox, and RangeSlider feed one derived list that the card Grid and Pagination
+			render — narrow the price range or check a disc type and watch the results and page count
+			follow live.
 		</p>
 		<p class="composed">
 			Composes
@@ -42,41 +44,44 @@
 		</p>
 	</div>
 
-	<!-- The sample bleeds across the full main column while the sidebar stays
-	     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
-	     the prose column rather than centering. -->
-	<Container breakout padding="none">
-		<div class="sample-frame">
-			<ProductListing />
-		</div>
-	</Container>
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="demo-heading"
+	>
+		<h2 id="demo-heading">Demo</h2>
+		<!-- The sample bleeds across the full main column while the sidebar stays
+		     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
+		     the prose column rather than centering. -->
+		<Container breakout padding="none">
+			<div class="sample-frame">
+				<ProductListing />
+			</div>
+		</Container>
+	</Stack>
 
-	<section aria-labelledby="source-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="source-heading"
+	>
 		<h2 id="source-heading">Source</h2>
-		<p>
+		<p class="source-note">
 			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
 			installed and it renders the same.
 		</p>
 		<CodeBlock code={consumerSource(listingSource)} />
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.lead {
+	.detail {
 		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-size: var(--hz-font-size-base, 1rem);
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
@@ -86,8 +91,10 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	section p {
-		margin: 0 0 1rem;
+	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
+	 * margin zeroed so the Stack's own gap owns the rhythm. */
+	.source-note {
+		margin: 0;
 	}
 
 	/* A hairline frame so the bleed reads as a distinct artifact rather than

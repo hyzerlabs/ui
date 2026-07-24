@@ -1278,7 +1278,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: '--hz-card-media-size',
 				values: '<length|percentage> — default 40%',
-				note: 'The media track in horizontal mode. Never declared, so set it yourself on .hz-card or an ancestor.'
+				note: 'The media track in horizontal mode; media fills it. Never declared, so set it yourself on .hz-card or an ancestor.'
 			}
 		],
 		parts: [

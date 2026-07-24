@@ -9,10 +9,8 @@
 		Card,
 		TextInput,
 		Toggle,
-		Accordion,
-		Table
+		Accordion
 	} from '$lib';
-	import type { TableColumn } from '$lib/types';
 	import { resolveConfig, generateCss } from '$lib/config';
 	import oceanConfig from '$lib/theme/examples/ocean.config';
 	import oceanSource from '$lib/theme/examples/ocean.config.ts?raw';
@@ -30,10 +28,9 @@
 	// rule in it is rooted at .hz-theme-<id>, so nothing reaches :root and the
 	// docs app's own theme is untouched (specs/30 R2's invariant). Ocean can't
 	// do this: it's a :root sheet by design, so it gets re-generated scoped
-	// below instead. The "Docs" example (specs/46) needs no such gymnastics —
-	// it is UNSCOPED and already loaded globally by the root layout, so its
-	// demo below runs on the real, live, dogfooded sheet with no extra import
-	// at all.
+	// below instead. Docs needs no such gymnastics: it is UNSCOPED and already
+	// loaded globally by the root layout, so its tier below runs on the real,
+	// live, dogfooded sheet with no extra import at all.
 	import '$lib/theme/examples/terminal/terminal.css';
 
 	const scopedOceanCss = generateCss(resolveConfig(oceanConfig), {
@@ -41,20 +38,32 @@
 		selector: '.theme-ocean'
 	});
 
+	const docsImports = [
+		"import '@hyzer-labs/ui/tokens.css';",
+		"import '@hyzer-labs/ui/theme';                     // layers under it",
+		"import '@hyzer-labs/ui/theme/examples/docs/docs.css';"
+	];
+
 	interface Example {
 		id: string;
 		label: string;
-		/** The class that activates the theme, or '' for the runtime-scoped Ocean. */
+		/** The class that activates the theme, or '' for the unscoped Docs tier / runtime-scoped Ocean. */
 		themeClass: string;
 		blurb: string;
 		imports: string[];
+		/** false for a tier with no hyzer.config — Docs is hand-authored, not engine-generated. */
+		hasConfig: boolean;
 		source: string;
 		sheets: { id: string; label: string; code: string }[];
 	}
 
-	// The palette-freedom arc collapses to its two poles (specs/46 R6): Ocean
-	// (tokens only) and Terminal (standalone). The docs example below is a
-	// different kind of example entirely — not a third point on this axis.
+	// The freedom axis is how much of the reference theme a tier keeps, not
+	// whether it sets a palette — read that way, Docs is squarely ON it, not
+	// beside it: Ocean keeps all of the reference theme and only redefines
+	// tokens; Docs keeps all of it too and layers one class-hook override on
+	// top, adding no palette; Terminal keeps none of it. Docs sits in the
+	// middle — the slot Sunset held before its retirement — as a peer tier
+	// (amended 2026-07-23; see specs/46-docs-theme-example.md).
 	const examples: Example[] = [
 		{
 			id: 'ocean',
@@ -67,8 +76,20 @@
 				"import '@hyzer-labs/ui/theme';            // optional",
 				"import '@hyzer-labs/ui/theme/examples/ocean.css';"
 			],
+			hasConfig: true,
 			source: consumerSource(oceanSource),
 			sheets: [{ id: 'css', label: 'Generated CSS', code: oceanCss }]
+		},
+		{
+			id: 'docs',
+			label: 'Docs — layered on the reference theme',
+			themeClass: '',
+			blurb:
+				'Adds no palette at all — every rule below resolves through the reference theme’s own role and intent tokens, unchanged. What it layers on top instead: page-rhythm scaffold classes and one class-hook override, imported like any theme sheet and requiring no class anywhere.',
+			imports: docsImports,
+			hasConfig: false,
+			source: '',
+			sheets: [{ id: 'source', label: 'docs.css', code: docsCss }]
 		},
 		{
 			id: 'terminal',
@@ -81,6 +102,7 @@
 				"// NO '@hyzer-labs/ui/theme' — that is the point.",
 				"import '@hyzer-labs/ui/theme/examples/terminal/terminal.css';"
 			],
+			hasConfig: true,
 			source: consumerSource(terminalSource),
 			sheets: [
 				{ id: 'index', label: 'terminal.css', code: terminalIndex },
@@ -93,7 +115,7 @@
 
 	const viewTabs = (example: Example) => [
 		{ id: 'demo', label: 'Demo' },
-		{ id: 'config', label: 'hyzer.config' },
+		...(example.hasConfig ? [{ id: 'config', label: 'hyzer.config' }] : []),
 		...example.sheets.map((s) => ({ id: s.id, label: s.label }))
 	];
 
@@ -132,41 +154,6 @@
 		'\t}',
 		'</' + 'style>'
 	].join('\n');
-
-	// The docs example's own demo (specs/46 R6) — the .docs-table
-	// layered-cascade lesson: the same table rendered twice, once bare and
-	// once wrapped in .docs-table, so the unlayered override's win is visible
-	// side by side. No theme class needed — docs.css is unscoped, and it's
-	// already loaded globally by the root layout (this page runs on it live).
-	interface HoleRow {
-		id: string;
-		hole: string;
-		par: number;
-		distance: string;
-	}
-
-	const docsTableItems: HoleRow[] = [
-		{ id: 'h3', hole: 'Hole 3', par: 3, distance: '285 ft' },
-		{ id: 'h7', hole: 'Hole 7', par: 4, distance: '412 ft' },
-		{ id: 'h12', hole: 'Hole 12', par: 5, distance: '620 ft' }
-	];
-
-	const docsTableColumns: TableColumn<HoleRow>[] = [
-		{ key: 'hole', header: 'Hole' },
-		{ key: 'par', header: 'Par', align: 'end' },
-		{ key: 'distance', header: 'Distance', align: 'end' }
-	];
-
-	const docsImports = [
-		"import '@hyzer-labs/ui/tokens.css';",
-		"import '@hyzer-labs/ui/theme';                     // layers under it",
-		"import '@hyzer-labs/ui/theme/examples/docs/docs.css';"
-	];
-
-	const docsViewTabs = [
-		{ id: 'demo', label: 'Demo' },
-		{ id: 'source', label: 'docs.css' }
-	];
 
 	const accordionItems = [
 		{ id: 'a', title: 'What is in the bag?' },
@@ -254,13 +241,12 @@
 	<div class="doc-intro">
 		<h1>Example Themes</h1>
 		<p class="doc-description">
-			Two complete themes ship with the package as teaching material, and they are deliberately two <em
-				>different amounts of freedom</em
-			>. Each is generated from the
-			<code>hyzer.config.ts</code>
-			next to it, drift-tested in CI, and — like the base tokens — held to
-			<a href="/foundation/contrast">WCAG AA on every graded pairing</a>, in both modes. A third
-			example follows below, a different shape entirely: the reading chrome this very site runs on.
+			Three example themes, one arc: how much of the reference theme each tier keeps. Ocean keeps
+			all of it and only redefines <code>--hz-*</code> tokens; Docs keeps all of it too and layers
+			one class-hook override on top, adding no palette; Terminal keeps none of it. Ocean and
+			Terminal are generated from a <code>hyzer.config.ts</code> next to them and, like the base
+			tokens, meet <a href="/foundation/contrast">WCAG AA on every graded pairing</a>, in both
+			modes. All three, compared:
 		</p>
 		<div class="token-table-wrapper intro-table">
 			<table class="token-table">
@@ -268,6 +254,7 @@
 					<tr>
 						<th scope="col"></th>
 						<th scope="col">Ocean</th>
+						<th scope="col">Docs</th>
 						<th scope="col">Terminal</th>
 					</tr>
 				</thead>
@@ -275,32 +262,44 @@
 					<tr>
 						<th scope="row">Palette via config</th>
 						<td>yes</td>
+						<td>none — rides the reference theme</td>
 						<td>yes</td>
 					</tr>
 					<tr>
 						<th scope="row">Class-hook overrides</th>
 						<td>none</td>
+						<td>one (<code>.docs-table</code>)</td>
 						<td>yes</td>
 					</tr>
 					<tr>
 						<th scope="row">Reference theme</th>
 						<td>required</td>
+						<td>layers over it</td>
 						<td><strong>not imported</strong></td>
 					</tr>
 					<tr>
 						<th scope="row">Adds new intents</th>
 						<td>no</td>
+						<td>no</td>
 						<td><strong>phosphor, amber</strong></td>
+					</tr>
+					<tr>
+						<th scope="row">Scoped to a class</th>
+						<td>runtime-scoped demo only</td>
+						<td><strong>unscoped</strong> — no class to add anywhere</td>
+						<td><code>.hz-theme-terminal</code></td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
 		<p class="intro-follow">
-			Ocean is the control: it proves how far tokens alone get you. Terminal is the other end — it
-			never imports the reference theme, so every rule in it is its own, and it grows the system
-			rather than only recoloring it: two intents the library has never heard of, type-checked and
-			contrast-graded like any built-in. Between these two, if you only read one, read Terminal's
-			<code>button.css</code>: that is what "headless" actually buys you.
+			Ocean is one end: it proves how far tokens alone get you. Terminal is the other — it never
+			imports the reference theme, so every rule in it is its own, and it grows the system rather
+			than only recoloring it: two intents the library has never heard of, type-checked and
+			contrast-graded like any built-in. Docs, between them, proves the middle is real: the same
+			class-hook contract every component ships is enough to extend the reference theme without
+			forking it — which is why shipping it was this painless. If you only read one file, read
+			Terminal's <code>button.css</code>: that is what "headless" actually buys you.
 		</p>
 	</div>
 
@@ -314,6 +313,15 @@
 		>
 			<h2 id="{example.id}-heading">{example.label}</h2>
 			<p>{example.blurb}</p>
+			{#if example.id === 'docs'}
+				<p class="tab-note">
+					The full <code>.docs-table</code> lesson — the unlayered-beats-layered walkthrough, its
+					demo, and its source — lives on
+					<a href="/theming/components#cascade-heading">Styling Components</a>. This is, verbatim,
+					the sheet <code>design.hyzer.sh</code> imports for its own chrome — you're reading it right
+					now.
+				</p>
+			{/if}
 			<CodeBlock code={example.imports.join('\n')} />
 			<Tabs items={viewTabs(example)} ariaLabel="{example.label} views" defaultTab="demo">
 				{#snippet panel(item)}
@@ -338,71 +346,16 @@
 		gap="away"
 		data-density-shift
 		class="doc-section"
-		aria-labelledby="docs-heading"
-	>
-		<h2 id="docs-heading">Docs — a different kind of example</h2>
-		<p>
-			Not a third point on the freedom axis above — this example adds no palette at all. Every rule
-			below resolves through the reference theme's own role and intent tokens, unchanged. It is a
-			hand-authored "content starter" instead: named scaffold classes for page rhythm, the in-prose
-			code-chip treatment, a broad content focus-visible ring, and one worked component-hook
-			override. It layers over the reference theme rather than replacing any part of it — and unlike
-			Terminal, it ships <strong>unscoped</strong>: no theme class, nothing to put on
-			<code>&lt;html&gt;</code>. This is, verbatim, the sheet <code>design.hyzer.sh</code>
-			imports for its own chrome — you're reading it right now.
-		</p>
-		<CodeBlock code={docsImports.join('\n')} />
-		<p>
-			The <code>.docs-table</code> override below is the layered-cascade lesson in miniature: the
-			reference theme paints <code>.hz-table</code> from <code>@layer hz-theme</code>, and unlayered
-			CSS beats layered CSS at any specificity — no <code>!important</code>, no mirroring the
-			theme's <code>:where()</code> selectors. Wrap any table in <code>.docs-table</code> and its borders,
-			padding, and header background follow this sheet instead, on every property it sets and nothing
-			else.
-		</p>
-		<Tabs items={docsViewTabs} ariaLabel="Docs example views" defaultTab="demo">
-			{#snippet panel(item)}
-				<div class="tab-content">
-					{#if item.id === 'demo'}
-						<div class="demo-panel">
-							<Cluster gap="lg" align="start" wrap>
-								<div>
-									<p class="tab-note">Reference theme, unwrapped</p>
-									<Table items={docsTableItems} columns={docsTableColumns} caption="Course card" />
-								</div>
-								<div>
-									<p class="tab-note">Wrapped in <code>.docs-table</code></p>
-									<Table
-										items={docsTableItems}
-										columns={docsTableColumns}
-										caption="Course card, docs style"
-										class="docs-table"
-									/>
-								</div>
-							</Cluster>
-						</div>
-					{:else}
-						<CodeBlock code={docsCss} />
-					{/if}
-				</div>
-			{/snippet}
-		</Tabs>
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
 		aria-labelledby="instance-heading"
 	>
 		<h2 id="instance-heading">One instance, styled by hand</h2>
 		<p>
-			The "Go pro" button in both demos above is the same markup —
-			<code>&lt;Button class="cta"&gt;</code> — and neither theme sheet mentions
-			<code>.cta</code>. The <code>class</code> prop is merged after the component's
-			<code>hz-button</code> root class, so it lands on the element ready to be styled by whoever is consuming
-			the component. Sheet-level and instance-level overrides compose.
+			The "Go pro" button is the same markup — <code>&lt;Button class="cta"&gt;</code> — in every
+			demo above. The <code>class</code> prop is merged after the component's <code>hz-button</code>
+			root class, so it lands on the element ready to be styled by whoever is consuming the component;
+			sheet-level and instance-level overrides compose. Ocean and Terminal both add one — below. Docs
+			adds none: its "Go pro" button renders exactly as the reference theme paints it, plain, because
+			an unscoped sheet has no class to hang a demo-only rule on without leaking globally.
 		</p>
 		<CodeBlock code={ctaCode} />
 		<p class="tab-note">
@@ -421,7 +374,7 @@
 	>
 		<h2 id="intents-heading">Growing the vocabulary</h2>
 		<p>
-			The library ships six intents. That is a starting set, not a ceiling — a component only stamps <code
+			Every intent in the registry is a starting set, not a ceiling — a component only stamps <code
 				>data-intent="&lt;name&gt;"</code
 			>
 			and lets the theme decide what the name looks like, so the set of intents belongs to your theme.
@@ -498,9 +451,10 @@
 		<p class="tab-note">
 			Coverage: Terminal currently restyles Button, Badge, Alert, Card, the Field scaffold,
 			TextInput, Toggle, Tabs and Accordion; importing no theme, it falls back to bare headless
-			structure for anything else. The Docs example above takes the opposite approach — it restyles
-			no component hook at all; it only adds scaffold classes and content chrome over the reference
-			theme.
+			structure for anything else. Docs takes the opposite approach — it restyles no <em>bare</em>
+			component hook (a Table with no <code>.docs-table</code> wrapper is left exactly as the reference
+			theme paints it); it only adds scaffold classes, content chrome, and that one opt-in wrapper over
+			the reference theme.
 		</p>
 	</Stack>
 </Stack>

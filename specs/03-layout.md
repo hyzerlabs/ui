@@ -392,6 +392,12 @@ Computed-style assertions use `getComputedStyle(el)` on the rendered root.
 
 ### Amendments
 
+- **2026-07-23:** Split's columns gain `min-width: 0` (structural). Without
+  it a child with a wide min-content (code blocks, long unbroken strings)
+  props the switcher's container open past the stack threshold — the split
+  then never stacks and the page overflows. This is the same guard Grid has
+  always shipped via `minmax(0, 1fr)` tracks.
+
 - **2026-07-23 (audit, Layout round):** `paddingInline` / `paddingBlock` added
   to all five primitives — optional per-axis overrides of the `padding`
   shorthand (same `LayoutPadding` scale, no default), reflected as

@@ -12,9 +12,9 @@
 		ticks?: SliderTick[];
 		unit?: string;
 		inputLabel?: string;
-		/** Vert-R1. Default 'horizontal'; every horizontal behavior is unchanged. */
+		/** Default 'horizontal'; every horizontal behavior is unchanged. */
 		orientation?: 'horizontal' | 'vertical';
-		/** Vert-R3. Logical, both axes; default 'end' (today's trailing layout). */
+		/** Logical, both axes; default 'end' (today's trailing layout). */
 		inputPosition?: 'start' | 'end';
 		class?: string;
 		[key: string]: unknown;

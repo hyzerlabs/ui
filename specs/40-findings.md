@@ -1705,3 +1705,886 @@ instruction.
   demo — so description/error placement is visible for
   orientation="vertical" too. check/format/lint clean; e2e rides the
   specs/46 builder's final full run.
+
+## Consumer-facing prose sweep + virtualized-combobox multi-select upgrade (2026-07-23)
+
+A full sweep of the docs site's user-visible surface for library-internal
+development artifacts (spec citations, requirement numbers, CI/drift/audit
+language), plus four items folded into the same batch by the coordinator
+mid-sweep: taller virtualized-combobox demo, multi-select parity for that
+pattern, a reorder of `/foundation/utilities`, a first-class Utilities row
+on `/theming/overview`, and restoring the Docs example as a first-class
+third entry on `/theming/examples`.
+
+**Prose sweep — rewrites (file → before → after):**
+
+- `src/routes/components/combobox/+page.svelte` — Large-list tab-note: "there's
+  no Virtualizer integration yet (deferred; see the Virtualizer spec's Out of
+  Scope)" → "there's no Virtualizer integration yet." (the surrounding
+  sentences already state the consequence and point at the Virtualized
+  combobox pattern; only the spec citation was cut).
+- `src/routes/patterns/virtualized-combobox/+page.svelte` — "Why a pattern, not
+  a component" `Alert`: anchor text "Virtualizer spec's Out of Scope" (linking
+  to `/components/virtualizer`) → plain prose, "Combobox deliberately renders
+  every matching option rather than windowing the list." Also updated for the
+  multi-select upgrade (below).
+- `src/docs/samples/VirtualizedCombobox.svelte` — header comment shown verbatim
+  via `?raw` on the pattern page: "the real `Combobox` component defers
+  windowing (specs/23-virtualizer.md's Out of Scope)" → "the real `Combobox`
+  component renders every matching option rather than windowing the list".
+- `src/routes/theming/examples/+page.svelte` — intro prose: "drift-tested in
+  CI" → "meets WCAG AA on every graded pairing" (fact — the AA guarantee —
+  kept; the CI/process framing cut). See also the three-way enumeration
+  rewrite below.
+- `src/routes/foundation/utilities/+page.svelte` — doctrine note: "the
+  library's own WCAG AA gate already grades" → "already checked against WCAG
+  AA" (forbidden "AA gate" phrasing cut, same fact kept). Reordered per the
+  escalating-commitment item below.
+- `src/routes/theming/tokens/+page.svelte` — "the same math and the same
+  pairings as this library's own CI gate" → "...used to validate this
+  library's own token set" ("CI gate" cut).
+- `src/docs/data/toc.ts` — `description` field (renders on `/components/toc`):
+  "the docs site's own 'On this page' rail (R9), generalized behind props" →
+  same sentence with the bare `(R9)` requirement-number citation removed.
+- `src/lib/icons/types.ts` — `IconProps` JSDoc (ships in dist types): module
+  header dropped "(specs/36 R2)"; `intent` prop doc dropped "Amendment
+  2026-07-22 (specs/36, audit R9)" (the given example offender).
+- `src/lib/types/index.ts` — `NavItem` dropped `@see original-specs/
+  00-architecture.md`; `LightboxGroupOptions.selector` dropped "(Lightbox-R18)"
+  (reworded to "the exclusion rules below"); `IntentRegistry.neutral` and
+  `BadgeIntent` dropped their "2026-07-22 audit" date citations, keeping the
+  behavioral fact ("a full member of the vocabulary… rather than unioned per
+  component").
+- `src/lib/components/Virtualizer.svelte`, `Select.svelte`, `Slider.svelte`,
+  `RangeSlider.svelte`, `Divider.svelte` — prop-level JSDoc on exported
+  `Props`/`SelectSingleProps` interfaces (ship in dist types, render as IDE
+  hover): dropped `Virtualizer-R14`, `Select-R1`, `Vert-R1`/`Vert-R3` (×2),
+  `Divider-R3` (×2) citations, keeping the technical description in each.
+- `src/lib/config/schema.ts` — five prop-level JSDoc blocks on the public
+  `HyzerTokensOverride`/`HyzerConfig`/`ResolvedConfig` types (what a consumer
+  writes `hyzer.config.ts` against): dropped `(specs/42)`, `(specs/36 R5)` ×2,
+  `(specs/44 R4)` ×2. Left the internal (non-exported) `flattenRampGroup`/
+  `resolveUtilities`/`validateReferences` doc comments alone — implementation
+  detail, not public surface.
+- `src/lib/config/generate.ts` — `generateUtilitiesCss` (exported) JSDoc
+  dropped "(specs/44)".
+- Theme-example headers shown verbatim via `?raw` on `/theming/examples` and
+  `/foundation/utilities`: `ocean.config.ts`, `terminal/terminal.config.ts`
+  (×2, including an inline "NEW CATEGORY INTENTS" comment), `terminal.css`
+  (×2), `components/button.css`, `components/toggle.css`, `intents.d.ts`, and
+  `examples/docs/docs.css` (×2) all had their `specs/NN R#` citations and
+  "a drift test keeps them in sync" language cut, replaced where useful with
+  the consumer-relevant fact per the spec's own worked example ("generated
+  from this config, regenerate rather than hand-editing … directly").
+
+**Left alone (internal, not rendered — confirmed by reading context, not
+just the grep hit):** every `// Component-R#` / `/* Component-R# */` comment
+inside a `<script>` or `<style>` block across `foundation/*`, `components/*`,
+and `theming/*` route pages (implementation notes, never rendered); the
+`/** X's DocPage inputs — specs/40 R1. */` one-line header on every
+`src/docs/data/*.ts` module and the longer header on `src/docs/data/
+index.ts`/`courses.ts` (module-level file banners, same category the task
+named `hooks.ts`'s header as fine); `examples.spec.ts` (test file, out of
+scope per the sweep rule); `terminal/components/{accordion,card,badge,alert,
+field,tabs}.css` (imported at runtime for their computed styles but never
+shown via `?raw` on any page, unlike `button.css`/`toggle.css`/`terminal.css`
+which are). `foundation/utilities`'s "those are out of scope (Badge, Alert,
+and Banner own tinted surfaces)" is plain English, not a citation — left as
+is. README checked; only hit was "specificity" (false-positive substring
+match) — nothing to flag.
+
+**Taller demo (coordinator item 2):** the popup was clipped because
+`.sample-frame` on the pattern page had `overflow: hidden` — an absolutely-
+positioned popup is clipped by an ancestor's overflow box regardless of the
+ancestor's auto height, so the input's own ~40px box was all the frame ever
+reserved. Fix: dropped `overflow: hidden`, added `min-height: 36rem` so the
+frame reserves room for the fully open state (chip row + input + the 320px
+windowed listbox) up front — opening the popup no longer clips or reflows
+the page. No existing pattern page composes a same-frame `position: absolute`
+popup inside an `overflow: hidden` frame (command-palette's popup is a Modal,
+unaffected by ancestor overflow; product-listing has no popup at all), so
+there was no precedent to match — this is a page-local fix.
+
+**Multi-select upgrade (coordinator item 3):** `src/docs/samples/
+VirtualizedCombobox.svelte` was single-select; rewritten to mirror
+`Combobox.svelte`'s real multi-select conventions after reading it in full:
+- `selectedIds: string[]` (mirrors Combobox's `value: string[]`) instead of a
+  single `selected: Round | null`; a `roundsById` Map backs O(1) chip label
+  lookup against the 27k-row dataset.
+- Chips: one `Badge` (imported from `$lib`, the public barrel) per selected
+  round, `onDismiss` + per-item `dismissLabel`, rendered in a new
+  `.vcombo-control` flex row above the input — mirrors Combobox's chip row
+  exactly, including that dismissing refocuses the input without touching
+  `open`.
+- `commit()` now toggles membership (`toggleMembership`, verbatim port of
+  Combobox's own), clears the query so the list re-filters to the full
+  dataset, and — critically — no longer sets `open = false`: the popup stays
+  open on selection, matching Combobox's own commit (verified by reading it;
+  Combobox never closes on a selection).
+- Keyboard: `Enter` toggles without closing (as above); `Escape` open→closed
+  clears the query only, selections untouched (Combobox: "Escape never
+  clears value — chips carry their own dismiss"); new `Backspace` case,
+  verbatim-mirrored from Combobox — native editing wins if the query isn't
+  empty, otherwise pops the last selected id, no-op if none.
+- Listbox: `aria-multiselectable="true"` added to the `Virtualizer`'s
+  `role="listbox"` element; each row's `aria-selected` now derives from
+  `selectedIds.includes(round.id)` rather than a single-item comparison —
+  correct as rows window in/out since it's recomputed from data on every
+  render, never carried by the DOM node. Filtering is unchanged (selected
+  rows that don't match the current query simply aren't in `filtered`,
+  matching Combobox's own `visibleOptions` — verified, Combobox doesn't
+  force-include selected options either).
+- Page prose (`/patterns/virtualized-combobox`) rewritten throughout — lead,
+  "Why a pattern" `Alert`, and a new paragraph on `aria-multiselectable`/
+  `aria-selected` windowing correctness — to present this as the full
+  multi-select composition, not a "single-select, no chips" cousin of
+  Combobox.
+- e2e: rewrote the old single "Enter selects / Escape closes" test (Enter no
+  longer closes) into two, and added three: chip render + dismiss (with a
+  focus-return assertion), `aria-selected` correctness across a Home→End→Home
+  remount (the row unmounts and remounts as a new DOM node; its
+  `aria-selected` must still read `true`, proving it's data-derived not
+  DOM-carried), and an `aria-multiselectable="true"` check. One authoring bug
+  caught by the new precise assertion: an existing `input.click()` +
+  `ArrowDown` + `Enter` sequence (already used by two other tests, which only
+  asserted badge *count* so never noticed) actually opens the popup on click
+  first, then `ArrowDown` advances past row 0 — selecting "Round 2", not
+  "Round 1". Fixed the new precise test to use `click()` alone (opens with
+  row 0 already active) rather than `click()` + `ArrowDown`.
+
+**`/foundation/utilities` reorder (coordinator item 4a):** section order
+inverted per the user's explicit escalating-commitment framing — Always
+available (`.sr-only`) → Opt-in component classes (`.hz-card-title`/
+`.hz-banner-title`) → the opt-in generated sheet (text/margin utility tables
++ full source) → the sheet's own AA-grading subsection (kept immediately
+after the sheet, since it's about the sheet specifically). Top
+`doc-description` and each section's opening sentence rewritten to narrate
+the escalation ("you already have this" → "apply a class the theme already
+ships" → "the biggest commitment of the three: an additional sheet, imported
+explicitly"). No content removed, only reordered + transitional prose
+adjusted; heading `id`s unchanged (no inbound anchors broken).
+
+**`/theming/overview` first-class Utilities row (coordinator item 4b):** "The
+tiers" table gained a `Utilities` row (between Reference theme and Your
+overrides) in the same three-column format as every other row — import
+(`utilities.css`), what it gives you, opt-in framing, link to `/foundation/
+utilities` — replacing the previous one-sentence cross-ref paragraph below
+the table, which is now redundant.
+
+**`/theming/examples` three-way enumeration (coordinator item 5):** the intro
+paragraph previously named "two complete themes" up front and mentioned Docs
+only as "a third example follows below" — an afterthought that reads as "two
+examples plus a footnote." Rewrite: "Three examples ship with the package as
+teaching material," Ocean/Terminal described as the two-points-of-freedom
+pair, Docs named alongside them as "a different shape entirely… not a point
+on that freedom axis." The comparison table gained a fourth `Docs` column
+(with `no`/`n/a`-style values on rows that don't apply, e.g. "no — reuses the
+reference theme's own tokens" for Palette via config) plus a new "Scoped to a
+class" row that differentiates all three (`runtime-scoped demo only` /
+`.hz-theme-terminal` / `unscoped`). The `{#each examples}` loop (Ocean +
+Terminal only) and Docs' own distinct section below are both left as-is —
+the fix was making the *enumeration* count three, not collapsing Docs into
+the loop. Checked `/theming/overview`: it never enumerates example themes by
+name (only a generic link to "Example Themes"), so there was no two-vs-three
+count to fix there.
+
+**Product-detail vertical thumbnail strip (coordinator item 6):** `src/docs/
+samples/ProductDetail.svelte`'s media area was a single Carousel with no
+picker beyond its own dot/counter indicator — reworked into the classic PDP
+composition, a vertical thumbnail strip beside the main image:
+- One shared `activeIndex` (`$state`) bound both ways to `Carousel`'s own
+  `index` via `bind:index` — a thumb click sets it (paging the carousel);
+  dragging or paging the carousel writes it right back (moving the active
+  thumb). No manual sync effect needed — `index` is a plain `$bindable`, so
+  both write paths converge on the same state and every derived render
+  (transform, `inert`, `data-active`) recomputes off it automatically.
+  Verified by reading `Carousel.svelte` before relying on this.
+- Thumbs are real `<button>`s in a `role="group"` labeled "Choose a
+  colorway", each with a per-colorway `aria-label` and `aria-current="true"`
+  on the active one — the exact semantic Carousel's own dot indicator
+  already uses (`aria-current` on the active dot, confirmed by reading its
+  source), so this matches an existing in-codebase precedent rather than
+  inventing one. Native `<button>`s are keyboard-operable with no extra
+  wiring (Tab + Enter/Space).
+- Kept the whole media area (strip + carousel) inside one `lightboxGroup`
+  attachment. Verified `lightboxGroup`'s exclusion rules before relying on
+  them: `qualifies()` calls `hasInteractiveAncestor()`, which structurally
+  excludes any `img`/`video` with an `<a>`/`<button>` ancestor before the
+  attached container — since each thumb's `<img>` sits inside a `<button>`,
+  it's automatically never enhanced into a second lightbox trigger; the
+  active carousel slide remains the one obvious open-the-viewer affordance,
+  and the thumb `<img>`s carry `alt=""` (decorative — the button's own
+  `aria-label` already names the colorway).
+- Removed the now-redundant `indicator="dots"` (the thumb strip is the real
+  picker now; Carousel falls back to its default `counter` status text,
+  still announcing "{n} of {total}" via its live region).
+- Responsive shape: mobile-first `flex-direction: column-reverse` (DOM order
+  `[thumbs, carousel]`, so the carousel — last in the DOM — paints first,
+  main image on top, thumb row below) flipping to `row` at the same 640px
+  threshold Split's own `stackBelow="sm"` falls back to, for a vertical
+  thumb column on the left and the main image on the right — Split's own
+  stacking only reorders in DOM order without a direction flip, so this
+  responsive shape (image-first on mobile, column-then-row otherwise) is
+  hand-rolled, not composed from Split's `stackBelow`.
+- `PRODUCT_MEDIA` constants-map indirection and the `?raw`/`consumerSource`
+  conventions are unchanged — thumbs read the same map the main slide does.
+- Pattern page prose (`/patterns/product-detail`) rewritten to describe the
+  two-way sync and that thumbs never open the viewer themselves.
+- e2e: four new tests — thumb click pages the carousel and marks
+  `aria-current`; paging the carousel (Next button) moves the active thumb
+  back; the thumb strip is a labeled group and clicking a thumb never opens
+  a lightbox dialog; the active slide still opens the lightbox on keyboard
+  Enter (unchanged behavior, asserted to prove the strip didn't regress it).
+
+Files: `src/docs/data/toc.ts`; `src/docs/samples/{ProductDetail,
+VirtualizedCombobox}.svelte`; `src/lib/components/{Divider,RangeSlider,
+Select,Slider,Virtualizer}.svelte`; `src/lib/config/{generate,schema}.ts`;
+`src/lib/icons/types.ts`; `src/lib/theme/examples/docs/docs.css`;
+`src/lib/theme/examples/ocean.config.ts`; `src/lib/theme/examples/terminal/
+{terminal.config.ts,terminal.css,intents.d.ts,components/button.css,
+components/toggle.css}`; `src/lib/types/index.ts`; `src/routes/components/
+combobox/+page.svelte`; `src/routes/docs.e2e.ts`; `src/routes/foundation/
+utilities/+page.svelte`; `src/routes/patterns/{product-detail,
+virtualized-combobox}/+page.svelte`; `src/routes/theming/
+{examples,overview,tokens}/+page.svelte`.
+
+Gates (final run, after all six items): svelte-check (0 errors, 0 warnings,
+2537 files), prettier + eslint clean (prettier reformatted touched files
+along the way, re-verified clean after each), full unit suite (2429/2429),
+production build green, full e2e suite green (434/434 on the final run —
+the single `/components/nav` tablet-overflow teardown timeout seen on an
+earlier pass in this same batch did not recur and was confirmed unrelated to
+any touched file, passing cleanly in isolation when it appeared). Did not
+touch the generator's banner/intro strings (only doc comments), so
+`gen:tokens`/drift was not re-run — confirmed no drift indirectly via the
+passing `examples.spec.ts` drift test in the full unit run. Did not commit,
+per instruction.
+
+## Theming/config docs batch: import stacks, tokens leadline, full config
+## reference, generate CLI docs, examples arc reframe (2026-07-23)
+
+Four user items plus a five-part coordinator addendum on `/theming/examples`,
+in one pass:
+
+- **Utilities in the import sample.** Every layered-import code block on
+  `/theming/overview` (the reset/tokens/theme/overrides stack) and
+  `/getting-started` (both the tier-1 quickstart stack and the tier-3
+  "import your generated sheet" stack) now includes a
+  `@hyzer-labs/ui/utilities.css` line, annotated inline as optional/opt-in,
+  positioned after the theme import (it is unlayered but conventionally
+  imported like a theme sheet, ahead of the consumer's own overrides). No
+  other import-stack samples exist on those two pages (grepped for
+  `@import` across `/theming/**` and `/getting-started`) — `/theming/tokens`
+  and `/theming/components` have none.
+- **Tokens & Overrides leadline.** The `/theming/tokens` `.doc-description`
+  was eight sentences carrying the two-layer model, override semantics, the
+  cross-links to Colors & Intent and Motion, and the `@hyzer-labs/ui/motion`
+  mention. Trimmed the lead to two sentences (the two-layer model + the
+  override-cascades-through-it rule only); every other fact moved verbatim
+  into a new `.detail-note` paragraph directly after it (new CSS rule,
+  `margin: 0.75rem 0`, mirroring the `.note` spacing precedent already used
+  on `/foundation/icons` for the same "second paragraph inside a plain
+  `.doc-intro` div" problem). No fact was dropped, only redistributed.
+- **Full reference `hyzer.config.ts`.** New "Full reference" section on
+  `/theming/tokens`, built directly from `src/lib/config/schema.ts` — every
+  group the schema accepts, one commented-out representative entry each,
+  with a one-line comment naming the tokens/behavior it drives. **Group
+  inventory derived from the schema** (`HyzerConfig`/`HyzerTokensOverride`/
+  `HyzerDarkOverride`, cross-checked against `TOKEN_GROUP_KEYS` and every
+  `assertKnownKeys` call in `resolveConfig`): top level — `output`,
+  `tokens`, `dark`, `icons`, `utilities`; `tokens.*` — `palette` (ramps),
+  `color`, `intent`, `space`, `width`, `typography.{fontSize,fontFamily,
+  fontWeight,lineHeight}`, `radius`, `border.width`, `shadow`, `zIndex`,
+  `motion.{duration,ease}`, `density.unit`; `dark.*` — `palette`, `color`,
+  `intent`. That is the complete accepted surface — no group omitted, none
+  invented (confirmed no `assertKnownKeys` call references a key not
+  covered above). **Verification method:** wrote the exact page sample to a
+  real `hyzer.config.mjs` and ran the actual built CLI (`tsx` importing
+  `src/lib/cli/main.ts` directly, `RunOptions.cwd` pointed at a scratch dir)
+  via `corepack pnpm exec` — twice: once literally as authored (every group
+  commented out, i.e. `defineConfig({})`) and once with every line
+  mechanically uncommented (regex-stripped the `// ` prefix), both `hyzer
+  generate --check` runs exited 0 with no `HyzerConfigError`. The
+  fully-uncommented version's representative values were tuned (color/dark
+  surface hues) so the run also reports **zero AA contrast failures** — a
+  reader who copies the whole block gets a clean report, not an alarming
+  one on line one.
+- **`hyzer generate` docs, byte-accurate.** Added the `--utilities` flag and
+  `config.utilities` key everywhere `hyzer generate` usage/output already
+  appeared: `/theming/tokens` (`modesCode` gained a `--utilities` recipe
+  line and, per a coordinator addendum, a combined
+  `hyzer generate --mode overrides --utilities` line proving flags compose;
+  new "Generating the utilities sheet" section with a
+  `utilities: true` config sample + a real transcript) and
+  `/foundation/utilities` (new transcript CodeBlock + a step-note pointing
+  at the persistent `config.utilities` form). **Verification method for
+  every transcript touched or added:** ran the real CLI the same way as
+  above (`tsx` + `main.ts`'s `run()`, real scratch cwd, `corepack pnpm exec`)
+  against the exact config shown in each sample, and copied the real stdout
+  verbatim (mode/token-count parenthetical, pairing counts, warning lines,
+  icon-report lines). This caught and fixed two pre-existing inaccuracies on
+  `/theming/tokens` while in the same blocks for the utilities work:
+  `reportCode` (the `configCode` sample) claimed a `4.21:1` AA-Large
+  contrast failure and "1 of 96 pairings fail" that no longer reproduce
+  against the current token set (real run: 89 tokens, 104 pairings, all
+  pass) — updated to the real all-pass transcript; `iconsReportCode` claimed
+  `wrote src/styles/tokens.css`/`src/styles/icons.ts` (the `iconsConfigCode`
+  sample sets no `output` key, so the real CLI writes bare
+  `hyzer-tokens.css`/`icons.ts`) and "96 pairings" (real: 92) — both fixed.
+  Left the un-utilities-related `configCode`/`iconsConfigCode` samples
+  themselves untouched (out of this batch's four items).
+- **Stale intent count.** `/theming/examples` said "The library ships six
+  intents" — the registry (`src/lib/tokens/index.ts` `intent` export) is
+  seven (`neutral` counts as a full member, per `/foundation/colors`'
+  "neutral plus the six status hues" framing and `/foundation/contrast`'s
+  own "all seven intents" phrasing). Reworded to "every intent in the
+  registry" rather than hardcoding a new number, per instruction. Grepped
+  every other `/theming/*` and `/foundation/*` page for the same stale
+  count — no other hits (`/foundation/contrast` and `/foundation/colors`
+  already said "seven"/"six status hues" correctly).
+- **Arc reframe (`/theming/examples`).** User reversed R6's framing: the
+  freedom axis is "how much of the reference theme a tier keeps," not
+  "whether it sets a palette" — read that way Docs sits ON the arc as the
+  middle tier (the slot Sunset held), not an appendix. Restructured to one
+  ordered three-item `examples` array (Ocean → Docs → Terminal) rendered by
+  the same `{#each}` loop and `Tabs` machinery all three now share (`Example`
+  gained a `hasConfig: boolean` field so Docs, which has no `hyzer.config`,
+  skips that tab while still getting `Demo` + a full-source `docs.css` tab
+  — parallel structure with its siblings, not a bolted-on afterthought
+  section). Comparison table gained its Docs column back as the **middle**
+  column with honest values (`"none — rides the reference theme"`, etc.).
+  Intro prose, the `intro-follow` paragraph, and the per-tier blurbs
+  rewritten around the three-tier framing; the `.cta` per-instance lesson
+  (still Ocean + Terminal only — Docs ships no `.hz-theme-docs
+  .hz-button.cta` rule, deliberately: an unscoped sheet has no class to hang
+  a demo-only rule on without leaking globally) now says so explicitly
+  instead of reading as an omission. "Start from one"'s coverage note
+  tightened to match Docs's own header-comment distinction (no *bare*
+  hook restyled; `.docs-table` is the one *opt-in wrapper* exception),
+  resolving a pre-existing tension with the comparison table's "one
+  (`.docs-table`)" row. Recorded as a dated amendment in
+  `specs/46-docs-theme-example.md` (spec files may cite process; the page
+  prose itself stays consumer-facing, no spec/round references).
+- **Addendum: `.docs-table` lesson relocates to `/theming/components`.**
+  Superseding an earlier instruction in the same batch to keep the full
+  lesson on `/theming/examples`: the FULL worked walkthrough (the
+  unlayered-beats-layered explanation, the bare/wrapped side-by-side Table
+  demo, and a `?raw`-sliced CSS excerpt) moved to a new "Case study:
+  `.docs-table`" section on `/theming/components`, right after "The `class`
+  prop" section — that page already teaches the override contract in the
+  abstract (hooks table, `class` prop, unlayered-beats-layered) and
+  `.docs-table` is its concrete, shipped proof; one home per lesson, per the
+  hooks single-source convention already established for that page.
+  `/theming/examples`' Docs tier keeps the same `Demo`/full-`docs.css`-
+  source pairing every sibling tier gets (a structural artifact, not a
+  teaching pass) plus a one-line cross-link to the full lesson. The CSS
+  excerpt on `/theming/components` is sliced via `indexOf`/`slice` from the
+  real `docs.css?raw` import (same technique as the existing `.sr-only`
+  excerpt on `/foundation/utilities`) — not a hand copy that can drift.
+  Updated `docs.css`'s own header comment (two spots) to point at the new
+  location and the new tier framing, since it previously asserted "a
+  different shape of example… not a point on the freedom axis" and "taught
+  in full on /theming/examples," both now false.
+
+Files: `src/routes/theming/overview/+page.svelte`;
+`src/routes/getting-started/+page.svelte`;
+`src/routes/theming/tokens/+page.svelte`;
+`src/routes/foundation/utilities/+page.svelte`;
+`src/routes/theming/examples/+page.svelte`;
+`src/routes/theming/components/+page.svelte`;
+`src/lib/theme/examples/docs/docs.css` (header-comment only);
+`specs/46-docs-theme-example.md` (dated amendment, append-only).
+
+Open question for the CLI-scaffold idea floated alongside item 3: a
+"starter file the CLI scaffolds" (e.g. `hyzer init` writing the full
+commented reference to disk) is a natural next step but out of scope here —
+this batch is docs-only, no CLI behavior changed.
+
+Gates (this batch, full run): `svelte-check` 0 errors/0 warnings (2537
+files); `prettier --check` + `eslint` clean on every touched file (two
+pre-existing formatting warnings on `src/routes/patterns/{checkout-form,
+product-detail}/+page.svelte` are unrelated — those files were already
+modified before this batch started and are outside this batch's ownership
+(`samples/**`/`/patterns/**` belongs to a concurrent builder), so `pnpm
+lint`'s repo-wide run reports them but neither file was touched here); full
+unit suite 2429/2429 passing (`consumerSource.spec.ts`, `src/lib/config/**`,
+`data.spec.ts`, `hooks.spec.ts`, `docsExampleInversion.spec.ts`,
+`palette-namespace.spec.ts` re-run in isolation first, then the whole
+suite); production build green; e2e (port 4173 killed before each run)
+427/428 passing — the one failure (`On this page rail › demo headings
+inside sample frames are not collected`, asserting the ToC rail doesn't
+render on `/patterns/homepage`) reproduces consistently in isolation and is
+unrelated to every file this batch touched (no theming/tokens/CLI/docs.css
+change here affects that route or the ToC rail); left uninvestigated as
+out-of-scope for the same `patterns/**` ownership reason as the two
+prettier warnings above. Did not commit, per instruction.
+
+## Form error-summary title (count-aware) + plain-language philosophy commitment (2026-07-23)
+
+Two items, scoped to stay out of `src/docs/samples/**`/`/patterns/**`
+(owned by a concurrent builder).
+
+**1. Plural-aware Form error-summary title.** `Form.svelte`'s summary
+(rendered as an Alert, first child of the form when `errors.length > 0`)
+had a fixed default title, `'There is a problem'`, regardless of how many
+errors it listed. Widened `summaryTitle` to `string | ((count: number) =>
+string)` — the same label-function shape as Pagination's `pageLabel` and
+Carousel's `slideLabel` (a function receiving the relevant count/index,
+returning the string) rather than inventing a new prop pattern. The
+**default** became a count-aware function: `count === 1 ? 'There is a
+problem' : \`There are ${count} problems\`` — plain sentences, a numeral
+(not a spelled-out word), same GOV.UK-derived tone the original string
+already had. `count` is `errors.length`, the same total the summary
+enumerates one `<li>` per (Form-R4): form-level (`name: ''`) and
+field-linked errors both count, confirmed by reading `resolvedErrors`'
+construction (every entry in `errors` becomes exactly one list item,
+`resolvedErrors.length === errors.length` whenever the form is mounted,
+so using `errors.length` directly — which is also SSR-safe, unlike
+`resolvedErrors` which needs `formEl`) is correct and simpler. A string
+`summaryTitle` still overrides outright at any count (single-error
+behavior unchanged); a function receives the count. Added Form-R12 as a
+dated amendment to `specs/14-form.md` (2026-07-23, specs/40), five new
+unit tests (singular default, plural default, form-level errors counted,
+function form, string-override-ignores-count), and updated
+`src/docs/data/form.ts`'s `summaryTitle` prop row (type + a `note`
+documenting the shape and giving the plural example). The Form docs page
+(`/components/form`) needed no changes — its four demo tabs already fire
+2–3 errors (SvelteKit+enhance, Zod validation, Error-summary-anatomy) and
+1 error (Focus-target), so both the plural and singular defaults surface
+naturally without adding a note. Checked (read-only, per the `patterns/**`
+boundary) `src/docs/samples/CheckoutForm.svelte`/`ContactForm.svelte` and
+the two pattern route files that render them: **none pass a custom
+`summaryTitle`**, so they inherit the new count-aware default with no
+changes needed there — flagged here rather than touched, per instruction,
+for the concurrent `patterns/**` builder's awareness (no action expected,
+just a heads-up that those forms' error-summary title text changed
+under them).
+
+**2. Plain-language philosophy commitment.** Added a fourth bullet to the
+Introduction page's (`src/routes/+page.svelte`) philosophy list — plain
+language as part of accessibility: interface text (labels, errors, empty
+states, every default string a component ships) is design, not an
+afterthought, and the library's defaults choose plain words over jargon or
+vague fragments. Points at the Form error-summary default (item 1, above)
+as the worked example. Updated the list's lead-in from "Three commitments"
+to "Four commitments"; no other page structure touched, matching the
+existing bullets' voice (bold lead phrase, plain declarative sentences,
+one `<code>`-linked concrete example).
+
+**Scope note for the planned follow-up sweep:** a site-wide plain-language
+verification pass over all docs pages/examples was called out as a
+separate future batch (blocked on the concurrent patterns builder) — not
+attempted here beyond these two items.
+
+Gates: `svelte-check` 0 errors/0 warnings; `pnpm format` + `pnpm lint`
+(prettier --check + eslint) clean on every touched file; full unit suite
+75 files / 2433 tests passing (`Form.svelte.spec.ts` re-run in isolation
+first — 62/62 — then the whole suite); production build (prerender,
+`@sveltejs/adapter-static`) succeeded. **e2e: inconclusive, not a gate
+pass.** Two consecutive full runs were contended by a concurrent builder's
+own simultaneous Playwright run against the same shared port
+4173/test-server (visible in `ps` throughout both attempts — a second
+`playwright test` process with an active `-g "Virtualized combobox
+pattern"` filter, i.e. a different builder's own e2e invocation, not
+this task's). The first run (piped through `tail -80` for the interim
+check, so the true summary line was lost) reported `330 passed` with no
+visible failures in the retained tail, but that count is well under the
+suite's real total (`--list` confirms 434 tests in 2 files), meaning many
+tests were silently dropped from the captured output — inconclusive on
+its face. The second run (output redirected to a log file this time)
+showed a contiguous block of ~19 failures at `/theming/*` and
+`/patterns/*` routes ("loads with exactly one visible h1" / "skip link is
+first focusable") starting mid-run, the exact stale-preview-under-
+contention signature this repo's tooling notes already warn about (a
+second server/build swapping in mid-run on the shared port) — not a
+plausible regression from either of this task's actual changes (`Form.svelte`
+and the Introduction page have no relationship to `/theming/*`/`/patterns/*`
+h1/skip-link structure). Stopped both e2e attempts at the user's explicit
+instruction ("stop, let the reviewer test later") before a clean,
+uncontended run completed; killed the `playwright test` processes and
+port 4173 on exit so a subsequent run starts clean. **Follow-up for the
+Reviewer:** re-run `pnpm exec playwright test` once no other builder is
+using port 4173/the shared test-server, and confirm 0 failures (or
+compare any failures against the pre-existing baseline, not against this
+task's two files).
+
+Files: `src/lib/components/Form.svelte`;
+`src/lib/components/Form.svelte.spec.ts`; `specs/14-form.md` (dated
+amendment, Form-R12); `src/docs/data/form.ts`; `src/routes/+page.svelte`.
+Did not commit, per instruction.
+
+## Ten-item Patterns batch: composition extensions, breakout centering,
+## alert callouts, lead-line sweep, one shared page scaffold (2026-07-23)
+
+User-directed batch across `/patterns/**` (the concurrent builder's
+territory stayed `/theming/**`, `getting-started`, config docs — untouched
+here). Ten items, all landed:
+
+**1. Homepage extension** (`samples/Homepage.svelte`,
+`routes/patterns/homepage/+page.svelte`) — kept the existing top
+(Header/Hero/"Popular this week" Grid) and added three sections after it:
+a second, marketing-style `Hero` (`layout="overlay"`, a scoped
+`.promo-media` gradient background rather than a real photo — same
+self-contained-art posture as every other sample), a `Grid` of four stat
+`Card`s with true-to-life disc-golf numbers (courses mapped, rounds
+logged, countries with active leagues, average course rating), and a
+centered contact CTA (`Stack align="center"`, a plain `Button`, no real
+href — the sample stays portable/bare-`#` per its own doc comment). The
+cross-link to `/patterns/contact-form` lives in the ROUTE's lead prose
+(matching the Contact form ↔ Checkout form reciprocal-link precedent), not
+inside the sample — a docs-site URL has no place in code meant to be
+copied verbatim into a consumer app.
+
+**2. Recipe rework** (`samples/Recipe.svelte`) — the finished-dish photo
+is now a `Hero`'s `layout="split"` media (title/subtitle beside the photo)
+instead of a bare `<Image>` under an `<h2>`; two short prose paragraphs
+plus the serving/dietary metadata sit under the hero, before the
+ingredients heading. The ingredients `Table` and the technique `Video`
+now share a `Split` (`fraction="1/2"`) instead of stacking sequentially.
+Root-caused one layout bug here: `stackBelow="md"` (the Hero-internal
+Split's own default) stacked the pair at every viewport this task tested,
+because this Split sits inside the page's own `padding="lg"` Stack (4rem
+inline padding each side) rather than a full breakout — the *effective*
+available width (~800px in the docs frame) never cleared the 968px `md`
+threshold. Changed to `stackBelow="sm"` (640px), verified side-by-side at
+1280/1440 and correctly stacked at 768 via Playwright bounding-box
+measurements (documented inline at the call site so the next editor
+doesn't "fix" it back to `md`).
+
+**3. Virtualized combobox warning Alert** — added, consumer-voiced,
+`intent="warning"`, title "Reach for this only when the dataset can't be
+narrowed down": steers toward narrowing first (server-side search,
+category pre-filtering, a recent/favorites shortlist) and the plain
+`Combobox` on the smaller result, framing this pattern as a last resort.
+
+**4. "This is consumer code" removal** — grepped
+`src/docs/samples/**` for the literal phrase; found and reworded in eight
+files (`Homepage`, `Recipe`, `Article`, `ProductDetail`, `ProductListing`,
+`CheckoutForm`, `ContactForm`, `VirtualizedCombobox`, `VirtualizedTable` —
+nine, `CommandPalette` never used the literal phrase, left as-is). Each
+doc-comment reworded to drop the framing while keeping the "imports only
+public exports" fact ("It imports only public exports…" / "…imports only
+public exports and exercises…" etc.) — no comment lost meaning, just the
+redundant self-description.
+
+**5. Article breakout centering** — root-caused: `.docs-main` sets
+`--hz-breakout-shift: 0` globally (start-aligned column, breakouts grow
+rightward only), correct for every OTHER breakout on the site because
+those columns start flush with `.docs-main`'s own left edge. Article's
+breakout image, though, sits inside `Container max="md"` (default
+`center`), itself centered within a slightly *narrower* sample-frame than
+`.docs-main`'s full cqw — so shift `0` grew the image only rightward from
+an already-inset starting point, reading as offset rather than centered.
+Fixed by resetting `--hz-breakout-shift` on that one `Container breakout`
+back to its own natural default (`calc(50% - 50cqw)`, passed as an inline
+`style` on the element — immune to whatever an ambient layout sets, and a
+no-op outside the docs shell where the default already applies). Verified
+via Playwright bounding boxes at 768/1280/1440px: left/right overflow past
+the prose column is symmetric at all three (at 768 the breakout and the
+column are the same width, so centering is moot but still holds).
+
+**6. Blockquote quote size + Article intent** (coordinator-assigned,
+`theme/components/blockquote.css` unclaimed for this batch) —
+root-caused: the theme's `.hz-blockquote-quote` font-size is still `xl`
+(1.65rem), never regressed. Article's own scoped `.prose p` rule (`font-
+size: base`, serif family) is a *descendant* selector, and Svelte scopes
+by matching elements literally written in the authoring template — the
+Blockquote's quote `<p>` lives in the same `.prose` div in the DOM (the
+pull-quote sits between two prose paragraphs), so `.prose p` reached
+straight into Blockquote's internals and overrode the theme's `xl` down
+to `base`. Fixed by tightening `.prose h3`/`.prose p` to the direct-child
+combinator (`.prose > h3`, `.prose > p`) — stops at `.prose`'s own
+headings/paragraphs, leaves Blockquote's nested `<p>` alone, theme size
+shows through unmodified. No theme file changed. Also changed the
+sample's `Blockquote` to `intent="success"` (was `primary`) per the
+user's request that the accent match the breakout photo's green — a
+one-line comment ties the two together for the next reader.
+
+**7. Pattern-page lead-line sweep** — every one of the nine pattern
+routes' `.lead` paragraphs was overloaded (2–4 sentences packing scope,
+mechanism, and cross-links into one block). Calibrated against component
+pages' `DocPage` `description` prop (one sentence, ~15–30 words) and
+split each lead into a short first sentence (kept) plus a new `.detail`
+paragraph carrying everything else redistributed, not deleted — the one
+exception was Recipe's `gap="away"`/`gap="near"` spacing-token aside,
+which is a genuine fact about the composition and was kept in `.detail`
+rather than cut as filler. Every page's `.composed` line (small hint of
+which library components a pattern uses) was left untouched per
+instruction — none were removed, several gained a component after other
+items in this batch (Hero + Split on Recipe, Pagination cross-link on
+Virtualized table's new Alert).
+
+**8 & 10. Alert-cluster tightening (virtualized-combobox, virtualized-
+table)** — virtualized-table got the same double-Alert treatment as
+combobox got in item 3: a new `intent="warning"` Alert, consumer-voiced,
+steering toward `Pagination` (cross-linked), server-side paging, or
+filtering before reaching for full-dataset virtualization. Both routes'
+Alert pairs are now wrapped in `<Stack gap="near" data-density-shift>` —
+the shift drops `near` one rung tighter than the page's own rhythm, so the
+two related callouts read as one cluster rather than two separately-paced
+sections, while the cluster as a whole still sits at normal `gap="away"`
+spacing relative to the intro/Demo sections around it.
+
+**9. One shared page scaffold across all nine Patterns routes** —
+surveyed every pattern route; the DocPage-driven component pages and the
+`/foundation`+`/theming` pages all share one template
+(`<Stack gap="away"><div class="doc-intro">…` then repeated
+`<Stack as="section" gap="away" data-density-shift class="doc-section"
+aria-labelledby="…-heading"><h2 id="…-heading">…</h2>…</Stack>` blocks),
+driven by shared classes in `theme/examples/docs/docs.css`
+(`.doc-intro h1`, `.doc-description`, `.doc-section h2` — untouched by
+this entry; that theme file was already dirty from an unrelated
+concurrent batch at session start, so no changes were layered onto it).
+Every Patterns route now follows the identical shape: intro (`h1` +
+`.doc-description` lead + `.detail` + `.composed`) → any page-specific
+callout (the Alert clusters from items 3/8/10, sitting between intro and
+Demo, no heading of their own since each Alert already carries its own
+`title`) → a labeled "Demo" `h2` section wrapping the breakout sample
+(five routes — Homepage, Product listing, Product detail, Checkout form,
+Contact form, Article, Recipe — previously had NO "Demo" heading at all,
+just the breakout `Container` as a bare sibling) → any page-specific
+technique section (virtualized-combobox's "The scroll-follows-active
+technique" — converted from a plain `<section>` to the same
+`Stack`-as-section pattern) → a labeled "Source" `h2` section. Outer page
+Stacks changed `gap="xl"` → `gap="away"` to match the foundation/theming
+rhythm exactly. Local `<style>` blocks lost their now-redundant
+`h1`/`h2`/`.lead` rules (the shared docs.css classes cover them); kept
+only genuinely page-local rules (`.detail`, `.composed`, `.sample-frame`,
+per-page notes). One recurring gotcha, hit and fixed on four pages:
+`class="doc-section"` (or any custom class) landing on a `<Stack>`
+component's *rendered* root isn't a literal class in the authoring
+template, so a plain descendant selector like `.doc-section p` compiles
+to an "unused CSS selector" warning even though it visually works —
+matches the same gotcha documented in the "Three new Patterns pages"
+entry above, this time on a component-forwarded class rather than a
+component `class` prop directly. Fixed by giving each section body
+paragraph its own literal class (`.source-note`, `.section-note`) instead
+of a compound selector through the Stack.
+
+Root-caused and fixed one e2e assertion that the restructuring broke:
+`docs.e2e.ts`'s "demo headings inside sample frames are not collected"
+test asserted `toc.count() === 0` on `/patterns/homepage`, relying on an
+accident of the OLD structure (only one real `h2`, "Source" — under the
+rail's 2-entry minimum, so it never rendered, which is how the test
+"proved" sample-frame headings were excluded). With the new "Demo" +
+"Source" headings that page now legitimately clears the 2-entry minimum,
+so the rail renders — correctly. Rewrote the test to assert what it
+actually should: the rail is visible and lists exactly `['Demo',
+'Source']`, i.e. neither Hero's own `h2` title (both inside
+`.sample-frame`, excluded via the existing `exclude=".doc-example,
+.sample-frame"` mechanism) leaks into it. This is a stronger test of the
+real UX property than the count-based one it replaced. Did not touch any
+other assertion in the file.
+
+Files: `src/docs/samples/{Homepage,Recipe,Article,ProductDetail,
+ProductListing,CheckoutForm,ContactForm,VirtualizedTable,
+VirtualizedCombobox}.svelte`;
+`src/routes/patterns/{homepage,recipe,article,product-detail,
+product-listing,checkout-form,contact-form,command-palette,
+virtualized-table,virtualized-combobox}/+page.svelte`;
+`src/routes/docs.e2e.ts` (one test rewritten). No theme file touched
+(item 6 was a consumer-side fix; `theme/components/blockquote.css` read
+only, to confirm the root cause). Did not commit, per instruction.
+
+Gates: `svelte-check` 0 errors/0 warnings on every file this entry
+touches (one transient error surfaced mid-session in `Form.svelte` —
+unowned by this entry, resolved itself once a concurrent builder's
+own in-flight edit landed; confirmed via `git diff` before and after that
+it was never this entry's doing). `prettier --check` + `eslint` clean.
+Unit: 75 files / 2433 tests passing. `build` (prerender,
+`@sveltejs/adapter-static`) succeeded. e2e: two full runs were interrupted
+by a concurrent builder's own simultaneous rebuild clobbering the shared
+port-4173 preview server mid-run (`ERR_MODULE_NOT_FOUND` on
+`.svelte-kit/output/server/nodes/0.js`, then `ERR_CONNECTION_REFUSED` —
+the same stale-preview-under-contention signature recorded in the Form
+entry above), each time isolated and re-verified individually (both
+flagged tests pass on their own). A third, uncontended full run — fresh
+`build` immediately followed by `playwright test` with port 4173
+pre-killed — passed clean: **434/434**.
+
+- **Install prereqs (user, 2026-07-23, main session):** homepage
+  Installation + getting-started Install sections gain a compact prereqs
+  list sourced from package.json: Svelte 5.7+ (5.32 for Form's enhance
+  attachment), Node 22.18+ (CLI only), TypeScript optional (types ship),
+  SvelteKit optional (nothing imported from Kit). Getting-started's old
+  one-line version note replaced by the same list. OPEN QUESTION for the
+  user: peerDependencies pins svelte ^5.7.0 while Form's documented
+  enhance attachment needs 5.32+ — consider bumping the peer floor.
+
+- **Homepage polish (user, 2026-07-23, main session):** (1) the prereqs
+  list generalized into a shared `.note-list` class in the shipped docs
+  example sheet (theme/examples/docs/docs.css — the list counterpart to
+  .tab-note; header enumeration updated; both pages switched, local
+  duplicated styles removed; homepage restores top margin locally since
+  its sections are plain). (2) Usage section now reads as step one of
+  the install-and-go story: connecting prose before the code block —
+  works with tokens alone, theme/utilities are layers you add, link to
+  Getting Started's three tiers. check/lint clean; guard specs
+  (fallback-parity, docsExampleInversion) green.
+
+- **Homepage usage split (user, 2026-07-23, main session):** the Usage
+  section is now the full two-file example (app.css imports + component
+  usage, mirroring Getting Started tier one) rendered LIVE — a Split
+  (fraction 2/3, stackBelow md) with the code blocks left and the exact
+  markup rendered right in a dashed frame under the reference theme, so
+  readers see precisely what they get. Homepage now dogfoods Split too.
+
+## Site-wide plain-language verification sweep (2026-07-23)
+
+Full verification pass over every consumer-visible string on the docs
+site against the fourth philosophy commitment (`src/routes/+page.svelte`
+§Philosophy — plain language is part of accessibility, worked example:
+Form's count-aware error-summary title): `src/routes/**` page prose/
+leads/tab-notes, `src/docs/data/*.ts` descriptions/notes/a11yNotes,
+`src/docs/hooks.ts` rendered fields, `src/docs/samples/**` UI strings and
+demo prose, and `src/lib` component default strings (dismiss/loading/
+page/slide labels, summary title). This is a **verification** pass on
+top of many prior specs/40 editorial rounds (Foundation, every Components
+group, Theming, Patterns, plus the dedicated "Consumer-facing prose
+sweep" that already stripped internal spec/process citations) — the bar
+applied was "would a plain-language editor flag it," not a rewrite of
+already-good prose.
+
+**Method:** grepped the full scope for the task's banned/jargon list
+(utilize, leverage, "in order to", simply, just, easy/easily, powerful,
+flexible, "is used to", nominalizations like functionality/utilization/
+implementation-as-prose, marketing adjectives like versatile/robust/
+seamless/intuitive/effortless) and for vague UI fragments (Errors
+detected, Invalid input, Something went wrong) and bare "there is/are"
+filler; cross-checked every component's default string prop (Badge/
+Alert/Banner `dismissLabel`, Button `loadingLabel`, Carousel `prevLabel`/
+`nextLabel`/`slideLabel`/`dotLabel`, Combobox `emptyText`/`toggleLabel`,
+Lightbox/Modal `closeLabel`, Pagination `pageLabel`, Slider/RangeSlider/
+ColorInput `inputLabel`/`minThumbLabel`/`maxThumbLabel`, Form
+`summaryTitle`) against source; read all 10 `src/docs/samples/**` files
+in full for UI strings (form labels, validation messages, empty states);
+spot-read representative pages across every sidebar section (Foundation,
+every Components group, Theming, Patterns) for sentence-level tangle/
+passive-voice/terminology issues the grep sweep couldn't catch.
+
+**Findings, by kind:**
+
+- **Docs prose (2 fixes):**
+  - `/foundation/colors` (`src/routes/foundation/colors/+page.svelte`) —
+    Dark mode section: "Dark mode is completely optional, and there are
+    three equally supported postures. Do nothing and the light values
+    are simply the values — no toggle, no extra CSS." had two banned
+    words in one paragraph ("completely" as an intensifier, "simply" as
+    filler) plus a "there are N X" construction that read better as a
+    plain prepositional phrase. Rewrote: "Dark mode is optional, with
+    three equally supported postures. Do nothing and the light values
+    stay the values — no toggle, no extra CSS." (fact unchanged: three
+    postures, no-toggle default).
+  - `/getting-started` (`src/routes/getting-started/+page.svelte`) —
+    tier-one step-note: "skip it and the components are headless: full
+    functionality and accessibility, no appearance opinions beyond
+    native element defaults" used the nominalization "functionality"
+    where the concrete claim (behavior keeps working) reads plainer.
+    Rewrote: "skip it and the components stay headless: behavior and
+    accessibility stay intact, with no appearance opinions beyond native
+    element defaults."
+  - Introduction page (`src/routes/+page.svelte`) philosophy list, the
+    plain-language bullet's own sibling bullet: "Headless components are
+    easily overridden via snippets." — "easily" is the same filler-
+    adverb family as the standard's own banned "easy," and this bullet
+    sits right next to the new plain-language commitment being enforced.
+    Rewrote: "Headless components can be overridden via snippets."
+
+- **Component API default (1 fix):** `src/docs/data/button.ts`'s
+  description field — "A versatile button component supporting solid,
+  outline, ghost, and link variants with intent colors, sizes, loading,
+  and icon slots." had a marketing adjective ("versatile," same register
+  as the standard's banned "powerful"/"flexible") and a bare "loading" in
+  a noun list that read as a fragment against its neighbors. Rewrote: "A
+  button component with solid, outline, ghost, and link variants, intent
+  colors, sizes, a loading state, and icon slots." (docs-copy change
+  only — the `description` field isn't type/shape-pinned by `data.spec.ts`,
+  just checked non-empty, so no test updates needed).
+
+- **UI strings (samples, 0 fixes — verified clean):** read
+  `CheckoutForm`, `ContactForm`, `ProductListing`, `ProductDetail`,
+  `Homepage`, `CommandPalette`, `Article`, `Recipe`,
+  `VirtualizedCombobox`, `VirtualizedTable` in full.
+  Validation messages were already model plain-language ("Enter your
+  full name.", "Enter an email address.", "Select a state.", "Accept the
+  return policy to place the order.", "Enter a 5-digit ZIP code.") —
+  specific, active, imperative, no vague fragments anywhere in the
+  scope. Empty/no-match states ("No discs match the current filters.",
+  "No matching rounds", "Nothing in that range — try widening the price
+  or clearing a type.") name the condition and, where relevant, the next
+  action. `Article.svelte`/`Recipe.svelte` are deliberately voiced
+  editorial/recipe copy (magazine-style long sentences, first-person
+  recipe headnotes) rather than UI or documentation text — left alone
+  per the "don't dumb down… prefer leaving well-written prose alone"
+  guidance; a plain-language editor auditing interface copy would not
+  flag intentional narrative voice in a demo article.
+
+- **Component defaults (0 fixes — verified clean):** every default
+  string prop listed under Method above was already plain (`'Remove'`,
+  `'Dismiss'`, `'Loading'`, `'Previous slide'`/`'Next slide'`, `(i, c) =>
+  \`Go to slide ${i + 1} of ${c}\``, `'Search...'`, `'Show options'`,
+  `'No results'`, `'Close media viewer'`, `'Close dialog'`, `(n) =>
+  \`Page ${n}\``, and Form's already-shipped count-aware `'There is a
+  problem'` / `` `There are ${count} problems` `` default). No changes.
+
+- **Terminology (0 unifications needed):** checked snippet-vs-slot usage
+  site-wide — every "slot" hit is the plain-English sense ("icon slot,"
+  "trailing slot," meaning an optional content position), never used for
+  Svelte's own content-injection mechanism, which is consistently called
+  a snippet; no drop-down/dropdown or checkbox/check-box spelling drift;
+  no callback/handler inconsistency (callback used consistently, and
+  rarely, for actual function-prop descriptions).
+
+- **Deliberately unchanged:** every factual "there is/are no X" statement
+  found (Pagination "no roving-focus tricks," Dropdown "no focus trap,"
+  Table "no roving grid navigation," Carousel "no auto-rotation," Alert/
+  Banner "no Toast component," several `hooks.ts` notes) states a real
+  absence, not filler — left as-is. Form's/the homepage's "There is a
+  problem" / "There are N problems" GOV.UK-derived strings, per
+  instruction, stay untouched. Idiomatic "not just X" (Contrast, Motion
+  foundation pages) reworded to "not only" in an earlier specs/40 round
+  already stands and wasn't re-touched. All prop-table/a11yNote technical
+  prose (token names, ARIA role/attribute names, CSS terms) left exact.
+
+**Not attempted (explicitly out of scope):** `specs/**`, internal
+`// Component-R#`-style code comments, and any restructuring — this was
+a language pass over already-settled page structure, not a layout pass.
+
+**Gates:** `svelte-check` 0 errors/0 warnings, 2537 files (checked after
+every edit). `pnpm format` — all files already Prettier-clean, no
+rewrites needed. `pnpm lint` (prettier --check + eslint) clean. Unit:
+75 files / 2433 tests passing. `build` (prerender,
+`@sveltejs/adapter-static`) succeeded. e2e (port 4173 pre-killed,
+`/tmp/shim/pnpm` on `PATH` for the Playwright shim): **429/434 passing**;
+the 5 failures (`/` and command-palette horizontal-overflow assertions at
+375/768px, in both `docs.e2e.ts` and `landing.e2e.ts`) are pre-existing
+and unrelated to this task — they trace to the docs sidebar's search box
+(`+layout.svelte`, unmodified by this entry and not in the working
+tree's changed-files list, i.e. already at its last-committed state)
+overflowing at narrow widths, not to any prose this entry touched;
+flagged here for whoever owns that search-box layout rather than fixed,
+per this task's language-pass-not-layout-pass scope.
+
+Files: `src/routes/+page.svelte`, `src/routes/foundation/colors/
++page.svelte`, `src/routes/getting-started/+page.svelte`,
+`src/docs/data/button.ts`. Did not commit, per instruction.
+
+- **Homepage usage example, final form + Card media-object amendment
+  (user, 2026-07-23, main session):** the Usage demo is now the Card
+  horizontal pattern proper — media = a circle Image (width/height 40,
+  rounded="full", no wrapper class), name + block-displayed location as
+  content, rating Badge in actions, and a muted background via a
+  consumer `.player` class in the app.css fence (global stylesheet —
+  the honest place, since scoped styles can't reach a component root;
+  the utilities sheet deliberately ships no background utilities, so
+  this doubles as the class-override story). Card API change per user:
+  HORIZONTAL CARDS ARE MEDIA OBJECTS now — root padding + half-step gap,
+  content padding zeroed, media inside the padding filling its fixed track,
+  top-aligned; theme's full-height cover stretch removed;
+  vertical cards unchanged (specs/07 gains its Amendments section).
+  ALSO: Split columns gain structural `min-width: 0` (specs/03
+  amendment) — a wide child (code block) was propping the switcher open
+  past its threshold, which both prevented stacking AND caused the five
+  e2e overflow failures on `/` (misattributed to the sidebar search box
+  by the plain-language sweep's report; reproduced and root-caused
+  here). Overflow sweep 434/434 after the fix.

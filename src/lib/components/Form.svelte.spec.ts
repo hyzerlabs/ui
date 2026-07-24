@@ -269,13 +269,51 @@ describe('Form-R3 — summary rendering', () => {
 		expect(heading.textContent?.trim()).toBe('Fix these errors');
 	});
 
-	it('default summaryTitle is "There is a problem"', () => {
+	it('default summaryTitle with one error is "There is a problem"', () => {
 		const { container } = render(Form, {
 			errors: [emailError],
 			children: basicChildren
 		});
 		const heading = container.querySelector('.hz-alert-title') as HTMLElement;
 		expect(heading.textContent?.trim()).toBe('There is a problem');
+	});
+
+	it('default summaryTitle with multiple errors is plural and counts them', () => {
+		const { container } = render(Form, {
+			errors: [emailError, usernameError, formLevelError],
+			children: basicChildren
+		});
+		const heading = container.querySelector('.hz-alert-title') as HTMLElement;
+		expect(heading.textContent?.trim()).toBe('There are 3 problems');
+	});
+
+	it('default summaryTitle counts form-level errors toward the total', () => {
+		const { container } = render(Form, {
+			errors: [formLevelError, formLevelError],
+			children: basicChildren
+		});
+		const heading = container.querySelector('.hz-alert-title') as HTMLElement;
+		expect(heading.textContent?.trim()).toBe('There are 2 problems');
+	});
+
+	it('summaryTitle as a function receives the error count', () => {
+		const { container } = render(Form, {
+			errors: [emailError, usernameError],
+			summaryTitle: (count: number) => `${count} issues to fix`,
+			children: basicChildren
+		});
+		const heading = container.querySelector('.hz-alert-title') as HTMLElement;
+		expect(heading.textContent?.trim()).toBe('2 issues to fix');
+	});
+
+	it('summaryTitle as a string overrides the default regardless of count', () => {
+		const { container } = render(Form, {
+			errors: [emailError, usernameError],
+			summaryTitle: 'Fix these errors',
+			children: basicChildren
+		});
+		const heading = container.querySelector('.hz-alert-title') as HTMLElement;
+		expect(heading.textContent?.trim()).toBe('Fix these errors');
 	});
 });
 

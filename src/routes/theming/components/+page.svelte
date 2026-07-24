@@ -1,9 +1,14 @@
 <script lang="ts">
-	import { Stack, Card, Cluster } from '$lib';
+	import { Stack, Card, Cluster, Tabs, Table } from '$lib';
+	import type { TableColumn } from '$lib/types';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import { hooks } from '../../../docs/hooks';
 	import { isSection, manifest, sectionPages } from '../../../docs/manifest';
+	// ?raw keeps this case study honest — the excerpt below is sliced from the
+	// same shipped sheet the Docs tier on /theming/examples imports live, not
+	// a hand copy that can drift.
+	import docsCss from '$lib/theme/examples/docs/docs.css?raw';
 
 	// The manifest already maps a component name to its page — re-deriving the
 	// slug here would just be a second place to get TextInput → text-input wrong.
@@ -83,6 +88,48 @@
 		'\tSaturday, 8:40 — Maple Hill.',
 		'</Card>'
 	].join('\n');
+
+	// The case study: the shipped Docs example theme's one component-hook
+	// override (see /theming/examples, the arc's middle tier). Same table
+	// rendered twice, once bare and once wrapped in .docs-table, so the
+	// unlayered override's win is visible side by side.
+	interface HoleRow {
+		id: string;
+		hole: string;
+		par: number;
+		distance: string;
+	}
+
+	const cascadeTableItems: HoleRow[] = [
+		{ id: 'h3', hole: 'Hole 3', par: 3, distance: '285 ft' },
+		{ id: 'h7', hole: 'Hole 7', par: 4, distance: '412 ft' },
+		{ id: 'h12', hole: 'Hole 12', par: 5, distance: '620 ft' }
+	];
+
+	const cascadeTableColumns: TableColumn<HoleRow>[] = [
+		{ key: 'hole', header: 'Hole' },
+		{ key: 'par', header: 'Par', align: 'end' },
+		{ key: 'distance', header: 'Distance', align: 'end' }
+	];
+
+	const cascadeViewTabs = [
+		{ id: 'demo', label: 'Demo' },
+		{ id: 'source', label: 'docs.css excerpt' }
+	];
+
+	// The .docs-table rule block only, sliced from the real shipped file —
+	// not the whole sheet (that full source lives on the Docs tier of
+	// /theming/examples; this page teaches the mechanism, not a second copy
+	// of the file).
+	const cascadeCssExcerpt = docsCss
+		.slice(
+			docsCss.indexOf('/*\n * .docs-table — the worked cascade example'),
+			docsCss.indexOf(
+				'/* ------',
+				docsCss.indexOf('/*\n * .docs-table — the worked cascade example')
+			)
+		)
+		.trim();
 </script>
 
 <svelte:head>
@@ -133,6 +180,62 @@
 			<code>&lt;style&gt;</code> block are unlayered too — so if you build wrapper components,
 			prefer styling the <code>hz-*</code> hooks from stylesheets you control rather than re-declaring
 			resets a theme would need to fight.
+		</p>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="cascade-heading"
+	>
+		<h2 id="cascade-heading">Case study: <code>.docs-table</code></h2>
+		<p>
+			The contract above isn't theoretical — the reference theme paints <code>.hz-table</code> from
+			<code>@layer hz-theme</code>, wrapped in <code>:where()</code>, so unlayered CSS beats it at
+			any specificity: no <code>!important</code>, no mirroring the theme's selectors. The shipped
+			Docs example theme (the middle tier on <a href="/theming/examples">Example Themes</a>) is
+			built on exactly that: one opt-in wrapper class, <code>.docs-table</code>, and nothing else
+			about
+			<code>Table</code> changes.
+		</p>
+		<Tabs items={cascadeViewTabs} ariaLabel=".docs-table demo" defaultTab="demo">
+			{#snippet panel(item)}
+				<div class="tab-content">
+					{#if item.id === 'demo'}
+						<Cluster gap="lg" align="start" wrap>
+							<div>
+								<p class="tab-note">Reference theme, unwrapped</p>
+								<Table
+									items={cascadeTableItems}
+									columns={cascadeTableColumns}
+									caption="Course card"
+								/>
+							</div>
+							<div>
+								<p class="tab-note">Wrapped in <code>.docs-table</code></p>
+								<Table
+									items={cascadeTableItems}
+									columns={cascadeTableColumns}
+									caption="Course card, docs style"
+									class="docs-table"
+								/>
+							</div>
+						</Cluster>
+					{:else}
+						<CodeBlock code={cascadeCssExcerpt} />
+					{/if}
+				</div>
+			{/snippet}
+		</Tabs>
+		<p class="note">
+			Wrap any table in <code>.docs-table</code> and its borders, padding, and header background
+			follow this sheet instead, on every property it sets and nothing else — a table with no
+			wrapper is left exactly as the reference theme paints it. The excerpt above is sliced from the
+			real shipped <code>@hyzer-labs/ui/theme/examples/docs/docs.css</code>; the full sheet — and
+			this override in context alongside Ocean and Terminal — is on
+			<a href="/theming/examples">Example Themes</a>.
 		</p>
 	</Stack>
 

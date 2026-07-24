@@ -434,7 +434,7 @@ function utilityRule(className: string, property: string, value: string): string
 }
 
 /**
- * Renders the opt-in utility sheet (specs/44) from the resolved token
+ * Renders the opt-in utility sheet from the resolved token
  * model: `.hz-text`/`.hz-text-muted`, one `.hz-text-<intent>` per resolved
  * intent, and the seven logical margin families per resolved space rung.
  * Deterministic and unlayered — mirrors `.sr-only`'s specificity posture.

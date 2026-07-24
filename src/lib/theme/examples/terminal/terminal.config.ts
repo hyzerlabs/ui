@@ -1,9 +1,10 @@
 /**
- * Terminal — example theme config (specs/32 R1).
+ * Terminal — example theme config.
  * `pnpm gen:tokens` renders this through the token engine (overrides mode,
  * scoped to `.hz-theme-terminal`) into the committed terminal.tokens.css next
- * to it; a drift test keeps them in sync. The config doubles as docs:
- * /theming/examples shows it verbatim.
+ * to it — generated from this config, regenerate rather than hand-editing
+ * terminal.tokens.css directly. The config doubles as docs: /theming/examples
+ * shows it verbatim.
  *
  * Terminal is the STANDALONE example: the sheets in ./components style the
  * headless hooks from scratch and the reference theme is never imported.
@@ -56,7 +57,7 @@ export default defineConfig({
 			// that would be invisible here.
 			neutral: 'var(--hz-color-text-muted)',
 
-			// NEW CATEGORY INTENTS — the extension surface (specs/32).
+			// NEW CATEGORY INTENTS — the extension surface.
 			// The library ships six; nothing stops a theme adding more. These
 			// two are graded by the contrast report and typed via
 			// ./intents.d.ts, so they behave like first-class intents.

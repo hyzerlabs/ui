@@ -70,11 +70,9 @@
 		width: 100%;
 	}
 
-	/* Horizontal cards: media fills the full card height without distortion. */
-	.hz-card:where([data-horizontal]) .hz-card-media :where(img, video) {
-		height: 100%;
-		object-fit: cover;
-	}
+	/* Horizontal cards are media objects (amended 2026-07-23): media fills
+	 * its track (the base width:100% rule) inside the shared card padding —
+	 * no full-height stretch. The track width is --hz-card-media-size. */
 
 	.hz-card-actions {
 		display: flex;

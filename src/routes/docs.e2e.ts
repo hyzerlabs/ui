@@ -738,11 +738,15 @@ test.describe('On this page rail', () => {
 
 	test('demo headings inside sample frames are not collected', async ({ page }) => {
 		await page.setViewportSize({ width: 1536, height: 900 });
-		// The homepage pattern's Hero renders an id'd h2 inside .sample-frame;
-		// excluded, the page has only "Source" left — under the 2-entry
-		// minimum, so the rail does not render at all.
+		// The homepage pattern's two Heroes each render an id'd h2 inside
+		// .sample-frame (the sample's own composition, not the docs page's
+		// structure) — excluded, so the rail lists only the page's own
+		// "Demo"/"Source" sections and never any sample-internal heading.
 		await page.goto('/patterns/homepage');
-		expect(await page.locator(toc).count()).toBe(0);
+		const rail = page.locator(toc);
+		await expect(rail).toBeVisible();
+		const labels = await rail.getByRole('link').allTextContents();
+		expect(labels).toEqual(['Demo', 'Source']);
 	});
 
 	test('no horizontal overflow at 1536px with the rail and a breakout demo', async ({ page }) => {
@@ -1138,19 +1142,85 @@ test.describe('Virtualized combobox pattern', () => {
 		for (const text of texts) expect(text).toContain('Nokia');
 	});
 
-	test('Enter selects the active option and Escape closes the popup', async ({ page }) => {
+	test('Enter toggles the active option without closing the popup', async ({ page }) => {
 		await page.goto('/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		await input.click();
 		await page.keyboard.press('ArrowDown');
 		await page.keyboard.press('Enter');
-		await expect(input).toHaveAttribute('aria-expanded', 'false');
-		await expect(page.locator('.vcombo-proof')).toContainText('Selected:');
-
-		await input.click();
+		// Toggle-to-select: the popup stays open, mirroring Combobox's own
+		// commit behavior (it never closes on a selection).
 		await expect(input).toHaveAttribute('aria-expanded', 'true');
+		await expect(page.locator('.vcombo-proof')).toContainText('Selected:');
+		await expect(page.locator('.hz-badge')).toHaveCount(1);
+	});
+
+	test('Escape closes the popup without touching the selection', async ({ page }) => {
+		await page.goto('/patterns/virtualized-combobox');
+		const input = page.getByRole('combobox');
+		await input.click();
+		await page.keyboard.press('ArrowDown');
+		await page.keyboard.press('Enter');
+		await expect(page.locator('.hz-badge')).toHaveCount(1);
+
 		await page.keyboard.press('Escape');
 		await expect(input).toHaveAttribute('aria-expanded', 'false');
+		// Selections survive Escape — only chip dismiss removes a value.
+		await expect(page.locator('.hz-badge')).toHaveCount(1);
+	});
+
+	test('a selected round renders a dismissible chip, and dismissing it removes the selection', async ({
+		page
+	}) => {
+		await page.goto('/patterns/virtualized-combobox');
+		const input = page.getByRole('combobox');
+		// A click alone opens the popup with the first option already active
+		// — no ArrowDown needed to reach it.
+		await input.click();
+		await page.keyboard.press('Enter');
+
+		const chip = page.locator('.hz-badge').first();
+		await expect(chip).toContainText('Round 1');
+
+		const dismiss = chip.getByRole('button', { name: /Remove/ });
+		await dismiss.click();
+		await expect(page.locator('.hz-badge')).toHaveCount(0);
+		// Focus returns to the input, mirroring Combobox's removeChip.
+		await expect(input).toBeFocused();
+	});
+
+	test('aria-selected reflects the data, not DOM history, as a selected row windows back into view', async ({
+		page
+	}) => {
+		await page.goto('/patterns/virtualized-combobox');
+		const input = page.getByRole('combobox');
+		await input.click();
+
+		// Select the very first row.
+		await page.keyboard.press('Home');
+		await page.keyboard.press('Enter');
+		await expect(page.locator('.hz-badge')).toHaveCount(1);
+
+		// Jump to the far end of 27,000 rows — the first row's own DOM node
+		// unmounts as Virtualizer's window moves away from it.
+		await page.keyboard.press('End');
+		await expect
+			.poll(async () => page.locator('[role="option"]').first().textContent())
+			.not.toContain('Round 1');
+
+		// Jump back — the row remounts as a brand new DOM node, and its
+		// aria-selected must still be true, derived from selectedIds rather
+		// than any state the old node carried.
+		await page.keyboard.press('Home');
+		const firstOption = page.locator('[role="option"]').first();
+		await expect(firstOption).toHaveText(/Round 1$/);
+		await expect(firstOption).toHaveAttribute('aria-selected', 'true');
+	});
+
+	test('the listbox is marked aria-multiselectable', async ({ page }) => {
+		await page.goto('/patterns/virtualized-combobox');
+		await page.getByRole('combobox').click();
+		await expect(page.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
 	});
 });
 
@@ -1326,5 +1396,51 @@ test.describe('specs/45 — Slider vertical orientation', () => {
 		const startClusterBox = await startRow.locator('.hz-slider-inputs').boundingBox();
 		if (!startTrackBox || !startClusterBox) throw new Error('missing bounding box');
 		expect(startClusterBox.y).toBeLessThan(startTrackBox.y);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Product detail pattern — vertical thumbnail strip synced to the Carousel
+// ---------------------------------------------------------------------------
+
+test.describe('Product detail pattern — thumbnail strip', () => {
+	test('clicking a thumb pages the carousel and marks that thumb aria-current', async ({
+		page
+	}) => {
+		await page.goto('/patterns/product-detail');
+		const thumbs = page.locator('.pdp-thumb');
+		await expect(thumbs).toHaveCount(3);
+		await expect(thumbs.first()).toHaveAttribute('aria-current', 'true');
+
+		await thumbs.nth(1).click();
+		await expect(thumbs.nth(1)).toHaveAttribute('aria-current', 'true');
+		await expect(thumbs.first()).not.toHaveAttribute('aria-current', 'true');
+		await expect(page.locator('.hz-carousel-slide[data-active]')).toHaveAttribute(
+			'aria-label',
+			(await thumbs.nth(1).getAttribute('aria-label')) ?? ''
+		);
+	});
+
+	test('paging the carousel moves the active thumb back', async ({ page }) => {
+		await page.goto('/patterns/product-detail');
+		await page.getByRole('button', { name: 'Next slide' }).click();
+		await expect(page.locator('.pdp-thumb').nth(1)).toHaveAttribute('aria-current', 'true');
+	});
+
+	test('thumbs are a labeled group of buttons and never open the lightbox viewer', async ({
+		page
+	}) => {
+		await page.goto('/patterns/product-detail');
+		await expect(page.getByRole('group', { name: 'Choose a colorway' })).toBeVisible();
+		await page.locator('.pdp-thumb').nth(1).click();
+		await expect(page.getByRole('dialog')).toHaveCount(0);
+	});
+
+	test('the active slide still opens the lightbox viewer via keyboard', async ({ page }) => {
+		await page.goto('/patterns/product-detail');
+		const activeSlideImg = page.locator('.hz-carousel-slide[data-active] img').first();
+		await activeSlideImg.focus();
+		await page.keyboard.press('Enter');
+		await expect(page.getByRole('dialog')).toBeVisible();
 	});
 });

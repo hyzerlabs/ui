@@ -1,5 +1,5 @@
 /**
- * Terminal — intent registry augmentation (specs/32 R9).
+ * Terminal — intent registry augmentation.
  *
  * This is the whole "grow the system" story, and it is four lines.
  *

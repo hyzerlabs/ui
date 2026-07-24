@@ -3,7 +3,7 @@ import type { ComponentDoc } from './types.js';
 
 export const buttonDoc: ComponentDoc = {
 	description:
-		'A versatile button component supporting solid, outline, ghost, and link variants with intent colors, sizes, loading, and icon slots.',
+		'A button component with solid, outline, ghost, and link variants, intent colors, sizes, a loading state, and icon slots.',
 	importLine: 'import { Button } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'variant', type: "'solid' | 'outline' | 'ghost' | 'link'", default: "'solid'" },

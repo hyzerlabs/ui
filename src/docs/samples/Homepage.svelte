@@ -2,10 +2,16 @@
 	/**
 	 * A marketing landing page composed entirely from the library.
 	 *
-	 * This is consumer code: it imports only public exports and reaches for no
-	 * docs-site helpers. The one concession to living inside the docs frame is
-	 * that its own nav/footer links are bare `#` — readers browse the sample,
-	 * they don't navigate away from it.
+	 * It imports only public exports and reaches for no docs-site helpers. The
+	 * one concession to living inside the docs frame is that its own
+	 * nav/footer links are bare `#` — readers browse the sample, they don't
+	 * navigate away from it.
+	 *
+	 * Below the "Popular this week" grid, the page runs a second, marketing-
+	 * style Hero slice (overlay layout, full-bleed gradient background) as a
+	 * mid-page break, then a row of stat cards, then closes with a contact
+	 * CTA — the same three-beat rhythm (browse → promo → proof → contact) a
+	 * real landing page follows.
 	 */
 	import { Header, Hero, Container, Grid, Stack, Cluster, Card, Badge, Button, Footer } from '$lib';
 	import type { NavItem, FooterColumn } from '$lib/types';
@@ -68,6 +74,13 @@
 			tag: 'Championship',
 			blurb: 'Long, wooded, and unforgiving. Widely rated among the hardest layouts in the country.'
 		}
+	];
+
+	const stats = [
+		{ value: '8,400+', label: 'Courses mapped' },
+		{ value: '1.6M', label: 'Rounds logged this year' },
+		{ value: '62', label: 'Countries with active leagues' },
+		{ value: '4.3', label: 'Average course rating out of 5' }
 	];
 
 	const footerColumns: FooterColumn[] = [
@@ -157,6 +170,56 @@
 	</Stack>
 </Container>
 
+<!-- A second, marketing-style Hero — full-bleed gradient background via
+     overlay layout instead of the top Hero's plain surface, breaking up the
+     page's rhythm the way a real landing page's mid-page promo banner
+     would. -->
+<Hero
+	layout="overlay"
+	headingLevel={2}
+	eyebrow="Fall league registration"
+	title="Six-week leagues. No experience required."
+	subtitle="Card up with players at your skill level and play the same course every week this fall — divisions run from beginner to advanced."
+>
+	{#snippet media()}
+		<div class="promo-media" aria-hidden="true"></div>
+	{/snippet}
+	{#snippet actions()}
+		<Cluster gap="sm" justify="center">
+			<Button intent="primary" size="lg">Find a league</Button>
+			<Button variant="outline" size="lg">See how leagues work</Button>
+		</Cluster>
+	{/snippet}
+</Hero>
+
+<Container padding="lg">
+	<Stack gap="lg">
+		<Stack gap="xs">
+			<h3>Hyzer by the numbers</h3>
+			<p class="muted">A snapshot of the community logging rounds through the app.</p>
+		</Stack>
+
+		<Grid columns={{ sm: 1, md: 2, lg: 4 }} gap="md">
+			{#each stats as stat (stat.label)}
+				<Card class="hz-card--outlined" padding="lg" rounded="md">
+					<Stack gap="xs">
+						<span class="stat-number">{stat.value}</span>
+						<span class="stat-label muted">{stat.label}</span>
+					</Stack>
+				</Card>
+			{/each}
+		</Grid>
+	</Stack>
+</Container>
+
+<Container padding="lg">
+	<Stack gap="sm" align="center" class="contact-cta">
+		<h3>Have a course to add, or a question about leagues?</h3>
+		<p class="muted">Our team answers every message within a business day.</p>
+		<Button intent="primary" size="lg">Contact us</Button>
+	</Stack>
+</Container>
+
 <Footer columns={footerColumns} headingLevel={3} bordered>
 	{#snippet logo()}
 		<Stack gap="xs">
@@ -189,5 +252,40 @@
 	.muted {
 		color: var(--hz-color-text-muted, #6b7280);
 		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	/* Marketing-slice Hero background — a bolder gradient than the Hero docs
+	 * page's own demo swatch, but still mixed toward the surface color so the
+	 * default (unstyled) hero text keeps its normal contrast on top of it. */
+	.promo-media {
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			135deg,
+			color-mix(in srgb, var(--hz-intent-primary, #2563eb) 30%, var(--hz-color-surface, #fff)),
+			color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 30%, var(--hz-color-surface, #fff))
+		);
+	}
+
+	.stat-number {
+		font-size: var(--hz-font-size-2xl, 2.75rem);
+		font-weight: var(--hz-font-weight-bold, 700);
+		line-height: var(--hz-line-height-tight, 1.2);
+	}
+
+	.stat-label {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	/* .contact-cta lands on Stack's rendered root, not a literal element in
+	 * this file, so the ancestor segment has to be marked :global — h3/p
+	 * stay literal children here and keep their normal scoping. */
+	:global(.contact-cta) h3,
+	:global(.contact-cta) p {
+		text-align: center;
+	}
+
+	:global(.contact-cta) p {
+		max-width: 42ch;
 	}
 </style>

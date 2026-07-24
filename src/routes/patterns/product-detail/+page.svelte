@@ -25,15 +25,21 @@
 	<title>Product detail — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Product detail</h1>
-		<p class="lead">
-			A single product's page with a live buy panel: the plastic RadioGroup drives the derived
-			price, the Carousel pages through colorways, and "Add to cart" raises a dismissible success
-			Alert that reads back the selected options. The active slide is a <code>lightboxGroup</code>
+		<p class="doc-description">A single product's page with a live buy panel.</p>
+		<p class="detail">
+			The plastic RadioGroup drives the derived price, and "Add to cart" raises a dismissible
+			success Alert that reads back the selected options. A vertical thumbnail strip sits beside the
+			main Carousel and stays in sync with it in both directions through one bound
+			<code>index</code>
+			— clicking a thumb pages the carousel to that colorway, and dragging or paging the carousel moves
+			the active thumb right back. The active slide is still the one
+			<code>lightboxGroup</code>
 			trigger — click it (or Tab to it and press Enter/Space) to open a full-size viewer that pages across
-			every colorway. Below the fold, an Accordion holds the long-form content.
+			every colorway; the thumbs are plain buttons that move the carousel and never open the viewer themselves.
+			Below the fold, an Accordion holds the long-form content.
 		</p>
 		<p class="composed">
 			Composes
@@ -44,41 +50,44 @@
 		</p>
 	</div>
 
-	<!-- The sample bleeds across the full main column while the sidebar stays
-	     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
-	     the prose column rather than centering. -->
-	<Container breakout padding="none">
-		<div class="sample-frame">
-			<ProductDetail />
-		</div>
-	</Container>
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="demo-heading"
+	>
+		<h2 id="demo-heading">Demo</h2>
+		<!-- The sample bleeds across the full main column while the sidebar stays
+		     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
+		     the prose column rather than centering. -->
+		<Container breakout padding="none">
+			<div class="sample-frame">
+				<ProductDetail />
+			</div>
+		</Container>
+	</Stack>
 
-	<section aria-labelledby="source-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="source-heading"
+	>
 		<h2 id="source-heading">Source</h2>
-		<p>
+		<p class="source-note">
 			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
 			installed and it renders the same.
 		</p>
 		<CodeBlock code={consumerSource(detailSource)} />
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.lead {
+	.detail {
 		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-size: var(--hz-font-size-base, 1rem);
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
@@ -88,8 +97,10 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	section p {
-		margin: 0 0 1rem;
+	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
+	 * margin zeroed so the Stack's own gap owns the rhythm. */
+	.source-note {
+		margin: 0;
 	}
 
 	/* A hairline frame so the bleed reads as a distinct artifact rather than

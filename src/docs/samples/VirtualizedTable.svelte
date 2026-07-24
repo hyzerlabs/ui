@@ -1,8 +1,7 @@
 <script lang="ts">
 	/**
-	 * A windowed ARIA table over a large (6,000-row) generated dataset.
-	 *
-	 * This is consumer code: it imports only public exports.
+	 * A windowed ARIA table over a large (6,000-row) generated dataset. It
+	 * imports only public exports.
 	 *
 	 * Why an ARIA table, not real <table> markup: `Virtualizer` windows rows
 	 * inside a div viewport/sizer/window stack, and a `<tr>` cannot live in

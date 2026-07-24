@@ -18,7 +18,12 @@ export const formDoc: ComponentDoc = {
 			default: '—',
 			note: 'Omit for native submission / use:enhance (the default path); provide it for client-side validation — preventDefault runs first.'
 		},
-		{ name: 'summaryTitle', type: 'string', default: "'There is a problem'" },
+		{
+			name: 'summaryTitle',
+			type: 'string | ((count: number) => string)',
+			default: "'There is a problem'",
+			note: 'A string overrides the default outright; a function receives the error count. The default is count-aware and plural-safe: "There is a problem" for 1, "There are 3 problems" for 3.'
+		},
 		{
 			name: 'summaryHeadingLevel',
 			type: '2 | 3 | 4 | 5 | 6',

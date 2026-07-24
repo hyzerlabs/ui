@@ -2,13 +2,20 @@
 	/**
 	 * A recipe page composed entirely from the library.
 	 *
-	 * This is consumer code: it imports only public exports. The ingredient
-	 * list is a plain, non-sorting Table (the same PropsTable-style columns
-	 * config the Table docs page's "No sorting" demo uses — no `sortable`
-	 * flag, no sort buttons); the method is step-by-step prose with photos
-	 * along the way and a short technique Video near the end.
+	 * It imports only public exports. The main dish photo is a `Hero`'s own
+	 * `split` layout — title/subtitle beside the photo, the same media form
+	 * the Hero docs page's split demo uses — rather than a bare `<Image>` at
+	 * the top of the page. A short prose intro and the serving/dietary
+	 * metadata sit under the hero, before the ingredient list starts. The
+	 * ingredient list is a plain, non-sorting Table (the same PropsTable-style
+	 * columns config the Table docs page's "No sorting" demo uses — no
+	 * `sortable` flag, no sort buttons) placed in a `Split` next to the
+	 * technique Video, so a reader can follow the clip with the ingredient
+	 * amounts still in view; `Split`'s `stackBelow` collapses the pair to one
+	 * column on narrow viewports. The method is step-by-step prose with a
+	 * photo along the way.
 	 */
-	import { Video, Table, Image, Badge, Divider, Stack, Cluster } from '$lib';
+	import { Hero, Video, Table, Image, Badge, Divider, Split, Stack, Cluster } from '$lib';
 	import type { TableColumn } from '$lib/types';
 
 	interface Ingredient {
@@ -76,12 +83,29 @@
 </script>
 
 <Stack gap="away" padding="lg">
+	<!-- headingLevel=2: the route's own h1 is the page title, so the sample's
+	     top heading sits a level below it rather than competing for the
+	     document's h1. layout="split": the finished-dish photo sits beside
+	     the title/subtitle instead of stacked above it — Hero's media form
+	     for a page that opens on a photograph. -->
+	<Hero
+		layout="split"
+		headingLevel={2}
+		title="Leicester League-Night Chili"
+		subtitle="A dutch-oven chili built to feed a full card after a wet Sunday round — thick enough to hold a spoon upright, and it only gets better reheated for Monday's leftovers."
+	>
+		{#snippet media()}
+			<Image
+				src={RECIPE_MEDIA.finished}
+				alt="A bowl of chili topped with shredded cheddar and scallions"
+				aspectRatio="4/3"
+				fit="cover"
+				rounded="md"
+			/>
+		{/snippet}
+	</Hero>
+
 	<Stack gap="sm">
-		<h2>Leicester League-Night Chili</h2>
-		<p class="muted">
-			A dutch-oven chili built to feed a full card after a wet Sunday round — thick enough to hold a
-			spoon upright, and it only gets better reheated for Monday's leftovers.
-		</p>
 		<Cluster gap="sm">
 			<span class="meta">Serves 6</span>
 			<span class="meta" aria-hidden="true">·</span>
@@ -94,20 +118,42 @@
 			<Badge variant="outline" size="sm">Freezer-friendly</Badge>
 			<Badge variant="outline" size="sm">Dairy-free option</Badge>
 		</Cluster>
+		<div class="prose">
+			<p>
+				This one started as a way to feed the whole card after a wet Sunday round at Maple Hill —
+				something that could sit on low heat in a crockpot at the clubhouse while the last few
+				groups finished up. It's built thick enough to eat standing up with a plastic fork, which,
+				on league night, is usually exactly how it gets eaten.
+			</p>
+			<p>
+				It keeps for four days in the fridge and freezes well in individual portions — pack it flat
+				in a freezer bag and it thaws in about twenty minutes under hot water, which makes it a
+				reasonable answer to "what's for dinner" after a Tuesday doubles round.
+			</p>
+		</div>
 	</Stack>
 
-	<Image
-		src={RECIPE_MEDIA.finished}
-		alt="A bowl of chili topped with shredded cheddar and scallions"
-		aspectRatio="16/9"
-		fit="cover"
-		rounded="md"
-	/>
-
-	<Stack gap="near">
-		<h3>Ingredients</h3>
-		<Table items={ingredients} {columns} caption="Chili ingredients" />
-	</Stack>
+	<!-- Ingredients and the technique clip side by side, so a reader can check
+	     an amount without losing their place in the video. stackBelow="sm"
+	     (not the Hero split's own "md") because this Split sits inside the
+	     page's own padded column rather than spanning a full breakout — table
+	     above video below sm keeps both columns legible without cramming a
+	     three-column table into a narrow half. -->
+	<Split fraction="1/2" gap="lg" stackBelow="sm">
+		<Stack gap="near">
+			<h3>Ingredients</h3>
+			<Table items={ingredients} {columns} caption="Chili ingredients" />
+		</Stack>
+		<Stack gap="near">
+			<h3>Watch: building the base</h3>
+			<Video
+				src={videoSrc}
+				title="Building the chili base"
+				poster={RECIPE_MEDIA.videoPoster}
+				aspectRatio="16/9"
+			/>
+		</Stack>
+	</Split>
 
 	<Divider spacing="none" />
 
@@ -147,37 +193,13 @@
 			fit="cover"
 			rounded="md"
 		/>
-
-		<Stack gap="xs">
-			<h4>Watch: building the base</h4>
-			<div class="video-box">
-				<Video
-					src={videoSrc}
-					title="Building the chili base"
-					poster={RECIPE_MEDIA.videoPoster}
-					aspectRatio="16/9"
-				/>
-			</div>
-		</Stack>
 	</Stack>
 </Stack>
 
 <style>
-	h2 {
-		margin: 0;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
 	h3 {
 		margin: 0;
 		font-size: var(--hz-font-size-lg, 1.4rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	h4 {
-		margin: 0;
-		font-size: var(--hz-font-size-base, 1rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
@@ -185,12 +207,14 @@
 		margin: 0;
 	}
 
-	.meta {
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
+	.prose {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
 	}
 
-	.muted {
+	.meta {
+		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
@@ -200,9 +224,5 @@
 		gap: 0.75rem;
 		margin: 0;
 		padding-inline-start: 1.25rem;
-	}
-
-	.video-box {
-		max-width: 32rem;
 	}
 </style>

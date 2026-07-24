@@ -10,6 +10,17 @@
 
 	const importLine = "import '@hyzer-labs/ui/utilities.css';";
 
+	// A consumer project with no hyzer.config — the CLI falls back to the base
+	// schema and still honors --utilities (see /theming/tokens for the
+	// config.utilities key form).
+	const generateUtilitiesTranscript = [
+		'$ hyzer generate --utilities',
+		'No config found (looked for hyzer.config.ts, hyzer.config.js, hyzer.config.mjs) — using the base schema.',
+		'wrote hyzer-tokens.css (full, 84 tokens)',
+		'wrote hyzer-utilities.css',
+		'contrast: 92 pairings checked — all pass WCAG AA'
+	].join('\n');
+
 	// R2 — the two fixed text-color role helpers, derived from the `color`
 	// export (not hardcoded — `text`/`textMuted` are the metadata keys).
 	const textRoleRows = [
@@ -95,11 +106,82 @@
 	<div class="doc-intro">
 		<h1>Utilities</h1>
 		<p class="doc-description">
-			Three distinct families of "utility-ish" class: an opt-in, engine-generated sheet of
-			token-derived helpers; the always-on <code>.sr-only</code>; and a handful of opt-in component
-			conventions that ship inside their own theme sheets.
+			Three distinct families of "utility-ish" class, in order of how much you opt into: the
+			always-on <code>.sr-only</code>; a handful of opt-in component conventions that ship inside
+			their own theme sheets; and, the biggest commitment of the three, an opt-in, engine-generated
+			sheet of token-derived helpers you import separately.
 		</p>
 	</div>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="sr-only-heading"
+	>
+		<h2 id="sr-only-heading">Always available: <code>.sr-only</code></h2>
+		<p>
+			You already have this — nothing to opt into beyond the theme itself. A
+			visually-hidden-but-screen-reader-available utility — content stays in the accessibility tree
+			and reachable by assistive tech, but is clipped to a 1px box and removed from the visual flow. <code
+				>.sr-only</code
+			>
+			ships in the reference theme's <code>base.css</code>, unlayered, whenever
+			<code>@hyzer-labs/ui/theme</code>
+			is imported —
+			<a href="/components/button">Button</a> (loading label), <a href="/components/link">Link</a>
+			(external-link hint), <a href="/components/checkbox">Checkbox</a>,
+			<a href="/components/radio-group">RadioGroup</a>, <a href="/components/toggle">Toggle</a>, and
+			the <code>Field</code> scaffold's <code>hideLabel</code> already render
+			<code>class="sr-only"</code>.
+		</p>
+		<CodeBlock code={srOnlyCode} />
+		<p>
+			No component ships the rule itself — components only ever emit the class name — so the theme
+			is what makes it visually hidden. Source, from <code>theme/base.css</code>:
+		</p>
+		<CodeBlock
+			code={srOnlySource.slice(srOnlySource.indexOf('.sr-only {')).split('\n\n')[0].trim()}
+		/>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="component-classes-heading"
+	>
+		<h2 id="component-classes-heading">Opt-in component classes</h2>
+		<p>
+			One step up: apply a class the theme already ships, no new import required. Conventions like
+			<code>.hz-card-title</code> and <code>.hz-banner-title</code> ship inside their own component
+			theme sheets (<code>theme/components/card.css</code>,
+			<code>theme/components/banner.css</code>) rather than the generated utility sheet — they style
+			whatever heading or lead element you bring, at whatever level the page needs, because headings
+			aren't load-bearing for Card or Banner the way they are for Modal or Accordion. The full
+			catalog, alongside every component's
+			<code>data-*</code>/<code>hz-*</code> hooks, lives on
+			<a href="/theming/components">Theming &rarr; Styling Components</a>.
+		</p>
+		<Example code={cardTitleCode}>
+			<Card class="hz-card--outlined">
+				<h3 class="hz-card-title">Course conditions</h3>
+				Fairways dry, greens rolling fast.
+			</Card>
+		</Example>
+		<Example code={bannerTitleCode}>
+			<Banner intent="info">
+				<strong class="hz-banner-title">Tee times open Monday</strong>
+				Book early — weekends fill fast.
+			</Banner>
+		</Example>
+		<p>
+			See <a href="/components/card">Card</a> and <a href="/components/banner">Banner</a> for the full
+			component reference.
+		</p>
+	</Stack>
 
 	<Stack
 		as="section"
@@ -110,9 +192,10 @@
 	>
 		<h2 id="sheet-heading">The opt-in sheet</h2>
 		<p>
-			A utility class is a <strong>token-derived, single-property helper</strong> — one class, one declaration,
-			resolved from a design token. That is the whole definition; it does not depend on where the class
-			is or is not used.
+			The biggest commitment of the three: an additional sheet, imported explicitly. A utility class
+			is a <strong>token-derived, single-property helper</strong> — one class, one declaration, resolved
+			from a design token. That is the whole definition; it does not depend on where the class is or is
+			not used.
 		</p>
 		<p class="doctrine-note">
 			Utilities are for <strong>ad-hoc spots</strong> — nudging one element, tinting one line of
@@ -132,10 +215,16 @@
 			that extends the intent vocabulary or the space scale gets the matching classes generated automatically
 			— nothing to hand-maintain.
 		</p>
+		<CodeBlock code={generateUtilitiesTranscript} />
+		<p>
+			The flag opts in for a single run; set <code>utilities: true</code> (or
+			<code>{"{ output: '...' }"}</code>) in <code>hyzer.config.ts</code> to opt in every run — full
+			config surface on <a href="/theming/tokens#full-reference-heading">Tokens &amp; Overrides</a>.
+		</p>
 		<CodeBlock code={importLine} />
 		<p>
 			Every rule is unlayered, single-class specificity (<code>0,1,0</code>), with no
-			<code>!important</code> — the same posture as <code>.sr-only</code> below. A deliberately-applied
+			<code>!important</code> — the same posture as <code>.sr-only</code> above. A deliberately-applied
 			utility beats the layered reference theme, while a consumer's own unlayered class of equal specificity
 			still wins by source order.
 		</p>
@@ -242,8 +331,8 @@
 	>
 		<h2 id="aa-heading">Contrast: what's graded and what isn't</h2>
 		<p class="doctrine-note">
-			Every <code>.hz-text-&lt;intent&gt;</code> class maps to a pairing the library's own WCAG AA
-			gate already grades: intent text colors are
+			Every <code>.hz-text-&lt;intent&gt;</code> class maps to a pairing already checked against
+			WCAG AA: intent text colors are
 			<strong>AA-verified on the two surface roles only</strong>
 			(<code>--hz-color-surface</code> and <code>--hz-color-surface-muted</code>, both light and
 			dark) — on any other background, contrast is the consumer's responsibility.
@@ -252,72 +341,6 @@
 			The sheet introduces no new pairings — see
 			<a href="/foundation/contrast">Contrast &amp; Accessibility</a> for the full report, and
 			<a href="/foundation/colors#intent">Colors &amp; Intent</a> for the intent vocabulary itself.
-		</p>
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="sr-only-heading"
-	>
-		<h2 id="sr-only-heading">Always available: <code>.sr-only</code></h2>
-		<p>
-			A visually-hidden-but-screen-reader-available utility — content stays in the accessibility
-			tree and reachable by assistive tech, but is clipped to a 1px box and removed from the visual
-			flow. Unlike the opt-in sheet above, <code>.sr-only</code> ships in the reference theme's
-			<code>base.css</code>, unlayered, whenever <code>@hyzer-labs/ui/theme</code> is imported —
-			<a href="/components/button">Button</a> (loading label), <a href="/components/link">Link</a>
-			(external-link hint), <a href="/components/checkbox">Checkbox</a>,
-			<a href="/components/radio-group">RadioGroup</a>, <a href="/components/toggle">Toggle</a>, and
-			the <code>Field</code> scaffold's <code>hideLabel</code> already render
-			<code>class="sr-only"</code>.
-		</p>
-		<CodeBlock code={srOnlyCode} />
-		<p>
-			No component ships the rule itself — components only ever emit the class name — so the theme
-			is what makes it visually hidden. Source, from <code>theme/base.css</code>:
-		</p>
-		<CodeBlock
-			code={srOnlySource.slice(srOnlySource.indexOf('.sr-only {')).split('\n\n')[0].trim()}
-		/>
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="component-classes-heading"
-	>
-		<h2 id="component-classes-heading">Opt-in component classes</h2>
-		<p>
-			A third family, distinct from both of the above: conventions like
-			<code>.hz-card-title</code> and <code>.hz-banner-title</code> ship inside their own component
-			theme sheets (<code>theme/components/card.css</code>,
-			<code>theme/components/banner.css</code>) rather than the generated utility sheet — they style
-			whatever heading or lead element you bring, at whatever level the page needs, because headings
-			aren't load-bearing for Card or Banner the way they are for Modal or Accordion. The full
-			catalog, alongside every component's
-			<code>data-*</code>/<code>hz-*</code> hooks, lives on
-			<a href="/theming/components">Theming &rarr; Styling Components</a>.
-		</p>
-		<Example code={cardTitleCode}>
-			<Card class="hz-card--outlined">
-				<h3 class="hz-card-title">Course conditions</h3>
-				Fairways dry, greens rolling fast.
-			</Card>
-		</Example>
-		<Example code={bannerTitleCode}>
-			<Banner intent="info">
-				<strong class="hz-banner-title">Tee times open Monday</strong>
-				Book early — weekends fill fast.
-			</Banner>
-		</Example>
-		<p>
-			See <a href="/components/card">Card</a> and <a href="/components/banner">Banner</a> for the full
-			component reference.
 		</p>
 	</Stack>
 </Stack>

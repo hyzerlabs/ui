@@ -10,7 +10,7 @@
 		 * Viewport extent in px. Optional — when provided, the viewport is fixed
 		 * and drives the window math deterministically (SSR-exact). When
 		 * omitted, the viewport is fluid: the consumer CSS-sizes it and the
-		 * component measures its own box at runtime (Virtualizer-R14).
+		 * component measures its own box at runtime.
 		 */
 		height?: number;
 		measure?: boolean;

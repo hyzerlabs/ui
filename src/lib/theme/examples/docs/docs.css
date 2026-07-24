@@ -1,13 +1,14 @@
 /**
- * Example theme — Docs (specs/46), display name "Docs — the look this site
- * runs on", id `docs`.
+ * Example theme — Docs, display name "Docs — the look this site runs on",
+ * id `docs`.
  *
- * A CONTENT STARTER, a different shape of example from the Ocean/Terminal
- * palette-freedom arc (see /theming/examples): it adds no config and no
- * palette — every declaration below resolves through the reference theme's
- * own role/intent tokens. What it ships instead is this site's reading
- * chrome: named scaffold classes for the page/demo rhythm, one worked
- * component-hook override (`.docs-table`), the in-prose code-chip
+ * The MIDDLE TIER of the Ocean → Docs → Terminal freedom arc (see
+ * /theming/examples, amended 2026-07-23 — the arc is how much of the
+ * reference theme a tier keeps, and this one keeps all of it): it adds no
+ * config and no palette — every declaration below resolves through the
+ * reference theme's own role/intent tokens. What it ships instead is this
+ * site's reading chrome: named scaffold classes for the page/demo rhythm,
+ * one worked component-hook override (`.docs-table`), the in-prose code-chip
  * treatment, and a content focus-visible ring. This is the sheet
  * `design.hyzer.sh` itself imports — there is exactly one copy.
  *
@@ -28,13 +29,14 @@
  * SCAFFOLD — the shared page-rhythm classes (`.doc-intro h1`,
  * `.doc-description`, `.doc-section h2`, `.a11y-refs`) and the demo
  * scaffolding around Example blocks (`.tab-content`, `.inner-tab`,
- * `.tab-note`, `.demo-col`). Opt-in classes only.
+ * `.tab-note`, `.note-list`, `.demo-col`). Opt-in classes only.
  *
  * .docs-table — the worked layered-cascade lesson (taught in full on
- * /theming/examples): the reference theme paints `.hz-table` from
- * `@layer hz-theme`; these unlayered rules win on every property they set,
- * no `!important`, no specificity games. A table with no `.docs-table`
- * wrapper is left exactly as the reference theme paints it.
+ * /theming/components, the Case study section; this file's excerpt is
+ * sliced straight from the block below): the reference theme paints
+ * `.hz-table` from `@layer hz-theme`; these unlayered rules win on every
+ * property they set, no `!important`, no specificity games. A table with no
+ * `.docs-table` wrapper is left exactly as the reference theme paints it.
  *
  * CODE CHIPS — `p code` / `li code` get a subtle tinted-pill treatment,
  * scoped to paragraph/list context so `<pre>` blocks and table cells
@@ -42,12 +44,12 @@
  * `[data-theme='dark']` pair strengthens the tint 14% → 28% — 14% gray is
  * nearly invisible over a dark surface, the same reason surface-muted's own
  * tint jumps 6% → 25% in the dark palette.
- * AA (specs/46 R7): the only new graded pairing this sheet introduces is
- * body text over the chip tint — bounded and subtle, and it holds contrast
- * on the surface / surface-muted roles this site paints behind prose. That
- * is the extent of the boundary: a consumer painting the chip over some
- * other background is responsible for checking it, same posture as the
- * opt-in utilities sheet (specs/44 R7).
+ * AA: the only new graded pairing this sheet introduces is body text over
+ * the chip tint — bounded and subtle, and it holds contrast on the
+ * surface / surface-muted roles this site paints behind prose. That is the
+ * extent of the boundary: a consumer painting the chip over some other
+ * background is responsible for checking it, same posture as the opt-in
+ * utilities sheet.
  *
  * FOCUS RING — broad and INTENTIONAL: every `:focus-visible` element gets a
  * `2px solid currentColor` outline at a `2px` offset, EXCEPT `.hz-field`
@@ -79,6 +81,17 @@
 	margin: 0 0 1rem;
 	font-size: var(--hz-font-size-sm, 0.875rem);
 	color: var(--hz-color-text-muted, #6b7280);
+}
+
+/* The list counterpart to .tab-note — a muted supporting list (install
+ * prerequisites, short caveat lists). Zero top margin: the surrounding
+ * rhythm owns the spacing above it. */
+.note-list {
+	margin: 0;
+	padding-left: 1.25rem;
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	color: var(--hz-color-text-muted, #6b7280);
+	line-height: var(--hz-line-height-base, 1.5);
 }
 
 .demo-col {

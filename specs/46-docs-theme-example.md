@@ -276,3 +276,41 @@ the repo.
   full-component layered demo is retired with Sunset (accepted decision).
 - Renaming the `/theming/examples` route or manifest label.
 - Static demo-media (`static/media/`) plan — unrelated.
+
+### Amendment (2026-07-23, docs audit) — R6 framing superseded: docs is ON the arc
+
+R6's "distinct third section... not a point on the freedom axis" framing is
+**reversed** by user decision. The freedom axis is not "how much palette a
+theme sets" — it is "how much of the reference theme a consumer keeps." Read
+that way, the docs example is not off to the side at all: it extends the
+reference theme through the exact same class/hook contract every component
+ships (`.docs-table` is the worked proof), and that reuse is *why shipping it
+was so painless* — the load-bearing observation R6 missed.
+
+- **New tier order:** Ocean (tokens only, config-driven) → **Docs** (layered
+  over the reference theme via the class-hook contract, zero palette change)
+  → Terminal (standalone, full takeover). Docs occupies the arc's middle
+  slot — the position Sunset held before specs/44's retirement — as a peer
+  tier, not an appendix.
+- `/theming/examples` renders all three as one ordered sequence (a shared
+  per-tier `Demo` / `hyzer.config` (Ocean, Terminal only) / source-sheet tab
+  set); the comparison table gains Docs back as its **middle** column, with
+  honest cell values (e.g. "Palette via config: none — rides the reference
+  theme").
+- The **`.docs-table` cascade lesson itself relocates** to
+  `/theming/components` (Styling Components): that page already teaches the
+  unlayered-beats-layered override contract in the abstract (`class` prop,
+  hooks table), and `.docs-table` is its concrete, shipped proof — one home
+  per lesson, matching the hooks single-source convention elsewhere in the
+  docs. `/theming/examples`' Docs tier keeps the same `Demo` + full `docs.css`
+  source pairing every other tier gets (parallel structure, not a duplicate
+  teaching pass) plus a one-line cross-link to the full lesson.
+- The **per-instance `.cta` lesson** (still Ocean + Terminal only — Docs
+  ships no `.hz-theme-docs .hz-button.cta` rule, deliberately: forcing one
+  would misrepresent an unscoped sheet) is repositioned to read correctly
+  under the new three-tier order and now says so explicitly, rather than
+  reading as though Docs were skipped by omission.
+- `specs/40-findings.md` carries the dated batch entry; this amendment is the
+  spec-side record. Prose on the page itself stays consumer-facing (no
+  references to "R6," specs, or this amendment) — only this file and code
+  comments cite it.

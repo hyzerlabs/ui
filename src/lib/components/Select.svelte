@@ -11,7 +11,7 @@
 	}
 
 	/**
-	 * Select-R1: discriminated union on `multiple` — the compiler enforces the
+	 * Discriminated union on `multiple` — the compiler enforces the
 	 * multiple ↔ value correspondence at call sites (`<Select multiple
 	 * value={['a']} />` type-checks; a `string` there errors).
 	 */

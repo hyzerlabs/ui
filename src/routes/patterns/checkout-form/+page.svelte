@@ -24,16 +24,19 @@
 	<title>Checkout form — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Checkout form</h1>
-		<p class="lead">
-			The full <a href="/components/form">Form</a> workflow on a realistic page. Submitting with
-			problems builds a plain field-name → message record, <code>toFormErrors</code> reshapes it,
-			and Form renders the linked error summary and moves focus to it — the same array feeds each
-			field's inline error, so the two can never disagree. The order summary card derives its totals
-			from the same bound state the controls edit. For the minimal end of this same spectrum — a
-			small form with no order summary — see <a href="/patterns/contact-form">Contact form</a>.
+		<p class="doc-description">
+			The full <a href="/components/form">Form</a> workflow on a realistic checkout page.
+		</p>
+		<p class="detail">
+			Submitting with problems builds a plain field-name → message record,
+			<code>toFormErrors</code> reshapes it, and Form renders the linked error summary and moves
+			focus to it — the same array feeds each field's inline error, so the two can never disagree.
+			The order summary card derives its totals from the same bound state the controls edit. For the
+			minimal end of this same spectrum — a small form with no order summary — see
+			<a href="/patterns/contact-form">Contact form</a>.
 		</p>
 		<p class="composed">
 			Composes
@@ -44,42 +47,45 @@
 		</p>
 	</div>
 
-	<!-- The sample bleeds across the full main column while the sidebar stays
-	     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
-	     the prose column rather than centering. -->
-	<Container breakout padding="none">
-		<div class="sample-frame">
-			<CheckoutForm />
-		</div>
-	</Container>
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="demo-heading"
+	>
+		<h2 id="demo-heading">Demo</h2>
+		<!-- The sample bleeds across the full main column while the sidebar stays
+		     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
+		     the prose column rather than centering. -->
+		<Container breakout padding="none">
+			<div class="sample-frame">
+				<CheckoutForm />
+			</div>
+		</Container>
+	</Stack>
 
-	<section aria-labelledby="source-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="source-heading"
+	>
 		<h2 id="source-heading">Source</h2>
-		<p>
+		<p class="source-note">
 			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
 			installed and it works the same. Try placing an order with empty fields to see the summary
 			link to each problem.
 		</p>
 		<CodeBlock code={consumerSource(checkoutSource)} />
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.lead {
+	.detail {
 		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-size: var(--hz-font-size-base, 1rem);
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
@@ -89,8 +95,10 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	section p {
-		margin: 0 0 1rem;
+	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
+	 * margin zeroed so the Stack's own gap owns the rhythm. */
+	.source-note {
+		margin: 0;
 	}
 
 	/* A hairline frame so the bleed reads as a distinct artifact rather than

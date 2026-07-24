@@ -13,13 +13,16 @@
 	<title>Virtualized table — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Virtualized table</h1>
-		<p class="lead">
+		<p class="doc-description">
 			A 6,000-row dataset windowed by <a href="/components/virtualizer">Virtualizer</a>, dressed as
-			an ARIA table. Past the point where rendering every row becomes the bottleneck, this pattern
-			trades a little semantic richness for a DOM that stays small regardless of dataset size.
+			an ARIA table.
+		</p>
+		<p class="detail">
+			Past the point where rendering every row becomes the bottleneck, this pattern trades a little
+			semantic richness for a DOM that stays small regardless of dataset size.
 		</p>
 		<p class="composed">
 			Composes
@@ -30,48 +33,65 @@
 		</p>
 	</div>
 
-	<Alert intent="info" title="Pick per dataset size, not by default">
-		Real <code>&lt;table&gt;</code> semantics (the <a href="/components/table">Table</a> component)
-		give you native screen-reader table navigation for free and no ARIA to keep in sync — reach for
-		it up to some thousands of rows. Only past that point, where rendering every
-		<code>&lt;tr&gt;</code> becomes the bottleneck, does the windowed ARIA table below earn its keep.
-	</Alert>
+	<!-- Both alerts as one tight callout cluster — gap="near" on a
+	     density-shifted Stack reads them as a single grouped recommendation
+	     instead of two sections at normal page rhythm (same mechanism as
+	     /patterns/virtualized-combobox). -->
+	<Stack gap="near" data-density-shift>
+		<Alert intent="warning" title="Reach for this only when the whole list needs to scroll at once">
+			Most apps don't need to virtualize the full dataset. <a href="/components/pagination"
+				>Pagination</a
+			> — the library ships it — server-side paging, or filtering down the set usually eases rendering
+			and is the simpler, often more accessible design. Reach for virtualization when the product genuinely
+			requires the whole list scrollable in one view, not paged.
+		</Alert>
 
-	<!-- The sample bleeds across the full main column while the sidebar stays
-	     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
-	     the prose column rather than centering. -->
-	<Container breakout padding="none">
-		<div class="sample-frame">
-			<VirtualizedTable />
-		</div>
-	</Container>
+		<Alert intent="info" title="Pick per dataset size, not by default">
+			Real <code>&lt;table&gt;</code> semantics (the <a href="/components/table">Table</a>
+			component) give you native screen-reader table navigation for free and no ARIA to keep in sync —
+			reach for it up to some thousands of rows. Only past that point, where rendering every
+			<code>&lt;tr&gt;</code> becomes the bottleneck, does the windowed ARIA table below earn its keep.
+		</Alert>
+	</Stack>
 
-	<section aria-labelledby="source-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="demo-heading"
+	>
+		<h2 id="demo-heading">Demo</h2>
+		<!-- The sample bleeds across the full main column while the sidebar stays
+		     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
+		     the prose column rather than centering. -->
+		<Container breakout padding="none">
+			<div class="sample-frame">
+				<VirtualizedTable />
+			</div>
+		</Container>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="source-heading"
+	>
 		<h2 id="source-heading">Source</h2>
-		<p>
+		<p class="source-note">
 			The whole pattern, verbatim. Every import is a public export — copy it into an app with the
 			theme installed and it renders the same.
 		</p>
 		<CodeBlock code={consumerSource(virtualizedTableSource)} />
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.lead {
+	.detail {
 		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-size: var(--hz-font-size-base, 1rem);
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
@@ -81,8 +101,10 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	section p {
-		margin: 0 0 1rem;
+	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
+	 * margin zeroed so the Stack's own gap owns the rhythm. */
+	.source-note {
+		margin: 0;
 	}
 
 	/* A hairline frame so the bleed reads as a distinct artifact rather than

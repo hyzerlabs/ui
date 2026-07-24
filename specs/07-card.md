@@ -276,3 +276,19 @@ styles asserted with viewport resize + `getComputedStyle(el)`.
 - The "consumer title-link + `tabindex=\"-1\"` overlay" variant of the clickable
   pattern — Card uses a single focusable overlay link (Card-R9).
 - Docs demo routes and Playwright e2e — Sprint 4.
+
+### Amendments
+
+- **2026-07-23 (audit tweak round):** horizontal Card is now a media
+  object, not a full-bleed row. `data-horizontal` cards carry the card
+  padding on the ROOT with a half-step `gap` between media and content
+  (sm→xs, md→sm, lg→md); `.hz-card-content` padding zeroes in horizontal
+  mode; the media track top-aligns its media
+  (`align-items: flex-start`) and keeps the fixed `--hz-card-media-size`
+  width (default 40%) which media fills; the horizontal content column
+  gap is `--hz-space-sm`; and the theme's full-height `object-fit:
+  cover` stretch on horizontal media is removed — media renders at
+  natural size inside the shared padding (the base `width: 100%` still
+  fills the track). Vertical cards are unchanged (media stays flush,
+  content stays padded). Motivating case: avatar/media-object rows
+  (the homepage Usage example).

@@ -7,7 +7,7 @@
 	interface Props {
 		errors?: FormError[];
 		onSubmit?: (e: SubmitEvent) => void;
-		summaryTitle?: string;
+		summaryTitle?: string | ((count: number) => string);
 		summaryHeadingLevel?: 2 | 3 | 4 | 5 | 6;
 		focusTarget?: 'summary' | 'firstField';
 		novalidate?: boolean;
@@ -20,7 +20,7 @@
 	let {
 		errors = [],
 		onSubmit,
-		summaryTitle = 'There is a problem',
+		summaryTitle,
 		summaryHeadingLevel = 2,
 		focusTarget = 'summary',
 		novalidate = false,
@@ -29,6 +29,21 @@
 		class: className,
 		...rest
 	}: Props = $props();
+
+	// ---------------------------------------------------------------------------
+	// Plain-language default: count-aware, singular vs. plural, numeral count.
+	// The summary lists one item per entry in `errors` (Form-R4 — form-level
+	// entries count too), so `errors.length` is the total it enumerates.
+	// ---------------------------------------------------------------------------
+	function defaultSummaryTitle(count: number): string {
+		return count === 1 ? 'There is a problem' : `There are ${count} problems`;
+	}
+
+	const resolvedSummaryTitle = $derived(
+		typeof summaryTitle === 'function'
+			? summaryTitle(errors.length)
+			: (summaryTitle ?? defaultSummaryTitle(errors.length))
+	);
 
 	// Form-R1: bind:this on the form element for form.elements access (Form-R4/R7).
 	let formEl: HTMLFormElement | null = $state(null);
@@ -198,7 +213,7 @@
 			class="hz-form-error-summary"
 			role="alert"
 			tabindex={-1}
-			title={summaryTitle}
+			title={resolvedSummaryTitle}
 			headingLevel={summaryHeadingLevel}
 		>
 			<!--

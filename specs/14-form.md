@@ -71,7 +71,7 @@ export interface FormError {
 | --------------------- | ------------------------------------------ | ---------------------- |
 | `errors`              | `FormError[]`                              | `[]`                   |
 | `onSubmit`            | `((e: SubmitEvent) => void) \| undefined`  | — (omit ⇒ native mode) |
-| `summaryTitle`        | `string`                                   | `'There is a problem'` |
+| `summaryTitle`        | `string \| ((count: number) => string)`\*  | `'There is a problem'` |
 | `summaryHeadingLevel` | `2 \| 3 \| 4 \| 5 \| 6`                    | `2`                    |
 | `focusTarget`         | `'summary' \| 'firstField'`                | `'summary'`            |
 | `novalidate`          | `boolean`                                  | `false`                |
@@ -80,6 +80,9 @@ export interface FormError {
 | `class`               | `string` (optional → `cx`)                 | —                      |
 
 Plus arbitrary `...rest` HTML attributes forwarded onto the `<form>`.
+
+\* `summaryTitle`'s type widened and its default became count-aware —
+Form-R12, the amendment at the end of this document.
 
 ### Requirements
 
@@ -352,3 +355,31 @@ radio group → first radio); correcting fields and resubmitting with a shorter
   theme's job; the component guarantees only stable `hz-form*` hooks +
   `data-state`.
 - Docs demo routes and Playwright e2e — later sprint.
+
+### Amendment (2026-07-23, specs/40) — plural-aware, count-aware `summaryTitle`
+
+12. **Form-R12 — count-aware summary title.** `summaryTitle` widens to `string
+    | ((count: number) => string)` (mirroring the label-function precedent set
+    by Pagination's `pageLabel` and Carousel's `slideLabel`). The **default**
+    changes from the fixed `'There is a problem'` string to a count-aware
+    function equivalent to:
+
+    ```ts
+    (count: number) => (count === 1 ? 'There is a problem' : `There are ${count} problems`);
+    ```
+
+    `count` is `errors.length` — the same total the summary enumerates one
+    `<li>` per (Form-R4): form-level entries (`name: ''`) and resolved
+    field-linked entries both count. A `summaryTitle` **string** overrides the
+    default outright regardless of count (unchanged single-error behavior:
+    `'There is a problem'`); a `summaryTitle` **function** receives the count
+    and returns the title. This is plain-language by default — short
+    sentences, a numeral (not a spelled-out word), no jargon — matching the
+    GOV.UK-derived tone the original single-error string already used.
+
+    | Case                                     | Title                                    |
+    | ----------------------------------------- | ----------------------------------------- |
+    | default, 1 error                          | `'There is a problem'`                    |
+    | default, N errors (N > 1)                 | `` `There are ${N} problems` ``           |
+    | `summaryTitle` as a string                | that string, any count                    |
+    | `summaryTitle` as a function               | `summaryTitle(errors.length)`             |

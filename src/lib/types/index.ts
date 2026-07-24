@@ -2,7 +2,6 @@ import type { Snippet } from 'svelte';
 
 /**
  * Navigation item — recursive. Used by Nav and Footer.
- * @see original-specs/00-architecture.md
  */
 export interface NavItem {
 	label: string;
@@ -78,7 +77,7 @@ export interface LightboxGroupOptions {
 	/**
 	 * CSS selector narrowing which descendants qualify. Matched elements are
 	 * still filtered to img / picture>img / video and the exclusion rules
-	 * (Lightbox-R18). Default: every qualifying media descendant.
+	 * below. Default: every qualifying media descendant.
 	 */
 	selector?: string;
 	/** Accessible name of the viewer dialog in multi-item mode. */
@@ -157,9 +156,8 @@ export type LayoutAlign = 'start' | 'center' | 'end' | 'stretch' | 'baseline';
  * theme/examples/terminal for a worked example.
  */
 export interface IntentRegistry {
-	/** The no-status default — a full member of the vocabulary since the
-	 * 2026-07-22 audit fold (previously unioned on per component as
-	 * `'neutral' | Intent`). */
+	/** The no-status default — a full member of the vocabulary (rather than
+	 * unioned on per component as `'neutral' | Intent`). */
 	neutral: true;
 	primary: true;
 	secondary: true;
@@ -213,8 +211,8 @@ export interface FormError {
 }
 
 /** Badge appearance unions (shared so Combobox chips can be typed).
- * BadgeIntent is now an alias — `neutral` folded into {@link Intent}
- * (2026-07-22 audit); kept for import-site continuity. */
+ * BadgeIntent is an alias — `neutral` folded into {@link Intent}; kept for
+ * import-site continuity. */
 export type BadgeIntent = Intent;
 export type BadgeVariant = 'soft' | 'solid' | 'outline';
 export type BadgeSize = 'sm' | 'md';

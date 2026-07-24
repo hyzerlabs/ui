@@ -4,10 +4,11 @@
 
 	const importStack = [
 		'/* Each line is optional — every tier works without the ones below it. */',
-		"@import '@hyzer-labs/ui/reset.css';   /* structural reset (@layer hz-reset) */",
-		"@import '@hyzer-labs/ui/tokens.css';  /* the --hz-* custom properties */",
-		"@import '@hyzer-labs/ui/theme';       /* the reference theme (@layer hz-theme) */",
-		"@import './your-overrides.css';       /* unlayered — always wins */"
+		"@import '@hyzer-labs/ui/reset.css';     /* structural reset (@layer hz-reset) */",
+		"@import '@hyzer-labs/ui/tokens.css';    /* the --hz-* custom properties */",
+		"@import '@hyzer-labs/ui/theme';         /* the reference theme (@layer hz-theme) */",
+		"@import '@hyzer-labs/ui/utilities.css'; /* optional: opt-in utility classes (unlayered) */",
+		"@import './your-overrides.css';         /* unlayered — always wins */"
 	].join('\n');
 
 	const layerCode = [
@@ -87,6 +88,15 @@
 						>
 					</tr>
 					<tr>
+						<td>Utilities</td>
+						<td><code>utilities.css</code></td>
+						<td
+							>Token-derived, single-property helper classes — text-color roles/intents and logical
+							margins — for ad-hoc spots. Opt-in: imported like the theme, and free if you don't.
+							See <a href="/foundation/utilities">Utilities</a>.</td
+						>
+					</tr>
+					<tr>
 						<td>Your overrides</td>
 						<td>your CSS / <code>hyzer.config.ts</code></td>
 						<td
@@ -99,10 +109,6 @@
 			</table>
 		</div>
 		<CodeBlock code={importStack} />
-		<p>
-			An optional <a href="/foundation/utilities">utilities sheet</a> adds token-derived text-color and
-			margin helpers for ad-hoc spots — imported like the theme, and free if you don't.
-		</p>
 	</Stack>
 
 	<Stack

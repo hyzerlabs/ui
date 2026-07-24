@@ -1,8 +1,9 @@
 /**
- * Ocean — example theme config (specs/30 R2).
+ * Ocean — example theme config.
  * `pnpm gen:tokens` renders this through the token engine (overrides mode)
- * into the committed ocean.css next to it; a drift test keeps them in sync.
- * The config doubles as docs: /theming/examples shows it verbatim.
+ * into the committed ocean.css next to it — generated from this config,
+ * regenerate rather than hand-editing ocean.css directly. The config doubles
+ * as docs: /theming/examples shows it verbatim.
  */
 import { defineConfig } from '../../config/index.js';
 

@@ -25,13 +25,18 @@
 	<title>Homepage — @hyzer-labs/ui</title>
 </svelte:head>
 
-<Stack gap="xl">
-	<div>
+<Stack gap="away">
+	<div class="doc-intro">
 		<h1>Homepage</h1>
-		<p class="lead">
-			A marketing-style landing page built only from library components — no bespoke layout code, no
-			custom CSS beyond a few type sizes. It's here to show what the parts look like once they're
-			assembled into something whole.
+		<p class="doc-description">
+			A marketing-style landing page assembled entirely from library components — no bespoke layout
+			code, no custom CSS beyond a few type sizes.
+		</p>
+		<p class="detail">
+			It runs a full landing-page rhythm: a course-browsing Hero opens the page, a mid-page promo
+			Hero breaks it up with a full-bleed gradient background, a row of stat cards backs up the
+			pitch with numbers, and it closes on a contact CTA — the same shape as the minimal
+			<a href="/patterns/contact-form">Contact form</a> pattern behind it.
 		</p>
 		<p class="composed">
 			Composes
@@ -41,41 +46,44 @@
 		</p>
 	</div>
 
-	<!-- The sample bleeds across the full main column while the sidebar stays
-	     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
-	     the prose column rather than centering. -->
-	<Container breakout padding="none">
-		<div class="sample-frame">
-			<Homepage />
-		</div>
-	</Container>
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="demo-heading"
+	>
+		<h2 id="demo-heading">Demo</h2>
+		<!-- The sample bleeds across the full main column while the sidebar stays
+		     put. .docs-main sets --hz-breakout-shift: 0, so it grows rightward from
+		     the prose column rather than centering. -->
+		<Container breakout padding="none">
+			<div class="sample-frame">
+				<Homepage />
+			</div>
+		</Container>
+	</Stack>
 
-	<section aria-labelledby="source-heading">
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="source-heading"
+	>
 		<h2 id="source-heading">Source</h2>
-		<p>
+		<p class="source-note">
 			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
 			installed and it renders the same.
 		</p>
 		<CodeBlock code={consumerSource(homepageSource)} />
-	</section>
+	</Stack>
 </Stack>
 
 <style>
-	h1 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-2xl, 2.75rem);
-		font-weight: var(--hz-font-weight-bold, 700);
-	}
-
-	h2 {
-		margin: 0 0 0.5rem;
-		font-size: var(--hz-font-size-xl, 1.65rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.lead {
+	.detail {
 		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-size: var(--hz-font-size-base, 1rem);
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
@@ -85,8 +93,11 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	section p {
-		margin: 0 0 1rem;
+	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
+	 * margin zeroed so the Stack's own gap owns the rhythm (DocPage.svelte's
+	 * .type-heading/.hooks-intro convention). */
+	.source-note {
+		margin: 0;
 	}
 
 	/* A hairline frame so the bleed reads as a distinct artifact rather than

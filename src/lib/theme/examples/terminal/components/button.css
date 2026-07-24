@@ -1,9 +1,9 @@
 /**
- * Terminal — Button (specs/32 R1, R9)
+ * Terminal — Button
  *
  * Standalone: assumes tokens.css only. Every property the reference theme
- * sets on .hz-button is set here too (specs/32 R2), so this sheet renders
- * identically whether or not the reference theme is loaded.
+ * sets on .hz-button is set here too, so this sheet renders identically
+ * whether or not the reference theme is loaded.
  *
  * The look: a CRT. One-pixel phosphor rules, square corners, mono caps. At
  * rest a button is an outline; on hover the phosphor floods the cell and the

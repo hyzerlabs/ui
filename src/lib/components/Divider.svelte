@@ -9,9 +9,9 @@
 	interface Props {
 		children?: Snippet;
 		variant?: DividerVariant;
-		/** Full shared scale incl. the near/away density distances (Divider-R3). */
+		/** Full shared scale incl. the near/away density distances. */
 		spacing?: LayoutPadding;
-		/** Maps 1:1 to --hz-border-width-thin/-thick (Divider-R3). */
+		/** Maps 1:1 to --hz-border-width-thin/-thick. */
 		lineWidth?: DividerLineWidth;
 		class?: string;
 		[key: string]: unknown;

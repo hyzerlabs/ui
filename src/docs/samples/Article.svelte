@@ -2,14 +2,19 @@
 	/**
 	 * A long-form editorial article composed entirely from the library.
 	 *
-	 * This is consumer code: it imports only public exports. It's the prose-
-	 * heavy end of the pattern set — a Hero opens it, an author/date byline
-	 * sits under the title, and the body runs through a Blockquote pull-quote
-	 * and a breakout image before closing. The breakout image is the
-	 * width-sensitive demo: it lives in the same narrow prose column as the
-	 * rest of the body copy, but escapes it with `<Container breakout>` to
-	 * span the full content area — the same convention the Container and
-	 * Table docs pages use to show off-column bleed.
+	 * It imports only public exports. It's the prose-heavy end of the pattern
+	 * set — a Hero opens it, an author/date byline sits under the title, and
+	 * the body runs through a Blockquote pull-quote and a breakout image
+	 * before closing. The breakout image is the width-sensitive demo: it
+	 * lives in the same narrow prose column as the rest of the body copy, but
+	 * escapes it with `<Container breakout>` to span the full content area —
+	 * the same convention the Container and Table docs pages use to show
+	 * off-column bleed. The breakout is centered explicitly (`--hz-breakout-shift`
+	 * reset to its natural centering formula) rather than inheriting whatever
+	 * shift value an ambient layout sets — the prose column here is itself
+	 * centered (`Container max="md"`, default `center`), so a shift of `0`
+	 * would grow the image only rightward instead of bleeding evenly past
+	 * both edges of the column.
 	 */
 	import { Hero, Container, Stack, Cluster, Divider, Blockquote, Image } from '$lib';
 
@@ -90,7 +95,9 @@
 				a puzzle with one solution, you're building a decision with a real cost on both sides of it.
 			</p>
 
-			<Blockquote intent="primary" cite="Dana Kessler, lead designer, Fairwood Design Collective">
+			<!-- intent="success": the green accent line echoes the breakout
+			     photo's fairway green further down the page. -->
+			<Blockquote intent="success" cite="Dana Kessler, lead designer, Fairwood Design Collective">
 				<p>
 					You're not building a hole so a pro can birdie it. You're building a hole that makes a
 					mid-handicap player stand on the tee, look at the gap in the trees, and choose the line
@@ -113,8 +120,17 @@
 			inline-size (the docs shell's main content area), so the image
 			reads as a deliberate full-bleed break in the column rather than
 			just another inline img.
+
+			--hz-breakout-shift is reset to Container's own default centering
+			formula here (not left to inherit whatever an ambient layout sets)
+			because the prose column above is itself centered — a start-aligned
+			shift of 0 would only grow the image rightward, reading as offset
+			rather than centered on the column. The formula is the same one
+			Container's breakout falls back to on its own; setting it
+			explicitly just makes the centering immune to ambient overrides
+			(the docs shell sets one for its own start-aligned column).
 		-->
-		<Container breakout padding="none">
+		<Container breakout padding="none" style="--hz-breakout-shift: calc(50% - 50cqw);">
 			<figure>
 				<Image
 					src={ARTICLE_MEDIA.dogleg}
@@ -169,14 +185,20 @@
 		gap: 1rem;
 	}
 
-	.prose h3 {
+	/* Direct-child combinator (not a descendant selector) so these rules stop
+	 * at .prose's own headings/paragraphs — the Blockquote pull-quote nests
+	 * a <p> inside the same .prose div (Blockquote-R1's <blockquote> wraps
+	 * whatever the `children` snippet renders), and a descendant `.prose p`
+	 * was reaching into it and shrinking the theme's xl quote size down to
+	 * base. */
+	.prose > h3 {
 		margin: 0;
 		font-family: var(--hz-font-family-serif, serif);
 		font-size: var(--hz-font-size-xl, 1.65rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
-	.prose p {
+	.prose > p {
 		margin: 0;
 		font-family: var(--hz-font-family-serif, serif);
 		font-size: var(--hz-font-size-base, 1rem);

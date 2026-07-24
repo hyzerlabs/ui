@@ -41,7 +41,7 @@ export type TokenGroupOverride = Record<string, string>;
 export type RampGroupOverride = Record<string, string | Record<string, string>>;
 
 export interface HyzerTokensOverride {
-	/** Raw hue tokens (`--hz-palette-*`); ramps supported (specs/42). */
+	/** Raw hue tokens (`--hz-palette-*`); ramps supported. */
 	palette?: RampGroupOverride;
 	/** Structural role tokens (`--hz-color-*`). */
 	color?: TokenGroupOverride;
@@ -85,7 +85,7 @@ export interface HyzerConfig {
 	tokens?: HyzerTokensOverride;
 	dark?: HyzerDarkOverride;
 	/**
-	 * Kebab-case Lucide icon names (specs/36 R5) — the upstream canonical
+	 * Kebab-case Lucide icon names — the upstream canonical
 	 * form; the run report echoes the generated `Icon<PascalName>` export
 	 * name. `hyzer generate` emits a trimmed `icons.ts` barrel: the union of
 	 * this list and the always-shipped `CORE_ICONS` set. Unknown names are
@@ -94,7 +94,7 @@ export interface HyzerConfig {
 	 */
 	icons?: string[];
 	/**
-	 * Opt in to generating the utilities sheet (specs/44 R4) — absent by
+	 * Opt in to generating the utilities sheet — absent by
 	 * default, so `hyzer generate` writes no utilities file and non-users pay
 	 * nothing. `true` opts in with the default filename (`hyzer-utilities.css`,
 	 * next to the tokens sheet); an object opts in with a custom `output`
@@ -162,14 +162,14 @@ export interface ResolvedConfig {
 	dark: { palette: TokenEntry[]; color: TokenEntry[]; intent: TokenEntry[] };
 	output?: string;
 	/**
-	 * Deduplicated, order-preserved raw `icons` config (specs/36 R5) —
+	 * Deduplicated, order-preserved raw `icons` config —
 	 * `undefined` when the key is absent, `[]` is a valid "core-only" value.
 	 * Not yet cross-checked against the Lucide manifest; see
 	 * `src/lib/config/icons.ts`.
 	 */
 	icons?: string[];
 	/**
-	 * The resolved `utilities` opt-in (specs/44 R4) — `enabled` is `false`
+	 * The resolved `utilities` opt-in — `enabled` is `false`
 	 * when `config.utilities` is absent or `false`; `output` carries
 	 * `config.utilities.output` when the object form set one. The CLI
 	 * consults this alongside its own `--utilities` flag (which overrides

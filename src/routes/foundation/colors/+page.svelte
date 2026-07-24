@@ -331,12 +331,14 @@
 	>
 		<h2 id="dark-heading">Dark mode</h2>
 		<p>
-			Dark mode is completely optional, and there are three equally supported postures. Do nothing
-			and the light values are simply the values — no toggle, no extra CSS. Prefer a dark-only site?
-			Set <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> once and stop there — the overrides
-			apply and no toggle ever needs to exist. Or wire a toggle that flips the attribute, like this docs
-			site does. Components resolve the same role and intent tokens in every posture, so nothing else
-			in your markup or CSS changes between them.
+			Dark mode is optional, with three equally supported postures. Do nothing and the light values
+			stay the values — no toggle, no extra CSS. Prefer a dark-only site? Set <code
+				>data-theme="dark"</code
+			>
+			on <code>&lt;html&gt;</code> once and stop there — the overrides apply and no toggle ever needs
+			to exist. Or wire a toggle that flips the attribute, like this docs site does. Components resolve
+			the same role and intent tokens in every posture, so nothing else in your markup or CSS changes
+			between them.
 		</p>
 		<p>
 			The toggle in this site's sidebar is exactly this — an icon-only <code>Button</code> flipping

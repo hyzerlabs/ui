@@ -131,6 +131,29 @@
 	}
 
 	/* ------------------------------------------------------------------ */
+	/* Horizontal = a media object (amended 2026-07-23): the whole row     */
+	/* shares the card padding and one half-step gap; media sits inside    */
+	/* the padding rather than bleeding. Declared after the rules above so */
+	/* the content zero-out wins at equal specificity.                     */
+	/* ------------------------------------------------------------------ */
+
+	.hz-card[data-horizontal][data-padding='sm'] {
+		padding: var(--hz-space-sm, 1rem);
+		gap: var(--hz-space-xs, 0.5rem);
+	}
+	.hz-card[data-horizontal][data-padding='md'] {
+		padding: var(--hz-space-md, 2rem);
+		gap: var(--hz-space-sm, 1rem);
+	}
+	.hz-card[data-horizontal][data-padding='lg'] {
+		padding: var(--hz-space-lg, 4rem);
+		gap: var(--hz-space-md, 2rem);
+	}
+	.hz-card[data-horizontal] .hz-card-content {
+		padding: 0;
+	}
+
+	/* ------------------------------------------------------------------ */
 	/* Card-R6: horizontal side-by-side layout at ≥640px.                 */
 	/* Card-R7: below 640px the default column direction handles stacking. */
 	/* ------------------------------------------------------------------ */
@@ -141,12 +164,12 @@
 		}
 
 		/* Media track: fixed size, consumer-tunable via --hz-card-media-size.
-		 * The track is itself a flex container so the snippet's content
-		 * stretches to the full card height — media and content sit truly
-		 * side-by-side regardless of which column is taller. */
+		 * The track is itself a flex container; media top-aligns with the
+		 * content, the classic media-object shape. */
 		.hz-card[data-horizontal] .hz-card-media {
 			flex: 0 0 var(--hz-card-media-size, 40%);
 			display: flex;
+			align-items: flex-start;
 		}
 
 		.hz-card[data-horizontal] .hz-card-media > :global(*) {
@@ -159,7 +182,7 @@
 			flex: 1;
 			display: flex;
 			flex-direction: column;
-			gap: var(--hz-space-md, 2rem);
+			gap: var(--hz-space-sm, 1rem);
 		}
 
 		/* Card-R6: actions pin to the bottom of the content column. */

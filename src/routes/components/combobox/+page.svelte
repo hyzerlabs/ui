@@ -168,11 +168,10 @@
 						anchored to the start of the label. Combobox doesn't window its listbox: filtering is a
 						plain in-memory array scan, and every option that matches gets a real
 						<code>&lt;li&gt;</code> — there's no <a href="/components/virtualizer">Virtualizer</a>
-						integration yet (deferred; see the Virtualizer spec's Out of Scope). A dataset this size is
-						comfortable even on the <em>unfiltered</em> open (every option renders at once), but
-						that's also the honest ceiling: opening tens of thousands of options unfiltered would
-						mount that many <code>&lt;li&gt;</code> nodes and visibly lag. Past that scale, reach
-						for the
+						integration yet. A dataset this size is comfortable even on the <em>unfiltered</em> open
+						(every option renders at once), but that's also the honest ceiling: opening tens of
+						thousands of options unfiltered would mount that many <code>&lt;li&gt;</code> nodes and
+						visibly lag. Past that scale, reach for the
 						<a href="/patterns/virtualized-combobox">Virtualized combobox</a> pattern instead, which windows
 						the listbox the way Combobox itself doesn't yet.
 					</p>

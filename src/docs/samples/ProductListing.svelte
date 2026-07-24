@@ -2,11 +2,11 @@
 	/**
 	 * A shop listing page composed entirely from the library.
 	 *
-	 * This is consumer code: it imports only public exports. The filters are
-	 * live — Select, Checkbox, and RangeSlider drive a derived list that the
-	 * Grid and Pagination render — so the page demonstrates form controls as
-	 * state sources, not just as visuals. Product art is generated SVG data
-	 * URIs so the sample stays self-contained.
+	 * It imports only public exports. The filters are live — Select,
+	 * Checkbox, and RangeSlider drive a derived list that the Grid and
+	 * Pagination render — so the page demonstrates form controls as state
+	 * sources, not just as visuals. Product art is generated SVG data URIs so
+	 * the sample stays self-contained.
 	 */
 	import {
 		Breadcrumbs,

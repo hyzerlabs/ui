@@ -2,7 +2,7 @@
 	/**
 	 * A small contact form composed entirely from the library.
 	 *
-	 * This is consumer code: it imports only public exports. It's the minimal
+	 * It imports only public exports. It's the minimal
 	 * end of the Form spectrum — four fields, one Select, no Split/Card order
 	 * summary — but the validation flow is the same one CheckoutForm uses at
 	 * full size: submit-time validation builds a plain field-name → message

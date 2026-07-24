@@ -2,7 +2,7 @@
 	/**
 	 * A product detail page composed entirely from the library.
 	 *
-	 * This is consumer code: it imports only public exports. The buy panel is
+	 * It imports only public exports. The buy panel is
 	 * live — the plastic RadioGroup drives the derived price, the Carousel
 	 * pages through colorways, and "Add to cart" raises a dismissible success
 	 * Alert. The active carousel slide is a lightboxGroup trigger — click it
@@ -10,6 +10,16 @@
 	 * that colorway, still able to page through every colorway inside it.
 	 * Product art is generated SVG data URIs so the sample stays
 	 * self-contained.
+	 *
+	 * Media area — vertical thumbnail strip beside the main carousel, the
+	 * classic PDP composition: `activeIndex` is bound both ways to
+	 * `Carousel`'s own `index` prop, so a thumb click pages the carousel and
+	 * dragging/paging the carousel updates the active thumb, via one shared
+	 * value — no extra wiring. Thumbs are real `<button>`s, so
+	 * `lightboxGroup`'s own interactive-ancestor exclusion (it never
+	 * enhances an `<img>` inside an `<a>`/`<button>`) keeps them out of the
+	 * gallery automatically: the main slide stays the one obvious
+	 * open-the-viewer affordance, exactly as before.
 	 */
 	import {
 		Breadcrumbs,
@@ -92,6 +102,11 @@
 	let plastic = $state('champion');
 	let weight = $state('173');
 	let added = $state(false);
+	// Bound both ways to Carousel's own `index` — a thumb click sets it
+	// (paging the carousel), and dragging/paging the carousel updates it
+	// right back (moving the active thumb). One value, one direction of
+	// truth either way.
+	let activeIndex = $state(0);
 
 	const price = $derived(plasticPrices[plastic]);
 	const plasticLabel = $derived(
@@ -110,28 +125,48 @@
 
 	<Split fraction="1/2" gap="lg" stackBelow="md">
 		<!-- lightboxGroup enhances the carousel's own rendered <img> in place —
-		     no thumbnail strip, no Lightbox component. Off-screen slides are
-		     inert (native browser behavior, not this attachment), so only the
-		     active slide is actually clickable/focusable; every colorway still
-		     joins the shared gallery, so the viewer pages across all of them. -->
-		<div class="colorway-carousel" {@attach lightboxGroup({ dialogLabel: 'Voyager colorways' })}>
-			<Carousel
-				items={colorways}
-				ariaLabel="Voyager colorways"
-				indicator="dots"
-				loop
-				slideLabel={(colorway) => colorway.label}
-			>
-				{#snippet slide(colorway)}
-					<Image
-						src={PRODUCT_MEDIA[colorway.id]}
-						alt="Voyager in {colorway.label}"
-						aspectRatio="4/3"
-						fit="cover"
-						rounded="md"
-					/>
-				{/snippet}
-			</Carousel>
+		     no separate Lightbox component. Off-screen slides are inert (native
+		     browser behavior, not this attachment), so only the active slide is
+		     actually clickable/focusable; every colorway still joins the shared
+		     gallery, so the viewer pages across all of them. The thumb strip
+		     lives inside the same attached container, but each thumb's <img> is
+		     wrapped in a <button> — lightboxGroup structurally excludes any
+		     media with an interactive ancestor, so the thumbs never become
+		     second triggers; they only ever drive `activeIndex`. -->
+		<div class="pdp-media" {@attach lightboxGroup({ dialogLabel: 'Voyager colorways' })}>
+			<div class="pdp-thumbs" role="group" aria-label="Choose a colorway">
+				{#each colorways as colorway, i (colorway.id)}
+					<button
+						type="button"
+						class="pdp-thumb"
+						aria-current={i === activeIndex ? 'true' : undefined}
+						aria-label={colorway.label}
+						onclick={() => (activeIndex = i)}
+					>
+						<img src={PRODUCT_MEDIA[colorway.id]} alt="" />
+					</button>
+				{/each}
+			</div>
+
+			<div class="pdp-carousel">
+				<Carousel
+					items={colorways}
+					ariaLabel="Voyager colorways"
+					loop
+					bind:index={activeIndex}
+					slideLabel={(colorway) => colorway.label}
+				>
+					{#snippet slide(colorway)}
+						<Image
+							src={PRODUCT_MEDIA[colorway.id]}
+							alt="Voyager in {colorway.label}"
+							aspectRatio="4/3"
+							fit="cover"
+							rounded="md"
+						/>
+					{/snippet}
+				</Carousel>
+			</div>
 		</div>
 
 		<Stack gap="md">
@@ -203,6 +238,71 @@
 </Stack>
 
 <style>
+	/* Mobile-first: the main image on top, the thumb strip a horizontal row
+	   below it (column-reverse — DOM order is [thumbs, carousel], so the
+	   carousel, last in the DOM, paints first). Above the sm width, it
+	   flips to the classic PDP shape: a vertical thumb column on the left,
+	   the main image filling the rest on the right. Split's own stackBelow
+	   only stacks in DOM order without reversing it, so this bespoke
+	   direction flip is hand-rolled — the sm threshold (640px) matches
+	   Split's own --hz-width-sm fallback for consistency. */
+	.pdp-media {
+		display: flex;
+		flex-direction: column-reverse;
+		gap: 0.75rem;
+	}
+
+	.pdp-thumbs {
+		display: flex;
+		flex-direction: row;
+		gap: 0.5rem;
+		overflow-x: auto;
+	}
+
+	.pdp-thumb {
+		flex: 0 0 auto;
+		width: 3.5rem;
+		height: 3.5rem;
+		padding: 0;
+		border: 2px solid transparent;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		overflow: hidden;
+		cursor: pointer;
+		background: none;
+	}
+
+	.pdp-thumb[aria-current='true'] {
+		border-color: var(--hz-intent-primary, #2563eb);
+	}
+
+	.pdp-thumb img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.pdp-carousel {
+		min-width: 0;
+	}
+
+	@media (min-width: 640px) {
+		.pdp-media {
+			flex-direction: row;
+			align-items: flex-start;
+			gap: 1rem;
+		}
+
+		.pdp-thumbs {
+			flex-direction: column;
+			overflow-x: visible;
+		}
+
+		.pdp-carousel {
+			flex: 1;
+		}
+	}
+
 	h2 {
 		margin: 0;
 		font-size: var(--hz-font-size-xl, 1.65rem);

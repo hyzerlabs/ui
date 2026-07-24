@@ -94,6 +94,11 @@
 	.hz-split-layout > :global(*) {
 		flex-grow: 1;
 		flex-basis: calc((var(--_threshold, 640px) - 100%) * 999);
+		/* min-width: 0 is load-bearing: without it a wide child (a code
+		 * block, a long word) props the container open past the threshold —
+		 * the switcher then never stacks AND the page overflows. Same guard
+		 * Grid ships as minmax(0, 1fr). */
+		min-width: 0;
 	}
 
 	/*
