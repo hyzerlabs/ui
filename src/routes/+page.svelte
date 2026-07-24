@@ -71,7 +71,7 @@
 		<h2 id="install-heading">Installation</h2>
 		<CodeBlock code={installCode} />
 		<ul class="note-list">
-			<li><strong>Svelte</strong> 5.7 or newer. Form's SvelteKit enhance attachment needs 5.32.</li>
+			<li><strong>Svelte</strong> 5.32 or newer.</li>
 			<li><strong>Node</strong> 22.18 or newer. Only the <code>hyzer</code> CLI needs it.</li>
 			<li><strong>TypeScript</strong> is optional — types ship with the package.</li>
 			<li><strong>SvelteKit</strong> is optional — the library imports nothing from Kit.</li>

@@ -2588,3 +2588,15 @@ Files: `src/routes/+page.svelte`, `src/routes/foundation/colors/
   e2e overflow failures on `/` (misattributed to the sidebar search box
   by the plain-language sweep's report; reproduced and root-caused
   here). Overflow sweep 434/434 after the fix.
+
+- **Svelte peer floor bumped (user decision, 2026-07-23, post-6a3a3d9):**
+  peerDependencies svelte ^5.7.0 → ^5.32.0 — Form's SvelteKit enhance
+  attachment needs 5.32, and a peer floor below a documented feature's
+  requirement was dishonest. Prereqs lists on the homepage and
+  getting-started simplify to "Svelte 5.32 or newer."
+- **PRE-PUBLISH BLOCKER (user-confirmed): VirtualizedCombobox wheel
+  scroll** — a mouse-wheel scroll that unmounts the committed active row
+  leaves aria-activedescendant pointing at a gone id (keyboard path is
+  guaranteed; pointer-scroll path is not). Must fix before publishing —
+  likely a scroll handler that clears or re-commits activeIndex when the
+  active row leaves the rendered window.
