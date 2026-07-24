@@ -54,7 +54,7 @@ export const radioGroupDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'The group is a `<fieldset>` whose `label` renders as the `<legend>`; with `hideLabel` the legend stays in the DOM as screen-reader-only text. Each radio has its own label, and the options sit in an inner `role="radiogroup"` container that carries `aria-describedby` (description first, then error), `aria-invalid` on error, and `aria-required` when required. Arrow-key movement between radios is native browser behavior.',
+		'The group is a `<fieldset>` whose `label` renders as the `<legend>`. With `hideLabel`, the legend stays in the DOM as screen-reader-only text. Each radio has its own label.\n\nThe options sit in an inner `role="radiogroup"` container that carries `aria-describedby` (description first, then error), `aria-invalid` on error, and `aria-required` when required.\n\nArrow-key movement between radios is native browser behavior.',
 	a11yLinks: [
 		{ label: 'APG Radio Group pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/radio/' },
 		{

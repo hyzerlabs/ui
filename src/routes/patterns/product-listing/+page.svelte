@@ -69,7 +69,7 @@
 			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
 			installed and it renders the same.
 		</p>
-		<CodeBlock code={consumerSource(listingSource)} />
+		<CodeBlock code={consumerSource(listingSource)} collapsible />
 	</Stack>
 </Stack>
 

@@ -60,7 +60,7 @@ export const textInputDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-field class.' }
 	],
 	a11yNote:
-		'The input is associated with its label via `id`/`for`; with `hideLabel` the label stays in the DOM as screen-reader-only text. `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`. `prefix` and `suffix` are rendered `aria-hidden` — keep them decorative and put meaning in the label or description.',
+		'The input is associated with its label via `id`/`for`. With `hideLabel`, the label stays in the DOM as screen-reader-only text.\n\n`description` and `error` chain into `aria-describedby`, description first. `required` sets `aria-required`, and an `error` sets `aria-invalid`.\n\n`prefix` and `suffix` are rendered `aria-hidden` — keep them decorative, and put any meaning in the label or description instead.',
 	a11yLinks: [
 		{
 			label: 'MDN: <input>',

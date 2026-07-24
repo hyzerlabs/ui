@@ -70,7 +70,7 @@
 			installed and it works the same. Try placing an order with empty fields to see the summary
 			link to each problem.
 		</p>
-		<CodeBlock code={consumerSource(checkoutSource)} />
+		<CodeBlock code={consumerSource(checkoutSource)} collapsible />
 	</Stack>
 </Stack>
 

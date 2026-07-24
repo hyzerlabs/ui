@@ -190,7 +190,8 @@ export const radius = {
 export const border = {
 	width: {
 		thin: '1px',
-		thick: '2px'
+		thick: '2px',
+		heavy: '6px'
 	}
 } as const;
 

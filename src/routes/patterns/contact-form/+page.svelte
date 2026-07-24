@@ -67,7 +67,7 @@
 			installed and it works the same. Try submitting with empty fields to see the summary link to
 			each problem.
 		</p>
-		<CodeBlock code={consumerSource(contactSource)} />
+		<CodeBlock code={consumerSource(contactSource)} collapsible />
 	</Stack>
 </Stack>
 

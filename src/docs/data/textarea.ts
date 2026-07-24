@@ -35,7 +35,7 @@ export const textareaDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-field class.' }
 	],
 	a11yNote:
-		'The textarea is associated with its label via `id`/`for`; with `hideLabel` the label stays in the DOM as screen-reader-only text. `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`.',
+		'The textarea is associated with its label via `id`/`for`. With `hideLabel`, the label stays in the DOM as screen-reader-only text.\n\n`description` and `error` chain into `aria-describedby`, description first. `required` sets `aria-required`, and an `error` sets `aria-invalid`.',
 	a11yLinks: [
 		{
 			label: 'MDN: <textarea>',

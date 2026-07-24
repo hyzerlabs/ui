@@ -45,12 +45,12 @@
 </script>
 
 <svelte:head>
-	<title>Radius & Elevation — @hyzer-labs/ui</title>
+	<title>Borders & Elevation — @hyzer-labs/ui</title>
 </svelte:head>
 
 <Stack gap="away">
 	<div class="doc-intro">
-		<h1>Radius &amp; Elevation</h1>
+		<h1>Borders &amp; Elevation</h1>
 		<p class="doc-description">Border radius, border width, box shadows, and z-index scale.</p>
 	</div>
 

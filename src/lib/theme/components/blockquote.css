@@ -10,12 +10,16 @@
 		/* Accent-line color hook — intent switches this via data-intent below.
 		 * No intent set keeps the border-color default, i.e. today's look. */
 		--_c: var(--hz-color-border, #6b7280);
+		/* Accent-line thickness — a documented hook. Defaults to the heaviest
+		 * border-width token; override with any length or a lighter token. The
+		 * attribution row's indent tracks it automatically. */
+		--hz-blockquote-border-width: var(--hz-border-width-heavy, 6px);
 	}
 
 	.hz-blockquote :where(.hz-blockquote-quote) {
 		padding-block: var(--hz-space-sm, 1rem);
 		padding-inline-start: var(--hz-space-sm, 1rem);
-		border-inline-start: 3px solid var(--_c);
+		border-inline-start: var(--hz-blockquote-border-width) solid var(--_c);
 		/* Blockquote-R10: --_tc (text color) is only ever set when
 		 * data-intent-scope="full" — unset otherwise, so this falls through
 		 * to inherit, i.e. today's look. */
@@ -58,7 +62,7 @@
 
 	.hz-blockquote :where(.hz-blockquote-attribution) {
 		margin-top: var(--hz-space-xs, 0.5rem);
-		padding-inline-start: calc(var(--hz-space-sm, 1rem) + 3px);
+		padding-inline-start: calc(var(--hz-space-sm, 1rem) + var(--hz-blockquote-border-width));
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 	}

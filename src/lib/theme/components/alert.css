@@ -14,10 +14,13 @@
 		 * Mirrored by the engine's softTints model (src/lib/config/report.ts)
 		 * and pinned by a computed-style test. */
 		--hz-alert-tint: 10%;
+		/* Accent-bar thickness — a documented hook. Defaults to the heaviest
+		 * border-width token; override with any length or a lighter token. */
+		--hz-alert-border-width: var(--hz-border-width-heavy, 6px);
 
 		box-sizing: border-box;
 		padding: 0.875rem 1rem;
-		border-inline-start: 3px solid var(--_c);
+		border-inline-start: var(--hz-alert-border-width) solid var(--_c);
 		background-color: color-mix(
 			in srgb,
 			var(--_c) var(--hz-alert-tint),

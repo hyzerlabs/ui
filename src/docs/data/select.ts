@@ -77,7 +77,7 @@ export const selectDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'The select is associated with its label via `id`/`for`; with `hideLabel` the label stays in the DOM as screen-reader-only text. `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`. The control is the native `<select>`, so keyboard and assistive-tech behavior come from the platform.',
+		'The select is associated with its label via `id`/`for`. With `hideLabel`, the label stays in the DOM as screen-reader-only text.\n\n`description` and `error` chain into `aria-describedby`, description first. `required` sets `aria-required`, and an `error` sets `aria-invalid`.\n\nThe control is the native `<select>`, so keyboard and assistive-tech behavior come from the platform.',
 	a11yLinks: [
 		{
 			label: 'MDN: <select>',

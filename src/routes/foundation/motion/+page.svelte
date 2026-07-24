@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { Stack, Tabs } from '$lib';
+	import { Stack, Tabs, Slider, Select, Alert } from '$lib';
 	import { motion } from '$lib/tokens';
 	import {
 		fade as hzFade,
@@ -11,7 +11,8 @@
 		viewTransition,
 		easingCss,
 		parseCubicBezier,
-		type RevealGroupOptions
+		type RevealGroupOptions,
+		type RevealEffect
 	} from '$lib/motion';
 	import Example from '../../../docs/Example.svelte';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
@@ -124,52 +125,45 @@
 	}
 
 	// Entrance variants — `effect` picks the animation style for the whole
-	// group (amendment 2026-07-22), mirroring the transition family 1:1:
-	// the four tabs here correspond to the four transition demos above
-	// (fade/fly/slide/scale), each on the same 160ms stagger.
-	const revealModes: {
-		id: string;
-		label: string;
-		options: RevealGroupOptions;
-		args: string;
-	}[] = [
-		{
-			id: 'fade',
-			label: 'Fade',
-			options: { effect: 'fade', stagger: 160 },
-			args: "{ effect: 'fade', stagger: 160 }"
-		},
-		{
-			id: 'fly',
-			label: 'Fly',
-			options: { stagger: 160 },
-			args: '{ stagger: 160 }'
-		},
-		{
-			id: 'slide',
-			label: 'Slide',
-			options: { effect: 'slide', stagger: 160 },
-			args: "{ effect: 'slide', stagger: 160 }"
-		},
-		{
-			id: 'scale',
-			label: 'Scale',
-			options: { effect: 'scale', stagger: 160 },
-			args: "{ effect: 'scale', stagger: 160 }"
-		}
+	// group, mirroring the transition family 1:1 (fade/fly/slide/scale). One
+	// interactive demo drives it: pick the effect, drag the stagger, and the
+	// strip replays — the icons page's live-control pattern.
+	const revealEffectOptions = [
+		{ value: 'fade', label: 'Fade' },
+		{ value: 'fly', label: 'Fly (default)' },
+		{ value: 'slide', label: 'Slide' },
+		{ value: 'scale', label: 'Scale' }
 	];
-	const revealModeById = (id: string) => revealModes.find((m) => m.id === id) ?? revealModes[0];
 
-	const revealCode = (id: string) =>
+	let revealEffect = $state('fly');
+	let revealStagger = $state(160);
+
+	// Build the options object and its source-string twin from the controls.
+	// `fly` is the default effect, so it stays out of both — keeping the shown
+	// code honest about what you'd actually write.
+	function revealOptions(): RevealGroupOptions {
+		return revealEffect === 'fly'
+			? { stagger: revealStagger }
+			: { effect: revealEffect as RevealEffect, stagger: revealStagger };
+	}
+
+	const revealArgs = $derived(
+		revealEffect === 'fly'
+			? `{ stagger: ${revealStagger} }`
+			: `{ effect: '${revealEffect}', stagger: ${revealStagger} }`
+	);
+
+	const revealCode = $derived(
 		[
 			"import { revealGroup } from '@hyzer-labs/ui/motion';",
 			'',
-			`<div class="strip" {@attach revealGroup(${revealModeById(id).args})}>`,
+			`<div class="strip" {@attach revealGroup(${revealArgs})}>`,
 			'\t{#each cards as card}',
 			'\t\t<div class="card">{card}</div>',
 			'\t{/each}',
 			'</div>'
-		].join('\n');
+		].join('\n')
+	);
 
 	// -------------------------------------------------------------------------
 	// View transition — a same-page demo (grid/list layout swap) so it works
@@ -234,9 +228,9 @@
 		gap="away"
 		data-density-shift
 		class="doc-section"
-		aria-labelledby="duration-heading"
+		aria-labelledby="tokens-heading"
 	>
-		<h2 id="duration-heading">Duration tokens</h2>
+		<h2 id="tokens-heading">Duration &amp; easing tokens</h2>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>
@@ -252,28 +246,6 @@
 							<td><code>{token.value}</code></td>
 						</tr>
 					{/each}
-				</tbody>
-			</table>
-		</div>
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="ease-heading"
-	>
-		<h2 id="ease-heading">Easing tokens</h2>
-		<div class="token-table-wrapper">
-			<table class="token-table">
-				<thead>
-					<tr>
-						<th scope="col">Token</th>
-						<th scope="col">Value</th>
-					</tr>
-				</thead>
-				<tbody>
 					{#each easeTokens as token (token.cssVar)}
 						<tr>
 							<td><code>{token.cssVar}</code></td>
@@ -293,11 +265,7 @@
 		aria-labelledby="duration-demo-heading"
 	>
 		<h2 id="duration-demo-heading">Duration demo</h2>
-		<p>
-			Each bar animates with a different duration token (standard easing). The dot is positioned
-			with an inset-based <code>left</code>, computed as a percentage of the track's own width — it
-			reaches the far end of the track at every viewport size, not only wide ones.
-		</p>
+		<p>Each bar animates with a different duration token (standard easing).</p>
 		<button
 			type="button"
 			class="demo-trigger"
@@ -446,26 +414,33 @@
 			<code>axis</code> without moving the box, and <code>scale</code> grows from
 			<code>start</code>.
 		</p>
-		<Tabs
-			items={revealModes.map((m) => ({ id: m.id, label: m.label }))}
-			ariaLabel="Reveal entrance"
-			defaultTab="fade"
-		>
-			{#snippet panel(item)}
-				<div class="tab-content">
-					<Example code={revealCode(item.id)}>
-						<button type="button" class="demo-trigger" onclick={replayReveal}>Replay</button>
-						{#key `${replayKey}-${item.id}`}
-							<div class="reveal-strip" {@attach revealGroup(revealModeById(item.id).options)}>
-								{#each revealCards as card (card)}
-									<div class="reveal-card">{card}</div>
-								{/each}
-							</div>
-						{/key}
-					</Example>
+		<div class="reveal-controls">
+			<Select
+				name="reveal-effect"
+				label="Effect"
+				options={revealEffectOptions}
+				bind:value={revealEffect}
+			/>
+			<Slider
+				name="reveal-stagger"
+				label="Stagger"
+				unit="ms"
+				min={0}
+				max={400}
+				step={20}
+				bind:value={revealStagger}
+			/>
+		</div>
+		<Example code={revealCode}>
+			<button type="button" class="demo-trigger" onclick={replayReveal}>Replay</button>
+			{#key `${replayKey}-${revealEffect}-${revealStagger}`}
+				<div class="reveal-strip" {@attach revealGroup(revealOptions())}>
+					{#each revealCards as card (card)}
+						<div class="reveal-card">{card}</div>
+					{/each}
 				</div>
-			{/snippet}
-		</Tabs>
+			{/key}
+		</Example>
 	</Stack>
 
 	<Stack
@@ -492,10 +467,10 @@
 				{/each}
 			</div>
 		</Example>
-		<p class="tab-note">
-			For real page-navigation cross-fades, SvelteKit's <code>onNavigate</code> is the integration point
-			— three lines, and it doesn't even need this helper (the DOM update it wraps is the navigation itself):
-		</p>
+		<Alert intent="info" title="Cross-fading real page navigations">
+			For page-to-page transitions, SvelteKit's <code>onNavigate</code> is the integration point — a few
+			lines, and it doesn't even need this helper, since the DOM update it wraps is the navigation itself:
+		</Alert>
 		<CodeBlock code={onNavigateCode} />
 		<p class="note">
 			The reference theme adds no default <code>::view-transition-*</code> styling — the browser's own
@@ -532,17 +507,27 @@
 			state is read fresh on every call, so a preference change mid-session is honored on the very next
 			transition/reveal/view-transition — no reload needed.
 		</p>
-		<p>
+		<Alert intent="info">
 			This is the script-side counterpart to the reference theme's own
 			<code>@media (prefers-reduced-motion: reduce)</code> collapse on its CSS transitions — that stays
 			exactly as-is; this module doesn't replace it, it extends the same default to script-driven motion.
-		</p>
+		</Alert>
 		<p>
 			Override <code>--hz-duration-*</code> or <code>--hz-ease-*</code> with a plain CSS custom
 			property, or set <code>motion</code> in the <code>hyzer</code> config; see
 			<a href="/theming/tokens">Theming &rarr; Tokens &amp; Overrides</a>.
 		</p>
 	</Stack>
+
+	<p class="a11y-refs">
+		References:
+		<a href="https://svelte.dev/docs/svelte/svelte-transition">Svelte: svelte/transition</a>
+		·
+		<a
+			href="https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion"
+			>MDN: prefers-reduced-motion</a
+		>
+	</p>
 </Stack>
 
 <style>
@@ -707,6 +692,17 @@
 		background-color: var(--hz-intent-primary, #2563eb);
 		color: var(--hz-color-surface, #fff);
 		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.reveal-controls {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem 1.5rem;
+		align-items: end;
+	}
+
+	.reveal-controls > :global(*) {
+		flex: 1 1 12rem;
 	}
 
 	.reveal-strip {

@@ -33,7 +33,7 @@ export const toggleDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'Toggle renders an `<input type="checkbox" role="switch">` associated with its label via `id`/`for` — screen readers announce it as a switch while the native checked state, keyboard behavior (Space toggles; Enter submits the form), and form participation all come from the platform. `description` and `error` chain into `aria-describedby` (description first); `required` sets `aria-required` and an `error` sets `aria-invalid`.',
+		'Toggle renders an `<input type="checkbox" role="switch">` associated with its label via `id`/`for`. Screen readers announce it as a switch, while the native checked state, keyboard behavior (Space toggles, Enter submits the form), and form participation all come from the platform.\n\n`description` and `error` chain into `aria-describedby`, description first. `required` sets `aria-required`, and an `error` sets `aria-invalid`.',
 	a11yLinks: [
 		{ label: 'APG Switch pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/switch/' },
 		{

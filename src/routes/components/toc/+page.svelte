@@ -49,9 +49,32 @@
 		'<p>Active: {active}</p>'
 	].join('\n');
 
+	const excludeCode = [
+		'<article class="content">',
+		'\t<h2>Course overview</h2>',
+		'',
+		'\t<aside class="callout">',
+		'\t\t<h2>Sidebar note</h2>',
+		'\t</aside>',
+		'',
+		'\t<h2>Signature holes</h2>',
+		'',
+		'\t<figure class="figure">',
+		'\t\t<h2>Figure: elevation map</h2>',
+		'\t</figure>',
+		'',
+		'\t<h2>Getting there</h2>',
+		'</article>',
+		'',
+		'<!-- Pass an array to combine selectors — a heading inside ANY match is',
+		'     skipped, so neither embedded region reaches the rail. -->',
+		"<Toc container=\".content\" exclude={['.callout', '.figure']} />"
+	].join('\n');
+
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
 		{ id: 'nested', label: 'Nested levels' },
+		{ id: 'exclude', label: 'Excluded regions' },
 		{ id: 'collapse', label: 'Collapse mode' },
 		{ id: 'active', label: 'Callback / bindable active' }
 	];
@@ -202,6 +225,65 @@
 								bind:this={tocInstances.nested}
 								container=".toc-demo-article--nested"
 								levels={[2, 3]}
+								title="On this article"
+							/>
+						</div>
+					</Example>
+				{:else if item.id === 'exclude'}
+					<p class="tab-note">
+						<code>exclude</code> takes one selector or an array of them. A heading inside any match is
+						skipped — here both the callout and the figure carry their own h2, and neither reaches the
+						rail.
+					</p>
+					<Example code={excludeCode}>
+						<div class="toc-demo-row">
+							<article class="toc-demo-article toc-demo-article--exclude">
+								<h2>Course overview</h2>
+								<p>
+									An 18-hole wooded course with tight fairways and a back nine that opens onto the
+									lakeside. Bring a stable midrange — the gaps reward control over raw distance.
+								</p>
+								<p>
+									Elevation swings on the front nine make several holes play a full club longer than
+									their footage suggests.
+								</p>
+								<aside class="toc-demo-callout">
+									<h2>Sidebar note</h2>
+									<p>
+										This heading lives inside a <code>.toc-demo-callout</code> aside — it is excluded,
+										so you won't find it in the rail even though it's a real h2.
+									</p>
+								</aside>
+								<h2>Signature holes</h2>
+								<p>
+									Hole 7 plays across the water to an island green; hole 14 is the local favorite, a
+									blind downhill anhyzer through a corridor of oaks.
+								</p>
+								<p>
+									Most cards are won or lost on the closing stretch, where three straight holes sit
+									fully exposed to the prevailing wind.
+								</p>
+								<figure class="toc-demo-figure">
+									<h2>Figure: elevation map</h2>
+									<p>
+										A second excluded region — this time a <code>.toc-demo-figure</code>. The array
+										form skips both in one pass.
+									</p>
+								</figure>
+								<h2>Getting there</h2>
+								<p>
+									Parking is at the north lot; the first tee is a short walk past the pro shop.
+									Weekend mornings fill early, so a tee time is worth reserving.
+								</p>
+								<p>
+									The course shares a trailhead with the county park — follow the disc-golf signage,
+									not the hiking markers, at the first fork.
+								</p>
+							</article>
+							<Toc
+								bind:this={tocInstances.exclude}
+								container=".toc-demo-article--exclude"
+								exclude={['.toc-demo-callout', '.toc-demo-figure']}
 								title="On this article"
 							/>
 						</div>
@@ -379,6 +461,17 @@
 		color: var(--hz-color-text-muted, #6b7280);
 		padding-block: 0.5rem;
 		margin: 0;
+	}
+
+	/* The two excluded regions in the Exclude demo — visually set apart so it's
+	 * clear the skipped headings are real headings inside distinct blocks. */
+	.toc-demo-callout,
+	.toc-demo-figure {
+		margin: 0.75rem 0;
+		padding: 0.25rem 0.75rem;
+		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, transparent);
 	}
 
 	.toc-demo-row :global(.hz-toc) {

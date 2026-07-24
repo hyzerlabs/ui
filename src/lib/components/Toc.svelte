@@ -23,8 +23,9 @@
 		container?: string | HTMLElement;
 		/** Heading levels to collect (2 = h2, 3 = h3, …). Default [2]. */
 		levels?: number[];
-		/** Headings inside a match are skipped. */
-		exclude?: string;
+		/** Headings inside a match are skipped. A single selector, or an array
+		 *  of selectors (combined — a heading matching any is skipped). */
+		exclude?: string | string[];
 		/** Render nothing below this many entries. Default 2. */
 		minEntries?: number;
 		/** Visible title. '' hides it. Default 'On this page'. */
@@ -146,9 +147,12 @@
 		}
 
 		const selector = levels.map((l) => `h${l}`).join(',');
+		// One selector, or an array combined into a single selector list — an
+		// empty array (or all-empty entries) collapses to '' and excludes nothing.
+		const excludeSelector = Array.isArray(exclude) ? exclude.filter(Boolean).join(',') : exclude;
 		const found = selector
 			? Array.from(target.querySelectorAll<HTMLHeadingElement>(selector)).filter((h) => {
-					if (exclude && h.closest(exclude)) return false;
+					if (excludeSelector && h.closest(excludeSelector)) return false;
 					// Self-exclusion: never collect the Toc's own title/trigger, and
 					// never collect from inside the Toc if it happens to be nested
 					// inside `container`.

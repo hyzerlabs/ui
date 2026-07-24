@@ -39,7 +39,7 @@ export const checkboxDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'The input is associated with its label via `id`/`for` (label rendered after the box). `description` and `error` chain into `aria-describedby` (description first). `required` sets `aria-required` and an `error` sets `aria-invalid`. `indeterminate` is applied through the DOM `.indeterminate` property, so screen readers announce the mixed state natively.',
+		'The input is associated with its label via `id`/`for` (the label renders after the box). `description` and `error` chain into `aria-describedby`, description first, and `required` sets `aria-required` while an `error` sets `aria-invalid`.\n\n`indeterminate` is applied through the DOM `.indeterminate` property, so screen readers announce the mixed state natively.',
 	a11yLinks: [
 		{ label: 'APG Checkbox pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/' },
 		{

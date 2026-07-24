@@ -38,7 +38,7 @@ export const alertDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-alert class.' }
 	],
 	a11yNote:
-		'A statically rendered Alert is plain content — no role, no live region; the optional `title` names it via `aria-labelledby`. For alerts inserted after load, pass `role="status"` (polite) or `role="alert"` (assertive, sparingly) via the rest props — a live role on static content is dead weight, so it is never a default. The dismiss button is a real labelled `<button>`; dismissal is your state change, so consider where focus should land. There is deliberately no Toast component — timed self-dismissing overlays fail WCAG 2.2.1 and routinely escape announcement; an inline Alert with `role="status"` covers the need accessibly.',
+		'A statically rendered Alert is plain content — no role, no live region. The optional `title` names it via `aria-labelledby`.\n\nFor alerts inserted after load, pass `role="status"` (polite) or `role="alert"` (assertive, use sparingly) via the rest props. A live role on static content is dead weight, so it\'s never a default.\n\nThe dismiss button is a real labelled `<button>`. Dismissal is your state change, so consider where focus should land.\n\nThere is deliberately no Toast component: timed self-dismissing overlays fail WCAG 2.2.1 and routinely escape announcement. An inline Alert with `role="status"` covers the need accessibly.',
 	a11yLinks: [
 		{ label: 'APG Alert pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/alert/' },
 		{

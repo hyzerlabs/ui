@@ -71,7 +71,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Typography', href: '/foundation/typography' },
 			{ label: 'Contrast & Accessibility', href: '/foundation/contrast' },
 			{ label: 'Spacing & Sizing', href: '/foundation/spacing' },
-			{ label: 'Radius & Elevation', href: '/foundation/radius-elevation' },
+			{ label: 'Borders & Elevation', href: '/foundation/borders-elevation' },
 			{ label: 'Motion', href: '/foundation/motion' },
 			{ label: 'Icons', href: '/foundation/icons' },
 			{ label: 'CSS Reset', href: '/foundation/reset' },
@@ -156,6 +156,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Overview', href: '/theming/overview' },
 			{ label: 'Tokens & Overrides', href: '/theming/tokens' },
 			{ label: 'Styling Components', href: '/theming/components' },
+			{ label: 'Using with Tailwind', href: '/theming/tailwind' },
 			{ label: 'Example Themes', href: '/theming/examples' }
 		]
 	},

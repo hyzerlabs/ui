@@ -34,7 +34,7 @@ export const paginationDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-pagination class.' }
 	],
 	a11yNote:
-		'Pagination renders a `<nav>` landmark named by `ariaLabel` — give it a distinct name when a page hosts several. Every control is a `Button`, so the current item carries `aria-current="page"`, page items get full accessible names via `pageLabel` ("Page 7", not a bare number), and ellipses are decorative. In link mode everything is a real `<a>`; at the ends the previous/next controls render as disabled Buttons without an `href` — a link can\'t be disabled, and a dead link announcing itself helps no one. Tab order is native; there are no roving-focus tricks.',
+		'Pagination renders a `<nav>` landmark named by `ariaLabel` — give it a distinct name when a page hosts several.\n\nEvery control is a `Button`, so the current item carries `aria-current="page"`, page items get full accessible names via `pageLabel` ("Page 7", not a bare number), and ellipses are decorative.\n\nIn link mode, everything is a real `<a>`. At the ends, the previous/next controls render as disabled Buttons without an `href` — a link can\'t be disabled, and a dead link announcing itself helps no one.\n\nTab order is native; there are no roving-focus tricks.',
 	a11yLinks: [
 		{ label: 'MDN: <nav>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav' }
 	]

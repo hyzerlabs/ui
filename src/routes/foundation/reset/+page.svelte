@@ -63,7 +63,7 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 				<code>balance</code> for headings.
 			</li>
 		</ul>
-		<CodeBlock code={resetSource.trim()} />
+		<CodeBlock code={resetSource.trim()} collapsible />
 	</Stack>
 </Stack>
 

@@ -135,6 +135,17 @@
 	function isActive(href: string): boolean {
 		return page.url.pathname === href;
 	}
+
+	// "On this page" rail depth. Most pages surface only their h2 sections;
+	// a few dense pages carry meaningful h3 subsections worth collecting too.
+	// Opt those in here by pathname rather than turning h3 on everywhere —
+	// component pages nest many h3 prop/hook subsections that would crowd the
+	// rail. Extend this map as pages earn it.
+	const tocLevelsByPath: Record<string, number[]> = {
+		'/foundation/colors': [2, 3],
+		'/foundation/utilities': [2, 3]
+	};
+	const tocLevels = $derived(tocLevelsByPath[page.url.pathname] ?? [2]);
 </script>
 
 <!-- R2 — skip-to-content stays the first focusable element -->
@@ -258,7 +269,12 @@
 		     unlayered so it wins over hz-theme without a specificity fight) —
 		     the component itself owns no page-level layout (spec 38, Out of
 		     Scope). -->
-		<Toc class="docs-toc-rail" container=".docs-main-inner" exclude=".doc-example, .sample-frame" />
+		<Toc
+			class="docs-toc-rail"
+			container=".docs-main-inner"
+			exclude={['.doc-example', '.sample-frame']}
+			levels={tocLevels}
+		/>
 	</div>
 
 	<!-- Simple footer — no nav link columns -->

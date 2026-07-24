@@ -316,7 +316,7 @@
 
 		<h3 id="sheet-source-heading">Source</h3>
 		<p>The generated sheet, in full:</p>
-		<CodeBlock code={utilitiesSource.trim()} />
+		<CodeBlock code={utilitiesSource.trim()} collapsible />
 	</Stack>
 
 	<Stack

@@ -56,7 +56,7 @@ export const navDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'Horizontal dropdowns follow the APG menu-button pattern: the trigger carries `aria-haspopup`/`aria-expanded`, the panel is a `role=menu` with roving arrow-key focus, and `Escape` closes and returns focus to the trigger. Vertical sections are plain disclosure (`aria-expanded` on each `<button>`) — not menus — with native keyboard traversal. A `heading` entry is static, non-focusable text read in sequence before the links it labels.',
+		'Horizontal dropdowns follow the APG menu-button pattern. The trigger carries `aria-haspopup`/`aria-expanded`, the panel is a `role=menu` with roving arrow-key focus, and `Escape` closes it and returns focus to the trigger.\n\nVertical sections are plain disclosure (`aria-expanded` on each `<button>`), not menus, with native keyboard traversal.\n\nA `heading` entry is static, non-focusable text read in sequence before the links it labels.',
 	a11yLinks: [
 		{
 			label: 'APG Menu Button pattern',

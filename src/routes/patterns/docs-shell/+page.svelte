@@ -69,7 +69,7 @@
 			The whole pattern, verbatim. Every import is a public export — copy it into an app with the
 			theme installed and it renders the same.
 		</p>
-		<CodeBlock code={consumerSource(docsShellSource)} />
+		<CodeBlock code={consumerSource(docsShellSource)} collapsible />
 	</Stack>
 </Stack>
 

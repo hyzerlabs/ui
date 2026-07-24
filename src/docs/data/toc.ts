@@ -20,9 +20,9 @@ export const tocDoc: ComponentDoc = {
 		},
 		{
 			name: 'exclude',
-			type: 'string',
+			type: 'string | string[]',
 			default: '—',
-			note: 'Headings inside a match are skipped (e.g. demo/example regions).'
+			note: 'Headings inside a match are skipped (e.g. demo/example regions). Pass an array to combine several selectors.'
 		},
 		{
 			name: 'minEntries',
@@ -101,7 +101,7 @@ export const tocDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'The root is a `nav` landmark named by `ariaLabel` (which defaults to `title`) — give every Toc on a page a distinct name if there\'s more than one. The active entry carries `aria-current="location"`, updated by the scroll-spy and by clicking a link. In collapse mode the trigger is a real disclosure button (`aria-expanded`/`aria-controls`); `Escape` closes it and returns focus to the trigger, and an outside click closes it without stealing focus from wherever the click landed. Motion respects `prefers-reduced-motion`: `smoothScroll` degrades to an instant jump automatically.',
+		'The root is a `nav` landmark named by `ariaLabel` (which defaults to `title`). Give every Toc on a page a distinct name if there\'s more than one.\n\nThe active entry carries `aria-current="location"`, updated by the scroll-spy and by clicking a link.\n\nIn collapse mode, the trigger is a real disclosure button (`aria-expanded`/`aria-controls`). `Escape` closes it and returns focus to the trigger, and an outside click closes it without stealing focus from wherever the click landed.\n\nMotion respects `prefers-reduced-motion`: `smoothScroll` degrades to an instant jump automatically.',
 	a11yLinks: [
 		{
 			label: 'APG Disclosure pattern',

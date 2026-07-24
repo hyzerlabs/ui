@@ -50,6 +50,13 @@
 		.filter(([, v]) => typeof v === 'string' && (v as string).startsWith('#'))
 		.map(([key, value]) => ({ key, cssVar: `--hz-palette-${key}`, value: value as string }));
 
+	// The dark-mode companions the palette overrides in dark — the same hues,
+	// lightened (black/white have none, so they're absent here). Offered
+	// alongside the base palette so a pairing can be checked in either mode.
+	const darkPaletteTokens = Object.entries(palette.theme.dark)
+		.filter(([, v]) => typeof v === 'string' && (v as string).startsWith('#'))
+		.map(([key, value]) => ({ key, value: value as string }));
+
 	/** Resolve an intent target like `var(--hz-palette-gray)` to its palette hex. */
 	function intentHex(target: string): string {
 		const key = target.match(/--hz-palette-([a-z]+)/)?.[1] ?? 'gray';
@@ -123,6 +130,15 @@
 		return mode === 'light' ? token.light : token.dark;
 	}
 
+	/** The result pill is painted from the panel's PINNED mode, not the live
+	 * site theme — otherwise a dark panel shows a jarring white pill (and a
+	 * light panel a black one) whenever the site is toggled the other way. */
+	function metaStyle(mode: 'light' | 'dark'): string {
+		return mode === 'dark'
+			? `background-color: ${palette.black}; color: ${palette.white};`
+			: `background-color: ${palette.white}; color: ${palette.black};`;
+	}
+
 	const requirements = [
 		{ level: 'WCAG AA', normal: '4.5:1', large: '3:1' },
 		{ level: 'WCAG AAA', normal: '7:1', large: '4.5:1' },
@@ -158,6 +174,13 @@
 		...paletteTokens.map(
 			(t) => [t.key, { label: t.key, hex: t.value }] as [string, { label: string; hex: string }]
 		),
+		...darkPaletteTokens.map(
+			(t) =>
+				[`palette-dark:${t.key}`, { label: `${t.key} · dark`, hex: t.value }] as [
+					string,
+					{ label: string; hex: string }
+				]
+		),
 		...intents.map(
 			(i) =>
 				[`intent:${i.key}`, { label: `intent-${i.key}`, hex: i.light }] as [
@@ -182,6 +205,13 @@
 		{
 			group: 'Palette',
 			options: paletteTokens.map((t) => ({ value: t.key, label: `${t.key} · ${t.value}` }))
+		},
+		{
+			group: 'Palette · dark overrides',
+			options: darkPaletteTokens.map((t) => ({
+				value: `palette-dark:${t.key}`,
+				label: `${t.key} · dark · ${t.value}`
+			}))
 		},
 		{
 			group: 'Intent roles · light',
@@ -292,7 +322,7 @@
 	>
 		<h2 id="checker-heading">Pairing checker</h2>
 		<p>
-			Pick any two tokens — palette, intent roles in either mode, or resolved surface roles — and
+			Pick any two tokens — palette or intent roles in either mode, or resolved surface roles — and
 			read the ratio and pass/fail grades live.
 		</p>
 		<div class="checker">
@@ -336,6 +366,41 @@
 					</tbody>
 				</table>
 			</div>
+			<p class="legend-caption">How to read the ratio and grades:</p>
+			<dl class="legend">
+				<div class="legend-item">
+					<dt>Relative luminance</dt>
+					<dd>
+						Perceived brightness on a 0 (black) to 1 (white) scale — the two values the contrast
+						ratio is computed from.
+					</dd>
+				</div>
+				<div class="legend-item">
+					<dt>
+						<Badge intent="success" size="sm">Pass</Badge>
+						<Badge intent="danger" size="sm">Fail</Badge>
+					</dt>
+					<dd>
+						In the table above, each row is graded on its own: <strong>Pass</strong> meets that
+						requirement's minimum ratio, <strong>Fail</strong> does not. A pairing can pass AA and still
+						fail the stricter AAA on the next row.
+					</dd>
+				</div>
+				<div class="legend-item">
+					<dt>
+						<Badge intent="success" size="sm">AAA</Badge>
+						<Badge intent="success" size="sm">AA</Badge>
+						<Badge intent="warning" size="sm">AA Large</Badge>
+					</dt>
+					<dd>
+						In the sections below, a badge names the <em>highest</em> grade a pairing reaches, one
+						per text size (16px and 24px):
+						<strong>AAA</strong> (at least 7:1 normal, 4.5:1 large), <strong>AA</strong> (4.5:1
+						normal, 3:1 large), or <strong>AA Large</strong> (clears 3:1 — large text only). A ratio
+						under 3:1 reaches no grade and shows a red <strong>Fail</strong>.
+					</dd>
+				</div>
+			</dl>
 		</div>
 	</Stack>
 
@@ -375,7 +440,7 @@
 									<span class="situ-normal">{situSentence}</span>
 									<span class="situ-large">{situLarge}</span>
 								</span>
-								<span class="situ-meta">
+								<span class="situ-meta" style={metaStyle(surface.mode)}>
 									<code>{token.key}</code>
 									<span class="cell-ratio">{ratio.toFixed(2)}</span>
 									<Badge intent={levelIntent(bestLevel(ratio))} size="sm"
@@ -457,7 +522,7 @@
 								<span class="situ-normal">{situSentence}</span>
 								<span class="situ-large">{situLarge}</span>
 							</span>
-							<span class="situ-meta">
+							<span class="situ-meta" style={metaStyle(mode)}>
 								<code>{row.key}</code>
 								{mode}
 								<span class="cell-ratio">{ratio.toFixed(2)}</span>
@@ -529,7 +594,7 @@
 										>{situSentence}</span
 									>
 								</div>
-								<span class="situ-meta">
+								<span class="situ-meta" style={metaStyle(mode)}>
 									<span class="cell-ratio">chip {badgeRatio.toFixed(2)}</span>
 									<Badge intent={levelIntent(bestLevel(badgeRatio))} size="sm"
 										>{bestLevel(badgeRatio)}</Badge
@@ -576,47 +641,26 @@
 		</p>
 	</Stack>
 
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="resources-heading"
-	>
-		<h2 id="resources-heading">Resources</h2>
-		<ul class="resource-list">
-			<li>
-				<a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
-					>WCAG 2.2 — 1.4.3 Contrast (Minimum)</a
-				>
-				— the AA text-contrast requirement this page grades against.
-			</li>
-			<li>
-				<a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-enhanced.html"
-					>WCAG 2.2 — 1.4.6 Contrast (Enhanced)</a
-				>
-				— the AAA thresholds.
-			</li>
-			<li>
-				<a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
-					>WCAG 2.2 — 1.4.11 Non-text Contrast</a
-				>
-				— the 3:1 floor for UI component boundaries (borders, focus rings).
-			</li>
-			<li>
-				<a href="https://www.w3.org/TR/wai-aria-1.2/">WAI-ARIA 1.2</a> — roles, states, and properties
-				the components implement.
-			</li>
-			<li>
-				<a href="https://www.w3.org/WAI/ARIA/apg/">WAI-ARIA Authoring Practices Guide (APG)</a> — the
-				interaction patterns; each component page links its pattern from the accessibility note.
-			</li>
-			<li>
-				<a href="https://www.section508.gov/">Section 508</a> — the U.S. standard; incorporates WCAG 2.0
-				AA.
-			</li>
-		</ul>
-	</Stack>
+	<p class="a11y-refs">
+		References:
+		<a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
+			>WCAG 2.2: 1.4.3 Contrast (Minimum)</a
+		>
+		·
+		<a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-enhanced.html"
+			>WCAG 2.2: 1.4.6 Contrast (Enhanced)</a
+		>
+		·
+		<a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
+			>WCAG 2.2: 1.4.11 Non-text Contrast</a
+		>
+		·
+		<a href="https://www.w3.org/TR/wai-aria-1.2/">WAI-ARIA 1.2</a>
+		·
+		<a href="https://www.w3.org/WAI/ARIA/apg/">ARIA APG</a>
+		·
+		<a href="https://www.section508.gov/">Section 508</a>
+	</p>
 </Stack>
 
 <style>
@@ -666,6 +710,42 @@
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 
+	.legend-caption {
+		margin: 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.legend {
+		margin: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		padding: 0.75rem 1rem;
+		border: 1px solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.legend-item {
+		display: flex;
+		gap: 0.75rem;
+		align-items: baseline;
+		flex-wrap: wrap;
+	}
+
+	.legend-item dt {
+		flex: 0 0 7rem;
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.legend-item dd {
+		margin: 0;
+		flex: 1;
+		min-width: 12rem;
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
 	/* In-situ demos — real text painted on the real background. The meta pill
 	 * keeps its own surface so it stays readable over any painted color. */
 	.situ-panel {
@@ -711,8 +791,8 @@
 		width: fit-content;
 		padding: 0.125rem 0.5rem;
 		border-radius: var(--hz-radius-sm, 0.25rem);
-		background-color: var(--hz-color-surface, #fff);
-		color: var(--hz-color-text, #000);
+		/* Background/color are set inline per the panel's PINNED mode (metaStyle)
+		 * so the pill never reads as a light box on a dark panel. */
 		border: 1px solid var(--hz-color-border, #6b7280);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
@@ -789,14 +869,6 @@
 		display: inline-block;
 		min-width: 3.25rem;
 		font-variant-numeric: tabular-nums;
-	}
-
-	.resource-list {
-		margin: 0;
-		padding-inline-start: 1.25rem;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
 	}
 
 	.token-table-wrapper {

@@ -99,6 +99,38 @@ describe('R1 — collection', () => {
 		expect(parts(container).links.map((a) => a.textContent?.trim())).toEqual(['One', 'Two']);
 	});
 
+	it('skips headings inside any selector of an `exclude` array', async () => {
+		const callout = document.createElement('div');
+		callout.className = 'callout';
+		callout.appendChild(heading('h2', 'Callout section'));
+		const fig = document.createElement('figure');
+		fig.className = 'figure';
+		fig.appendChild(heading('h2', 'Figure section'));
+		const art = article(
+			heading('h2', 'One'),
+			callout,
+			heading('h2', 'Two'),
+			fig,
+			heading('h2', 'Three')
+		);
+		const { container } = render(T, { container: art, exclude: ['.callout', '.figure'] });
+		await tick();
+		expect(parts(container).links.map((a) => a.textContent?.trim())).toEqual([
+			'One',
+			'Two',
+			'Three'
+		]);
+	});
+
+	it('an empty or all-empty `exclude` array excludes nothing (never queries closest(""))', async () => {
+		const art = article(heading('h2', 'One'), heading('h2', 'Two'));
+		// An empty array (and all-empty entries) collapses to '' — the guard must
+		// skip closest() entirely rather than throw on an empty selector.
+		const { container } = render(T, { container: art, exclude: ['', ''] });
+		await tick();
+		expect(parts(container).links.map((a) => a.textContent?.trim())).toEqual(['One', 'Two']);
+	});
+
 	it('skips hidden headings (offsetParent === null)', async () => {
 		const hidden = document.createElement('div');
 		hidden.style.display = 'none';

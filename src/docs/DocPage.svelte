@@ -129,11 +129,15 @@
 			aria-labelledby="a11y-heading"
 		>
 			<h2 id="a11y-heading">Accessibility</h2>
-			<p>
-				<!-- Backtick-split: odd segments are inline code. -->
-				{#each a11yNote.split('`') as segment, i (i)}{#if i % 2 === 1}<code>{segment}</code
-						>{:else}{segment}{/if}{/each}
-			</p>
+			<!-- Blank-line-split into paragraphs so a long note reads as a few
+			     short ones; each paragraph backtick-splits into inline code (odd
+			     segments). A note with no blank line renders as a single <p>. -->
+			{#each a11yNote.split('\n\n') as para, p (p)}
+				<p>
+					{#each para.split('`') as segment, i (i)}{#if i % 2 === 1}<code>{segment}</code
+							>{:else}{segment}{/if}{/each}
+				</p>
+			{/each}
 			{#if a11yLinks.length > 0}
 				<p class="a11y-refs">
 					References:

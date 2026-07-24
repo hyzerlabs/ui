@@ -1045,6 +1045,11 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: '--hz-alert-tint',
 				values: '<percentage> — 10% light, 22% dark',
 				note: 'How strongly the intent colour mixes into the surface. Retuning it means re-checking the soft pairings on Contrast & Accessibility.'
+			},
+			{
+				name: '--hz-alert-border-width',
+				values: '<length> — default var(--hz-border-width-heavy)',
+				note: 'Thickness of the inline-start accent bar. Defaults to the heaviest border-width token; override with any length or a lighter token.'
 			}
 		],
 		parts: [
@@ -1163,6 +1168,13 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: 'data-intent-scope',
 				values: "'line' | 'full'",
 				note: 'Present only when intent is set (mirrors data-intent — meaningless without an intent to scope). line (default) matches data-intent alone; full also colors the quote text. The attribution row is never affected.'
+			}
+		],
+		props: [
+			{
+				name: '--hz-blockquote-border-width',
+				values: '<length> — default var(--hz-border-width-heavy)',
+				note: 'Thickness of the inline-start accent line. Defaults to the heaviest border-width token; override with any length or a lighter token. The attribution row indent tracks it automatically.'
 			}
 		],
 		parts: [

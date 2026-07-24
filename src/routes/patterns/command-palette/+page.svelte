@@ -53,7 +53,7 @@
 			<code>goto</code> for navigation) — copy it into an app with the theme installed and it works the
 			same.
 		</p>
-		<CodeBlock code={consumerSource(paletteSource)} />
+		<CodeBlock code={consumerSource(paletteSource)} collapsible />
 	</Stack>
 </Stack>
 

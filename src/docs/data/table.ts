@@ -115,7 +115,7 @@ export const tableDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"Static data table, not an APG *grid* — sort buttons and checkboxes are ordinary native controls in the natural tab order; there is no roving grid navigation. `aria-sort` (`ascending`/`descending`) sits only on the sorted column's `th`, never on the others. Select-all announces the partial state via the native `indeterminate` property (not an ARIA attribute). Loading skeleton rows carry `aria-hidden`, so they never reach assistive tech. Real `role`/`scope` semantics are stamped explicitly (`table`/`row`/`columnheader`/`cell`, plus `scope`) so they survive the stacked mode's CSS display overrides.",
+		"This is a static data table, not an APG grid pattern. Sort buttons and checkboxes are ordinary native controls in the natural tab order — there's no roving grid navigation.\n\n`aria-sort` (`ascending`/`descending`) sits only on the sorted column's `th`, never on the others. Select-all announces the partial state through the native `indeterminate` property, not an ARIA attribute.\n\nLoading skeleton rows carry `aria-hidden`, so they never reach assistive tech.\n\nReal `role`/`scope` semantics are stamped explicitly (`table`/`row`/`columnheader`/`cell`, plus `scope`), so they survive the stacked mode's CSS display overrides.",
 	a11yLinks: [
 		{
 			label: 'APG sortable table example',

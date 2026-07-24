@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Container, Hero, Button, Tabs } from '$lib';
+	import { Container, Hero, Button, Tabs, Toggle } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { heroDoc } from '../../../docs/data/hero.js';
 	import Example from '../../../docs/Example.svelte';
@@ -80,17 +80,23 @@
 		].join('\n');
 	}
 
-	const reverseCode = [
-		'<Hero',
-		'\tlayout="split"',
-		'\treverseOnMobile',
-		'\ttitle="Media leads when stacked"',
-		'\tsubtitle="Media renders above the content on small screens."',
-		'\theadingLevel={2}',
-		'>',
-		'\t{#snippet media()}<img src="…" alt="…" />{/snippet}',
-		'</Hero>'
-	].join('\n');
+	// Live-toggled in the demo below, so the code sample shows the prop only
+	// when it's on — the honest thing a consumer would actually write.
+	let reverseOnMobile = $state(true);
+
+	const reverseCode = $derived(
+		[
+			'<Hero',
+			'\tlayout="split"',
+			...(reverseOnMobile ? ['\treverseOnMobile'] : []),
+			'\ttitle="Split hero"',
+			'\tsubtitle="Resize to stack; toggle to flip which comes first."',
+			'\theadingLevel={2}',
+			'>',
+			'\t{#snippet media()}<img src="…" alt="…" />{/snippet}',
+			'</Hero>'
+		].join('\n')
+	);
 </script>
 
 <DocPage name="Hero" {...heroDoc}>
@@ -211,20 +217,29 @@
 						Only affects the split layout, and only while it's stacked — media moves above the
 						content, with DOM and reading order unchanged. The split stacks below 968px (<code
 							>--hz-width-md</code
-						>) of its own width; use the slider to cross the threshold.
+						>) of its own width; use the slider to cross the threshold, and toggle
+						<code>reverseOnMobile</code> to flip which element leads once it stacks.
 					</p>
 					<Container breakout padding="none">
 						<Example code={reverseCode}>
+							<div class="reverse-toggle">
+								<Toggle
+									name="hero-reverse-on-mobile"
+									label="reverseOnMobile"
+									bind:checked={reverseOnMobile}
+								/>
+							</div>
 							<ResizableDemo
 								initial={720}
-								describe={(w) => (w >= 968 ? 'side by side' : 'media on top')}
+								describe={(w) =>
+									w >= 968 ? 'side by side' : reverseOnMobile ? 'media on top' : 'content on top'}
 							>
 								<!-- No wrapper and no inline padding: the demo width IS the split's width. -->
 								<Hero
 									layout="split"
-									reverseOnMobile
-									title="Media leads when stacked"
-									subtitle="Media renders above the content on small screens."
+									{reverseOnMobile}
+									title="Split hero"
+									subtitle="Resize to stack; toggle to flip which comes first."
 									headingLevel={2}
 									class="demo-hero-flush"
 								>
@@ -250,6 +265,9 @@
 		border: 1px dashed var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
 		overflow: hidden;
+	}
+	.reverse-toggle {
+		margin-bottom: 1rem;
 	}
 	/* Reverse demo: zero the theme's inline padding so the slider width is
 	 * exactly the split's width (unlayered rule beats the hz-theme layer). */

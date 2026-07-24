@@ -41,6 +41,6 @@ export const tabsDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"Implements the WAI-ARIA tabs pattern: `role='tablist'/'tab'/'tabpanel'`, `aria-selected`, and roving `tabindex` — Tab is one stop for the whole tablist; arrow keys move between triggers, Home/End jump to first/last. Panels are only their own tab stop when they contain no focusable content. `ariaLabel` is required to name the tablist. Disabled tabs stay focusable via arrows but carry `aria-disabled='true'` and never activate.",
+		"Implements the WAI-ARIA tabs pattern: `role='tablist'/'tab'/'tabpanel'`, `aria-selected`, and roving `tabindex`. Tab is one stop for the whole tablist, and arrow keys move between triggers, with Home/End jumping to the first/last.\n\nPanels are only their own tab stop when they contain no focusable content. `ariaLabel` is required to name the tablist.\n\nDisabled tabs stay focusable via arrows but carry `aria-disabled='true'` and never activate.",
 	a11yLinks: [{ label: 'APG Tabs pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/tabs/' }]
 };

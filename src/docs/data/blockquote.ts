@@ -41,7 +41,7 @@ export const blockquoteDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-blockquote class.' }
 	],
 	a11yNote:
-		"The root is always a `<figure>` wrapping a `<blockquote>`; when `cite` is provided, the attribution renders in a `<figcaption><cite>` outside the quote, so screen readers don't announce it as part of the quotation itself. No ARIA is added — the native `figure`/`blockquote`/`figcaption`/`cite` elements carry all the semantics. The decorative em-dash before the attribution is a theme `::before` pseudo-element, so it never enters the accessible name.",
+		"The root is always a `<figure>` wrapping a `<blockquote>`. When `cite` is provided, the attribution renders in a `<figcaption><cite>` outside the quote, so screen readers don't announce it as part of the quotation itself.\n\nNo ARIA is added — the native `figure`/`blockquote`/`figcaption`/`cite` elements carry all the semantics.\n\nThe decorative em-dash before the attribution is a theme `::before` pseudo-element, so it never enters the accessible name.",
 	a11yLinks: [
 		{
 			label: 'MDN: <blockquote>',

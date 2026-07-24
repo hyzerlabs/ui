@@ -73,7 +73,7 @@ export const carouselDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-carousel class.' }
 	],
 	a11yNote:
-		'Follows the APG grouped-carousel pattern: the region and each slide carry `aria-roledescription`, slides are named (\'2 of 5\'-style by default, customizable via `slideLabel`), and because there is no auto-rotation the viewport is an `aria-live="polite"` region — slide changes announce themselves. Arrow keys, Home, and End steer while focus is inside the carousel. `controls="focus"` hides the control row visually only — never `display`/`visibility`/`aria-hidden`/`inert` — so it stays reachable by Tab and revealed on hover, the WCAG 2.5.7 non-dragging alternative to the drag gesture.',
+		'Built on the APG carousel pattern. The region and each slide carry `aria-roledescription`, and slides are named (\'2 of 5\'-style by default, or set your own with `slideLabel`).\n\nThere is no auto-rotation, so the viewport is an `aria-live="polite"` region and slide changes announce themselves. Arrow keys, Home, and End move between slides while focus is inside the carousel.\n\n`controls="focus"` hides the control row visually only — never with `display`, `visibility`, `aria-hidden`, or `inert` — so it stays reachable by Tab and appears on hover. That is the WCAG 2.5.7 alternative to the drag gesture.',
 	a11yLinks: [
 		{ label: 'APG Carousel pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/carousel/' },
 		{
