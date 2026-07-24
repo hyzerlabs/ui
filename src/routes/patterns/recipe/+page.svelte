@@ -30,17 +30,6 @@
 			A recipe page: the main dish photo opens it as a <a href="/components/hero">Hero</a>'s
 			<code>split</code> media, ahead of the ingredients and method.
 		</p>
-		<p class="detail">
-			A short prose intro and the serving/dietary metadata sit under the hero before the ingredients
-			start. The ingredient list is a plain, non-sorting <a href="/components/table">Table</a> (no
-			<code>sortable</code> column flag, no sort buttons — the same shape as the Table docs page's
-			own "No sorting" demo), placed in a <a href="/components/split">Split</a> next to the
-			technique
-			<a href="/components/video">Video</a> so the amounts stay in view while the clip plays; the
-			pair stacks to one column below the split's <code>stackBelow</code> threshold. Spacing between
-			the major sections uses the density system's <code>gap="away"</code>; the ingredients heading
-			and its table sit closer together on <code>gap="near"</code>.
-		</p>
 		<p class="composed">
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1
@@ -85,12 +74,6 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);

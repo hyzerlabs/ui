@@ -32,12 +32,6 @@
 			A marketing-style landing page assembled entirely from library components — no bespoke layout
 			code, no custom CSS beyond a few type sizes.
 		</p>
-		<p class="detail">
-			It runs a full landing-page rhythm: a course-browsing Hero opens the page, a mid-page promo
-			Hero breaks it up with a full-bleed gradient background, a row of stat cards backs up the
-			pitch with numbers, and it closes on a contact CTA — the same shape as the minimal
-			<a href="/patterns/contact-form">Contact form</a> pattern behind it.
-		</p>
 		<p class="composed">
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1
@@ -81,12 +75,6 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);

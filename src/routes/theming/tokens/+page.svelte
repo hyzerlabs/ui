@@ -43,6 +43,20 @@
 		'}'
 	].join('\n');
 
+	const verifyCode = [
+		"import { gradeContrast, contrastRatio, mixSrgb } from '@hyzer-labs/ui';",
+		"import { palette } from '@hyzer-labs/ui/tokens';",
+		'',
+		'// Your override for --hz-palette-primary',
+		"const brand = '#0f766e';",
+		'',
+		'gradeContrast(brand, palette.white).aaNormal; // text on surface',
+		'gradeContrast(palette.white, brand).aaNormal; // solid button text',
+		'',
+		'// On surface-muted — the same 6% color-mix the theme derives',
+		'contrastRatio(brand, mixSrgb(palette.gray, palette.white, 0.06));'
+	].join('\n');
+
 	const shapeCode = [
 		':root {',
 		'\t--hz-radius-md: 0.625rem;   /* buttons, cards, fields */',
@@ -349,8 +363,21 @@
 	>
 		<h2 id="verify-heading">Verify your palette</h2>
 		<p>
-			The contrast math is public API — assert your pairings in a unit test exactly as this library
-			does, or read the full methodology and the live pairing checker on
+			The contrast math behind the generate report is public API: <code>contrastRatio</code> gives
+			the raw WCAG ratio for two hex colors, <code>gradeContrast</code> turns a
+			foreground/background pair into pass/fail grades per level and text size,
+			<code>bestLevel</code>
+			/
+			<code>bestLevelLarge</code> name the best level a ratio reaches, and
+			<code>mixSrgb</code>, <code>relativeLuminance</code>, <code>hexToRgb</code>, and
+			<code>rgbToHex</code> are the conversion pieces. All are pure functions over hex strings — no
+			DOM, SSR-safe — exported from the package root and <code>@hyzer-labs/ui/utils</code>, with the
+			resolved palette importable from <code>@hyzer-labs/ui/tokens</code>.
+		</p>
+		<p>Assert the pairings your override touches in a unit test:</p>
+		<CodeBlock code={verifyCode} />
+		<p>
+			For the full methodology and a live pairing checker over every shipped token, see
 			<a href="/foundation/contrast#api-heading">Contrast &amp; Accessibility</a>.
 		</p>
 	</Stack>

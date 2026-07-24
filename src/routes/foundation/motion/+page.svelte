@@ -223,12 +223,9 @@
 	<div class="doc-intro">
 		<h1>Motion</h1>
 		<p class="doc-description">
-			Duration and easing tokens, plus <code>@hyzer-labs/ui/motion</code> — token-bridged
-			transitions, JS easing evaluators, a scroll-reveal attachment, and a view-transition helper.
-			Every helper in the module is reduced-motion-aware by default: it collapses automatically, and
-			a <code>{'{ essential: true }'}</code> option opts a specific instance out when the motion
-			carries meaning rather than decoration. See
-			<a href="#reduced-motion-heading">Reduced motion</a> below.
+			Duration and easing tokens, plus <code>@hyzer-labs/ui/motion</code>: token-bridged
+			transitions, easing evaluators, a scroll-reveal attachment, and a view-transition helper — all
+			<a href="#reduced-motion-heading">reduced-motion-aware</a> by default.
 		</p>
 	</div>
 

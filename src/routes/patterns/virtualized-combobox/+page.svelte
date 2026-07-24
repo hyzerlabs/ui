@@ -20,19 +20,11 @@
 			A multi-select text input plus a <code>role="listbox"</code> popup, windowed by
 			<a href="/components/virtualizer">Virtualizer</a>, over tens of thousands of rows.
 		</p>
-		<p class="detail">
-			Selected rounds render as dismissible chips above the input, exactly like
-			<a href="/components/combobox">Combobox</a>'s own chip row, and typing filters the whole
-			dataset by substring, same as Combobox's own default — the difference here is that only the
-			rows near the current scroll position are ever mounted, so the list stays fast regardless of
-			how many rows match.
-		</p>
 		<p class="composed">
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0},
 				{/if}<a href={c.href}>{c.label}</a>{/each}
-			(plus the design tokens). It is a from-scratch APG combobox composition, not the
-			<a href="/components/combobox">Combobox</a> component — see "Why a pattern, not a component" below.
+			(plus the design tokens).
 		</p>
 	</div>
 
@@ -130,12 +122,6 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);

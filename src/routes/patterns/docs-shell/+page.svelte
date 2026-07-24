@@ -1,34 +1,28 @@
 <script lang="ts">
-	import { Stack, Container } from '$lib';
-	import ProductListing from '../../../docs/samples/ProductListing.svelte';
+	import { Stack, Container, Alert } from '$lib';
+	import DocsShell from '../../../docs/samples/DocsShell.svelte';
 	// ?raw keeps the listing in lockstep with the component that renders above it.
-	import listingSource from '../../../docs/samples/ProductListing.svelte?raw';
+	import docsShellSource from '../../../docs/samples/DocsShell.svelte?raw';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import { consumerSource } from '../../../docs/consumerSource';
 
 	const composed = [
-		{ label: 'Breadcrumbs', href: '/components/breadcrumbs' },
-		{ label: 'Split', href: '/components/split' },
-		{ label: 'Grid', href: '/components/grid' },
-		{ label: 'Card', href: '/components/card' },
-		{ label: 'Image', href: '/components/image' },
-		{ label: 'Badge', href: '/components/badge' },
-		{ label: 'Select', href: '/components/select' },
-		{ label: 'Checkbox', href: '/components/checkbox' },
-		{ label: 'RangeSlider', href: '/components/range-slider' },
-		{ label: 'Pagination', href: '/components/pagination' }
+		{ label: 'Nav', href: '/components/nav' },
+		{ label: 'Toc', href: '/components/toc' },
+		{ label: 'Badge', href: '/components/badge' }
 	];
 </script>
 
 <svelte:head>
-	<title>Product listing — @hyzer-labs/ui</title>
+	<title>Docs shell — @hyzer-labs/ui</title>
 </svelte:head>
 
 <Stack gap="away">
 	<div class="doc-intro">
-		<h1>Product listing</h1>
+		<h1>Docs shell</h1>
 		<p class="doc-description">
-			A filterable shop page where the form controls are state sources, not decoration.
+			A documentation layout: a sidebar of collapsible nav sections, a reading column, and an "On
+			this page" rail that follows the column's headings.
 		</p>
 		<p class="composed">
 			Composes
@@ -38,6 +32,12 @@
 			(plus the layout primitives).
 		</p>
 	</div>
+
+	<Alert intent="info" title="You are inside this pattern right now">
+		The shell around this page — the sidebar, this reading column, and the rail on the right — is
+		the same composition at full size: the library's vertical <a href="/components/nav">Nav</a> and
+		<a href="/components/toc">Toc</a>, skinned with plain CSS on the role tokens.
+	</Alert>
 
 	<Stack
 		as="section"
@@ -52,7 +52,7 @@
 		     the prose column rather than centering. -->
 		<Container breakout padding="none">
 			<div class="sample-frame">
-				<ProductListing />
+				<DocsShell />
 			</div>
 		</Container>
 	</Stack>
@@ -66,10 +66,10 @@
 	>
 		<h2 id="source-heading">Source</h2>
 		<p class="source-note">
-			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
-			installed and it renders the same.
+			The whole pattern, verbatim. Every import is a public export — copy it into an app with the
+			theme installed and it renders the same.
 		</p>
-		<CodeBlock code={consumerSource(listingSource)} />
+		<CodeBlock code={consumerSource(docsShellSource)} />
 	</Stack>
 </Stack>
 
@@ -80,17 +80,15 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
-	 * margin zeroed so the Stack's own gap owns the rhythm. */
+	/* Direct children of their Stack (gap="away", data-density-shift) — margin
+	 * zeroed so the Stack's own gap owns the rhythm. */
 	.source-note {
 		margin: 0;
 	}
 
-	/* A hairline frame so the bleed reads as a distinct artifact rather than
-	 * as the docs page suddenly changing shape. */
 	.sample-frame {
 		border: 1px solid var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
-		overflow: hidden;
+		padding: 2rem;
 	}
 </style>

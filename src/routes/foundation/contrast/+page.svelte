@@ -242,12 +242,10 @@
 	<div class="doc-intro">
 		<h1>Contrast &amp; Accessibility</h1>
 		<p class="doc-description">
-			WCAG 2.1 grades text contrast by ratio and text size — large text is at least 24px, or 18.66px
-			bold — and Section 508 incorporates WCAG 2.0 AA, so an AA pass at a given size is also a 508
-			pass. Every ratio on this page is computed from the
-			<a href="/foundation/colors">token metadata</a>, resolved per mode, with the same
-			<a href="#api-heading">functions the library ships</a> — so a palette change that breaks AA fails
-			the build, and a theme that overrides the palette can run the identical check.
+			Every ratio on this page is computed live from the
+			<a href="/foundation/colors">token metadata</a>, per mode, with the same
+			<a href="#api-heading">functions the library ships</a> — so if your theme overrides the palette,
+			you can run the identical WCAG check on it.
 		</p>
 	</div>
 
@@ -259,6 +257,10 @@
 		aria-labelledby="requirements-heading"
 	>
 		<h2 id="requirements-heading">Requirements</h2>
+		<p>
+			WCAG 2.1 grades text contrast by ratio and text size — large text is at least 24px, or 18.66px
+			bold. Section 508 incorporates WCAG 2.0 AA, so an AA pass at a given size is also a 508 pass.
+		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>

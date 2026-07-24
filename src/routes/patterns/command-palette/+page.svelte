@@ -15,15 +15,9 @@
 	<div class="doc-intro">
 		<h1>Command palette</h1>
 		<p class="doc-description">A ⌘K quick-search overlay assembled from the primitives.</p>
-		<p class="detail">
-			The heavy lifting — the backdrop, focus trap, and Escape-to-close — comes from
-			<a href="/components/modal">Modal</a>; this pattern only adds the search field, a filtered
-			<code>role="listbox"</code>, and the arrow/Enter keyboard wiring.
-		</p>
 		<p class="composed">
 			Composes <a href="/components/modal">Modal</a>, the shared
-			<a href="/foundation/icons">icons</a>, and the design tokens. Press <kbd>⌘K</kbd> (or
-			<kbd>Ctrl K</kbd>) anywhere on this page, or click <strong>Search</strong> below.
+			<a href="/foundation/icons">icons</a>, and the design tokens.
 		</p>
 	</div>
 
@@ -39,8 +33,10 @@
 			<CommandPalette />
 		</div>
 		<p class="note">
-			Type to filter; ↑/↓ move, Enter opens the highlighted destination, Esc closes. Selecting a
-			result navigates — this is a working palette, so it will take you to that page.
+			Press <kbd>⌘K</kbd> (or <kbd>Ctrl K</kbd>) anywhere on this page, or click
+			<strong>Search</strong> above. Type to filter; ↑/↓ move, Enter opens the highlighted destination,
+			Esc closes. Selecting a result navigates — this is a working palette, so it will take you to that
+			page.
 		</p>
 	</Stack>
 
@@ -62,19 +58,13 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	.composed kbd {
+	.note kbd {
 		font-family: var(--hz-font-family-mono, monospace);
 		border: 1px solid var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-sm, 0.25rem);

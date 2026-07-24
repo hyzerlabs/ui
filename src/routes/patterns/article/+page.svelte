@@ -28,13 +28,6 @@
 			A long-form editorial page: a Hero opener, a byline, and a body that runs through a Blockquote
 			pull-quote and a breakout image.
 		</p>
-		<p class="detail">
-			The image escapes the narrow prose column with <code>Container breakout</code> — the same
-			width-sensitive convention the <a href="/components/container">Container</a> and
-			<a href="/components/table">Table</a> docs pages use to demonstrate off-column bleed. The
-			prose column also dogfoods <code>--hz-font-family-serif</code>, giving the body copy a
-			printed-feature feel distinct from the sans-serif UI chrome around it.
-		</p>
 		<p class="composed">
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1
@@ -79,12 +72,6 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);

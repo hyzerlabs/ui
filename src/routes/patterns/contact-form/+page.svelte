@@ -27,12 +27,6 @@
 			The minimal end of the <a href="/components/form">Form</a> spectrum — four fields, one Select, no
 			order summary.
 		</p>
-		<p class="detail">
-			It runs the same validation workflow as the fuller
-			<a href="/patterns/checkout-form">Checkout form</a> pattern at a much smaller scale:
-			submitting with problems builds a plain field-name → message record, <code>toFormErrors</code> reshapes
-			it, and Form renders the linked error summary and moves focus to it.
-		</p>
 		<p class="composed">
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1
@@ -78,12 +72,6 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);

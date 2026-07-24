@@ -147,9 +147,9 @@
 					<p class="tab-note">
 						<strong>The default filter matches a substring anywhere in the label</strong> —
 						case-insensitive, not anchored to the start (typing a fragment from the middle or end of
-						a label still matches it; see the Large list tab). A consumer <code>filter</code> prop overrides
-						that default wholesale. This demo deliberately swaps in a narrower one — start-of-label only
-						— to show what overriding looks like; it is not what Combobox does by default.
+						a label still matches it; see the Large list tab). Passing your own <code>filter</code> prop
+						overrides that default wholesale. This demo deliberately swaps in a narrower one — start-of-label
+						only — to show what overriding looks like; it is not what Combobox does by default.
 					</p>
 					<Example code={filterCode}>
 						<div class="demo-col">
@@ -158,23 +158,19 @@
 					</Example>
 				{:else if item.id === 'large'}
 					<p class="tab-note">
-						{manyCourses.length} real disc golf courses — a curated starter list (<code
-							>src/docs/data/courses.ts</code
-						>), not generated filler; a fuller externally-sourced list can drop in later without
-						touching this page. The default filter is the same substring-anywhere match as every
-						other tab — try typing a fragment from the <em>middle</em> of a course or city name
-						(e.g.
-						<code>ridge</code> or <code>ville</code>) and it still matches, because the match isn't
-						anchored to the start of the label. Combobox doesn't window its listbox: filtering is a
-						plain in-memory array scan, and every option that matches gets a real
-						<code>&lt;li&gt;</code> — there's no <a href="/components/virtualizer">Virtualizer</a>
-						integration yet. A dataset this size is comfortable even on the <em>unfiltered</em> open
-						(every option renders at once), but that's also the honest ceiling: opening tens of
-						thousands of options unfiltered would mount that many <code>&lt;li&gt;</code> nodes and
-						visibly lag. Past that scale, reach for the
-						<a href="/patterns/virtualized-combobox">Virtualized combobox</a> pattern instead, which windows
-						the listbox the way Combobox itself doesn't yet.
+						{manyCourses.length} real disc golf courses, filtered by the same substring-anywhere default
+						as every other tab — try typing a fragment from the <em>middle</em> of a course or city
+						name (e.g. <code>ridge</code> or <code>ville</code>) and it still matches, because the
+						match isn't anchored to the start of the label.
 					</p>
+					<Alert intent="warning" title="Combobox doesn't window its listbox">
+						Filtering is a plain in-memory scan, and every matching option gets a real
+						<code>&lt;li&gt;</code>. A list this size is comfortable even on the unfiltered open,
+						but opening tens of thousands of options would mount that many nodes and visibly lag.
+						Past that scale, reach for the
+						<a href="/patterns/virtualized-combobox">Virtualized combobox</a> pattern, which windows
+						the listbox with <a href="/components/virtualizer">Virtualizer</a>.
+					</Alert>
 					<Example code={largeCode}>
 						<div class="demo-col">
 							<Combobox
@@ -188,11 +184,12 @@
 					</Example>
 				{:else if item.id === 'chips'}
 					<p class="tab-note">
-						<code>chipProps</code> lets a consumer who only imports <code>Combobox</code> restyle
-						every chip — <code>intent</code>/<code>variant</code>/<code>size</code>/<code
-							>rounded</code
-						>/<code>class</code> pass straight through to the underlying <code>Badge</code>. It
-						applies uniformly to every chip (no per-option styling).
+						<code>chipProps</code> restyles every chip without importing <code>Badge</code> yourself
+						— <code>intent</code>/<code>variant</code>/<code>size</code>/<code>rounded</code>/<code
+							>class</code
+						>
+						pass straight through to the underlying <code>Badge</code>. It applies uniformly to
+						every chip (no per-option styling).
 					</p>
 					<Example code={chipsCode}>
 						<div class="demo-col">

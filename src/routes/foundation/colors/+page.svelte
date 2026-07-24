@@ -134,13 +134,10 @@
 	<div class="doc-intro">
 		<h1>Colors & Intent</h1>
 		<p class="doc-description">
-			A two-layer color model, and the CSS namespace says which layer you're in. The palette (Layer
-			1, <code>--hz-palette-*</code>) is single-value hues authored per mode. The semantic role
-			layer (Layer 2, <code>--hz-color-*</code> and <code>--hz-intent-*</code>) is pure
-			<code>var()</code>
-			references into it — structural roles for what a color <em>does</em> in the layout, and the
-			<a href="#intent">intent vocabulary</a> for what a color <em>means</em>. Dark theme overrides
-			land mostly on Layer 1; everything in Layer 2 chains through automatically.
+			A two-layer color model: the palette (<code>--hz-palette-*</code>) authors hues per mode, and
+			the semantic layer (<code>--hz-color-*</code>, <code>--hz-intent-*</code>) maps them to what a
+			color <em>does</em> and what it <a href="#intent"><em>means</em></a>. Dark mode overrides land
+			mostly on the palette; the semantic layer chains through automatically.
 		</p>
 	</div>
 

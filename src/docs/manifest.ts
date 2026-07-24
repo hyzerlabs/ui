@@ -165,6 +165,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Homepage', href: '/patterns/homepage' },
 			{ label: 'Article', href: '/patterns/article' },
 			{ label: 'Recipe', href: '/patterns/recipe' },
+			{ label: 'Docs shell', href: '/patterns/docs-shell' },
 			{ label: 'Command palette', href: '/patterns/command-palette' },
 			{ label: 'Product listing', href: '/patterns/product-listing' },
 			{ label: 'Product detail', href: '/patterns/product-detail' },

@@ -29,18 +29,6 @@
 	<div class="doc-intro">
 		<h1>Product detail</h1>
 		<p class="doc-description">A single product's page with a live buy panel.</p>
-		<p class="detail">
-			The plastic RadioGroup drives the derived price, and "Add to cart" raises a dismissible
-			success Alert that reads back the selected options. A vertical thumbnail strip sits beside the
-			main Carousel and stays in sync with it in both directions through one bound
-			<code>index</code>
-			— clicking a thumb pages the carousel to that colorway, and dragging or paging the carousel moves
-			the active thumb right back. The active slide is still the one
-			<code>lightboxGroup</code>
-			trigger — click it (or Tab to it and press Enter/Space) to open a full-size viewer that pages across
-			every colorway; the thumbs are plain buttons that move the carousel and never open the viewer themselves.
-			Below the fold, an Accordion holds the long-form content.
-		</p>
 		<p class="composed">
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1
@@ -85,12 +73,6 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);

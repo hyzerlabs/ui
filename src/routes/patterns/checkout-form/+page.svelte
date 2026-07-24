@@ -30,14 +30,6 @@
 		<p class="doc-description">
 			The full <a href="/components/form">Form</a> workflow on a realistic checkout page.
 		</p>
-		<p class="detail">
-			Submitting with problems builds a plain field-name → message record,
-			<code>toFormErrors</code> reshapes it, and Form renders the linked error summary and moves
-			focus to it — the same array feeds each field's inline error, so the two can never disagree.
-			The order summary card derives its totals from the same bound state the controls edit. For the
-			minimal end of this same spectrum — a small form with no order summary — see
-			<a href="/patterns/contact-form">Contact form</a>.
-		</p>
 		<p class="composed">
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1
@@ -83,12 +75,6 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);

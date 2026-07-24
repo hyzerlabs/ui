@@ -173,10 +173,8 @@
 		<p class="doc-description">
 			The full <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide</a> set (ISC)
 			ships as generated per-icon Svelte components — <strong>{allNames.length} icons</strong>,
-			Lucide v{LUCIDE_VERSION}. Every icon accepts <code>size</code>, <code>strokeWidth</code>, and
-			<code>ariaLabel</code>. When
-			<code>ariaLabel</code> is absent the icon is decorative (<code>aria-hidden="true"</code>);
-			when present it is labelled.
+			Lucide v{LUCIDE_VERSION} — decorative by default, labelled when you pass
+			<code>ariaLabel</code>.
 		</p>
 		<p class="note">
 			Brand marks aren't included. Every icon-accepting component takes a snippet, so bring your own

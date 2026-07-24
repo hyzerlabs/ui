@@ -20,16 +20,11 @@
 			A 6,000-row dataset windowed by <a href="/components/virtualizer">Virtualizer</a>, dressed as
 			an ARIA table.
 		</p>
-		<p class="detail">
-			Past the point where rendering every row becomes the bottleneck, this pattern trades a little
-			semantic richness for a DOM that stays small regardless of dataset size.
-		</p>
 		<p class="composed">
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0},
 				{/if}<a href={c.href}>{c.label}</a>{/each}
-			(plus the design tokens). Sorting is composed in the sample itself — it coexists with windowing,
-			re-sorting the full dataset before the Virtualizer windows whatever order results.
+			(plus the design tokens).
 		</p>
 	</div>
 
@@ -89,12 +84,6 @@
 </Stack>
 
 <style>
-	.detail {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
 	.composed {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
