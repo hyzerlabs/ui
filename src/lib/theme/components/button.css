@@ -170,8 +170,15 @@
 		cursor: progress;
 	}
 
+	/* Spin speed is a literal, not a motion.duration token — the duration
+	 * scale (fast 250ms / base 400ms / slow 550ms, specs/15) is tuned for
+	 * one-shot transitions, not a continuous animation's per-cycle length,
+	 * and even `slow` is under a third of a comfortable spin rate. Tuned
+	 * down from an initial 0.8s/rev (read as anxious/rushed) to 1.4s/rev —
+	 * a calmer, more legible rotation, still clearly "in progress" (user
+	 * feedback, audit round). */
 	.hz-button:where([data-state='loading']) .hz-icon {
-		animation: hz-spin 0.8s linear infinite;
+		animation: hz-spin 1.4s linear infinite;
 	}
 
 	.hz-button:where([data-full-width]) {

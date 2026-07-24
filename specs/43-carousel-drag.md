@@ -328,3 +328,18 @@ and one line on `seamless` (continuous boundary wrap across every navigation pat
 - **Peek/multi-slide layouts, autoplay/auto-rotation** — unchanged from 33.
 - **Renaming `draggable` → `drag`** — retained by name (Context).
 - **A per-control (individual skip-link) reveal** — the reveal is whole-row (R3).
+
+### Amendments
+
+**2026-07-23 — focus-mode min-height (theme, user report).** The `controls="focus"`
+row (R3) is an absolutely positioned overlay with no reserved layout space — on a
+short carousel (e.g. a one-line `Blockquote` slide) it could cover most of the
+slide content while dragging/hovering. `carousel.css` gains a scoped rule:
+`.hz-carousel[data-controls='focus'] .hz-carousel-viewport { min-height:
+var(--hz-carousel-focus-min-height, 12rem); }` — a new sizing hook (the
+`--hz-carousel-dot-size` precedent), applied only under `data-controls='focus'`.
+The default `controls="visible"` row sits in normal flow below the viewport
+(never overlaid on slide media) and needs no reserved height, so it is
+unaffected; Lightbox never passes `controls="focus"` (specs/25, unamended), so
+its embedded Carousel's layout is unchanged — verified in-browser, no visual
+diff. `hooks.ts` gained the prop row.

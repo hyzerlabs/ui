@@ -44,6 +44,7 @@ fill, and tick visuals are the reference theme's job.
   (`pointer-events: auto` on the thumb pseudo-elements).
 - Vertical orientation is **deliberately not supported** (product decision
   2026-07-13).
+  > Amended 2026-07-23: reversed — vertical orientation is now supported. See specs/45-slider-vertical.md.
 
 ### Shared Type
 
@@ -340,6 +341,7 @@ project):
 ### Out of Scope (this spec)
 
 - Vertical orientation (product decision — not needed) and value tooltips.
+  > Amended 2026-07-23: reversed — vertical orientation is now supported. See specs/45-slider-vertical.md.
 - Tick **detents** (snapping to tick values) — ticks are visual marks only;
   stepping stays on the `step` grid.
 - More than two thumbs.

@@ -47,6 +47,14 @@ export interface ComponentHooks {
 	props?: HookRow[];
 	/** Extra classes the contract includes (child parts, theme conventions). */
 	parts?: HookRow[];
+	/**
+	 * A prose caution rendered as an `Alert intent="warning"` above the hooks
+	 * table, for the rare component whose theme treatment isn't a plain
+	 * `@layer hz-theme` override — e.g. Toggle, whose track/thumb rules are
+	 * deliberately unlayered. Backtick segments render as inline `<code>`
+	 * (same convention as `a11yNote`). Most components have no entry.
+	 */
+	warning?: string;
 }
 
 /**
@@ -109,6 +117,11 @@ const SLIDER_PROPS: HookRow[] = [
 		name: '--hz-slider-thumb-size',
 		values: '<length> — default 1.125rem',
 		note: 'Thumb width and height. The fill edge tracks the thumb centre, so the fill and ticks stay aligned at any size.'
+	},
+	{
+		name: '--hz-slider-length',
+		values: '<length> — default 12rem',
+		note: "The track's block length in vertical orientation. Ignored in horizontal, where the track flexes to fill the row instead."
 	}
 ];
 
@@ -868,6 +881,16 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: 'data-has-input',
 				values: 'present when the number field shows',
 				note: 'On .hz-slider-row. The reference theme targets the parts instead, so this one is yours.'
+			},
+			{
+				name: 'data-orientation',
+				values: "'horizontal' | 'vertical'",
+				note: 'On .hz-slider-row; always present. Drives the writing-mode-based vertical mechanism and the theme rotation (fill, ticks). Default horizontal.'
+			},
+			{
+				name: 'data-input-position',
+				values: "'start' | 'end'",
+				note: 'On .hz-slider-row; always present. Logical on both axes — reorders the track vs. the number field/readout. Default end.'
 			}
 		],
 		props: [...SLIDER_PROPS],
@@ -901,6 +924,16 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: 'data-has-input',
 				values: 'present when the number fields show',
 				note: 'On .hz-slider-row. Unstyled by the reference theme.'
+			},
+			{
+				name: 'data-orientation',
+				values: "'horizontal' | 'vertical'",
+				note: 'On .hz-slider-row; always present, as on Slider. Both ranges pick up writing-mode: vertical-lr; direction: rtl.'
+			},
+			{
+				name: 'data-input-position',
+				values: "'start' | 'end'",
+				note: 'On .hz-slider-row; always present, as on Slider. The min–max pair stays one inline cluster, reordered as a unit.'
 			}
 		],
 		props: [...SLIDER_PROPS],
@@ -918,6 +951,11 @@ export const hooks: Record<string, ComponentHooks> = {
 				note: 'Carries .hz-slider too.'
 			},
 			{ name: '.hz-slider-max', values: 'the upper range input', note: 'Carries .hz-slider too.' },
+			{
+				name: '.hz-slider-inputs',
+				values: 'child element',
+				note: 'Wraps the number-field pair (or the readout) so it stays one inline cluster regardless of orientation.'
+			},
 			{ name: '.hz-slider-number-min', values: 'child element', note: 'The lower number field.' },
 			{ name: '.hz-slider-number-max', values: 'child element', note: 'The upper number field.' },
 			{ name: '.hz-slider-sep', values: 'child element', note: 'The dash between the readouts.' },
@@ -944,6 +982,8 @@ export const hooks: Record<string, ComponentHooks> = {
 	},
 	Toggle: {
 		root: 'hz-field hz-field--toggle',
+		warning:
+			"`.hz-field--toggle input.hz-toggle` — the track and thumb — is the one rule in the reference theme shipped outside `@layer hz-theme`, on purpose: headless, Toggle is a bare native checkbox, so this rule needs to out-rank the component's own scoped structural reset unconditionally, and a layer can only lose to an unlayered rule regardless of specificity. It sits at a raw `(0,2,1)` specificity. A normal override written inside a layer — or even an unlayered rule that ties on specificity and loses on source order — silently does nothing; the toggle keeps its default look with no error. To win reliably, give your override enough specificity to clear `(0,2,1)` outright, e.g. by scoping it under your own theme's root class: `.your-theme .hz-field--toggle input.hz-toggle { … }`. See the Terminal example theme for a worked example (`theme/examples/terminal/components/toggle.css`), which does exactly this. The same applies to the `--hz-toggle-width` / `--hz-toggle-height` custom properties below — they're declared directly on that selector, so setting them from a lower-specificity or losing rule never reaches the element.",
 		attrs: [
 			// Toggle is the one place data-state means two different things at two
 			// levels, so both rows name their element rather than the bare attr.
@@ -955,7 +995,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-state (on input.hz-toggle)',
 				values: "'on' | 'off'",
-				note: 'A second data-state nested inside the root’s, with a disjoint vocabulary — this is the stable hook for the track and thumb. It exists rather than relying on :checked because the toggle rules must win the specificity fight described below, and an attribute selector composes into them cleanly.'
+				note: 'A second data-state nested inside the root’s, with a disjoint vocabulary — this is the stable hook for the track and thumb. It exists rather than relying on :checked because the toggle rules must win the specificity fight described above, and an attribute selector composes into them cleanly.'
 			}
 		],
 		props: [
@@ -1370,6 +1410,11 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: '--hz-carousel-dot-size',
 				values: '<length> — default 0.5rem',
 				note: 'Dot diameter (the painted size; the tap target is larger). Declared on .hz-carousel-dot itself, so set it there — declaring it on .hz-carousel will not reach, since the local declaration beats your inherited value.'
+			},
+			{
+				name: '--hz-carousel-focus-min-height',
+				values: '<length> — default 12rem',
+				note: "Minimum height of .hz-carousel-viewport, data-controls='focus' only. The revealed control row is an absolutely positioned overlay with no reserved layout space, so on a short carousel it can cover most of the slide — this keeps slide content clear of the row regardless of the slide's own height. data-controls='visible' needs no reserved space (its row sits in normal flow below the viewport) and is unaffected."
 			}
 		],
 		parts: [

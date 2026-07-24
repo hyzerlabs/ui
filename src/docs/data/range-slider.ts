@@ -53,6 +53,18 @@ export const rangeSliderDoc: ComponentDoc = {
 			default: '`${label} (maximum)`',
 			note: 'Accessible name for the upper thumb (and its number field).'
 		},
+		{
+			name: 'orientation',
+			type: "'horizontal' | 'vertical'",
+			default: "'horizontal'",
+			note: 'Vertical uses writing-mode: vertical-lr (bottom-up growth) on both ranges; horizontal is unchanged.'
+		},
+		{
+			name: 'inputPosition',
+			type: "'start' | 'end'",
+			default: "'end'",
+			note: 'Logical on both axes; the min–max pair stays one inline cluster, placed above/below the track in vertical rather than stacked to mirror the thumbs.'
+		},
 		{ name: 'description', type: 'string', default: '—', note: 'Help text below the legend.' },
 		{
 			name: 'error',
@@ -85,7 +97,7 @@ export const rangeSliderDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"The group is a `<fieldset>` whose `label` renders as the `<legend>`. Each thumb is a real range input with its own accessible name (`minThumbLabel`/`maxThumbLabel`) and native slider semantics — Tab reaches both, arrow keys step them, and a thumb dragged past its partner clamps rather than crossing. The number fields carry derived accessible names and never submit; the two thumbs submit as the base `name` plus `-min`/`-max` suffixes. `description` and `error` chain into `aria-describedby` on both ranges, and an `error` also sets `aria-invalid` on both; `required` renders the legend indicator only — `aria-required` isn't part of the slider role's supported ARIA attributes, so it is never applied. Ticks, the separator, and the readout are decorative and `aria-hidden`.",
+		"The group is a `<fieldset>` whose `label` renders as the `<legend>`. Each thumb is a real range input with its own accessible name (`minThumbLabel`/`maxThumbLabel`) and native slider semantics — Tab reaches both, arrow keys step them, and a thumb dragged past its partner clamps rather than crossing. The number fields carry derived accessible names and never submit; the two thumbs submit as the base `name` plus `-min`/`-max` suffixes. `description` and `error` chain into `aria-describedby` on both ranges, and an `error` also sets `aria-invalid` on both; `required` renders the legend indicator only — `aria-required` isn't part of the slider role's supported ARIA attributes, so it is never applied. Ticks, the separator, and the readout are decorative and `aria-hidden`. In vertical orientation the component stamps `aria-orientation=\"vertical\"` on both ranges explicitly, since writing-mode doesn't reliably flip a native range's implicit `horizontal` orientation in the accessibility tree across engines/AT.",
 	a11yLinks: [
 		{
 			label: 'APG Slider (Multi-Thumb) pattern',

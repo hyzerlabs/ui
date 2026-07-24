@@ -7,7 +7,13 @@
  * sheet, optionally scoped under a custom selector.
  */
 
-import type { ResolvedConfig, SectionId, TokenEntry } from './schema.js';
+import {
+	HyzerConfigError,
+	toKebab,
+	type ResolvedConfig,
+	type SectionId,
+	type TokenEntry
+} from './schema.js';
 
 export interface GenerateOptions {
 	/**
@@ -351,5 +357,146 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 	if (!hasRoot && darkEntries.length === 0) {
 		parts.push('/* No overrides configured. */');
 	}
+	return parts.join('\n') + '\n';
+}
+
+// ---------------------------------------------------------------------------
+// generateUtilitiesCss (specs/44) — the opt-in utility sheet
+// ---------------------------------------------------------------------------
+
+export interface GenerateUtilitiesOptions {
+	/**
+	 * Extra description lines prepended inside the generated header comment —
+	 * same weaving as `GenerateOptions.intro`.
+	 */
+	intro?: string[];
+}
+
+const UTILITIES_HEADER = [
+	'/**',
+	' * @hyzer-labs/ui utilities',
+	' *',
+	' * GENERATED FILE — do not edit by hand.',
+	' * Source of truth: src/lib/tokens/index.ts, rendered by the token engine',
+	' * (src/lib/config). Regenerate with `pnpm gen:tokens` in this repo, or',
+	' * `hyzer generate --utilities` (or `config.utilities`) against a',
+	' * hyzer.config in a consumer project.',
+	' *',
+	' * Opt-in — import this sheet explicitly, like a theme sheet',
+	' * (`@hyzer-labs/ui/utilities.css`). A consumer who never imports it ships',
+	' * zero of these bytes.',
+	' *',
+	' * Definition: a utility class is a token-derived, single-property',
+	' * helper — one class, one declaration, resolved from a design token.',
+	' * That is the whole definition; it does not depend on where the class',
+	' * is or is not used.',
+	' *',
+	' * Anti-goal: utilities are for ad-hoc spots — nudging one element,',
+	' * tinting one line of text — not an alternative layout system.',
+	' * Components already own their spacing (gap/padding props, the',
+	' * data-padding/data-gap scales) and the density system',
+	' * (--hz-space-near/--hz-space-away). The utility sheet deliberately',
+	' * does not reproduce that surface: it exposes the fixed --hz-space-*',
+	' * scale for margins only, never the density near/away distances, and',
+	' * no padding helpers at all (padding is owned by components).',
+	' *',
+	' * Unlayered, single-class specificity (0,1,0), no !important — mirrors',
+	' * .sr-only: a deliberately-applied utility beats the layered reference',
+	" * theme, while a consumer's own unlayered class of equal specificity",
+	' * still wins by source order.',
+	' */'
+].join('\n');
+
+const TEXT_UTILITIES_BANNER = [
+	'Text-color utilities',
+	'Role + intent helpers — color only, resolved from --hz-color-* / --hz-intent-*.'
+];
+
+const MARGIN_UTILITIES_BANNER = [
+	'Margin utilities (logical properties)',
+	'Seven families per --hz-space-* rung: margin, margin-block(-start/-end),',
+	'margin-inline(-start/-end). No padding — padding is owned by components.'
+];
+
+/** The seven logical margin families, fixed emission order (R3). */
+const MARGIN_FAMILIES: readonly { suffix: string; property: string }[] = [
+	{ suffix: '', property: 'margin' },
+	{ suffix: 'block', property: 'margin-block' },
+	{ suffix: 'block-start', property: 'margin-block-start' },
+	{ suffix: 'block-end', property: 'margin-block-end' },
+	{ suffix: 'inline', property: 'margin-inline' },
+	{ suffix: 'inline-start', property: 'margin-inline-start' },
+	{ suffix: 'inline-end', property: 'margin-inline-end' }
+];
+
+function utilityRule(className: string, property: string, value: string): string {
+	return `.${className} {\n\t${property}: ${value};\n}`;
+}
+
+/**
+ * Renders the opt-in utility sheet (specs/44) from the resolved token
+ * model: `.hz-text`/`.hz-text-muted`, one `.hz-text-<intent>` per resolved
+ * intent, and the seven logical margin families per resolved space rung.
+ * Deterministic and unlayered — mirrors `.sr-only`'s specificity posture.
+ * Does NOT re-resolve tokens; reads only `resolved.sections`.
+ */
+export function generateUtilitiesCss(
+	resolved: ResolvedConfig,
+	options: GenerateUtilitiesOptions = {}
+): string {
+	const roles = resolved.sections.find((s) => s.id === 'roles')!.entries;
+	const intentEntries = resolved.sections.find((s) => s.id === 'intent')!.entries;
+	const spaceEntries = resolved.sections.find((s) => s.id === 'space')!.entries;
+
+	const text = roles.find((e) => e.key === 'text');
+	const textMuted = roles.find((e) => e.key === 'textMuted');
+	if (!text || !textMuted) {
+		throw new HyzerConfigError(
+			'generateUtilitiesCss requires the base "text" and "textMuted" color roles.'
+		);
+	}
+
+	const parts: string[] = [withIntro(UTILITIES_HEADER, options.intro)];
+
+	// --- text-color utilities (R2) --------------------------------------------
+	parts.push('', banner(TEXT_UTILITIES_BANNER, ''));
+	parts.push('', utilityRule('hz-text', 'color', `var(${text.cssName})`));
+	parts.push('', utilityRule('hz-text-muted', 'color', `var(${textMuted.cssName})`));
+
+	// Utility-class-namespace collision tracking (edge case: a consumer
+	// intent named "muted" kebab-cases to the fixed .hz-text-muted role
+	// helper's class name) — a hard generation error naming both parties,
+	// mirroring the engine's existing kebab-collision rule (schema.ts).
+	const usedClasses = new Map<string, string>([
+		['hz-text', 'the base text-color role helper (.hz-text)'],
+		['hz-text-muted', 'the muted text-color role helper (.hz-text-muted)']
+	]);
+
+	for (const entry of intentEntries) {
+		const suffix = toKebab(entry.key);
+		const className = `hz-text-${suffix}`;
+		const owner = usedClasses.get(className);
+		if (owner) {
+			throw new HyzerConfigError(
+				`config.tokens.intent.${entry.key} kebab-cases to the utility class ".${className}", ` +
+					`which ${owner} already defines. Rename the intent to avoid the collision.`
+			);
+		}
+		usedClasses.set(className, `intent "${entry.key}" (config.tokens.intent.${entry.key})`);
+		parts.push('', utilityRule(className, 'color', `var(${entry.cssName})`));
+	}
+
+	// --- margin utilities (R3) -------------------------------------------------
+	parts.push('', banner(MARGIN_UTILITIES_BANNER, ''));
+	for (const family of MARGIN_FAMILIES) {
+		for (const rung of spaceEntries) {
+			const rungSuffix = toKebab(rung.key);
+			const className = family.suffix
+				? `hz-m-${family.suffix}-${rungSuffix}`
+				: `hz-m-${rungSuffix}`;
+			parts.push('', utilityRule(className, family.property, `var(${rung.cssName})`));
+		}
+	}
+
 	return parts.join('\n') + '\n';
 }

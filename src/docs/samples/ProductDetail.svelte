@@ -5,7 +5,10 @@
 	 * This is consumer code: it imports only public exports. The buy panel is
 	 * live — the plastic RadioGroup drives the derived price, the Carousel
 	 * pages through colorways, and "Add to cart" raises a dismissible success
-	 * Alert. Product art is generated SVG data URIs so the sample stays
+	 * Alert. The active carousel slide is a lightboxGroup trigger — click it
+	 * (or Tab to it and press Enter/Space) to open the full-size viewer at
+	 * that colorway, still able to page through every colorway inside it.
+	 * Product art is generated SVG data URIs so the sample stays
 	 * self-contained.
 	 */
 	import {
@@ -21,7 +24,8 @@
 		RadioGroup,
 		Select,
 		Accordion,
-		Divider
+		Divider,
+		lightboxGroup
 	} from '$lib';
 	import type { BreadcrumbItem, FormOption } from '$lib/types';
 
@@ -55,6 +59,15 @@
 			`%3C/svg%3E`
 		);
 	}
+
+	// Asset-URL swap point: real photography will land at
+	// static/media/products/voyager-<id>.jpg. Every render call site below
+	// reads PRODUCT_MEDIA[colorway.id], never a raw URL, so pointing this map
+	// at real files later is a constants-only change — nothing else in this
+	// sample touches image URLs.
+	const PRODUCT_MEDIA: Record<string, string> = Object.fromEntries(
+		colorways.map((c) => [c.id, discArt(c)])
+	);
 
 	const flight = [
 		{ label: 'Speed', value: '12' },
@@ -96,23 +109,30 @@
 	<Breadcrumbs items={breadcrumbs} ariaLabel="Shop breadcrumbs" />
 
 	<Split fraction="1/2" gap="lg" stackBelow="md">
-		<Carousel
-			items={colorways}
-			ariaLabel="Voyager colorways"
-			indicator="dots"
-			loop
-			slideLabel={(colorway) => colorway.label}
-		>
-			{#snippet slide(colorway)}
-				<Image
-					src={discArt(colorway)}
-					alt="Voyager in {colorway.label}"
-					aspectRatio="4/3"
-					fit="cover"
-					rounded="md"
-				/>
-			{/snippet}
-		</Carousel>
+		<!-- lightboxGroup enhances the carousel's own rendered <img> in place —
+		     no thumbnail strip, no Lightbox component. Off-screen slides are
+		     inert (native browser behavior, not this attachment), so only the
+		     active slide is actually clickable/focusable; every colorway still
+		     joins the shared gallery, so the viewer pages across all of them. -->
+		<div class="colorway-carousel" {@attach lightboxGroup({ dialogLabel: 'Voyager colorways' })}>
+			<Carousel
+				items={colorways}
+				ariaLabel="Voyager colorways"
+				indicator="dots"
+				loop
+				slideLabel={(colorway) => colorway.label}
+			>
+				{#snippet slide(colorway)}
+					<Image
+						src={PRODUCT_MEDIA[colorway.id]}
+						alt="Voyager in {colorway.label}"
+						aspectRatio="4/3"
+						fit="cover"
+						rounded="md"
+					/>
+				{/snippet}
+			</Carousel>
+		</div>
 
 		<Stack gap="md">
 			<Stack gap="xs">

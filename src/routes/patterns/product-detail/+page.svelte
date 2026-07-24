@@ -11,6 +11,7 @@
 		{ label: 'Split', href: '/components/split' },
 		{ label: 'Carousel', href: '/components/carousel' },
 		{ label: 'Image', href: '/components/image' },
+		{ label: 'lightboxGroup', href: '/components/lightbox' },
 		{ label: 'Badge', href: '/components/badge' },
 		{ label: 'RadioGroup', href: '/components/radio-group' },
 		{ label: 'Select', href: '/components/select' },
@@ -30,8 +31,9 @@
 		<p class="lead">
 			A single product's page with a live buy panel: the plastic RadioGroup drives the derived
 			price, the Carousel pages through colorways, and "Add to cart" raises a dismissible success
-			Alert that reads back the selected options. Below the fold, an Accordion holds the long-form
-			content.
+			Alert that reads back the selected options. The active slide is a <code>lightboxGroup</code>
+			trigger — click it (or Tab to it and press Enter/Space) to open a full-size viewer that pages across
+			every colorway. Below the fold, an Accordion holds the long-form content.
 		</p>
 		<p class="composed">
 			Composes

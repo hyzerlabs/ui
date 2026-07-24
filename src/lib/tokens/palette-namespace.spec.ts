@@ -11,9 +11,13 @@ import { fileURLToPath } from 'node:url';
  * referenced in exactly one place, the token source. Generated sheets
  * (tokens.css, and the example theme `*.css` overrides) are engine OUTPUT of
  * that source and are excluded, same as the example `*.config.ts` files
- * (ocean/sunset/terminal) — those are per-theme token SOURCES, the same tier
+ * (ocean/terminal) — those are per-theme token SOURCES, the same tier
  * as `src/lib/tokens/index.ts`, and specs/42 R2.6 explicitly requires
  * terminal.config.ts's `phosphor` intent to read `var(--hz-palette-primary)`.
+ * The hand-authored Docs example (specs/46, theme/examples/docs/docs.css)
+ * has no config and is deliberately NOT excluded — it stays in scan scope,
+ * resolving through role/intent tokens only, like any other hand-authored
+ * sheet.
  *
  * R6: the old `--hz-color-<hue>` names (gray/primary/secondary/danger/
  * warning/success/info) no longer exist anywhere in `src/**` code.
@@ -41,7 +45,6 @@ describe('specs/42 R3.1 — zero --hz-palette-* in components/theme (excluding g
 		[
 			'lib/tokens/tokens.css',
 			'lib/theme/examples/ocean.css',
-			'lib/theme/examples/sunset/sunset.tokens.css',
 			'lib/theme/examples/terminal/terminal.tokens.css'
 		].map((p) => join(srcRoot, p))
 	);
@@ -49,11 +52,9 @@ describe('specs/42 R3.1 — zero --hz-palette-* in components/theme (excluding g
 	// sanctioned palette consumer); specs/42 R2.6 requires a direct
 	// --hz-palette-* reference in terminal.config.ts's phosphor intent.
 	const exampleConfigSources = new Set(
-		[
-			'lib/theme/examples/ocean.config.ts',
-			'lib/theme/examples/sunset/sunset.config.ts',
-			'lib/theme/examples/terminal/terminal.config.ts'
-		].map((p) => join(srcRoot, p))
+		['lib/theme/examples/ocean.config.ts', 'lib/theme/examples/terminal/terminal.config.ts'].map(
+			(p) => join(srcRoot, p)
+		)
 	);
 
 	const scoped = allSrcFiles.filter(

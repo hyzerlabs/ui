@@ -1,0 +1,203 @@
+<script lang="ts">
+	/**
+	 * A long-form editorial article composed entirely from the library.
+	 *
+	 * This is consumer code: it imports only public exports. It's the prose-
+	 * heavy end of the pattern set — a Hero opens it, an author/date byline
+	 * sits under the title, and the body runs through a Blockquote pull-quote
+	 * and a breakout image before closing. The breakout image is the
+	 * width-sensitive demo: it lives in the same narrow prose column as the
+	 * rest of the body copy, but escapes it with `<Container breakout>` to
+	 * span the full content area — the same convention the Container and
+	 * Table docs pages use to show off-column bleed.
+	 */
+	import { Hero, Container, Stack, Cluster, Divider, Blockquote, Image } from '$lib';
+
+	// Self-contained editorial art — a real publication would serve photos
+	// here. Asset-URL swap point: real photography will land at
+	// static/media/articles/course-design-<slot>.jpg. The one render call
+	// site below reads ARTICLE_MEDIA[key], never a raw URL, so pointing this
+	// map at real files later is a constants-only change.
+	function courseArt(label: string, bg: string, fg: string): string {
+		return (
+			`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='600' viewBox='0 0 1200 600'%3E` +
+			`%3Crect width='1200' height='600' fill='%23${bg}'/%3E` +
+			`%3Cpath d='M0 420 Q300 340 600 400 T1200 380 V600 H0 Z' fill='%23${fg}'/%3E` +
+			`%3Ccircle cx='980' cy='150' r='70' fill='%23${fg}' fill-opacity='0.6'/%3E` +
+			`%3Ctext x='50%25' y='94%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='22' font-family='system-ui'%3E` +
+			encodeURIComponent(label) +
+			`%3C/text%3E%3C/svg%3E`
+		);
+	}
+
+	const ARTICLE_MEDIA: Record<string, string> = {
+		dogleg: courseArt('A wooded dogleg, hole 7', '14532d', '4ade80')
+	};
+</script>
+
+<!-- headingLevel=2: the route's own h1 is the page title, so the sample's
+     top heading sits a level below it rather than competing for the
+     document's h1. -->
+<Hero
+	headingLevel={2}
+	eyebrow="Course design"
+	title="How Designers Build a Hole That Argues for One Line"
+	subtitle="Behind every flag and basket is a designer betting you'll choose the risky line — and building the hole so that bet pays off."
+/>
+
+<Container max="md" padding="lg">
+	<Stack gap="lg" as="article">
+		<div class="byline">
+			<Cluster gap="sm" justify="between" align="center">
+				<Cluster gap="sm" align="center">
+					<span>By Casey Renner</span>
+					<span aria-hidden="true">·</span>
+					<span class="muted">Course design editor</span>
+				</Cluster>
+				<time class="muted" datetime="2026-06-12">June 12, 2026 · 8 min read</time>
+			</Cluster>
+		</div>
+
+		<Divider spacing="none" />
+
+		<div class="prose">
+			<h3>Start with the land, not the layout</h3>
+			<p>
+				Every good hole starts the same way: a designer walks the property before they draw
+				anything. The trees, the elevation change, the creek that floods every spring — those
+				constraints aren't obstacles to route around, they're the raw material. A flat, featureless
+				field makes for a boring hole no matter how cleverly the basket is placed; a stand of oaks
+				with a ten-foot drop from tee to green gives a designer something to argue with.
+			</p>
+			<p>
+				At Maple Hill, the back nine's elevation did most of the design work before a single tree
+				was cleared. The routing team spent two full days just walking the ridgeline, flagging
+				sightlines, before they placed a single tee pad. That patience shows up in the finished
+				holes — nothing on the back nine feels imposed on the land, because none of it was.
+			</p>
+
+			<h3>Risk has to be optional</h3>
+			<p>
+				The single most common mistake in course design isn't a bad hole — it's a hole with only one
+				playable line. If every player from beginner to pro is throwing the identical flex shot
+				around the identical tree, the hole isn't testing decision-making, it's testing execution of
+				a single shot. The best doglegs give you a safe route to the green in three comfortable
+				shots and a riskier route that turns it into a two, and they make both routes visible from
+				the tee so the choice is real, not a surprise you discover mid-flight.
+			</p>
+			<p>
+				That's the part course design shares with poker more than architecture: you're not building
+				a puzzle with one solution, you're building a decision with a real cost on both sides of it.
+			</p>
+
+			<Blockquote intent="primary" cite="Dana Kessler, lead designer, Fairwood Design Collective">
+				<p>
+					You're not building a hole so a pro can birdie it. You're building a hole that makes a
+					mid-handicap player stand on the tee, look at the gap in the trees, and choose the line
+					they'll be talking about at the bar that night — win or lose.
+				</p>
+			</Blockquote>
+
+			<p>
+				That tension is deliberate. A hole that only rewards the safe line teaches players nothing
+				about their own game; a hole that only rewards the risky line just punishes anyone who isn't
+				already elite. The sweet spot sits between the two, and it moves depending on who's standing
+				on the tee.
+			</p>
+		</div>
+
+		<!--
+			Breakout image — the width-sensitive demo convention. The Container
+			above is capped at max="md"; this nested Container escapes that
+			column and spans the nearest ancestor with container-type:
+			inline-size (the docs shell's main content area), so the image
+			reads as a deliberate full-bleed break in the column rather than
+			just another inline img.
+		-->
+		<Container breakout padding="none">
+			<figure>
+				<Image
+					src={ARTICLE_MEDIA.dogleg}
+					alt="A wooded dogleg fairway bending right around a stand of trees, with a small clearing visible near the green"
+					aspectRatio="21/9"
+					fit="cover"
+					rounded="md"
+				/>
+				<figcaption class="muted">
+					A wooded dogleg at Maple Hill — the kind of hole where the tee shot is the whole decision.
+				</figcaption>
+			</figure>
+		</Container>
+
+		<div class="prose">
+			<h3>The green complex is the real test</h3>
+			<p>
+				Tee shots get the highlight reels, but designers will tell you the green complex is where a
+				hole earns its reputation. A pin tucked behind a mando tree, a green that slopes away from
+				every reasonable angle of approach, a basket set just far enough into the woods that a
+				hyzer-heavy upshot clips a branch it shouldn't — these are the details that separate a hole
+				players remember from one they forget by the parking lot.
+			</p>
+			<p>
+				Good green complexes also protect against power creep. As plastics get more overstable and
+				players get stronger, a green that was a fair upshot five years ago can become trivial.
+				Designers who build in multiple approach angles — not just multiple tee lines — give a hole
+				room to stay interesting as the meta shifts around it.
+			</p>
+
+			<h3>Building for a hundred years of play</h3>
+			<p>
+				The courses that last aren't the ones built for this season's field — they're the ones built
+				so a beginner and a touring pro can play the same eighteen holes and both walk away with a
+				story. That means resisting the urge to over-difficult a layout just to keep pace with how
+				far discs fly now. A well-routed course ages the way a well-routed golf course does: the
+				land does the work, and the design just makes sure nobody misses it.
+			</p>
+		</div>
+	</Stack>
+</Container>
+
+<style>
+	/* --hz-font-family-serif dogfood: the prose column reads like a printed
+	 * feature — headings and body copy in the theme's serif stack, byline and
+	 * captions stay in the sans default so the metadata doesn't compete with
+	 * the reading experience. Literal divs (not a class passed into a $lib
+	 * component) so these selectors need no :global escape. */
+	.prose {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.prose h3 {
+		margin: 0;
+		font-family: var(--hz-font-family-serif, serif);
+		font-size: var(--hz-font-size-xl, 1.65rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.prose p {
+		margin: 0;
+		font-family: var(--hz-font-family-serif, serif);
+		font-size: var(--hz-font-size-base, 1rem);
+		line-height: var(--hz-line-height-base, 1.5);
+	}
+
+	.byline {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	figure {
+		margin: 0;
+	}
+
+	figcaption {
+		margin-top: 0.5rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		text-align: center;
+	}
+
+	.muted {
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+</style>

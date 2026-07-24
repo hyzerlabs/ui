@@ -135,15 +135,23 @@ function walk(dir: string, out: string[] = []): string[] {
 
 const libRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 /**
- * theme/examples/** is deliberately out of scope. This invariant exists so
- * that a consumer who skips tokens.css still gets the BASE look — which makes
- * the base palette the only correct fallback for library code. An example
- * theme inverts that: `var(--hz-color-surface, #ffffff)` inside Terminal
- * would promise white paper for a theme whose paper is #f4f4ec. The example
- * sheets are held to the same standard against THEIR OWN resolved config, in
+ * theme/examples/** is deliberately out of scope, WITH ONE EXCEPTION. This
+ * invariant exists so that a consumer who skips tokens.css still gets the
+ * BASE look — which makes the base palette the only correct fallback for
+ * library code. A config-driven example theme inverts that: `var(--hz-color-
+ * surface, #ffffff)` inside Terminal would promise white paper for a theme
+ * whose paper is #f4f4ec. Those sheets (Ocean, Terminal) are held to the same
+ * standard against THEIR OWN resolved config, in
  * theme/examples/examples.spec.ts.
+ *
+ * The "Docs" example (specs/46, theme/examples/docs/**) is the exception: it
+ * adds no config and no palette override, so its fallbacks promise the same
+ * thing library code's fallbacks do — the base resolved value. It belongs in
+ * THIS suite, not the per-config one, and is deliberately NOT excluded below.
  */
-const files = walk(libRoot).filter((p) => !p.includes(join('theme', 'examples')));
+const examplesDir = join('theme', 'examples');
+const docsExampleDir = join(examplesDir, 'docs');
+const files = walk(libRoot).filter((p) => !p.includes(examplesDir) || p.includes(docsExampleDir));
 const tokenNames = new Set([
 	...lightMap.keys(),
 	'--hz-density',

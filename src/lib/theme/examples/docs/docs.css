@@ -1,0 +1,179 @@
+/**
+ * Example theme — Docs (specs/46), display name "Docs — the look this site
+ * runs on", id `docs`.
+ *
+ * A CONTENT STARTER, a different shape of example from the Ocean/Terminal
+ * palette-freedom arc (see /theming/examples): it adds no config and no
+ * palette — every declaration below resolves through the reference theme's
+ * own role/intent tokens. What it ships instead is this site's reading
+ * chrome: named scaffold classes for the page/demo rhythm, one worked
+ * component-hook override (`.docs-table`), the in-prose code-chip
+ * treatment, and a content focus-visible ring. This is the sheet
+ * `design.hyzer.sh` itself imports — there is exactly one copy.
+ *
+ * Usage (order matters — this sheet layers OVER the reference theme):
+ *   import '@hyzer-labs/ui/tokens.css';                    // required
+ *   import '@hyzer-labs/ui/theme';                          // layers under it
+ *   import '@hyzer-labs/ui/theme/examples/docs/docs.css';
+ *
+ * Ships UNSCOPED — no `.hz-theme-docs` root, no class to add anywhere. It
+ * never restyles a bare component hook (`.hz-button` and friends keep
+ * whatever the reference theme gives them); it only adds opt-in named
+ * classes, an opt-in `.docs-table` wrapper, and two broad content-chrome
+ * rules meant to apply globally. Without the reference theme imported, the
+ * scaffold classes still lay out (they're structure, not paint), the
+ * `.docs-table` override has no `.hz-table` to win against, and the
+ * `*:focus-visible` ring still applies — it depends on no theme.
+ *
+ * SCAFFOLD — the shared page-rhythm classes (`.doc-intro h1`,
+ * `.doc-description`, `.doc-section h2`, `.a11y-refs`) and the demo
+ * scaffolding around Example blocks (`.tab-content`, `.inner-tab`,
+ * `.tab-note`, `.demo-col`). Opt-in classes only.
+ *
+ * .docs-table — the worked layered-cascade lesson (taught in full on
+ * /theming/examples): the reference theme paints `.hz-table` from
+ * `@layer hz-theme`; these unlayered rules win on every property they set,
+ * no `!important`, no specificity games. A table with no `.docs-table`
+ * wrapper is left exactly as the reference theme paints it.
+ *
+ * CODE CHIPS — `p code` / `li code` get a subtle tinted-pill treatment,
+ * scoped to paragraph/list context so `<pre>` blocks and table cells
+ * (props/hooks tables render code plain) stay plain. The
+ * `[data-theme='dark']` pair strengthens the tint 14% → 28% — 14% gray is
+ * nearly invisible over a dark surface, the same reason surface-muted's own
+ * tint jumps 6% → 25% in the dark palette.
+ * AA (specs/46 R7): the only new graded pairing this sheet introduces is
+ * body text over the chip tint — bounded and subtle, and it holds contrast
+ * on the surface / surface-muted roles this site paints behind prose. That
+ * is the extent of the boundary: a consumer painting the chip over some
+ * other background is responsible for checking it, same posture as the
+ * opt-in utilities sheet (specs/44 R7).
+ *
+ * FOCUS RING — broad and INTENTIONAL: every `:focus-visible` element gets a
+ * `2px solid currentColor` outline at a `2px` offset, EXCEPT `.hz-field`
+ * inputs/selects/textareas and `.hz-button`, which keep the reference
+ * theme's own soft (box-shadow) focus ring instead. That exclusion list is
+ * part of the shipped look, not an afterthought — a library example is the
+ * right place for a rule that knows the library's own class names. Drop the
+ * exclusion and the broad ring would draw an offset outline box straight
+ * across every field/button border, on top of the theme's own ring.
+ *
+ * NOT HERE — `.sr-only` ships in `theme/base.css`; app-level resets
+ * (box-sizing, body margin, the `prefers-reduced-motion` collapse) are the
+ * consuming app's job, not an example theme's. Neither is duplicated here.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Demo scaffolding — the shared conventions around Example blocks.     */
+/* ------------------------------------------------------------------ */
+
+.tab-content {
+	padding-top: 1rem;
+}
+
+.inner-tab {
+	padding-top: 0.5rem;
+}
+
+.tab-note {
+	margin: 0 0 1rem;
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	color: var(--hz-color-text-muted, #6b7280);
+}
+
+.demo-col {
+	max-width: 24rem;
+}
+
+/*
+ * .docs-table — the worked cascade example: the reference theme paints
+ * .hz-table from @layer hz-theme, so these unlayered rules win on every
+ * property they set — no specificity games, no !important.
+ */
+
+.docs-table.hz-table-wrap {
+	border: none;
+	border-radius: 0;
+}
+
+.docs-table .hz-table {
+	font-size: var(--hz-font-size-sm, 0.875rem);
+}
+
+.docs-table .hz-table th,
+.docs-table .hz-table td {
+	text-align: left;
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid var(--hz-color-border, #6b7280);
+	vertical-align: top;
+}
+
+.docs-table .hz-table thead th {
+	background-color: transparent;
+	font-weight: var(--hz-font-weight-semibold, 600);
+	white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
+/* Page rhythm — the h1/lead/section-heading scaffold shared by every    */
+/* content page.                                                        */
+/* ------------------------------------------------------------------ */
+
+.doc-intro h1 {
+	margin: 0 0 0.5rem;
+	font-size: var(--hz-font-size-2xl, 2.75rem);
+	font-weight: var(--hz-font-weight-bold, 700);
+	line-height: var(--hz-line-height-tight, 1.2);
+}
+
+.doc-description {
+	margin: 0;
+	font-size: var(--hz-font-size-lg, 1.4rem);
+	color: var(--hz-color-text, #000);
+	line-height: var(--hz-line-height-base, 1.5);
+}
+
+.doc-section h2 {
+	margin: 0;
+	font-size: var(--hz-font-size-xl, 1.65rem);
+	font-weight: var(--hz-font-weight-semibold, 600);
+}
+
+.a11y-refs {
+	margin: 0;
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	color: var(--hz-color-text-muted, #6b7280);
+}
+
+/* ------------------------------------------------------------------ */
+/* Content focus-visible ring — broad by design; see header comment for  */
+/* why the exclusion list is load-bearing.                              */
+/* ------------------------------------------------------------------ */
+
+*:focus-visible:not(:is(.hz-field input, .hz-field select, .hz-field textarea, .hz-button)) {
+	outline: 2px solid currentColor;
+	outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Code chips — inline code in running text. Scoped to paragraph/list   */
+/* context so pre blocks and table cells stay plain.                    */
+/* ------------------------------------------------------------------ */
+
+p code,
+li code {
+	background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 14%, transparent);
+	padding: 0.125em 0.375em;
+	border-radius: var(--hz-radius-sm, 0.25rem);
+	font-family: var(--hz-font-family-mono, monospace);
+	font-size: 0.875em;
+}
+
+/* 14% gray is invisible over black — strengthen the chip tint in dark. The
+ * fallback here mirrors the light rule's (not a dark literal): a fallback
+ * only fires when --hz-intent-neutral is undefined altogether, which has
+ * nothing to do with data-theme. */
+[data-theme='dark'] p code,
+[data-theme='dark'] li code {
+	background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 28%, transparent);
+}

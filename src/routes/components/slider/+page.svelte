@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Slider, Tabs, Stack } from '$lib';
+	import { Slider, Tabs, Stack, Cluster } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { sliderDoc } from '../../../docs/data/slider.js';
 	import Example from '../../../docs/Example.svelte';
@@ -35,7 +35,11 @@
 		'',
 		'<Slider name="stack" label="Discs in your bag" max={30} error="You need at least one disc." />',
 		'<Slider name="entry" label="Entry fee split" required />',
-		'<Slider name="locked" label="Course length (locked)" min={4000} max={12000} value={7245} unit="ft" disabled />'
+		'<Slider name="locked" label="Course length (locked)" min={4000} max={12000} value={7245} unit="ft" disabled />',
+		'',
+		'<!-- vertical: description/error keep their place in the field scaffold -->',
+		'<Slider name="apex" label="Apex height" max={30} unit="m" orientation="vertical" description="Peak height of the throw." />',
+		'<Slider name="angle" label="Release angle" max={45} unit="°" orientation="vertical" error="Pick an angle." />'
 	].join('\n');
 
 	const ticksCode = [
@@ -53,11 +57,39 @@
 		'/>'
 	].join('\n');
 
+	const verticalCode = [
+		'<Cluster gap="lg">',
+		'\t<Slider',
+		'\t\tname="elevation"',
+		'\t\tlabel="Elevation"',
+		'\t\tmin={0}',
+		'\t\tmax={2000}',
+		'\t\tunit="ft"',
+		'\t\torientation="vertical"',
+		'\t\tticks={[',
+		"\t\t\t{ value: 0, label: 'sea level' },",
+		"\t\t\t{ value: 1000, label: 'ridge' },",
+		"\t\t\t{ value: 2000, label: 'peak' }",
+		'\t\t]}',
+		'\t/>',
+		'\t<Slider',
+		'\t\tname="elevation-start"',
+		'\t\tlabel="Elevation (input above)"',
+		'\t\tmin={0}',
+		'\t\tmax={2000}',
+		'\t\tunit="ft"',
+		'\t\torientation="vertical"',
+		'\t\tinputPosition="start"',
+		'\t/>',
+		'</Cluster>'
+	].join('\n');
+
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
 		{ id: 'step', label: 'Range & step' },
 		{ id: 'ticks', label: 'Ticks' },
 		{ id: 'no-input', label: 'Slider only' },
+		{ id: 'vertical', label: 'Vertical' },
 		{ id: 'states', label: 'Description & states' }
 	];
 </script>
@@ -141,6 +173,46 @@
 							/>
 						</div>
 					</Example>
+				{:else if item.id === 'vertical'}
+					<p class="tab-note">
+						<code>orientation="vertical"</code> switches the track to a native
+						<code>writing-mode: vertical-lr</code> range — bottom-up, so Up/Right arrows still
+						increase toward <code>max</code>. Ticks and labels sit beside the track. The track's
+						block length comes from <code>--hz-slider-length</code> (default <code>12rem</code>), so
+						a vertical slider never grows the page unbounded.
+						<code>inputPosition</code> is logical on both axes: <code>"end"</code> (default) puts
+						the number field below the track, <code>"start"</code> puts it above. Placing several
+						vertical sliders side by side is up to you — this demo wraps them in
+						<a href="/components/cluster">Cluster</a>.
+					</p>
+					<Example code={verticalCode}>
+						<div class="demo-col vertical-demo">
+							<Cluster gap="lg">
+								<Slider
+									name="elevation-demo"
+									label="Elevation"
+									min={0}
+									max={2000}
+									unit="ft"
+									orientation="vertical"
+									ticks={[
+										{ value: 0, label: 'sea level' },
+										{ value: 1000, label: 'ridge' },
+										{ value: 2000, label: 'peak' }
+									]}
+								/>
+								<Slider
+									name="elevation-start-demo"
+									label="Elevation (input above)"
+									min={0}
+									max={2000}
+									unit="ft"
+									orientation="vertical"
+									inputPosition="start"
+								/>
+							</Cluster>
+						</div>
+					</Example>
 				{:else}
 					<p class="tab-note">
 						<code>description</code> and <code>error</code> are announced with the range — both
@@ -174,6 +246,24 @@
 									unit="ft"
 									disabled
 								/>
+								<Cluster gap="lg" align="start">
+									<Slider
+										name="apex-demo"
+										label="Apex height"
+										max={30}
+										unit="m"
+										orientation="vertical"
+										description="Peak height of the throw."
+									/>
+									<Slider
+										name="angle-demo"
+										label="Release angle"
+										max={45}
+										unit="°"
+										orientation="vertical"
+										error="Pick an angle."
+									/>
+								</Cluster>
 							</Stack>
 						</div>
 					</Example>
@@ -186,5 +276,12 @@
 <style>
 	.demo-col {
 		max-width: 28rem;
+	}
+
+	/* Field-R1 gives every field a full-width block root — expected, since a
+	 * vertical Slider is still a block Field (Vert-R8). Side-by-side layout
+	 * is the author's job, so this demo shrinks the roots to their content. */
+	.vertical-demo :global(.hz-field--slider) {
+		width: auto;
 	}
 </style>

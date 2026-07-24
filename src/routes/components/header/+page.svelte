@@ -32,12 +32,29 @@
 	];
 
 	const demoTabs = [
-		{ id: 'bar', label: 'Bar' },
+		{ id: 'basic', label: 'Basic' },
 		{ id: 'surface', label: 'Surface' },
 		{ id: 'mobile', label: 'Mobile' }
 	];
 
-	const barCode = [
+	// Shows the navItems data shape (the same demoItems used by the live demo
+	// below), not just `items={navItems}` — a label/href per entry, a
+	// children sub-menu on one.
+	const basicCode = [
+		'const navItems: NavItem[] = [',
+		"\t{ label: 'Home', href: '#' },",
+		'\t{',
+		"\t\tlabel: 'Components',",
+		"\t\thref: '#',",
+		'\t\tchildren: [',
+		"\t\t\t{ label: 'Button', href: '#' },",
+		"\t\t\t{ label: 'Card', href: '#' }",
+		'\t\t]',
+		'\t},',
+		"\t{ label: 'Foundation', href: '#' },",
+		"\t{ label: 'Media', href: '#' }",
+		'];',
+		'',
 		'<Header items={navItems} bordered>',
 		'\t{#snippet brand()}<Logo />{/snippet}',
 		'\t{#snippet actions()}<Button size="sm">Sign in</Button>{/snippet}',
@@ -59,17 +76,17 @@
 </script>
 
 <DocPage name="Header" {...headerDoc}>
-	<Tabs items={demoTabs} ariaLabel="Header demos" defaultTab="bar">
+	<Tabs items={demoTabs} ariaLabel="Header demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">
-				{#if item.id === 'bar'}
+				{#if item.id === 'basic'}
 					<p class="tab-note">
 						Pass <code>items</code> plus <code>brand</code> and <code>actions</code> snippets —
 						Header composes a <a href="/components/nav">Nav</a> internally from the same items, horizontal
 						in the bar and vertical in the mobile drawer, so there is nothing to wrap.
 					</p>
 					<Container breakout padding="none">
-						<Example code={barCode}>
+						<Example code={basicCode}>
 							<Header items={demoItems} bordered mobileBreakpoint="sm" ariaLabel="Demo header">
 								{#snippet brand()}
 									<!-- svelte-ignore a11y_invalid_attribute -->

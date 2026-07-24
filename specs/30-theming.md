@@ -75,11 +75,14 @@ reflecting the three-tier consumer contract. User-approved 2026-07-15.
      unlayered-component-styles gotcha. **Absorbs the deferred theme-docs
      backlog**: the Card treatment classes and `.hz-card-title` convention
      land here; the backlog note is then retired.
-   - `/theming/examples` — ocean and sunset demonstrated **scoped** (each
-     sheet regenerated at build/demo time with `selector: '.theme-ocean'`
-     etc., or the committed sheet shown as code while a scoped twin drives
-     the live demo); each demo shows its `*.config.ts` source alongside the
-     generated CSS — the configs are the teaching material for tier 3.
+   - `/theming/examples` — **amended by specs/46 (2026-07-23):** now Ocean
+     and Terminal (Sunset retired), demonstrated **scoped** (each sheet
+     regenerated at build/demo time with `selector: '.theme-ocean'` etc., or
+     the committed sheet shown as code while a scoped twin drives the live
+     demo); each demo shows its `*.config.ts` source alongside the generated
+     CSS — the configs are the teaching material for tier 3. A third,
+     differently-shaped section, docs (specs/46), shows the docs site's own
+     hand-authored, unscoped example sheet instead.
 4. **R4 — Getting Started quickstart.** New top-level page
    `/getting-started`, listed in the manifest directly after Introduction.
    Content: install; tier 1 (import `tokens.css` + `theme`, use
@@ -117,7 +120,7 @@ reflecting the three-tier consumer contract. User-approved 2026-07-15.
 | Case | Expected behavior |
 | --- | --- |
 | Consumer still imports `@hyzer-labs/ui/theme/button.css` (old path) | Resolution fails loudly at build (path gone). Breaking change, greenfield; the Theming overview documents current paths. |
-| Docs client-side nav after visiting the examples page | No `:root`-level example styles leak to other pages (scoped selectors only). |
+| Docs client-side nav after visiting the examples page | No `:root`-level example styles leak to other pages (scoped selectors only for Ocean + Terminal; the docs example, specs/46, is the sole deliberate exception — it ships unscoped and globally, by design). |
 | Example config drifts from committed example css | Drift test fails CI (R2). |
 | `theme.css` import order after move | Layer pin (`@layer hz-reset, hz-theme;`) stays first; alphabetical component imports preserved. |
 | Prerender crawl of the four new routes + `/getting-started` | All statically prerendered, reachable from the sidebar by keyboard (specs/16 R4). |
@@ -149,7 +152,8 @@ inside the scoped wrapper differs from the page root).
 ### Out of Scope
 
 - The per-component "extend with your own styles" example gallery (user:
-  discuss-only for now) — `/theming/examples` v1 is ocean + sunset.
+  discuss-only for now) — `/theming/examples` v1 is ocean + sunset (Sunset
+  retired by specs/46, 2026-07-23; the page is now Ocean + Terminal + docs).
 - An interactive theme-builder page (future; engine makes it possible).
 - Search bar, MCP server (separate roadmap items).
 - Any component or reference-theme rule changes.

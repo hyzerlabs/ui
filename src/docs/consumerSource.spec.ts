@@ -37,7 +37,6 @@ describe('consumerSource', () => {
 
 	it.each([
 		'src/lib/theme/examples/ocean.config.ts',
-		'src/lib/theme/examples/sunset/sunset.config.ts',
 		'src/lib/theme/examples/terminal/terminal.config.ts',
 		'src/lib/theme/examples/terminal/intents.d.ts'
 	])('leaves no internal specifier in %s', (file) => {

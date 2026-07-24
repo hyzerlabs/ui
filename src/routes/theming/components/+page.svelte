@@ -209,6 +209,11 @@
 				</Card>
 			</Cluster>
 		</Example>
+		<p>
+			The generated utility sheet and the full catalog of opt-in classes — including
+			<code>.hz-card-title</code> and <code>.hz-banner-title</code> — are documented on
+			<a href="/foundation/utilities">Foundation &rarr; Utilities</a>.
+		</p>
 	</Stack>
 
 	<Stack

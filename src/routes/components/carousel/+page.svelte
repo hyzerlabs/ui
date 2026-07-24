@@ -47,11 +47,69 @@
 		'/>'
 	].join('\n');
 
+	// Minimal-controls restyle (theme example): dots become flat segments of a
+	// thin progress trackline via a plain consumer class — no new component
+	// API. Chevrons stay in the DOM and fully operable (never display/
+	// visibility/aria-hidden/inert) but are visually hidden until they
+	// receive keyboard focus, the same a11y posture controls="focus" already
+	// ships, applied here to two individual controls instead of the whole row.
+	const minimalCode = [
+		'<Carousel',
+		'\titems={quotes}',
+		'\tindicator="dots"',
+		'\tariaLabel="Customer quotes"',
+		'\tclass="minimal-carousel"',
+		'>',
+		'\t{#snippet slide(quote)}',
+		'\t\t<Blockquote cite={quote.who}>{quote.text}</Blockquote>',
+		'\t{/snippet}',
+		'</Carousel>',
+		'',
+		'<' + 'style>',
+		'\t.minimal-carousel .hz-carousel-controls {',
+		'\t\tgap: 0.5rem;',
+		'\t}',
+		'',
+		'\t/* Hidden until :focus-visible — still in the DOM, in the tab order,',
+		'\t   and Enter/Space-operable throughout; never display/visibility/',
+		'\t   aria-hidden/inert. */',
+		'\t.minimal-carousel .hz-carousel-prev,',
+		'\t.minimal-carousel .hz-carousel-next {',
+		'\t\topacity: 0;',
+		'\t}',
+		'',
+		'\t.minimal-carousel .hz-carousel-prev:focus-visible,',
+		'\t.minimal-carousel .hz-carousel-next:focus-visible {',
+		'\t\topacity: 1;',
+		'\t}',
+		'',
+		'\t.minimal-carousel .hz-carousel-dots {',
+		'\t\tflex: 1;',
+		'\t\tgap: 0.25rem;',
+		'\t}',
+		'',
+		'\t.minimal-carousel .hz-carousel-dot {',
+		'\t\twidth: auto;',
+		'\t\tflex: 1;',
+		'\t\theight: 3px;',
+		'\t\tborder-radius: var(--hz-radius-full);',
+		'\t\tscale: 1;',
+		'\t\tbackground-color: var(--hz-color-border);',
+		'\t}',
+		'',
+		'\t.minimal-carousel .hz-carousel-dot[data-active] {',
+		'\t\tscale: 1;',
+		'\t\tbackground-color: var(--hz-intent-primary);',
+		'\t}',
+		'</' + 'style>'
+	].join('\n');
+
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
 		{ id: 'dots', label: 'Dots' },
 		{ id: 'loop', label: 'Loop' },
-		{ id: 'drag', label: 'Drag' }
+		{ id: 'drag', label: 'Drag' },
+		{ id: 'minimal', label: 'Minimal controls' }
 	];
 </script>
 
@@ -98,7 +156,7 @@
 							{/snippet}
 						</Carousel>
 					</Example>
-				{:else}
+				{:else if item.id === 'drag'}
 					<p class="tab-note">
 						<code>controls="focus"</code> keeps the prev/next buttons and indicator in the DOM and
 						fully operable — hidden only visually until <code>:hover</code>/<code
@@ -127,6 +185,30 @@
 							{/snippet}
 						</Carousel>
 					</Example>
+				{:else}
+					<p class="tab-note">
+						A theme example, not a new prop: a plain consumer class restyles the dots into flat
+						segments of a thin progress trackline (the current slide's segment colored
+						<code>--hz-intent-primary</code>) and hides the chevrons until they receive keyboard
+						focus. The chevrons stay in the DOM, in the tab order, and Enter/Space-operable
+						throughout — never <code>display</code>, <code>visibility</code>,
+						<code>aria-hidden</code>, or <code>inert</code> — the same a11y posture
+						<code>controls="focus"</code> ships (see the Drag tab), applied here to the two controls
+						individually so the trackline itself stays always visible. Every color comes from
+						<code>--hz-color-*</code>/<code>--hz-intent-*</code> tokens.
+					</p>
+					<Example code={minimalCode}>
+						<Carousel
+							items={quotes}
+							indicator="dots"
+							ariaLabel="Customer quotes (minimal controls)"
+							class="minimal-carousel"
+						>
+							{#snippet slide(quote)}
+								<Blockquote cite={quote.who}>{quote.text}</Blockquote>
+							{/snippet}
+						</Carousel>
+					</Example>
 				{/if}
 			</div>
 		{/snippet}
@@ -138,5 +220,42 @@
 		margin: 0 0 1rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	/* Minimal-controls restyle (specs/40 tweak batch): every class here
+	 * targets DOM rendered by the child Carousel, not this page's own
+	 * template, so both the outer class and the theme's part classes need
+	 * :global() (Lightbox's .gallery-strip/.hz-lightbox-trigger precedent). */
+	:global(.minimal-carousel) :global(.hz-carousel-controls) {
+		gap: 0.5rem;
+	}
+
+	:global(.minimal-carousel) :global(.hz-carousel-prev),
+	:global(.minimal-carousel) :global(.hz-carousel-next) {
+		opacity: 0;
+	}
+
+	:global(.minimal-carousel) :global(.hz-carousel-prev):focus-visible,
+	:global(.minimal-carousel) :global(.hz-carousel-next):focus-visible {
+		opacity: 1;
+	}
+
+	:global(.minimal-carousel) :global(.hz-carousel-dots) {
+		flex: 1;
+		gap: 0.25rem;
+	}
+
+	:global(.minimal-carousel) :global(.hz-carousel-dot) {
+		width: auto;
+		flex: 1;
+		height: 3px;
+		border-radius: var(--hz-radius-full, 9999px);
+		scale: 1;
+		background-color: var(--hz-color-border, #d1d5db);
+	}
+
+	:global(.minimal-carousel .hz-carousel-dot[data-active]) {
+		scale: 1;
+		background-color: var(--hz-intent-primary, #2563eb);
 	}
 </style>

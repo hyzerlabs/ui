@@ -235,3 +235,14 @@ inside a form does not submit.
   (`original-specs/02-link.md`); Button's `href` is for action-styled links only.
 - Button groups, toggle/pressed (`aria-pressed`) buttons, split buttons, menu
   buttons.
+
+### Amendments
+
+**2026-07-23 — loading spinner slowed (theme, user feedback).** The
+`data-state="loading"` icon's `hz-spin` animation read too fast at 0.8s/rev
+("anxious/rushed"). Retuned to 1.4s/rev in `button.css`. Not wired to a
+`motion.duration` token: that scale (fast 250ms / base 400ms / slow 550ms,
+specs/15) is tuned for one-shot transitions, and even `slow` is under a third
+of a comfortable continuous-spin rate — a literal value, with a comment
+explaining why, is more honest than stretching a token past its intended
+range. No API change; `keyframes hz-spin` (the rotation itself) is unchanged.

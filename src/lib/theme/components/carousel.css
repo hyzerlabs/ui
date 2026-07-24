@@ -32,6 +32,20 @@
 	 * The default controls="visible" row is never overlaid on slide
 	 * content — it sits in normal flow below the viewport, against the
 	 * page/section surface — so it does not need this backdrop. */
+	/* controls="focus" (user report, 2026-07-23): the revealed row is an
+	 * overlay with no reserved layout space (by design — see above), so on a
+	 * short carousel it can cover most of the slide while dragging/hovering.
+	 * A min-height on the viewport keeps slide content clear of the row
+	 * regardless of how tall the slide's own content is. Scoped to
+	 * data-controls="focus" only — the default "visible" row sits in normal
+	 * flow below the viewport (never overlaid on slide media), so it needs
+	 * no reserved height and Lightbox (which never passes controls="focus")
+	 * is unaffected. --hz-carousel-focus-min-height is a plain sizing hook,
+	 * same pattern as --hz-carousel-dot-size. */
+	.hz-carousel[data-controls='focus'] :where(.hz-carousel-viewport) {
+		min-height: var(--hz-carousel-focus-min-height, 12rem);
+	}
+
 	.hz-carousel[data-controls='focus'] :where(.hz-carousel-controls) {
 		position: absolute;
 		inset-inline: 0;

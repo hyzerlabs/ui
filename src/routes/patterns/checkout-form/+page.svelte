@@ -29,10 +29,11 @@
 		<h1>Checkout form</h1>
 		<p class="lead">
 			The full <a href="/components/form">Form</a> workflow on a realistic page. Submitting with
-			problems builds a plain field-name → message record, <code>toFormErrors</code> reshapes it, and
-			Form renders the linked error summary and moves focus to it — the same array feeds each field's
-			inline error, so the two can never disagree. The order summary card derives its totals from the
-			same bound state the controls edit.
+			problems builds a plain field-name → message record, <code>toFormErrors</code> reshapes it,
+			and Form renders the linked error summary and moves focus to it — the same array feeds each
+			field's inline error, so the two can never disagree. The order summary card derives its totals
+			from the same bound state the controls edit. For the minimal end of this same spectrum — a
+			small form with no order summary — see <a href="/patterns/contact-form">Contact form</a>.
 		</p>
 		<p class="composed">
 			Composes

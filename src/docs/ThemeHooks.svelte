@@ -7,7 +7,7 @@
 	 * Dogfood (2026-07-22): rendered through the library's own Table; the
 	 * docs' flat look survives as the .docs-table override in docs.css.
 	 */
-	import { Table } from '$lib';
+	import { Table, Alert } from '$lib';
 	import type { TableColumn } from '$lib/types';
 	import type { ComponentHooks, HookRow } from './hooks';
 
@@ -38,6 +38,19 @@
 	Root class: <code>.{hooks.root}</code>
 </p>
 
+{#if hooks.warning}
+	<Alert
+		intent="warning"
+		title="Overriding this needs extra care"
+		headingLevel={3}
+		class="hooks-warning"
+	>
+		<!-- Backtick-split, same convention as DocPage's a11yNote. -->
+		{#each hooks.warning.split('`') as segment, i (i)}{#if i % 2 === 1}<code>{segment}</code
+				>{:else}{segment}{/if}{/each}
+	</Alert>
+{/if}
+
 {#each blocks as block (block.key)}
 	<h3 class="hooks-heading">{block.title}</h3>
 	<Table items={block.rows} {columns} ariaLabel={block.title} class="docs-table">
@@ -56,6 +69,17 @@
 <style>
 	.hooks-root {
 		margin: 0 0 1rem;
+	}
+
+	:global(.hooks-warning) {
+		margin-bottom: 1rem;
+	}
+
+	/* A selector/file-path `code` span (e.g. a long unbroken path with no
+	   spaces) has no natural wrap point — without this it forces the alert
+	   body wider than its column and overflows at narrow widths. */
+	:global(.hooks-warning code) {
+		overflow-wrap: anywhere;
 	}
 
 	.hooks-heading {

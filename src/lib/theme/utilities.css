@@ -1,0 +1,247 @@
+/**
+ * @hyzer-labs/ui utilities
+ *
+ * GENERATED FILE — do not edit by hand.
+ * Source of truth: src/lib/tokens/index.ts, rendered by the token engine
+ * (src/lib/config). Regenerate with `pnpm gen:tokens` in this repo, or
+ * `hyzer generate --utilities` (or `config.utilities`) against a
+ * hyzer.config in a consumer project.
+ *
+ * Opt-in — import this sheet explicitly, like a theme sheet
+ * (`@hyzer-labs/ui/utilities.css`). A consumer who never imports it ships
+ * zero of these bytes.
+ *
+ * Definition: a utility class is a token-derived, single-property
+ * helper — one class, one declaration, resolved from a design token.
+ * That is the whole definition; it does not depend on where the class
+ * is or is not used.
+ *
+ * Anti-goal: utilities are for ad-hoc spots — nudging one element,
+ * tinting one line of text — not an alternative layout system.
+ * Components already own their spacing (gap/padding props, the
+ * data-padding/data-gap scales) and the density system
+ * (--hz-space-near/--hz-space-away). The utility sheet deliberately
+ * does not reproduce that surface: it exposes the fixed --hz-space-*
+ * scale for margins only, never the density near/away distances, and
+ * no padding helpers at all (padding is owned by components).
+ *
+ * Unlayered, single-class specificity (0,1,0), no !important — mirrors
+ * .sr-only: a deliberately-applied utility beats the layered reference
+ * theme, while a consumer's own unlayered class of equal specificity
+ * still wins by source order.
+ */
+
+/* =====================================================================
+ * Text-color utilities
+ * Role + intent helpers — color only, resolved from --hz-color-* / --hz-intent-*.
+ * ===================================================================== */
+
+.hz-text {
+	color: var(--hz-color-text);
+}
+
+.hz-text-muted {
+	color: var(--hz-color-text-muted);
+}
+
+.hz-text-neutral {
+	color: var(--hz-intent-neutral);
+}
+
+.hz-text-primary {
+	color: var(--hz-intent-primary);
+}
+
+.hz-text-secondary {
+	color: var(--hz-intent-secondary);
+}
+
+.hz-text-danger {
+	color: var(--hz-intent-danger);
+}
+
+.hz-text-warning {
+	color: var(--hz-intent-warning);
+}
+
+.hz-text-success {
+	color: var(--hz-intent-success);
+}
+
+.hz-text-info {
+	color: var(--hz-intent-info);
+}
+
+/* =====================================================================
+ * Margin utilities (logical properties)
+ * Seven families per --hz-space-* rung: margin, margin-block(-start/-end),
+ * margin-inline(-start/-end). No padding — padding is owned by components.
+ * ===================================================================== */
+
+.hz-m-none {
+	margin: var(--hz-space-none);
+}
+
+.hz-m-xs {
+	margin: var(--hz-space-xs);
+}
+
+.hz-m-sm {
+	margin: var(--hz-space-sm);
+}
+
+.hz-m-md {
+	margin: var(--hz-space-md);
+}
+
+.hz-m-lg {
+	margin: var(--hz-space-lg);
+}
+
+.hz-m-xl {
+	margin: var(--hz-space-xl);
+}
+
+.hz-m-block-none {
+	margin-block: var(--hz-space-none);
+}
+
+.hz-m-block-xs {
+	margin-block: var(--hz-space-xs);
+}
+
+.hz-m-block-sm {
+	margin-block: var(--hz-space-sm);
+}
+
+.hz-m-block-md {
+	margin-block: var(--hz-space-md);
+}
+
+.hz-m-block-lg {
+	margin-block: var(--hz-space-lg);
+}
+
+.hz-m-block-xl {
+	margin-block: var(--hz-space-xl);
+}
+
+.hz-m-block-start-none {
+	margin-block-start: var(--hz-space-none);
+}
+
+.hz-m-block-start-xs {
+	margin-block-start: var(--hz-space-xs);
+}
+
+.hz-m-block-start-sm {
+	margin-block-start: var(--hz-space-sm);
+}
+
+.hz-m-block-start-md {
+	margin-block-start: var(--hz-space-md);
+}
+
+.hz-m-block-start-lg {
+	margin-block-start: var(--hz-space-lg);
+}
+
+.hz-m-block-start-xl {
+	margin-block-start: var(--hz-space-xl);
+}
+
+.hz-m-block-end-none {
+	margin-block-end: var(--hz-space-none);
+}
+
+.hz-m-block-end-xs {
+	margin-block-end: var(--hz-space-xs);
+}
+
+.hz-m-block-end-sm {
+	margin-block-end: var(--hz-space-sm);
+}
+
+.hz-m-block-end-md {
+	margin-block-end: var(--hz-space-md);
+}
+
+.hz-m-block-end-lg {
+	margin-block-end: var(--hz-space-lg);
+}
+
+.hz-m-block-end-xl {
+	margin-block-end: var(--hz-space-xl);
+}
+
+.hz-m-inline-none {
+	margin-inline: var(--hz-space-none);
+}
+
+.hz-m-inline-xs {
+	margin-inline: var(--hz-space-xs);
+}
+
+.hz-m-inline-sm {
+	margin-inline: var(--hz-space-sm);
+}
+
+.hz-m-inline-md {
+	margin-inline: var(--hz-space-md);
+}
+
+.hz-m-inline-lg {
+	margin-inline: var(--hz-space-lg);
+}
+
+.hz-m-inline-xl {
+	margin-inline: var(--hz-space-xl);
+}
+
+.hz-m-inline-start-none {
+	margin-inline-start: var(--hz-space-none);
+}
+
+.hz-m-inline-start-xs {
+	margin-inline-start: var(--hz-space-xs);
+}
+
+.hz-m-inline-start-sm {
+	margin-inline-start: var(--hz-space-sm);
+}
+
+.hz-m-inline-start-md {
+	margin-inline-start: var(--hz-space-md);
+}
+
+.hz-m-inline-start-lg {
+	margin-inline-start: var(--hz-space-lg);
+}
+
+.hz-m-inline-start-xl {
+	margin-inline-start: var(--hz-space-xl);
+}
+
+.hz-m-inline-end-none {
+	margin-inline-end: var(--hz-space-none);
+}
+
+.hz-m-inline-end-xs {
+	margin-inline-end: var(--hz-space-xs);
+}
+
+.hz-m-inline-end-sm {
+	margin-inline-end: var(--hz-space-sm);
+}
+
+.hz-m-inline-end-md {
+	margin-inline-end: var(--hz-space-md);
+}
+
+.hz-m-inline-end-lg {
+	margin-inline-end: var(--hz-space-lg);
+}
+
+.hz-m-inline-end-xl {
+	margin-inline-end: var(--hz-space-xl);
+}

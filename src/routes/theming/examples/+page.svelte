@@ -9,30 +9,31 @@
 		Card,
 		TextInput,
 		Toggle,
-		Accordion
+		Accordion,
+		Table
 	} from '$lib';
+	import type { TableColumn } from '$lib/types';
 	import { resolveConfig, generateCss } from '$lib/config';
 	import oceanConfig from '$lib/theme/examples/ocean.config';
 	import oceanSource from '$lib/theme/examples/ocean.config.ts?raw';
 	import oceanCss from '$lib/theme/examples/ocean.css?raw';
-	import sunsetSource from '$lib/theme/examples/sunset/sunset.config.ts?raw';
-	import sunsetIndex from '$lib/theme/examples/sunset/sunset.css?raw';
-	import sunsetButton from '$lib/theme/examples/sunset/components/button.css?raw';
-	import sunsetToggle from '$lib/theme/examples/sunset/components/toggle.css?raw';
 	import terminalSource from '$lib/theme/examples/terminal/terminal.config.ts?raw';
 	import terminalIndex from '$lib/theme/examples/terminal/terminal.css?raw';
 	import terminalButton from '$lib/theme/examples/terminal/components/button.css?raw';
 	import terminalToggle from '$lib/theme/examples/terminal/components/toggle.css?raw';
 	import terminalIntents from '$lib/theme/examples/terminal/intents.d.ts?raw';
+	import docsCss from '$lib/theme/examples/docs/docs.css?raw';
 	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import { consumerSource } from '../../../docs/consumerSource';
 
-	// The class-override themes are imported as the REAL shipped sheets — every
-	// rule in them is rooted at .hz-theme-<id>, so nothing reaches :root and the
+	// The class-override theme is imported as the REAL shipped sheet — every
+	// rule in it is rooted at .hz-theme-<id>, so nothing reaches :root and the
 	// docs app's own theme is untouched (specs/30 R2's invariant). Ocean can't
 	// do this: it's a :root sheet by design, so it gets re-generated scoped
-	// below instead.
-	import '$lib/theme/examples/sunset/sunset.css';
+	// below instead. The "Docs" example (specs/46) needs no such gymnastics —
+	// it is UNSCOPED and already loaded globally by the root layout, so its
+	// demo below runs on the real, live, dogfooded sheet with no extra import
+	// at all.
 	import '$lib/theme/examples/terminal/terminal.css';
 
 	const scopedOceanCss = generateCss(resolveConfig(oceanConfig), {
@@ -51,6 +52,9 @@
 		sheets: { id: string; label: string; code: string }[];
 	}
 
+	// The palette-freedom arc collapses to its two poles (specs/46 R6): Ocean
+	// (tokens only) and Terminal (standalone). The docs example below is a
+	// different kind of example entirely — not a third point on this axis.
 	const examples: Example[] = [
 		{
 			id: 'ocean',
@@ -65,24 +69,6 @@
 			],
 			source: consumerSource(oceanSource),
 			sheets: [{ id: 'css', label: 'Generated CSS', code: oceanCss }]
-		},
-		{
-			id: 'sunset',
-			label: 'Sunset — tokens + class overrides',
-			themeClass: 'hz-theme-sunset',
-			blurb:
-				'The same palette trick as Ocean, plus unlayered class rules that re-shape the components: extruded surfaces, pill radii, controls that press inward. It still imports the reference theme — anything these sheets leave alone keeps the theme’s look.',
-			imports: [
-				"import '@hyzer-labs/ui/tokens.css';",
-				"import '@hyzer-labs/ui/theme';            // required here",
-				"import '@hyzer-labs/ui/theme/examples/sunset/sunset.css';"
-			],
-			source: consumerSource(sunsetSource),
-			sheets: [
-				{ id: 'index', label: 'sunset.css', code: sunsetIndex },
-				{ id: 'button', label: 'button.css', code: sunsetButton },
-				{ id: 'toggle', label: 'toggle.css', code: sunsetToggle }
-			]
 		},
 		{
 			id: 'terminal',
@@ -111,10 +97,7 @@
 		...example.sheets.map((s) => ({ id: s.id, label: s.label }))
 	];
 
-	const faq = [
-		{ id: 'why-class', title: 'Why do these themes use a class instead of :root?' },
-		{ id: 'why-wins', title: 'Why do the overrides win without !important?' }
-	];
+	const faq = [{ id: 'why-class', title: 'Why does Terminal use a class instead of :root?' }];
 
 	const registryCode = [
 		'// hyzer.config.ts — define the token, and it gets contrast-graded',
@@ -142,18 +125,48 @@
 		'',
 		'<' + 'style>',
 		'\t/* Rendered as class="hz-button cta". One instance, styled by the',
-		'\t   consumer — the theme sheets never mention .cta at all. */',
+		'\t   consumer — the theme sheet never mentions .cta at all. */',
 		'\t:global(.hz-theme-terminal .hz-button.cta) {',
 		'\t\tbox-shadow: 8px 8px 0 var(--hz-intent-danger);',
 		'\t\ttranslate: -2px -2px;',
 		'\t}',
-		'',
-		'\t:global(.hz-theme-sunset .hz-button.cta) {',
-		'\t\tbackground: linear-gradient(135deg, var(--hz-intent-primary), var(--hz-intent-secondary));',
-		'\t\tcolor: var(--hz-color-surface);',
-		'\t}',
 		'</' + 'style>'
 	].join('\n');
+
+	// The docs example's own demo (specs/46 R6) — the .docs-table
+	// layered-cascade lesson: the same table rendered twice, once bare and
+	// once wrapped in .docs-table, so the unlayered override's win is visible
+	// side by side. No theme class needed — docs.css is unscoped, and it's
+	// already loaded globally by the root layout (this page runs on it live).
+	interface HoleRow {
+		id: string;
+		hole: string;
+		par: number;
+		distance: string;
+	}
+
+	const docsTableItems: HoleRow[] = [
+		{ id: 'h3', hole: 'Hole 3', par: 3, distance: '285 ft' },
+		{ id: 'h7', hole: 'Hole 7', par: 4, distance: '412 ft' },
+		{ id: 'h12', hole: 'Hole 12', par: 5, distance: '620 ft' }
+	];
+
+	const docsTableColumns: TableColumn<HoleRow>[] = [
+		{ key: 'hole', header: 'Hole' },
+		{ key: 'par', header: 'Par', align: 'end' },
+		{ key: 'distance', header: 'Distance', align: 'end' }
+	];
+
+	const docsImports = [
+		"import '@hyzer-labs/ui/tokens.css';",
+		"import '@hyzer-labs/ui/theme';                     // layers under it",
+		"import '@hyzer-labs/ui/theme/examples/docs/docs.css';"
+	];
+
+	const docsViewTabs = [
+		{ id: 'demo', label: 'Demo' },
+		{ id: 'source', label: 'docs.css' }
+	];
 
 	const accordionItems = [
 		{ id: 'a', title: 'What is in the bag?' },
@@ -241,11 +254,13 @@
 	<div class="doc-intro">
 		<h1>Example Themes</h1>
 		<p class="doc-description">
-			Three complete themes ship with the package as teaching material, and they are deliberately
-			three <em>different amounts of freedom</em>. Each is generated from the
+			Two complete themes ship with the package as teaching material, and they are deliberately two <em
+				>different amounts of freedom</em
+			>. Each is generated from the
 			<code>hyzer.config.ts</code>
 			next to it, drift-tested in CI, and — like the base tokens — held to
-			<a href="/foundation/contrast">WCAG AA on every graded pairing</a>, in both modes.
+			<a href="/foundation/contrast">WCAG AA on every graded pairing</a>, in both modes. A third
+			example follows below, a different shape entirely: the reading chrome this very site runs on.
 		</p>
 		<div class="token-table-wrapper intro-table">
 			<table class="token-table">
@@ -253,7 +268,6 @@
 					<tr>
 						<th scope="col"></th>
 						<th scope="col">Ocean</th>
-						<th scope="col">Sunset</th>
 						<th scope="col">Terminal</th>
 					</tr>
 				</thead>
@@ -262,23 +276,19 @@
 						<th scope="row">Palette via config</th>
 						<td>yes</td>
 						<td>yes</td>
-						<td>yes</td>
 					</tr>
 					<tr>
 						<th scope="row">Class-hook overrides</th>
 						<td>none</td>
 						<td>yes</td>
-						<td>yes</td>
 					</tr>
 					<tr>
 						<th scope="row">Reference theme</th>
 						<td>required</td>
-						<td>layered over</td>
 						<td><strong>not imported</strong></td>
 					</tr>
 					<tr>
 						<th scope="row">Adds new intents</th>
-						<td>no</td>
 						<td>no</td>
 						<td><strong>phosphor, amber</strong></td>
 					</tr>
@@ -289,7 +299,7 @@
 			Ocean is the control: it proves how far tokens alone get you. Terminal is the other end — it
 			never imports the reference theme, so every rule in it is its own, and it grows the system
 			rather than only recoloring it: two intents the library has never heard of, type-checked and
-			contrast-graded like any built-in. If you only read one, read Terminal's
+			contrast-graded like any built-in. Between these two, if you only read one, read Terminal's
 			<code>button.css</code>: that is what "headless" actually buys you.
 		</p>
 	</div>
@@ -328,21 +338,77 @@
 		gap="away"
 		data-density-shift
 		class="doc-section"
+		aria-labelledby="docs-heading"
+	>
+		<h2 id="docs-heading">Docs — a different kind of example</h2>
+		<p>
+			Not a third point on the freedom axis above — this example adds no palette at all. Every rule
+			below resolves through the reference theme's own role and intent tokens, unchanged. It is a
+			hand-authored "content starter" instead: named scaffold classes for page rhythm, the in-prose
+			code-chip treatment, a broad content focus-visible ring, and one worked component-hook
+			override. It layers over the reference theme rather than replacing any part of it — and unlike
+			Terminal, it ships <strong>unscoped</strong>: no theme class, nothing to put on
+			<code>&lt;html&gt;</code>. This is, verbatim, the sheet <code>design.hyzer.sh</code>
+			imports for its own chrome — you're reading it right now.
+		</p>
+		<CodeBlock code={docsImports.join('\n')} />
+		<p>
+			The <code>.docs-table</code> override below is the layered-cascade lesson in miniature: the
+			reference theme paints <code>.hz-table</code> from <code>@layer hz-theme</code>, and unlayered
+			CSS beats layered CSS at any specificity — no <code>!important</code>, no mirroring the
+			theme's <code>:where()</code> selectors. Wrap any table in <code>.docs-table</code> and its borders,
+			padding, and header background follow this sheet instead, on every property it sets and nothing
+			else.
+		</p>
+		<Tabs items={docsViewTabs} ariaLabel="Docs example views" defaultTab="demo">
+			{#snippet panel(item)}
+				<div class="tab-content">
+					{#if item.id === 'demo'}
+						<div class="demo-panel">
+							<Cluster gap="lg" align="start" wrap>
+								<div>
+									<p class="tab-note">Reference theme, unwrapped</p>
+									<Table items={docsTableItems} columns={docsTableColumns} caption="Course card" />
+								</div>
+								<div>
+									<p class="tab-note">Wrapped in <code>.docs-table</code></p>
+									<Table
+										items={docsTableItems}
+										columns={docsTableColumns}
+										caption="Course card, docs style"
+										class="docs-table"
+									/>
+								</div>
+							</Cluster>
+						</div>
+					{:else}
+						<CodeBlock code={docsCss} />
+					{/if}
+				</div>
+			{/snippet}
+		</Tabs>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
 		aria-labelledby="instance-heading"
 	>
 		<h2 id="instance-heading">One instance, styled by hand</h2>
 		<p>
-			The "Go pro" button in all three demos above is the same markup —
-			<code>&lt;Button class="cta"&gt;</code> — and none of the theme sheets mention
+			The "Go pro" button in both demos above is the same markup —
+			<code>&lt;Button class="cta"&gt;</code> — and neither theme sheet mentions
 			<code>.cta</code>. The <code>class</code> prop is merged after the component's
 			<code>hz-button</code> root class, so it lands on the element ready to be styled by whoever is consuming
 			the component. Sheet-level and instance-level overrides compose.
 		</p>
 		<CodeBlock code={ctaCode} />
 		<p class="tab-note">
-			Note the selectors: <code>.hz-theme-terminal .hz-button.cta</code>, not a bare
-			<code>.cta</code>. See below — this is the one place the class-scoped example themes behave
-			differently from the reference theme.
+			Note the selector: <code>.hz-theme-terminal .hz-button.cta</code>, not a bare
+			<code>.cta</code>. Terminal is the one example here that roots its overrides at a class — see
+			below for why.
 		</p>
 	</Stack>
 
@@ -400,29 +466,13 @@
 			{#snippet panel(item)}
 				{#if item.id === 'why-class'}
 					<p>
-						Every rule in Sunset and Terminal is rooted at a class —
-						<code>.hz-theme-sunset .hz-button</code>, not <code>.hz-button</code> — and their token
-						blocks are generated with the engine's <code>selector</code> option instead of
+						Every rule in Terminal is rooted at a class —
+						<code>.hz-theme-terminal .hz-button</code>, not <code>.hz-button</code> — and its token
+						block is generated with the engine's <code>selector</code> option instead of
 						<code>:root</code>. So the theme travels with the class: put it on
 						<code>&lt;html&gt;</code> to own a document, or on one element to own a panel. It's why this
-						page can render three themes at once without them fighting, and why importing these sheets
-						doesn't disturb the docs site's own theme.
-					</p>
-				{:else}
-					<p>
-						The reference theme's rules live in <code>@layer hz-theme</code>, and unlayered CSS
-						beats layered CSS at any specificity. That's what lets Sunset override it with plain
-						class rules — no <code>!important</code>, no mirroring the theme's
-						<code>:where()</code> selectors.
-					</p>
-					<p>
-						The trade-off is worth being precise about: because these example sheets are themselves
-						unlayered, they don't hand that advantage on to you. Their class root puts them at
-						two-class specificity, so a bare <code>.cta</code> would lose to
-						<code>.hz-theme-terminal .hz-button</code> — an instance override has to out-specify them,
-						as the snippet above does. The reference theme uses a cascade layer precisely so it never
-						puts you in that position. A theme of your own that expects to be overridden should do the
-						same.
+						page can render an Ocean panel and a Terminal panel side by side without them fighting, and
+						why importing this sheet doesn't disturb the docs site's own theme.
 					</p>
 				{/if}
 			{/snippet}
@@ -446,9 +496,11 @@
 			<a href="/theming/tokens">Tokens &amp; Overrides</a>.
 		</p>
 		<p class="tab-note">
-			Coverage: Sunset and Terminal currently restyle Button, Badge, Alert, Card, the Field
-			scaffold, TextInput, Toggle, Tabs and Accordion. Sunset falls back to the reference theme for
-			anything else; Terminal, importing no theme, falls back to bare headless structure.
+			Coverage: Terminal currently restyles Button, Badge, Alert, Card, the Field scaffold,
+			TextInput, Toggle, Tabs and Accordion; importing no theme, it falls back to bare headless
+			structure for anything else. The Docs example above takes the opposite approach — it restyles
+			no component hook at all; it only adds scaffold classes and content chrome over the reference
+			theme.
 		</p>
 	</Stack>
 </Stack>
@@ -474,9 +526,9 @@
 		margin-bottom: 0;
 	}
 
-	/* The "why-wins" Accordion panel renders two <p>'s with no Stack of their
-	 * own between them (Accordion's panel isn't density-shifted); restore
-	 * the gap locally instead of via the zeroed generic p rule above. */
+	/* The why-class Accordion panel renders a single <p> — no stacking margin
+	 * concern, but the Accordion's panel content isn't a Stack of its own, so
+	 * any future second paragraph needs the same local margin as below. */
 	:global(.hz-accordion-panel p) {
 		margin: 0 0 1rem;
 	}
@@ -515,7 +567,9 @@
 		font-weight: var(--hz-font-weight-semibold, 600);
 	}
 
-	/* Painted from the scoped theme's own tokens. */
+	/* Painted from the scoped theme's own tokens (Ocean, Terminal); for the
+	 * unscoped Docs example this just paints from the page's own tokens,
+	 * which is the whole point — it needs no theme class to look right. */
 	.demo-panel {
 		padding: 1.5rem;
 		border: 1px solid var(--hz-color-border, #6b7280);
@@ -539,14 +593,5 @@
 	:global(.hz-theme-terminal .hz-button.cta) {
 		box-shadow: 8px 8px 0 var(--hz-intent-danger, #cc0000);
 		translate: -2px -2px;
-	}
-
-	:global(.hz-theme-sunset .hz-button.cta) {
-		background: linear-gradient(
-			135deg,
-			var(--hz-intent-primary, #c2410c),
-			var(--hz-intent-secondary, #be185d)
-		);
-		color: var(--hz-color-surface, #fffbf5);
 	}
 </style>

@@ -31,19 +31,19 @@ pnpm add @hyzer-labs/ui
 
 ### Subpath imports
 
-| Import                            | Description                     |
-| --------------------------------- | ------------------------------- |
-| `@hyzer-labs/ui`                  | All components                  |
-| `@hyzer-labs/ui/tokens`           | Token names & metadata (JS)     |
-| `@hyzer-labs/ui/tokens.css`       | CSS custom property tokens      |
-| `@hyzer-labs/ui/reset.css`        | Structural CSS reset (optional) |
-| `@hyzer-labs/ui/icons`            | SVG icon components             |
-| `@hyzer-labs/ui/utils`            | Utility functions               |
-| `@hyzer-labs/ui/types`            | Shared TypeScript types         |
-| `@hyzer-labs/ui/theme`            | Reference theme (full CSS)      |
-| `@hyzer-labs/ui/theme/button.css` | Individual per-component styles |
-| `@hyzer-labs/ui/theme/ocean.css`  | Theme variant (token overrides) |
-| `@hyzer-labs/ui/theme/sunset.css` | Theme variant (token overrides) |
+| Import                                        | Description                                |
+| --------------------------------------------- | ------------------------------------------ |
+| `@hyzer-labs/ui`                              | All components                             |
+| `@hyzer-labs/ui/tokens`                       | Token names & metadata (JS)                |
+| `@hyzer-labs/ui/tokens.css`                   | CSS custom property tokens                 |
+| `@hyzer-labs/ui/reset.css`                    | Structural CSS reset (optional)            |
+| `@hyzer-labs/ui/icons`                        | SVG icon components                        |
+| `@hyzer-labs/ui/utils`                        | Utility functions                          |
+| `@hyzer-labs/ui/types`                        | Shared TypeScript types                    |
+| `@hyzer-labs/ui/theme`                        | Reference theme (full CSS)                 |
+| `@hyzer-labs/ui/theme/button.css`             | Individual per-component styles            |
+| `@hyzer-labs/ui/theme/examples/ocean.css`     | Theme variant (token overrides)            |
+| `@hyzer-labs/ui/theme/examples/docs/docs.css` | The docs site's own look (content starter) |
 
 ## Styling
 
@@ -65,15 +65,19 @@ The library ships in opt-in tiers — take as much or as little as you want:
 4. **Reference theme.** `@hyzer-labs/ui/theme` is a complete, token-driven
    visual layer — or cherry-pick per-component files
    (`@hyzer-labs/ui/theme/button.css`).
-5. **Theme variants.** `ocean.css` / `sunset.css` restyle both tiers purely by
-   overriding tokens. Import one **after** `tokens.css`.
+5. **Example themes.** `theme/examples/ocean.css` restyles purely by
+   overriding tokens; `theme/examples/terminal/terminal.css` is a standalone
+   look that skips the reference theme entirely;
+   `theme/examples/docs/docs.css` is a different kind of example — the docs
+   site's own reading chrome, layered over the reference theme, adding no
+   palette of its own. See `/theming/examples` for the full arc.
 
 ```svelte
 <script>
 	import '@hyzer-labs/ui/reset.css'; // 1. reset (optional)
 	import '@hyzer-labs/ui/tokens.css'; // 2. tokens
 	import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)
-	import '@hyzer-labs/ui/theme/ocean.css'; // 4. variant (optional)
+	import '@hyzer-labs/ui/theme/examples/ocean.css'; // 4. example (optional)
 </script>
 ```
 

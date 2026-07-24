@@ -829,3 +829,879 @@ isolation; e2e `388/388` passed (strengthened Table stacked-mode assertion
 included, no new failures). No files owned by the concurrent Carousel or
 Forms builders were touched; `docs.e2e.ts` edits were surgical (one table
 test strengthened, no header test existed to touch).
+
+## Six-item user tweak batch (2026-07-23)
+
+User-directed batch, not a checklist pass — six numbered items across Button,
+Carousel, Header, Alert, and the product-detail pattern.
+
+| Item | Change | Resolution |
+| --- | --- | --- |
+| 1. Button loading-spinner speed | `hz-spin`'s cycle read too fast at 0.8s/rev ("anxious/rushed"). Retuned to 1.4s/rev, `button.css`. Not wired to a `motion.duration` token — that scale (fast 250/base 400/slow 550ms, specs/15) is tuned for one-shot transitions; even `slow` is under a third of a comfortable continuous-spin rate, so a literal value (with a comment explaining why) is more honest than stretching a token past its range. Judged in-browser (computed `animationDuration` verified `1.4s`; visually calmer, still clearly in-progress). | fixed (theme) — `button.css`; specs/01 gained a dated Amendments section |
+| 2a. Carousel focus-mode min-height | User report: on a short carousel (e.g. one-line `Blockquote` slides), the `controls="focus"` revealed row — an absolutely positioned overlay with no reserved layout space (specs/43 R3) — could cover most of the slide. Theme-level fix, scoped to `data-controls='focus'` only: `.hz-carousel-viewport` gets `min-height: var(--hz-carousel-focus-min-height, 12rem)`. The default `controls="visible"` row sits in normal flow below the viewport (never overlaid on slide media) and needs no reserved height, so it's unaffected; verified in-browser that Lightbox (which never passes `controls="focus"`) renders byte-identical, no layout diff. | fixed (theme) — `carousel.css` (new sizing hook, `--hz-carousel-dot-size` precedent); `hooks.ts` prop row; specs/43 gained a dated Amendments section |
+| 2b. Carousel minimal-controls restyle example | New "Minimal controls" demo tab (theme example, not a new prop): a plain consumer class (`:global(.minimal-carousel) :global(.hz-carousel-dot)` etc., the Lightbox `.gallery-strip`/`.hz-lightbox-trigger` `:global()` precedent) restyles the dots into flat segments of a thin progress trackline — width auto + flex 1 + 3px height, active segment colored `--hz-intent-primary`, rest `--hz-color-border`. Chevrons stay in the DOM, in the tab order, and Enter/Space-operable throughout (never `display`/`visibility`/`aria-hidden`/`inert`) but are visually hidden (`opacity: 0`) until `:focus-visible` reveals them individually — the same a11y posture `controls="focus"` already ships (specs/43), applied per-control here so the trackline itself stays always visible; tab-note states this explicitly. Fence shows markup + CSS via the `'<' + 'style>'`/`'</' + 'style>'` concatenation (parser gotcha, Link/Footer precedent). Colors via `--hz-color-*`/`--hz-intent-*` only. | docs only — `src/routes/components/carousel/+page.svelte`; no spec amendment (pure docs-page change, no library/theme file touched by this item) |
+| 3. Header "Bar" → "Basic" tab | Renamed tab id/label (`bar`→`basic`, "Bar"→"Basic"). Its fence (`basicCode`) now opens with the `navItems: NavItem[]` array literal — the same shape as the live demo's `demoItems` (labels/hrefs, one entry with a `children` sub-menu) — above the `<Header items={navItems} bordered>` usage, so readers see the data shape instead of just the prop reference. | docs only — `src/routes/components/header/+page.svelte`; no spec amendment |
+| 4. Alert icon + rounding demos | Verified against `Alert.svelte`: `icon?: Snippet` (decorative, rendered `aria-hidden`) and `rounded?: Rounded` (default `'md'`) were both undemoed despite being documented props. New "Icon" tab: two `Alert`s pairing an intent with a matched generated icon (`success`+`IconCircleCheck`, `danger`+`IconTriangleAlert`). New "Rounding" tab: a labelled row per `Rounded` value (`none`/`sm`/`md`/`lg`/`full`), Button's size-row precedent (`.rounded-demo`/`.rounded-row`/`.rounded-row-label`); fence omits `rounded="md"` (the default). | docs only — `src/routes/components/alert/+page.svelte`; no spec amendment |
+| 5. Product detail: Carousel + Lightbox composition | Added the common e-commerce pattern: the product Carousel's active slide is a `lightboxGroup` trigger. Investigated Lightbox's public composition surface first (`Lightbox`'s own per-item trigger strip vs. the `lightboxGroup` attachment, `src/lib/attachments/lightboxGroup.ts`) — `lightboxGroup()` was the right mechanism, not `Lightbox` itself: wrapping the Carousel in `<div {@attach lightboxGroup({ dialogLabel })}>` lets it enhance the Carousel's own rendered `<img>`s in place. Off-screen slides carry native `inert` (Carousel's own mechanism, not this attachment), which blocks their hit-testing/focusability at the browser level, so only the *active* slide's image is actually clickable/keyboard-reachable — but `lightboxGroup`'s `scan()` still counts every slide's image (client rects exist regardless of `inert`), so the opened viewer's gallery pages across all colorways, seeded at the clicked slide's index. Verified in-browser: clicking the active slide opened the shared `LightboxOverlay` at the correct index with working prev/next paging. Asset-URL structure: a new `PRODUCT_MEDIA: Record<string, string>` map is the sole thing pointing at image sources (currently generated SVG placeholders via `discArt()`) — every render call site reads `PRODUCT_MEDIA[colorway.id]`, so pointing the map at real `static/media/products/*.jpg` files later is a constants-only change. Added a reciprocal cross-link from the Lightbox page's "Group attachment" tab-note to `/patterns/product-detail`, and a `lightboxGroup` entry to the pattern page's "Composes" list. | fixed (docs/pattern) — `src/docs/samples/ProductDetail.svelte`, `src/routes/patterns/product-detail/+page.svelte`, `src/routes/components/lightbox/+page.svelte`; no spec amendment (composes existing, already-specced `lightboxGroup` — specs/25 — with no behavior change) |
+
+Files touched: `src/lib/theme/components/button.css`, `carousel.css`;
+`src/docs/hooks.ts`; `src/docs/samples/ProductDetail.svelte`;
+`src/routes/components/{carousel,header,alert,lightbox}/+page.svelte`;
+`src/routes/patterns/product-detail/+page.svelte`; `specs/01-button.md`,
+`specs/43-carousel-drag.md` (dated Amendments sections).
+
+Gates: `svelte-check` 0 errors/warnings; `prettier --check` + `eslint` clean
+on every touched file; unit `74 files / 2385 tests` passed (the +1 test over
+the prior entry's count is a concurrent, out-of-scope `hooks.spec.ts`
+addition from another in-flight session sharing this working tree, not
+authored by this batch); `build` (prerender, `@sveltejs/adapter-static`)
+succeeded; e2e `387/388` passed — the one failure
+(`/components/toggle`, no-horizontal-overflow at 375px) traces to no file
+this batch touched (`toggle/+page.svelte` is absent from `git status`
+entirely) and is unrelated to a concurrent session's in-flight changes to
+`manifest.ts`/`ThemeHooks.svelte`/`hooks.spec.ts`/`combobox/+page.svelte`
+in the same working tree, also outside this batch's scope. Every route this
+batch touched (`/components/carousel`, `/components/header`,
+`/components/alert`, `/components/lightbox`, `/patterns/product-detail`)
+passed its own overflow/functional checks individually.
+
+## Combobox large-list demo + Toggle theme-hooks warning mechanism (2026-07-23)
+
+Two user-directed items, unrelated to each other beyond both touching docs
+infrastructure.
+
+**1. Combobox — large virtualized-list demo. Investigated first, hit Case
+(b) (the deferred-integration case), not (a).** Read `Combobox.svelte` and
+`specs/22-combobox.md`/`specs/23-virtualizer.md` before writing any demo
+code. Finding: `Combobox`'s listbox is **not** snippet-customizable — the
+`<ul role="listbox">`/`<li role="option">` markup is fully internal to the
+component (no slot/snippet hook a consumer could use to swap in
+`Virtualizer`), and `visibleOptions` (Combobox-R6) always renders **every**
+filtered option with no windowing. This isn't an oversight: specs/22's Out
+of Scope explicitly defers "Option virtualization / windowing" to a
+follow-up spec, and specs/23's Out of Scope explains why it isn't free —
+`aria-activedescendant` virtual focus (Combobox-R9) requires the active
+`<li>` to be **present in the DOM**, but a `Virtualizer` window elides
+off-screen rows, so the active option could scroll out of existence; and
+Combobox keys option ids off the **filtered** index while `Virtualizer`
+tracks the **absolute** index, which would need reconciling. Confirmed this
+is unconditional (not perf-dependent): even with a small dataset, an
+unfiltered open still mounts every option, since `query === ''` short-
+circuits to the full `options` array (Combobox-R6). Building a demo that
+hacked around this (e.g. forking the listbox markup to embed a raw
+`Virtualizer`, or hand-rolling a second `aria-activedescendant` contract)
+would ship an inaccurate, ARIA-incorrect example under the real component's
+name — declined per the instruction to not hack it.
+
+Built the best **honest** demo the current API allows instead: a new
+"Large list (filtering)" tab on `/components/combobox`, between "Custom
+filter" and "Styled chips". Dataset: 60 real city names × 49 disc-golf-
+course-name words (`Pines`, `Ridge`, `Meadow`, …), cross-joined into 2,940
+`FormOption`s at module scope with a plain `flatMap` (no `Math.random`, so
+SSR output matches the client on hydration — the same determinism
+convention `Virtualizer`'s own 10,000-row docs demo uses, verified by
+reading that page first). Each option: `label: "${city} — ${word} Disc Golf
+Course"`, `value` a lowercased, hyphenated slug. The tab-note states the
+approach and the practical ceiling plainly: filtering itself stays snappy
+at this size (a single in-memory `Array.prototype.filter` scan over ~3k
+objects), but the **unfiltered open** is the honest limit — with an empty
+query every option renders a real `<li>`, so a dataset in the low thousands
+is comfortable, while tens of thousands unfiltered would visibly lag with
+no windowing to fall back on; the note also names `/components/virtualizer`
+and the deferral by name so a reader who needs true windowing knows where
+to look and why it isn't wired up yet. Verified in-browser (dev + a
+production preview build): typing narrows 2,940 → single digits with no
+perceptible lag; `svelte-check`/build confirm the SSR-rendered option list
+matches the hydrated one (no hydration mismatch warnings).
+
+**Open question logged for a future spec** (per the ask — proposing the API
+shape virtualization would need, referencing specs/22 + specs/23's
+existing Out-of-Scope deferral rather than re-litigating it): a windowed
+Combobox listbox would need (a) a reconciliation layer between the
+Virtualizer's **absolute** index and Combobox's **filtered** index — e.g.
+Combobox computing `visibleOptions` as today, but handing that filtered
+array straight to `Virtualizer` as its `items`, so the Virtualizer's
+"absolute" index *is* the filtered index and no second mapping is needed;
+(b) a way to force the **active** option's row to always render inside the
+Virtualizer's window regardless of scroll position — the cleanest shape is
+probably Combobox driving the Virtualizer's scroll position programmatically
+on every `activeIndex` change (an `Alt`/Arrow-key move calls something like
+a `scrollToIndex` the Virtualizer doesn't have yet — specs/23 lists
+`scrollToIndex` itself as Out of Scope for v1) rather than the Virtualizer
+exposing an "always keep index N mounted" pin, which would complicate its
+windowing math for every consumer to serve one; (c) the `row` snippet
+producing the exact same `<li role="option" id="hz-opt-{uid}-{i}" …>`
+markup Combobox renders today, so `aria-activedescendant` keeps resolving —
+meaning the windowing integration is closer to "Combobox grows an optional
+internal `Virtualizer` above some option-count threshold" than "a consumer
+composes the two publicly." None of this was built — it's a proposal for
+whoever picks up the follow-up spec, not a decision.
+
+**2. Toggle — theme-hooks warning mechanism.** Read `field.css`'s Toggle
+track/thumb block first: `.hz-field--toggle input.hz-toggle` is shipped
+**outside** `@layer hz-theme` on purpose, at a raw `(0,2,1)` specificity, so
+it always outranks the component's own scoped structural reset regardless
+of layer order (the comment at its declaration site already says this is
+"deliberately UNLAYERED"). Then read the Terminal example theme's override
+(`src/lib/theme/examples/terminal/components/toggle.css`), whose own header
+comment names this "the one component where a theme cannot be careless"
+and demonstrates the fix: scope the override selector under the theme's
+own root class (`.hz-theme-terminal .hz-field--toggle input.hz-toggle`),
+which clears `(0,2,1)` outright at `(0,3,1)` and wins regardless of import
+order — a plain `@layer`-wrapped or tied-specificity override would
+silently lose with no error.
+
+Implemented the mechanism generically, not Toggle-specifically: added an
+optional `warning?: string` field to `ComponentHooks` in `src/docs/hooks.ts`
+(backtick segments render as inline `<code>`, the same convention
+`DocPage`'s `a11yNote` already uses). `ThemeHooks.svelte` — the component
+DocPage's "Theme hooks" section renders per component — now renders
+`hooks.warning`, when present, as an `<Alert intent="warning"
+headingLevel={3}>` positioned above the hook tables (`h3`, since it sits
+under the section's own `h2`, the same nesting `radius-elevation`'s
+existing shadow-elevation `Alert` uses as precedent). Wrote Toggle's actual
+warning content from the real constraints above: it explains the unlayered
+exception, why a normal override can silently do nothing, the fix (scope
+under your own root class), and names the Terminal theme as the worked
+example. Also fixed a small pre-existing loose end while in the file: the
+`data-state (on input.hz-toggle)` attrs row already said "the toggle rules
+must win the specificity fight described below" with nothing ever below it
+elaborating — since the new warning renders *above* the tables, reworded
+that to "described above" so the cross-reference is accurate now that
+there's finally something to point at. `hooks.spec.ts` gained one more
+well-formedness check (a `warning`, when present, is non-empty and its
+backtick count is even, so `ThemeHooks.svelte`'s split-on-backtick render
+can't silently swallow the tail of the string into a dangling `<code>`).
+No other component populates `warning` — every other page still renders
+identically (verified: `hooks.ts`'s existing rows/tests untouched besides
+Toggle's own entry and the one reworded phrase).
+
+**Bug found and fixed while building this: a real horizontal-overflow
+regression on `/components/toggle` at 375px, traced to this change.**
+Discovered via the project's own e2e overflow sweep
+(`R-Responsive — no horizontal overflow`), which failed only on
+`/components/toggle` and nowhere else — confirmed the delta was mine (not
+noise from concurrent work elsewhere in this shared tree) by isolating with
+`git stash`: the unmodified tree passed at exactly 375/375, the modified
+tree failed at 381/375. Root cause, found by walking the DOM in a real
+headless-browser probe rather than guessing from the CSS: the new warning
+Alert's body (`.hz-alert-body`, `flex: 1; min-width: 0`) was correctly
+shrinkable, but one of the warning's inline `<code>` spans — the Terminal
+theme's file path, `theme/examples/terminal/components/toggle.css`, a
+single 47-character token with no spaces and therefore no natural wrap
+point — forced that span wider than its 308px column
+(`scrollWidth` 346 vs. `offsetWidth` 308 on the body, isolated by
+comparing every candidate element's computed style/box before touching any
+code). Every other page checked (`/components/checkbox`, `/components/
+button`, `/foundation/radius-elevation` — which already has a similarly-
+styled warning `Alert` — and `/components/combobox`, including this same
+session's new large-list tab's own longer prose) stayed at exactly
+375/375, confirming the long unbroken file path was the specific trigger,
+not `Alert`, code styling, or long prose in general. Fix: one CSS rule
+scoped to the new feature, `:global(.hooks-warning code) { overflow-wrap:
+anywhere; }` in `ThemeHooks.svelte` — deliberately not a global `code`
+rule (would be a wider blast radius than this fix needs) and not a rewrite
+of the file path into something shorter (the real path is the more useful,
+copy-pasteable content). Verified in a rebuilt production preview:
+`/components/toggle` back to exactly 375/375; confirmed via the concurrent
+session's own findings entry immediately above this one, which hit the
+same failure from the other side (their batch didn't touch `toggle/
++page.svelte` at all) and correctly attributed it to this session's
+in-flight `ThemeHooks.svelte`/`hooks.ts` changes rather than their own —
+independent confirmation the diagnosis and fix are right.
+
+Files: `src/docs/hooks.ts` (`ComponentHooks.warning` field + Toggle's
+entry + the "described above" wording fix), `src/docs/hooks.spec.ts` (one
+new well-formedness test), `src/docs/ThemeHooks.svelte` (renders the
+warning `Alert` + the `overflow-wrap` fix), `src/routes/components/
+combobox/+page.svelte` (new "Large list (filtering)" tab + its dataset).
+No spec amendment — specs/22 and specs/23's existing Out of Scope sections
+already cover the deferral accurately; nothing here needed correcting.
+
+Gates: `svelte-check` 0 errors/warnings on every file this entry touches
+(re-verified after the overflow fix); `prettier --check` + `eslint` clean;
+unit `74 files / 2385 tests` passed pre-fix and `2386` on a later re-run
+after unrelated concurrent work landed in the shared tree (net +1 test,
+not authored here); `build` (prerender, `@sveltejs/adapter-static`)
+succeeded, confirming SSR/hydration match for both the Combobox large-list
+dataset and the new Alert markup; e2e `388/388` passed after the overflow
+fix (kill-port-4173 protocol, first attempt hit an unrelated
+`ERR_CONNECTION_REFUSED`/preview-server-OOM flake on one test per the
+documented retry allowance, second attempt clean). Two unrelated
+`svelte-check` errors (`src/lib/config/schema.ts`) and two unrelated
+warnings (`src/docs/samples/Article.svelte`) appeared in the tree after
+this entry's own gate run, from other concurrent in-flight work
+(`specs/44-utilities.md` is untracked in the same tree) — not touched or
+introduced by this entry, left for whoever owns that batch.
+
+## Three new Patterns pages: Article, Recipe, Contact form (2026-07-23)
+
+User-directed batch, not a checklist pass — three new pattern pages, each
+following the established Homepage/ProductDetail/CheckoutForm sample+route
+conventions exactly (samples import only public `$lib` exports; routes
+render the sample inside `<Container breakout>` with a `?raw` source
+listing; asset URLs go through a single per-sample constants map using the
+labeled-SVG-data-URI / `about:blank` placeholder conventions — no fake
+static paths, no real third-party media). Patterns have no formal spec;
+the samples and these conventions are the contract, so no spec amendment
+accompanies this entry.
+
+**Article** (`/patterns/article`, `samples/Article.svelte`) — a course-design
+editorial piece: a Hero opener (`headingLevel={2}`, no media — center
+layout, matching Homepage's precedent of leaving Hero text-only rather than
+risking contrast on a photographic overlay background with no built-in
+scrim), an author/date byline, a `Divider`, ~700 words of true-to-life prose
+about disc golf course design (risk/reward routing, green complexes,
+referencing the established "Maple Hill" lore from Homepage/CheckoutForm),
+an intent-colored `Blockquote` pull-quote (`intent="primary"`, default
+`intentScope="line"` — only the accent bar takes the color, matching the
+component's own restrained default), and a breakout image: the prose column
+is capped at `Container max="md"`, and the image escapes it with a nested
+`Container breakout` — the same width-sensitive convention the Container
+and Table docs pages use to demo off-column bleed, here applied inside a
+sample for the first time. The prose column also dogfoods
+`--hz-font-family-serif` (existing token, previously unused outside the
+typography foundation page) on the body headings/copy only — byline and
+captions stay in the sans default so page metadata doesn't compete with the
+reading experience.
+
+**Recipe** (`/patterns/recipe`, `samples/Recipe.svelte`) — a "Leicester
+League-Night Chili" recipe (Leicester, MA ties back to the established
+Homepage/CheckoutForm shipping-address lore). Ingredients render as a
+plain, non-sorting `Table` — the exact shape of the Table docs page's own
+"No sorting" demo (no `sortable` flag on any column, so no sort buttons
+render); notes cells are optional per-row and confirmed against
+`Table.svelte`'s `defaultCellText` (undefined → empty string, not the
+literal text `"undefined"`) before leaving some rows without a note. The
+method is step-by-step prose (`<ol>`) with photos along the way and a short
+technique `Video` near the end (`about:blank` src + a generated poster data
+URI, both read from a `RECIPE_MEDIA` constants map alongside the two food
+photos — the same asset-URL-swap-point comment convention as
+ProductDetail's `PRODUCT_MEDIA` and the Video docs page's `posterSvg()`).
+Dietary-tag `Badge`s (`variant="outline"`, restrained — no intent color,
+matching ProductDetail's flight-stat badges) sit under the title. Density
+system used where it read as natural rather than forced: `gap="away"`
+between the page's major sections (header block, image, ingredients,
+instructions), `gap="near"` between the tightly-related ingredients heading
+and its table — no `data-density-shift` scaffold, since that nesting
+mechanism is a route-level concern the task explicitly scoped out for
+pattern pages (matching what the Homepage route already does: no density
+scaffold).
+
+**Contact form** (`/patterns/contact-form`, `samples/ContactForm.svelte`) —
+the minimal end of the Form spectrum, positioned explicitly as that in both
+routes' lead copy with a reciprocal cross-link
+(`/patterns/checkout-form` ↔ `/patterns/contact-form`, one sentence added to
+each route's existing lead paragraph). Four fields (`TextInput` × 2,
+`Select` for topic, `Textarea` for message) plus a submit `Button`, no
+Split/Card order summary — but the validation flow is identical in shape to
+CheckoutForm's at full size: a plain field-name → message record built at
+submit time, reshaped by `toFormErrors`, with `Form` rendering the linked
+error summary and moving focus to it, the same array feeding each field's
+inline `error` prop.
+
+A component-scoping note worth recording for future samples: passing a
+custom `class` into a `$lib` component (e.g. `<Cluster class="byline">`)
+and then writing a plain (non-`:global`) selector for that class in the
+sample's own `<style>` block does **not** match — Svelte only stamps its
+scope-hash class onto elements written literally in the *authoring*
+component's own template, and a class name handed to a child component
+as a prop doesn't retroactively scope that child's own rendered DOM.
+Article's byline block was restructured to wrap the `Cluster` in a literal
+`<div class="byline">` instead, avoiding the need for a `:global()` escape
+entirely and keeping the sample consistent with every other sample's
+style block (none of which style a class passed into a `$lib` component).
+
+Files: `src/docs/samples/{Article,Recipe,ContactForm}.svelte`;
+`src/routes/patterns/{article,recipe,contact-form}/+page.svelte` (new);
+`src/routes/patterns/checkout-form/+page.svelte` (one-sentence reciprocal
+cross-link); `src/docs/manifest.ts` (Patterns section only — three new
+entries: Article/Recipe placed after Homepage, Contact form placed after
+Checkout form; re-read immediately before editing since a concurrent
+session was reordering the unrelated Forms component group in the same
+file, confirmed no overlap before saving).
+
+Gates: `svelte-check` 0 errors/warnings on every file this entry touches
+(the earlier-observed Article.svelte warnings, noted in the entry above
+this one, were from a mid-write snapshot of this same in-progress work —
+resolved once the file was completed, not a separate bug); `prettier
+--check` + `eslint` clean; unit `74 files / 2408 tests` passed; `build`
+(prerender, `@sveltejs/adapter-static`) succeeded for all three new routes
+— one retry was needed after a first attempt failed on the unrelated,
+concurrently-in-flight `/foundation/utilities` route (empty directory, no
+`+page.svelte` yet, from the utilities builder's own in-progress session
+sharing this tree); confirmed via `git status` this wasn't caused by
+anything this entry touched, waited for that file to land, then reran
+`build` clean. e2e `408/408` passed on the first attempt (kill-port-4173
+protocol observed before the run) — includes the 375/768/1280px
+no-horizontal-overflow sweep passing on all three new routes and the
+existing specs/31 R5 Patterns-sample assertions unaffected. No files owned
+by the concurrent utilities-engine or forms-tweaks/combobox/toggle
+builders were touched by this entry.
+
+## specs/44 — Utilities: opt-in generated sheet + `/foundation/utilities` (2026-07-23)
+
+Implemented specs/44 R1–R10 in full — the opt-in, engine-generated
+`utilities.css` (text-color role/intent helpers + the seven logical-property
+margin families) and the `/foundation/utilities` docs page.
+
+**Engine (R1–R3).** `generateUtilitiesCss(resolved, { intro? })` added beside
+`generateCss` in `src/lib/config/generate.ts`, exported from `./config`.
+Reuses `ResolvedConfig.sections` directly (roles/intent/space) — no
+re-resolution — and the existing `banner`/`note`/`withIntro` header-weaving
+helpers. Fixed emission order: two role helpers (`.hz-text`,
+`.hz-text-muted`), one `.hz-text-<intent>` per resolved intent entry, then
+the seven margin families (`hz-m`, `-block`, `-block-start`, `-block-end`,
+`-inline`, `-inline-start`, `-inline-end`) × every resolved space rung —
+family-major order (all rungs of one family, then the next family), so the
+generated sheet groups by property. All declarations are `var()` references
+into role/intent/space tokens only; every rule is unlayered, bare
+single-class selectors (specificity `0,1,0`), no `!important` — mirroring
+`.sr-only`. The header banner carries the generated-file notice plus the
+utility definition and anti-goal paragraphs, verbatim from the spec's
+doctrine section (both here and on the docs page) apart from stripping
+markdown bold syntax for a plain CSS comment.
+
+One bug caught before it shipped: the first-draft banner text read
+`--hz-color-*/--hz-intent-*`, and the literal `*/` sequence inside a CSS
+block comment prematurely closes it — Prettier's CSS parser choked on the
+resulting garbled file. Fixed by spacing the slash (`--hz-color-* /
+--hz-intent-*`); worth flagging as a general hazard for any future
+generated-sheet prose that juxtaposes two `--hz-*-*` names with a bare `/`.
+
+**Kebab-collision (edge case).** A consumer intent literally named `muted`
+collides with the fixed `.hz-text-muted` role helper's class name —
+`generateUtilitiesCss` now tracks emitted class names in a `Map` (seeded
+with the two fixed role helpers) and throws `HyzerConfigError` naming both
+parties (`config.tokens.intent.muted` and the role helper) before emitting
+anything, mirroring the engine's existing kebab-collision message shape in
+`schema.ts`'s `mergeGroup`.
+
+**Wiring (R4).** `scripts/gen-tokens.ts` gained a `utilities.css` sheet
+entry (`generateUtilitiesCss(resolveConfig())`); `pnpm gen:tokens`
+regenerates it alongside `tokens.css` and the example sheets, and a drift
+test in `config.spec.ts` pins the committed file to fresh engine output
+byte-for-byte. Consumer opt-in: `HyzerConfig.utilities` gained as
+`boolean | { output?: string }` (new `resolveUtilities` helper in
+`schema.ts`, validated the same way as the sibling `output`/`icons` keys),
+surfaced on `ResolvedConfig.utilities: { enabled, output? }`. The CLI
+(`main.ts`) gained a `--utilities` boolean flag; `hyzer generate` writes no
+utilities file by default, writes one next to the tokens sheet (default
+`hyzer-utilities.css`, or `config.utilities.output` resolved the same way
+the top-level `output` key is) when either the flag or the config key opts
+in, and the flag's presence overrides the config key (config-only `output`
+customization still applies even when the flag is what triggered the
+write). `--check` suppresses the utilities write exactly like the tokens
+write.
+
+**Packaging (R5/R6).** `package.json` gained
+`"./utilities.css": "./dist/theme/utilities.css"` next to `./tokens.css`/
+`./reset.css`; `exports.spec.ts` pins the map entry, the required-keys
+list, and that the dist file resolves. `utilities.css` lives under
+`src/lib/theme/` and was deliberately **not** added to
+`palette-namespace.spec.ts`'s `generatedSheets` exclusion set — it stays in
+the scanned scope, so the existing R3.1 grep (zero `--hz-palette-*`) and R6
+stale-name grep actively enforce the sheet's own doctrine rather than
+exempting it; confirmed both pass with the file in scope.
+
+**AA (R7).** No new `contrastReport` pairings — every `.hz-text-<intent>`
+already has a graded `text:intent-<x>/surface` and `/surface-muted` row in
+both modes (the existing `textTokens` loop in `report.ts` already includes
+every `--hz-intent-*` key). Added a cross-check test in `config.spec.ts`
+that walks every intent and asserts the corresponding rows exist and pass
+on both surfaces in both modes, tying the utility sheet to the existing
+gate without touching `report.ts`. The docs page states the AA boundary
+verbatim (graded on the two surface roles only; any other background is
+the consumer's responsibility).
+
+**Docs page (R8/R9).** New `/foundation/utilities` (manifest leaf appended
+to Foundation, last position, after CSS Reset) — three sections: the opt-in
+sheet (import line, doctrine prose, `?raw`-sourced class tables for text
+and margin families derived from `color`/`intent`/`space` metadata exactly
+like the Typography/Colors pages, a live nudge-demo `Example`, a visual
+margin-scale strip, and the full generated source via `CodeBlock`); the
+always-on `.sr-only` (documents the a11y purpose, the six components/
+scaffold that already emit `class="sr-only"`, and the actual rule sourced
+`?raw` from `theme/base.css` — the extraction had to search for the literal
+`.sr-only {` selector rather than the bare substring `.sr-only`, since the
+file's own top-of-file header comment mentions "the `.sr-only` utility"
+first and would otherwise be sliced from the wrong offset); and the opt-in
+component conventions (`.hz-card-title`/`.hz-banner-title`, cross-linked to
+`/components/card`, `/components/banner`, and `/theming/components`,
+explicitly distinguished from the generated sheet). Reciprocal
+cross-references added: one verbatim sentence each on `/theming/components`
+(opt-in-classes section) and `/theming/overview` (tiers rundown), exact
+wording from the spec.
+
+**Docs dogfood (R10).** `src/routes/+layout.svelte` imports
+`$lib/theme/utilities.css` after `theme.css`, before `docs.css`. Usage is
+content-only — the two utility classes used on the docs page itself
+(`.hz-text-success`, `.hz-m-inline-start-*` in the live nudge demo and the
+margin-scale strip) are both inside page/demo content, never the shell
+(sidebar/header/footer stayed on `docs.css`, unmodified).
+
+**Manifest edit hazard worth recording.** The `Read` tool's `cat -n`-style
+line-number prefix (a literal tab between the number and the actual line
+content) made a copy-pasted `old_string` off by one tab level on the first
+several attempts against `src/docs/manifest.ts` — `Edit` reported "string
+not found" even though the visually-rendered lines looked identical.
+Resolved by inspecting raw bytes (`od -c` / a small Python script) instead
+of trusting the numbered Read output's whitespace by eye. Also confirmed
+via `git diff` that the Forms-group reordering and the three new Patterns
+entries already present in `manifest.ts` when this session resumed were
+concurrent builders' work, not mine — my only diff there is the one
+Foundation `Utilities` leaf.
+
+No `src/docs/hooks.ts`/`ThemeHooks.svelte` change was needed or made —
+utilities is not a component and has no hooks-table row; confirmed
+`hooks.spec.ts`/`data.spec.ts` require no edit for this spec.
+
+Files: `src/lib/config/{generate,schema,index}.ts`; `src/lib/theme/
+utilities.css` (new, generated); `scripts/gen-tokens.ts`; `src/lib/cli/
+main.ts`; `package.json`; `src/routes/foundation/utilities/+page.svelte`
+(new); `src/docs/manifest.ts` (Foundation section only — one new leaf);
+`src/routes/theming/{overview,components}/+page.svelte` (one cross-link
+sentence each); `src/routes/+layout.svelte` (one import line); test files
+`src/lib/config/config.spec.ts`, `src/lib/cli/main.spec.ts`,
+`src/lib/exports.spec.ts` (all extended, no existing test changed).
+`src/lib/tokens/palette-namespace.spec.ts` unmodified — confirmed green
+with the new file in scope, per R6. No files owned by the concurrent
+combobox/toggle/hooks or pattern-pages builders were touched.
+
+Gates: `pnpm gen:tokens` regenerated `utilities.css` with zero drift on
+every other committed sheet (`tokens.css`, the three example sheets);
+`svelte-check` 0 errors/warnings; `prettier --check .` + `eslint .` clean;
+unit `74 files / 2408 tests` passed except one pre-existing, out-of-scope
+failure in `hooks.spec.ts` (`--hz-slider-length` undocumented) traced to
+the concurrent Slider/RangeSlider vertical-mode work landing in the same
+tree (confirmed via `git status`/`git diff` — no file this entry touched is
+implicated); `build` (prerender, `@sveltejs/adapter-static`) succeeded,
+`/foundation/utilities` included; `pnpm package` + `publint` both green,
+`dist/theme/utilities.css` byte-identical to the committed source; e2e —
+one full run passed `408/408`, a second full run (much slower under heavy
+concurrent-session load, ~14 minutes vs. the usual ~1) had a single
+`/components/badge` skip-link test time out at the default 30s, confirmed
+a system-load flake (unrelated route, unrelated assertion) by rerunning it
+alone immediately after, which passed in under 10s. Port 4173 killed before
+every run per protocol.
+
+## specs/46 — Docs theme as a shipped example (retire Sunset) (2026-07-23)
+
+Implemented specs/46 R1–R8 in full: the docs site's own reading chrome ships
+as a new, hand-authored example theme (`theme/examples/docs/docs.css`), the
+docs app imports the shipped sheet instead of a private copy (full import
+inversion), and Sunset is deleted with its ripple resolved end to end.
+
+**The shipped sheet (R1–R3).** New `src/lib/theme/examples/docs/docs.css` —
+NOT engine-generated, no `gen-tokens.ts` entry, no config. Holds the
+page-rhythm scaffold (`.doc-intro h1`, `.doc-description`, `.doc-section h2`,
+`.a11y-refs`), the demo scaffolding (`.tab-content`, `.inner-tab`,
+`.tab-note`, `.demo-col`), the `.docs-table` flat-table override, the
+`p code`/`li code` chip treatment (with its `[data-theme='dark']`
+strengthening), and the content `*:focus-visible` ring with its
+`.hz-field`/`.hz-button` exclusion list — lifted from `src/docs/docs.css` and
+`+layout.svelte`'s `<style>` respectively. Ships unscoped (no
+`.hz-theme-docs` root), stays in `palette-namespace.spec.ts`'s scan scope
+(R2), and is covered by the BASE `tokens/fallback-parity.spec.ts` rather than
+the per-config `examples.spec.ts` suite (R3) — the one example whose
+fallbacks promise the library's own resolved values, since it adds no
+palette. That required widening `fallback-parity.spec.ts`'s
+`theme/examples/**` exclusion to carve out `theme/examples/docs/` as the one
+in-scope subtree, rather than adding the new file to any exclusion list.
+
+Two small, deliberate deviations from a byte-for-byte "verbatim" lift, both
+because the source files' fallback literals had never been scanned by any
+fallback-parity suite before (the private `src/docs/docs.css` lived outside
+`src/lib`; the layout's `<style>` lives in `src/routes`, also outside its
+scan) — moving them into `src/lib/theme/examples/docs/` puts them in scope
+for the first time and surfaced two latent, non-conforming fallbacks. Neither
+changes any rendered pixel on the docs site (tokens.css is always loaded
+there, so a fallback only matters when the custom property is entirely
+undefined): (1) `.doc-description`'s `color: var(--hz-color-text, inherit)`
+→ `var(--hz-color-text, #000)`, matching the convention already used
+elsewhere in the same file (`.skip-to-content`, `.docs-shell`) and the
+token's actual resolved base value. (2) the dark-mode code-chip rule's
+`var(--hz-intent-neutral, #9ca3af)` → `var(--hz-intent-neutral, #6b7280)` —
+the original literal encoded the token's *dark-resolved* value as a
+same-property fallback, which is incoherent (a fallback fires when the
+property is undefined, which has nothing to do with `data-theme`); the tint
+still strengthens 14% → 28% in dark exactly as before, since that swing comes
+from the `color-mix()` percentage, not the fallback. Both are noted in the
+new sheet's own comments.
+
+**The import inversion (R4).** `src/routes/+layout.svelte` now imports
+`$lib/theme/examples/docs/docs.css` in place of `../docs/docs.css`; the
+code-chip pair, the content focus-ring rule, and the shell's own redundant
+`.sr-only` copy (theme/base.css already ships one, imported earlier in the
+same file via `theme.css` — R2 doctrine, "don't duplicate it") are removed
+from the layout's `<style>`, which now holds only app-level guards
+(box-sizing, body margin, `pre`/`img`/`video`/`table` overflow caps) and the
+`prefers-reduced-motion` collapse. `src/docs/docs.css` is deleted outright.
+A new guard test, `src/docs/docsExampleInversion.spec.ts`, pins both halves:
+the shipped import is present, the private copy is gone.
+
+**Sunset deletion, ripple resolved (R5).** `src/lib/theme/examples/sunset/`
+removed entirely (config, tokens sheet, index sheet, all nine component
+sheets). Every ripple point from the spec's checklist confirmed and fixed:
+`examples.spec.ts` (`sunsetConfig`/`sunsetIntro` imports and array entry
+removed — the `components/`-dir fallback `describe.each` needed no separate
+edit, since it filters the `examples` array by `existsSync(components)`
+dynamically); `scripts/gen-tokens.ts` (sheet entry + import removed, header
+comment updated to name the four remaining sheets and note the Docs example
+adds none); `palette-namespace.spec.ts` (both the `generatedSheets` and
+`exampleConfigSources` sunset lines removed, doc comment updated to record
+that the new Docs sheet is deliberately NOT excluded); `consumerSource.spec.ts`
+(`sunset/sunset.config.ts` dropped from the fixture list); `exports.spec.ts`
+(the three `theme/examples/sunset/*` pins replaced with one
+`theme/examples/docs/docs.css` reachability pin, comment retuned to
+singular "class-override theme"); `README.md` (dropped the stale
+`theme/sunset.css` row and the pre-specs/32 "ocean.css / sunset.css" prose,
+repointed the subpath table and the styling-tiers section at the real
+`theme/examples/{ocean,terminal,docs/docs}.css` paths). Historical spec prose
+(specs/29/15/16/41/42) and the Lightbox "Hole 7 at sunset" alt-text strings
+are unrelated demo content, left untouched as directed. Confirmed by grep: no
+remaining `sunset` reference anywhere under `src/` or `scripts/` outside
+`Lightbox.svelte.spec.ts`/`lightboxGroup.svelte.spec.ts`/the lightbox demo
+page's alt text (all pre-existing, unrelated).
+
+**`/theming/examples` restructure (R6).** The freedom-arc `examples` array
+collapses to Ocean + Terminal (the comparison table drops its Sunset column;
+the intro prose retunes "three themes"/"deliberately three different amounts
+of freedom" to "two", and "if you only read one, read Terminal's" to
+"between these two, if you only read one..."). A new, visually distinct
+third section, "Docs — a different kind of example," follows the arc: its
+own blurb explicitly disclaims being a fourth freedom-axis point, states it
+layers over the reference theme (carrying forward the "layered over" idea
+the dropped table column used to state), and dogfoods the shipped sheet with
+*no* extra import — `docs.css` is already loaded globally by the root layout,
+so the section's demo runs on the real live sheet. Its Demo tab renders the
+same `<Table>` twice, bare and wrapped in `.docs-table`, side by side — the
+layered-cascade lesson Sunset used to carry, now taught by the override this
+spec actually ships; its second tab shows the shipped `docs.css` verbatim via
+`?raw`. The per-instance `.cta` lesson keeps working for Ocean + Terminal
+(both demo panels already render `<Button class="cta">Go pro</Button>`,
+unaffected by the array shrink); the `ctaCode` sample and the `<style>`
+block's `.hz-theme-sunset .hz-button.cta` rule are removed, and the
+surrounding prose ("in both demos above," "Terminal is the one example here
+that roots its overrides at a class") retuned to match. The "How these work"
+Accordion's `why-wins` FAQ entry — which only ever explained why Sunset's
+layered override won the cascade — is retired from this section (its
+lesson relocated to the Docs section per R6, not duplicated); `why-class`
+stays, retexted for Terminal alone. The trailing "Start from one" coverage
+note drops "Sunset and" and gains a one-sentence contrast with the Docs
+example's opposite approach (no component-hook restyling at all). The
+existing `Example` model, `CodeBlock`, `?raw` pattern, and `consumerSource`
+are all reused unchanged; `docs.css` itself needed no `consumerSource` pass
+(pure CSS, no import specifiers to rewrite).
+
+**No new AA gate (R7).** No `contrastReport` change — the header comment on
+the new sheet states the boundary verbatim (chip contrast holds on the
+surface/surface-muted roles this site paints behind prose; any other
+background is the consumer's responsibility), matching specs/44 R7's
+posture.
+
+**Spec + findings housekeeping (R8).** Appended a dated `### Amendments`
+section to `specs/32-theme-examples.md` (it previously only had an
+"Amendments to earlier specs" section, i.e. amendments specs/32 makes to
+others — this is the first amendment recorded against specs/32 itself)
+recording Sunset's retirement and the Docs replacement, with a note that
+specs/32's Sunset-specific R3/table/directory-layout prose is left as
+historical record. Amended the three named `/theming/examples` mentions in
+`specs/30-theming.md` (lines 78, 120, 152 as given) in place, each flagged
+inline as a specs/46 (2026-07-23) amendment rather than silently rewritten.
+No manifest edit — the examples route/label is unchanged, per the task
+boundary; confirmed no other builder's files (Slider/RangeSlider/field.css/
+hooks.ts, the combobox page/samples/patterns/manifest PATTERNS section) were
+touched.
+
+**Byte-identity verification approach.** Since this is a relocation, not a
+restyle, "byte-identical rendering" was checked three ways: (1) diffed the
+lifted CSS's declared properties/values against the moved-from sources —
+identical modulo the two fallback-literal fixes above, both dead code under
+normal operation; (2) the full e2e no-overflow sweep (every manifest route ×
+mobile/tablet/desktop) as the stated canary, since every docs page depends on
+the relocated `.tab-note`/`.doc-section h2`/etc. scaffolding; (3) the new
+load-bearing focus-ring e2e (`specs/46 — content focus-visible ring travels
+with the docs example` in `docs.e2e.ts`) directly measuring computed
+`outline-color` against the focused element's own `color` (currentColor) on
+a content link, and asserting the same never happens on a `.hz-button` or a
+`.hz-field input` (which keep their own themed ring — the reference theme's
+own `:where(:focus-visible)` default plus each control's more specific
+override), the precise scenario the exclusion list exists to prevent
+regressing.
+
+Files: `src/lib/theme/examples/docs/docs.css` (new); `src/lib/theme/examples/
+sunset/**` (deleted, 11 files); `src/docs/docs.css` (deleted);
+`src/routes/+layout.svelte`; `src/routes/theming/examples/+page.svelte`;
+`scripts/gen-tokens.ts`; `src/lib/theme/examples/examples.spec.ts`;
+`src/lib/exports.spec.ts`; `src/lib/tokens/palette-namespace.spec.ts`;
+`src/lib/tokens/fallback-parity.spec.ts`; `src/docs/consumerSource.spec.ts`;
+`src/docs/docsExampleInversion.spec.ts` (new); `src/routes/docs.e2e.ts`
+(surgical append only); `README.md`; `specs/32-theme-examples.md`;
+`specs/30-theming.md`; this file.
+
+Gates: recorded in the same session's final message to the user (gen:tokens
+post-deletion sheet set, svelte-check, format+lint, unit, build,
+package+publint, e2e).
+
+## specs/45 — Slider vertical orientation (2026-07-23)
+
+Added `orientation`/`inputPosition` to both `Slider` and `RangeSlider` per
+the reversal spec. The load-bearing mechanism (`writing-mode: vertical-lr;
+direction: rtl` on the range(s), bottom-up growth) lands exactly as
+specified; no new JS branches touch `onThumbInput`/`commitNumber`/`topThumb`
+— RangeSlider vertical really is CSS-only (Vert-R7), verified by the fact
+that zero lines changed in either component's `<script>` block beyond the
+two new props and the `aria-orientation` stamp.
+
+**Cascade-layer subtlety not spelled out in the spec, worth recording.**
+Component `<style>` blocks in this codebase are unlayered (Svelte scoped
+CSS, no explicit `@layer`); the reference theme is `@layer hz-theme`. Per
+the cascade-layers spec, *any* unlayered declaration for a property
+categorically beats *any* layered declaration for that same property,
+regardless of specificity or source order — this is the same mechanic that
+forced Toggle's unlayered exception (see hyzer-ui-theme-architecture). That
+meant the original unconditional structural rule `.hz-slider { width: 100%;
+}` (present in both components, always-on) would have silently blocked the
+theme from ever giving the vertical range a different cross-axis width — no
+theme override, however specific, could win. Fix: split ALL of the
+previously-unconditional structural rules (`.hz-slider-row`'s
+`flex-direction`, `.hz-slider-track`'s `flex`/`min-width`, `.hz-slider`'s
+`width`) behind `[data-orientation='horizontal']`, so horizontal keeps
+byte-identical computed styles (the attribute is always stamped, defaulting
+to `'horizontal'`) while vertical mode leaves `width` entirely unset in the
+component layer, freeing the theme to own the thin-track-line +
+WebKit-thumb-recenter treatment on the rotated axis (mirroring the existing
+`height: var(--hz-slider-track-height)` + `margin-top` recenter pair on the
+`::-webkit-slider-thumb`, just swapped to `margin-left`). RangeSlider's own
+two ranges are excluded from that recenter via a same-specificity,
+later-in-source override (`.hz-field--slider-range …`), the same
+tie-break-by-source-order pattern the file already used for the horizontal
+rules ("RangeSlider (after the single rules so equal-specificity overrides
+win)") — extended here to the new vertical rules rather than introduced
+fresh, to match the existing convention over `:not()`.
+
+**RangeSlider markup gained one new wrapper**, `<div class="hz-slider-inputs">`,
+around the min/max number-field pair (or the single readout) — not present
+in specs/17's literal markup listing, but required by Vert-R3's own test-plan
+wording ("one `.hz-slider-row` child group") to keep the pair a single
+horizontal cluster even when the row itself flips to `flex-direction:
+column`. Given the exact same `gap` token at both the row and the new
+wrapper level, horizontal pixel spacing is unchanged (verified: the existing
+17-suite regression tests, which query by class not DOM depth, all pass
+unchanged). Added `.hz-slider-inputs` to the RangeSlider `hooks.ts` parts
+table since it is now a real, styleable part.
+
+**e2e caught a real test-authoring bug, not a component bug**, worth noting
+since it's a trap this spec's own test plan invites: native `<input
+type="range">` does not reflect `aria-valuenow` as a DOM attribute (it's
+implicit-ARIA, accessible-tree-only) — `getAttribute('aria-valuenow')`
+returns `null` always. The Vert-R6 keyboard e2e initially "failed" (value
+never appeared to change) for this reason on both components; fixed by
+reading `.inputValue()` instead, which reads the live `value` property. With
+that fix the keyboard test genuinely proves the mechanism: ArrowUp measurably
+increases the DOM value on a focused vertical thumb in a real Chromium
+engine, confirming the `direction: rtl` bottom-up convention actually holds
+in practice, not just on paper.
+
+**Latitude decisions:** (1) tick mark dimensions rotate 2px×0.375rem →
+0.375rem×2px (a horizontal tick line becomes a vertical one beside the
+track) — not pixel-specified in the spec, chosen to mirror the existing
+mark's proportions; (2) the docs Vertical demo tabs bound their height via
+the default `--hz-slider-length` (12rem) and use `Cluster` for side-by-side
+layout per Vert-R8's explicit guidance, with a small page-local
+`:global(.hz-field--slider) { width: auto; }` override on the demo wrapper,
+since `Field.svelte`'s unconditional `width: 100%` (Field-R1, correctly
+unchanged) would otherwise fight the Cluster's row layout — flagged in the
+demo's own tab-note as "the author's job," per spec wording.
+
+**Deviation:** none from the spec's requirements. One documentation nuance:
+the spec's CSS-split section didn't anticipate needing to touch the
+*horizontal* structural rules at all ("Horizontal keeps its current
+structural rules… range width: 100%"), but preserving that behavior
+byte-identically while unblocking theme control over the vertical range's
+width required re-scoping (not rewriting) those same rules behind the
+attribute selector — computed styles for `orientation="horizontal"` (the
+default) are unchanged; verified by the full existing 17-suite passing
+unmodified plus new orientation-parity assertions on `--hz-slider-fill*`/
+`--hz-tick-pos`/`--hz-slider-chars` across both orientations.
+
+Files: `src/lib/components/Slider.svelte`; `src/lib/components/
+RangeSlider.svelte`; `src/lib/components/Slider.svelte.spec.ts`;
+`src/lib/components/RangeSlider.svelte.spec.ts`; `src/lib/theme/components/
+field.css`; `src/docs/hooks.ts`; `src/docs/data/slider.ts`; `src/docs/data/
+range-slider.ts`; `src/routes/components/slider/+page.svelte`;
+`src/routes/components/range-slider/+page.svelte`; `src/routes/docs.e2e.ts`
+(surgical append only); `specs/17-slider.md` (dated amendment, Vert-R10);
+this file.
+
+Gates: svelte-check (0 errors), prettier + eslint on all touched files
+(clean), full unit suite (2429/2429), production build (green once a
+concurrent builder's transiently-deleted `theme/examples/sunset/` reappeared
+— unrelated to this spec's scope), full e2e suite (421/422 — the sole
+failure, `specs/46 — content focus-visible ring…`, is a pre-existing/
+concurrent-builder test outside this spec's touched files, reproducing
+identically with and without this change).
+
+## Combobox large-list dataset swap (real courses) + new Virtualized combobox pattern (2026-07-23)
+
+Two user-directed items. The first started as a bug-hunt and was redirected
+mid-task by the user after a reproduction; the second builds a new Patterns
+page.
+
+**1. Combobox filtering — reproduced first, no bug found; root cause was the
+demo data, not the component.** Read `Combobox.svelte`'s `defaultFilter`
+(case-insensitive `label.includes(query)`, genuinely substring-anywhere) and
+the "Large list" demo before touching anything, per the instruction. Started
+a real reproduction (dev server + Playwright against `/components/combobox`,
+large tab): typed `nville`, a fragment landing entirely mid-word inside
+`Greenville` (not at a label or word boundary) in the then-synthetic
+cross-product dataset — it matched 49 options, proving the default filter
+truly is substring-anywhere, not prefix-only. Before finishing the write-up
+the user supplied the actual root cause directly: they'd searched for a
+**real** course name that isn't in the synthetic city×word cross-product, so
+nothing matched and it read as if only prefixes worked. There was never a
+filtering bug — REVISED SCOPE landed on swapping the synthetic dataset for
+real data instead of a bug fix.
+
+**Real-course dataset.** New `src/docs/data/courses.ts`: a `DiscGolfCourse
+{ name, location }` shape plus a `COURSES` array and a `courseSlug()`
+helper. Authored the course list from general disc-golf knowledge (58
+entries) — real courses only, no fabricated/plausible-sounding ones, per the
+explicit instruction; deliberately smaller than the "~200-400" ceiling the
+instruction floated rather than pad the count with anything I wasn't
+reasonably confident actually exists at the location given. The module
+comment says so directly and states the shape is a stable drop-in target: a
+fuller externally-sourced list (the user mentioned they may supply one) can
+replace the `COURSES` array without touching the page that consumes it.
+`/components/combobox`'s "Large list" tab now maps `COURSES` through
+`courseSlug`/label directly (`manyCourses`), dropped the two hand-authored
+city/word arrays entirely, and its tab-note and placeholder were reworded
+off the stale "thousands" framing to the real ~58-course count and an
+explicit real-mid-word example (`ridge`/`ville`) so a reader can verify
+substring-anywhere themselves. The tab-note also now points to the new
+Virtualized combobox pattern (below) as where true scale belongs. This
+module lives under `src/docs/data/` (docs-internal), not `src/lib` — it's
+consumed only by the docs *route*, never by a `src/docs/samples/*` file,
+which must stay self-contained/copy-pasteable per the existing sample
+convention (confirmed by grep: no existing sample imports from
+`src/docs/data/`).
+
+**Custom-filter tab — left as instructed, tab-note reworded.** Per the
+user's explicit correction, `startsWithFilter` stays (it legitimately demos
+overriding the `filter` prop); only the prose changed, to lead with **"The
+default filter matches a substring anywhere in the label"** in bold and
+state plainly that this tab's start-of-label match is a deliberate override,
+not what Combobox does by default — so neither tab can be misread as
+teaching prefix-only as the norm.
+
+**2. Virtualized combobox pattern — new `/patterns/virtualized-combobox`.**
+Built per the house precedents: `src/docs/samples/CommandPalette.svelte`
+(from-scratch `role=listbox` composition) for the combobox shell shape, and
+`src/docs/samples/VirtualizedTable.svelte` for the ARIA-on-divs + Virtualizer
+role-layering convention (role rides Virtualizer's own element via `...rest`
+— `role="listbox"` here, `role="rowgroup"` there — with role-less structural
+divs in between and the real semantic role on each row's own element; this
+codebase's established, already-shipped answer to "a role=listbox child
+should be a direct accessibility-tree child," not necessarily a direct DOM
+child).
+
+Dataset: 30 real courses (a self-contained subset of the same real-course
+knowledge as `courses.ts` above, duplicated inline rather than imported, to
+keep the sample copy-pasteable) crossed with 900 "Round N" entries each —
+**27,000 rows**, generated once at module scope with a plain nested
+`flatMap`/`Array.from` (no `Math.random`; SSR output matches the client).
+Substring filtering runs the same `.toLowerCase().includes()` scan Combobox
+itself uses, over the full 27,000-row array on every keystroke — confirmed
+in-browser this stays fast; what doesn't stay fast without windowing is
+*rendering* the result set, which is the actual point of the pattern.
+
+**The hard a11y problem, and how it's solved:** APG requires
+`aria-activedescendant` to name a real, currently-rendered option, but
+`Virtualizer` only ever mounts rows near the current scroll position — most
+of 27,000 rows are never in the DOM. Solved with a two-phase commit instead
+of a direct index write: `moveTo(index)` first nudges the Virtualizer
+viewport's `scrollTop` toward the target row by hand (uniform row height
+makes the "nearest" math exact — `Element.scrollIntoView()` has nothing to
+call it on when the target isn't mounted yet), clearing `activeIndex`
+immediately so it can never reference a stale id; each rendered row reports
+its own mount/unmount into a `SvelteSet<number>` via a
+`{@attach trackRendered(i)}` factory attachment; a `$effect` only commits
+`pendingIndex → activeIndex` (and therefore `aria-activedescendant`) once
+that index is confirmed present in the set. A generous `overscan` (12) means
+a single-step Arrow move resolves within the same tick, since the target row
+is normally already mounted just outside the visible viewport; only big
+jumps (`Home`/`End` across 27,000 rows) take an extra frame while
+Virtualizer's own window catches up to the new scroll position — verified
+directly (Playwright: polled `document.getElementById(activedescendant-id)`
+after every Arrow/Home/End press across the run, always non-null; `End`
+lands on the literal last row's text, `Home` on the literal first).
+
+**Bug found and fixed during verification, worth flagging:** the first
+implementation declared `pendingIndex` as a plain (non-`$state`) variable.
+`aria-activedescendant` never updated on any keypress in a real browser,
+because the commit `$effect`'s only *tracked* dependency was the
+`renderedIndices` `SvelteSet` — when the target row was already mounted
+before `moveTo()` ran (e.g. index 0 at initial `scrollTop` 0, the common
+case for the very first Arrow press), `renderedIndices` never mutated, so
+the effect never re-ran, and `pendingIndex` sat uncommitted forever despite
+holding the right value. Fix: `pendingIndex = $state<number | null>(null)`,
+so every `moveTo()` call is itself a tracked dependency the effect re-fires
+on, independent of whether `renderedIndices` also changes. Caught by
+reproducing in a real Chromium browser (Playwright against the dev server),
+not by the type checker or a jsdom-style unit test — noting this since it's
+exactly the kind of Svelte-5-reactivity gap `svelte-check`/lint cannot see.
+
+Row markup: Virtualizer's own per-row wrapper carries no role (Virtualizer-
+R9); each row's own div (inside the `row` snippet) carries
+`role="option"`/`id`/`aria-selected`/`data-active`, non-focusable (no
+`tabindex`, virtual focus only — mirrors `Combobox.svelte`'s own `<li>`
+options), with `onmousedown` preventDefault so a pointer selection never
+moves DOM focus off the input. Keyboard: `ArrowDown`/`ArrowUp` open-or-move
+(wrapping intentionally omitted — clamps at the ends instead, since wrapping
+across 27,000 rows read as more disorienting than useful here); `Home`/`End`
+jump to the absolute first/last row of the *filtered* set; `Enter` commits
+the active option (sets the input's display text, closes); `Escape` closes
+and reverts the input text to the last committed selection; outside-focus
+(`focusout` where `relatedTarget` isn't inside `.vcombo`) closes. Empty-
+result state is a `role="presentation"` paragraph, never an option.
+
+Cross-links: the Combobox docs page's "Large list" tab-note names and links
+`/patterns/virtualized-combobox` as where real scale belongs; the pattern
+page links back to `/components/combobox` and `/components/virtualizer`,
+and its "Why a pattern, not a component" `Alert` states the deferral
+honestly (cites `Combobox`'s own Virtualizer-spec Out of Scope, doesn't
+pretend this composition is a feature of the real component). Manifest entry
+added directly after "Virtualized table" per the placement instruction.
+
+e2e: appended four new tests to `src/routes/docs.e2e.ts` (surgical append at
+the file's end, past the last existing `describe` block, per the concurrent-
+builder file-ownership note) — windowing proof (rendered `[role="option"]`
+count stays under 100 against a 27,000-row dataset), `aria-activedescendant`
+validity across a `Home`/`End` big jump (asserts the id resolves to a real
+element both times, and that the resolved text is literally the first/last
+row), substring-filter correctness, and Enter-selects/Escape-closes.
+
+Files: `src/docs/data/courses.ts` (new); `src/routes/components/combobox/
++page.svelte`; `src/docs/samples/VirtualizedCombobox.svelte` (new);
+`src/routes/patterns/virtualized-combobox/+page.svelte` (new);
+`src/docs/manifest.ts`; `src/routes/docs.e2e.ts` (surgical append only);
+this file.
+
+Gates: svelte-check (0 errors, 0 warnings), prettier + eslint on all touched
+files (clean), full unit suite (2429/2429), production build (green,
+prerenders `/patterns/virtualized-combobox`), full e2e suite (422/426 — the
+four failures are pre-existing/concurrent-builder territory: one
+`specs/46 — content focus-visible ring…` failure already logged above by
+the prior entry, plus three `/components/range-slider` `ERR_CONNECTION_
+REFUSED` failures from the concurrently in-flight Slider/RangeSlider work;
+none touch a file this entry modified, and all four new tests plus the
+pre-existing virtualized-table pattern tests pass). Did not commit, per
+instruction.
+
+- **Vertical slider states demo (user, 2026-07-23, main session):** both
+  slider pages' "Description & states" tabs gain a vertical pair
+  (description + error) in a Cluster after the horizontal set — fence +
+  demo — so description/error placement is visible for
+  orientation="vertical" too. check/format/lint clean; e2e rides the
+  specs/46 builder's final full run.

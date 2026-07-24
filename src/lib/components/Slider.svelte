@@ -12,6 +12,10 @@
 		ticks?: SliderTick[];
 		unit?: string;
 		inputLabel?: string;
+		/** Vert-R1. Default 'horizontal'; every horizontal behavior is unchanged. */
+		orientation?: 'horizontal' | 'vertical';
+		/** Vert-R3. Logical, both axes; default 'end' (today's trailing layout). */
+		inputPosition?: 'start' | 'end';
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -32,6 +36,8 @@
 		ticks,
 		unit,
 		inputLabel = `${label} (exact value)`,
+		orientation = 'horizontal',
+		inputPosition = 'end',
 		class: className,
 		...rest
 	}: Props = $props();
@@ -92,6 +98,8 @@
 {#snippet control()}
 	<div
 		class="hz-slider-row"
+		data-orientation={orientation}
+		data-input-position={inputPosition}
 		data-has-input={showInput ? '' : undefined}
 		data-has-ticks={tickList.length > 0 ? '' : undefined}
 		style:--hz-slider-chars={chars}
@@ -111,6 +119,7 @@
 				bind:value
 				aria-invalid={error ? 'true' : undefined}
 				aria-describedby={describedBy}
+				aria-orientation={orientation === 'vertical' ? 'vertical' : undefined}
 			/>
 
 			<!-- Ticks-R1: decorative marks; the range announces the real value. -->
@@ -170,19 +179,67 @@
 	 * painted track in RangeSlider). */
 	.hz-slider-row {
 		display: flex;
-		flex-direction: row;
 		align-items: center;
 		gap: var(--hz-space-sm, 1rem);
 	}
 
 	.hz-slider-track {
-		flex: 1;
-		min-width: 0;
 		position: relative;
 	}
 
 	.hz-slider {
-		width: 100%;
 		display: block;
+	}
+
+	/*
+	 * Vert-R1/R2: horizontal keeps the current structural rules verbatim,
+	 * just scoped behind the (always-stamped) attribute — width stays
+	 * component-owned here so the track always fills the row's available
+	 * space; in vertical the cross-axis size becomes a theme concern instead
+	 * (the rotated analogue of --hz-slider-track-height), so it is
+	 * deliberately NOT set below.
+	 */
+	.hz-slider-row[data-orientation='horizontal'] {
+		flex-direction: row;
+	}
+
+	.hz-slider-row[data-orientation='horizontal'] .hz-slider-track {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.hz-slider-row[data-orientation='horizontal'] .hz-slider {
+		width: 100%;
+	}
+
+	/*
+	 * Vert-R2: native vertical mechanism — writing-mode + direction: rtl on
+	 * the range (bottom-up growth), the row switches to a column, and the
+	 * track gets a fixed block length (the vertical analogue of horizontal's
+	 * flex: 1) with its inline size collapsed to the thumb thickness.
+	 */
+	.hz-slider-row[data-orientation='vertical'] {
+		flex-direction: column;
+	}
+
+	.hz-slider-row[data-orientation='vertical'] .hz-slider-track {
+		flex: 0 0 auto;
+		block-size: var(--hz-slider-length, 12rem);
+		inline-size: var(--hz-slider-thumb-size, 1.125rem);
+	}
+
+	.hz-slider-row[data-orientation='vertical'] .hz-slider {
+		writing-mode: vertical-lr;
+		direction: rtl;
+		height: 100%;
+	}
+
+	/*
+	 * Vert-R3: input position is logical on both axes — reordering the track
+	 * via `order` works identically whether the row is a flex row or column,
+	 * so one rule covers all four orientation × inputPosition combinations.
+	 */
+	.hz-slider-row[data-input-position='start'] .hz-slider-track {
+		order: 2;
 	}
 </style>

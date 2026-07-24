@@ -247,4 +247,18 @@ describe('hooks.ts — rows are well-formed', () => {
 		}
 		expect(violations).toEqual([]);
 	});
+
+	it('a warning, when present, is non-empty and its backtick segments pair up', () => {
+		// ThemeHooks.svelte splits `warning` on backticks the same way DocPage
+		// splits a11yNote — an odd number of backticks would silently swallow
+		// the rest of the string into a dangling <code> run.
+		const violations: string[] = [];
+		for (const [name, h] of Object.entries(hooks)) {
+			if (h.warning === undefined) continue;
+			if (!h.warning.length) violations.push(`${name}: warning is present but empty`);
+			const backtickCount = (h.warning.match(/`/g) ?? []).length;
+			if (backtickCount % 2 !== 0) violations.push(`${name}: warning has an unpaired backtick`);
+		}
+		expect(violations).toEqual([]);
+	});
 });

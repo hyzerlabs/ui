@@ -13,6 +13,10 @@
 		unit?: string;
 		minThumbLabel?: string;
 		maxThumbLabel?: string;
+		/** Vert-R1. Default 'horizontal'; every horizontal behavior is unchanged. */
+		orientation?: 'horizontal' | 'vertical';
+		/** Vert-R3. Logical, both axes; default 'end' (today's trailing layout). */
+		inputPosition?: 'start' | 'end';
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -35,6 +39,8 @@
 		unit,
 		minThumbLabel = `${label} (minimum)`,
 		maxThumbLabel = `${label} (maximum)`,
+		orientation = 'horizontal',
+		inputPosition = 'end',
 		class: className,
 		...rest
 	}: Props = $props();
@@ -139,6 +145,8 @@
 
 	<div
 		class="hz-slider-row"
+		data-orientation={orientation}
+		data-input-position={inputPosition}
 		data-has-input={showInput ? '' : undefined}
 		data-has-ticks={tickList.length > 0 ? '' : undefined}
 		data-top={topThumb}
@@ -160,6 +168,7 @@
 				oninput={onThumbInput('min')}
 				aria-invalid={error ? 'true' : undefined}
 				aria-describedby={describedBy}
+				aria-orientation={orientation === 'vertical' ? 'vertical' : undefined}
 			/>
 			<input
 				type="range"
@@ -174,6 +183,7 @@
 				oninput={onThumbInput('max')}
 				aria-invalid={error ? 'true' : undefined}
 				aria-describedby={describedBy}
+				aria-orientation={orientation === 'vertical' ? 'vertical' : undefined}
 			/>
 
 			<!-- Ticks-R1: decorative marks; the ranges announce the real values. -->
@@ -188,34 +198,42 @@
 			{/if}
 		</div>
 
-		{#if showInput}
-			<input
-				type="number"
-				class="hz-slider-number hz-slider-number-min"
-				{min}
-				{max}
-				{step}
-				{disabled}
-				value={String(valueMin)}
-				aria-label="{minThumbLabel} (exact value)"
-				onchange={commitNumber('min')}
-			/>
-			<span class="hz-slider-sep" aria-hidden="true">–</span>
-			<input
-				type="number"
-				class="hz-slider-number hz-slider-number-max"
-				{min}
-				{max}
-				{step}
-				{disabled}
-				value={String(valueMax)}
-				aria-label="{maxThumbLabel} (exact value)"
-				onchange={commitNumber('max')}
-			/>
-		{:else}
-			<!-- Range-R1: values stay visible; aria-hidden — the ranges announce them. -->
-			<span class="hz-slider-value" aria-hidden="true">{valueMin}–{valueMax}</span>
-		{/if}
+		<!--
+			Vert-R3: the min/max exact-entry pair is wrapped in one cluster so it
+			stays a single inline "min – max" group, placed above/below the track
+			per inputPosition, rather than stacking to mirror the thumbs (RangeSlider
+			vertical-only concern — Slider has no pair to cluster).
+		-->
+		<div class="hz-slider-inputs">
+			{#if showInput}
+				<input
+					type="number"
+					class="hz-slider-number hz-slider-number-min"
+					{min}
+					{max}
+					{step}
+					{disabled}
+					value={String(valueMin)}
+					aria-label="{minThumbLabel} (exact value)"
+					onchange={commitNumber('min')}
+				/>
+				<span class="hz-slider-sep" aria-hidden="true">–</span>
+				<input
+					type="number"
+					class="hz-slider-number hz-slider-number-max"
+					{min}
+					{max}
+					{step}
+					{disabled}
+					value={String(valueMax)}
+					aria-label="{maxThumbLabel} (exact value)"
+					onchange={commitNumber('max')}
+				/>
+			{:else}
+				<!-- Range-R1: values stay visible; aria-hidden — the ranges announce them. -->
+				<span class="hz-slider-value" aria-hidden="true">{valueMin}–{valueMax}</span>
+			{/if}
+		</div>
 
 		{#if unit}
 			<span class="hz-slider-unit" aria-hidden="true">{unit}</span>
@@ -240,21 +258,84 @@
 	/* Slider-R8: one flex line — the track flexes; fields/sep/unit intrinsic. */
 	.hz-slider-row {
 		display: flex;
-		flex-direction: row;
 		align-items: center;
 		gap: var(--hz-space-sm, 1rem);
 	}
 
 	.hz-slider-track {
-		flex: 1;
-		min-width: 0;
 		position: relative;
 	}
 
 	/* Headless, the two ranges render as two honest stacked rows — the theme
 	 * absolutizes them onto one visual track. */
 	.hz-slider {
-		width: 100%;
 		display: block;
+	}
+
+	/*
+	 * Vert-R3: the min/max exact-entry pair (or the readout) stays a single
+	 * inline "min – max" cluster regardless of the row's own flex-direction —
+	 * same gap token as the row so horizontal spacing is byte-identical to
+	 * the previous unwrapped siblings.
+	 */
+	.hz-slider-inputs {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: var(--hz-space-sm, 1rem);
+	}
+
+	/*
+	 * Vert-R1/R2: horizontal keeps the current structural rules verbatim,
+	 * just scoped behind the (always-stamped) attribute — width stays
+	 * component-owned here so the track always fills the row's available
+	 * space; in vertical the cross-axis size becomes a theme concern instead,
+	 * so it is deliberately NOT set below (the theme's absolute inset: 0
+	 * already fills both axes of the collapsed track regardless).
+	 */
+	.hz-slider-row[data-orientation='horizontal'] {
+		flex-direction: row;
+	}
+
+	.hz-slider-row[data-orientation='horizontal'] .hz-slider-track {
+		flex: 1;
+		min-width: 0;
+	}
+
+	.hz-slider-row[data-orientation='horizontal'] .hz-slider {
+		width: 100%;
+	}
+
+	/*
+	 * Vert-R2/R7: native vertical mechanism, CSS-only over the value logic —
+	 * writing-mode + direction: rtl on both stacked ranges (bottom-up growth),
+	 * the row switches to a column, and the track gets a fixed block length
+	 * with its inline size collapsed to the thumb thickness.
+	 */
+	.hz-slider-row[data-orientation='vertical'] {
+		flex-direction: column;
+	}
+
+	.hz-slider-row[data-orientation='vertical'] .hz-slider-track {
+		flex: 0 0 auto;
+		block-size: var(--hz-slider-length, 12rem);
+		inline-size: var(--hz-slider-thumb-size, 1.125rem);
+	}
+
+	.hz-slider-row[data-orientation='vertical'] .hz-slider-min,
+	.hz-slider-row[data-orientation='vertical'] .hz-slider-max {
+		writing-mode: vertical-lr;
+		direction: rtl;
+	}
+
+	/*
+	 * Vert-R3: input position is logical on both axes — reordering the track
+	 * via `order` works identically whether the row is a flex row or column,
+	 * so one rule covers all four orientation × inputPosition combinations.
+	 * The input cluster and the unit both stay at the default order, so they
+	 * remain adjacent to each other on either side of the track.
+	 */
+	.hz-slider-row[data-input-position='start'] .hz-slider-track {
+		order: 2;
 	}
 </style>

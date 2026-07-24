@@ -14,8 +14,14 @@
 	// styled starting point; the docs chrome below stays hand-rolled CSS on the
 	// same role tokens.
 	import '$lib/theme/theme.css';
-	// Shared demo-page scaffolding classes (.tab-content, .tab-note, …).
-	import '../docs/docs.css';
+	// Opt-in utility sheet (specs/44 R10) — dogfooded content-only: page/demo
+	// content may use these classes, but the docs shell (sidebar/header/
+	// footer) below stays hand-rolled and never depends on this sheet.
+	import '$lib/theme/utilities.css';
+	// The shipped "Docs" example theme (specs/46) — this site's own reading
+	// look (scaffold classes, .docs-table, code chips, content focus ring),
+	// dogfooded as the literal shipped sheet rather than a private copy.
+	import '$lib/theme/examples/docs/docs.css';
 
 	interface Props {
 		children: Snippet;
@@ -679,48 +685,6 @@
 	:global(video),
 	:global(table) {
 		max-width: 100%;
-	}
-
-	/* Field controls and shared icon-buttons get the theme's soft focus ring
-	 * instead — this unlayered chrome rule would otherwise beat it and draw
-	 * an offset box across their borders. */
-	:global(
-		*:focus-visible:not(:is(.hz-field input, .hz-field select, .hz-field textarea, .hz-button))
-	) {
-		outline: 2px solid currentColor;
-		outline-offset: 2px;
-	}
-
-	/* Docs chrome (not a base-level style): inline code in running text gets a
-	   subtle chip treatment. Scoped to paragraph/list context so pre blocks and
-	   table cells (props/hooks tables render code plain) stay plain. */
-	:global(p code),
-	:global(li code) {
-		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 14%, transparent);
-		padding: 0.125em 0.375em;
-		border-radius: var(--hz-radius-sm, 0.25rem);
-		font-family: var(--hz-font-family-mono, monospace);
-		font-size: 0.875em;
-	}
-
-	/* 14% gray is invisible over black (same reason surface-muted jumps
-	   6% → 25% in the dark palette) — strengthen the chip tint in dark. */
-	:global([data-theme='dark'] p code),
-	:global([data-theme='dark'] li code) {
-		background-color: color-mix(in srgb, var(--hz-intent-neutral, #9ca3af) 28%, transparent);
-	}
-
-	/* Utility: visually-hidden text for screen readers */
-	:global(.sr-only) {
-		position: absolute;
-		width: 1px;
-		height: 1px;
-		padding: 0;
-		margin: -1px;
-		overflow: hidden;
-		clip: rect(0, 0, 0, 0);
-		white-space: nowrap;
-		border-width: 0;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

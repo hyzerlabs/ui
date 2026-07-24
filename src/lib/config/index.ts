@@ -21,7 +21,12 @@ export {
 	type TokenEntry,
 	type SectionId
 } from './schema.js';
-export { generateCss, type GenerateOptions } from './generate.js';
+export {
+	generateCss,
+	generateUtilitiesCss,
+	type GenerateOptions,
+	type GenerateUtilitiesOptions
+} from './generate.js';
 export {
 	contrastReport,
 	softTints,

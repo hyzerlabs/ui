@@ -99,6 +99,10 @@
 			</table>
 		</div>
 		<CodeBlock code={importStack} />
+		<p>
+			An optional <a href="/foundation/utilities">utilities sheet</a> adds token-derived text-color and
+			margin helpers for ad-hoc spots — imported like the theme, and free if you don't.
+		</p>
 	</Stack>
 
 	<Stack

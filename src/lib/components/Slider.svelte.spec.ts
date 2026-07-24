@@ -374,3 +374,98 @@ describe('Slider-R7 — barrel export', () => {
 		expect(container.querySelector('.hz-field--slider')).not.toBeNull();
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Vert-R1/R3/R5 — orientation & input position
+// ---------------------------------------------------------------------------
+
+describe('Vert-R1 — orientation prop & attribute', () => {
+	it('data-orientation defaults to horizontal', () => {
+		const { container } = render(Slider, { name: 'x', label: 'X' });
+		expect(
+			(container.querySelector('.hz-slider-row') as HTMLElement).getAttribute('data-orientation')
+		).toBe('horizontal');
+	});
+
+	it('data-orientation reflects orientation="vertical"', () => {
+		const { container } = render(Slider, { name: 'x', label: 'X', orientation: 'vertical' });
+		expect(
+			(container.querySelector('.hz-slider-row') as HTMLElement).getAttribute('data-orientation')
+		).toBe('vertical');
+	});
+});
+
+describe('Vert-R3 — input position', () => {
+	it('data-input-position defaults to "end"', () => {
+		const { container } = render(Slider, { name: 'x', label: 'X' });
+		expect(
+			(container.querySelector('.hz-slider-row') as HTMLElement).getAttribute('data-input-position')
+		).toBe('end');
+	});
+
+	it('data-input-position reflects inputPosition="start"', () => {
+		const { container } = render(Slider, { name: 'x', label: 'X', inputPosition: 'start' });
+		expect(
+			(container.querySelector('.hz-slider-row') as HTMLElement).getAttribute('data-input-position')
+		).toBe('start');
+	});
+
+	it('inputPosition="start" reorders the track after the number field (computed order)', () => {
+		const { container } = render(Slider, { name: 'x', label: 'X', inputPosition: 'start' });
+		const track = container.querySelector('.hz-slider-track') as HTMLElement;
+		expect(getComputedStyle(track).order).toBe('2');
+		const num = getNumber(container);
+		expect(getComputedStyle(num).order).toBe('0');
+	});
+
+	it('inputPosition="end" (default) leaves the track at the default order', () => {
+		const { container } = render(Slider, { name: 'x', label: 'X' });
+		const track = container.querySelector('.hz-slider-track') as HTMLElement;
+		expect(getComputedStyle(track).order).toBe('0');
+	});
+});
+
+describe('Vert-R5 — aria-orientation', () => {
+	it('absent when horizontal (default)', () => {
+		const { container } = render(Slider, { name: 'x', label: 'X' });
+		expect(getRange(container).hasAttribute('aria-orientation')).toBe(false);
+	});
+
+	it('"vertical" on the range when orientation="vertical"', () => {
+		const { container } = render(Slider, { name: 'x', label: 'X', orientation: 'vertical' });
+		expect(getRange(container).getAttribute('aria-orientation')).toBe('vertical');
+	});
+});
+
+describe('Vert-R4 — fill/tick custom properties are orientation-agnostic', () => {
+	it('--hz-slider-fill and --hz-slider-chars are identical across orientations', () => {
+		const props = { name: 'x', label: 'X', min: 0, max: 200, value: 50 };
+		const { container: horiz } = render(Slider, { ...props, orientation: 'horizontal' as const });
+		const { container: vert } = render(Slider, { ...props, orientation: 'vertical' as const });
+		const horizRow = horiz.querySelector('.hz-slider-row') as HTMLElement;
+		const vertRow = vert.querySelector('.hz-slider-row') as HTMLElement;
+		expect(vertRow.style.getPropertyValue('--hz-slider-fill')).toBe(
+			horizRow.style.getPropertyValue('--hz-slider-fill')
+		);
+		expect(vertRow.style.getPropertyValue('--hz-slider-chars')).toBe(
+			horizRow.style.getPropertyValue('--hz-slider-chars')
+		);
+	});
+
+	it('--hz-tick-pos is identical across orientations', () => {
+		const props = {
+			name: 'x',
+			label: 'X',
+			min: 0,
+			max: 100,
+			ticks: [{ value: 25, label: 'quarter' }]
+		};
+		const { container: horiz } = render(Slider, { ...props, orientation: 'horizontal' as const });
+		const { container: vert } = render(Slider, { ...props, orientation: 'vertical' as const });
+		const horizTick = horiz.querySelector('.hz-slider-tick') as HTMLElement;
+		const vertTick = vert.querySelector('.hz-slider-tick') as HTMLElement;
+		expect(vertTick.style.getPropertyValue('--hz-tick-pos')).toBe(
+			horizTick.style.getPropertyValue('--hz-tick-pos')
+		);
+	});
+});

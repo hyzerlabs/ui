@@ -350,3 +350,105 @@ describe('Range-R7 — barrel export', () => {
 		expect(container.querySelector('.hz-field--slider-range')).not.toBeNull();
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Vert-R1/R3/R5 — orientation & input position
+// ---------------------------------------------------------------------------
+
+describe('Vert-R1 — orientation prop & attribute', () => {
+	it('data-orientation defaults to horizontal', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X' });
+		expect(getRow(container).getAttribute('data-orientation')).toBe('horizontal');
+	});
+
+	it('data-orientation reflects orientation="vertical"', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X', orientation: 'vertical' });
+		expect(getRow(container).getAttribute('data-orientation')).toBe('vertical');
+	});
+});
+
+describe('Vert-R3 — input position', () => {
+	it('data-input-position defaults to "end"', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X' });
+		expect(getRow(container).getAttribute('data-input-position')).toBe('end');
+	});
+
+	it('data-input-position reflects inputPosition="start"', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X', inputPosition: 'start' });
+		expect(getRow(container).getAttribute('data-input-position')).toBe('start');
+	});
+
+	it('inputPosition="start" reorders the track after the input cluster (computed order)', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X', inputPosition: 'start' });
+		const track = container.querySelector('.hz-slider-track') as HTMLElement;
+		expect(getComputedStyle(track).order).toBe('2');
+		const cluster = container.querySelector('.hz-slider-inputs') as HTMLElement;
+		expect(getComputedStyle(cluster).order).toBe('0');
+	});
+
+	it('the min/max number fields and separator remain one inline cluster (a single .hz-slider-row child group)', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X' });
+		const row = getRow(container);
+		const cluster = row.querySelector(':scope > .hz-slider-inputs') as HTMLElement;
+		expect(cluster).not.toBeNull();
+		expect(cluster.querySelectorAll('input.hz-slider-number').length).toBe(2);
+		expect(cluster.querySelector('.hz-slider-sep')).not.toBeNull();
+	});
+
+	it('the readout is also wrapped in the same cluster when showInput is false', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X', showInput: false });
+		const row = getRow(container);
+		const cluster = row.querySelector(':scope > .hz-slider-inputs') as HTMLElement;
+		expect(cluster.querySelector('.hz-slider-value')).not.toBeNull();
+	});
+});
+
+describe('Vert-R5 — aria-orientation', () => {
+	it('absent on both ranges when horizontal (default)', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X' });
+		expect(getMinThumb(container).hasAttribute('aria-orientation')).toBe(false);
+		expect(getMaxThumb(container).hasAttribute('aria-orientation')).toBe(false);
+	});
+
+	it('"vertical" on BOTH ranges when orientation="vertical"', () => {
+		const { container } = render(RangeSlider, { name: 'x', label: 'X', orientation: 'vertical' });
+		expect(getMinThumb(container).getAttribute('aria-orientation')).toBe('vertical');
+		expect(getMaxThumb(container).getAttribute('aria-orientation')).toBe('vertical');
+	});
+});
+
+describe('Vert-R4 — fill/tick custom properties are orientation-agnostic', () => {
+	it('--hz-slider-fill-start/-end and --hz-slider-chars are identical across orientations', () => {
+		const props = { name: 'x', label: 'X', min: 0, max: 200, valueMin: 50, valueMax: 150 };
+		const { container: horiz } = render(RangeSlider, {
+			...props,
+			orientation: 'horizontal' as const
+		});
+		const { container: vert } = render(RangeSlider, { ...props, orientation: 'vertical' as const });
+		const horizRow = getRow(horiz);
+		const vertRow = getRow(vert);
+		for (const prop of ['--hz-slider-fill-start', '--hz-slider-fill-end', '--hz-slider-chars']) {
+			expect(vertRow.style.getPropertyValue(prop)).toBe(horizRow.style.getPropertyValue(prop));
+		}
+	});
+
+	it('--hz-tick-pos is identical across orientations', () => {
+		const props = {
+			name: 'x',
+			label: 'X',
+			min: 0,
+			max: 100,
+			ticks: [{ value: 50, label: 'mid' }]
+		};
+		const { container: horiz } = render(RangeSlider, {
+			...props,
+			orientation: 'horizontal' as const
+		});
+		const { container: vert } = render(RangeSlider, { ...props, orientation: 'vertical' as const });
+		const horizTick = horiz.querySelector('.hz-slider-tick') as HTMLElement;
+		const vertTick = vert.querySelector('.hz-slider-tick') as HTMLElement;
+		expect(vertTick.style.getPropertyValue('--hz-tick-pos')).toBe(
+			horizTick.style.getPropertyValue('--hz-tick-pos')
+		);
+	});
+});

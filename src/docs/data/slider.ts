@@ -46,6 +46,18 @@ export const sliderDoc: ComponentDoc = {
 			default: '`${label} (exact value)`',
 			note: 'Accessible name for the number field.'
 		},
+		{
+			name: 'orientation',
+			type: "'horizontal' | 'vertical'",
+			default: "'horizontal'",
+			note: 'Vertical uses writing-mode: vertical-lr (bottom-up growth); horizontal is unchanged.'
+		},
+		{
+			name: 'inputPosition',
+			type: "'start' | 'end'",
+			default: "'end'",
+			note: 'Logical on both axes: horizontal trailing/leading, vertical below/above the track.'
+		},
 		{ name: 'description', type: 'string', default: '—', note: 'Help text below the label.' },
 		{
 			name: 'error',
@@ -78,7 +90,7 @@ export const sliderDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"The range input is the labelled (`id`/`for`), named, form-participating control; its slider semantics (value, min, max) are native, and arrow keys step it. The number field is an exact-entry affordance with its own accessible name (`inputLabel`) and no `name` — it never submits. `description` and `error` chain into `aria-describedby` on the range (description first) and an `error` sets `aria-invalid`; `required` renders the label indicator only — `aria-required` isn't part of the slider role's supported ARIA attributes, so it is never applied. `unit` is decorative and `aria-hidden` — put meaning-bearing units in the label or description.",
+		"The range input is the labelled (`id`/`for`), named, form-participating control; its slider semantics (value, min, max) are native, and arrow keys step it. The number field is an exact-entry affordance with its own accessible name (`inputLabel`) and no `name` — it never submits. `description` and `error` chain into `aria-describedby` on the range (description first) and an `error` sets `aria-invalid`; `required` renders the label indicator only — `aria-required` isn't part of the slider role's supported ARIA attributes, so it is never applied. `unit` is decorative and `aria-hidden` — put meaning-bearing units in the label or description. In vertical orientation the component stamps `aria-orientation=\"vertical\"` on the range explicitly, since writing-mode doesn't reliably flip a native range's implicit `horizontal` orientation in the accessibility tree across engines/AT.",
 	a11yLinks: [
 		{ label: 'APG Slider pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/slider/' },
 		{

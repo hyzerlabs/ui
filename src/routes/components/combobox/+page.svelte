@@ -3,6 +3,7 @@
 	import type { FormOption, ComboboxChipProps } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { comboboxDoc } from '../../../docs/data/combobox.js';
+	import { COURSES, courseSlug } from '../../../docs/data/courses.js';
 	import Example from '../../../docs/Example.svelte';
 
 	const putters: FormOption[] = [
@@ -72,6 +73,30 @@
 		{ value: 'long', label: 'Long tees' }
 	];
 
+	// Demo: a real, curated dataset (src/docs/data/courses.ts) — actual disc
+	// golf courses, not generated filler. Combobox has no windowing
+	// (specs/23-virtualizer.md's Out of Scope defers that integration), so
+	// this is the honest ceiling: a static dataset filtered client-side. A
+	// few dozen real courses is comfortably inside that ceiling — see the
+	// Virtualized combobox pattern for what tens of thousands of rows needs.
+	const manyCourses: FormOption[] = COURSES.map((course) => ({
+		value: courseSlug(course),
+		label: `${course.name} — ${course.location}`
+	}));
+
+	let manyValue = $state<string[]>([]);
+
+	const largeCode = [
+		"import { COURSES, courseSlug } from './courses';",
+		'',
+		'const manyCourses: FormOption[] = COURSES.map((course) => ({',
+		'\tvalue: courseSlug(course),',
+		'\tlabel: `${course.name} — ${course.location}`',
+		'}));',
+		'',
+		'<Combobox name="courses" label="Course" options={manyCourses} />'
+	].join('\n');
+
 	const statesCode = [
 		'<Combobox',
 		'\tname="tees"',
@@ -88,6 +113,7 @@
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
 		{ id: 'filter', label: 'Custom filter' },
+		{ id: 'large', label: 'Large list (filtering)' },
 		{ id: 'chips', label: 'Styled chips' },
 		{ id: 'states', label: 'Description & states' }
 	];
@@ -119,12 +145,46 @@
 					</Example>
 				{:else if item.id === 'filter'}
 					<p class="tab-note">
-						The default filter is a case-insensitive substring match on the label. A consumer
-						<code>filter</code> prop overrides it wholesale — here it matches only the start of the label.
+						<strong>The default filter matches a substring anywhere in the label</strong> —
+						case-insensitive, not anchored to the start (typing a fragment from the middle or end of
+						a label still matches it; see the Large list tab). A consumer <code>filter</code> prop overrides
+						that default wholesale. This demo deliberately swaps in a narrower one — start-of-label only
+						— to show what overriding looks like; it is not what Combobox does by default.
 					</p>
 					<Example code={filterCode}>
 						<div class="demo-col">
 							<Combobox name="discs-demo" label="Discs" options={discs} filter={startsWithFilter} />
+						</div>
+					</Example>
+				{:else if item.id === 'large'}
+					<p class="tab-note">
+						{manyCourses.length} real disc golf courses — a curated starter list (<code
+							>src/docs/data/courses.ts</code
+						>), not generated filler; a fuller externally-sourced list can drop in later without
+						touching this page. The default filter is the same substring-anywhere match as every
+						other tab — try typing a fragment from the <em>middle</em> of a course or city name
+						(e.g.
+						<code>ridge</code> or <code>ville</code>) and it still matches, because the match isn't
+						anchored to the start of the label. Combobox doesn't window its listbox: filtering is a
+						plain in-memory array scan, and every option that matches gets a real
+						<code>&lt;li&gt;</code> — there's no <a href="/components/virtualizer">Virtualizer</a>
+						integration yet (deferred; see the Virtualizer spec's Out of Scope). A dataset this size is
+						comfortable even on the <em>unfiltered</em> open (every option renders at once), but
+						that's also the honest ceiling: opening tens of thousands of options unfiltered would
+						mount that many <code>&lt;li&gt;</code> nodes and visibly lag. Past that scale, reach
+						for the
+						<a href="/patterns/virtualized-combobox">Virtualized combobox</a> pattern instead, which windows
+						the listbox the way Combobox itself doesn't yet.
+					</p>
+					<Example code={largeCode}>
+						<div class="demo-col">
+							<Combobox
+								name="courses-demo"
+								label="Course"
+								options={manyCourses}
+								bind:value={manyValue}
+								placeholder="Search real courses..."
+							/>
 						</div>
 					</Example>
 				{:else if item.id === 'chips'}

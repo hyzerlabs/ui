@@ -213,8 +213,11 @@
 						and <code>data-lightbox-src</code>
 						opens a full-resolution source instead of the rendered — often scaled-down —
 						<code>src</code> (open the second photo and note the override). Reach for the attachment
-						to enhance existing page media in place; reach for <code>Lightbox</code> when you control
-						the markup and want the strongest accessibility guarantees.
+						to enhance existing page media in place; reach for <code>Lightbox</code> when you
+						control the markup and want the strongest accessibility guarantees. See it composed with
+						<a href="/components/carousel">Carousel</a> — the active slide as the trigger, paging
+						across every item once open — in the
+						<a href="/patterns/product-detail">product detail</a> pattern.
 					</p>
 					<Example code={attachmentCode}>
 						<div class="gallery-grid" {@attach lightboxGroup()}>

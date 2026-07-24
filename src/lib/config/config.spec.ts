@@ -6,6 +6,7 @@ import {
 	defineConfig,
 	resolveConfig,
 	generateCss,
+	generateUtilitiesCss,
 	contrastReport,
 	HyzerConfigError
 } from './index.js';
@@ -523,5 +524,131 @@ describe('consumer palette ramps', () => {
 		expect(() =>
 			resolveConfig({ tokens: { color: { brandRed: { 100: '#fee2e2' } } } } as never)
 		).toThrow(/must be a non-empty string/);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// generateUtilitiesCss — the opt-in utility sheet (specs/44)
+// ---------------------------------------------------------------------------
+
+describe('generateUtilitiesCss', () => {
+	it('emits .hz-text, .hz-text-muted, one .hz-text-<intent> per base intent, and the seven margin families per space rung', () => {
+		const css = generateUtilitiesCss(resolveConfig());
+		expect(css).toContain('.hz-text {\n\tcolor: var(--hz-color-text);\n}');
+		expect(css).toContain('.hz-text-muted {\n\tcolor: var(--hz-color-text-muted);\n}');
+		for (const key of Object.keys(intent)) {
+			expect(css).toContain(`.hz-text-${key} {\n\tcolor: var(--hz-intent-${key});\n}`);
+		}
+		for (const rung of Object.keys(space)) {
+			expect(css).toContain(`.hz-m-${rung} {\n\tmargin: var(--hz-space-${rung});\n}`);
+			expect(css).toContain(`.hz-m-block-${rung} {\n\tmargin-block: var(--hz-space-${rung});\n}`);
+			expect(css).toContain(
+				`.hz-m-block-start-${rung} {\n\tmargin-block-start: var(--hz-space-${rung});\n}`
+			);
+			expect(css).toContain(
+				`.hz-m-block-end-${rung} {\n\tmargin-block-end: var(--hz-space-${rung});\n}`
+			);
+			expect(css).toContain(`.hz-m-inline-${rung} {\n\tmargin-inline: var(--hz-space-${rung});\n}`);
+			expect(css).toContain(
+				`.hz-m-inline-start-${rung} {\n\tmargin-inline-start: var(--hz-space-${rung});\n}`
+			);
+			expect(css).toContain(
+				`.hz-m-inline-end-${rung} {\n\tmargin-inline-end: var(--hz-space-${rung});\n}`
+			);
+		}
+	});
+
+	it('references role/intent/space vars only — no --hz-palette-, no !important declarations, unlayered (no @layer, no :root)', () => {
+		const css = generateUtilitiesCss(resolveConfig());
+		expect(css).not.toMatch(/--hz-palette-/);
+		// The header's own doctrine prose says "no !important" — assert no
+		// actual CSS declaration uses the flag, not that the substring is absent.
+		expect(css).not.toMatch(/!important\s*;/);
+		expect(css).not.toMatch(/@layer/);
+		expect(css).not.toMatch(/:root/);
+	});
+
+	it('class-count math: 2 role helpers + 7 intent helpers + 7 families × 6 space rungs = 51 rules', () => {
+		const css = generateUtilitiesCss(resolveConfig());
+		const ruleCount = (css.match(/^\.hz-[a-z0-9-]+ \{$/gm) ?? []).length;
+		expect(Object.keys(intent).length).toBe(7);
+		expect(Object.keys(space).length).toBe(6);
+		expect(ruleCount).toBe(2 + 7 + 7 * 6);
+		expect(ruleCount).toBe(51);
+	});
+
+	it('is deterministic — same resolved config, same bytes', () => {
+		const resolved = resolveConfig();
+		expect(generateUtilitiesCss(resolved)).toBe(generateUtilitiesCss(resolved));
+	});
+
+	it('a consumer-added intent gets a new .hz-text-* class generated automatically', () => {
+		const css = generateUtilitiesCss(
+			resolveConfig({ tokens: { intent: { brand: 'var(--hz-palette-primary)' } } })
+		);
+		expect(css).toContain('.hz-text-brand {\n\tcolor: var(--hz-intent-brand);\n}');
+	});
+
+	it('a consumer-added space rung gets all seven margin families generated automatically', () => {
+		const css = generateUtilitiesCss(resolveConfig({ tokens: { space: { xxl: '12rem' } } }));
+		for (const className of [
+			'hz-m-xxl',
+			'hz-m-block-xxl',
+			'hz-m-block-start-xxl',
+			'hz-m-block-end-xxl',
+			'hz-m-inline-xxl',
+			'hz-m-inline-start-xxl',
+			'hz-m-inline-end-xxl'
+		]) {
+			expect(css).toContain(`.${className} {`);
+		}
+	});
+
+	it('a consumer intent literally named "muted" hard-errors, naming both parties', () => {
+		expect(() =>
+			generateUtilitiesCss(resolveConfig({ tokens: { intent: { muted: '#334155' } } }))
+		).toThrow(/config\.tokens\.intent\.muted/);
+		expect(() =>
+			generateUtilitiesCss(resolveConfig({ tokens: { intent: { muted: '#334155' } } }))
+		).toThrow(/hz-text-muted/);
+	});
+
+	it('the committed src/lib/theme/utilities.css equals generateUtilitiesCss(resolveConfig()) byte-for-byte', () => {
+		const committed = readFileSync(join(here, '../theme/utilities.css'), 'utf8');
+		expect(generateUtilitiesCss(resolveConfig())).toBe(committed);
+	});
+
+	it('the header carries the generated-file banner, the utility definition, and the anti-goal paragraph', () => {
+		const css = generateUtilitiesCss(resolveConfig());
+		expect(css).toContain('GENERATED FILE — do not edit by hand.');
+		expect(css).toContain('token-derived, single-property');
+		expect(css).toContain('not an alternative layout system');
+		expect(css).toContain('padding is owned by components');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// AA cross-check (specs/44 R7) — every .hz-text-<intent> maps to a pairing
+// the existing contrastReport already grades; the utility sheet introduces
+// no new pairings, so no contrastReport change is required.
+// ---------------------------------------------------------------------------
+
+describe('generateUtilitiesCss — AA cross-check (specs/44 R7)', () => {
+	it('every intent text utility has a passing text:intent-<x>/surface(-muted) pairing in both modes', () => {
+		const resolved = resolveConfig();
+		const report = contrastReport(resolved);
+		const ids = new Set(report.rows.map((r) => `${r.mode}:${r.id}`));
+		for (const key of Object.keys(intent)) {
+			for (const mode of ['light', 'dark'] as const) {
+				for (const surface of ['surface', 'surface-muted']) {
+					const id = `${mode}:text:intent-${key}/${surface}`;
+					expect(ids.has(id), id).toBe(true);
+					const row = report.rows.find(
+						(r) => r.mode === mode && r.id === `text:intent-${key}/${surface}`
+					);
+					expect(row?.pass, id).toBe(true);
+				}
+			}
+		}
 	});
 });

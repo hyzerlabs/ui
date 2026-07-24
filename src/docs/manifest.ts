@@ -74,7 +74,8 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Radius & Elevation', href: '/foundation/radius-elevation' },
 			{ label: 'Motion', href: '/foundation/motion' },
 			{ label: 'Icons', href: '/foundation/icons' },
-			{ label: 'CSS Reset', href: '/foundation/reset' }
+			{ label: 'CSS Reset', href: '/foundation/reset' },
+			{ label: 'Utilities', href: '/foundation/utilities' }
 		]
 	},
 	{
@@ -136,15 +137,15 @@ export const manifest: ManifestEntry[] = [
 					{ label: 'Form', href: '/components/form' },
 					{ label: 'TextInput', href: '/components/text-input' },
 					{ label: 'Textarea', href: '/components/textarea' },
+					{ label: 'Checkbox', href: '/components/checkbox' },
+					{ label: 'RadioGroup', href: '/components/radio-group' },
+					{ label: 'Toggle', href: '/components/toggle' },
 					{ label: 'Select', href: '/components/select' },
 					{ label: 'Combobox', href: '/components/combobox' },
 					{ label: 'FileUpload', href: '/components/file-upload' },
-					{ label: 'Checkbox', href: '/components/checkbox' },
-					{ label: 'RadioGroup', href: '/components/radio-group' },
 					{ label: 'Slider', href: '/components/slider' },
 					{ label: 'RangeSlider', href: '/components/range-slider' },
-					{ label: 'ColorInput', href: '/components/color-input' },
-					{ label: 'Toggle', href: '/components/toggle' }
+					{ label: 'ColorInput', href: '/components/color-input' }
 				]
 			}
 		]
@@ -162,11 +163,15 @@ export const manifest: ManifestEntry[] = [
 		label: 'Patterns',
 		children: [
 			{ label: 'Homepage', href: '/patterns/homepage' },
+			{ label: 'Article', href: '/patterns/article' },
+			{ label: 'Recipe', href: '/patterns/recipe' },
 			{ label: 'Command palette', href: '/patterns/command-palette' },
 			{ label: 'Product listing', href: '/patterns/product-listing' },
 			{ label: 'Product detail', href: '/patterns/product-detail' },
 			{ label: 'Checkout form', href: '/patterns/checkout-form' },
-			{ label: 'Virtualized table', href: '/patterns/virtualized-table' }
+			{ label: 'Contact form', href: '/patterns/contact-form' },
+			{ label: 'Virtualized table', href: '/patterns/virtualized-table' },
+			{ label: 'Virtualized combobox', href: '/patterns/virtualized-combobox' }
 		]
 	}
 ];

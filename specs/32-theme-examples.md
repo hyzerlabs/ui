@@ -168,3 +168,23 @@ User-approved 2026-07-16.
 - **Terminal's hard shadows in dark mode.** A `4px 4px 0 #000` shadow is
   invisible on a near-black surface. Terminal's shadow color must be a role
   token (`--hz-color-text`), not a literal.
+
+### Amendments
+
+- **2026-07-23 (specs/46 — Sunset retired, replaced by the "Docs" example).**
+  Sunset (`theme/examples/sunset/**`) is deleted outright, along with its
+  `examples.spec.ts` entry, its `gen-tokens.ts` sheet, its
+  `palette-namespace.spec.ts`/`consumerSource.spec.ts` fixture rows, and its
+  `exports.spec.ts` pins. The palette-freedom arc this spec introduced
+  collapses to its two remaining poles, Ocean and Terminal; the layered-
+  cascade lesson Sunset carried (unlayered class rules beating `@layer
+  hz-theme`) moves to a new, differently-shaped example: `theme/examples/
+  docs/docs.css`, a hand-authored sheet with no config and no palette of its
+  own — the docs site's own reading chrome (scaffold classes, the
+  `.docs-table` override, code chips, a content focus-visible ring), shipped
+  unscoped and dogfooded as the literal sheet `design.hyzer.sh` imports. It
+  is not a third point on this spec's freedom axis (R1–R9 above describe
+  Ocean/Sunset/Terminal only); it is a different kind of example, specified
+  in full by specs/46. This spec's Sunset-specific prose (R3, the demo-set
+  table, the directory layout) is left as historical record of the decision
+  at the time.

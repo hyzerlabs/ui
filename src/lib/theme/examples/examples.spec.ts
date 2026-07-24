@@ -5,20 +5,12 @@ import { fileURLToPath } from 'node:url';
 import { resolveConfig, generateCss, contrastReport } from '../../config/index.js';
 import { resolveHex } from '../../config/report.js';
 import oceanConfig, { intro as oceanIntro } from './ocean.config.js';
-import sunsetConfig, { intro as sunsetIntro } from './sunset/sunset.config.js';
 import terminalConfig, { intro as terminalIntro } from './terminal/terminal.config.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
 const examples = [
 	{ name: 'ocean', config: oceanConfig, intro: oceanIntro, sheet: 'ocean.css', selector: ':root' },
-	{
-		name: 'sunset',
-		config: sunsetConfig,
-		intro: sunsetIntro,
-		sheet: 'sunset/sunset.tokens.css',
-		selector: '.hz-theme-sunset'
-	},
 	{
 		name: 'terminal',
 		config: terminalConfig,

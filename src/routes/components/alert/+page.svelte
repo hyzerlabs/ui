@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Alert, Tabs, Stack, Button } from '$lib';
+	import IconCircleCheck from '$lib/icons/generated/circle-check.svelte';
+	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { alertDoc } from '../../../docs/data/alert.js';
 	import Example from '../../../docs/Example.svelte';
@@ -65,8 +67,33 @@
 		'{/if}'
 	].join('\n');
 
+	// icon is decorative — rendered aria-hidden, so it always pairs with an
+	// intent-matched glyph the title/body already name in words.
+	const iconCode = [
+		'<Alert intent="success" title="Round saved">',
+		'\t{#snippet icon()}<IconCircleCheck />{/snippet}',
+		'\tYour scorecard was synced to the league.',
+		'</Alert>',
+		'<Alert intent="danger" title="Course closed">',
+		'\t{#snippet icon()}<IconTriangleAlert />{/snippet}',
+		'\tLightning in the area — clear the course now.',
+		'</Alert>'
+	].join('\n');
+
+	const roundedValues = ['none', 'sm', 'md', 'lg', 'full'] as const;
+
+	const roundedCode = roundedValues
+		.map((r) => {
+			const attr = r === 'md' ? '' : ` rounded="${r}"`;
+			const comment = r === 'md' ? ' (default)' : '';
+			return `<!-- rounded="${r}"${comment} -->\n<Alert${attr} title="Course note">Hole 7 tee pads were resurfaced this week.</Alert>`;
+		})
+		.join('\n\n');
+
 	const demoTabs = [
 		{ id: 'intents', label: 'Intents' },
+		{ id: 'icon', label: 'Icon' },
+		{ id: 'rounded', label: 'Rounding' },
 		{ id: 'dismiss', label: 'Dismissible' },
 		{ id: 'announce', label: 'Dynamic announcement' }
 	];
@@ -99,6 +126,40 @@
 								</Alert>
 							{/each}
 						</Stack>
+					</Example>
+				{:else if item.id === 'icon'}
+					<p class="tab-note">
+						<code>icon</code> is a decorative leading slot — rendered <code>aria-hidden</code>, so
+						pair it with an intent-matched glyph the title/body already say in words.
+					</p>
+					<Example code={iconCode}>
+						<Stack gap="sm">
+							<Alert intent="success" title="Round saved" headingLevel={3}>
+								{#snippet icon()}<IconCircleCheck />{/snippet}
+								Your scorecard was synced to the league.
+							</Alert>
+							<Alert intent="danger" title="Course closed" headingLevel={3}>
+								{#snippet icon()}<IconTriangleAlert />{/snippet}
+								Lightning in the area — clear the course now.
+							</Alert>
+						</Stack>
+					</Example>
+				{:else if item.id === 'rounded'}
+					<p class="tab-note">
+						The shared <code>Rounded</code> scale — 1:1 with the <code>--hz-radius-*</code> tokens,
+						default <code>'md'</code>.
+					</p>
+					<Example code={roundedCode}>
+						<div class="rounded-demo">
+							{#each roundedValues as r (r)}
+								<div class="rounded-row">
+									<span class="rounded-row-label">{r}</span>
+									<Alert rounded={r} title="Course note" headingLevel={3}>
+										Hole 7 tee pads were resurfaced this week.
+									</Alert>
+								</div>
+							{/each}
+						</div>
 					</Example>
 				{:else if item.id === 'dismiss'}
 					<p class="tab-note">
@@ -163,5 +224,26 @@
 		color: var(--hz-intent-primary, #2563eb);
 		text-decoration: underline;
 		cursor: pointer;
+	}
+
+	/* Button's size-row precedent: a label column beside each value. */
+	.rounded-demo {
+		display: flex;
+		flex-direction: column;
+		gap: var(--hz-space-sm, 1rem);
+	}
+
+	.rounded-row {
+		display: grid;
+		grid-template-columns: 3rem 1fr;
+		align-items: start;
+		gap: var(--hz-space-sm, 1rem);
+	}
+
+	.rounded-row-label {
+		padding-top: 0.75rem;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text-muted, #6b7280);
 	}
 </style>

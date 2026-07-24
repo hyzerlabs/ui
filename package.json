@@ -48,6 +48,7 @@
 		},
 		"./tokens.css": "./dist/tokens/tokens.css",
 		"./reset.css": "./dist/theme/reset.css",
+		"./utilities.css": "./dist/theme/utilities.css",
 		"./icons": {
 			"types": "./dist/icons/index.d.ts",
 			"svelte": "./dist/icons/index.js",

@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync, mkdirSync } from 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from './main.js';
-import { resolveConfig, generateCss } from '../config/index.js';
+import { resolveConfig, generateCss, generateUtilitiesCss } from '../config/index.js';
 
 /** Fresh sandbox per test — unique paths keep ESM config imports uncached. */
 function sandbox(): {
@@ -207,5 +207,87 @@ describe('hyzer generate — icons config', () => {
 		expect(await run(['generate', '--check'], io)).toBe(0);
 		expect(existsSync(join(cwd, 'icons.ts'))).toBe(false);
 		expect(logs.join('\n')).toContain('icons: 15 included (14 core, 1 configured)');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/44 R4 — utilities sheet opt-in: --utilities flag / config.utilities
+// ---------------------------------------------------------------------------
+
+describe('hyzer generate — utilities opt-in', () => {
+	it('writes no utilities file by default', async () => {
+		const { cwd, io } = sandbox();
+		expect(await run(['generate'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'hyzer-utilities.css'))).toBe(false);
+	});
+
+	it('--utilities writes the consumer utilities sheet next to the tokens sheet', async () => {
+		const { cwd, logs, io } = sandbox();
+		expect(await run(['generate', '--utilities'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-utilities.css'), 'utf8');
+		expect(written).toBe(generateUtilitiesCss(resolveConfig()));
+		expect(logs.join('\n')).toContain('wrote');
+		expect(logs.join('\n')).toContain('hyzer-utilities.css');
+	});
+
+	it('config.utilities: true opts in with the default filename', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { utilities: true };`);
+		expect(await run(['generate'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-utilities.css'), 'utf8');
+		expect(written).toBe(generateUtilitiesCss(resolveConfig({ utilities: true })));
+	});
+
+	it('config.utilities.output opts in with a custom filename, relative to the config', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(
+			join(cwd, 'conf/hyzer.config.mjs'),
+			`export default { utilities: { output: 'styles/utils.css' } };`
+		);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/styles/utils.css'))).toBe(true);
+	});
+
+	it('honors a custom tokens output directory (default utilities filename lands beside it)', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer.config.mjs'),
+			`export default { output: 'styles/tokens.css', utilities: true };`
+		);
+		expect(await run(['generate'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'styles/hyzer-utilities.css'))).toBe(true);
+	});
+
+	it('the --utilities flag overrides config.utilities when present (config omits it, flag still writes)', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default {};`);
+		expect(await run(['generate', '--utilities'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'hyzer-utilities.css'))).toBe(true);
+	});
+
+	it('a config-touched utilities sheet reflects consumer overrides', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer.config.mjs'),
+			`export default { utilities: true, tokens: { intent: { brand: 'var(--hz-palette-primary)' } } };`
+		);
+		expect(await run(['generate'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-utilities.css'), 'utf8');
+		expect(written).toContain('.hz-text-brand {');
+	});
+
+	it('--check writes no utilities file even with --utilities', async () => {
+		const { cwd, io } = sandbox();
+		expect(await run(['generate', '--check', '--utilities'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'hyzer-utilities.css'))).toBe(false);
+	});
+
+	it('rejects an invalid config.utilities shape', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { utilities: 'yes' };`);
+		expect(await run(['generate'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('Invalid config');
+		expect(errors.join('\n')).toContain('config.utilities');
 	});
 });

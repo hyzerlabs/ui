@@ -1078,3 +1078,253 @@ test.describe('specs/39 — Motion', () => {
 	// No-overflow at 375/768/1280 is covered by the "R-Responsive" sweep above
 	// (it runs over every manifest route, and /foundation/motion is one).
 });
+
+// ---------------------------------------------------------------------------
+// specs/40 findings (course-correction round) — virtualized combobox pattern
+// ---------------------------------------------------------------------------
+
+test.describe('Virtualized combobox pattern', () => {
+	test('rendered options stay far below the dataset size (windowing proof)', async ({ page }) => {
+		await page.goto('/patterns/virtualized-combobox');
+		await page.getByRole('combobox').click();
+		const optionCount = await page.locator('[role="option"]').count();
+		// 27,000 rows total (30 real courses × 900 rounds) — only a small
+		// windowed slice is ever mounted, regardless of dataset size.
+		expect(optionCount).toBeGreaterThan(0);
+		expect(optionCount).toBeLessThan(100);
+	});
+
+	test('aria-activedescendant always references a currently-rendered option, including across a Home/End jump', async ({
+		page
+	}) => {
+		await page.goto('/patterns/virtualized-combobox');
+		const input = page.getByRole('combobox');
+		await input.click();
+
+		async function activeIdExists() {
+			return page.evaluate(() => {
+				const el = document.querySelector('[role="combobox"]');
+				const id = el?.getAttribute('aria-activedescendant');
+				return id !== null && id !== undefined && !!document.getElementById(id);
+			});
+		}
+
+		await page.keyboard.press('ArrowDown');
+		await expect.poll(activeIdExists).toBe(true);
+
+		// End jumps to the very last of 27,000 rows — a big scroll jump, not
+		// just an adjacent overscan step.
+		await page.keyboard.press('End');
+		await expect.poll(activeIdExists).toBe(true);
+		const lastId = await input.getAttribute('aria-activedescendant');
+		await expect(page.locator(`#${lastId}`)).toHaveText(/Round 900/);
+
+		await page.keyboard.press('Home');
+		await expect.poll(activeIdExists).toBe(true);
+		const firstId = await input.getAttribute('aria-activedescendant');
+		await expect(page.locator(`#${firstId}`)).toHaveText(/Round 1$/);
+	});
+
+	test('typing filters by substring across the whole label, windowed the same way', async ({
+		page
+	}) => {
+		await page.goto('/patterns/virtualized-combobox');
+		const input = page.getByRole('combobox');
+		await input.click();
+		await input.fill('nokia');
+		const options = page.locator('[role="option"]');
+		await expect.poll(() => options.count()).toBeGreaterThan(0);
+		const texts = await options.allTextContents();
+		for (const text of texts) expect(text).toContain('Nokia');
+	});
+
+	test('Enter selects the active option and Escape closes the popup', async ({ page }) => {
+		await page.goto('/patterns/virtualized-combobox');
+		const input = page.getByRole('combobox');
+		await input.click();
+		await page.keyboard.press('ArrowDown');
+		await page.keyboard.press('Enter');
+		await expect(input).toHaveAttribute('aria-expanded', 'false');
+		await expect(page.locator('.vcombo-proof')).toContainText('Selected:');
+
+		await input.click();
+		await expect(input).toHaveAttribute('aria-expanded', 'true');
+		await page.keyboard.press('Escape');
+		await expect(input).toHaveAttribute('aria-expanded', 'false');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/46 — Docs example theme: the import inversion left keyboard focus
+// visibility unchanged. Load-bearing proof (R1/R4/Accessibility): the
+// content focus-visible ring now ships from $lib/theme/examples/docs/docs.css
+// rather than the layout's own <style>, and its exclusion list must still
+// hold — field controls and buttons keep the reference theme's own ring.
+// ---------------------------------------------------------------------------
+
+test.describe('specs/46 — content focus-visible ring travels with the docs example', () => {
+	async function ringStyle(locator: import('@playwright/test').Locator) {
+		return locator.evaluate((el) => {
+			const cs = getComputedStyle(el);
+			return {
+				outlineWidth: cs.outlineWidth,
+				outlineStyle: cs.outlineStyle,
+				outlineOffset: cs.outlineOffset,
+				outlineColor: cs.outlineColor,
+				color: cs.color,
+				boxShadow: cs.boxShadow
+			};
+		});
+	}
+
+	test('a content link gets the offset 2px currentColor ring', async ({ page }) => {
+		await page.goto('/theming/examples');
+		const link = page.getByRole('link', { name: 'WCAG AA on every graded pairing' });
+		await link.focus();
+		await expect(link).toBeFocused();
+
+		const ring = await ringStyle(link);
+		expect(ring.outlineWidth).toBe('2px');
+		expect(ring.outlineStyle).toBe('solid');
+		expect(ring.outlineOffset).toBe('2px');
+		// currentColor — the painted outline color equals the element's own
+		// computed text color, not a hardcoded value.
+		expect(ring.outlineColor).toBe(ring.color);
+	});
+
+	test('a .hz-button does NOT get the offset ring — it keeps its own themed ring', async ({
+		page
+	}) => {
+		await page.goto('/components/button');
+		const button = page.locator('button.hz-button').filter({ visible: true }).first();
+		await button.focus();
+		await expect(button).toBeFocused();
+
+		const ring = await ringStyle(button);
+		// The docs example's exclusion list holds: the broad currentColor ring
+		// never painted this element, so its outline stays transparent — the
+		// reference theme's own box-shadow ring is what's actually visible.
+		expect(ring.outlineColor).not.toBe(ring.color);
+		expect(ring.boxShadow).not.toBe('none');
+	});
+
+	test('a .hz-field input does NOT get the offset ring — it keeps its own themed ring', async ({
+		page
+	}) => {
+		await page.goto('/components/text-input');
+		const input = page.locator('.hz-field input').filter({ visible: true }).first();
+		await input.focus();
+		await expect(input).toBeFocused();
+
+		const ring = await ringStyle(input);
+		// The reference theme suppresses this raw <input>'s own outline entirely
+		// (field.css: `.hz-input-wrapper input { outline: none; }`) — the visible
+		// ring lives on the wrapper's box-shadow instead. If the docs example's
+		// broad ring had NOT excluded this element, its unlayered
+		// `outline: 2px solid currentColor` would have overridden that
+		// suppression outright (unlayered always beats layered), so
+		// outline-style staying 'none' is exactly what proves the exclusion
+		// held. (outline-color alone isn't a reliable signal here: browsers
+		// still resolve it to currentColor even when outline-style is 'none'.)
+		expect(ring.outlineStyle).not.toBe('solid');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/45 — Slider vertical orientation
+// ---------------------------------------------------------------------------
+
+test.describe('specs/45 — Slider vertical orientation', () => {
+	test('Slider Vertical demo tab renders a track taller than wide', async ({ page }) => {
+		await page.goto('/components/slider');
+		await page.getByRole('tab', { name: 'Vertical' }).click();
+		// Tabs keeps inactive panels in the DOM (hidden) — assert on the visible
+		// panel only (docs-page-pattern gotcha).
+		const track = page.locator('.hz-slider-track').filter({ visible: true }).first();
+		const box = await track.boundingBox();
+		if (!box) throw new Error('missing bounding box');
+		expect(box.height).toBeGreaterThan(box.width);
+	});
+
+	test('Vert-R6: ArrowUp increases a focused vertical thumb, ArrowDown decreases it', async ({
+		page
+	}) => {
+		await page.goto('/components/slider');
+		await page.getByRole('tab', { name: 'Vertical' }).click();
+		const slider = page.getByRole('slider', { name: 'Elevation', exact: true });
+		await slider.focus();
+		// Native ranges expose value via the implicit ARIA `valuenow`, computed
+		// from the live DOM `value` property — not a reflected attribute — so
+		// read `.inputValue()` rather than `getAttribute('aria-valuenow')`.
+		const before = Number(await slider.inputValue());
+		await page.keyboard.press('ArrowUp');
+		const afterUp = Number(await slider.inputValue());
+		expect(afterUp).toBeGreaterThan(before);
+		await page.keyboard.press('ArrowDown');
+		const afterDown = Number(await slider.inputValue());
+		expect(afterDown).toBeLessThan(afterUp);
+	});
+
+	test('Vert-R3: inputPosition places the number field above the track when "start", below when "end"', async ({
+		page
+	}) => {
+		await page.goto('/components/slider');
+		await page.getByRole('tab', { name: 'Vertical' }).click();
+
+		const endRow = page
+			.locator('.hz-slider-row[data-input-position="end"]')
+			.filter({ visible: true })
+			.first();
+		const endTrackBox = await endRow.locator('.hz-slider-track').boundingBox();
+		const endNumberBox = await endRow.locator('input.hz-slider-number').boundingBox();
+		if (!endTrackBox || !endNumberBox) throw new Error('missing bounding box');
+		expect(endNumberBox.y).toBeGreaterThan(endTrackBox.y);
+
+		const startRow = page
+			.locator('.hz-slider-row[data-input-position="start"]')
+			.filter({ visible: true })
+			.first();
+		const startTrackBox = await startRow.locator('.hz-slider-track').boundingBox();
+		const startNumberBox = await startRow.locator('input.hz-slider-number').boundingBox();
+		if (!startTrackBox || !startNumberBox) throw new Error('missing bounding box');
+		expect(startNumberBox.y).toBeLessThan(startTrackBox.y);
+	});
+
+	test('RangeSlider Vertical demo tab renders a track taller than wide', async ({ page }) => {
+		await page.goto('/components/range-slider');
+		await page.getByRole('tab', { name: 'Vertical' }).click();
+		const track = page.locator('.hz-slider-track').filter({ visible: true }).first();
+		const box = await track.boundingBox();
+		if (!box) throw new Error('missing bounding box');
+		expect(box.height).toBeGreaterThan(box.width);
+	});
+
+	test('Vert-R6/R7: ArrowUp increases a focused vertical RangeSlider thumb', async ({ page }) => {
+		await page.goto('/components/range-slider');
+		await page.getByRole('tab', { name: 'Vertical' }).click();
+		const minThumb = page.getByRole('slider', {
+			name: 'Hole length (vertical) (minimum)',
+			exact: true
+		});
+		await minThumb.focus();
+		const before = Number(await minThumb.inputValue());
+		await page.keyboard.press('ArrowUp');
+		const after = Number(await minThumb.inputValue());
+		expect(after).toBeGreaterThan(before);
+	});
+
+	test('Vert-R3: RangeSlider min–max cluster stays above the track when inputPosition="start"', async ({
+		page
+	}) => {
+		await page.goto('/components/range-slider');
+		await page.getByRole('tab', { name: 'Vertical' }).click();
+		const startRow = page
+			.locator('.hz-slider-row[data-input-position="start"]')
+			.filter({ visible: true })
+			.first();
+		const startTrackBox = await startRow.locator('.hz-slider-track').boundingBox();
+		const startClusterBox = await startRow.locator('.hz-slider-inputs').boundingBox();
+		if (!startTrackBox || !startClusterBox) throw new Error('missing bounding box');
+		expect(startClusterBox.y).toBeLessThan(startTrackBox.y);
+	});
+});

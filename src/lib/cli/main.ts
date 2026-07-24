@@ -2,12 +2,15 @@
  * @hyzer-labs/ui — `hyzer` CLI implementation (specs/29 R9).
  *
  * `hyzer generate [--config <path>] [--out <path>] [--mode full|overrides]
- *                 [--check] [--strict]`
+ *                 [--utilities] [--check] [--strict]`
  *
  * Loads an optional hyzer.config.{ts,js,mjs} (TypeScript via Node's native
  * type stripping, ≥ 22.18), merges it over the base token schema, writes the
  * generated sheet, and always prints a WCAG contrast report — warnings by
  * default, `--strict` turns AA failures into a non-zero exit.
+ *
+ * The utilities sheet (specs/44 R4) is opt-in only — absent `--utilities`
+ * and `config.utilities`, no utilities file is written.
  */
 
 import { parseArgs } from 'node:util';
@@ -17,6 +20,7 @@ import { pathToFileURL } from 'node:url';
 import {
 	resolveConfig,
 	generateCss,
+	generateUtilitiesCss,
 	contrastReport,
 	resolveIcons,
 	HyzerConfigError,
@@ -26,6 +30,7 @@ import {
 
 const CONFIG_FILENAMES = ['hyzer.config.ts', 'hyzer.config.js', 'hyzer.config.mjs'];
 const DEFAULT_OUTPUT = 'hyzer-tokens.css';
+const DEFAULT_UTILITIES_OUTPUT = 'hyzer-utilities.css';
 
 const USAGE = `hyzer — @hyzer-labs/ui token generator
 
@@ -37,6 +42,10 @@ Options:
   --out <path>      Output path (default: config "output", else ./${DEFAULT_OUTPUT})
   --mode <mode>     "full" (complete sheet, replaces tokens.css) or
                     "overrides" (patch sheet, import after tokens.css)
+  --utilities       Also write the opt-in utilities sheet, next to the tokens
+                    sheet (default: ./${DEFAULT_UTILITIES_OUTPUT}, or
+                    config.utilities.output). Overrides config.utilities when
+                    present; absent both, no utilities file is written.
   --check           Validate and report only — write nothing
   --strict          Exit 1 when any pairing fails WCAG AA (default: warn)
   --help            Show this help
@@ -163,6 +172,21 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 			writeFileSync(iconsPath, iconsResult.module);
 			log(`wrote ${iconsPath} (${iconsResult.names.length} icons)`);
 		}
+
+		// --utilities overrides config.utilities when present (specs/44 R4);
+		// absent both, no utilities file is written — non-users pay nothing.
+		const utilitiesEnabled = parsed.utilities === true || resolved.utilities.enabled;
+		if (utilitiesEnabled) {
+			const utilitiesRelOutput = resolved.utilities.output;
+			const utilitiesPath = utilitiesRelOutput
+				? configPath
+					? resolve(dirname(configPath), utilitiesRelOutput)
+					: resolve(cwd, utilitiesRelOutput)
+				: join(dirname(outPath), DEFAULT_UTILITIES_OUTPUT);
+			mkdirSync(dirname(utilitiesPath), { recursive: true });
+			writeFileSync(utilitiesPath, generateUtilitiesCss(resolved));
+			log(`wrote ${utilitiesPath}`);
+		}
 	}
 
 	// --- contrast report -------------------------------------------------------
@@ -206,6 +230,7 @@ function parseCliArgs(argv: string[]) {
 			config: { type: 'string' },
 			out: { type: 'string' },
 			mode: { type: 'string' },
+			utilities: { type: 'boolean', default: false },
 			check: { type: 'boolean', default: false },
 			strict: { type: 'boolean', default: false },
 			help: { type: 'boolean', default: false }

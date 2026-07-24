@@ -139,6 +139,8 @@ describe('subpath exports', () => {
 		expect(typeof mod.defineConfig).toBe('function');
 		expect(typeof mod.resolveConfig).toBe('function');
 		expect(typeof mod.generateCss).toBe('function');
+		// specs/44 R1 — the utilities-sheet emit function ships from the barrel.
+		expect(typeof mod.generateUtilitiesCss).toBe('function');
 		expect(typeof mod.contrastReport).toBe('function');
 		expect(typeof mod.HyzerConfigError).toBe('function');
 	});
@@ -188,21 +190,32 @@ describe('package.json metadata', () => {
 			'theme/components/button.css',
 			'theme/components/card.css',
 			'theme/examples/ocean.css',
-			// The class-override themes are directories, not single sheets
+			// The class-override theme is a directory, not a single sheet
 			// (specs/32): an index, its generated palette, and per-component
 			// sheets. `*` spans `/`, so one wildcard still reaches all of them.
-			'theme/examples/sunset/sunset.css',
-			'theme/examples/sunset/sunset.tokens.css',
-			'theme/examples/sunset/components/button.css',
 			'theme/examples/terminal/terminal.css',
 			'theme/examples/terminal/terminal.tokens.css',
-			'theme/examples/terminal/components/button.css'
+			'theme/examples/terminal/components/button.css',
+			// specs/46 — the hand-authored "Docs" example, the docs site's own
+			// shipped sheet (no config, no generated palette — just this file).
+			'theme/examples/docs/docs.css'
 		]) {
 			expect(existsSync(`${here}${path}`), path).toBe(true);
 		}
 		const pkg = await import('../../package.json', { with: { type: 'json' } });
 		const exports = pkg.default.exports as Record<string, unknown>;
 		expect(exports['./theme/*.css']).toBe('./dist/theme/*.css');
+	});
+
+	// specs/44 R5 — the opt-in generated utility sheet's export map entry.
+	it('utilities.css export resolves to the generated, committed sheet', async () => {
+		const { existsSync } = await import('node:fs');
+		const { fileURLToPath } = await import('node:url');
+		const here = fileURLToPath(new URL('.', import.meta.url));
+		expect(existsSync(`${here}theme/utilities.css`)).toBe(true);
+		const pkg = await import('../../package.json', { with: { type: 'json' } });
+		const exports = pkg.default.exports as Record<string, unknown>;
+		expect(exports['./utilities.css']).toBe('./dist/theme/utilities.css');
 	});
 
 	it('exports map contains all required subpath keys', async () => {
@@ -212,6 +225,9 @@ describe('package.json metadata', () => {
 		expect(exports['./config']).toBeDefined();
 		expect(exports['./tokens']).toBeDefined();
 		expect(exports['./tokens.css']).toBeDefined();
+		expect(exports['./reset.css']).toBeDefined();
+		// specs/44 R5 — the opt-in utility sheet's subpath.
+		expect(exports['./utilities.css']).toBeDefined();
 		expect(exports['./icons']).toBeDefined();
 		// specs/36 R3 — deep per-icon subpath for Tier-2 imports.
 		expect(exports['./icons/*']).toBeDefined();

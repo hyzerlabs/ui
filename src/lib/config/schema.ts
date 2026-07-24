@@ -93,6 +93,15 @@ export interface HyzerConfig {
 	 * manifest is a runtime question (see `src/lib/config/icons.ts`).
 	 */
 	icons?: string[];
+	/**
+	 * Opt in to generating the utilities sheet (specs/44 R4) — absent by
+	 * default, so `hyzer generate` writes no utilities file and non-users pay
+	 * nothing. `true` opts in with the default filename (`hyzer-utilities.css`,
+	 * next to the tokens sheet); an object opts in with a custom `output`
+	 * path. The CLI `--utilities` flag also opts in and overrides this key
+	 * when present.
+	 */
+	utilities?: boolean | { output?: string };
 }
 
 /** Identity helper — gives `hyzer.config.ts` full typing and autocomplete. */
@@ -159,6 +168,15 @@ export interface ResolvedConfig {
 	 * `src/lib/config/icons.ts`.
 	 */
 	icons?: string[];
+	/**
+	 * The resolved `utilities` opt-in (specs/44 R4) — `enabled` is `false`
+	 * when `config.utilities` is absent or `false`; `output` carries
+	 * `config.utilities.output` when the object form set one. The CLI
+	 * consults this alongside its own `--utilities` flag (which overrides
+	 * `enabled` but not `output`); `generateUtilitiesCss` itself doesn't read
+	 * this field — it isn't part of what gets rendered into a sheet.
+	 */
+	utilities: { enabled: boolean; output?: string };
 }
 
 // ---------------------------------------------------------------------------
@@ -273,6 +291,29 @@ function flattenRampGroup(
 	return flat;
 }
 
+/**
+ * Normalizes `config.utilities` (specs/44 R4) — `undefined`/`false` means
+ * "not opted in" (the CLI writes no utilities file); `true` opts in with the
+ * default filename; an object opts in with a custom `output` path.
+ */
+function resolveUtilities(utilities: HyzerConfig['utilities']): {
+	enabled: boolean;
+	output?: string;
+} {
+	if (utilities === undefined || utilities === false) return { enabled: false };
+	if (utilities === true) return { enabled: true };
+	if (utilities === null || typeof utilities !== 'object' || Array.isArray(utilities)) {
+		throw new HyzerConfigError(
+			'config.utilities must be a boolean or an object with an "output" key.'
+		);
+	}
+	assertKnownKeys(utilities as Record<string, unknown>, ['output'], 'config.utilities');
+	if (utilities.output !== undefined && typeof utilities.output !== 'string') {
+		throw new HyzerConfigError('config.utilities.output must be a string path.');
+	}
+	return { enabled: true, output: utilities.output };
+}
+
 const TOKEN_GROUP_KEYS = [
 	'palette',
 	'color',
@@ -304,7 +345,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	}
 	assertKnownKeys(
 		config as Record<string, unknown>,
-		['output', 'tokens', 'dark', 'icons'],
+		['output', 'tokens', 'dark', 'icons', 'utilities'],
 		'config'
 	);
 	const tokens = config.tokens;
@@ -347,6 +388,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 			);
 		}
 	}
+	const resolvedUtilities = resolveUtilities(config.utilities);
 	if (tokens?.density?.unit !== undefined && typeof tokens.density.unit !== 'string') {
 		throw new HyzerConfigError('config.tokens.density.unit must be a string.');
 	}
@@ -498,7 +540,8 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		},
 		dark,
 		output: config.output,
-		icons: config.icons !== undefined ? [...new Set(config.icons)] : undefined
+		icons: config.icons !== undefined ? [...new Set(config.icons)] : undefined,
+		utilities: resolvedUtilities
 	};
 
 	validateReferences(resolved);
