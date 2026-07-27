@@ -32,6 +32,7 @@
 @import './components/banner.css';
 @import './components/blockquote.css';
 @import './components/button.css';
+@import './components/code-block.css';
 @import './components/divider.css';
 @import './components/link.css';
 @import './components/field.css';

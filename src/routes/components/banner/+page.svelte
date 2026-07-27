@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { Alert, Banner, Container, Tabs, Stack, Link } from '$lib';
+	import { Alert, Banner, Container, Tabs, Stack, Link, CodeBlock } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { bannerDoc } from '../../../docs/data/banner.js';
 	import Example from '../../../docs/Example.svelte';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	const intents = [
 		'neutral',

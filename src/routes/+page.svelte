@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { Stack, Grid, Card, Split, Badge, Image } from '$lib';
+	import { Stack, Grid, Card, Split, Badge, Image, CodeBlock } from '$lib';
 
 	// Demo avatar — a labeled SVG data-URI per the placeholder-asset
 	// convention. The fence shows the realistic `import avatar from …` form.
 	const AVATAR =
 		"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%232563eb'/%3E%3Ctext x='20' y='26' text-anchor='middle' font-family='sans-serif' font-size='16' fill='white'%3ESJ%3C/text%3E%3C/svg%3E";
-	import CodeBlock from '../docs/CodeBlock.svelte';
 	import { isSection, manifest, sectionPages, type ManifestSection } from '../docs/manifest';
 
 	const installCode = 'pnpm add @hyzer-labs/ui';
@@ -190,7 +189,7 @@
 		margin-top: 0.75rem;
 	}
 
-	section :global(.code-block + .code-block) {
+	section :global(.hz-code-block + .hz-code-block) {
 		margin-top: 0.75rem;
 	}
 

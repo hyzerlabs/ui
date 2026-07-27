@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { Stack, Tabs } from '$lib';
+	import { Stack, Tabs, CodeBlock } from '$lib';
 	import { typography } from '$lib/tokens';
 	import Example from '../../../docs/Example.svelte';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// Bring-your-own-fonts recipe — a webfont import plus one token override.
 	const customFontCode = [

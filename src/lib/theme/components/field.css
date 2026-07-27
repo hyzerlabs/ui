@@ -267,19 +267,28 @@
 	 * stay thumb-size-filled with no recentring offset either axis.
 	 */
 	.hz-field--slider .hz-slider-row[data-orientation='vertical'] input.hz-slider {
-		width: var(--hz-slider-track-height);
+		/* Match the RangeSlider's proven vertical mechanism: the input fills the
+		 * thumb-thickness track so the thumb centres on it natively (no cross-axis
+		 * margin needed), and the thin visible track becomes a centred,
+		 * track-height-wide stripe of the fill gradient rather than the whole
+		 * input width. The old thin-input + negative-margin approach left the
+		 * thumb off-centre on the line. */
+		width: var(--hz-slider-thumb-size);
 		background: linear-gradient(
-			to top,
-			var(--hz-intent-primary, #2563eb) var(--_fill-stop),
-			var(--_track-color) var(--_fill-stop)
-		);
+				to top,
+				var(--hz-intent-primary, #2563eb) var(--_fill-stop),
+				var(--_track-color) var(--_fill-stop)
+			)
+			no-repeat center / var(--hz-slider-track-height) 100%;
 	}
 
 	.hz-field--slider
 		.hz-slider-row[data-orientation='vertical']
 		input.hz-slider::-webkit-slider-thumb {
+		/* Full-width input centres the thumb on its own — drop both the
+		 * horizontal rule's margin-top and the old cross-axis recentring. */
 		margin-top: 0;
-		margin-left: calc((var(--hz-slider-track-height) - var(--hz-slider-thumb-size)) / 2);
+		margin-left: 0;
 	}
 
 	/*

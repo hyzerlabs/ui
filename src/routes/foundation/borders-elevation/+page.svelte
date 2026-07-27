@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { Stack, Grid, Alert } from '$lib';
+	import { Stack, Grid, Alert, CodeBlock } from '$lib';
 	import { radius, border, shadow, zIndex } from '$lib/tokens';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// The dark-mode demo treatment, spelled out as copyable consumer CSS —
 	// the cards above run exactly this (lift + soft halo, token shadow

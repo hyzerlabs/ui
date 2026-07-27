@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Stack } from '$lib';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
+	import { Stack, CodeBlock } from '$lib';
 	// ?raw keeps the docs in lockstep with the shipped sheet — no hand copy.
 	import resetSource from '$lib/theme/reset.css?raw';
 

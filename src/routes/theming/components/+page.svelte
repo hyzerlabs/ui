@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { Stack, Card, Cluster, Tabs, Table } from '$lib';
+	import { Stack, Card, Cluster, Tabs, Table, CodeBlock } from '$lib';
 	import type { TableColumn } from '$lib/types';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import Example from '../../../docs/Example.svelte';
 	import { hooks } from '../../../docs/hooks';
 	import { isSection, manifest, sectionPages } from '../../../docs/manifest';

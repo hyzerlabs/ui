@@ -17,6 +17,7 @@ import { badgeDoc } from './badge.js';
 import { bannerDoc } from './banner.js';
 import { blockquoteDoc } from './blockquote.js';
 import { buttonDoc } from './button.js';
+import { codeBlockDoc } from './code-block.js';
 import { linkDoc } from './link.js';
 import { cardDoc } from './card.js';
 import { dividerDoc } from './divider.js';
@@ -72,6 +73,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
 	Banner: bannerDoc,
 	Blockquote: blockquoteDoc,
 	Button: buttonDoc,
+	CodeBlock: codeBlockDoc,
 	Link: linkDoc,
 	Card: cardDoc,
 	Divider: dividerDoc,

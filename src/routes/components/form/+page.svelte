@@ -3,12 +3,11 @@
 	import { enhance } from '$app/forms';
 	import { fromAction } from 'svelte/attachments';
 	import type { SubmitFunction } from '@sveltejs/kit';
-	import { Form, TextInput, Button, Stack, Tabs, toFormErrors } from '$lib';
+	import { Form, TextInput, Button, Stack, Tabs, toFormErrors, CodeBlock } from '$lib';
 	import type { FormError } from '$lib/types';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { formDoc } from '../../../docs/data/form.js';
 	import Example from '../../../docs/Example.svelte';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// --- SvelteKit + enhance ---
 	const signupSchema = z.object({

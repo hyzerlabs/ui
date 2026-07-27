@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { Stack, Tabs, Slider, Select, Alert } from '$lib';
+	import { Stack, Tabs, Slider, Select, Alert, CodeBlock } from '$lib';
 	import { motion } from '$lib/tokens';
 	import {
 		fade as hzFade,
@@ -15,7 +15,6 @@
 		type RevealEffect
 	} from '$lib/motion';
 	import Example from '../../../docs/Example.svelte';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// R7 — derive from token metadata (unchanged from the prior page).
 	const durationTokens = Object.entries(motion.duration).map(([key, value]) => ({

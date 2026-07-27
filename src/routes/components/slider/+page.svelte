@@ -14,11 +14,15 @@
 		].join('\n')
 	);
 
-	let weight = $state(175);
+	let weight = $state(172.5);
 
-	const stepCode = [
-		'<Slider name="weight" label="Disc weight" min={150} max={180} unit="g" bind:value={weight} />'
-	].join('\n');
+	const stepCode = $derived(
+		[
+			`let weight = $state(${weight});`,
+			'',
+			'<Slider name="weight" label="Disc weight" min={160} max={175} step={0.5} unit="g" bind:value={weight} />'
+		].join('\n')
+	);
 
 	const noInputCode =
 		'<Slider name="wind" label="Wind strength" min={0} max={10} value={4} showInput={false} />';
@@ -86,7 +90,7 @@
 
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
-		{ id: 'step', label: 'Range & step' },
+		{ id: 'step', label: 'Step' },
 		{ id: 'ticks', label: 'Ticks' },
 		{ id: 'no-input', label: 'Slider only' },
 		{ id: 'vertical', label: 'Vertical' },
@@ -117,17 +121,18 @@
 					</Example>
 				{:else if item.id === 'step'}
 					<p class="tab-note">
-						<code>step</code> applies to both inputs: arrows step by it, and typed values snap to
-						the step grid anchored at <code>min</code> — discs come in whole grams, so type
-						<code>174.3</code> and it commits as <code>174</code>.
+						<code>step</code> applies to both inputs: the arrows step by it, and a typed value snaps
+						to the step grid anchored at <code>min</code>. Here it's <code>step={'{0.5}'}</code>, so
+						type <code>172.3</code> and it commits as <code>172.5</code>.
 					</p>
 					<Example code={stepCode}>
 						<div class="demo-col">
 							<Slider
 								name="weight-demo"
 								label="Disc weight"
-								min={150}
-								max={180}
+								min={160}
+								max={175}
+								step={0.5}
 								unit="g"
 								bind:value={weight}
 							/>

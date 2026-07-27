@@ -9,7 +9,8 @@
 		Card,
 		TextInput,
 		Toggle,
-		Accordion
+		Accordion,
+		CodeBlock
 	} from '$lib';
 	import { resolveConfig, generateCss } from '$lib/config';
 	import oceanConfig from '$lib/theme/examples/ocean.config';
@@ -21,7 +22,6 @@
 	import terminalToggle from '$lib/theme/examples/terminal/components/toggle.css?raw';
 	import terminalIntents from '$lib/theme/examples/terminal/intents.d.ts?raw';
 	import docsCss from '$lib/theme/examples/docs/docs.css?raw';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import { consumerSource } from '../../../docs/consumerSource';
 
 	// The class-override theme is imported as the REAL shipped sheet — every

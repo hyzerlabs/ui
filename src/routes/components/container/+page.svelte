@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Container, Stack, Tabs } from '$lib';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
+	import { Container, Stack, Tabs, CodeBlock } from '$lib';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { containerDoc } from '../../../docs/data/container.js';
 	import Example from '../../../docs/Example.svelte';

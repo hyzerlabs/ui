@@ -89,6 +89,7 @@ export const manifest: ManifestEntry[] = [
 					{ label: 'Banner', href: '/components/banner' },
 					{ label: 'Blockquote', href: '/components/blockquote' },
 					{ label: 'Button', href: '/components/button' },
+					{ label: 'CodeBlock', href: '/components/code-block' },
 					{ label: 'Link', href: '/components/link' },
 					{ label: 'Card', href: '/components/card' },
 					{ label: 'Divider', href: '/components/divider' },

@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { Stack, Container } from '$lib';
+	import { Stack, Container, CodeBlock } from '$lib';
 	import Recipe from '../../../docs/samples/Recipe.svelte';
 	// ?raw keeps the listing in lockstep with the component that renders above it.
 	import recipeSource from '../../../docs/samples/Recipe.svelte?raw';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import { consumerSource } from '../../../docs/consumerSource';
 
 	const composed = [

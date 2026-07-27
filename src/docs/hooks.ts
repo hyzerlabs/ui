@@ -1230,6 +1230,91 @@ export const hooks: Record<string, ComponentHooks> = {
 			}
 		]
 	},
+	CodeBlock: {
+		root: 'hz-code-block',
+		attrs: [
+			{
+				name: 'data-language',
+				values: '<string> — present when language is set',
+				note: 'Mirrors the language prop; the default code also carries language-<value> for client autoloaders, and the header shows a matching tag.'
+			},
+			{
+				name: 'data-has-title',
+				values: 'present when title is set',
+				note: 'Marks the titled form. Independent of data-language — the header can render from either.'
+			},
+			{
+				name: 'data-highlighted',
+				values: 'present when the children escape hatch is used',
+				note: "Marks a block whose code node is consumer-supplied pre-highlighted markup (R19). Target it to drop the default code-surface fill and let a build-time highlighter's own background sit cleanly."
+			},
+			{
+				name: 'data-collapsible',
+				values: 'present when the listing exceeds collapsedLines',
+				note: 'Reflects effective behaviour, not the raw prop — a short listing never gets the toggle, so this is absent for it.'
+			},
+			{
+				name: 'data-line-numbers',
+				values: 'present when lineNumbers is on',
+				note: 'Marks the gutter form.'
+			}
+		],
+		props: [
+			{
+				name: '--hz-code-block-bg',
+				values: '<color> — default var(--hz-color-surface-muted)',
+				note: "The code surface fill; the collapse fade fades into it. Suppressed under data-highlighted so a build-time highlighter's own background shows."
+			},
+			{
+				name: '--hz-code-block-padding',
+				values: '<length> — default 1rem',
+				note: 'Padding inside the code region (pre) — reaches a consumer-supplied pre too.'
+			},
+			{
+				name: '--hz-code-block-fade-height',
+				values: '<length> — default 3rem',
+				note: 'Height of the collapse fade over the clamped edge.'
+			}
+		],
+		parts: [
+			{
+				name: '.hz-code-block-header',
+				values: 'child element',
+				note: 'The header bar; present when title or language is set.'
+			},
+			{ name: '.hz-code-block-title', values: 'child element', note: 'The filename/label text.' },
+			{
+				name: '.hz-code-block-lang',
+				values: 'child element',
+				note: 'The non-interactive language tag; present only when language is set.'
+			},
+			{
+				name: '.hz-code-block-clip',
+				values: 'child element',
+				note: 'The code region — the collapsible viewport, focusable when it renders the default code node.'
+			},
+			{
+				name: '.hz-code-block-gutter',
+				values: 'child element',
+				note: 'The aria-hidden, non-selectable line-number column; present only with lineNumbers.'
+			},
+			{
+				name: '.hz-code-block-copy',
+				values: 'on a Button',
+				note: 'Rides through Button’s class prop, so it also carries .hz-button and its data-attrs.'
+			},
+			{
+				name: '.hz-code-block-expand',
+				values: 'on a Button',
+				note: 'The Show-more/less toggle; also a .hz-button.'
+			},
+			{
+				name: 'code.language-<language>',
+				values: 'on the default inner code',
+				note: 'The class a client autoloader targets; present only when language is set and the children escape hatch is not used. Not an hz-owned class.'
+			}
+		]
+	},
 	Link: {
 		root: 'hz-link',
 		attrs: [

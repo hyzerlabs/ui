@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Stack, Tabs } from '$lib';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
+	import { Stack, Tabs, CodeBlock } from '$lib';
 
 	const recipeTabs = [
 		{ id: 'palette', label: 'Palette' },

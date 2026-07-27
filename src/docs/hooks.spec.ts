@@ -105,8 +105,9 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 			'Forms'
 		]);
 		expect(section.groups.every((g) => g.pages.length > 0)).toBe(true);
-		// 38 + Header (spec 35) + Table (spec 37) + Toc (spec 38) + Banner (spec 41).
-		expect(componentPages).toHaveLength(42);
+		// 38 + Header (spec 35) + Table (spec 37) + Toc (spec 38) + Banner (spec 41)
+		// + CodeBlock (spec 47).
+		expect(componentPages).toHaveLength(43);
 	});
 });
 

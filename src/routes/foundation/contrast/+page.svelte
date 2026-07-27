@@ -13,12 +13,12 @@
 		bestLevelLarge,
 		mixSrgb,
 		type ContrastLevel,
-		type LargeContrastLevel
+		type LargeContrastLevel,
+		CodeBlock
 	} from '$lib';
 	import type { SelectOption } from '$lib/types';
 	import { palette, intent } from '$lib/tokens';
 	import { softTints } from '$lib/config';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// -------------------------------------------------------------------------
 	// WCAG 2.x math over the static token metadata — the same contrast

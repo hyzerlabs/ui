@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { Stack, Grid, Cluster, Badge, Alert, Button } from '$lib';
+	import { Stack, Grid, Cluster, Badge, Alert, Button, CodeBlock } from '$lib';
 	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 	import { palette, color, intent } from '$lib/tokens';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 
 	// The docs shell's own theme toggle, verbatim — the Dark mode section
 	// shows the real thing (src/routes/+layout.svelte), not an idealization.

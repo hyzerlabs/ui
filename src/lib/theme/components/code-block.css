@@ -1,0 +1,148 @@
+/**
+ * @hyzer-labs/ui reference theme — CodeBlock (specs/47)
+ *
+ * Muted surface fill, a hairline frame, and a header bar for the
+ * title/language form — the exact tint the private docs-only prototype used,
+ * generalized behind the three documented hooks (CodeBlock-R10).
+ *
+ * Structure, positioning, and the collapse-clamp mechanics are
+ * CodeBlock.svelte's own scoped <style> (CodeBlock-R9); this sheet owns every
+ * colour, border, radius, padding, and font-size. The one deliberate
+ * exception is the `:where(pre)` box normalization below, which frames a
+ * `children`-supplied `<pre>` (a build-time highlighter's own, Shiki first)
+ * identically to the default one — Svelte's scoped styles cannot reach that
+ * content, so it has to live in this unscoped, low-specificity sheet
+ * (CodeBlock-R9/R19).
+ */
+@layer hz-theme {
+	.hz-code-block {
+		/* Override hooks: the three documented custom properties
+		 * (CodeBlock-R10). Declared once here — every descendant below reads
+		 * them by inheritance, including a `children`-supplied block. */
+		--hz-code-block-bg: var(
+			--hz-color-surface-muted,
+			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, var(--hz-color-surface, #fff))
+		);
+		--hz-code-block-padding: 1rem;
+		--hz-code-block-fade-height: 3rem;
+
+		background-color: var(--hz-code-block-bg);
+		border: var(--hz-border-width-thin, 1px) solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+
+	/* CodeBlock-R19: a build-time highlighter's own palette (Shiki's inline
+	 * background/colour on .shiki) sits cleanly — suppress the default
+	 * surface fill and code colour so nothing fights it. The block still
+	 * contributes the frame (border, radius, header, copy, collapse). */
+	.hz-code-block[data-highlighted] {
+		--hz-code-block-bg: transparent;
+	}
+
+	.hz-code-block-header {
+		padding-block: 0.5rem;
+		padding-inline: var(--hz-code-block-padding);
+		border-block-end: var(--hz-border-width-thin, 1px) solid var(--hz-color-border, #6b7280);
+		border-start-start-radius: var(--hz-radius-md, 0.5rem);
+		border-start-end-radius: var(--hz-radius-md, 0.5rem);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.hz-code-block-title {
+		font-family: var(--hz-font-family-mono, monospace);
+		font-weight: var(--hz-font-weight-medium, 500);
+		color: var(--hz-color-text, #000);
+	}
+
+	/* CodeBlock-R4/R8: plain, non-interactive text — a small pill, never a
+	 * control. */
+	.hz-code-block-lang {
+		padding: 0.125rem 0.5rem;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 12%, transparent);
+		color: var(--hz-color-text-muted, #6b7280);
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+
+	/* CodeBlock-R9 deliberate exception: the pre box presentation, authored
+	 * here (not the component's scoped <style>) so it reaches a
+	 * `children`-supplied `<pre>` (R19) identically to the default one.
+	 * :where() holds this at zero specificity so a highlighter's own inline
+	 * background/colour on its `<pre>`/`.shiki` always wins. `flex`/
+	 * `min-width` size the pre to fill the clip's row next to the gutter —
+	 * the same reach requirement as the rest of this rule. */
+	.hz-code-block :where(pre) {
+		flex: 1 1 0%;
+		min-width: 0;
+		margin: 0;
+		padding: var(--hz-code-block-padding);
+		overflow-x: auto;
+		background: transparent;
+		line-height: var(--hz-line-height-base, 1.5);
+	}
+
+	.hz-code-block :where(pre) :where(code) {
+		font-family: var(--hz-font-family-mono, monospace);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text, #000);
+	}
+
+	/* CodeBlock-R19: let a highlighter's own per-token colour show through
+	 * rather than painting the code node with our own text colour. */
+	.hz-code-block[data-highlighted] :where(pre) :where(code) {
+		color: inherit;
+	}
+
+	/* CodeBlock-R6: the aria-hidden, non-selectable line-number column.
+	 * Padding/line-height mirror the pre's own so the numbers land row for
+	 * row, including against a `children`-supplied block (R19). */
+	.hz-code-block-gutter {
+		padding-block-start: var(--hz-code-block-padding);
+		padding-inline: var(--hz-code-block-padding) 0.75rem;
+		color: var(--hz-color-text-muted, #6b7280);
+		font-family: var(--hz-font-family-mono, monospace);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		line-height: var(--hz-line-height-base, 1.5);
+		text-align: end;
+		white-space: pre;
+	}
+
+	/* CodeBlock-R5: fades the clamped edge into the surface so it reads as
+	 * "there's more below". The reference fade is static — no transition. */
+	.hz-code-block-clip.is-collapsed::after {
+		content: '';
+		position: absolute;
+		inset-inline: 0;
+		bottom: 0;
+		height: var(--hz-code-block-fade-height);
+		background: linear-gradient(to bottom, transparent, var(--hz-code-block-bg));
+		pointer-events: none;
+	}
+
+	/* The library Button, positioned by the component; a surface fill keeps
+	 * it legible whether it floats over the first line or sits in the
+	 * header bar. */
+	.hz-code-block :where(.hz-code-block-copy) {
+		background-color: var(--hz-color-surface, #fff);
+	}
+
+	/* The expand toggle spans the bottom edge, below the fade, so the two
+	 * read as one affordance — squared to sit flush, rounded to match the
+	 * frame at the very bottom. */
+	.hz-code-block :where(.hz-code-block-expand) {
+		border-block-start: var(--hz-border-width-thin, 1px) solid var(--hz-color-border, #6b7280);
+		border-end-start-radius: var(--hz-radius-md, 0.5rem);
+		border-end-end-radius: var(--hz-radius-md, 0.5rem);
+	}
+
+	/* CodeBlock-R5: the reference fade itself is static (no transition to
+	 * gate); this guards any transition a consumer theme layers on top of
+	 * the expand toggle. */
+	@media (prefers-reduced-motion: reduce) {
+		.hz-code-block :where(.hz-code-block-expand) {
+			transition: none;
+		}
+	}
+}

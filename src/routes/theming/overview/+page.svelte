@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Stack } from '$lib';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
+	import { Stack, CodeBlock } from '$lib';
 
 	const importStack = [
 		'/* Each line is optional — every tier works without the ones below it. */',

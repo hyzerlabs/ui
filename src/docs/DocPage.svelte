@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import Stack from '$lib/components/Stack.svelte';
-	import CodeBlock from './CodeBlock.svelte';
+	import { CodeBlock } from '$lib';
 	import PropsTable from './PropsTable.svelte';
 	import type { PropRow } from './PropsTable.svelte';
 	import ThemeHooks from './ThemeHooks.svelte';

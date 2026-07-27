@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { render } from 'svelte/server';
 
 /**
  * Verifies every subpath export resolves and exposes its public API.
@@ -7,6 +8,8 @@ describe('subpath exports', () => {
 	it('$lib (.) — exports Button, Link, layout primitives, Nav, Footer, Image, Video, Card, Hero, Modal, Accordion, Tabs, and form components', async () => {
 		const mod = await import('$lib');
 		expect(mod.Button).toBeDefined();
+		// CodeBlock-R11: CodeBlock exported from $lib.
+		expect(mod.CodeBlock).toBeDefined();
 		expect(mod.Link).toBeDefined();
 		expect(mod.Container).toBeDefined();
 		expect(mod.Stack).toBeDefined();
@@ -72,6 +75,15 @@ describe('subpath exports', () => {
 		expect(typeof mod.bestLevelLarge).toBe('function');
 		expect(typeof mod.hexToRgb).toBe('function');
 		expect(typeof mod.rgbToHex).toBe('function');
+	});
+
+	// CodeBlock-R11: smoke render — resolves from $lib and renders its root
+	// class. SSR only (this file runs in the node project, not the browser
+	// one), which doubles as a check that the component is SSR-safe.
+	it('$lib — CodeBlock resolves and smoke-renders `.hz-code-block`', async () => {
+		const mod = await import('$lib');
+		const { body } = render(mod.CodeBlock, { props: { code: 'const x = 1;' } });
+		expect(body).toContain('hz-code-block');
 	});
 
 	it('$lib/icons — exports the full generated Lucide barrel + IconProps (specs/36 R3)', async () => {

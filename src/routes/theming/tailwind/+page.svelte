@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Stack, Alert } from '$lib';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
+	import { Stack, Alert, CodeBlock } from '$lib';
 
 	// One master layer declaration up front so precedence never depends on
 	// import order. `@layer name, name;` statements are allowed before @import,

@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { Stack, Card, Banner } from '$lib';
+	import { Stack, Card, Banner, CodeBlock } from '$lib';
 	import { color, intent, space } from '$lib/tokens';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import Example from '../../../docs/Example.svelte';
 	// ?raw keeps the docs in lockstep with the shipped, engine-generated sheet
 	// — no hand copy (specs/44 R1/R8, the reset page's `?raw` precedent).

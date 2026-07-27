@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { Stack } from '$lib';
+	import { Stack, CodeBlock } from '$lib';
 	import CommandPalette from '../../../docs/samples/CommandPalette.svelte';
 	// ?raw keeps the listing in lockstep with the component that renders above it.
 	import paletteSource from '../../../docs/samples/CommandPalette.svelte?raw';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import { consumerSource } from '../../../docs/consumerSource';
 </script>
 

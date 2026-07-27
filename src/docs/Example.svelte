@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import CodeBlock from './CodeBlock.svelte';
+	import { CodeBlock } from '$lib';
 
 	/**
 	 * A demo frame: live preview on top, usage code always visible beneath.
@@ -35,7 +35,7 @@
 
 	/* Embedded in the example frame: the frame provides the outer border, so
 	 * collapse the standalone chrome down to a divider. */
-	.doc-example :global(.code-block) {
+	.doc-example :global(.hz-code-block) {
 		border: none;
 		border-top: 1px solid var(--hz-color-border, #6b7280);
 		border-radius: 0;

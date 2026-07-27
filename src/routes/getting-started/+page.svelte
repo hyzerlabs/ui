@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Stack } from '$lib';
-	import CodeBlock from '../../docs/CodeBlock.svelte';
+	import { Stack, CodeBlock } from '$lib';
 
 	const installCode = 'pnpm add @hyzer-labs/ui';
 

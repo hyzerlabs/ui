@@ -205,7 +205,7 @@
 	.tab-content :global(.doc-example) {
 		overflow: visible;
 	}
-	.tab-content :global(.doc-example > .code-block) {
+	.tab-content :global(.doc-example > .hz-code-block) {
 		border-radius: 0 0 var(--hz-radius-md, 0.5rem) var(--hz-radius-md, 0.5rem);
 	}
 

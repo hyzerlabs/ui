@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { Stack, Container } from '$lib';
+	import { Stack, Container, CodeBlock } from '$lib';
 	import Homepage from '../../../docs/samples/Homepage.svelte';
 	// ?raw keeps the listing in lockstep with the component that renders above
 	// it — the sample is never hand-copied into a string.
 	import homepageSource from '../../../docs/samples/Homepage.svelte?raw';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import { consumerSource } from '../../../docs/consumerSource';
 
 	const composed = [

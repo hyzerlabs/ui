@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { Stack, Tabs, TextInput, Virtualizer, Badge, Slider } from '$lib';
+	import { Stack, Tabs, TextInput, Virtualizer, Badge, Slider, CodeBlock } from '$lib';
 	import Example from '../../../docs/Example.svelte';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import type { Component } from 'svelte';
 	import { CORE_ICONS } from '../../../lib/icons/core';
 	import { pascalize } from '../../../lib/icons/pascalize';

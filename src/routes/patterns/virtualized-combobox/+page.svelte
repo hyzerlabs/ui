@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { Stack, Container, Alert } from '$lib';
+	import { Stack, Container, Alert, CodeBlock } from '$lib';
 	import VirtualizedCombobox from '../../../docs/samples/VirtualizedCombobox.svelte';
 	// ?raw keeps the listing in lockstep with the component that renders above it.
 	import virtualizedComboboxSource from '../../../docs/samples/VirtualizedCombobox.svelte?raw';
-	import CodeBlock from '../../../docs/CodeBlock.svelte';
 	import { consumerSource } from '../../../docs/consumerSource';
 
 	const composed = [{ label: 'Virtualizer', href: '/components/virtualizer' }];
