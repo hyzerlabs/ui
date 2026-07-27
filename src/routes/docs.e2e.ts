@@ -1084,6 +1084,93 @@ test.describe('specs/39 — Motion', () => {
 });
 
 // ---------------------------------------------------------------------------
+// specs/48 — Observers
+// ---------------------------------------------------------------------------
+
+test.describe('specs/48 — Observers', () => {
+	test('all four worked examples are present and operable', async ({ page }) => {
+		await page.goto('/foundation/observers');
+
+		await expect(page.locator('#intersect-heading')).toBeVisible();
+		await expect(page.locator('.intersect-pane')).toBeVisible();
+
+		await expect(page.locator('#resize-heading')).toBeVisible();
+		await expect(page.locator('.resize-demo')).toBeVisible();
+
+		await expect(page.locator('#mutate-heading')).toBeVisible();
+		await expect(page.getByRole('textbox', { name: 'Editable notes' })).toBeVisible();
+
+		await expect(page.locator('#announce-heading')).toBeVisible();
+		await expect(page.getByRole('button', { name: 'Announce status (polite)' })).toBeVisible();
+	});
+
+	test('the intersect demo updates once its sentinel is scrolled into view', async ({ page }) => {
+		await page.goto('/foundation/observers');
+		const section = page.locator('section', { has: page.locator('#intersect-heading') });
+		const sentinel = section.locator('.intersect-sentinel');
+
+		await expect(sentinel).toHaveText('Scroll down to reveal me');
+		await expect(section.locator('.intersect-status')).toHaveText(/Is intersecting: no/);
+		await sentinel.scrollIntoViewIfNeeded();
+		await expect(sentinel).toHaveText(/Revealed \d+ times?/);
+		// Bi-directional: the live badge flips as the sentinel enters view.
+		await expect(section.locator('.intersect-status')).toHaveText(/Is intersecting: yes/);
+	});
+
+	test('the resize demo reports a changed dimension after a viewport resize', async ({ page }) => {
+		await page.setViewportSize({ width: 1000, height: 800 });
+		await page.goto('/foundation/observers');
+		const section = page.locator('section', { has: page.locator('#resize-heading') });
+		const readout = section.locator('.resize-readout');
+
+		await expect.poll(async () => readout.textContent()).toMatch(/\d+ × \d+px/);
+		const before = await readout.textContent();
+
+		await page.setViewportSize({ width: 500, height: 800 });
+		await expect.poll(async () => readout.textContent()).not.toBe(before);
+	});
+
+	test('the mutate demo derives a live word count from typed contenteditable input', async ({
+		page
+	}) => {
+		await page.goto('/foundation/observers');
+		const section = page.locator('section', { has: page.locator('#mutate-heading') });
+		const editor = section.getByRole('textbox', { name: 'Editable notes' });
+
+		await expect(section.getByText('Word count:')).toContainText('0');
+		await expect(section.getByText('(unedited)')).toBeVisible();
+
+		await editor.click();
+		await editor.pressSequentially('Hyzer UI ships headless components');
+		// debounce: 150 — the coalesced callback lands after the quiet period.
+		await expect(section.getByText('Word count:')).toContainText('5', { timeout: 2000 });
+		await expect(section.getByText('(edited)')).toBeVisible();
+	});
+
+	test('announce creates its live regions in the DOM with the expected aria-live values (not asserted visually)', async ({
+		page
+	}) => {
+		await page.goto('/foundation/observers');
+		const section = page.locator('section', { has: page.locator('#announce-heading') });
+
+		await section.getByRole('button', { name: 'Announce status (polite)' }).click();
+		await section.getByRole('button', { name: 'Announce alert (assertive)' }).click();
+
+		const polite = page.locator('[data-hz-live-region][aria-live="polite"]');
+		const assertive = page.locator('[data-hz-live-region][aria-live="assertive"]');
+		await expect(polite).toHaveCount(1);
+		await expect(assertive).toHaveCount(1);
+		await expect(polite).toHaveAttribute('aria-atomic', 'true');
+		await expect(assertive).toHaveAttribute('aria-atomic', 'true');
+		await expect(polite).toBeAttached();
+		await expect(assertive).toBeAttached();
+	});
+
+	// No-overflow at 375/768/1280 is covered by the "R-Responsive" sweep above
+	// (it runs over every manifest route, and /foundation/observers is one).
+});
+
+// ---------------------------------------------------------------------------
 // specs/40 findings (course-correction round) — virtualized combobox pattern
 // ---------------------------------------------------------------------------
 

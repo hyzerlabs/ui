@@ -2,6 +2,7 @@
 	import { prefersReducedMotion } from 'svelte/motion';
 	import type { TocEntry } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
+	import { mutate } from '$lib/observers';
 	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 
 	// ---------------------------------------------------------------------------
@@ -210,24 +211,23 @@
 	});
 
 	// R2 — watch: MutationObserver on the container (childList + subtree),
-	// debounced ≥100ms. No `$app/*` import — SPA navigations "just work"
-	// because the framework already mutates the DOM the observer is watching.
+	// debounced 120ms — the observers module's `mutate` attachment (specs/48
+	// R9), which already owns the debounce-timer + disconnect teardown
+	// discipline this effect used to hand-roll. No `$app/*` import — SPA
+	// navigations "just work" because the framework already mutates the DOM
+	// the observer is watching.
+	//
+	// Toc resolves its container imperatively (it may be a selector string,
+	// not the component's own node), so the attachment factory is invoked
+	// directly on the resolved element here rather than via `{@attach}`
+	// markup — `mutate(...)` returns a plain `(node) => cleanup`, a supported
+	// call form.
 	$effect(() => {
 		if (!watch) return;
 		const target = resolveContainer();
 		if (!target) return;
 
-		let timer: ReturnType<typeof setTimeout> | undefined;
-		const observer = new MutationObserver(() => {
-			if (timer) clearTimeout(timer);
-			timer = setTimeout(collect, 120);
-		});
-		observer.observe(target, { childList: true, subtree: true });
-
-		return () => {
-			if (timer) clearTimeout(timer);
-			observer.disconnect();
-		};
+		return mutate(() => collect(), { childList: true, subtree: true, debounce: 120 })(target);
 	});
 
 	// ---------------------------------------------------------------------------

@@ -220,6 +220,12 @@
 			transitions, easing evaluators, a scroll-reveal attachment, and a view-transition helper — all
 			<a href="#reduced-motion-heading">reduced-motion-aware</a> by default.
 		</p>
+		<p class="doc-description">
+			Building your own scroll/resize/mutation-driven behavior instead? The raw
+			<code>IntersectionObserver</code>/<code>ResizeObserver</code>/<code>MutationObserver</code>
+			attachments live on their own page:
+			<a href="/foundation/observers">Foundation &rarr; Observers</a>.
+		</p>
 	</div>
 
 	<Stack

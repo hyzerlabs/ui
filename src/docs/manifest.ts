@@ -73,6 +73,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Spacing & Sizing', href: '/foundation/spacing' },
 			{ label: 'Borders & Elevation', href: '/foundation/borders-elevation' },
 			{ label: 'Motion', href: '/foundation/motion' },
+			{ label: 'Observers', href: '/foundation/observers' },
 			{ label: 'Icons', href: '/foundation/icons' },
 			{ label: 'CSS Reset', href: '/foundation/reset' },
 			{ label: 'Utilities', href: '/foundation/utilities' }

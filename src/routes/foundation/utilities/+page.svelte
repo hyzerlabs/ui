@@ -365,6 +365,12 @@
 				<strong><code>toFormErrors</code></strong> — reshapes a plain field-name &rarr; message
 				record into the error array <a href="/components/form">Form</a> renders as its linked summary.
 			</li>
+			<li>
+				<strong><code>announce</code></strong> — sends a message to a reused, visually-hidden live
+				region for screen readers, from <code>@hyzer-labs/ui/observers</code> — a natural pairing
+				for an <a href="/foundation/observers">observer</a> callback that just loaded more content or
+				noticed a change.
+			</li>
 		</ul>
 	</Stack>
 </Stack>

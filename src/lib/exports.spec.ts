@@ -138,6 +138,14 @@ describe('subpath exports', () => {
 		expect(typeof mod.viewTransition).toBe('function');
 	});
 
+	it('$lib/observers — exports the three observer attachments and announce (specs/48 R1/R2/R3/R4/R6)', async () => {
+		const mod = await import('$lib/observers');
+		expect(typeof mod.intersect).toBe('function');
+		expect(typeof mod.resize).toBe('function');
+		expect(typeof mod.mutate).toBe('function');
+		expect(typeof mod.announce).toBe('function');
+	});
+
 	it('$lib/utils — exports cx, uid, and the contrast utilities', async () => {
 		const mod = await import('$lib/utils');
 		expect(typeof mod.cx).toBe('function');
@@ -245,6 +253,8 @@ describe('package.json metadata', () => {
 		expect(exports['./icons/*']).toBeDefined();
 		// specs/39 R1 — the motion module's export-map key.
 		expect(exports['./motion']).toBeDefined();
+		// specs/48 R8 — the observers module's export-map key.
+		expect(exports['./observers']).toBeDefined();
 		expect(exports['./utils']).toBeDefined();
 		expect(exports['./types']).toBeDefined();
 		expect(exports['./theme']).toBeDefined();

@@ -63,6 +63,10 @@
 			"types": "./dist/motion/index.d.ts",
 			"default": "./dist/motion/index.js"
 		},
+		"./observers": {
+			"types": "./dist/observers/index.d.ts",
+			"default": "./dist/observers/index.js"
+		},
 		"./utils": {
 			"types": "./dist/utils/index.d.ts",
 			"default": "./dist/utils/index.js"
