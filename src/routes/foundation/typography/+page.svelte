@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { Stack, Tabs, CodeBlock } from '$lib';
+	import { Stack, Select, Alert, Button, CodeBlock } from '$lib';
 	import { typography } from '$lib/tokens';
-	import Example from '../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// Bring-your-own-fonts recipe — a webfont import plus one token override.
 	const customFontCode = [
@@ -51,28 +51,65 @@
 		mono: 'Code and tabular data — docs code blocks and readouts resolve through it.'
 	};
 
-	const familyTabs = fontFamilies.map((f) => ({ id: f.key, label: familyLabels[f.key] ?? f.key }));
+	const familyOptions = fontFamilies.map((f) => ({
+		value: f.key,
+		label: familyLabels[f.key] ?? f.key
+	}));
 
-	// The serif and mono stacks resolve to system faces that commonly ship
-	// only regular and bold (Georgia, Menlo, Consolas…); 500/600 snap to the
-	// nearest available weight and render as duplicates of those two. Only
-	// sans (system-ui) reliably carries the full range, so the other
-	// families demo only the weights that actually render distinctly.
-	const weightTabsFor = (family: string) =>
-		fontWeights
-			.filter((w) => family === 'sans' || w.key === 'normal' || w.key === 'bold')
-			.map((w) => ({ id: w.key, label: w.key }));
+	// Live demo state: pick a family + weight and the specimen re-renders in place.
+	let family = $state('sans');
+	let weight = $state('normal');
+
+	// The serif and mono stacks resolve to system faces that commonly ship only
+	// regular and bold (Georgia, Menlo, Consolas…); 500/600 would snap to the
+	// nearest available and render as duplicates. Only sans (system-ui) reliably
+	// carries the full range, so medium/semibold are disabled for the others.
+	const limitedFamily = $derived(family !== 'sans');
+	const weightOptions = $derived(
+		fontWeights.map((w) => ({
+			value: w.key,
+			label: `${w.key} · ${w.value}`,
+			disabled: limitedFamily && w.key !== 'normal' && w.key !== 'bold'
+		}))
+	);
+
+	// Switching to a limited family while a non-shipping weight is selected snaps
+	// to bold, so the specimen never silently renders a duplicate weight.
+	$effect(() => {
+		if (limitedFamily && weight !== 'normal' && weight !== 'bold') weight = 'bold';
+	});
 
 	const familyValue = (key: string) => fontFamilies.find((f) => f.key === key)?.value ?? 'inherit';
 	const weightValue = (key: string) => fontWeights.find((w) => w.key === key)?.value ?? '400';
 
-	function familyCode(family: string, weight: string): string {
+	// Example system faces per family — these match each stack in the table
+	// above, so the note never lists a serif/mono mix.
+	const familyExampleFaces: Record<string, string> = {
+		serif: 'Georgia, Times New Roman',
+		mono: 'Menlo, Consolas'
+	};
+
+	// Per-row copy: the exact CSS for the current family + weight at that row's size.
+	let copiedKey = $state<string | null>(null);
+	let copyTimer: ReturnType<typeof setTimeout> | undefined;
+
+	function rowCss(sizeKey: string): string {
 		return [
-			'.round-recap {',
-			`\tfont-family: var(--hz-font-family-${family});`,
-			`\tfont-weight: var(--hz-font-weight-${weight});`,
-			'}'
+			`font-family: var(--hz-font-family-${family});`,
+			`font-weight: var(--hz-font-weight-${weight});`,
+			`font-size: var(--hz-font-size-${sizeKey});`
 		].join('\n');
+	}
+
+	async function copyRow(sizeKey: string) {
+		try {
+			await navigator.clipboard.writeText(rowCss(sizeKey));
+			copiedKey = sizeKey;
+			clearTimeout(copyTimer);
+			copyTimer = setTimeout(() => (copiedKey = null), 2000);
+		} catch {
+			// Clipboard unavailable — no-op.
+		}
 	}
 
 	const specimen = 'The quick brown fox jumps over the lazy dog';
@@ -102,48 +139,9 @@
 	>
 		<h2 id="families-heading">Font families</h2>
 		<p>
-			Each family is a system stack — nothing is downloaded. Pick a family and a weight to see the
-			full type scale rendered in it.
+			Each family is a system stack — nothing is downloaded. Pick a family and weight and the full
+			type scale re-renders below in place.
 		</p>
-		<Tabs items={familyTabs} ariaLabel="Font family" defaultTab="sans">
-			{#snippet panel(fItem)}
-				<div class="tab-content">
-					<p class="tab-note">
-						<code>--hz-font-family-{fItem.id}</code> — {familyNotes[fItem.id]}
-					</p>
-					{#if fItem.id !== 'sans'}
-						<p class="tab-note">
-							Only <code>normal</code> and <code>bold</code> are shown — the system faces this stack
-							resolves to ship those two weights, so <code>medium</code> and
-							<code>semibold</code> would snap to the nearest available and render as duplicates.
-						</p>
-					{/if}
-					<Tabs items={weightTabsFor(fItem.id)} ariaLabel="Font weight" defaultTab="normal">
-						{#snippet panel(wItem)}
-							<div class="inner-tab">
-								<Example code={familyCode(fItem.id, wItem.id)}>
-									<div class="specimen-list">
-										{#each fontSizes as size (size.cssVar)}
-											<div class="specimen-row">
-												<code class="specimen-label">{size.key} · {size.value}</code>
-												<span
-													class="specimen-text"
-													style="font-family: {familyValue(fItem.id)}; font-weight: {weightValue(
-														wItem.id
-													)}; font-size: {size.value};"
-												>
-													{specimen}
-												</span>
-											</div>
-										{/each}
-									</div>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
-				</div>
-			{/snippet}
-		</Tabs>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>
@@ -161,6 +159,51 @@
 					{/each}
 				</tbody>
 			</table>
+		</div>
+		<div class="type-demo">
+			<div class="type-controls">
+				<Select name="type-family" label="Family" options={familyOptions} bind:value={family} />
+				<Select name="type-weight" label="Weight" options={weightOptions} bind:value={weight} />
+			</div>
+			{#if limitedFamily}
+				<Alert intent="info" title="Only normal and bold ship for this family" headingLevel={3}>
+					{#snippet icon()}<IconInfo />{/snippet}
+					The <code>{familyLabels[family]}</code> stack resolves to system faces that carry only
+					<code>normal</code> and <code>bold</code> ({familyExampleFaces[family]}…), so
+					<code>medium</code> and <code>semibold</code> are disabled here — they would snap to the nearest
+					available weight and render as duplicates.
+				</Alert>
+			{/if}
+			<p class="type-family-note">
+				<code>--hz-font-family-{family}</code> — {familyNotes[family]}
+			</p>
+			<div class="specimen-list">
+				{#each fontSizes as size (size.cssVar)}
+					<div class="specimen-row">
+						<div class="specimen-head">
+							<code class="specimen-label">{size.key} · {size.value}</code>
+							<Button
+								variant="outline"
+								intent="neutral"
+								size="sm"
+								onclick={() => copyRow(size.key)}
+							>
+								{copiedKey === size.key ? 'Copied' : 'Copy CSS'}
+							</Button>
+						</div>
+						<span
+							class="specimen-text"
+							style="font-family: {familyValue(family)}; font-weight: {weightValue(
+								weight
+							)}; font-size: {size.value};"
+						>
+							{specimen}
+						</span>
+					</div>
+				{/each}
+			</div>
+			<span class="sr-only" aria-live="polite">{copiedKey ? 'Copied styles to clipboard' : ''}</span
+			>
 		</div>
 	</Stack>
 
@@ -274,6 +317,35 @@
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
+	}
+
+	.type-demo {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+
+	.type-controls {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem 1.5rem;
+		align-items: end;
+	}
+
+	.type-controls > :global(*) {
+		flex: 1 1 10rem;
+	}
+
+	.type-family-note {
+		color: var(--hz-color-text-muted, #6b7280);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+
+	.specimen-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
 	}
 
 	.specimen-list {
