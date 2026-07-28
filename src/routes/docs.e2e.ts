@@ -1034,8 +1034,18 @@ test.describe('specs/39 — Motion', () => {
 		await expect(section.locator('.transition-box').filter({ visible: true })).toHaveText('Fly');
 	});
 
-	test('the reveal demo shows its cards once scrolled into view', async ({ page }) => {
+	// The reveal demos live in tabs now (single / group / hero); the card strip
+	// is the GROUP tab, which is not the default, so each test selects it.
+	async function openRevealGroupTab(page: Page) {
 		await page.goto('/foundation/motion');
+		await page
+			.getByLabel('Scroll reveal demos')
+			.getByRole('tab', { name: 'revealGroup — a list' })
+			.click();
+	}
+
+	test('the reveal demo shows its cards once scrolled into view', async ({ page }) => {
+		await openRevealGroupTab(page);
 		const firstCard = page.locator('.reveal-card').first();
 		// Scroll the card strip itself into view — the density-scaffold docs
 		// pages (specs/40) run roomier now, so the heading alone (further from
@@ -1048,7 +1058,7 @@ test.describe('specs/39 — Motion', () => {
 	});
 
 	test('the reveal demo Replay button re-runs the entrance', async ({ page }) => {
-		await page.goto('/foundation/motion');
+		await openRevealGroupTab(page);
 		const section = page.locator('section', { has: page.locator('#reveal-heading') });
 		await section.scrollIntoViewIfNeeded();
 		const firstCard = section.locator('.reveal-card').first();
@@ -1060,6 +1070,13 @@ test.describe('specs/39 — Motion', () => {
 		await expect
 			.poll(async () => firstCard.evaluate((el) => getComputedStyle(el).opacity))
 			.toBe('1');
+	});
+
+	test('the single-element reveal demo plays on the default tab', async ({ page }) => {
+		await page.goto('/foundation/motion');
+		const solo = page.locator('.reveal-solo');
+		await solo.scrollIntoViewIfNeeded();
+		await expect.poll(async () => solo.evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
 	});
 
 	test('the view-transition demo swaps layout with no error, supported or not', async ({

@@ -10,3 +10,15 @@ bun.lockb
 /specs/
 /original-specs/
 /.claude/
+
+# Generated token sheets — `hyzer generate` / `pnpm gen:tokens` owns these
+# byte for byte, and a drift test compares the committed bytes to the
+# generator's output. They were formatted to match Prettier by hand until the
+# system-preference @media block (specs/52) nested a declaration one level
+# deeper than printWidth allows: the generator would have to model Prettier's
+# wrapping to stay green, which is a worse trade than not checking output it
+# fully controls. Edit the generator, never these files.
+/src/lib/tokens/tokens.css
+/src/lib/theme/examples/ocean.css
+/src/lib/theme/examples/terminal/terminal.tokens.css
+/src/lib/theme/utilities.css

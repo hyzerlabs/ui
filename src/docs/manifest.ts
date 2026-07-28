@@ -164,6 +164,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Tokens & Overrides', href: '/theming/tokens' },
 			{ label: 'Styling Components', href: '/theming/components' },
 			{ label: 'Using with Tailwind', href: '/theming/tailwind' },
+			{ label: 'Section Themes', href: '/theming/sections' },
 			{ label: 'Example Themes', href: '/theming/examples' }
 		]
 	},

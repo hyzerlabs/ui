@@ -110,7 +110,7 @@ describe('resolveConfig — extend-only merge', () => {
 	});
 
 	it('merges dark palette additions over the base dark authoring', () => {
-		const resolved = resolveConfig({ dark: { palette: { fairway: '#a3e635' } } });
+		const resolved = resolveConfig({ themes: { dark: { palette: { fairway: '#a3e635' } } } });
 		expect(resolved.dark.palette.at(-1)).toMatchObject({
 			cssName: '--hz-palette-fairway',
 			value: '#a3e635',
@@ -128,7 +128,7 @@ describe('resolveConfig — extend-only merge', () => {
 	});
 
 	it('merges dark role additions over the base dark authoring', () => {
-		const resolved = resolveConfig({ dark: { color: { surface: '#111827' } } });
+		const resolved = resolveConfig({ themes: { dark: { color: { surface: '#111827' } } } });
 		const surface = resolved.dark.color.find((e) => e.key === 'surface')!;
 		expect(surface).toMatchObject({ value: '#111827', fromConfig: true });
 		expect(resolved.dark.color.find((e) => e.key === 'text')!.value).toBe(color.theme.dark.text);
@@ -159,11 +159,13 @@ describe('resolveConfig — validation errors', () => {
 		expect(() => resolveConfig({ tokens: { typography: { fontStretch: {} } } } as never)).toThrow(
 			/config.tokens.typography/
 		);
-		expect(() => resolveConfig({ dark: { shadow: {} } } as never)).toThrow(/config.dark/);
+		expect(() => resolveConfig({ themes: { dark: { shadow: {} } } } as never)).toThrow(
+			/config.themes.dark/
+		);
 	});
 
-	it('rejects unknown keys in config.dark, listing palette/color/intent', () => {
-		expect(() => resolveConfig({ dark: { shadow: {} } } as never)).toThrow(
+	it('rejects unknown keys in a theme, listing palette/color/intent', () => {
+		expect(() => resolveConfig({ themes: { dark: { shadow: {} } } } as never)).toThrow(
 			/Valid keys: palette, color, intent/
 		);
 	});
@@ -221,7 +223,7 @@ describe('generateCss — full mode', () => {
 		const css = generateCss(
 			resolveConfig({
 				tokens: { palette: { fairway: '#3f6212' } },
-				dark: { palette: { fairway: '#a3e635' } }
+				themes: { dark: { palette: { fairway: '#a3e635' } } }
 			})
 		);
 		const darkBlock = css.slice(css.indexOf("[data-theme='dark']"));
@@ -229,7 +231,7 @@ describe('generateCss — full mode', () => {
 	});
 
 	it('config dark role additions land in the dark block', () => {
-		const css = generateCss(resolveConfig({ dark: { color: { border: '#334155' } } }));
+		const css = generateCss(resolveConfig({ themes: { dark: { color: { border: '#334155' } } } }));
 		const darkBlock = css.slice(css.indexOf("[data-theme='dark']"));
 		expect(darkBlock).toContain('--hz-color-border: #334155;');
 	});
@@ -242,9 +244,11 @@ describe('generateCss — full mode', () => {
 	it('emits role dark, then palette dark, then intent dark, in that order', () => {
 		const css = generateCss(
 			resolveConfig({
-				dark: {
-					color: { border: '#334155' },
-					intent: { primary: '#93c5fd' }
+				themes: {
+					dark: {
+						color: { border: '#334155' },
+						intent: { primary: '#93c5fd' }
+					}
 				}
 			})
 		);
@@ -278,7 +282,7 @@ describe('generateCss — overrides mode', () => {
 		const css = generateCss(
 			resolveConfig({
 				tokens: { palette: { primary: '#0f766e' } },
-				dark: { intent: { primary: '#5eead4' } }
+				themes: { dark: { intent: { primary: '#5eead4' } } }
 			}),
 			{ mode: 'overrides', selector: '.theme-ocean' }
 		);
@@ -313,10 +317,13 @@ describe('generateCss — overrides mode', () => {
 	it('scoped mode re-emits chains a dark-only palette override disturbs', () => {
 		// `danger` is touched in dark only. --hz-intent-danger must still be
 		// declared in the light scope block, or the dark block feeds nothing.
-		const css = generateCss(resolveConfig({ dark: { palette: { danger: '#fca5a5' } } }), {
-			mode: 'overrides',
-			selector: '.theme-ocean'
-		});
+		const css = generateCss(
+			resolveConfig({ themes: { dark: { palette: { danger: '#fca5a5' } } } }),
+			{
+				mode: 'overrides',
+				selector: '.theme-ocean'
+			}
+		);
 		expect(css).toContain('.theme-ocean {');
 		expect(css).toContain('--hz-intent-danger: var(--hz-palette-danger);');
 	});
@@ -325,10 +332,13 @@ describe('generateCss — overrides mode', () => {
 		// surfaceMuted's dark mix derives from --hz-color-surface; touching
 		// surface only in dark must still re-declare surface-muted's light
 		// value under the scope.
-		const css = generateCss(resolveConfig({ dark: { color: { surface: '#0b1120' } } }), {
-			mode: 'overrides',
-			selector: '.theme-ocean'
-		});
+		const css = generateCss(
+			resolveConfig({ themes: { dark: { color: { surface: '#0b1120' } } } }),
+			{
+				mode: 'overrides',
+				selector: '.theme-ocean'
+			}
+		);
 		expect(css).toContain('.theme-ocean {');
 		expect(css).toContain('--hz-color-surface-muted:');
 	});
@@ -433,14 +443,27 @@ describe('contrastReport', () => {
 // ---------------------------------------------------------------------------
 
 describe('two-tier dark authoring', () => {
-	it('the base dark block emits no --hz-intent-* declarations', () => {
+	it('the base dark block authors no intent VALUES — only the passthrough chain', () => {
+		// The block does declare every --hz-intent-*, but only as the same bare
+		// var() indirection :root declares, re-stated so the chain re-resolves
+		// when the block lands on a <section> instead of <html>. Authoring an
+		// intent COLOR in dark is what the two-tier rule forbids, and that is
+		// what this asserts: every intent line here is a pure passthrough.
 		const css = generateCss(resolveConfig());
 		const darkBlock = css.slice(css.indexOf("[data-theme='dark']"));
-		expect(darkBlock).not.toContain('--hz-intent-');
+		const intentLines = darkBlock
+			.slice(0, darkBlock.indexOf('\n}'))
+			.split('\n')
+			.map((l) => l.trim())
+			.filter((l) => l.startsWith('--hz-intent-'));
+		expect(intentLines.length).toBeGreaterThan(0);
+		for (const line of intentLines) {
+			expect(line).toMatch(/^--hz-intent-[a-z]+: var\(--hz-palette-[a-z]+\);$/);
+		}
 	});
 
 	it('a consumer dark palette override flows through to the intent', () => {
-		const resolved = resolveConfig({ dark: { palette: { primary: '#1e3a8a' } } });
+		const resolved = resolveConfig({ themes: { dark: { palette: { primary: '#1e3a8a' } } } });
 		const report = contrastReport(resolved);
 		const darkPrimary = report.rows.find(
 			(r) => r.mode === 'dark' && r.id === 'text:intent-primary/surface'
@@ -449,7 +472,7 @@ describe('two-tier dark authoring', () => {
 	});
 
 	it('config.dark.intent remains the consumer surface for mode-specific remaps', () => {
-		const resolved = resolveConfig({ dark: { intent: { primary: '#93c5fd' } } });
+		const resolved = resolveConfig({ themes: { dark: { intent: { primary: '#93c5fd' } } } });
 		const primary = resolved.dark.intent.find((e) => e.key === 'primary')!;
 		expect(primary).toMatchObject({ value: '#93c5fd', fromConfig: true });
 		const css = generateCss(resolved);
@@ -497,7 +520,7 @@ describe('consumer palette ramps', () => {
 				palette: { brandRed: { 500: '#ef4444' } },
 				intent: { danger: 'var(--hz-palette-brand-red-500)' }
 			},
-			dark: { palette: { brandRed: { 500: '#fca5a5' } } }
+			themes: { dark: { palette: { brandRed: { 500: '#fca5a5' } } } }
 		});
 		const css = generateCss(resolved);
 		const darkBlock = css.slice(css.indexOf("[data-theme='dark']"));

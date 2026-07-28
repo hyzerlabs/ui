@@ -5,6 +5,17 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<!--
+			Apply a stored theme choice before first paint, or it flashes the
+			other one. Only an EXPLICIT choice needs this: with no stored key
+			the attribute stays off and the tokens sheet's
+			`@media (prefers-color-scheme: dark) :root:not([data-theme])`
+			block picks the default, with no script involved at all.
+		-->
+		<script>
+			const stored = localStorage.getItem('hz-theme');
+			if (stored) document.documentElement.dataset.theme = stored;
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

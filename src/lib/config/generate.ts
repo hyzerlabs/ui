@@ -9,8 +9,11 @@
 
 import {
 	HyzerConfigError,
+	resolveConfig,
 	toKebab,
+	type HyzerThemeOverride,
 	type ResolvedConfig,
+	type ResolvedTheme,
 	type SectionId,
 	type TokenEntry
 } from './schema.js';
@@ -119,13 +122,50 @@ const DARK_COMMENT = [
 	' * Dark theme — authored entirely at the palette/role layer (the two-tier',
 	" * rule). Surface and text flip, surface-muted's gray tint strengthens (6%",
 	' * is invisible over black), and every hue lightens to a companion that',
-	' * keeps WCAG AA (≥ 4.5:1) as text on both dark surfaces. Roles and',
-	' * intents are pure var() chains, so all of Layer 2 follows automatically.',
-	' * The companions are authored literals: the single-value palette ships no',
-	' * light ramp to reference. Setting data-theme="dark" on any ancestor',
-	' * activates this block for that subtree via normal CSS cascade.',
+	' * keeps WCAG AA (≥ 4.5:1) as text on both dark surfaces. The companions',
+	' * are authored literals: the single-value palette ships no light ramp to',
+	' * reference. Setting data-theme="dark" on ANY element themes that subtree.',
 	' * ========================================================================== */'
 ].join('\n');
+
+/** Emitted inside every theme block, before the re-declared derived chain. */
+const DERIVED_COMMENT = [
+	'Derived chain, re-declared. Layer 2 is var() indirection, and var() in a',
+	'custom property resolves on the element the declaration applies to — so a',
+	'chain declared at :root has already computed to the DEFAULT palette and',
+	'inherits down as a fixed value. Re-declaring it here re-resolves it',
+	"against this theme's own hues on whatever element carries the attribute,",
+	'which is what makes a themed <section> work and not just a themed <html>.'
+];
+
+const SYSTEM_COMMENT = [
+	'/* ==========================================================================',
+	' * System preference — dark by default, until an explicit choice is made.',
+	' * :not([data-theme]) is what makes the choice win: set data-theme="light"',
+	' * (or "dark") anywhere on <html> and this block stops matching, so no',
+	' * script is needed to FOLLOW the system, only to OVERRIDE it. Scoped to',
+	' * :root because it only ever answers "what should the page default to".',
+	' * ========================================================================== */'
+].join('\n');
+
+const LIGHT_COMMENT = [
+	'/* ==========================================================================',
+	' * Light theme — the default block, re-declared so it can be RESTORED.',
+	' * :root defaults inherit as computed values, so a light section inside a',
+	' * dark page would otherwise keep the dark values it inherited: there has',
+	' * to be something to switch back TO. Only tokens some theme actually',
+	' * changes are listed — the rest were never at risk.',
+	' * ========================================================================== */'
+].join('\n');
+
+/** Per-theme block banner. */
+function themeComment(name: string): string {
+	return [
+		'/* ==========================================================================',
+		` * Theme "${name}" — activated by data-theme="${name}" on any element.`,
+		' * ========================================================================== */'
+	].join('\n');
+}
 
 // ---------------------------------------------------------------------------
 // Emission helpers
@@ -171,7 +211,7 @@ function densityBlock(resolved: ResolvedConfig): string {
 }
 
 /**
- * Dark-block selector: plain hook at :root, compound + descendant when scoped
+ * Theme-block selector: plain hook at :root, compound + descendant when scoped
  * (the scope element may carry data-theme itself, or inherit it from an
  * ancestor like <html>).
  *
@@ -180,9 +220,9 @@ function densityBlock(resolved: ResolvedConfig): string {
  * this length is exactly what Prettier would break. Matching its output keeps
  * the drift test and the lint suite from contradicting each other.
  */
-function darkSelector(selector: string): string {
-	if (selector === ':root') return "[data-theme='dark']";
-	return `${selector}[data-theme='dark'],\n[data-theme='dark'] ${selector}`;
+function themeSelector(selector: string, name: string): string {
+	if (selector === ':root') return `[data-theme='${name}']`;
+	return `${selector}[data-theme='${name}'],\n[data-theme='${name}'] ${selector}`;
 }
 
 /** Custom-property names referenced by var() inside a token value. */
@@ -213,15 +253,8 @@ function varRefs(value: string): string[] {
  * only in dark still needs its intent chain declared locally, or the dark
  * block has nothing to feed.
  */
-function scopedClosure(resolved: ResolvedConfig): Set<string> {
-	const included = new Set<string>();
-	for (const section of resolved.sections) {
-		for (const e of section.entries) if (e.fromConfig) included.add(e.cssName);
-	}
-	for (const e of [...resolved.dark.palette, ...resolved.dark.color, ...resolved.dark.intent]) {
-		if (e.fromConfig) included.add(e.cssName);
-	}
-
+function closureFrom(resolved: ResolvedConfig, seed: Iterable<string>): Set<string> {
+	const included = new Set<string>(seed);
 	const all = resolved.sections.flatMap((s) => s.entries);
 	for (let changed = true; changed; ) {
 		changed = false;
@@ -234,6 +267,54 @@ function scopedClosure(resolved: ResolvedConfig): Set<string> {
 		}
 	}
 	return included;
+}
+
+function scopedClosure(resolved: ResolvedConfig): Set<string> {
+	const seed: string[] = [];
+	for (const section of resolved.sections) {
+		for (const e of section.entries) if (e.fromConfig) seed.push(e.cssName);
+	}
+	for (const e of themeOwn(resolved.dark)) {
+		if (e.fromConfig) seed.push(e.cssName);
+	}
+	return closureFrom(resolved, seed);
+}
+
+/** A theme's own declarations, in emission order (roles, hues, intents). */
+function themeOwn(theme: ResolvedTheme): TokenEntry[] {
+	return [...theme.color, ...theme.palette, ...theme.intent];
+}
+
+/**
+ * A theme block: what the theme itself declares, plus the derived chain it
+ * must re-declare to work on ANY element rather than only on `<html>`.
+ *
+ * Why the dependents exist. `--hz-intent-primary: var(--hz-palette-primary)`
+ * is declared at `:root`, and var() inside a custom property is substituted
+ * at computed-value time on the element the declaration applies to. When the
+ * theme block lands on `<html>` — the same element as `:root` — the override
+ * and the chain meet there and everything re-resolves. Land it on a
+ * `<section>` instead and the intents have already computed at `:root` to the
+ * default palette, inheriting down as fixed values: a dark section with
+ * light-blue buttons and light borders. Re-declaring the dependents inside
+ * the block re-resolves them against the theme's own values, on whatever
+ * element the block matched. At `:root` they are identical to the defaults
+ * and cost nothing but bytes.
+ *
+ * This is the same problem `scopedClosure()` solves for scoped sheets, from
+ * the other direction: there the SHEET is scoped, here the BLOCK is.
+ */
+function themeBlock(
+	resolved: ResolvedConfig,
+	theme: ResolvedTheme
+): { own: TokenEntry[]; dependents: TokenEntry[] } {
+	const own = themeOwn(theme);
+	const ownNames = new Set(own.map((e) => e.cssName));
+	const closure = closureFrom(resolved, ownNames);
+	const dependents = resolved.sections
+		.flatMap((s) => s.entries)
+		.filter((e) => closure.has(e.cssName) && !ownNames.has(e.cssName));
+	return { own, dependents };
 }
 
 // ---------------------------------------------------------------------------
@@ -273,21 +354,80 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 
 	parts.push('', DENSITY_COMMENT, densityBlock(resolved));
 
-	parts.push('', DARK_COMMENT, `${darkSelector(selector)} {`);
-	// Role dark, then palette dark, then intent dark — sourced directly from
-	// the three resolved dark lists (specs/42 R2.3); no value-shape inference.
-	parts.push(...declarations(resolved.dark.color, '\t', false));
-	if (resolved.dark.palette.length > 0) {
-		parts.push('');
-		parts.push(...declarations(resolved.dark.palette, '\t', false));
+	// Every named theme is a [data-theme="<name>"] block of the same shape;
+	// dark is one of them, and leads because the base itself authors it.
+	const blocks = [resolved.dark, ...resolved.themes].map((theme) => ({
+		theme,
+		...themeBlock(resolved, theme)
+	}));
+
+	for (const { theme, own, dependents } of blocks) {
+		const comment = theme.name === 'dark' ? DARK_COMMENT : themeComment(theme.name);
+		parts.push('', comment, `${themeSelector(selector, theme.name)} {`);
+		// Roles, then hues, then intents — sourced directly from the three
+		// resolved lists (specs/42 R2.3); no value-shape inference.
+		parts.push(...declarations(theme.color, '\t', false));
+		for (const group of [theme.palette, theme.intent]) {
+			if (group.length === 0) continue;
+			parts.push('');
+			parts.push(...declarations(group, '\t', false));
+		}
+		if (dependents.length > 0) {
+			parts.push('');
+			parts.push(note(DERIVED_COMMENT, '\t'));
+			parts.push(...declarations(dependents, '\t', false));
+		}
+		parts.push('}');
+
+		// The system default carries the theme's OWN declarations only: it
+		// applies at :root, where the chain declared above it re-resolves on
+		// the same element, so the derived block would be pure duplication.
+		if (theme.name === 'dark' && selector === ':root') {
+			parts.push('', SYSTEM_COMMENT, '@media (prefers-color-scheme: dark) {');
+			parts.push('\t:root:not([data-theme]) {');
+			parts.push(...declarations(own, '\t\t', false));
+			parts.push('\t}');
+			parts.push('}');
+		}
 	}
-	if (resolved.dark.intent.length > 0) {
-		parts.push('');
-		parts.push(...declarations(resolved.dark.intent, '\t', false));
+
+	const restore = lightRestore(resolved, blocks);
+	if (restore.length > 0) {
+		parts.push('', LIGHT_COMMENT, `${themeSelector(selector, 'light')} {`);
+		parts.push(...declarations(restore, '\t', false));
+		parts.push('}');
 	}
-	parts.push('}');
 
 	return parts.join('\n') + '\n';
+}
+
+/**
+ * The `[data-theme="light"]` block: every token any theme block declares,
+ * restored to its default value.
+ *
+ * A token a theme introduces but `:root` never defines (a consumer's
+ * dark-only intent, say) restores to `initial` — the guaranteed-invalid
+ * value, which is what "not declared here" means for a custom property, so
+ * `var()` falls back exactly as it does outside the theme.
+ */
+function lightRestore(
+	resolved: ResolvedConfig,
+	blocks: { own: TokenEntry[]; dependents: TokenEntry[] }[]
+): TokenEntry[] {
+	const changed = new Set<string>();
+	for (const block of blocks) {
+		for (const e of [...block.own, ...block.dependents]) changed.add(e.cssName);
+	}
+	// :root order, so the block reads like the sheet it restores; tokens no
+	// :root section defines follow at the end.
+	const rootEntries = resolved.sections.flatMap((s) => s.entries);
+	const defined = new Set(rootEntries.map((e) => e.cssName));
+	return [
+		...rootEntries.filter((e) => changed.has(e.cssName)),
+		...[...changed]
+			.filter((cssName) => !defined.has(cssName))
+			.map((cssName) => ({ cssName, key: cssName, value: 'initial', fromConfig: false }))
+	];
 }
 
 function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: string[]): string {
@@ -349,14 +489,74 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 	}
 	if (darkEntries.length > 0) {
 		if (hasRoot) parts.push('');
-		parts.push(`${darkSelector(selector)} {`);
+		parts.push(`${themeSelector(selector, 'dark')} {`);
 		parts.push(...declarations(darkEntries, '\t', false));
 		parts.push('}');
 	}
-	if (!hasRoot && darkEntries.length === 0) {
+
+	// Named themes are entirely the consumer's authoring — every entry is
+	// fromConfig, so the whole block is an override by definition. Each still
+	// carries its derived chain, for the same reason the full sheet's do.
+	let emitted = hasRoot || darkEntries.length > 0;
+	const themeBlocks = resolved.themes.map((theme) => ({ theme, ...themeBlock(resolved, theme) }));
+	for (const { theme, own, dependents } of themeBlocks) {
+		if (own.length === 0) continue;
+		if (emitted) parts.push('');
+		parts.push(`${themeSelector(selector, theme.name)} {`);
+		parts.push(...declarations(own, '\t', false));
+		if (dependents.length > 0) {
+			parts.push('');
+			parts.push(note(DERIVED_COMMENT, '\t'));
+			parts.push(...declarations(dependents, '\t', false));
+		}
+		parts.push('}');
+		emitted = true;
+	}
+
+	// The base sheet's light block restores the BASE defaults — which would
+	// undo this sheet's own :root overrides inside a light-scoped section.
+	// Re-restore the tokens this sheet redeclares, after it in source order.
+	const restorable = new Set(
+		lightRestore(resolved, [themeBlock(resolved, resolved.dark), ...themeBlocks]).map(
+			(e) => e.cssName
+		)
+	);
+	const restore = rootEntries.filter((e) => restorable.has(e.cssName));
+	if (restore.length > 0) {
+		if (emitted) parts.push('');
+		parts.push(`${themeSelector(selector, 'light')} {`);
+		parts.push(...declarations(restore, '\t', false));
+		parts.push('}');
+		emitted = true;
+	}
+
+	if (!emitted) {
 		parts.push('/* No overrides configured. */');
 	}
 	return parts.join('\n') + '\n';
+}
+
+// ---------------------------------------------------------------------------
+// themeVars — the same block, as a flat map for runtime use
+// ---------------------------------------------------------------------------
+
+/**
+ * The custom properties a theme override sets, resolved and flattened: the
+ * theme's own declarations plus the derived chain, exactly what the generated
+ * `[data-theme="…"]` block contains.
+ *
+ * Backs the inline form of the `theme()` attachment, which writes these
+ * straight onto an element's `style`. The derived chain matters just as much
+ * there as it does in a stylesheet — inline custom properties are still
+ * declarations on one element, so an inline palette override without its
+ * chain themes the surface and leaves the buttons behind.
+ *
+ * Throws `HyzerConfigError` on an invalid override, same as `resolveConfig`.
+ */
+export function themeVars(override: HyzerThemeOverride): Record<string, string> {
+	const resolved = resolveConfig({ themes: { runtime: override } });
+	const { own, dependents } = themeBlock(resolved, resolved.themes[0]);
+	return Object.fromEntries([...own, ...dependents].map((e) => [e.cssName, e.value]));
 }
 
 // ---------------------------------------------------------------------------

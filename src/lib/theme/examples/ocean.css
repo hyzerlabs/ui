@@ -35,3 +35,15 @@
 	--hz-palette-secondary: #22d3ee;
 	--hz-palette-danger: #fca5a5;
 }
+
+[data-theme='light'] {
+	--hz-palette-primary: #0f766e;
+	--hz-palette-secondary: #155e75;
+	--hz-palette-success: #166534;
+	--hz-palette-warning: #92400e;
+	--hz-palette-info: #0369a1;
+	--hz-color-surface: #f8fafc;
+	--hz-color-text: #0f172a;
+	--hz-color-text-muted: #475569;
+	--hz-intent-neutral: var(--hz-color-text-muted);
+}

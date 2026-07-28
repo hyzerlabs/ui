@@ -65,13 +65,15 @@ export default defineConfig({
 			amber: '#ffb000'
 		}
 	},
-	dark: {
-		color: {
-			// Lights-out: true black, and the phosphor pushed hotter.
-			surface: '#000000',
-			text: '#4dff80',
-			textMuted: '#00c853',
-			border: '#33ff66'
+	themes: {
+		dark: {
+			color: {
+				// Lights-out: true black, and the phosphor pushed hotter.
+				surface: '#000000',
+				text: '#4dff80',
+				textMuted: '#00c853',
+				border: '#33ff66'
+			}
 		}
 	}
 });

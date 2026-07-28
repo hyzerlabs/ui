@@ -32,7 +32,8 @@ export const softTints = {
 export interface ContrastReportRow {
 	/** Stable pairing id, e.g. `text:intent-danger/surface-muted`. */
 	id: string;
-	mode: 'light' | 'dark';
+	/** Theme name — `light` for the `:root` defaults, then one per theme. */
+	mode: string;
 	description: string;
 	fg: { name: string; hex: string };
 	bg: { name: string; hex: string };
@@ -56,16 +57,26 @@ export interface ContrastReport {
 
 type DeclMap = Map<string, string>;
 
-function declarationMaps(resolved: ResolvedConfig): { light: DeclMap; dark: DeclMap } {
+/**
+ * One declaration map per theme — the `:root` defaults ("light"), then each
+ * named theme layered over them. Every theme is graded, so a theme a consumer
+ * adds gets exactly the AA gate the built-in dark theme gets.
+ */
+function declarationMaps(resolved: ResolvedConfig): { mode: string; map: DeclMap }[] {
 	const light: DeclMap = new Map();
 	for (const section of resolved.sections) {
 		for (const e of section.entries) light.set(e.cssName, e.value);
 	}
-	const dark: DeclMap = new Map(light);
-	for (const e of [...resolved.dark.palette, ...resolved.dark.color, ...resolved.dark.intent]) {
-		dark.set(e.cssName, e.value);
-	}
-	return { light, dark };
+	return [
+		{ mode: 'light', map: light },
+		...[resolved.dark, ...resolved.themes].map((theme) => {
+			const map: DeclMap = new Map(light);
+			for (const e of [...theme.palette, ...theme.color, ...theme.intent]) {
+				map.set(e.cssName, e.value);
+			}
+			return { mode: theme.name, map };
+		})
+	];
 }
 
 /** Expand #rgb, lowercase. Returns null when not a plain hex color. */
@@ -152,8 +163,7 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 	const rows: ContrastReportRow[] = [];
 	const unresolved = new Set<string>();
 
-	for (const mode of ['light', 'dark'] as const) {
-		const map = maps[mode];
+	for (const { mode, map } of maps) {
 		const get = (name: string): string | null => {
 			const value = map.get(name);
 			const hex = value === undefined ? null : resolveHex(value, map);
@@ -217,8 +227,12 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 				{ name: short, hex }
 			);
 
-			// Soft recipes — mode-aware tint strengths per the softTints model.
-			const tints = softTints[mode];
+			// Soft recipes — keyed to the theme NAME, because that is what the
+			// theme CSS keys them to (`[data-theme='dark'] .hz-badge` bumps
+			// --hz-badge-tint). A named theme with a dark surface still gets
+			// the light recipe in the browser, so it gets it here too: the
+			// report's job is to model the CSS, not to second-guess it.
+			const tints = mode === 'dark' ? softTints.dark : softTints.light;
 			const badgeBg = { name: `${short} badge-soft bg`, hex: mixSrgb(hex, surface, tints.badgeBg) };
 			const alertBg = { name: `${short} alert bg`, hex: mixSrgb(hex, surface, tints.alertBg) };
 			push(

@@ -13,17 +13,19 @@ export {
 	HyzerConfigError,
 	type HyzerConfig,
 	type HyzerTokensOverride,
-	type HyzerDarkOverride,
+	type HyzerThemeOverride,
 	type TokenGroupOverride,
 	type RampGroupOverride,
 	type ResolvedConfig,
 	type ResolvedSection,
+	type ResolvedTheme,
 	type TokenEntry,
 	type SectionId
 } from './schema.js';
 export {
 	generateCss,
 	generateUtilitiesCss,
+	themeVars,
 	type GenerateOptions,
 	type GenerateUtilitiesOptions
 } from './generate.js';

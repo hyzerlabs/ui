@@ -47,7 +47,7 @@
 		'\t\t},',
 		"\t\tintent: { fairway: 'var(--hz-palette-brand-red-900)' } // new intents too",
 		'\t},',
-		"\tdark: { palette: { primary: '#2dd4bf' } }",
+		"\tthemes: { dark: { palette: { primary: '#2dd4bf' } } }",
 		'});'
 	].join('\n');
 

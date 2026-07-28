@@ -214,7 +214,9 @@
 		<h2 id="demo-heading">Demo</h2>
 		<Tabs items={demoTabs} ariaLabel="Icon demos" defaultTab="size">
 			{#snippet panel(item)}
-				<div class="tab-content">
+				<!-- gap="near": the Intent and a11y panels stack a note above their
+				     Example, and neither carries spacing of its own. -->
+				<Stack class="tab-content" gap="near">
 					{#if item.id === 'size'}
 						<Example code={sizeStrokeCode}>
 							<div class="size-demo">
@@ -286,7 +288,7 @@
 							</div>
 						</Example>
 					{/if}
-				</div>
+				</Stack>
 			{/snippet}
 		</Tabs>
 	</Stack>

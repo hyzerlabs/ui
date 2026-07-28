@@ -41,17 +41,19 @@ export default defineConfig({
 		// gray, which falls just short of AA on this theme's muted surface.
 		intent: { neutral: 'var(--hz-color-text-muted)' }
 	},
-	dark: {
-		palette: {
-			// Brighten accents that sit on dark surfaces.
-			primary: '#2dd4bf',
-			secondary: '#22d3ee',
-			danger: '#fca5a5'
-		},
-		color: {
-			surface: '#0b1120',
-			text: '#e2e8f0',
-			textMuted: '#94a3b8'
+	themes: {
+		dark: {
+			palette: {
+				// Brighten accents that sit on dark surfaces.
+				primary: '#2dd4bf',
+				secondary: '#22d3ee',
+				danger: '#fca5a5'
+			},
+			color: {
+				surface: '#0b1120',
+				text: '#e2e8f0',
+				textMuted: '#94a3b8'
+			}
 		}
 	}
 });

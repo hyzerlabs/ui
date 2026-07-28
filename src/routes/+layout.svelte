@@ -30,8 +30,16 @@
 
 	let { children }: Props = $props();
 
-	// R9 — theme toggle state (false = light, true = dark)
-	let dark = $state(false);
+	// Theme state (specs/52 R7). Two separate things: whether the reader has
+	// made an EXPLICIT choice, and what the system prefers. `null` means "no
+	// choice yet" — we then leave data-theme off entirely and let the sheet's
+	// `@media (prefers-color-scheme: dark) :root:not([data-theme])` block do
+	// the work, so following the system needs no JS and stays live if the
+	// reader changes it. `systemDark` exists only so the button can show the
+	// right icon while no choice is in force.
+	let choice = $state<'light' | 'dark' | null>(null);
+	let systemDark = $state(false);
+	const dark = $derived(choice ? choice === 'dark' : systemDark);
 
 	// Mobile nav open state
 	let mobileNavOpen = $state(false);
@@ -103,18 +111,28 @@
 		closeMobileNav();
 	}
 
-	// R9 — initialize: an explicit stored choice wins; with no stored key the
-	// site follows the system preference. Storage is only written on an
-	// actual toggle (below), so "follow the system" stays live until the
-	// user makes a choice — 'light' is stored explicitly for the same reason.
+	// Initialize: an explicit stored choice wins; with no stored key we leave
+	// the attribute off and follow the system. Storage is only written on an
+	// actual toggle (below), so "follow the system" stays live — including
+	// when the reader changes it while the page is open.
 	$effect(() => {
 		const stored = localStorage.getItem('hz-theme');
-		dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+		if (stored === 'light' || stored === 'dark') choice = stored;
+
+		const query = window.matchMedia('(prefers-color-scheme: dark)');
+		systemDark = query.matches;
+		const onChange = (e: MediaQueryListEvent) => (systemDark = e.matches);
+		query.addEventListener('change', onChange);
+		return () => query.removeEventListener('change', onChange);
 	});
 
+	// An explicit choice is WRITTEN, never inferred by absence: the sheet's
+	// system-default block is `:root:not([data-theme])`, so removing the
+	// attribute to mean "light" would hand a system-dark reader dark mode and
+	// make the light half of the toggle do nothing.
 	$effect(() => {
-		if (dark) {
-			document.documentElement.setAttribute('data-theme', 'dark');
+		if (choice) {
+			document.documentElement.setAttribute('data-theme', choice);
 		} else {
 			document.documentElement.removeAttribute('data-theme');
 		}
@@ -139,8 +157,8 @@
 				document.documentElement.classList.remove('theme-transition');
 			}, 500);
 		}
-		dark = !dark;
-		localStorage.setItem('hz-theme', dark ? 'dark' : 'light');
+		choice = dark ? 'light' : 'dark';
+		localStorage.setItem('hz-theme', choice);
 	}
 
 	// Route transitions: cross-fade ONLY the page content between routes —
@@ -642,20 +660,25 @@
 	}
 
 	/* Smooth light/dark flip (toggleTheme above): while html carries the
-	 * temporary class, every color-ish property eases instead of snapping.
+	 * temporary class, the surface-ish properties ease instead of snapping.
 	 * !important intentionally overrides component transitions for these
-	 * ~300ms so nothing strobes at its own timing mid-flip. */
+	 * ~300ms so nothing strobes at its own timing mid-flip.
+	 *
+	 * FOREGROUNDS ARE DELIBERATELY ABSENT. Easing `color` from black to white
+	 * interpolates through mid-gray, and a paragraph passing through gray
+	 * reads as a flash of muted text rather than as a fade — in both
+	 * directions, because the interpolation is symmetric. Backgrounds cross
+	 * the same midpoint and get away with it; text does not. So surfaces,
+	 * borders and shadows ease, and the foregrounds (color/fill/stroke) snap
+	 * at the moment the attribute flips. */
 	:global(html.theme-transition),
 	:global(html.theme-transition *),
 	:global(html.theme-transition *::before),
 	:global(html.theme-transition *::after) {
 		transition:
 			background-color 250ms ease,
-			color 250ms ease,
 			border-color 250ms ease,
 			outline-color 250ms ease,
-			fill 250ms ease,
-			stroke 250ms ease,
 			box-shadow 250ms ease !important;
 	}
 

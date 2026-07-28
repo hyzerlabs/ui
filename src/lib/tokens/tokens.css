@@ -189,11 +189,9 @@ body [data-density-shift] [data-density-shift] [data-density-shift] {
  * Dark theme — authored entirely at the palette/role layer (the two-tier
  * rule). Surface and text flip, surface-muted's gray tint strengthens (6%
  * is invisible over black), and every hue lightens to a companion that
- * keeps WCAG AA (≥ 4.5:1) as text on both dark surfaces. Roles and
- * intents are pure var() chains, so all of Layer 2 follows automatically.
- * The companions are authored literals: the single-value palette ships no
- * light ramp to reference. Setting data-theme="dark" on any ancestor
- * activates this block for that subtree via normal CSS cascade.
+ * keeps WCAG AA (≥ 4.5:1) as text on both dark surfaces. The companions
+ * are authored literals: the single-value palette ships no light ramp to
+ * reference. Setting data-theme="dark" on ANY element themes that subtree.
  * ========================================================================== */
 [data-theme='dark'] {
 	--hz-color-surface: var(--hz-palette-black);
@@ -207,4 +205,71 @@ body [data-density-shift] [data-density-shift] [data-density-shift] {
 	--hz-palette-success: #4ade80;
 	--hz-palette-info: #22d3ee;
 	--hz-palette-gray: #9ca3af;
+
+	/* Derived chain, re-declared. Layer 2 is var() indirection, and var() in a
+	 * custom property resolves on the element the declaration applies to — so a
+	 * chain declared at :root has already computed to the DEFAULT palette and
+	 * inherits down as a fixed value. Re-declaring it here re-resolves it
+	 * against this theme's own hues on whatever element carries the attribute,
+	 * which is what makes a themed <section> work and not just a themed <html>. */
+	--hz-color-text-muted: var(--hz-palette-gray);
+	--hz-color-border: var(--hz-palette-gray);
+	--hz-intent-neutral: var(--hz-palette-gray);
+	--hz-intent-primary: var(--hz-palette-primary);
+	--hz-intent-secondary: var(--hz-palette-secondary);
+	--hz-intent-danger: var(--hz-palette-danger);
+	--hz-intent-warning: var(--hz-palette-warning);
+	--hz-intent-success: var(--hz-palette-success);
+	--hz-intent-info: var(--hz-palette-info);
+}
+
+/* ==========================================================================
+ * System preference — dark by default, until an explicit choice is made.
+ * :not([data-theme]) is what makes the choice win: set data-theme="light"
+ * (or "dark") anywhere on <html> and this block stops matching, so no
+ * script is needed to FOLLOW the system, only to OVERRIDE it. Scoped to
+ * :root because it only ever answers "what should the page default to".
+ * ========================================================================== */
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme]) {
+		--hz-color-surface: var(--hz-palette-black);
+		--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 25%, var(--hz-color-surface));
+		--hz-color-text: var(--hz-palette-white);
+		--hz-palette-primary: #60a5fa;
+		--hz-palette-secondary: #a78bfa;
+		--hz-palette-danger: #f87171;
+		--hz-palette-warning: #fbbf24;
+		--hz-palette-success: #4ade80;
+		--hz-palette-info: #22d3ee;
+		--hz-palette-gray: #9ca3af;
+	}
+}
+
+/* ==========================================================================
+ * Light theme — the default block, re-declared so it can be RESTORED.
+ * :root defaults inherit as computed values, so a light section inside a
+ * dark page would otherwise keep the dark values it inherited: there has
+ * to be something to switch back TO. Only tokens some theme actually
+ * changes are listed — the rest were never at risk.
+ * ========================================================================== */
+[data-theme='light'] {
+	--hz-palette-primary: #2563eb;
+	--hz-palette-secondary: #7c3aed;
+	--hz-palette-success: #15803d;
+	--hz-palette-warning: #b45309;
+	--hz-palette-danger: #b91c1c;
+	--hz-palette-info: #0e7490;
+	--hz-palette-gray: #6b7280;
+	--hz-color-surface: var(--hz-palette-white);
+	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 6%, var(--hz-color-surface));
+	--hz-color-text: var(--hz-palette-black);
+	--hz-color-text-muted: var(--hz-palette-gray);
+	--hz-color-border: var(--hz-palette-gray);
+	--hz-intent-neutral: var(--hz-palette-gray);
+	--hz-intent-primary: var(--hz-palette-primary);
+	--hz-intent-secondary: var(--hz-palette-secondary);
+	--hz-intent-danger: var(--hz-palette-danger);
+	--hz-intent-warning: var(--hz-palette-warning);
+	--hz-intent-success: var(--hz-palette-success);
+	--hz-intent-info: var(--hz-palette-info);
 }

@@ -99,8 +99,19 @@ fights or `!important`:
 ```
 
 For theme-wide tweaks, override tokens instead — set `--hz-color-primary` on
-`:root` (or any subtree) and every component follows. Dark mode: set
-`data-theme="dark"` on any ancestor element.
+`:root` (or any subtree) and every component follows.
+
+Themes are named, and `dark` is just one of them: set `data-theme="dark"` on
+any element and that subtree follows, whether it is `<html>` or one `<section>`
+in the middle of a page. Define your own in `hyzer.config.ts` under `themes`,
+and apply them by hand or with the `theme` attachment:
+
+```svelte
+<section {@attach theme('ocean')}>…</section>
+```
+
+The sheet also carries a `prefers-color-scheme` default, so following the
+system needs no JavaScript — only overriding it does.
 
 ## Development
 

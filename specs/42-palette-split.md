@@ -311,3 +311,19 @@ reader understands why an on-media control stays white in dark mode.
 - hyzer.sh / external consumer migration (greenfield; docs site is the only
   dogfooder).
 - The Vite plugin, MCP server, npm 0.1.0 publish mechanics.
+
+### Amendment — `dark` moved under `themes` (specs/52, 2026-07-28)
+
+The top-level `dark:` config key is **gone**. Dark is now one entry in a
+`themes: { … }` map, selected the way every named theme is —
+`data-theme="<name>"` — so `config.dark.palette` is written
+`config.themes.dark.palette`. `ResolvedConfig.dark` survives as a distinguished
+field (the `prefers-color-scheme` default block and the mode-aware soft tints
+are keyed to dark specifically), and `ResolvedConfig.themes` carries the rest.
+
+Two emission changes came with it, both required for a theme to work on a
+`<section>` rather than only on `<html>`: every theme block re-declares the
+derived var() chain (the `scopedClosure()` problem, applied to blocks instead
+of sheets), and the generator emits a `[data-theme='light']` block so a light
+region inside a dark page has something to switch back to. specs/52 is the
+authority for the current theme shape.

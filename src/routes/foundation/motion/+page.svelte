@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { tick } from 'svelte';
-	import { Stack, Tabs, Slider, Select, Alert, CodeBlock } from '$lib';
+	import { Stack, Tabs, Slider, Select, Alert, Button, Hero, CodeBlock } from '$lib';
 	import { motion } from '$lib/tokens';
 	import {
 		fade as hzFade,
 		fly as hzFly,
 		slide as hzSlide,
 		scale as hzScale,
+		reveal,
 		revealGroup,
 		viewTransition,
 		easingCss,
 		parseCubicBezier,
+		type RevealOptions,
 		type RevealGroupOptions,
 		type RevealEffect
 	} from '$lib/motion';
@@ -152,6 +154,71 @@
 			: `{ effect: '${revealEffect}', stagger: ${revealStagger} }`
 	);
 
+	const revealTabs = [
+		{ id: 'single', label: 'reveal — one element' },
+		{ id: 'group', label: 'revealGroup — a list' },
+		{ id: 'hero', label: 'reveal — a hero' }
+	];
+
+	// `reveal` takes the same effect options minus the group-only stagger.
+	function revealSingleOptions(): RevealOptions {
+		return revealEffect === 'fly' ? {} : { effect: revealEffect as RevealEffect };
+	}
+
+	const revealSingleArgs = $derived(revealEffect === 'fly' ? '' : `{ effect: '${revealEffect}' }`);
+
+	const revealSingleCode = $derived(
+		[
+			"import { reveal } from '@hyzer-labs/ui/motion';",
+			'',
+			`<div class="card" {@attach reveal(${revealSingleArgs})}>`,
+			'\t<strong>Tomahawk</strong>',
+			'\t<span>An overhand throw that lands on its edge.</span>',
+			'</div>'
+		].join('\n')
+	);
+
+	// Hero's content parts are children of its internal .hz-hero-content, which
+	// the component doesn't expose — so revealGroup can't reach them. The
+	// snippet props can: that markup is the consumer's, so `reveal` goes on it
+	// and `delay` supplies the stagger revealGroup would otherwise compute.
+	function revealPart(index: number): RevealOptions {
+		return {
+			...(revealEffect === 'fly' ? {} : { effect: revealEffect as RevealEffect }),
+			delay: index * revealStagger
+		};
+	}
+
+	const revealHeroCode = $derived(
+		[
+			"import { Hero, Button } from '@hyzer-labs/ui';",
+			"import { reveal } from '@hyzer-labs/ui/motion';",
+			'',
+			`<Hero layout="overlay" height="half">`,
+			'\t{#snippet media()}<img src="…" alt="" />{/snippet}',
+			'',
+			'\t{#snippet title()}',
+			`\t\t<span {@attach reveal({ delay: 0 })}>Throw straighter, sooner</span>`,
+			'\t{/snippet}',
+			'',
+			'\t{#snippet subtitle()}',
+			`\t\t<span {@attach reveal({ delay: ${revealStagger} })}>One drill at a time.</span>`,
+			'\t{/snippet}',
+			'',
+			'\t{#snippet actions()}',
+			`\t\t<span {@attach reveal({ delay: ${revealStagger * 2} })}>`,
+			'\t\t\t<Button>Start the course</Button>',
+			'\t\t</span>',
+			'\t{/snippet}',
+			'</Hero>',
+			'',
+			'<' + 'style>',
+			'\t/* transform needs a block box — reveal is a no-op on inline spans */',
+			'\tspan { display: block; }',
+			'<' + '/style>'
+		].join('\n')
+	);
+
 	const revealCode = $derived(
 		[
 			"import { revealGroup } from '@hyzer-labs/ui/motion';",
@@ -211,6 +278,35 @@
 <svelte:head>
 	<title>Motion — @hyzer-labs/ui</title>
 </svelte:head>
+
+<!--
+		Controls live INSIDE each panel so the connection to the demo they
+		drive is obvious. Every panel stays in the DOM (Tabs marks inactive
+		ones `hidden`), so the control names are suffixed per tab — three
+		fields called "reveal-effect" would collide on id and label-for.
+		They bind to shared state, so a choice survives a tab switch.
+	-->
+{#snippet revealControls(id: string, withStagger: boolean)}
+	<div class="reveal-controls">
+		<Select
+			name={`reveal-effect-${id}`}
+			label="Effect"
+			options={revealEffectOptions}
+			bind:value={revealEffect}
+		/>
+		{#if withStagger}
+			<Slider
+				name={`reveal-stagger-${id}`}
+				label="Stagger"
+				unit="ms"
+				min={0}
+				max={400}
+				step={20}
+				bind:value={revealStagger}
+			/>
+		{/if}
+	</div>
+{/snippet}
 
 <Stack gap="away">
 	<div class="doc-intro">
@@ -405,47 +501,107 @@
 	>
 		<h2 id="reveal-heading">Scroll reveal</h2>
 		<p class="tab-note">
-			<code>revealGroup</code> hides a container's children on the client only (SSR and no-JS readers
-			always see the content), then plays a staggered WAAPI entrance the first time the container intersects
-			the viewport. Scroll this card strip into view, or press Replay.
+			Two attachments, same options. <code>reveal</code> animates <em>one</em> element when it
+			enters the viewport; <code>revealGroup</code> animates a container's direct children, staggered
+			by DOM order. Both hide their targets on the client only, so SSR and no-JS readers always see the
+			content.
 		</p>
 		<p class="tab-note">
-			<code>effect</code> picks the animation style for the whole group and mirrors the transition
-			family above 1:1 — <code>fade</code>, <code>fly</code> (the default), <code>slide</code>,
-			<code>scale</code> — while <code>stagger</code> offsets each child by DOM order.
-			<code>fly</code> steers by its <code>x</code>/<code>y</code> offsets: positive <code>y</code>
-			rises from below (the default, <code>y: 16</code>), negative <code>y</code> drops from above,
-			<code>x</code> travels in from the side. <code>slide</code> expands from the center line of
-			<code>axis</code> without moving the box, and <code>scale</code> grows from
-			<code>start</code>.
+			Which one you want is a question of what should move together — one thing arriving, or several
+			arriving in sequence.
 		</p>
-		<div class="reveal-controls">
-			<Select
-				name="reveal-effect"
-				label="Effect"
-				options={revealEffectOptions}
-				bind:value={revealEffect}
-			/>
-			<Slider
-				name="reveal-stagger"
-				label="Stagger"
-				unit="ms"
-				min={0}
-				max={400}
-				step={20}
-				bind:value={revealStagger}
-			/>
-		</div>
-		<Example code={revealCode}>
-			<button type="button" class="demo-trigger" onclick={replayReveal}>Replay</button>
-			{#key `${replayKey}-${revealEffect}-${revealStagger}`}
-				<div class="reveal-strip" {@attach revealGroup(revealOptions())}>
-					{#each revealCards as card (card)}
-						<div class="reveal-card">{card}</div>
-					{/each}
-				</div>
-			{/key}
-		</Example>
+
+		<Tabs items={revealTabs} ariaLabel="Scroll reveal demos" defaultTab="single">
+			{#snippet panel(item)}
+				<!-- gap="near" (density-aware, tightened by the section's
+				     data-density-shift): this panel stacks a control row, a note, an
+				     Example and an Alert, none of which carry rhythm of their own. -->
+				<Stack class="tab-content" gap="near">
+					{#if item.id === 'single'}
+						{@render revealControls(item.id, false)}
+						<p class="tab-note">
+							One element, animating on its own the first time it intersects the viewport. This is
+							the common case — a card, an image, a pull-quote — and it takes the same
+							<code>effect</code> / <code>y</code> / <code>threshold</code> options the group form does.
+						</p>
+						<Example code={revealSingleCode}>
+							<button type="button" class="demo-trigger" onclick={replayReveal}>Replay</button>
+							{#key `${replayKey}-${revealEffect}`}
+								<div class="reveal-solo" {@attach reveal(revealSingleOptions())}>
+									<strong>Tomahawk</strong>
+									<span>An overhand throw that lands on its edge.</span>
+								</div>
+							{/key}
+						</Example>
+					{:else if item.id === 'group'}
+						{@render revealControls(item.id, true)}
+						<p class="tab-note">
+							<code>effect</code> picks the animation style for the whole group and mirrors the
+							transition family above 1:1 — <code>fade</code>, <code>fly</code> (the default),
+							<code>slide</code>, <code>scale</code> — while <code>stagger</code> offsets each child
+							by DOM order. <code>fly</code> steers by its <code>x</code>/<code>y</code> offsets:
+							positive <code>y</code> rises from below (the default, <code>y: 16</code>), negative
+							<code>y</code> drops from above, <code>x</code> travels in from the side.
+							<code>slide</code> expands from the center line of <code>axis</code> without moving
+							the box, and <code>scale</code> grows from <code>start</code>.
+						</p>
+						<Example code={revealCode}>
+							<button type="button" class="demo-trigger" onclick={replayReveal}>Replay</button>
+							{#key `${replayKey}-${revealEffect}-${revealStagger}`}
+								<div class="reveal-strip" {@attach revealGroup(revealOptions())}>
+									{#each revealCards as card (card)}
+										<div class="reveal-card">{card}</div>
+									{/each}
+								</div>
+							{/key}
+						</Example>
+					{:else}
+						{@render revealControls(item.id, true)}
+						<p class="tab-note">
+							A real <code>Hero</code> in <code>overlay</code> layout, with only the content revealed
+							— the background artwork is already there when the copy arrives. Each part animates separately,
+							so Stagger drives the delay between them rather than a group option.
+						</p>
+						<Example code={revealHeroCode}>
+							<button type="button" class="demo-trigger" onclick={replayReveal}>Replay</button>
+							{#key `${replayKey}-${revealEffect}-${revealStagger}`}
+								<Hero layout="overlay" height="half" align="start" headingLevel={3}>
+									{#snippet media()}
+										<div class="reveal-hero-media" aria-hidden="true"></div>
+									{/snippet}
+									{#snippet eyebrow()}
+										<span class="reveal-part" {@attach reveal(revealPart(0))}>Six-week course</span>
+									{/snippet}
+									{#snippet title()}
+										<span class="reveal-part" {@attach reveal(revealPart(1))}>
+											Throw straighter, sooner
+										</span>
+									{/snippet}
+									{#snippet subtitle()}
+										<span class="reveal-part" {@attach reveal(revealPart(2))}>
+											One drill at a time, with a plan for every practice session.
+										</span>
+									{/snippet}
+									{#snippet actions()}
+										<span class="reveal-part" {@attach reveal(revealPart(3))}>
+											<Button>Start the course</Button>
+										</span>
+									{/snippet}
+								</Hero>
+							{/key}
+						</Example>
+						<Alert intent="info" title="Why reveal and not revealGroup here">
+							<code>revealGroup</code> staggers a container's direct children, and the parts you
+							want sequenced are children of Hero's internal <code>.hz-hero-content</code> — which
+							the component does not expose, since <code>{'{...rest}'}</code> spreads onto its root.
+							Hero's snippet props are the way in: the markup inside them is yours, so
+							<code>reveal</code> attaches to it and <code>delay</code> supplies the sequence. Attaching
+							to the Hero root instead animates the whole thing as one block.
+						</Alert>
+					{/if}
+				</Stack>
+			{/snippet}
+		</Tabs>
 	</Stack>
 
 	<Stack
@@ -708,6 +864,48 @@
 
 	.reveal-controls > :global(*) {
 		flex: 1 1 12rem;
+	}
+
+	/* Single-element demo — same padding trick as the strip below, so the
+	   scale entrance has room to play inside the example frame. */
+	.reveal-solo {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		max-width: 22rem;
+		margin: 1.25rem 0.25rem;
+		padding: 1.5rem;
+		border: 1px solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		background-color: var(--hz-color-surface-muted, #f3f4f6);
+	}
+
+	.reveal-solo span {
+		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	/* Hero demo — Hero supplies the layout. These spans are the elements the
+	   snippet props hand back to us, and they are what `reveal` animates.
+	   display:block is load-bearing, not cosmetic: `transform` does not apply
+	   to non-replaced inline elements, so an inline span would fade without
+	   ever moving. */
+	.reveal-part {
+		display: block;
+	}
+
+	/* Stands in for a real image; in overlay layout Hero's .hz-hero-background
+	   is absolutely positioned, so this fills it rather than sizing itself. */
+	.reveal-hero-media {
+		width: 100%;
+		height: 100%;
+		/* The same surface-tinted wash the Header and Footer demos use: it
+		   mixes over --hz-color-surface, so it follows the theme and leaves
+		   the solid Button as the strongest color in the frame. */
+		background: linear-gradient(
+			135deg,
+			color-mix(in srgb, var(--hz-intent-primary, #2563eb) 16%, var(--hz-color-surface, #fff)),
+			color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 16%, var(--hz-color-surface, #fff))
+		);
 	}
 
 	.reveal-strip {

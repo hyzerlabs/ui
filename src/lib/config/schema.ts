@@ -68,12 +68,15 @@ export interface HyzerTokensOverride {
 }
 
 /**
- * Dark-mode (`[data-theme="dark"]`) additions, merged over the base dark
- * authoring. The base authors dark entirely at the palette layer, but both
- * layers are open here: override/add hues (ramps supported) in `palette`,
- * override roles in `color`, and remap or add intents per mode in `intent`.
+ * One named theme — a `[data-theme="<name>"]` block. Both color layers are
+ * open: override/add hues (ramps supported) in `palette`, override roles in
+ * `color`, and remap or add intents in `intent`.
+ *
+ * `dark` is one of these, merged over the base dark authoring (the base
+ * authors dark entirely at the palette layer — the two-tier rule). Every
+ * other name starts from nothing and is entirely the consumer's.
  */
-export interface HyzerDarkOverride {
+export interface HyzerThemeOverride {
 	palette?: RampGroupOverride;
 	color?: TokenGroupOverride;
 	intent?: TokenGroupOverride;
@@ -83,7 +86,19 @@ export interface HyzerConfig {
 	/** Where `hyzer generate` writes the sheet, relative to the config file. */
 	output?: string;
 	tokens?: HyzerTokensOverride;
-	dark?: HyzerDarkOverride;
+	/**
+	 * Named themes, keyed by the `data-theme` attribute value that activates
+	 * them. `dark` is a theme like any other (it merges over the base dark
+	 * authoring); `light` is reserved, because the light theme IS the default
+	 * `:root` block authored via `tokens`.
+	 *
+	 * One attribute holds one value, so themes are mutually exclusive: a dark
+	 * variant of a named theme is its own entry (`'ocean-dark'`), not a
+	 * product of two axes. Consumers who want a theme × mode matrix scope a
+	 * sheet under a class instead (`GenerateOptions.selector`), which composes
+	 * with `[data-theme='dark']`.
+	 */
+	themes?: Record<string, HyzerThemeOverride>;
 	/**
 	 * Kebab-case Lucide icon names — the upstream canonical
 	 * form; the run report echoes the generated `Icon<PascalName>` export
@@ -150,6 +165,15 @@ export interface ResolvedSection {
 	entries: TokenEntry[];
 }
 
+/** One resolved named theme — emitted as a `[data-theme="<name>"]` block. */
+export interface ResolvedTheme {
+	/** The `data-theme` attribute value that activates it. */
+	name: string;
+	palette: TokenEntry[];
+	color: TokenEntry[];
+	intent: TokenEntry[];
+}
+
 export interface ResolvedConfig {
 	/** `:root` sections in emission order. */
 	sections: ResolvedSection[];
@@ -158,8 +182,16 @@ export interface ResolvedConfig {
 		unitFromConfig: boolean;
 		levels: readonly { near: number; away: number }[];
 	};
-	/** The `[data-theme="dark"]` block: palette + role overrides, plus intent overrides. */
-	dark: { palette: TokenEntry[]; color: TokenEntry[]; intent: TokenEntry[] };
+	/**
+	 * The `dark` theme, kept as its own field rather than folded into
+	 * `themes`: it is the only theme the base itself authors, and two
+	 * behaviors are keyed to it specifically because they model a display
+	 * condition rather than a naming convention — the
+	 * `prefers-color-scheme` default block and the mode-aware soft tints.
+	 */
+	dark: ResolvedTheme;
+	/** Every other named theme, in config declaration order. */
+	themes: ResolvedTheme[];
 	output?: string;
 	/**
 	 * Deduplicated, order-preserved raw `icons` config —
@@ -314,6 +346,68 @@ function resolveUtilities(utilities: HyzerConfig['utilities']): {
 	return { enabled: true, output: utilities.output };
 }
 
+/**
+ * A theme name becomes both a `data-theme` attribute value and part of an
+ * attribute-selector string, so it is held to an identifier-safe shape.
+ */
+const THEME_NAME = /^[a-z][a-z0-9-]*$/;
+
+/**
+ * Validate `config.themes` and hand back the map. `light` is rejected rather
+ * than accepted-and-ignored: the light theme is the default `:root` block
+ * authored via `config.tokens`, and a `themes.light` entry would silently do
+ * nothing to it.
+ */
+function validateThemes(
+	themes: HyzerConfig['themes']
+): Record<string, HyzerThemeOverride> | undefined {
+	if (themes === undefined) return undefined;
+	if (themes === null || typeof themes !== 'object' || Array.isArray(themes)) {
+		throw new HyzerConfigError('config.themes must be an object keyed by theme name.');
+	}
+	for (const [name, theme] of Object.entries(themes)) {
+		if (name === 'light') {
+			throw new HyzerConfigError(
+				'config.themes.light is reserved — the light theme is the default :root block, authored via config.tokens.'
+			);
+		}
+		if (!THEME_NAME.test(name)) {
+			throw new HyzerConfigError(
+				`config.themes["${name}"] is not a valid theme name: use lower-case letters, digits and hyphens, starting with a letter (the name becomes a data-theme attribute value).`
+			);
+		}
+		assertKnownKeys(
+			theme as Record<string, unknown> | undefined,
+			['palette', 'color', 'intent'],
+			`config.themes.${name}`
+		);
+	}
+	return themes;
+}
+
+/**
+ * Resolve one named theme. `seed` carries the base metadata a theme starts
+ * from — non-empty only for `dark`, which the library itself authors.
+ */
+function resolveTheme(
+	name: string,
+	override: HyzerThemeOverride | undefined,
+	seed: { palette: [string, string][]; color: [string, string][] }
+): ResolvedTheme {
+	const where = `config.themes.${name}`;
+	return {
+		name,
+		palette: mergeGroup(
+			seed.palette,
+			flattenRampGroup(override?.palette, `${where}.palette`),
+			'--hz-palette-',
+			`${where}.palette`
+		),
+		color: mergeGroup(seed.color, override?.color, '--hz-color-', `${where}.color`),
+		intent: mergeGroup([], override?.intent, '--hz-intent-', `${where}.intent`)
+	};
+}
+
 const TOKEN_GROUP_KEYS = [
 	'palette',
 	'color',
@@ -345,7 +439,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	}
 	assertKnownKeys(
 		config as Record<string, unknown>,
-		['output', 'tokens', 'dark', 'icons', 'utilities'],
+		['output', 'tokens', 'themes', 'icons', 'utilities'],
 		'config'
 	);
 	const tokens = config.tokens;
@@ -370,11 +464,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		['unit'],
 		'config.tokens.density'
 	);
-	assertKnownKeys(
-		config.dark as Record<string, unknown> | undefined,
-		['palette', 'color', 'intent'],
-		'config.dark'
-	);
+	const themesConfig = validateThemes(config.themes);
 	if (config.output !== undefined && typeof config.output !== 'string') {
 		throw new HyzerConfigError('config.output must be a string path.');
 	}
@@ -510,26 +600,19 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		}
 	];
 
-	// --- dark block -----------------------------------------------------------
-	// Dark mode is authored entirely at the palette/role layer (the two-tier
-	// rule) — intents are pure chains, so the base contributes NO dark intent
-	// entries. config.dark.intent stays available as the consumer surface for
-	// mode-specific intent remaps.
-	const dark = {
-		palette: mergeGroup(
-			stringEntries(palette.theme.dark),
-			flattenRampGroup(config.dark?.palette, 'config.dark.palette'),
-			'--hz-palette-',
-			'config.dark.palette'
-		),
-		color: mergeGroup(
-			stringEntries(color.theme.dark),
-			config.dark?.color,
-			'--hz-color-',
-			'config.dark.color'
-		),
-		intent: mergeGroup([], config.dark?.intent, '--hz-intent-', 'config.dark.intent')
-	};
+	// --- themes ---------------------------------------------------------------
+	// `dark` is seeded from the base metadata: dark is authored entirely at the
+	// palette/role layer (the two-tier rule), so the base contributes NO dark
+	// intent entries — `themes.dark.intent` stays available as the consumer
+	// surface for mode-specific intent remaps. Every other theme seeds from
+	// nothing; it is entirely the consumer's authoring.
+	const dark = resolveTheme('dark', themesConfig?.dark, {
+		palette: stringEntries(palette.theme.dark),
+		color: stringEntries(color.theme.dark)
+	});
+	const themes = Object.entries(themesConfig ?? {})
+		.filter(([name]) => name !== 'dark')
+		.map(([name, override]) => resolveTheme(name, override, { palette: [], color: [] }));
 
 	const resolved: ResolvedConfig = {
 		sections,
@@ -539,6 +622,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 			levels: density.levels
 		},
 		dark,
+		themes,
 		output: config.output,
 		icons: config.icons !== undefined ? [...new Set(config.icons)] : undefined,
 		utilities: resolvedUtilities
@@ -557,9 +641,7 @@ function validateReferences(resolved: ResolvedConfig): void {
 	const defined = new Set<string>(['--hz-density', '--hz-space-near', '--hz-space-away']);
 	const all: TokenEntry[] = [
 		...resolved.sections.flatMap((s) => s.entries),
-		...resolved.dark.palette,
-		...resolved.dark.color,
-		...resolved.dark.intent
+		...[resolved.dark, ...resolved.themes].flatMap((t) => [...t.palette, ...t.color, ...t.intent])
 	];
 	for (const entry of all) defined.add(entry.cssName);
 	for (const entry of all) {
