@@ -14,8 +14,17 @@
  * inline style. Under `prefersReducedMotion.current` (unless `essential`)
  * the element(s) simply appear — no hidden state is ever applied, no
  * observer is created.
+ *
+ * The IntersectionObserver plumbing (create → observe → disconnect, plus the
+ * SSR/absent-global guards and `once`-disconnect semantics) is delegated to
+ * `intersect` from `@hyzer-labs/ui/observers` — the motion-specific parts
+ * (the hidden-state application, per-child `stagger`, the replay-on-exit
+ * reset, and the WAAPI finish/clear cycle) stay here. See the Observers
+ * Foundation page for the raw attachment and the reduced-motion compose
+ * pattern.
  */
 import { prefersReducedMotion } from 'svelte/motion';
+import { intersect } from '../observers/intersect.js';
 import { durations, easingCss } from './tokens.js';
 
 /** The entrance's animation style — mirrors the transition family
@@ -193,31 +202,24 @@ export function reveal(options: RevealOptions = {}): (node: Element) => () => vo
 
 		hide(el, spec);
 
+		// `intersect` owns the observer lifecycle and the `once` disconnect
+		// (it fires only after an *intersecting* delivery, never the initial
+		// non-intersecting one — matching the old inline logic).
 		let played = false;
-		const io = new IntersectionObserver(
-			(entries) => {
-				for (const entry of entries) {
-					if (entry.isIntersecting) {
-						played = true;
-						play(el, resolved, spec);
-						if (resolved.once) {
-							io.disconnect();
-						}
-					} else if (!resolved.once && played) {
-						// Left the viewport — reset to hidden so the next entry
-						// replays the entrance.
-						played = false;
-						hide(el, spec);
-					}
+		return intersect(
+			(entry) => {
+				if (entry.isIntersecting) {
+					played = true;
+					play(el, resolved, spec);
+				} else if (!resolved.once && played) {
+					// Left the viewport — reset to hidden so the next entry
+					// replays the entrance.
+					played = false;
+					hide(el, spec);
 				}
 			},
-			{ threshold: resolved.threshold, rootMargin: resolved.rootMargin }
-		);
-		io.observe(el);
-
-		return () => {
-			io.disconnect();
-		};
+			{ threshold: resolved.threshold, rootMargin: resolved.rootMargin, once: resolved.once }
+		)(el);
 	};
 }
 
@@ -248,28 +250,20 @@ export function revealGroup(options: RevealGroupOptions = {}): (node: Element) =
 
 		for (const child of children) hide(child, spec);
 
+		// One shared observer on the container (via `intersect`), staggering
+		// each snapshotted child's entrance by DOM order.
 		let played = false;
-		const io = new IntersectionObserver(
-			(entries) => {
-				for (const entry of entries) {
-					if (entry.isIntersecting) {
-						played = true;
-						children.forEach((child, i) => play(child, resolved, spec, i * stagger));
-						if (resolved.once) {
-							io.disconnect();
-						}
-					} else if (!resolved.once && played) {
-						played = false;
-						for (const child of children) hide(child, spec);
-					}
+		return intersect(
+			(entry) => {
+				if (entry.isIntersecting) {
+					played = true;
+					children.forEach((child, i) => play(child, resolved, spec, i * stagger));
+				} else if (!resolved.once && played) {
+					played = false;
+					for (const child of children) hide(child, spec);
 				}
 			},
-			{ threshold: resolved.threshold, rootMargin: resolved.rootMargin }
-		);
-		io.observe(container);
-
-		return () => {
-			io.disconnect();
-		};
+			{ threshold: resolved.threshold, rootMargin: resolved.rootMargin, once: resolved.once }
+		)(container);
 	};
 }

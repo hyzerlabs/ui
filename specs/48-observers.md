@@ -195,14 +195,18 @@ onto `mutate` as the first internal dogfood.
    (timer cleared, observer disconnected) on effect re-run/destroy. The Toc
    test suite stays green with no behavioral change.
 
-10. **R10 — `reveal` refactor deferred (documented).** `reveal`/`revealGroup`
-    are **not** refactored onto `intersect` in this spec. Their IO usage is
-    entangled with motion-specific logic — the child snapshot taken once at
-    attach, per-child `stagger` offsets, the `once`-vs-replay hidden-state
-    reset on viewport exit, and the WAAPI finish/clear cycle — all covered by
-    a passing `reveal.svelte.spec.ts`. The marginal DRY win does not justify
-    the regression risk. Recorded here as a deliberate deferral (a possible
-    later follow-up once `intersect` has settled), not an oversight.
+10. **R10 — `reveal` refactored onto `intersect` (done, was deferred).**
+    `reveal`/`revealGroup` now delegate their IntersectionObserver plumbing
+    (create → observe → disconnect, the SSR/absent-global guards, and the
+    `once`-disconnect-after-first-*intersecting*-entry semantics) to
+    `intersect`. The motion-specific logic stays in `src/lib/motion/reveal.ts`:
+    the child snapshot taken once at attach, per-child `stagger` offsets, the
+    `once`-vs-replay hidden-state reset on viewport exit, and the WAAPI
+    finish/clear cycle. The pre-existing `reveal.svelte.spec.ts` (client) and
+    `reveal.spec.ts` (server/SSR) stay green with no behavioral change — the
+    public `@hyzer-labs/ui/motion` surface is unchanged. Originally deferred in
+    this spec (marginal DRY win vs. regression risk); done as the anticipated
+    follow-up once `intersect` had settled.
 
 11. **R11 — Docs: own Foundation page.** New `/foundation/observers` page
     (parallel to `/foundation/motion`, using the standard Foundation/docs
@@ -399,7 +403,8 @@ no DOM, matching the other `*.spec.ts`), and **Playwright** for e2e.
 - Scroll-position/scroll-direction utilities, sticky/pin helpers, or any
   scroll math beyond IntersectionObserver passthrough (Toc keeps its own
   scroll-spy; this module does not absorb it).
-- Refactoring `reveal`/`revealGroup` onto `intersect` (R10 — deferred).
+- (Done in R10 — no longer a non-goal: `reveal`/`revealGroup` now delegate to
+  `intersect` internally.)
 - A component, Svelte action, or plain-function form of any observer (R5).
 - A reduced-motion helper or any duplication of `svelte/motion`'s
   `prefersReducedMotion` (R7).
