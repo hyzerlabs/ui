@@ -27,11 +27,25 @@
 	// Placement + alignment.
 	// ------------------------------------------------------------------
 
-	const placements = ['top-start', 'top-end', 'bottom-start', 'bottom-end'] as const;
+	// The eight placements around an empty center cell — the Tooltip page's
+	// ring layout. A `null` marks the empty cell: keeps left/right on the
+	// middle row and bottom-* together on their own row.
+	const placements = [
+		'top-start',
+		'top',
+		'top-end',
+		'left',
+		null,
+		'right',
+		'bottom-start',
+		'bottom',
+		'bottom-end'
+	] as const;
 
 	const placementCode = [
 		'<Popover triggerLabel="bottom-start" placement="bottom-start"><p>Panel content</p></Popover>',
-		"<!-- …one per placement: 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end' -->"
+		"<!-- …one per placement: a side ('top' | 'bottom' | 'left' | 'right'),",
+		"     optionally suffixed -start or -end, e.g. 'top-end' -->"
 	].join('\n');
 
 	// ------------------------------------------------------------------
@@ -84,10 +98,14 @@
 					</p>
 					<Example code={placementCode}>
 						<div class="placement-grid">
-							{#each placements as p (p)}
-								<Popover triggerLabel={p} placement={p}>
-									<p class="panel-demo-text">Panel content</p>
-								</Popover>
+							{#each placements as p (p ?? 'empty')}
+								{#if p === null}
+									<div class="placement-grid-empty" aria-hidden="true"></div>
+								{:else}
+									<Popover triggerLabel={p} placement={p}>
+										<p class="panel-demo-text">Panel content</p>
+									</Popover>
+								{/if}
 							{/each}
 						</div>
 					</Example>
@@ -142,9 +160,10 @@
 
 	.placement-grid {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(0, max-content));
-		gap: 3rem 2rem;
-		padding: 2rem 3rem;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 2.5rem 1rem;
+		justify-items: center;
+		padding: 2rem 1rem;
 	}
 
 	.panel-demo-text {

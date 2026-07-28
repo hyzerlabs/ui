@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
+	import { goto, onNavigate } from '$app/navigation';
+	import { prefersReducedMotion } from 'svelte/motion';
 	import { Button, Nav, Toc } from '$lib';
 	import type { NavChild } from '$lib/types';
 	import IconSun from '$lib/icons/generated/sun.svelte';
@@ -119,10 +120,44 @@
 		}
 	});
 
+	// Smooth light/dark flip: a temporary class turns on short color
+	// transitions everywhere for the duration of the swap (removed right
+	// after, so it never taxes normal interaction). Deliberately NOT a view
+	// transition — no interplay with the route fade below, and it works in
+	// browsers without the View Transitions API. Skipped under reduced
+	// motion: the flip is then instant, which is the calmer option.
+	let themeTransitionTimer: ReturnType<typeof setTimeout> | undefined;
 	function toggleTheme() {
+		if (!prefersReducedMotion.current) {
+			document.documentElement.classList.add('theme-transition');
+			clearTimeout(themeTransitionTimer);
+			// Transitions run 250ms, but the flip triggers a full-page style
+			// recalc that can jank the last frames — removing the class while
+			// a transition is still mid-flight cancels it and the colors snap
+			// (an end-of-toggle flicker). The generous margin absorbs that.
+			themeTransitionTimer = setTimeout(() => {
+				document.documentElement.classList.remove('theme-transition');
+			}, 500);
+		}
 		dark = !dark;
 		localStorage.setItem('hz-theme', dark ? 'dark' : 'light');
 	}
+
+	// Route transitions: cross-fade ONLY the page content between routes —
+	// the shell (sidebar, header, rails) must not move, so the root
+	// snapshot's animation is disabled in CSS below and .docs-main-inner
+	// carries its own view-transition-name. No-op in browsers without the
+	// View Transitions API and under reduced motion.
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) return;
+		if (prefersReducedMotion.current) return;
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
+	});
 
 	function toggleMobileNav() {
 		mobileNavOpen = !mobileNavOpen;
@@ -593,6 +628,35 @@
 
 	.docs-main-inner {
 		max-width: 56rem;
+		/* Route transitions (onNavigate above): only the page content
+		 * participates in the cross-fade; the root snapshot is pinned
+		 * static below so the shell never moves. */
+		view-transition-name: docs-content;
+	}
+
+	/* Shell stays intact during a route transition — the root snapshot
+	 * swaps instantly; only docs-content (above) cross-fades. */
+	:global(::view-transition-old(root)),
+	:global(::view-transition-new(root)) {
+		animation: none;
+	}
+
+	/* Smooth light/dark flip (toggleTheme above): while html carries the
+	 * temporary class, every color-ish property eases instead of snapping.
+	 * !important intentionally overrides component transitions for these
+	 * ~300ms so nothing strobes at its own timing mid-flip. */
+	:global(html.theme-transition),
+	:global(html.theme-transition *),
+	:global(html.theme-transition *::before),
+	:global(html.theme-transition *::after) {
+		transition:
+			background-color 250ms ease,
+			color 250ms ease,
+			border-color 250ms ease,
+			outline-color 250ms ease,
+			fill 250ms ease,
+			stroke 250ms ease,
+			box-shadow 250ms ease !important;
 	}
 
 	/* Reserve the "On this page" gutter (.docs-toc-rail below shows under the

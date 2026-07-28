@@ -48,7 +48,7 @@
 	// ------------------------------------------------------------------
 
 	const longTextCode = [
-		'<Button ariaLabel="Delete round" {@attach tooltip({',
+		'<Button ariaLabel="Delete round" intent="danger" {@attach tooltip({',
 		"\ttext: 'This permanently deletes the round and every scorecard linked to it. This cannot be undone.',",
 		"\tplacement: 'top'",
 		'})}>',
@@ -115,6 +115,7 @@
 					<Example code={longTextCode}>
 						<Button
 							ariaLabel="Delete round"
+							intent="danger"
 							{@attach tooltip({
 								text: 'This permanently deletes the round and every scorecard linked to it. This cannot be undone.',
 								placement: 'top'
