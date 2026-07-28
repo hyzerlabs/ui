@@ -182,6 +182,12 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 			clearCloseTimer();
 			closeTimer = setTimeout(() => {
 				closeTimer = null;
+				// Focus parity (APG): the tooltip stays while EITHER hover or
+				// focus holds it — a pointer leave must not hide a tooltip the
+				// trigger's focus still holds open (e.g. the page scrolled the
+				// trigger out from under the cursor). Blur is that session's
+				// own hide path.
+				if (trigger === document.activeElement) return;
 				hide();
 			}, closeDelay);
 		}

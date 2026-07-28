@@ -102,6 +102,15 @@
 	font-size: var(--hz-font-size-base, 1rem);
 }
 
+/* `full` — the md cell, stretched to fill its container. */
+.hz-theme-terminal .hz-button[data-size='full'] {
+	display: flex;
+	width: 100%;
+	padding: 0.5rem 1rem;
+	min-height: 2.5rem;
+	font-size: var(--hz-font-size-sm, 0.875rem);
+}
+
 /* Icon-only — a square cell, never a circle. */
 .hz-theme-terminal .hz-button[data-icon-only] {
 	padding: 0;
@@ -143,23 +152,23 @@
 	color: var(--hz-button-accent);
 }
 
-/* Variant: link — a lit string of text. */
-.hz-theme-terminal .hz-button[data-variant='link'] {
-	padding-inline: 0;
-	min-height: auto;
-	background-color: transparent;
+/* Variant: soft — the reference theme's Badge soft recipe, restyled for the
+ * tube: no tint math, same object as outline/soft but with the fill dropped.
+ * (Terminal's Badge soft already declines --hz-badge-tint for the same
+ * reason — no mixing at all, so no contrast surprises.) */
+.hz-theme-terminal .hz-button[data-variant='soft'] {
+	background-color: var(--hz-color-surface, #0b0f0b);
 	border-color: transparent;
 	color: var(--hz-button-accent);
-	text-decoration: underline;
-	text-decoration-thickness: 1px;
-	text-underline-offset: 0.2em;
 }
 
 /* Hover — the phosphor floods the cell and the glyphs knock out. Solid is
  * already flooded, so it inverts the other way: the light drops out and the
  * outline remains. */
 .hz-theme-terminal
-	.hz-button:is([data-variant='outline'], [data-variant='ghost']):hover:not([data-state]) {
+	.hz-button:is([data-variant='outline'], [data-variant='ghost'], [data-variant='soft']):hover:not(
+		[data-state]
+	) {
 	background-color: var(--hz-button-accent);
 	border-color: var(--hz-button-accent);
 	color: var(--hz-button-on-accent);
@@ -173,18 +182,13 @@
 	box-shadow: none;
 }
 
-.hz-theme-terminal .hz-button[data-variant='link']:hover:not([data-state]) {
-	color: var(--hz-button-accent);
-	text-decoration-thickness: 2px;
-	text-shadow: var(--hz-button-glow);
-}
-
 /* Active — the beam surges. */
 .hz-theme-terminal
 	.hz-button:is(
 		[data-variant='solid'],
 		[data-variant='outline'],
-		[data-variant='ghost']
+		[data-variant='ghost'],
+		[data-variant='soft']
 	):active:not([data-state]) {
 	background-color: var(--hz-button-accent);
 	color: var(--hz-button-on-accent);
@@ -217,11 +221,6 @@
  * `hz-spin` name here would redefine it for every page that loads both. */
 .hz-theme-terminal .hz-button[data-state='loading'] .hz-icon {
 	animation: hz-terminal-spin 0.8s steps(8, end) infinite;
-}
-
-.hz-theme-terminal .hz-button[data-full-width] {
-	display: flex;
-	width: 100%;
 }
 
 @keyframes hz-terminal-spin {

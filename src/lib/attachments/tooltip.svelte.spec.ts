@@ -162,6 +162,27 @@ describe('tooltip() — hover-intent + focus parity (R-TT-3)', () => {
 		cleanup();
 	});
 
+	it('a pointer leave never hides a tooltip the trigger’s focus still holds open (APG parity)', () => {
+		// E.g. scrolling moves the trigger out from under the cursor while it
+		// keeps focus — the tooltip must stay until blur.
+		vi.useFakeTimers();
+		const trigger = makeTrigger();
+		const cleanup = tooltip('Hi')(trigger);
+
+		trigger.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+		trigger.focus();
+		expect(activeTooltip()).not.toBeNull();
+
+		trigger.dispatchEvent(new PointerEvent('pointerleave', { pointerType: 'mouse' }));
+		vi.advanceTimersByTime(1000);
+		expect(activeTooltip()).not.toBeNull();
+
+		trigger.blur();
+		expect(activeTooltip()).toBeNull();
+
+		cleanup();
+	});
+
 	it('does not open on a touch/coarse pointer (R-TT-8)', () => {
 		vi.useFakeTimers();
 		const trigger = makeTrigger();
@@ -212,8 +233,11 @@ describe('tooltip() — SC 1.4.13 (R-TT-4)', () => {
 		vi.useFakeTimers();
 		const trigger = makeTrigger();
 		const cleanup = tooltip({ text: 'Hi', closeDelay: 150 })(trigger);
-		trigger.focus();
+		// Hover-only (no focus): a focused trigger would hold the tooltip open
+		// through every pointer leave below (focus parity), which is not what
+		// this test is about.
 		trigger.dispatchEvent(new PointerEvent('pointerenter', { pointerType: 'mouse' }));
+		vi.advanceTimersByTime(400);
 		const node = activeTooltip();
 		expect(node).not.toBeNull();
 

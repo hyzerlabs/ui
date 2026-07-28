@@ -15,6 +15,35 @@
 > existing files plus the additions here — the spec below describes the **final
 > `Loading` design**, not a from-scratch build.
 
+> **AMENDMENT 2026-07-27 — the `spinner`/`ring` variant split (supersedes the
+> variant taxonomy below wherever they conflict; user-approved, greenfield so
+> the break is free).** `LoadingVariant` becomes **`'bar' | 'spinner' | 'ring'
+> | 'dots'`** — one variant, one shape:
+> - **`spinner`** is now **indeterminate-only** (like `dots`): the spinning
+>   `IconLoader` glyph. A `value` on `spinner` is **ignored with a dev warning**
+>   — it no longer becomes a ring. (This removes the old "spinner + value → ring"
+>   enhancement.)
+> - **`ring`** is the new home of **all circular** progress:
+>   - **No `value` (indeterminate):** a rotating SVG arc with an **arc-length
+>     pulse** — the visible arc breathes between short and long via
+>     `stroke-dasharray`/`stroke-dashoffset` keyframes while a separate rotation
+>     keyframe spins it (the Material-style indeterminate circular loader).
+>     **No value readout** is rendered. The rotation is always `linear` (an eased
+>     spin stutters, per Decision 7); the dash breathe is a reversing pulse (not
+>     a translation loop) and **does** pick up `--hz-loading-ease` (like `dots`).
+>   - **`value` present (determinate):** exactly today's determinate ring — the
+>     static SVG arc filled to `value / max` with the centered `%` readout
+>     (`showValue`). Static, no animation (the placeholder/value carries the cue).
+> - **Reduced motion (Decision 9 exception still applies):** the indeterminate
+>   `ring` keeps animating, slowed via `--_loading-rm-scale`, never frozen — both
+>   its rotation and its dash breathe. The determinate `ring` is static regardless.
+> - **Parts/hooks:** the existing `.hz-loading-ring` / `-ring-track` / `-ring-fill`
+>   classes and `--hz-loading-ring-width` now belong to the **`ring`** variant;
+>   `.hz-loading-spinner` is only ever the glyph. `data-variant` gains `'ring'`.
+> - **Docs:** the determinate-circular examples move to `variant="ring" value=…`;
+>   add an indeterminate `variant="ring"` example (no value, the pulsing spin).
+>   Implemented AFTER the Tooltip/Popover work commits (shared-file overlap).
+
 ### Goal
 
 Ship two headless Svelte 5 components in the Components → **Common** group:

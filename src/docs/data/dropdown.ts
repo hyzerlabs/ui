@@ -36,7 +36,7 @@ export const dropdownDoc: ComponentDoc = {
 			default: '— (⇒ IconChevronDown)',
 			note: 'Decorative; the labeled trigger renders it trailing, the icon-only trigger renders it alone.'
 		},
-		{ name: 'align', type: "'start' | 'end'", default: "'start'" },
+		{ name: 'align', type: "'start' | 'center' | 'end'", default: "'start'" },
 		{
 			name: 'onselect',
 			type: '(id: string, item: DropdownItem) => void',

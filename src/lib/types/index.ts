@@ -171,13 +171,28 @@ export interface IntentRegistry {
 export type Intent = keyof IntentRegistry;
 
 /** Visual style variants */
-export type Variant = 'solid' | 'outline' | 'ghost' | 'link';
+export type Variant = 'solid' | 'outline' | 'ghost' | 'soft';
 
 /**
  * Corner radius scale, mirroring the --hz-radius-* tokens.
  * Shared by every `rounded` prop (Badge; Card/Image migrate in a follow-up).
  */
 export type Rounded = 'none' | 'sm' | 'md' | 'lg' | 'full';
+
+/**
+ * Loading's shape vocabulary (specs/49, amended 2026-07-27 — the spinner/ring
+ * split) — one variant, one shape:
+ * - `bar` — a linear progress bar; indeterminate by default, a determinate
+ *   native `<progress>` with a `value`.
+ * - `spinner` — the spinning `IconLoader` glyph. Indeterminate-only: a
+ *   `value` is ignored (dev-warn).
+ * - `ring` — the sole home of circular progress. No `value` ⇒ a
+ *   continuously rotating arc whose length pulses (no numeric readout);
+ *   `value` present ⇒ a static determinate arc with an optional centered
+ *   readout.
+ * - `dots` — a three-dot ellipsis loader. Indeterminate-only, like spinner.
+ */
+export type LoadingVariant = 'bar' | 'spinner' | 'ring' | 'dots';
 
 /** Props shared by every form field. */
 export interface FieldBase {

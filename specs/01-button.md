@@ -7,9 +7,37 @@
 ### Goal
 
 Ship a headless, accessible Svelte 5 `Button` that renders a native `<button>`
-(or `<a role="button">` when `href` is set), exposing variant/intent/size/state
-via data attributes with zero visual CSS, so any consuming site styles it via
-the documented hooks.
+(or an `<a>` when `href` is set), exposing variant/intent/size/state via data
+attributes with zero visual CSS, so any consuming site styles it via the
+documented hooks.
+
+> **AMENDMENT 2026-07-27 — Button tweak batch (user-approved; supersedes R3/R5/
+> R7/R8 and the Props table below wherever they conflict; greenfield so breaks
+> are free). NOT YET BUILT — implement AFTER Tooltip/Popover commits (shared-file
+> overlap: `types/index.ts` `Variant`, `hooks.ts`, `docs.e2e.ts`).**
+>
+> 1. **`variant` — drop `link`, add `soft`.** The shared `Variant` type becomes
+>    **`'solid' | 'outline' | 'ghost' | 'soft'`** (was `… | 'link'`). `soft` is
+>    an **intent-tinted** variant using the **Badge `soft` recipe** — the intent
+>    color `color-mix`-ed into the surface as the background with intent-colored
+>    text, mode-aware (reuse the `--hz-badge-tint`-style hook; must pass the
+>    contrast suite). `link` is **removed entirely** (button.css + the terminal
+>    example theme + docs): a link-looking control is `<Link>`'s job. Since
+>    `Variant` is shared, Dropdown/Popover trigger `variant` gain `soft` / lose
+>    `link` too (both default `outline`, so no runtime break).
+> 2. **`size` — add `'full'`.** `ButtonSize` becomes **`'sm' | 'md' | 'lg' |
+>    'full'`**. `size="full"` renders **full width at the `md` height/padding**;
+>    the **`fullWidth` prop and `data-full-width` are removed** (R7 withdrawn).
+>    Trade-off accepted: full-width is no longer combinable with `sm`/`lg`.
+> 3. **`href` stays; drop `role="button"`.** A Button with `href` still renders
+>    an `<a>` styled as a button (the CTA case), but as a **plain semantic `<a>`
+>    (no `role="button"`)** — it genuinely navigates. The disabled/loading nav
+>    guard (omit `href`, `aria-disabled`, swallow click) stays. Docs get a crisp
+>    **Button vs Link** rule: *link appearance → `<Link>`; button appearance →
+>    `<Button>` (+`href` if it navigates).*
+> 4. **Docs:** add an **Intents** tab (Button across every intent); the Sizes
+>    demo shows one **solid `size="full"`** button under the `lg` row; variants
+>    demo drops `link`, adds `soft`; add the Button-vs-Link guidance.
 
 ### Context & Conventions
 

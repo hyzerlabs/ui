@@ -1203,7 +1203,7 @@ export const hooks: Record<string, ComponentHooks> = {
 		attrs: [
 			{
 				name: 'data-variant',
-				values: "'solid' | 'outline' | 'ghost' | 'link'",
+				values: "'solid' | 'outline' | 'ghost' | 'soft'",
 				note: 'Default solid.'
 			},
 			{
@@ -1211,7 +1211,11 @@ export const hooks: Record<string, ComponentHooks> = {
 				values: "'neutral' | any registered intent",
 				note: 'The full vocabulary, not a hand-picked subset — register an intent and Button stamps it. Sets --hz-button-accent.'
 			},
-			{ name: 'data-size', values: "'sm' | 'md' | 'lg'", note: 'Default md.' },
+			{
+				name: 'data-size',
+				values: "'sm' | 'md' | 'lg' | 'full'",
+				note: 'Default md. full fills its container at the md height/padding — not combinable with sm/lg.'
+			},
 			{
 				name: 'data-state',
 				values: "'disabled' | 'loading' | absent",
@@ -1221,19 +1225,23 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: 'data-icon-only',
 				values: 'present when icon-only',
 				note: 'Derived: an icon with no children. Renders the circle form.'
-			},
-			{ name: 'data-full-width', values: 'present when full-width', note: 'Fills its container.' }
+			}
 		],
 		props: [
 			{
 				name: '--hz-button-accent',
 				values: '<color> — default var(--hz-intent-primary)',
-				note: 'The accent every variant derives from. Override it to restyle solid, outline, ghost, and link at once — and it is how you wire up an intent you registered yourself.'
+				note: 'The accent every variant derives from. Override it to restyle solid, outline, ghost, and soft at once — and it is how you wire up an intent you registered yourself.'
 			},
 			{
 				name: '--hz-button-on-accent',
 				values: '<color> — default var(--hz-color-surface)',
 				note: 'Text colour on a solid fill. The surface role rather than white, so it flips with the mode and keeps solid text ≥ 4.5:1 in both.'
+			},
+			{
+				name: '--hz-button-tint',
+				values: '<percentage> — 14% light, 28% dark',
+				note: 'Soft-variant background tint strength — the same recipe and hook pattern as --hz-badge-tint.'
 			}
 		]
 	},
@@ -1452,7 +1460,16 @@ export const hooks: Record<string, ComponentHooks> = {
 				values: 'present while open',
 				note: 'Hides the closed menu and rotates the chevron.'
 			},
-			{ name: 'data-align', values: "'start' | 'end'", note: 'Which edge the menu hangs from.' },
+			{
+				name: 'data-side',
+				values: "'bottom' | 'top'",
+				note: 'On .hz-dropdown-menu — the resolved side, bottom unless flipped for lack of room below. See Positioning for the caret recipe.'
+			},
+			{
+				name: 'data-align',
+				values: "'start' | 'center' | 'end'",
+				note: 'On .hz-dropdown-menu — which edge the menu hangs from (or centered), RTL-aware.'
+			},
 			{
 				name: 'data-danger',
 				values: 'present on danger items',
@@ -1658,7 +1675,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-side',
 				values: "'top' | 'bottom' | 'left' | 'right'",
-				note: "The resolved, physical side — after any overflow flip and after RTL resolves left/right through the trigger's direction. Key a caret of your own off this if you want one."
+				note: 'The resolved, physical side — after any overflow flip and RTL resolution. See Positioning for the caret recipe.'
 			},
 			{
 				name: 'data-align',
@@ -1695,7 +1712,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-side',
 				values: "'top' | 'bottom' | 'left' | 'right'",
-				note: "On .hz-popover-panel — the resolved, physical side (after any overflow flip and RTL resolution through the trigger's direction). Key a caret of your own off this if you want one."
+				note: 'On .hz-popover-panel — the resolved, physical side. See Positioning for the caret recipe.'
 			},
 			{
 				name: 'data-align',
@@ -1720,7 +1737,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: '.hz-popover-content',
 				values: 'child element',
-				note: 'The scroll container inside the panel — padding and max-height live here, keeping the panel itself overflow-visible so a caret you draw (keyed off data-side) can protrude without being clipped.'
+				note: 'The scroll container inside the panel — the panel itself stays overflow-visible so a caret you draw can protrude. See Positioning for the recipe.'
 			}
 		]
 	},
@@ -1855,17 +1872,17 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-size',
 				values: "'sm' | 'md' | 'lg'",
-				note: 'Bar thickness, spinner-ring diameter, and dot size. Default md.'
+				note: 'Bar thickness, spinner/ring diameter, and dot size. Default md.'
 			},
 			{
 				name: 'data-variant',
-				values: "'bar' | 'spinner' | 'dots'",
-				note: 'Default bar. dots is indeterminate-only; a value on spinner is valid and renders a determinate ring.'
+				values: "'bar' | 'spinner' | 'ring' | 'dots'",
+				note: 'Default bar. spinner and dots are indeterminate-only — a value passed to either is ignored (dev-warn). ring is the sole home of circular progress: determinate with a value (a static arc), indeterminate without one (a rotating, arc-length-pulsing loader).'
 			},
 			{
 				name: 'data-indeterminate',
 				values: 'present when there is no value',
-				note: 'Present whenever value is absent/NaN on bar or spinner, and always for dots (indeterminate by construction). :not([data-indeterminate]) selects a determinate form — the linear bar or the circular ring.'
+				note: 'Present whenever value is absent/NaN on bar or ring, and always for spinner and dots (both indeterminate-only by construction). :not([data-indeterminate]) selects a determinate form — the linear bar or the (value-bearing) circular ring.'
 			}
 		],
 		props: [
@@ -1882,27 +1899,27 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: '--hz-loading-size',
 				values: '<length> — defaulted per data-size',
-				note: 'Bar thickness for the bar; spinner-glyph / ring diameter for the spinner; dot diameter for dots — each defaulted per data-size.'
+				note: 'Bar thickness for the bar; spinner-glyph / ring diameter for the spinner and ring; dot diameter for dots — each defaulted per data-size.'
 			},
 			{
 				name: '--hz-loading-ring-width',
 				values: '<length> — default calc(var(--hz-loading-size) / 8)',
-				note: 'The determinate ring’s stroke width, scaled off --hz-loading-size so it stays proportional to the ring diameter. Applied with vector-effect: non-scaling-stroke so it stays a true length under the SVG viewBox scale.'
+				note: 'The ring’s stroke width (both the determinate static arc and the indeterminate rotating/pulsing arc), scaled off --hz-loading-size so it stays proportional to the ring diameter. Applied with vector-effect: non-scaling-stroke so it stays a true length under the SVG viewBox scale.'
 			},
 			{
 				name: '--hz-loading-speed',
 				values: '<time> — default calc(var(--hz-duration-base) * 6) ≈ 2.4s',
-				note: 'Base duration of the indeterminate animations: the spinner rotation and the dots cycle run at exactly this; the bar sweep runs at 1.6x it. Anchored to the --hz-duration-* scale rather than a bare token, since that scale is tuned for one-shot transitions, not continuous loops. Under reduced motion the effective duration is slowed (≈2x, ≈4.8s), never zeroed — Loading keeps animating (the deliberate exception; contrast Skeleton). The determinate ring/bar are static, so this hook is moot for them.'
+				note: 'Base duration of the indeterminate animations: the spinner rotation, the dots cycle, and the indeterminate ring’s rotation + arc-length pulse all run at exactly this; the bar sweep runs at 1.6x it. Anchored to the --hz-duration-* scale rather than a bare token, since that scale is tuned for one-shot transitions, not continuous loops. Under reduced motion the effective duration is slowed (≈2x, ≈4.8s), never zeroed — indeterminate Loading keeps animating (the deliberate exception; contrast Skeleton). The determinate bar/ring are static, so this hook is moot for them.'
 			},
 			{
 				name: '--hz-loading-ease',
 				values: '<timing-function> — default var(--hz-ease-standard)',
-				note: 'Easing of the dots cycle only. The spinner spin and the bar sweep are always linear, independent of this hook — an eased rotation or looping sweep reads as stuttering (it slows to a stop and restarts each cycle).'
+				note: 'Easing of the dots cycle and the indeterminate ring’s arc-length pulse — both reverse in place rather than travel, so an ease reads cleanly. The spinner spin, the ring’s rotation, and the bar sweep are always linear, independent of this hook — an eased rotation or looping sweep reads as stuttering (it slows to a stop and restarts each cycle).'
 			},
 			{
 				name: '--hz-loading-pulse-width',
 				values: '<percentage> — default 150%',
-				note: "Width of the indeterminate bar's moving highlight (its “pulse”) as a percentage of the bar's own width. Wider reads softer and more ambient — the peak stays a point at the band center, so a wide value fades gently over a long distance. Values up to ~200% keep the loop seamless. Affects the indeterminate bar only."
+				note: "Width of the indeterminate bar's moving highlight (its “pulse”) as a percentage of the bar's own width. Wider reads softer and more ambient — the peak stays a point at the band center, so a wide value fades gently over a long distance. Values up to ~200% keep the loop seamless. Affects the indeterminate bar only (unrelated to the ring's own arc-length pulse)."
 			}
 		],
 		parts: [
@@ -1914,17 +1931,22 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: '.hz-loading-value',
 				values: 'child element',
-				note: 'The formatted readout, present only with showValue on a determinate form (the bar, inline; the ring, centered).'
+				note: 'The formatted readout, present only with showValue on a determinate form (the bar, inline; the ring, centered). Never present on the indeterminate ring.'
 			},
 			{
 				name: '.hz-loading-spinner',
 				values: 'child element',
-				note: 'The spinner-variant wrapper — role="progressbar". Wraps the indeterminate IconLoader glyph (aria-busy="true") or the determinate ring (aria-valuemin/max/now, no aria-busy).'
+				note: 'The spinner-variant wrapper — role="progressbar" aria-busy="true". Wraps the indeterminate IconLoader glyph. spinner is indeterminate-only; see ring for determinate circular progress.'
+			},
+			{
+				name: '.hz-loading-ring-wrapper',
+				values: 'child element',
+				note: 'The ring-variant wrapper — role="progressbar". Carries aria-busy="true" around the indeterminate rotating/pulsing arc, or aria-valuemin/max/now (no aria-busy) around the determinate static arc.'
 			},
 			{
 				name: '.hz-loading-ring',
 				values: 'child element',
-				note: 'The determinate spinner’s SVG ring — a static arc, role="img" aria-hidden="true" (the wrapper carries the ARIA).'
+				note: 'The ring’s SVG — a static arc when determinate, a continuously rotating arc-length-pulsing loop when indeterminate. role="img" aria-hidden="true" (the wrapper carries the ARIA).'
 			},
 			{
 				name: '.hz-loading-ring-track',
@@ -1934,7 +1956,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: '.hz-loading-ring-fill',
 				values: 'child element',
-				note: 'The ring’s arc circle. stroke-dasharray is a theme hook; the live stroke-dashoffset fraction is written inline by the component (the Slider-fill precedent), not a documented hook.'
+				note: 'The ring’s arc circle. stroke-dasharray is a theme hook; for a determinate ring the live stroke-dashoffset fraction is written inline by the component (the Slider-fill precedent), not a documented hook. An indeterminate ring instead animates this circle’s rotation and dash length entirely in the theme.'
 			},
 			{
 				name: '.hz-loading-dots',

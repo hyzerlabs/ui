@@ -108,16 +108,21 @@ describe('Loading-R1/R2 — structure and data hooks', () => {
 		expect(root.querySelector('progress')).toBeNull();
 	});
 
-	it('data-indeterminate is always present for dots regardless of value; absent for a determinate spinner ring', () => {
+	it('data-indeterminate is always present for spinner/dots regardless of value; absent for a determinate ring', () => {
 		const warnSpy = silenceWarn();
 		const dots = render(Loading, { variant: 'dots', value: 50, label: 'Loading' });
 		expect(getLoading(dots.container).hasAttribute('data-indeterminate')).toBe(true);
+
+		// Amendment 2026-07-27: spinner is indeterminate-only too — a value on
+		// it is ignored (dev-warn), so data-indeterminate stays present.
+		const spinner = render(Loading, { variant: 'spinner', value: 50, label: 'Saving' });
+		expect(getLoading(spinner.container).hasAttribute('data-indeterminate')).toBe(true);
 		warnSpy.mockRestore();
 
-		// R3: a value on the spinner is now valid — the determinate ring — so
-		// data-indeterminate is absent, unlike dots.
-		const spinner = render(Loading, { variant: 'spinner', value: 50, label: 'Saving' });
-		expect(getLoading(spinner.container).hasAttribute('data-indeterminate')).toBe(false);
+		// R3: a value on ring is the valid determinate arc — data-indeterminate
+		// is absent, unlike spinner/dots.
+		const ring = render(Loading, { variant: 'ring', value: 50, label: 'Uploading' });
+		expect(getLoading(ring.container).hasAttribute('data-indeterminate')).toBe(false);
 	});
 });
 
@@ -180,12 +185,12 @@ describe('Loading-R3 — determinate semantics', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Loading-R3 — Determinate ring (variant="spinner" + value)
+// Loading-R3 — Determinate ring (variant="ring" + value)
 // ---------------------------------------------------------------------------
 
 describe('Loading-R3 — determinate ring', () => {
 	it('renders .hz-loading-ring with a track and a fill circle, no <progress>, no IconLoader', () => {
-		const { container } = render(Loading, { variant: 'spinner', value: 40, label: 'Uploading' });
+		const { container } = render(Loading, { variant: 'ring', value: 40, label: 'Uploading' });
 		const root = getLoading(container);
 		expect(root.querySelector('progress')).toBeNull();
 		expect(root.querySelector('svg.hz-icon')).toBeNull();
@@ -195,25 +200,25 @@ describe('Loading-R3 — determinate ring', () => {
 		expect(ring?.querySelector('circle.hz-loading-ring-fill')).not.toBeNull();
 	});
 
-	it('the SVG ring is aria-hidden — ARIA lives on the .hz-loading-spinner wrapper', () => {
-		const { container } = render(Loading, { variant: 'spinner', value: 40, label: 'Uploading' });
+	it('the SVG ring is aria-hidden — ARIA lives on the .hz-loading-ring-wrapper', () => {
+		const { container } = render(Loading, { variant: 'ring', value: 40, label: 'Uploading' });
 		const root = getLoading(container);
 		const ring = root.querySelector('svg.hz-loading-ring');
 		expect(ring?.getAttribute('aria-hidden')).toBe('true');
-		const wrapper = root.querySelector('.hz-loading-spinner');
+		const wrapper = root.querySelector('.hz-loading-ring-wrapper');
 		expect(wrapper?.getAttribute('role')).toBe('progressbar');
 		expect(wrapper?.getAttribute('aria-label')).toBe('Uploading');
 	});
 
 	it('the wrapper carries aria-valuemin/max/now and NO aria-busy, and data-indeterminate is absent', () => {
 		const { container } = render(Loading, {
-			variant: 'spinner',
+			variant: 'ring',
 			value: 40,
 			max: 80,
 			label: 'Uploading'
 		});
 		const root = getLoading(container);
-		const wrapper = root.querySelector('.hz-loading-spinner') as HTMLElement;
+		const wrapper = root.querySelector('.hz-loading-ring-wrapper') as HTMLElement;
 		expect(wrapper.getAttribute('aria-valuemin')).toBe('0');
 		expect(wrapper.getAttribute('aria-valuemax')).toBe('80');
 		expect(wrapper.getAttribute('aria-valuenow')).toBe('40');
@@ -222,20 +227,20 @@ describe('Loading-R3 — determinate ring', () => {
 	});
 
 	it('the fill circle stroke-dashoffset is 100 - (clamped/max)*100: 0 → 100, max → 0, over-max clamps to 0', () => {
-		const zero = render(Loading, { variant: 'spinner', value: 0, max: 100, label: 'Uploading' });
+		const zero = render(Loading, { variant: 'ring', value: 0, max: 100, label: 'Uploading' });
 		const zeroFill = getLoading(zero.container).querySelector(
 			'.hz-loading-ring-fill'
 		) as SVGElement;
 		expect(zeroFill.style.strokeDashoffset).toBe('100');
 
-		const full = render(Loading, { variant: 'spinner', value: 100, max: 100, label: 'Uploading' });
+		const full = render(Loading, { variant: 'ring', value: 100, max: 100, label: 'Uploading' });
 		const fullFill = getLoading(full.container).querySelector(
 			'.hz-loading-ring-fill'
 		) as SVGElement;
 		expect(fullFill.style.strokeDashoffset).toBe('0');
 
 		const overMax = render(Loading, {
-			variant: 'spinner',
+			variant: 'ring',
 			value: 150,
 			max: 100,
 			label: 'Uploading'
@@ -245,30 +250,30 @@ describe('Loading-R3 — determinate ring', () => {
 		) as SVGElement;
 		expect(overMaxFill.style.strokeDashoffset).toBe('0');
 
-		const half = render(Loading, { variant: 'spinner', value: 50, max: 100, label: 'Uploading' });
+		const half = render(Loading, { variant: 'ring', value: 50, max: 100, label: 'Uploading' });
 		const halfFill = getLoading(half.container).querySelector(
 			'.hz-loading-ring-fill'
 		) as SVGElement;
 		expect(halfFill.style.strokeDashoffset).toBe('50');
 	});
 
-	it('the ring has no spin animation (static, determinate)', () => {
-		const { container } = render(Loading, { variant: 'spinner', value: 40, label: 'Uploading' });
-		const ring = getLoading(container).querySelector('.hz-loading-ring') as SVGElement;
-		expect(getComputedStyle(ring).animationName).toBe('none');
+	it('the determinate ring fill has no animation (static)', () => {
+		const { container } = render(Loading, { variant: 'ring', value: 40, label: 'Uploading' });
+		const fill = getLoading(container).querySelector('.hz-loading-ring-fill') as SVGElement;
+		expect(getComputedStyle(fill).animationName).toBe('none');
 	});
 
 	it('aria-valuetext is present for a custom format or non-100 max, and matches the centered readout', () => {
 		const format = (v: number, max: number) => `${v} of ${max} files`;
 		const { container } = render(Loading, {
-			variant: 'spinner',
+			variant: 'ring',
 			value: 3,
 			max: 5,
 			label: 'Import',
 			format,
 			showValue: true
 		});
-		const wrapper = getLoading(container).querySelector('.hz-loading-spinner') as HTMLElement;
+		const wrapper = getLoading(container).querySelector('.hz-loading-ring-wrapper') as HTMLElement;
 		const readout = getLoading(container).querySelector('.hz-loading-value');
 		expect(wrapper.getAttribute('aria-valuetext')).toBe('3 of 5 files');
 		expect(readout?.tagName.toLowerCase()).toBe('span');
@@ -276,9 +281,53 @@ describe('Loading-R3 — determinate ring', () => {
 	});
 
 	it('aria-valuetext is absent at the default percentage format and max=100', () => {
-		const { container } = render(Loading, { variant: 'spinner', value: 62, label: 'Uploading' });
-		const wrapper = getLoading(container).querySelector('.hz-loading-spinner') as HTMLElement;
+		const { container } = render(Loading, { variant: 'ring', value: 62, label: 'Uploading' });
+		const wrapper = getLoading(container).querySelector('.hz-loading-ring-wrapper') as HTMLElement;
 		expect(wrapper.hasAttribute('aria-valuetext')).toBe(false);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Loading-R3/Amendment — Indeterminate ring (variant="ring", no value)
+// ---------------------------------------------------------------------------
+
+describe('Loading-R3/Amendment 2026-07-27 — indeterminate ring', () => {
+	it('renders .hz-loading-ring-wrapper[role=progressbar][aria-busy] wrapping a track + fill circle, no readout', () => {
+		const { container } = render(Loading, { variant: 'ring', label: 'Loading' });
+		const root = getLoading(container);
+		expect(root.hasAttribute('data-indeterminate')).toBe(true);
+		const wrapper = root.querySelector('.hz-loading-ring-wrapper');
+		expect(wrapper?.getAttribute('role')).toBe('progressbar');
+		expect(wrapper?.getAttribute('aria-busy')).toBe('true');
+		expect(wrapper?.hasAttribute('aria-valuenow')).toBe(false);
+		const ring = root.querySelector('svg.hz-loading-ring');
+		expect(ring?.getAttribute('aria-hidden')).toBe('true');
+		expect(root.querySelector('.hz-loading-ring-track')).not.toBeNull();
+		expect(root.querySelector('.hz-loading-ring-fill')).not.toBeNull();
+		expect(root.querySelector('.hz-loading-value')).toBeNull();
+	});
+
+	it('the fill circle animates both a rotation and a dash-length pulse, rotation always linear', () => {
+		const { container } = render(Loading, { variant: 'ring', label: 'Loading' });
+		const fill = getLoading(container).querySelector('.hz-loading-ring-fill') as SVGElement;
+		const style = getComputedStyle(fill);
+		expect(style.animationName).not.toBe('none');
+		expect(style.animationName.split(', ')).toContain('hz-loading-ring-spin');
+		expect(style.animationName.split(', ')).toContain('hz-loading-ring-dash');
+	});
+
+	it("the ring's rotation stays linear even when --hz-loading-ease is overridden, but the dash pulse picks up the override", () => {
+		const { container } = render(Loading, {
+			variant: 'ring',
+			label: 'Loading',
+			style: '--hz-loading-ease: ease-in-out'
+		} as Record<string, unknown>);
+		const fill = getLoading(container).querySelector('.hz-loading-ring-fill') as SVGElement;
+		const timingFunctions = getComputedStyle(fill).animationTimingFunction.split(', ');
+		// Two animations (spin, dash) — one stays linear, the other picks up the
+		// override.
+		expect(timingFunctions).toContain('linear');
+		expect(timingFunctions.some((t) => t !== 'linear')).toBe(true);
 	});
 });
 
@@ -309,13 +358,14 @@ describe('Loading-R4 — indeterminate semantics', () => {
 // Loading-R5 — Spinner/dots + value edge cases
 // ---------------------------------------------------------------------------
 
-describe('Loading-R5 — spinner/dots are indeterminate-only', () => {
-	it('variant="spinner" + value does NOT dev-warn — it is the valid determinate ring (R3)', () => {
+describe('Loading-R5/Amendment — spinner/dots are indeterminate-only', () => {
+	it('variant="spinner" + value dev-warns and stays indeterminate (Amendment 2026-07-27)', () => {
 		const warnSpy = silenceWarn();
 		const { container } = render(Loading, { variant: 'spinner', value: 50, label: 'Saving' });
-		expect(warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes('spinner'))).toBe(false);
+		expect(warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes('spinner'))).toBe(true);
 		expect(container.querySelector('progress')).toBeNull();
-		expect(container.querySelector('.hz-loading-ring')).not.toBeNull();
+		expect(container.querySelector('.hz-loading-ring')).toBeNull();
+		expect(container.querySelector('.hz-loading-spinner svg.hz-icon')).not.toBeNull();
 		warnSpy.mockRestore();
 	});
 
@@ -325,6 +375,15 @@ describe('Loading-R5 — spinner/dots are indeterminate-only', () => {
 		expect(warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes('dots'))).toBe(true);
 		expect(container.querySelector('progress')).toBeNull();
 		expect(container.querySelector('.hz-loading-dots')).not.toBeNull();
+		warnSpy.mockRestore();
+	});
+
+	it('variant="ring" + value does NOT dev-warn — it is the valid determinate ring (R3)', () => {
+		const warnSpy = silenceWarn();
+		const { container } = render(Loading, { variant: 'ring', value: 50, label: 'Uploading' });
+		expect(warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes('ring'))).toBe(false);
+		expect(container.querySelector('progress')).toBeNull();
+		expect(container.querySelector('.hz-loading-ring')).not.toBeNull();
 		warnSpy.mockRestore();
 	});
 
@@ -413,18 +472,20 @@ describe('Loading-R7 — value readout and format', () => {
 		expect(getLoading(container).querySelector('.hz-loading-value')).toBeNull();
 	});
 
-	it('showValue on an indeterminate spinner or on dots renders no readout', () => {
+	it('showValue on an indeterminate spinner, indeterminate ring, or dots renders no readout', () => {
 		const warnSpy = silenceWarn();
 		const spinner = render(Loading, { variant: 'spinner', showValue: true, label: 'Saving' });
 		expect(spinner.container.querySelector('.hz-loading-value')).toBeNull();
+		const ring = render(Loading, { variant: 'ring', showValue: true, label: 'Loading' });
+		expect(ring.container.querySelector('.hz-loading-value')).toBeNull();
 		const dots = render(Loading, { variant: 'dots', showValue: true, label: 'Loading' });
 		expect(dots.container.querySelector('.hz-loading-value')).toBeNull();
 		warnSpy.mockRestore();
 	});
 
-	it('showValue on a determinate ring (spinner + value) renders a centered .hz-loading-value span', () => {
+	it('showValue on a determinate ring (ring + value) renders a centered .hz-loading-value span', () => {
 		const { container } = render(Loading, {
-			variant: 'spinner',
+			variant: 'ring',
 			value: 25,
 			showValue: true,
 			label: 'Uploading'
@@ -480,8 +541,8 @@ function resolveEasing(root: HTMLElement, varExpression: string): string {
 }
 
 describe('Loading-R8 — recipe pin: color', () => {
-	it('--hz-loading-fill resolves to the active intent token across all three variants', () => {
-		for (const variant of ['bar', 'spinner', 'dots'] as const) {
+	it('--hz-loading-fill resolves to the active intent token across all four variants', () => {
+		for (const variant of ['bar', 'spinner', 'ring', 'dots'] as const) {
 			const { container } = render(Loading, { variant, intent: 'danger', label: 'Loading' });
 			expect(resolveFill(getLoading(container))).toBe(resolveColor('var(--hz-intent-danger)'));
 		}
@@ -569,13 +630,13 @@ describe('Loading-R8 — recipe pin: paired speed + ease hooks', () => {
 	});
 
 	it('a determinate ring has no animation (static arc, R3)', () => {
-		const { container } = render(Loading, { variant: 'spinner', value: 50, label: 'Loading' });
-		const ring = getLoading(container).querySelector('.hz-loading-ring') as SVGElement;
-		expect(getComputedStyle(ring).animationName).toBe('none');
+		const { container } = render(Loading, { variant: 'ring', value: 50, label: 'Loading' });
+		const fill = getLoading(container).querySelector('.hz-loading-ring-fill') as SVGElement;
+		expect(getComputedStyle(fill).animationName).toBe('none');
 	});
 
 	it('--hz-loading-ring-width defaults to --hz-loading-size / 8', () => {
-		const { container } = render(Loading, { variant: 'spinner', value: 50, label: 'Loading' });
+		const { container } = render(Loading, { variant: 'ring', value: 50, label: 'Loading' });
 		const root = getLoading(container);
 		const probe = document.createElement('div');
 		probe.style.cssText = 'width: var(--hz-loading-size)';
@@ -648,14 +709,36 @@ describe('Loading-R8/R9 — reduced motion slows, does not halt', () => {
 		expect(getComputedStyle(svg).animationTimingFunction).toBe('linear');
 	});
 
-	it('the determinate ring has no animation in either context (static, unaffected by reduced motion)', async () => {
-		const { container } = render(Loading, { variant: 'spinner', value: 40, label: 'Uploading' });
-		const ring = getLoading(container).querySelector('.hz-loading-ring') as SVGElement;
-		expect(getComputedStyle(ring).animationName).toBe('none');
+	it('the indeterminate ring keeps animating (rotation + dash) at ~2x the duration under reduced motion (Amendment 2026-07-27)', async () => {
+		const { container } = render(Loading, { variant: 'ring', label: 'Loading' });
+		const fill = getLoading(container).querySelector('.hz-loading-ring-fill') as SVGElement;
+		const normalDuration = parseFloat(getComputedStyle(fill).animationDuration.split(', ')[0]);
 
 		await forceReducedMotion();
 
-		expect(getComputedStyle(ring).animationName).toBe('none');
+		expect(getComputedStyle(fill).animationName).not.toBe('none');
+		const reducedDuration = parseFloat(getComputedStyle(fill).animationDuration.split(', ')[0]);
+		expect(reducedDuration).toBeCloseTo(normalDuration * 2, 1);
+		expect(reducedDuration).toBeGreaterThan(normalDuration * 1.5);
+	});
+
+	it("the indeterminate ring's rotation stays linear under reduced motion too (Decision 7 extended to ring)", async () => {
+		const { container } = render(Loading, { variant: 'ring', label: 'Loading' });
+		const fill = getLoading(container).querySelector('.hz-loading-ring-fill') as SVGElement;
+
+		await forceReducedMotion();
+
+		expect(getComputedStyle(fill).animationTimingFunction.split(', ')).toContain('linear');
+	});
+
+	it('the determinate ring has no animation in either context (static, unaffected by reduced motion)', async () => {
+		const { container } = render(Loading, { variant: 'ring', value: 40, label: 'Uploading' });
+		const fill = getLoading(container).querySelector('.hz-loading-ring-fill') as SVGElement;
+		expect(getComputedStyle(fill).animationName).toBe('none');
+
+		await forceReducedMotion();
+
+		expect(getComputedStyle(fill).animationName).toBe('none');
 	});
 
 	it('the determinate bar has no animation in either context (static, unaffected by reduced motion)', async () => {

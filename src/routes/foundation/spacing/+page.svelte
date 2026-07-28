@@ -257,6 +257,10 @@
 			gutters are <code>padding-inline</code> — so each prop maps 1:1 onto the property it drives.
 			<code>padding</code> remains the both-axes shorthand; the per-axis longhands win where set.
 		</p>
+		<p class="tab-note">
+			<a href="/foundation/positioning#logical-heading">Positioning</a> follows the same logical-first
+			rule for placing a tooltip, popover, or dropdown menu next to its trigger.
+		</p>
 	</Stack>
 </Stack>
 

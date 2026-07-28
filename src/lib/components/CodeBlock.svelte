@@ -179,7 +179,6 @@
 			variant="ghost"
 			intent="neutral"
 			size="sm"
-			fullWidth
 			class="hz-code-block-expand"
 			aria-expanded={expanded}
 			aria-controls={clipId}

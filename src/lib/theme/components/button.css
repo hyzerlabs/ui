@@ -81,6 +81,17 @@
 		min-height: 3rem;
 	}
 
+	/* `full` (amended 2026-07-27) — the md height/padding, stretched to fill
+	 * its container. Replaces the retired `fullWidth` prop / `data-full-width`
+	 * attribute; not combinable with sm/lg (a trade-off, not an oversight). */
+	.hz-button:where([data-size='full']) {
+		display: flex;
+		width: 100%;
+		font-size: var(--hz-font-size-base, 1rem);
+		padding: 0.5rem 1rem;
+		min-height: 2.5rem;
+	}
+
 	/* Icon-only (R4b): a circle of the size's control height. */
 	.hz-button:where([data-icon-only]) {
 		padding: 0;
@@ -99,11 +110,16 @@
 		width: 3rem;
 	}
 
-	/* Intent-aware focus ring, matching the field controls' treatment; the
-	 * transparent outline keeps a visible rectangle in forced-colors mode. */
+	/* Intent-aware focus ring. Two layers (user-directed 2026-07-28): a
+	 * surface-colored gap between the button edge and the accent ring makes
+	 * the ring read clearly against any variant fill, and the ring itself is
+	 * stronger than the old 30% wash. The transparent outline keeps a
+	 * visible rectangle in forced-colors mode. */
 	.hz-button:where(:focus-visible) {
 		outline: 2px solid transparent;
-		box-shadow: 0 0 0 3px color-mix(in srgb, var(--hz-button-accent) 30%, transparent);
+		box-shadow:
+			0 0 0 2px var(--hz-color-surface, #fff),
+			0 0 0 4px color-mix(in srgb, var(--hz-button-accent) 60%, transparent);
 	}
 
 	/* Variant: solid */
@@ -146,18 +162,36 @@
 		background-color: color-mix(in srgb, var(--hz-button-accent) 10%, transparent);
 	}
 
-	/* Variant: link */
-	.hz-button:where([data-variant='link']) {
-		background-color: transparent;
-		color: var(--hz-button-accent);
-		text-decoration: underline;
-		text-underline-offset: 0.15em;
-		padding-inline: 0;
-		min-height: auto;
+	/* Variant: soft — the Badge soft recipe (specs/01 amendment 2026-07-27):
+	 * the intent color color-mix'd into the surface as the background, with
+	 * intent-colored text. `--hz-button-tint` is the same documented hook as
+	 * Badge's `--hz-badge-tint`, at the identical strengths, so it inherits
+	 * the same AA guarantee (graded by the engine's soft-badge contrast rows —
+	 * see src/lib/config/report.ts's softTints model). Strengthens in dark for
+	 * the same reason Badge's does: a weak tint barely reads as color over a
+	 * dark surface. */
+	.hz-button:where([data-variant='soft']) {
+		--hz-button-tint: 14%;
+
+		background-color: color-mix(
+			in srgb,
+			var(--hz-button-accent) var(--hz-button-tint),
+			var(--hz-color-surface, #fff)
+		);
+		color: color-mix(in srgb, var(--hz-button-accent) 65%, var(--hz-color-text, #000));
 	}
 
-	.hz-button:where([data-variant='link']:hover:not([data-state])) {
-		color: color-mix(in srgb, var(--hz-button-accent) 78%, var(--hz-color-black, #000));
+	:where([data-theme='dark']) .hz-button:where([data-variant='soft']) {
+		--hz-button-tint: 28%;
+	}
+
+	.hz-button:where([data-variant='soft']:hover:not([data-state])),
+	.hz-button:where([data-variant='soft']:active:not([data-state])) {
+		background-color: color-mix(
+			in srgb,
+			var(--hz-button-accent) calc(var(--hz-button-tint) + 10%),
+			var(--hz-color-surface, #fff)
+		);
 	}
 
 	/* States */
@@ -196,11 +230,6 @@
 		.hz-button:where([data-state='loading']) .hz-icon {
 			animation-duration: 4.2s;
 		}
-	}
-
-	.hz-button:where([data-full-width]) {
-		display: flex;
-		width: 100%;
 	}
 
 	@keyframes hz-spin {

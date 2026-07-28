@@ -128,16 +128,18 @@ test.describe('Example code blocks', () => {
 		await expect(code).toContainText('<Button');
 	});
 
-	test('selecting a variant sub-tab updates the visible example code', async ({ page }) => {
+	test('selecting a demo tab updates the visible example code', async ({ page }) => {
 		await page.goto('/components/button');
 		// Tabs keeps inactive panels in the DOM (hidden), so assert on the
-		// visible code block only.
+		// visible code block only. The page lands on Variants (row-matrix
+		// demo; defaults omitted from samples — a bare <Button> is solid +
+		// primary, so the sample marks solid as the default row).
 		const visibleCode = page.locator('.doc-example pre code').filter({ visible: true }).first();
-		await expect(visibleCode).toContainText('variant="solid"');
-
-		await page.getByRole('tab', { name: 'outline' }).click();
 		await expect(visibleCode).toContainText('variant="outline"');
-		await expect(visibleCode).not.toContainText('variant="solid"');
+		await expect(visibleCode).not.toContainText('size="sm"');
+
+		await page.getByRole('tab', { name: 'Sizes' }).click();
+		await expect(visibleCode).toContainText('size="sm"');
 	});
 
 	test('example code block has a copy button', async ({ page }) => {
@@ -407,7 +409,7 @@ test.describe('specs/31 R9/R10 — theme hooks', () => {
 		await expect(table).toContainText('--hz-button-accent');
 		await expect(table).toContainText('--hz-modal-width');
 		await expect(table).toContainText('--hz-image-fade-duration');
-		// Button contributes two rows (the accent pair), so it links twice.
+		// Button contributes multiple rows (the accent pair + the soft tint), so it links more than once.
 		await expect(table.getByRole('link', { name: 'Button' }).first()).toHaveAttribute(
 			'href',
 			'/components/button'
@@ -1534,6 +1536,37 @@ test.describe('Product detail pattern — thumbnail strip', () => {
 });
 
 // ---------------------------------------------------------------------------
+// specs/49 amendment (2026-07-27) — Loading ring variant
+// ---------------------------------------------------------------------------
+
+test.describe('specs/49 amendment — Loading ring variant', () => {
+	test('the Variants tab shows an indeterminate ring and a determinate ring, both real SVGs', async ({
+		page
+	}) => {
+		await page.goto('/components/loading');
+		const rings = page.locator('.hz-loading svg.hz-loading-ring').filter({ visible: true });
+		// Indeterminate (no readout) + determinate (with a centered readout).
+		await expect(rings).toHaveCount(2);
+		await expect(
+			page.locator('.hz-loading-ring-wrapper .hz-loading-value').filter({ visible: true })
+		).toBeVisible();
+	});
+
+	test('the Intents and Sizes tabs include a ring alongside spinner/bar/dots in every row', async ({
+		page
+	}) => {
+		await page.goto('/components/loading');
+		await page.getByRole('tab', { name: 'Intents' }).click();
+		const intentsPanel = page.locator('.tab-content').filter({ visible: true }).first();
+		await expect(intentsPanel.locator('svg.hz-loading-ring').first()).toBeVisible();
+
+		await page.getByRole('tab', { name: 'Sizes' }).click();
+		const sizesPanel = page.locator('.tab-content').filter({ visible: true }).first();
+		await expect(sizesPanel.locator('svg.hz-loading-ring').first()).toBeVisible();
+	});
+});
+
+// ---------------------------------------------------------------------------
 // specs/50 — Tooltip
 // ---------------------------------------------------------------------------
 
@@ -1934,4 +1967,294 @@ test.describe('specs/50 — Popover', () => {
 		await expect(page.locator('h2#props-heading')).toHaveCount(1);
 		await expect(page.locator('h2#a11y-heading')).toHaveCount(1);
 	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/51 — Dropdown on the positioning core
+// ---------------------------------------------------------------------------
+
+test.describe('specs/51 — Dropdown positioning', () => {
+	/** The open menu, scoped through the root's data-open (data-side/
+	 *  data-align persist on the menu after close, so they cannot double as an
+	 *  "is it open" signal — the Popover/Tooltip data-state precedent, applied
+	 *  through the root here since the menu itself carries no such attribute). */
+	const OPEN_MENU = '.hz-dropdown[data-open] .hz-dropdown-menu';
+
+	async function forceJsFallback(page: Page): Promise<void> {
+		await page.addInitScript(() => {
+			const original = CSS.supports.bind(CSS);
+			CSS.supports = ((...args: Parameters<typeof CSS.supports>) => {
+				if (typeof args[0] === 'string' && args[0].includes('anchor-name')) return false;
+				return original(...args);
+			}) as typeof CSS.supports;
+		});
+	}
+
+	async function assertAdjacentNotAtOrigin(page: Page): Promise<void> {
+		await page.goto('/components/dropdown');
+		const trigger = page.getByRole('button', { name: 'Round actions' });
+		await trigger.click();
+		const menu = page.locator(OPEN_MENU);
+		await expect(menu).toBeVisible();
+
+		const triggerBox = await trigger.boundingBox();
+		const menuBox = await menu.boundingBox();
+		if (!triggerBox || !menuBox) throw new Error('missing bounding box');
+		expect(menuBox.x === 0 && menuBox.y === 0).toBe(false);
+		const gapBelow = Math.abs(menuBox.y - (triggerBox.y + triggerBox.height));
+		const gapAbove = Math.abs(triggerBox.y - (menuBox.y + menuBox.height));
+		expect(Math.min(gapBelow, gapAbove)).toBeLessThan(20);
+		// align="start" (default): the menu's left edge lines up with the
+		// trigger's.
+		expect(Math.abs(menuBox.x - triggerBox.x)).toBeLessThan(4);
+	}
+
+	test('the menu opens adjacent to the trigger, not pinned at 0,0 (anchor path)', async ({
+		page
+	}) => {
+		await assertAdjacentNotAtOrigin(page);
+	});
+
+	test('the menu opens adjacent to the trigger, not pinned at 0,0 (forced JS-fallback path)', async ({
+		page
+	}) => {
+		await forceJsFallback(page);
+		await assertAdjacentNotAtOrigin(page);
+	});
+
+	/** Hides the docs shell's own fixed chrome (it would otherwise obstruct a
+	 *  trigger relocated to a screen edge — the Tooltip e2e precedent), pins
+	 *  the trigger flush to the viewport's bottom edge, opens the menu, and
+	 *  asserts it flipped above and stayed fully on-screen. */
+	async function assertBottomFlushFlipsAbove(page: Page): Promise<void> {
+		await page.goto('/components/dropdown');
+		await page.evaluate(() => {
+			for (const sel of ['#docs-sidebar', '.docs-header', 'header']) {
+				document.querySelectorAll(sel).forEach((el) => {
+					(el as HTMLElement).style.display = 'none';
+				});
+			}
+		});
+		const trigger = page.getByRole('button', { name: 'Round actions' });
+		await trigger.evaluate((el: HTMLElement) => {
+			Object.assign(el.style, { position: 'fixed', bottom: '4px', left: '200px' });
+		});
+		await trigger.click();
+		const menu = page.locator(OPEN_MENU);
+		await expect(menu).toBeVisible();
+		await expect(menu).toHaveAttribute('data-side', 'top');
+
+		const menuBox = await menu.boundingBox();
+		const viewport = page.viewportSize();
+		if (!menuBox || !viewport) throw new Error('missing geometry');
+		expect(menuBox.y).toBeGreaterThanOrEqual(0);
+		expect(menuBox.y + menuBox.height).toBeLessThanOrEqual(viewport.height + 1);
+	}
+
+	test('a trigger near the viewport bottom flips the menu above and keeps it fully on-screen (anchor path)', async ({
+		page
+	}) => {
+		await assertBottomFlushFlipsAbove(page);
+	});
+
+	test('a trigger near the viewport bottom flips the menu above and keeps it fully on-screen (forced JS-fallback path)', async ({
+		page
+	}) => {
+		await forceJsFallback(page);
+		await assertBottomFlushFlipsAbove(page);
+	});
+
+	test('a trigger inside an overflow: hidden ancestor still shows a fully clickable menu (top-layer escape)', async ({
+		page
+	}) => {
+		await page.goto('/components/dropdown');
+		// The demo frame around the trigger — clipped down to 60px tall. The
+		// pre-move, absolutely-positioned menu would have been cut off along
+		// with its ancestor; the top-layer popover must not be.
+		await page.evaluate(() => {
+			const example = document.querySelector('.doc-example') as HTMLElement;
+			example.style.overflow = 'hidden';
+			example.style.height = '60px';
+		});
+		const trigger = page.getByRole('button', { name: 'Round actions' });
+		await trigger.click();
+		const menu = page.locator(OPEN_MENU);
+		await expect(menu).toBeVisible();
+
+		// The item furthest from the trigger stays real-clickable, and its
+		// action actually reaches the page — proof the full menu escaped the
+		// clip, not just that some node reports "visible."
+		await page.getByRole('menuitem', { name: 'Share round' }).click();
+		await expect(page.getByText('Last action: Share round')).toBeVisible();
+	});
+
+	// -------------------------------------------------------------------------
+	// R-DD-6 — RTL: align="start"/"end" are logical, resolved through the
+	// trigger's direction, on both positioning paths.
+	// -------------------------------------------------------------------------
+
+	async function assertRtlAlignEquivalence(page: Page): Promise<void> {
+		await page.goto('/components/dropdown');
+
+		// align="start" (default, Basic tab) under RTL attaches to the
+		// trigger's right edge.
+		const startTrigger = page.getByRole('button', { name: 'Round actions' });
+		await startTrigger.evaluate((el: HTMLElement) => el.setAttribute('dir', 'rtl'));
+		const startTriggerBox = await startTrigger.boundingBox();
+		await startTrigger.click();
+		const startMenu = page.locator(OPEN_MENU);
+		await expect(startMenu).toBeVisible();
+		await expect(startMenu).toHaveAttribute('data-align', 'end');
+		const startMenuBox = await startMenu.boundingBox();
+		if (!startTriggerBox || !startMenuBox) throw new Error('missing bounding box');
+		expect(
+			Math.abs(startMenuBox.x + startMenuBox.width - (startTriggerBox.x + startTriggerBox.width))
+		).toBeLessThan(4);
+		await startTrigger.click(); // close
+
+		// align="end" (Alignment tab, the "End" trigger) under RTL attaches to
+		// the trigger's left edge instead.
+		await page.getByRole('tab', { name: 'Alignment' }).click();
+		const endTrigger = page.getByRole('button', { name: 'End', exact: true });
+		await endTrigger.evaluate((el: HTMLElement) => el.setAttribute('dir', 'rtl'));
+		const endTriggerBox = await endTrigger.boundingBox();
+		await endTrigger.click();
+		const endMenu = page.locator(OPEN_MENU);
+		await expect(endMenu).toBeVisible();
+		await expect(endMenu).toHaveAttribute('data-align', 'start');
+		const endMenuBox = await endMenu.boundingBox();
+		if (!endTriggerBox || !endMenuBox) throw new Error('missing bounding box');
+		expect(Math.abs(endMenuBox.x - endTriggerBox.x)).toBeLessThan(4);
+	}
+
+	test('dir="rtl" flips align="start"/"end" to the opposite physical edge (anchor path)', async ({
+		page
+	}) => {
+		await assertRtlAlignEquivalence(page);
+	});
+
+	test('dir="rtl" flips align="start"/"end" to the opposite physical edge (forced JS-fallback path)', async ({
+		page
+	}) => {
+		await forceJsFallback(page);
+		await assertRtlAlignEquivalence(page);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/51 — /foundation/positioning
+// ---------------------------------------------------------------------------
+
+test.describe('specs/51 — Positioning (foundation page)', () => {
+	test('every section renders with a stable h2 id (TOC)', async ({ page }) => {
+		await page.goto('/foundation/positioning');
+		for (const id of [
+			'vocabulary-heading',
+			'logical-heading',
+			'toplayer-heading',
+			'flip-heading',
+			'caret-heading',
+			'a11y-heading'
+		]) {
+			await expect(page.locator(`h2#${id}`)).toHaveCount(1);
+		}
+	});
+
+	test('the flip demo renders above mid-page, then flips below as the trigger nears the viewport top', async ({
+		page
+	}) => {
+		await page.goto('/foundation/positioning');
+		const trigger = page.getByRole('button', { name: 'Focus me, then scroll' });
+		await trigger.hover();
+		const tip = page.locator('.hz-tooltip[data-state="open"]');
+		await expect(tip).toBeVisible();
+
+		// Mid-page there is room above: the requested placement: 'top' holds.
+		const triggerBox1 = await trigger.boundingBox();
+		const tipBox1 = await tip.boundingBox();
+		if (!triggerBox1 || !tipBox1) throw new Error('missing bounding box');
+		expect(
+			tipBox1.y + tipBox1.height,
+			'tooltip should start above the trigger'
+		).toBeLessThanOrEqual(triggerBox1.y + 1);
+
+		// Focus holds the tooltip open (hover would let go); scroll the PAGE
+		// so the trigger nears the window's top edge — no room above forces
+		// the live flip below, on whichever positioning path is active.
+		await trigger.focus();
+		await trigger.evaluate((el) => {
+			window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 8);
+		});
+		await expect(async () => {
+			const triggerBox2 = await trigger.boundingBox();
+			const tipBox2 = await tip.boundingBox();
+			if (!triggerBox2 || !tipBox2) throw new Error('missing bounding box');
+			expect(tipBox2.y, 'tooltip should flip below the trigger').toBeGreaterThanOrEqual(
+				triggerBox2.y + triggerBox2.height - 1
+			);
+		}).toPass({ timeout: 3000 });
+		// Mid-flip, data-side must track the rendered side (a consumer caret
+		// keys off it).
+		await expect(tip).toHaveAttribute('data-side', 'bottom');
+
+		// EAGER RESTORE: scroll back so there's room above again — the
+		// requested side must win back immediately, not only after the
+		// flipped side runs out of room in turn (native position-try
+		// remembers its last option; the core flushes it).
+		await trigger.evaluate((el) => {
+			window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2);
+		});
+		await expect(async () => {
+			const triggerBox3 = await trigger.boundingBox();
+			const tipBox3 = await tip.boundingBox();
+			if (!triggerBox3 || !tipBox3) throw new Error('missing bounding box');
+			expect(
+				tipBox3.y + tipBox3.height,
+				'tooltip should return above once there is room again'
+			).toBeLessThanOrEqual(triggerBox3.y + 1);
+		}).toPass({ timeout: 3000 });
+		await expect(tip).toHaveAttribute('data-side', 'top');
+	});
+
+	test('the caret recipe code sample is present and its live demo draws a protruding caret without scrollbars', async ({
+		page
+	}) => {
+		await page.goto('/foundation/positioning');
+		const section = page.locator('section', { has: page.locator('#caret-heading') });
+		// .last(): the recipe CodeBlock — the live demo (and its own example
+		// code block) leads the section, the recipe CSS closes it.
+		await expect(section.locator('.hz-code-block').last()).toContainText("[data-side='bottom']");
+
+		// The live demo: the page-scoped recipe CSS must actually render a
+		// protruding ::after on the demo tooltip, without growing the page.
+		await section.getByRole('button', { name: 'Hover for a caret' }).hover();
+		const tip = page.locator('.hz-tooltip.demo-caret[data-state="open"]');
+		await expect(tip).toBeVisible();
+		const caret = await tip.evaluate((el) => {
+			const s = getComputedStyle(el, '::after');
+			const tipStyle = getComputedStyle(el);
+			return {
+				content: s.content,
+				protrudes: [s.top, s.right, s.bottom, s.left].some((v) => parseFloat(v) < 0),
+				// The UA [popover] stylesheet defaults the tooltip to
+				// overflow: auto — a scroll container CLIPS the protruding
+				// caret inside the tooltip (and grows a tooltip scrollbar)
+				// instead of drawing it past the edge.
+				tooltipScrolls: tipStyle.overflowX !== 'visible' || tipStyle.overflowY !== 'visible'
+			};
+		});
+		expect(caret.content, 'demo caret ::after did not render').not.toBe('none');
+		expect(caret.protrudes, 'demo caret does not protrude past the tooltip edge').toBe(true);
+		expect(caret.tooltipScrolls, 'tooltip is a scroll container — the caret gets clipped').toBe(
+			false
+		);
+		const noOverflow = await page.evaluate(
+			() => document.documentElement.scrollWidth <= document.documentElement.clientWidth
+		);
+		expect(noOverflow, 'caret demo grew a horizontal scrollbar').toBe(true);
+	});
+
+	// No-overflow at 375/768/1280 and the manifest-route smoke (h1, skip
+	// link) are covered by the sweeps at the top of this file — it runs over
+	// every manifest route, and /foundation/positioning is one.
 });

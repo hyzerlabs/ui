@@ -16,20 +16,21 @@
 	] as const;
 
 	// ------------------------------------------------------------------
-	// Demo 1 — variants: the base indeterminate presentations, plus the
-	// spinner's determinate ring (R17).
+	// Demo 1 — variants: the base indeterminate presentations, plus ring's
+	// determinate arc (R17, amended 2026-07-27 — the spinner/ring split).
 	// ------------------------------------------------------------------
 
 	const variantsCode = [
-		'<Loading label="Loading results" />              <!-- variant="bar" (default), indeterminate -->',
-		'<Loading variant="spinner" label="Saving" />      <!-- indeterminate spin -->',
-		'<Loading variant="spinner" value={62} label="Uploading" showValue size="lg" /> <!-- determinate ring -->',
+		'<Loading label="Loading results" />                    <!-- variant="bar" (default), indeterminate -->',
+		'<Loading variant="spinner" label="Saving" />            <!-- indeterminate spin -->',
+		'<Loading variant="ring" label="Loading" size="lg" />    <!-- indeterminate: a rotating, pulsing arc -->',
+		'<Loading variant="ring" value={62} label="Uploading" showValue size="lg" /> <!-- determinate: a static arc -->',
 		'<Loading variant="dots" label="Loading" />'
 	].join('\n');
 
 	// ------------------------------------------------------------------
 	// Demo 2 — progressive enhancement: a `value` turns the bar AND the
-	// spinner determinate, side by side (R3/R17).
+	// ring determinate, side by side (R3/R17, amended).
 	// ------------------------------------------------------------------
 
 	let uploadValue = $state(62);
@@ -38,14 +39,14 @@
 		[
 			`let value = $state(${uploadValue});`,
 			'',
-			'<Loading {value} label="Uploading photos" showValue />                      <!-- linear bar -->',
-			'<Loading variant="spinner" {value} label="Uploading photos" showValue size="lg" /> <!-- circular ring -->'
+			'<Loading {value} label="Uploading photos" showValue />                   <!-- linear bar -->',
+			'<Loading variant="ring" {value} label="Uploading photos" showValue size="lg" /> <!-- circular ring -->'
 		].join('\n')
 	);
 
 	// ------------------------------------------------------------------
 	// Demo 3 — non-percentage units via a custom `format`, linear and
-	// circular (R17).
+	// circular (R17, amended).
 	// ------------------------------------------------------------------
 
 	const formatCode = [
@@ -59,7 +60,7 @@
 		'',
 		'<!-- the ring has far less room, so a shorter format reads better centered inside it -->',
 		'<Loading',
-		'\tvariant="spinner"',
+		'\tvariant="ring"',
 		'\tvalue={3}',
 		'\tmax={5}',
 		'\tlabel="Import"',
@@ -97,19 +98,21 @@
 			'',
 			'<Loading variant="bar" {style} label="Loading results" />  <!-- pulse width tunes the bar highlight -->',
 			'<Loading variant="spinner" {style} label="Saving" />  <!-- spin stays linear -->',
+			'<Loading variant="ring" {style} label="Loading" />  <!-- rotation stays linear; the arc-length pulse follows speed -->',
 			'<Loading variant="dots" {style} label="Loading" />'
 		].join('\n')
 	);
 
 	// ------------------------------------------------------------------
 	// Demo 5 — intents: every registered intent, shown as its own row of
-	// [spinner] [bar] [dots] — one color at a time, across the whole
+	// [spinner] [ring] [bar] [dots] — one color at a time, across the whole
 	// variant family, rather than one variant across every color.
 	// ------------------------------------------------------------------
 
 	function intentRowCode(intent: (typeof intents)[number]): string {
 		return [
 			`<Loading variant="spinner" intent="${intent}" label="${intent}, spinner" />`,
+			`<Loading variant="ring" intent="${intent}" label="${intent}, ring" />`,
 			`<Loading variant="bar" intent="${intent}" label="${intent}, bar" />`,
 			`<Loading variant="dots" intent="${intent}" label="${intent}, dots" />`
 		].join('\n');
@@ -121,13 +124,14 @@
 
 	// ------------------------------------------------------------------
 	// Demo 6 — sizes: every size, shown as its own row of
-	// [spinner] [bar] [dots] — the same "one setting, every variant"
+	// [spinner] [ring] [bar] [dots] — the same "one setting, every variant"
 	// treatment as the intents demo above.
 	// ------------------------------------------------------------------
 
 	function sizeRowCode(size: (typeof sizes)[number]): string {
 		return [
 			`<Loading variant="spinner" size="${size}" label="Loading, ${size}, spinner" />`,
+			`<Loading variant="ring" size="${size}" label="Loading, ${size}, ring" />`,
 			`<Loading variant="bar" size="${size}" label="Loading, ${size}, bar" />`,
 			`<Loading variant="dots" size="${size}" label="Loading, ${size}, dots" />`
 		].join('\n');
@@ -153,17 +157,22 @@
 					<p class="tab-note">
 						Loading is fundamentally indeterminate — <code>bar</code> (the default),
 						<code>spinner</code>
-						(the same <code>IconLoader</code> glyph Button's loading state renders), and
-						<code>dots</code> (a three-dot ellipsis loader) all say "something is happening" with no
-						value attached. A <code>value</code> progressively enhances <code>spinner</code> into a
-						<strong>determinate circular ring</strong> — a static arc, shown here alongside the indeterminate
-						spin.
+						(the same <code>IconLoader</code> glyph Button's loading state renders),
+						<code>ring</code>
+						(a rotating, arc-length-pulsing loader), and <code>dots</code> (a three-dot ellipsis
+						loader) all say "something is happening" with no value attached. A <code>value</code>
+						progressively enhances <code>ring</code> into a
+						<strong>determinate circular arc</strong>
+						— static, shown here alongside its indeterminate spin.
+						<code>spinner</code> and <code>dots</code> stay indeterminate-only; a <code>value</code>
+						passed to either is ignored (dev-warn).
 					</p>
 					<Example code={variantsCode}>
 						<Stack gap="md">
 							<Loading label="Loading results" />
 							<Loading variant="spinner" label="Saving" />
-							<Loading variant="spinner" value={62} label="Uploading" showValue size="lg" />
+							<Loading variant="ring" label="Loading" size="lg" />
+							<Loading variant="ring" value={62} label="Uploading" showValue size="lg" />
 							<Loading variant="dots" label="Loading" />
 						</Stack>
 					</Example>
@@ -171,8 +180,8 @@
 					<p class="tab-note">
 						Passing a <code>value</code> progressively enhances the <code>bar</code> into a
 						determinate native <code>&lt;progress value max&gt;</code>, and the
-						<code>spinner</code>
-						into a determinate circular ring — an SVG arc that fills to <code>value / max</code>.
+						<code>ring</code>
+						into a determinate circular arc — an SVG arc that fills to <code>value / max</code>.
 						<code>showValue</code> renders a formatted readout — inline beside the bar, centered
 						inside the ring — the same string also feeds <code>aria-valuetext</code> when a custom
 						<code>format</code> or a non-100 <code>max</code> is in play.
@@ -182,7 +191,7 @@
 							<Cluster gap="lg" align="center">
 								<Loading value={uploadValue} label="Uploading photos" showValue />
 								<Loading
-									variant="spinner"
+									variant="ring"
 									value={uploadValue}
 									label="Uploading photos"
 									showValue
@@ -213,7 +222,7 @@
 								showValue
 							/>
 							<Loading
-								variant="spinner"
+								variant="ring"
 								value={3}
 								max={5}
 								label="Import"
@@ -225,16 +234,17 @@
 					</Example>
 				{:else if item.id === 'intents'}
 					<p class="tab-note">
-						Every registered intent, each its own row of <code>spinner</code>, <code>bar</code>, and
-						<code>dots</code> — <code>--hz-loading-fill</code> switches colour alone, reaching every
-						variant alike. <code>intent</code> defaults to <code>primary</code>, not
-						<code>neutral</code> — a fill is an accent by nature.
+						Every registered intent, each its own row of <code>spinner</code>, <code>ring</code>,
+						<code>bar</code>, and <code>dots</code> — <code>--hz-loading-fill</code> switches colour
+						alone, reaching every variant alike. <code>intent</code> defaults to
+						<code>primary</code>, not <code>neutral</code> — a fill is an accent by nature.
 					</p>
 					<Example code={intentsCode}>
 						<Stack gap="sm">
 							{#each intents as intent (intent)}
 								<Cluster gap="md" align="center">
 									<Loading variant="spinner" {intent} label="{intent}, spinner" />
+									<Loading variant="ring" {intent} label="{intent}, ring" />
 									<div class="bar-cell">
 										<Loading variant="bar" {intent} label="{intent}, bar" />
 									</div>
@@ -245,8 +255,9 @@
 					</Example>
 				{:else if item.id === 'sizes'}
 					<p class="tab-note">
-						Every size, each its own row of <code>spinner</code>, <code>bar</code>, and
-						<code>dots</code> — <code>--hz-loading-size</code> sizes every variant off
+						Every size, each its own row of <code>spinner</code>, <code>ring</code>,
+						<code>bar</code>, and <code>dots</code> — <code>--hz-loading-size</code> sizes every
+						variant off
 						<code>data-size</code>.
 					</p>
 					<Example code={sizesCode}>
@@ -254,6 +265,7 @@
 							{#each sizes as size (size)}
 								<Cluster gap="md" align="center">
 									<Loading variant="spinner" {size} label="Loading, {size}, spinner" />
+									<Loading variant="ring" {size} label="Loading, {size}, ring" />
 									<div class="bar-cell">
 										<Loading variant="bar" {size} label="Loading, {size}, bar" />
 									</div>
@@ -264,20 +276,16 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>--hz-loading-speed</code> (duration) and <code>--hz-loading-pulse-width</code>
-						(the width of the bar's moving highlight) retune the indeterminate animations. Three things
-						to notice: the
-						<strong>bar sweep and spinner rotation both stay linear</strong>
-						— a looping animation that eases in and out slows to a stop and restarts each cycle, which
-						reads as a hiccup — while their duration follows the speed control;
-						<code>--hz-loading-pulse-width</code>
-						widens or narrows the bar's highlight as a percentage of the bar's own width (150% by default,
-						<strong>bar only</strong>), and a wider pulse reads softer and more ambient; and
-						toggling your OS's reduced-motion setting shows Loading does
-						<strong>not</strong> freeze — it keeps animating, just roughly 2x slower (~4.8s), and the
-						bar softens further into a gentle in-place pulse instead of a traveling sweep. That is a deliberate
-						exception to this library's usual "reduced motion halts animation" rule — the determinate
-						ring and bar are static either way, and Skeleton, by contrast, goes fully still.
+						<code>--hz-loading-speed</code> sets how long one cycle takes.
+						<code>--hz-loading-pulse-width</code> sets the width of the bar's moving highlight (a
+						percentage of the bar, default 150%; bar only) — wider reads softer. Rotation always
+						runs at a constant rate: an eased loop stalls and lurches on every cycle. The ring's
+						growing arc and the dots do follow <code>--hz-loading-ease</code>.
+					</p>
+					<p class="tab-note">
+						With reduced motion on, Loading slows to about half speed instead of freezing — a paused
+						loader looks finished — and the bar trades its sweep for an in-place pulse. Skeleton,
+						which only decorates, goes fully still.
 					</p>
 					<Example code={timingCode}>
 						<Stack gap="md">
@@ -310,6 +318,7 @@
 							<Stack gap="md">
 								<Loading variant="bar" style={timingStyle} label="Loading results" />
 								<Loading variant="spinner" style={timingStyle} label="Saving" />
+								<Loading variant="ring" style={timingStyle} label="Loading" />
 								<Loading variant="dots" style={timingStyle} label="Loading" />
 							</Stack>
 						</Stack>

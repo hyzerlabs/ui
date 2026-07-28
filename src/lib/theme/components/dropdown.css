@@ -2,11 +2,15 @@
  * @hyzer-labs/ui reference theme — Dropdown
  * The trigger ships no Dropdown CSS (it's a Button, fully covered by
  * button.css); this sheet owns the popup surface and menuitem chrome.
+ * specs/51: the menu's placement (including the trigger gap) is owned by the
+ * shared positioning core (Dropdown.svelte) — this sheet is chrome only.
  */
 @layer hz-theme {
-	/* Popup surface — anchored below the trigger (component-owned position). */
+	/* Popup surface — placed by the positioning core (Dropdown.svelte).
+	 * --_dropdown-menu-in-y is the entrance keyframe's rise/fall distance —
+	 * see the R-DD-5 comment further down, where it flips per data-side. */
 	.hz-dropdown-menu {
-		margin-top: 0.25rem;
+		--_dropdown-menu-in-y: -0.25rem;
 		z-index: var(--hz-z-dropdown, 10);
 		background-color: var(--hz-color-surface, #fff);
 		border: var(--hz-border-width-thin, 1px) solid
@@ -82,7 +86,16 @@
 	 * counterpart of the motion module's fly-in. Entry only: no exit
 	 * animation, so a closed menu's display: none (component-owned) takes
 	 * effect immediately and its items leave the accessibility tree at once.
-	 * base.css collapses the animation under prefers-reduced-motion. */
+	 * specs/51 R-DD-5: direction mirrors the RESOLVED data-side — a
+	 * bottom-placed menu rises up into place (starts above, the historic
+	 * direction); a top-flipped menu falls down into place instead (starts
+	 * below), so the entrance always reads as "grows out from the trigger."
+	 * base.css collapses the animation under prefers-reduced-motion —
+	 * duration only, so which sign this resolves to never matters there. */
+	.hz-dropdown-menu[data-side='top'] {
+		--_dropdown-menu-in-y: 0.25rem;
+	}
+
 	.hz-dropdown[data-open] .hz-dropdown-menu {
 		animation: hz-dropdown-menu-in var(--hz-duration-fast, 250ms)
 			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
@@ -91,7 +104,7 @@
 	@keyframes hz-dropdown-menu-in {
 		from {
 			opacity: 0;
-			translate: 0 -0.25rem;
+			translate: 0 var(--_dropdown-menu-in-y);
 		}
 	}
 }

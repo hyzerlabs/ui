@@ -3,10 +3,10 @@ import type { ComponentDoc } from './types.js';
 
 export const buttonDoc: ComponentDoc = {
 	description:
-		'A button component with solid, outline, ghost, and link variants, intent colors, sizes, a loading state, and icon slots.',
+		'A button component with solid, outline, ghost, and soft variants, intent colors, sizes, a loading state, and icon slots.',
 	importLine: 'import { Button } from "@hyzer-labs/ui"',
 	props: [
-		{ name: 'variant', type: "'solid' | 'outline' | 'ghost' | 'link'", default: "'solid'" },
+		{ name: 'variant', type: "'solid' | 'outline' | 'ghost' | 'soft'", default: "'solid'" },
 		{
 			name: 'intent',
 			type: 'Intent',
@@ -14,7 +14,12 @@ export const buttonDoc: ComponentDoc = {
 			note: 'The full intent registry, not a hand-picked subset — see Foundation → Colors & Intent.',
 			noteHref: '/foundation/colors#intent'
 		},
-		{ name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
+		{
+			name: 'size',
+			type: "'sm' | 'md' | 'lg' | 'full'",
+			default: "'md'",
+			note: 'full fills its container at the md height/padding; not combinable with sm/lg.'
+		},
 		{ name: 'disabled', type: 'boolean', default: 'false' },
 		{ name: 'loading', type: 'boolean', default: 'false' },
 		{
@@ -23,8 +28,12 @@ export const buttonDoc: ComponentDoc = {
 			default: "'Loading'",
 			note: 'Screen-reader-only text announced while loading; not rendered visually.'
 		},
-		{ name: 'fullWidth', type: 'boolean', default: 'false' },
-		{ name: 'href', type: 'string', default: '—', note: 'Renders as <a> when set.' },
+		{
+			name: 'href',
+			type: 'string',
+			default: '—',
+			note: 'Renders as a plain <a> (no role="button") when set — it genuinely navigates.'
+		},
 		{ name: 'type', type: "'button' | 'submit' | 'reset'", default: "'button'" },
 		{
 			name: 'ariaLabel',

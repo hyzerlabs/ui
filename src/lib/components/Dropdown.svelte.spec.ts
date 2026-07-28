@@ -91,11 +91,10 @@ async function openMenu(container: Element): Promise<HTMLButtonElement> {
 // ---------------------------------------------------------------------------
 
 describe('Dropdown-R1/R2/R3 — structure & ARIA', () => {
-	it('root is div.hz-dropdown with data-align="start" by default', () => {
+	it('root is div.hz-dropdown', () => {
 		const { container } = render(Dropdown, { items, label: 'Actions' });
 		const root = getRoot(container);
 		expect(root).not.toBeNull();
-		expect(root.getAttribute('data-align')).toBe('start');
 	});
 
 	it('trigger is a .hz-button.hz-dropdown-trigger with menu-button ARIA', () => {
@@ -576,12 +575,54 @@ describe('Dropdown-R12 — outside click / focus-out', () => {
 
 // ---------------------------------------------------------------------------
 // Dropdown-R13 — Alignment
+// specs/51 R-DD-5: data-align (and data-side) are resolved-placement hooks
+// stamped on the menu by the shared positioning core, once open — not a
+// static root-level mirror of the prop.
 // ---------------------------------------------------------------------------
 
 describe('Dropdown-R13 — alignment', () => {
-	it('align="end" reflects as data-align="end" on the root', () => {
+	it('align defaults to "start", resolving to data-align="start" on the menu once open', async () => {
+		const { container } = render(Dropdown, { items, label: 'Actions' });
+		await openMenu(container);
+		expect(getMenu(container).getAttribute('data-align')).toBe('start');
+	});
+
+	it('align="end" resolves to data-align="end" on the menu once open', async () => {
 		const { container } = render(Dropdown, { items, label: 'Actions', align: 'end' });
-		expect(getRoot(container).getAttribute('data-align')).toBe('end');
+		await openMenu(container);
+		expect(getMenu(container).getAttribute('data-align')).toBe('end');
+	});
+
+	it('align="center" resolves to data-align="center" on the menu once open', async () => {
+		const { container } = render(Dropdown, { items, label: 'Actions', align: 'center' });
+		await openMenu(container);
+		expect(getMenu(container).getAttribute('data-align')).toBe('center');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/51 R-DD — positioning core adoption
+// ---------------------------------------------------------------------------
+
+describe('specs/51 R-DD — positioning core adoption', () => {
+	it('the menu carries popover="manual" (top-layer, component-owned dismissal)', () => {
+		const { container } = render(Dropdown, { items, label: 'Actions' });
+		expect(getMenu(container).getAttribute('popover')).toBe('manual');
+	});
+
+	it('opening resolves data-side="bottom" on the menu (default, unflipped)', async () => {
+		const { container } = render(Dropdown, { items, label: 'Actions' });
+		await openMenu(container);
+		expect(getMenu(container).getAttribute('data-side')).toBe('bottom');
+	});
+
+	it('closing tears down positioning: data-side/data-align stay stamped from the last open, root data-open is absent', async () => {
+		const { container } = render(Dropdown, { items, label: 'Actions' });
+		const trigger = await openMenu(container);
+		expect(getRoot(container).hasAttribute('data-open')).toBe(true);
+		await userEvent.click(trigger);
+		await tick();
+		expect(getRoot(container).hasAttribute('data-open')).toBe(false);
 	});
 });
 

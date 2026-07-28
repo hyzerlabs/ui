@@ -1,8 +1,8 @@
 /**
  * @hyzer-labs/ui — shared positioning core, placement vocabulary
  * (specs/50-tooltip-popover.md, R-POS-1). Internal — not exported from the
- * package (no `./positioning` subpath); only `tooltip.ts` and
- * `Popover.svelte` import it.
+ * package (no `./positioning` subpath); only `tooltip.ts`, `Popover.svelte`,
+ * and `Dropdown.svelte` import it.
  */
 import type { Placement, PopoverAlign, PopoverSide } from '$lib/types';
 

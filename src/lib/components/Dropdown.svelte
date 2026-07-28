@@ -5,6 +5,12 @@
 	import { cx, uid } from '$lib/utils';
 	import Button from './Button.svelte';
 	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
+	import { position, supportsPopoverApi } from '../positioning/index.js';
+
+	// specs/51 R-DD-4: reproduces today's rendered gap (structural `top: 100%`
+	// plus the theme's former `margin-top: 0.25rem`, i.e. 4px at the root font
+	// size) — hardcoded here now that the core, not the theme, owns the gap.
+	const DROPDOWN_OFFSET = 4;
 
 	interface Props {
 		items: DropdownEntry[];
@@ -12,7 +18,7 @@
 		triggerLabel?: string;
 		triggerProps?: DropdownTriggerProps;
 		triggerIcon?: Snippet;
-		align?: 'start' | 'end';
+		align?: 'start' | 'center' | 'end';
 		onselect?: (id: string, item: DropdownItem) => void;
 		disabled?: boolean;
 		class?: string;
@@ -59,6 +65,12 @@
 	let open = $state(false);
 	let activeId = $state<string | null>(null);
 	let rootEl = $state<HTMLDivElement | null>(null);
+	let menuEl = $state<HTMLUListElement | null>(null);
+
+	// specs/51 R-DD-3: teardown for the core's active positioning (scroll/
+	// resize tracking on the JS-fallback path) — stored across the open/close
+	// cycle, not reactive state (the Popover.svelte precedent).
+	let stopPositioning: (() => void) | null = null;
 
 	function firstId(): string | null {
 		return menuItems.length > 0 ? menuItems[0].id : null;
@@ -228,6 +240,66 @@
 		document.addEventListener('click', onDocumentClick);
 		return () => document.removeEventListener('click', onDocumentClick);
 	});
+
+	// ------------------------------------------------------------------
+	// specs/51 R-DD-2/R-DD-3: menu positioning + top layer — reconciles
+	// `open` with the menu's showPopover()/hidePopover() (guarded so it is a
+	// no-op on SSR/before mount, the Popover.svelte precedent). `"manual"`,
+	// not `"auto"`: Dropdown already owns dismissal (onDocumentClick/
+	// onRootFocusOut/Escape above), so the browser must never light-dismiss
+	// or Escape-dismiss the menu itself — unlike Popover, there is no native
+	// invoker here to race against and no native auto-dismiss to reconcile
+	// against, so — unlike Popover's toggle-event-gated handleShown/
+	// handleHidden — positioning and the popover call run synchronously
+	// together, in lockstep with `open`, keeping the existing
+	// openTo() → tick() → focus sequencing exactly as it was (Dropdown-R6).
+	// On a browser without the Popover API, `popover="manual"` is inert and
+	// the existing CSS `display` toggling (driven by the root's data-open)
+	// remains the whole visibility mechanism, unchanged.
+	// ------------------------------------------------------------------
+
+	$effect(() => {
+		if (!menuEl) return;
+		if (open) {
+			if (supportsPopoverApi() && typeof menuEl.showPopover === 'function') {
+				try {
+					menuEl.showPopover();
+				} catch {
+					// Already shown — no-op.
+				}
+			}
+			const triggerEl = document.getElementById(triggerId) ?? rootEl;
+			if (triggerEl) {
+				// R-THEME-3: data-side/data-align reflect the RESOLVED (post-flip)
+				// placement, measured from real layout, so a consumer-drawn caret
+				// always points at the trigger after a flip.
+				const resolved = position(triggerEl, menuEl, {
+					side: 'bottom',
+					align,
+					offset: DROPDOWN_OFFSET
+				});
+				stopPositioning = resolved.stop;
+				menuEl.setAttribute('data-side', resolved.side);
+				menuEl.setAttribute('data-align', resolved.align);
+			}
+		} else {
+			if (supportsPopoverApi() && typeof menuEl.hidePopover === 'function') {
+				try {
+					menuEl.hidePopover();
+				} catch {
+					// Already hidden — no-op.
+				}
+			}
+			stopPositioning?.();
+			stopPositioning = null;
+		}
+	});
+
+	// Teardown safety net — an instance unmounted while open must not leak
+	// the JS-fallback path's scroll/resize listeners.
+	$effect(() => {
+		return () => stopPositioning?.();
+	});
 </script>
 
 {#snippet chevron()}
@@ -244,7 +316,6 @@
 	bind:this={rootEl}
 	class={cx('hz-dropdown', className)}
 	data-open={open ? '' : undefined}
-	data-align={align}
 	data-state={disabled ? 'disabled' : undefined}
 	onfocusout={onRootFocusOut}
 >
@@ -289,12 +360,16 @@
 	{/if}
 
 	<!-- Dropdown-R3: rendered at all times, hidden via CSS while closed
-	     (Dropdown-R17) so a closed menu is out of the a11y tree. -->
+	     (Dropdown-R17) so a closed menu is out of the a11y tree. specs/51
+	     R-DD-2: popover="manual" — top-layer escape, dismissal stays
+	     component-owned (never native light-dismiss/Escape). -->
 	<ul
+		bind:this={menuEl}
 		id={menuId}
 		class="hz-dropdown-menu"
 		role="menu"
 		aria-labelledby={triggerId}
+		popover="manual"
 		onkeydown={onMenuKeydown}
 	>
 		{#each items as entry, i (entryKey(entry, i))}
@@ -328,30 +403,25 @@
 </div>
 
 <style>
-	/* Dropdown-R17: structural CSS only — all chrome is theme/dropdown.css. */
+	/* Dropdown-R17: structural CSS only — all chrome is theme/dropdown.css.
+	   specs/51 R-DD-3: no positioning CSS here anymore — the menu is
+	   position: fixed, placed by the shared positioning core (anchor path or
+	   the JS measure-and-place fallback), same as Popover's panel. */
 
 	.hz-dropdown {
-		position: relative;
 		display: inline-block;
 	}
 
 	.hz-dropdown-menu {
-		position: absolute;
-		top: 100%;
-		inset-inline-start: 0;
 		min-width: max-content;
 		list-style: none;
 		margin: 0;
 		padding: 0;
 	}
 
-	.hz-dropdown[data-align='end'] .hz-dropdown-menu {
-		inset-inline-start: auto;
-		inset-inline-end: 0;
-	}
-
 	/* Closed menu is out of the accessibility tree — its items are not
-	   focusable. */
+	   focusable. Also correct without the Popover API: popover="manual" is
+	   then inert, so this is the only visibility mechanism. */
 	.hz-dropdown:not([data-open]) .hz-dropdown-menu {
 		display: none;
 	}

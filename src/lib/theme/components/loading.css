@@ -1,32 +1,43 @@
 /**
  * @hyzer-labs/ui reference theme — Loading
  *
+ * Amended 2026-07-27 — the spinner/ring split: `spinner` is now the
+ * IconLoader glyph, indeterminate-only. `ring` is the sole home of circular
+ * progress — indeterminate (no value) renders a continuously rotating arc
+ * whose length pulses; determinate (a value) renders the static SVG arc this
+ * sheet always painted.
+ *
  * Determinate: paints the native <progress>'s vendor pseudo-elements
- * (fill/track), and the static SVG ring's two circles (track + arc).
- * Indeterminate: an animated gradient sweep on the track (the table-shimmer
- * recipe, generalised), a rotating IconLoader glyph, or a three-dot ellipsis
- * loader. Timing is driven by the paired --hz-loading-speed (duration) /
- * --hz-loading-ease (easing) hooks (specs/49 R8) — the spinner ignores the
- * ease hook and always spins linear (Decision 7). The bar sweep ALSO runs
+ * (fill/track), and the static ring's two circles (track + arc). Bar/ring
+ * without a value: an animated gradient sweep on the bar's track (the
+ * table-shimmer recipe, generalised) or a continuously rotating,
+ * arc-length-pulsing ring; `spinner`/`dots` are always indeterminate — a
+ * rotating IconLoader glyph, or a three-dot ellipsis loader. Timing is
+ * driven by the paired --hz-loading-speed (duration) / --hz-loading-ease
+ * (easing) hooks (specs/49 R8) — the spinner and the indeterminate ring's
+ * rotation both ignore the ease hook and always spin linear (Decision 7,
+ * extended to the ring's rotation by the amendment). The bar sweep ALSO runs
  * linear (Decision 8), and at 1.6x the base speed with gentler, low-contrast
  * keyframes than a hard edge-to-edge wipe: an infinite sweep must move at
  * constant velocity over a whole number of gradient tiles or it hiccups at
  * the loop seam — an ease curve would decelerate to a stop and restart each
- * cycle. Only the dots pick up --hz-loading-ease (their pulse is not a
- * traveling loop, so an ease reads cleanly). The base speed is deliberately
- * calm: 2.4s (6x --hz-duration-base), retuned slower from an earlier draft
- * (Decision 8b).
+ * cycle. The dots cycle AND the indeterminate ring's arc-length pulse both
+ * pick up --hz-loading-ease (neither is a traveling loop — a pulse that
+ * reverses in place reads cleanly with easing). The base speed is
+ * deliberately calm: 2.4s (6x --hz-duration-base), retuned slower from an
+ * earlier draft (Decision 8b).
  *
  * Reduced motion is a DELIBERATE, documented exception (Decision 9): unlike
- * the rest of the library, Loading does NOT freeze under
+ * the rest of the library, indeterminate Loading does NOT freeze under
  * `prefers-reduced-motion: reduce` — a stalled-looking indicator reads as
- * broken. Instead every animation keeps running, scaled by a private
- * --_loading-rm-scale multiplier (1 normally, 2 under reduce — re-picked
- * against the slower 2.4s base so the result (~4.8s) still reads as
- * perceptibly moving, not frozen), and the bar additionally swaps from the
- * traveling sweep to a gentle low-amplitude opacity pulse of the static
- * track. The determinate ring/bar are static regardless — this exception
- * never touches them.
+ * broken. Instead every indeterminate animation keeps running (the bar
+ * sweep, the spinner spin, the dots cycle, and the ring's rotation + dash
+ * breathe), scaled by a private --_loading-rm-scale multiplier (1 normally,
+ * 2 under reduce — re-picked against the slower 2.4s base so the result
+ * (~4.8s) still reads as perceptibly moving, not frozen), and the bar
+ * additionally swaps from the traveling sweep to a gentle low-amplitude
+ * opacity pulse of the static track. The determinate bar/ring are static
+ * regardless — this exception never touches them.
  */
 @layer hz-theme {
 	.hz-loading {
@@ -187,15 +198,17 @@
 		white-space: nowrap;
 	}
 
-	/* R7/R3: the ring's readout is centered over the wrapper (relatively
-	 * positioned in the component's own scoped style) instead of sitting
-	 * inline beside it. The font-size is scaled off --hz-loading-size (rather
-	 * than the fixed --hz-font-size-sm the inline bar readout uses) so the
-	 * string stays clear of the ring's stroke at every size — a fixed size
-	 * comfortably fits beside a bar but crowds a small circle. Docs still
-	 * recommend lg / a larger --hz-loading-size for this mode (R7 edge case):
-	 * at sm this remains a tight fit by design. */
-	.hz-loading:where([data-variant='spinner']) .hz-loading-value {
+	/* R7/R3: the determinate ring's readout is centered over its wrapper
+	 * (relatively positioned in the component's own scoped style) instead of
+	 * sitting inline beside it. The font-size is scaled off --hz-loading-size
+	 * (rather than the fixed --hz-font-size-sm the inline bar readout uses)
+	 * so the string stays clear of the ring's stroke at every size — a fixed
+	 * size comfortably fits beside a bar but crowds a small circle. Docs
+	 * still recommend lg / a larger --hz-loading-size for this mode (R7 edge
+	 * case): at sm this remains a tight fit by design. The indeterminate ring
+	 * never renders a readout, so this rule only ever matches the determinate
+	 * case in practice. */
+	.hz-loading:where([data-variant='ring']) .hz-loading-value {
 		position: absolute;
 		inset: 0;
 		display: flex;
@@ -209,19 +222,26 @@
 	/* -------------------------------------------------------------------- */
 	/* Spinner / ring — the indeterminate glyph is the same IconLoader Button */
 	/* uses (Decision 4: keyframes stay co-located per sheet, not shared);    */
-	/* the determinate ring (R3) is a component-authored static SVG arc.      */
+	/* the ring (amended 2026-07-27) is a component-authored SVG arc — static */
+	/* when determinate (R3), a rotating/pulsing loop when indeterminate.     */
 	/* Both read --hz-loading-size as a DIAMETER (repurposed from the bar's   */
 	/* thickness use, R8) — overridden here per data-size, after (so it wins  */
 	/* by source order over) the bar-thickness defaults above.                */
 	/* -------------------------------------------------------------------- */
 
-	.hz-loading:where([data-variant='spinner']) {
+	.hz-loading:where([data-variant='spinner'], [data-variant='ring']) {
 		--hz-loading-size: 1.5rem;
 	}
-	.hz-loading:where([data-variant='spinner'][data-size='sm']) {
+	.hz-loading:where(
+		[data-variant='spinner'][data-size='sm'],
+		[data-variant='ring'][data-size='sm']
+	) {
 		--hz-loading-size: 1rem;
 	}
-	.hz-loading:where([data-variant='spinner'][data-size='lg']) {
+	.hz-loading:where(
+		[data-variant='spinner'][data-size='lg'],
+		[data-variant='ring'][data-size='lg']
+	) {
 		--hz-loading-size: 2rem;
 	}
 
@@ -245,13 +265,10 @@
 		}
 	}
 
-	/* R3 — the determinate ring: a STATIC arc (no animation — its position
-	 * *is* the information, Out of Scope). Sized square off --hz-loading-size
-	 * (the spinner-diameter override above); vector-effect: non-scaling-stroke
-	 * keeps --hz-loading-ring-width a true rendered length under the viewBox
-	 * scale. The fill circle is rotated -90deg about its own center so the arc
-	 * starts at 12 o'clock and fills clockwise; the component writes its
-	 * stroke-dashoffset inline as the live value/max fraction (R3). */
+	/* Ring geometry — shared by both presentations. Sized square off
+	 * --hz-loading-size (the diameter override above); vector-effect:
+	 * non-scaling-stroke keeps --hz-loading-ring-width a true rendered length
+	 * under the viewBox scale. */
 	.hz-loading-ring {
 		display: block;
 		width: var(--hz-loading-size);
@@ -273,8 +290,63 @@
 		stroke: var(--hz-loading-fill);
 		stroke-dasharray: 100;
 		stroke-linecap: round;
-		transform: rotate(-90deg);
 		transform-origin: center;
+	}
+
+	/* R3 — the determinate ring: a STATIC arc (no animation — its position
+	 * *is* the information, Out of Scope). Rotated -90deg about its own
+	 * center so the arc starts at 12 o'clock and fills clockwise; the
+	 * component writes its stroke-dashoffset inline as the live value/max
+	 * fraction (R3). */
+	.hz-loading:where([data-variant='ring']:not([data-indeterminate])) .hz-loading-ring-fill {
+		transform: rotate(-90deg);
+	}
+
+	/* Amendment 2026-07-27 — the indeterminate ring: a continuously rotating
+	 * arc whose length pulses (breathes) between short and long, the
+	 * Material-style indeterminate circular loader. Two independent
+	 * animations on the same element: rotation (ALWAYS linear, like the
+	 * spinner and the bar sweep — Decision 7) and the dash breathe (a
+	 * grow-then-collapse-forward cycle, so it DOES pick up
+	 * --hz-loading-ease, like the dots). Decision 9 — unconditional and
+	 * scaled by --_loading-rm-scale, same as every other indeterminate
+	 * presentation: the reduced-motion block only lengthens that multiplier,
+	 * it never stops this. */
+	.hz-loading:where([data-variant='ring'][data-indeterminate]) .hz-loading-ring-fill {
+		animation:
+			hz-loading-ring-spin calc(var(--hz-loading-speed) * var(--_loading-rm-scale)) linear infinite,
+			hz-loading-ring-dash calc(var(--hz-loading-speed) * var(--_loading-rm-scale))
+				var(--hz-loading-ease) infinite;
+	}
+
+	@keyframes hz-loading-ring-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	/* stroke-dasharray's gap is fixed at the ring's full pathLength (100, see
+	 * the component's pathLength="100" circles) so only one dash ever paints
+	 * regardless of the visible-arc length — the "X 100" form. The arc
+	 * always moves FORWARD (user-directed 2026-07-28): it grows head-first
+	 * to ~3/4 of the ring, then the TAIL advances to collapse into the head
+	 * (dashoffset keeps moving the same direction) — never shrinking back
+	 * toward its starting point, which reads as regress, not progress. The
+	 * cycle is seamless: 100%'s stub at position 99–100 is the same place on
+	 * the circle as 0%'s stub at 0–1. */
+	@keyframes hz-loading-ring-dash {
+		0% {
+			stroke-dasharray: 1 100;
+			stroke-dashoffset: 0;
+		}
+		50% {
+			stroke-dasharray: 75 100;
+			stroke-dashoffset: -25;
+		}
+		100% {
+			stroke-dasharray: 1 100;
+			stroke-dashoffset: -99;
+		}
 	}
 
 	/* -------------------------------------------------------------------- */
@@ -339,8 +411,8 @@
 			/* One multiplier, applied everywhere above via calc() — this is the
 			 * only place the reduced-motion cadence needs retuning. Decision 9 —
 			 * re-picked against the slower 2.4s base: 2x lands at ~4.8s
-			 * (spinner/dots), a clearly slower but still-perceptibly-moving pace;
-			 * the old 6x factor would look frozen at this base. */
+			 * (spinner/dots/ring), a clearly slower but still-perceptibly-moving
+			 * pace; the old 6x factor would look frozen at this base. */
 			--_loading-rm-scale: 2;
 		}
 

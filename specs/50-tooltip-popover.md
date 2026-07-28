@@ -104,8 +104,18 @@ it. Nothing here reads `prefersReducedMotion` (motion is the callers' concern).
    `position-anchor: --hz-anchor-<uid>` plus `position-area`/`anchor()`-based
    insets derived from `{ side, align, offset }`. The `@position-try` fallback
    list provides native **flip** (opposite side when the preferred side
-   overflows the viewport). No JS runs on this path beyond stamping the two
-   custom idents. Structural anchor CSS (the `anchor-name`/`position-anchor`
+   overflows the viewport). **(AMENDED 2026-07-28 — live re-resolution,
+   user-directed:** this path is no longer JS-free while shown. Native
+   `position-try` keeps its last successful option until it overflows again
+   (memory survives even removing/re-adding the property — verified
+   Chromium), so a flipped element would NOT return to the requested side
+   when room reopens. `position()` therefore attaches passive scroll/resize
+   listeners that (a) manage the PRESENCE of `position-try-fallbacks` —
+   dropped while flipped-but-requested-side-fits so base applies, re-added
+   the moment the base side lacks room — giving eager preference restore;
+   and (b) re-stamp `data-side` from real geometry on BOTH paths, so a
+   consumer caret tracks a mid-open flip. Both are covered by the flip-demo
+   e2e.) Structural anchor CSS (the `anchor-name`/`position-anchor`
    plumbing and `position: fixed` on the floating element) lives in the
    component `<style>` / attachment-authored inline style; **chrome
    (background, border, shadow, radius) lives in the theme sheets**
@@ -242,7 +252,11 @@ import). Type `TooltipOptions` lives in `$lib/types`.
      traverse.
    - **Persistent:** the tooltip stays visible until dismissed (Escape),
      trigger blur, or the pointer leaves **both** trigger and tooltip. It never
-     auto-hides on a timer while hovered/focused.
+     auto-hides on a timer while hovered/focused. **(AMENDED 2026-07-28 —
+     focus parity:** a pointer leave never hides a tooltip the trigger's
+     FOCUS still holds open — the close timer checks `document.activeElement`
+     before hiding; blur is that session's own hide path. Covers e.g. the
+     page scrolling the trigger out from under the cursor while focused.)
 
 5. **R-TT-5 — Hover-intent delays.** `openDelay` (default **400ms**) filters
    incidental pointer passes; `closeDelay` (default **150ms**) is the hover
@@ -439,7 +453,11 @@ component-managed attributes win, **structural CSS only** in `<style>`.
    **Arrow: none (R-POS-5, FINAL 2026-07-27).** The theme draws NO caret; a
    consumer draws their own (e.g. `.hz-tooltip::after` with a negative inset
    — safe, the tooltip node is `position: fixed` in the top layer, which
-   never contributes to the document's scrollable area). The edge-flush e2e
+   never contributes to the document's scrollable area). Consumer-caret
+   posture (AMENDED 2026-07-28): `.hz-tooltip` sets `overflow: visible`
+   explicitly — the UA `[popover]` stylesheet otherwise makes the tooltip a
+   scroll container that clips/scrollbars a protruding caret (the
+   R-THEME-3 panel posture, applied here too). The edge-flush e2e
    still guards that a tooltip near each viewport edge never grows a
    horizontal scrollbar. Consumer carets key off the tooltip's
    **resolved (post-flip) side** — the attachment must expose that as a

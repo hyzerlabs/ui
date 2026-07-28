@@ -187,6 +187,11 @@
 			the <code>hyzer</code> config; see
 			<a href="/theming/tokens">Theming &rarr; Tokens &amp; Overrides</a>.
 		</p>
+		<p class="override-note">
+			A tooltip, popover, or dropdown menu mostly skips this scale — see
+			<a href="/foundation/positioning#toplayer-heading">Positioning</a> for why the top layer makes
+			<code>--hz-z-*</code> matter only on the older fallback path.
+		</p>
 	</Stack>
 
 	<Stack

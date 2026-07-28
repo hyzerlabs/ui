@@ -1,31 +1,59 @@
 <script lang="ts">
-	import { Button, Cluster, Tabs } from '$lib';
+	import { Alert, Button, Cluster, Tabs } from '$lib';
 	import IconArrowRight from '$lib/icons/generated/arrow-right.svelte';
 	import IconSearch from '$lib/icons/generated/search.svelte';
 	import DocPage from '../../../docs/DocPage.svelte';
 	import { buttonDoc } from '../../../docs/data/button.js';
 	import Example from '../../../docs/Example.svelte';
 
-	const variants = ['solid', 'outline', 'ghost', 'link'] as const;
-	const intents = ['primary', 'secondary', 'danger'] as const;
+	// primary leads: it's Button's default intent — a button is a call to
+	// action. The rest follow the registry order.
+	const intents = [
+		'primary',
+		'neutral',
+		'secondary',
+		'danger',
+		'warning',
+		'success',
+		'info'
+	] as const;
+	const variants = ['solid', 'outline', 'ghost', 'soft'] as const;
 	const sizes = ['sm', 'md', 'lg'] as const;
 
 	const demoTabs = [
 		{ id: 'variants', label: 'Variants' },
+		{ id: 'intents', label: 'Intents' },
 		{ id: 'sizes', label: 'Sizes' },
 		{ id: 'states', label: 'States' },
 		{ id: 'icons', label: 'With icons' },
-		{ id: 'full-width', label: 'Full width' },
 		{ id: 'as-anchor', label: 'As anchor' }
 	];
 
-	// Example-code builders — derived from the selected sub-tab so the code
-	// pane updates live with the demo.
-	function variantCode(variant: string): string {
-		return intents
-			.map((intent) => `<Button variant="${variant}" intent="${intent}">${intent}</Button>`)
-			.join('\n');
+	// Row-matrix code builders (the Sizes-tab treatment): defaults are
+	// omitted from the samples — a bare <Button> IS solid + primary.
+	const demoIntents = ['primary', 'secondary', 'danger'] as const;
+
+	function buttonTag(variant: string, intent: string, label: string): string {
+		const variantAttr = variant === 'solid' ? '' : ` variant="${variant}"`;
+		const intentAttr = intent === 'primary' ? '' : ` intent="${intent}"`;
+		return `<Button${variantAttr}${intentAttr}>${label}</Button>`;
 	}
+
+	const variantsCode = variants
+		.map(
+			(variant) =>
+				`<!-- ${variant}${variant === 'solid' ? ' (default)' : ''} -->\n` +
+				demoIntents.map((intent) => buttonTag(variant, intent, intent)).join('\n')
+		)
+		.join('\n\n');
+
+	const intentsCode = intents
+		.map(
+			(intent) =>
+				`<!-- ${intent}${intent === 'primary' ? ' (default)' : ''} -->\n` +
+				variants.map((variant) => buttonTag(variant, intent, variant)).join('\n')
+		)
+		.join('\n\n');
 
 	function sizeRowCode(size: (typeof sizes)[number]): string {
 		return variants
@@ -37,11 +65,12 @@
 			.join('\n');
 	}
 
-	const sizesCode = sizes
-		.map(
+	const sizesCode = [
+		...sizes.map(
 			(size) => `<!-- size="${size}"${size === 'md' ? ' (default)' : ''} -->\n${sizeRowCode(size)}`
-		)
-		.join('\n\n');
+		),
+		'<!-- size="full" — fills its container at the md height/padding -->\n<Button size="full">full</Button>'
+	].join('\n\n');
 
 	const statesCode = [
 		'<Button loading>Save</Button>',
@@ -65,8 +94,6 @@
 		'</Button>'
 	].join('\n');
 
-	const fullWidthCode = '<Button fullWidth>Full width button</Button>';
-
 	const anchorCode = '<Button href="/pricing">Link button (renders as <a>)</Button>';
 </script>
 
@@ -75,32 +102,56 @@
 		{#snippet panel(item)}
 			<div class="tab-content">
 				{#if item.id === 'variants'}
-					<Tabs
-						items={variants.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Button variant"
-						defaultTab="solid"
-					>
-						{#snippet panel(vItem)}
-							<div class="inner-tab">
-								<Example code={variantCode(vItem.id)}>
-									<Cluster gap="sm">
-										{#each intents as intent (intent)}
-											<Button variant={vItem.id as (typeof variants)[number]} {intent}>
-												{intent}
-											</Button>
+					<p class="tab-note">
+						Four looks for one control: <code>solid</code> (the default) fills with the intent
+						color, <code>outline</code> and <code>ghost</code> lighten the footprint, and
+						<code>soft</code> tints the intent into the surface. Each row shows one variant across a few
+						intents.
+					</p>
+					<Example code={variantsCode}>
+						<div class="row-demo">
+							{#each variants as variant (variant)}
+								<div class="demo-row">
+									<span class="demo-row-label">{variant}</span>
+									<Cluster gap="sm" align="center">
+										{#each demoIntents as intent (intent)}
+											<Button {variant} {intent}>{intent}</Button>
 										{/each}
 									</Cluster>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+								</div>
+							{/each}
+						</div>
+					</Example>
+				{:else if item.id === 'intents'}
+					<p class="tab-note">
+						Button spans the full <a href="/foundation/colors#intent">intent vocabulary</a>, not a
+						hand-picked subset — and <code>primary</code> is the default: a button is a call to action.
+					</p>
+					<Example code={intentsCode}>
+						<div class="row-demo">
+							{#each intents as intent (intent)}
+								<div class="demo-row">
+									<span class="demo-row-label">{intent}</span>
+									<Cluster gap="sm" align="center">
+										{#each variants as variant (variant)}
+											<Button {variant} {intent}>{variant}</Button>
+										{/each}
+									</Cluster>
+								</div>
+							{/each}
+						</div>
+					</Example>
 				{:else if item.id === 'sizes'}
-					<p class="tab-note">Every size, shown across all four variants.</p>
+					<p class="tab-note">
+						Every size, shown across all four variants. <code>size="full"</code> fills its container
+						at the <code>md</code> height/padding; it isn't combinable with
+						<code>sm</code>/<code>lg</code>.
+					</p>
 					<Example code={sizesCode}>
-						<div class="size-demo">
+						<div class="row-demo">
 							{#each sizes as size (size)}
-								<div class="size-row">
-									<span class="size-row-label">{size}</span>
+								<div class="demo-row">
+									<span class="demo-row-label">{size}</span>
 									<Cluster gap="sm" align="center">
 										{#each variants as variant (variant)}
 											<Button {size} {variant}>{variant}</Button>
@@ -108,6 +159,14 @@
 									</Cluster>
 								</div>
 							{/each}
+							<div class="demo-row">
+								<span class="demo-row-label">full</span>
+								<!-- size="full" is width: 100%, so give it a shrinking flex
+								     cell — bare in the flex row it would wrap below the label. -->
+								<div class="demo-row-fill">
+									<Button size="full">full</Button>
+								</div>
+							</div>
 						</div>
 					</Example>
 				{:else if item.id === 'states'}
@@ -141,17 +200,16 @@
 							</Button>
 						</Cluster>
 					</Example>
-				{:else if item.id === 'full-width'}
-					<Example code={fullWidthCode}>
-						<Button fullWidth>Full width button</Button>
-					</Example>
 				{:else}
+					<Alert intent="info" title="Button vs Link">
+						Want it to look like a text link? Use <a href="/components/link"><code>Link</code></a>.
+						Want it to look like a button — including one that navigates? Use <code>Button</code>,
+						adding <code>href</code> when it should navigate.
+					</Alert>
 					<p class="tab-note">
 						<code>href</code> changes the element, not the look: it renders a real
-						<code>&lt;a role="button"&gt;</code> that navigates, styled as whatever variant you
-						choose. Contrast with <code>variant="link"</code>, which is still a
-						<code>&lt;button&gt;</code> performing an action that merely looks like a text link. If
-						it navigates <em>and</em> should look like a text link, use the Link component instead.
+						<code>&lt;a&gt;</code> that navigates, styled as whatever variant you choose — a plain
+						semantic anchor, not <code>role="button"</code>, because it genuinely does navigate.
 					</p>
 					<Example code={anchorCode}>
 						<Button href="#">Link button (renders as &lt;a&gt;)</Button>
@@ -163,23 +221,28 @@
 </DocPage>
 
 <style>
-	.size-demo {
+	.row-demo {
 		display: flex;
 		flex-direction: column;
 		gap: var(--hz-space-sm, 1rem);
 	}
 
-	.size-row {
+	.demo-row {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
 		gap: var(--hz-space-sm, 1rem);
 	}
 
-	.size-row-label {
-		min-width: 2rem;
+	.demo-row-label {
+		min-width: 4rem;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
 		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.demo-row-fill {
+		flex: 1;
+		min-width: 0;
 	}
 </style>

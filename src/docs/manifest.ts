@@ -74,6 +74,7 @@ export const manifest: ManifestEntry[] = [
 			{ label: 'Borders & Elevation', href: '/foundation/borders-elevation' },
 			{ label: 'Motion', href: '/foundation/motion' },
 			{ label: 'Observers', href: '/foundation/observers' },
+			{ label: 'Positioning', href: '/foundation/positioning' },
 			{ label: 'Icons', href: '/foundation/icons' },
 			{ label: 'CSS Reset', href: '/foundation/reset' },
 			{ label: 'Utilities', href: '/foundation/utilities' }

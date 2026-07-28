@@ -130,8 +130,12 @@
 
 	/* The expand toggle spans the bottom edge, below the fade, so the two
 	 * read as one affordance — squared to sit flush, rounded to match the
-	 * frame at the very bottom. */
+	 * frame at the very bottom. Width is set here, not via a Button prop:
+	 * Button's `fullWidth` was retired in favor of `size="full"` (md height
+	 * only), so a full-width `sm` button is now a plain theme override. */
 	.hz-code-block :where(.hz-code-block-expand) {
+		display: flex;
+		width: 100%;
 		border-block-start: var(--hz-border-width-thin, 1px) solid var(--hz-color-border, #6b7280);
 		border-end-start-radius: var(--hz-radius-md, 0.5rem);
 		border-end-end-radius: var(--hz-radius-md, 0.5rem);

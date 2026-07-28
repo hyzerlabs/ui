@@ -45,11 +45,10 @@ describe('R1 — default render', () => {
 		await expect.element(btn).toHaveAttribute('data-size', 'md');
 	});
 
-	it('data-state and data-full-width are absent by default', async () => {
+	it('data-state is absent by default', async () => {
 		render(Button);
 		const btn = page.getByRole('button');
 		await expect.element(btn).not.toHaveAttribute('data-state');
-		await expect.element(btn).not.toHaveAttribute('data-full-width');
 	});
 
 	it('merges a consumer class after hz-button', async () => {
@@ -75,7 +74,7 @@ describe('R2 — children snippet', () => {
 // ---------------------------------------------------------------------------
 
 describe('R3 — variant prop', () => {
-	const variants = ['solid', 'outline', 'ghost', 'link'] as const;
+	const variants = ['solid', 'outline', 'ghost', 'soft'] as const;
 
 	for (const variant of variants) {
 		it(`variant="${variant}" is reflected in data-variant`, async () => {
@@ -138,7 +137,7 @@ describe('R4b — derived icon-only form', () => {
 // ---------------------------------------------------------------------------
 
 describe('R5 — size prop', () => {
-	const sizes = ['sm', 'md', 'lg'] as const;
+	const sizes = ['sm', 'md', 'lg', 'full'] as const;
 
 	for (const size of sizes) {
 		it(`size="${size}" is reflected in data-size`, async () => {
@@ -165,45 +164,34 @@ describe('R6 — type prop', () => {
 });
 
 // ---------------------------------------------------------------------------
-// R7 — fullWidth
-// ---------------------------------------------------------------------------
-
-describe('R7 — fullWidth prop', () => {
-	it('data-full-width is present when fullWidth=true', async () => {
-		render(Button, { fullWidth: true });
-		const btn = page.getByRole('button');
-		await expect.element(btn).toBeInTheDocument();
-		expect(btn.element().hasAttribute('data-full-width')).toBe(true);
-	});
-
-	it('data-full-width is absent when fullWidth=false (default)', async () => {
-		render(Button);
-		await expect.element(page.getByRole('button')).not.toHaveAttribute('data-full-width');
-	});
-});
-
-// ---------------------------------------------------------------------------
-// R8 — Anchor rendering
+// R8 — Anchor rendering (amended 2026-07-27: no role="button" — a plain
+// semantic <a>, so it is queried by its 'link' role, not 'button').
 // ---------------------------------------------------------------------------
 
 describe('R8 — anchor rendering', () => {
 	it('renders an <a> element when href is a non-empty string', async () => {
 		render(Button, { href: '/x', children: childrenSnippet });
-		const el = page.getByRole('button');
+		const el = page.getByRole('link');
 		await expect.element(el).toBeInTheDocument();
 		expect(el.element().tagName).toBe('A');
 	});
 
-	it('the anchor has role="button" and the correct href', async () => {
+	it('the anchor has no role="button" attribute and carries the correct href', async () => {
 		render(Button, { href: '/x', children: childrenSnippet });
-		const el = page.getByRole('button');
-		await expect.element(el).toHaveAttribute('role', 'button');
+		const el = page.getByRole('link');
+		await expect.element(el).not.toHaveAttribute('role');
 		await expect.element(el).toHaveAttribute('href', '/x');
 	});
 
 	it('data attributes are present on the anchor', async () => {
-		render(Button, { href: '/x', variant: 'outline', intent: 'danger', size: 'lg' });
-		const el = page.getByRole('button');
+		render(Button, {
+			href: '/x',
+			variant: 'outline',
+			intent: 'danger',
+			size: 'lg',
+			children: childrenSnippet
+		});
+		const el = page.getByRole('link');
 		await expect.element(el).toHaveAttribute('data-variant', 'outline');
 		await expect.element(el).toHaveAttribute('data-intent', 'danger');
 		await expect.element(el).toHaveAttribute('data-size', 'lg');
@@ -243,17 +231,17 @@ describe('R9 — disabled state', () => {
 	});
 
 	it('anchor: omits href when disabled', async () => {
-		render(Button, { href: '/x', disabled: true, children: childrenSnippet });
-		const el = page.getByRole('button');
-		await expect.element(el).toBeInTheDocument();
-		expect(el.element().hasAttribute('href')).toBe(false);
+		// No `href` means no implicit `link` role, so this is queried by
+		// container, not page.getByRole.
+		const { container } = render(Button, { href: '/x', disabled: true, children: childrenSnippet });
+		const el = container.querySelector('.hz-button') as HTMLElement;
+		expect(el.hasAttribute('href')).toBe(false);
 	});
 
 	it('anchor: still renders as <a> when disabled', async () => {
-		render(Button, { href: '/x', disabled: true, children: childrenSnippet });
-		const el = page.getByRole('button');
-		await expect.element(el).toBeInTheDocument();
-		expect(el.element().tagName).toBe('A');
+		const { container } = render(Button, { href: '/x', disabled: true, children: childrenSnippet });
+		const el = container.querySelector('.hz-button') as HTMLElement;
+		expect(el.tagName).toBe('A');
 	});
 });
 
@@ -296,10 +284,11 @@ describe('R10 — loading state', () => {
 	});
 
 	it('anchor: omits href when loading', async () => {
-		render(Button, { href: '/x', loading: true });
-		const el = page.getByRole('button');
-		await expect.element(el).toBeInTheDocument();
-		expect(el.element().hasAttribute('href')).toBe(false);
+		// No `href` means no implicit `link` role, so this is queried by
+		// container, not page.getByRole.
+		const { container } = render(Button, { href: '/x', loading: true });
+		const el = container.querySelector('.hz-button') as HTMLElement;
+		expect(el.hasAttribute('href')).toBe(false);
 	});
 });
 
@@ -506,24 +495,30 @@ describe('Edge cases', () => {
 	});
 
 	it('anchor + disabled: <a> carries aria-disabled and no href', async () => {
-		render(Button, { href: '/go', disabled: true, children: childrenSnippet });
-		const el = page.getByRole('button');
-		await expect.element(el).toHaveAttribute('aria-disabled', 'true');
-		await expect.element(el).toHaveAttribute('data-state', 'disabled');
-		expect(el.element().hasAttribute('href')).toBe(false);
+		// No `href` means no implicit `link` role, so this is queried by
+		// container, not page.getByRole.
+		const { container } = render(Button, {
+			href: '/go',
+			disabled: true,
+			children: childrenSnippet
+		});
+		const el = container.querySelector('.hz-button') as HTMLElement;
+		expect(el.getAttribute('aria-disabled')).toBe('true');
+		expect(el.getAttribute('data-state')).toBe('disabled');
+		expect(el.hasAttribute('href')).toBe(false);
 	});
 
 	it('anchor + loading: <a> carries aria-busy, data-state="loading", and no href', async () => {
-		render(Button, { href: '/go', loading: true, children: childrenSnippet });
-		const el = page.getByRole('button');
-		await expect.element(el).toHaveAttribute('aria-busy', 'true');
-		await expect.element(el).toHaveAttribute('data-state', 'loading');
-		expect(el.element().hasAttribute('href')).toBe(false);
+		const { container } = render(Button, { href: '/go', loading: true, children: childrenSnippet });
+		const el = container.querySelector('.hz-button') as HTMLElement;
+		expect(el.getAttribute('aria-busy')).toBe('true');
+		expect(el.getAttribute('data-state')).toBe('loading');
+		expect(el.hasAttribute('href')).toBe(false);
 	});
 
 	it('type prop is ignored on the anchor form (no type attribute on <a>)', async () => {
 		render(Button, { href: '/x', type: 'submit', children: childrenSnippet });
-		const el = page.getByRole('button');
+		const el = page.getByRole('link');
 		await expect.element(el).toBeInTheDocument();
 		expect(el.element().tagName).toBe('A');
 		await expect.element(el).not.toHaveAttribute('type');
@@ -573,5 +568,26 @@ describe('R19 — loading spinner slows (not halts) under reduced motion', () =>
 		expect(getComputedStyle(container.querySelector('.hz-button') as Element).cursor).toBe(
 			'progress'
 		);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Amendment 2026-07-27 — size="full" replaces the retired fullWidth prop.
+// ---------------------------------------------------------------------------
+
+describe('amendment 2026-07-27 — size="full"', () => {
+	it('size="full" stretches to fill its container (theme width: 100%)', () => {
+		const { container } = render(Button, { size: 'full' });
+		const btn = container.querySelector('.hz-button') as HTMLElement;
+		expect(getComputedStyle(btn).width).not.toBe('auto');
+		expect(getComputedStyle(btn).display).toBe('flex');
+	});
+
+	it('fullWidth is no longer a recognized prop: forwarded as an unknown rest attribute, not a boolean toggle', async () => {
+		// fullWidth is retired; passing it now only reaches the DOM via the
+		// ...rest spread as an arbitrary attribute, same as any other extra prop.
+		render(Button, { fullWidth: true } as Record<string, unknown>);
+		const btn = page.getByRole('button');
+		await expect.element(btn).not.toHaveAttribute('data-full-width');
 	});
 });

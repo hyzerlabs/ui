@@ -61,9 +61,11 @@
 	// Alignment — a right-anchored kebab menu at the edge of a card.
 	// ------------------------------------------------------------------
 
-	const alignCode = ['<Dropdown label="Round actions" items={roundItems} align="end" />'].join(
-		'\n'
-	);
+	const alignCode = [
+		'<Dropdown label="Start" items={roundItems} />',
+		'<Dropdown label="Center" items={roundItems} align="center" />',
+		'<Dropdown label="End" items={roundItems} align="end" />'
+	].join('\n');
 
 	// ------------------------------------------------------------------
 	// Icons + separators
@@ -170,13 +172,17 @@
 					</Example>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
-						<code>align="end"</code> anchors the menu's inline-end edge to the trigger's inline-end —
-						the right-aligned kebab-menu form, useful when the trigger sits near the edge of its container.
+						<code>align</code> picks which trigger edge the menu hangs from: <code>start</code>
+						(the default) lines up the leading edges, <code>end</code> the trailing edges — the
+						right-aligned kebab-menu form, useful near the edge of a container — and
+						<code>center</code> centers the menu under the trigger. Start and end follow reading direction.
 					</p>
 					<Example code={alignCode}>
-						<div class="demo-col align-end-demo">
-							<Dropdown label="Round actions" items={roundItems} align="end" />
-						</div>
+						<Cluster gap="lg" align="center">
+							<Dropdown label="Start" items={roundItems} />
+							<Dropdown label="Center" items={roundItems} align="center" />
+							<Dropdown label="End" items={roundItems} align="end" />
+						</Cluster>
 					</Example>
 				{:else}
 					<p class="tab-note">
@@ -207,10 +213,5 @@
 	}
 	.tab-content :global(.doc-example > .hz-code-block) {
 		border-radius: 0 0 var(--hz-radius-md, 0.5rem) var(--hz-radius-md, 0.5rem);
-	}
-
-	.align-end-demo {
-		display: flex;
-		justify-content: flex-end;
 	}
 </style>

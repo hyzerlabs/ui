@@ -1,24 +1,26 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import type { Intent } from '$lib/types';
+	import type { Intent, LoadingVariant } from '$lib/types';
 	import { cx } from '$lib/utils';
 	import IconLoader from '$lib/icons/generated/loader.svelte';
 
 	// ---------------------------------------------------------------------------
-	// Loading (specs/49) — an accessible loading indicator. Fundamentally
-	// indeterminate: three variants (spinner/dots/bar) that say "something is
-	// happening" without knowing how far along it is. Passing a `value`
-	// progressively enhances the `bar` variant into a determinate native
-	// <progress value max> — native value semantics for free — AND the
-	// `spinner` variant into a determinate circular ring (a static SVG arc,
-	// R3). `dots` stays indeterminate-only (Decision 6). Headless: the
+	// Loading (specs/49, amended 2026-07-27 — the spinner/ring split) — an
+	// accessible loading indicator. Fundamentally indeterminate: `spinner` and
+	// `dots` are always indeterminate (a `value` on either is ignored,
+	// dev-warn); `bar` and `ring` are the two progressive-enhancement
+	// variants — no `value` ⇒ a bare loading indicator, `value` present ⇒
+	// determinate progress. `bar` progressively enhances into a native
+	// <progress value max> (native value semantics for free); `ring` is the
+	// sole home of circular progress — no `value` renders a continuously
+	// rotating, arc-length-pulsing loader (no readout), `value` present
+	// renders the existing static SVG arc + centered readout. Headless: the
 	// reference theme (loading.css) paints every hook this component stamps,
 	// including the paired --hz-loading-speed / --hz-loading-ease timing hooks
 	// and the ring's --hz-loading-ring-width.
 	// ---------------------------------------------------------------------------
 
 	type LoadingSize = 'sm' | 'md' | 'lg';
-	type LoadingVariant = 'bar' | 'spinner' | 'dots';
 
 	interface Props {
 		/** Omitted/undefined/NaN ⇒ indeterminate. */
@@ -70,11 +72,12 @@
 
 	// R3/R4/Edge: a non-finite value (undefined or NaN) is indeterminate.
 	const hasValue = $derived(typeof value === 'number' && Number.isFinite(value));
-	// R2/R3/R5: indeterminate for a missing/NaN value on the bar or spinner
-	// (bar → the bare bar, spinner → the spinning glyph), and ALWAYS for dots —
-	// it is indeterminate by construction regardless of value (Decision 6). A
-	// value on the spinner is now valid (R3): it renders the determinate ring.
-	const indeterminate = $derived(variant === 'dots' || !hasValue);
+	// R2/R3/R5, amended (spinner/ring split): indeterminate for a missing/NaN
+	// value on the bar or ring (bar → the bare bar, ring → the rotating/
+	// pulsing arc), and ALWAYS for spinner and dots — both are
+	// indeterminate-only by construction, regardless of value (Decision 6,
+	// extended to spinner by the amendment).
+	const indeterminate = $derived(variant === 'dots' || variant === 'spinner' || !hasValue);
 	// R3: negatives clamp to 0, over-max clamps to max.
 	const clamped = $derived(hasValue ? Math.min(Math.max(value as number, 0), max) : undefined);
 
@@ -89,9 +92,10 @@
 	// R1/R7: the readout renders only for the determinate forms (bar, ring).
 	const showReadout = $derived(showValue && !indeterminate);
 
-	// R3: the ring fill's live fraction, written inline (the Slider-fill
-	// precedent) — 0 → 100 (empty), max → 0 (full circle), clamped so an
-	// over-max value never renders an over-full ring.
+	// R3: the determinate ring's live fraction, written inline (the
+	// Slider-fill precedent) — 0 → 100 (empty), max → 0 (full circle), clamped
+	// so an over-max value never renders an over-full ring. Only meaningful
+	// for the ring variant; unused (and unread) otherwise.
 	const ringDashoffset = $derived(hasValue ? 100 - ((clamped as number) / max) * 100 : undefined);
 
 	// R6/R5/Edge: dev-only warnings, evaluated once at creation (the Button
@@ -108,20 +112,26 @@
 			if (typeof value === 'number' && Number.isNaN(value)) {
 				console.warn('[hyzer-ui] <Loading>: `value` is NaN. Treated as indeterminate.');
 			}
-			// R5/Decision 6: dots is indeterminate-only — a value on it is
-			// ignored. A value on the spinner is now valid (R3, the ring) and
-			// does NOT warn.
+			// R5/Decision 6: dots is indeterminate-only — a value on it is ignored.
 			if (variant === 'dots' && hasValue) {
 				console.warn(
 					'[hyzer-ui] <Loading>: variant="dots" is indeterminate-only — `value` is ignored.'
 				);
 			}
+			// Amendment 2026-07-27: spinner is now indeterminate-only too (it no
+			// longer becomes a ring) — a value on it is ignored. Use variant="ring"
+			// for determinate circular progress instead.
+			if (variant === 'spinner' && hasValue) {
+				console.warn(
+					'[hyzer-ui] <Loading>: variant="spinner" is indeterminate-only — `value` is ignored. Use variant="ring" for determinate circular progress.'
+				);
+			}
 			// R7: showValue only renders a readout in a determinate presentation
 			// (the bar or the ring with a value) — warn for any indeterminate
-			// presentation (bare bar, spinner glyph, dots).
-			if (showValue && (variant === 'dots' || !hasValue)) {
+			// presentation (bare bar, spinner glyph, dots, indeterminate ring).
+			if (showValue && (variant === 'dots' || variant === 'spinner' || !hasValue)) {
 				console.warn(
-					'[hyzer-ui] <Loading>: `showValue` has no effect without a `value` (or on variant="dots") — there is no progress to show.'
+					'[hyzer-ui] <Loading>: `showValue` has no effect without a `value` (or on variant="spinner"/"dots") — there is no progress to show.'
 				);
 			}
 		});
@@ -129,9 +139,10 @@
 </script>
 
 <!--
-	R1/R2: root is always a div carrying data-intent/data-size/data-variant,
-	plus data-indeterminate exactly when there is no value (always for
-	spinner/dots). rest spreads first so managed attrs win.
+	R1/R2, amended: root is always a div carrying data-intent/data-size/
+	data-variant, plus data-indeterminate whenever the presentation is
+	indeterminate — no value on bar/ring, and ALWAYS for spinner/dots (both
+	indeterminate-only). rest spreads first so managed attrs win.
 -->
 <div
 	{...rest}
@@ -166,11 +177,24 @@
 			<output class="hz-loading-value">{format(clamped as number, max)}</output>
 		{/if}
 	{:else if variant === 'spinner'}
+		<!-- Amendment 2026-07-27: spinner is indeterminate-only — the spinning
+		     glyph, always. A `value` is ignored (dev-warn above); use
+		     variant="ring" for determinate circular progress. -->
+		<span
+			class="hz-loading-spinner"
+			role="progressbar"
+			aria-busy="true"
+			aria-label={ariaLabel}
+			aria-labelledby={restAriaLabelledby}
+		>
+			<IconLoader />
+		</span>
+	{:else if variant === 'ring'}
 		{#if hasValue}
 			<!-- R3: the determinate ring — a static SVG arc, ARIA on the wrapper
 			     (the SVG itself is decorative). No aria-busy: progress is known. -->
 			<span
-				class="hz-loading-spinner"
+				class="hz-loading-ring-wrapper"
 				role="progressbar"
 				aria-valuemin="0"
 				aria-valuemax={max}
@@ -195,15 +219,20 @@
 				{/if}
 			</span>
 		{:else}
-			<!-- R5: no value — the indeterminate spinning glyph. -->
+			<!-- Amendment 2026-07-27: no value — the indeterminate ring: a
+			     continuously rotating arc whose length pulses (breathes) between
+			     short and long. No value readout is ever rendered here. -->
 			<span
-				class="hz-loading-spinner"
+				class="hz-loading-ring-wrapper"
 				role="progressbar"
 				aria-busy="true"
 				aria-label={ariaLabel}
 				aria-labelledby={restAriaLabelledby}
 			>
-				<IconLoader />
+				<svg class="hz-loading-ring" viewBox="0 0 32 32" role="img" aria-hidden="true">
+					<circle class="hz-loading-ring-track" cx="16" cy="16" r="14" pathLength="100" />
+					<circle class="hz-loading-ring-fill" cx="16" cy="16" r="14" pathLength="100" />
+				</svg>
 			</span>
 		{/if}
 	{:else}
@@ -243,10 +272,17 @@
 		min-width: 0;
 	}
 
-	/* R8: the spinner/ring wrapper is a relatively-positioned inline-flex box
-	 * so the ring's centered .hz-loading-value readout (theme-painted) can
-	 * absolutely position against it. */
+	/* The spinner wrapper is just an inline-flex box around the glyph — it
+	 * never carries a centered readout (spinner is indeterminate-only). */
 	.hz-loading-spinner {
+		display: inline-flex;
+		align-items: center;
+	}
+
+	/* R8, amended: the ring wrapper is a relatively-positioned inline-flex box
+	 * so the determinate ring's centered .hz-loading-value readout
+	 * (theme-painted) can absolutely position against it. */
+	.hz-loading-ring-wrapper {
 		position: relative;
 		display: inline-flex;
 		align-items: center;

@@ -12,7 +12,12 @@
 	 * added themselves.
 	 */
 	type ButtonIntent = Intent;
-	type ButtonSize = 'sm' | 'md' | 'lg';
+	/**
+	 * `'full'` renders full width at the `md` height/padding (amended
+	 * 2026-07-27) — the `fullWidth` prop is retired in its favor. Trade-off
+	 * accepted: full-width is no longer combinable with `sm`/`lg`.
+	 */
+	type ButtonSize = 'sm' | 'md' | 'lg' | 'full';
 	type ButtonType = 'button' | 'submit' | 'reset';
 
 	interface Props {
@@ -22,7 +27,6 @@
 		disabled?: boolean;
 		loading?: boolean;
 		loadingLabel?: string;
-		fullWidth?: boolean;
 		href?: string;
 		type?: ButtonType;
 		ariaLabel?: string;
@@ -41,7 +45,6 @@
 		disabled = false,
 		loading = false,
 		loadingLabel = 'Loading',
-		fullWidth = false,
 		href,
 		type = 'button',
 		ariaLabel,
@@ -89,14 +92,12 @@
 	<a
 		{...rest}
 		class={cx('hz-button', className)}
-		role="button"
 		href={disabled || loading ? undefined : href}
 		data-variant={variant}
 		data-intent={intent}
 		data-size={size}
 		data-icon-only={iconOnly ? '' : undefined}
 		data-state={dataState}
-		data-full-width={fullWidth ? '' : undefined}
 		aria-disabled={disabled ? 'true' : undefined}
 		aria-busy={loading ? 'true' : undefined}
 		aria-label={ariaLabel}
@@ -120,7 +121,6 @@
 		data-size={size}
 		data-icon-only={iconOnly ? '' : undefined}
 		data-state={dataState}
-		data-full-width={fullWidth ? '' : undefined}
 		aria-disabled={disabled ? 'true' : undefined}
 		aria-busy={loading ? 'true' : undefined}
 		aria-label={ariaLabel}

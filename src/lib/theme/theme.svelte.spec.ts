@@ -2,6 +2,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import '../tokens/tokens.css';
 import './components/alert.css';
 import './components/badge.css';
+import './components/button.css';
 import { softTints } from '../config/index.js';
 
 /**
@@ -53,6 +54,25 @@ describe.each(['light', 'dark'] as const)('soft tints match the softTints model 
 		setMode();
 		const badge = mount('hz-badge', { 'data-intent': 'warning', 'data-variant': 'soft' });
 		const style = getComputedStyle(badge);
+		expect(style.backgroundColor).toBe(
+			resolveColor(
+				`color-mix(in srgb, var(--hz-intent-warning) ${pct(softTints[mode].badgeBg)}, var(--hz-color-surface))`
+			)
+		);
+		expect(style.color).toBe(
+			resolveColor(
+				`color-mix(in srgb, var(--hz-intent-warning) ${pct(softTints.badgeText)}, var(--hz-color-text))`
+			)
+		);
+	});
+
+	// specs/01 amendment 2026-07-27 — Button's `soft` variant reuses the
+	// Badge soft recipe verbatim (same softTints.badgeBg/badgeText model, via
+	// its own --hz-button-tint hook), so it must pin to the identical math.
+	it('soft Button background and text mix at the modeled strengths', () => {
+		setMode();
+		const button = mount('hz-button', { 'data-intent': 'warning', 'data-variant': 'soft' });
+		const style = getComputedStyle(button);
 		expect(style.backgroundColor).toBe(
 			resolveColor(
 				`color-mix(in srgb, var(--hz-intent-warning) ${pct(softTints[mode].badgeBg)}, var(--hz-color-surface))`
