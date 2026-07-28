@@ -7,10 +7,15 @@
  * recipe, generalised), a rotating IconLoader glyph, or a three-dot ellipsis
  * loader. Timing is driven by the paired --hz-loading-speed (duration) /
  * --hz-loading-ease (easing) hooks (specs/49 R8) — the spinner ignores the
- * ease hook and always spins linear (Decision 7); the bar sweep runs at 1.6x
- * the base speed with gentler, low-contrast keyframes than a hard edge-to-edge
- * wipe (Decision 8). The base speed is deliberately calm: 2.4s (6x
- * --hz-duration-base), retuned slower from an earlier draft (Decision 8b).
+ * ease hook and always spins linear (Decision 7). The bar sweep ALSO runs
+ * linear (Decision 8), and at 1.6x the base speed with gentler, low-contrast
+ * keyframes than a hard edge-to-edge wipe: an infinite sweep must move at
+ * constant velocity over a whole number of gradient tiles or it hiccups at
+ * the loop seam — an ease curve would decelerate to a stop and restart each
+ * cycle. Only the dots pick up --hz-loading-ease (their pulse is not a
+ * traveling loop, so an ease reads cleanly). The base speed is deliberately
+ * calm: 2.4s (6x --hz-duration-base), retuned slower from an earlier draft
+ * (Decision 8b).
  *
  * Reduced motion is a DELIBERATE, documented exception (Decision 9): unlike
  * the rest of the library, Loading does NOT freeze under
@@ -45,6 +50,13 @@
 		--hz-loading-speed: calc(var(--hz-duration-base, 400ms) * 6);
 		/* documented hook */
 		--hz-loading-ease: var(--hz-ease-standard, cubic-bezier(0.2, 0, 0, 1));
+		/* documented hook — width of the indeterminate bar's moving highlight
+		 * ("pulse") as a percentage of the bar's own width. Wider reads softer
+		 * and more ambient; the peak stays a single point at the band's center,
+		 * so a wide value fades gently over a long distance. The seamless loop
+		 * holds up to ~200% (beyond that the highlight reaches the tiling seam).
+		 * Default is a wide, gentle 150%. */
+		--hz-loading-pulse-width: 150%;
 		/* Private — the reduced-motion slow multiplier (Decision 9). 1 normally,
 		 * 2 under prefers-reduced-motion: reduce, below — re-picked against the
 		 * slower 2.4s base (a 6x factor here would look frozen). Not a
@@ -118,9 +130,24 @@
 	 * attribute, so the sweep paints the track element/pseudo itself — the
 	 * table-shimmer recipe (table.css lines 142-168), generalised.
 	 *
-	 * Decision 8 — retuned calmer: a narrow, low-contrast highlight easing
+	 * Decision 8 — retuned calmer: a narrow, low-contrast highlight sweeping
 	 * across a mostly-static track (rather than a hard, high-contrast wipe),
-	 * at 1.6x the base speed with the ease-in-out --hz-loading-ease curve.
+	 * at 1.6x the base speed.
+	 *
+	 * SEAMLESS LOOP: the gradient tile is track at BOTH edges (the highlight
+	 * band sits around the center), so `background-repeat` tiles it with no
+	 * visible seam; `background-size: 200%` makes one tile exactly twice the
+	 * container, and animating `background-position` from 100% to -100% shifts
+	 * by exactly one tile width — the image at the loop's end is pixel-identical
+	 * to its start, so there is no positional jump. Timing is `linear` (NOT
+	 * --hz-loading-ease): a looping translate needs constant velocity, or it
+	 * decelerates to a stop and restarts each cycle (the hiccup). The spinner
+	 * is likewise always-linear (Decision 7).
+	 *
+	 * PULSE WIDTH: the highlight band spans `--hz-loading-pulse-width` (a % of
+	 * the bar). The tile is 2x the bar, so a band P% of the bar is P/2 of the
+	 * tile; `P/4` is then the +/- offset of each track stop from the tile's
+	 * center (50%). E.g. the 150% default → stops at 50% ∓ 37.5% = 12.5%/87.5%.
 	 *
 	 * Decision 9 — UNCONDITIONAL, not gated behind
 	 * `prefers-reduced-motion: no-preference`: this is the deliberate
@@ -130,21 +157,22 @@
 	.hz-loading:where([data-indeterminate]) .hz-loading-bar::-webkit-progress-bar {
 		background-image: linear-gradient(
 			90deg,
-			var(--hz-loading-track) 35%,
+			var(--hz-loading-track) calc(50% - var(--hz-loading-pulse-width) / 4),
 			color-mix(in srgb, var(--hz-loading-fill) 40%, var(--hz-loading-track)) 50%,
-			var(--hz-loading-track) 65%
+			var(--hz-loading-track) calc(50% + var(--hz-loading-pulse-width) / 4)
 		);
-		background-size: 220% 100%;
+		background-size: 200% 100%;
+		background-repeat: repeat;
 		animation: hz-loading-bar-sweep calc(var(--hz-loading-speed) * 1.6 * var(--_loading-rm-scale))
-			var(--hz-loading-ease) infinite;
+			linear infinite;
 	}
 
 	@keyframes hz-loading-bar-sweep {
 		from {
-			background-position: 200% 0;
+			background-position: 100% 0;
 		}
 		to {
-			background-position: -200% 0;
+			background-position: -100% 0;
 		}
 	}
 

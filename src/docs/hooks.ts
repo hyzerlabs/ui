@@ -1815,7 +1815,12 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: '--hz-loading-ease',
 				values: '<timing-function> — default var(--hz-ease-standard)',
-				note: 'Easing of the bar sweep and the dots cycle. The spinner spin is always linear, independent of this hook — an eased rotation reads as stuttering.'
+				note: 'Easing of the dots cycle only. The spinner spin and the bar sweep are always linear, independent of this hook — an eased rotation or looping sweep reads as stuttering (it slows to a stop and restarts each cycle).'
+			},
+			{
+				name: '--hz-loading-pulse-width',
+				values: '<percentage> — default 150%',
+				note: "Width of the indeterminate bar's moving highlight (its “pulse”) as a percentage of the bar's own width. Wider reads softer and more ambient — the peak stays a point at the band center, so a wide value fades gently over a long distance. Values up to ~200% keep the loop seamless. Affects the indeterminate bar only."
 			}
 		],
 		parts: [

@@ -70,40 +70,33 @@
 	].join('\n');
 
 	// ------------------------------------------------------------------
-	// Demo 4 — timing: the paired --hz-loading-speed / --hz-loading-ease
-	// hooks, live. Spinner duration follows speed too, but its easing stays
-	// linear regardless of the ease control (Decision 7).
+	// Demo 4 — timing: the --hz-loading-speed (duration) + --hz-loading-pulse-width
+	// (the bar highlight's width) hooks, live. Both the bar sweep and the spinner
+	// rotation stay linear regardless (Decisions 7/8) — only the duration and the
+	// bar's pulse width are tunable here. Pulse width affects the bar only.
 	// ------------------------------------------------------------------
 
-	const easeOptions = [
-		{
-			value: 'var(--hz-ease-standard, cubic-bezier(0.2, 0, 0, 1))',
-			label: 'ease-standard (default)'
-		},
-		{ value: 'linear', label: 'linear' },
-		{ value: 'ease-in', label: 'ease-in' },
-		{ value: 'ease-out', label: 'ease-out' }
-	];
-
 	let speedMs = $state(2400);
-	let ease = $state(easeOptions[0].value);
+	let pulseWidth = $state(150);
 
 	// Written per-instance (not on a wrapping ancestor): loading.css declares
-	// --hz-loading-speed/-ease directly on .hz-loading itself (the R8 default),
-	// and a directly-matching declaration always wins over a value that would
-	// otherwise inherit down from an ancestor — so a style set on a wrapping
-	// <div> around several <Loading>s is silently shadowed by their own
+	// --hz-loading-speed/-pulse-width directly on .hz-loading itself (the R8
+	// default), and a directly-matching declaration always wins over a value
+	// that would otherwise inherit down from an ancestor — so a style set on a
+	// wrapping <div> around several <Loading>s is silently shadowed by their own
 	// default. Passing `style` straight to each <Loading> lands it on the
 	// component's own root (via ...rest), where it is real inline style and
 	// wins outright.
-	const timingStyle = $derived(`--hz-loading-speed: ${speedMs}ms; --hz-loading-ease: ${ease};`);
+	const timingStyle = $derived(
+		`--hz-loading-speed: ${speedMs}ms; --hz-loading-pulse-width: ${pulseWidth}%;`
+	);
 
 	const timingCode = $derived(
 		[
-			`const style = '--hz-loading-speed: ${speedMs}ms; --hz-loading-ease: ${ease};';`,
+			`const style = '--hz-loading-speed: ${speedMs}ms; --hz-loading-pulse-width: ${pulseWidth}%;';`,
 			'',
-			'<Loading variant="bar" {style} label="Loading results" />',
-			'<Loading variant="spinner" {style} label="Saving" />  <!-- spin stays linear regardless of --hz-loading-ease -->',
+			'<Loading variant="bar" {style} label="Loading results" />  <!-- pulse width tunes the bar highlight -->',
+			'<Loading variant="spinner" {style} label="Saving" />  <!-- spin stays linear -->',
 			'<Loading variant="dots" {style} label="Loading" />'
 		].join('\n')
 	);
@@ -271,18 +264,18 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>--hz-loading-speed</code> (duration) and <code>--hz-loading-ease</code> (timing
-						function) pair up to retune the indeterminate animations. Three things to notice: the
-						<strong>spinner's rotation stays linear</strong>
-						no matter what you pick for easing below — an eased spin looks like it stutters — while its
-						duration still follows the speed control; the
-						<strong>defaults are deliberately calm</strong>
-						—
-						<code>--hz-loading-speed</code> is 2.4s by default, and the bar runs at 1.6x that
-						(~3.84s) over a soft, low-contrast highlight rather than a fast, hard-edged wipe; and
-						toggling your OS's reduced-motion setting shows a third behavior: Loading does
+						<code>--hz-loading-speed</code> (duration) and <code>--hz-loading-pulse-width</code>
+						(the width of the bar's moving highlight) retune the indeterminate animations. Three things
+						to notice: the
+						<strong>bar sweep and spinner rotation both stay linear</strong>
+						— a looping animation that eases in and out slows to a stop and restarts each cycle, which
+						reads as a hiccup — while their duration follows the speed control;
+						<code>--hz-loading-pulse-width</code>
+						widens or narrows the bar's highlight as a percentage of the bar's own width (150% by default,
+						<strong>bar only</strong>), and a wider pulse reads softer and more ambient; and
+						toggling your OS's reduced-motion setting shows Loading does
 						<strong>not</strong> freeze — it keeps animating, just roughly 2x slower (~4.8s), and the
-						bar softens further into a gentle pulse instead of a traveling sweep. That is a deliberate
+						bar softens further into a gentle in-place pulse instead of a traveling sweep. That is a deliberate
 						exception to this library's usual "reduced motion halts animation" rule — the determinate
 						ring and bar are static either way, and Skeleton, by contrast, goes fully still.
 					</p>
@@ -302,12 +295,16 @@
 									<span class="timing-readout">{speedMs}ms</span>
 								</label>
 								<label class="timing-control">
-									Easing
-									<select bind:value={ease} aria-label="Loading easing curve">
-										{#each easeOptions as opt (opt.value)}
-											<option value={opt.value}>{opt.label}</option>
-										{/each}
-									</select>
+									Pulse width
+									<input
+										type="range"
+										min="40"
+										max="200"
+										step="10"
+										bind:value={pulseWidth}
+										aria-label="Loading bar pulse width as a percentage of the bar width"
+									/>
+									<span class="timing-readout">{pulseWidth}%</span>
 								</label>
 							</Cluster>
 							<Stack gap="md">

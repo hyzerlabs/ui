@@ -168,16 +168,23 @@ The two are designed to pair: **Loading announces** (labelled, `role=progressbar
    `--hz-loading-ease` (the **timing function**) drive the indeterminate
    animations, each defaulting to a value derived from the motion-token scale
    (`--hz-duration-*` / `--hz-ease-*`) and overridable. **Per-variant nuance —
-   the indeterminate spinner spin is always `linear`:** a spin that eases in and
-   out on every revolution looks broken, so it ignores `--hz-loading-ease` and
-   stays constant-speed. The ease hook applies only to the **bar sweep** and the
-   **dots cycle**. (Determinate variants have no animation, so timing hooks are
-   moot for them.)
+   the indeterminate spinner spin AND the bar sweep are always `linear`:** a
+   spin — or a looping highlight sweep — that eases in and out on every cycle
+   looks broken (it decelerates to a stop at the loop seam and restarts: a
+   visible hiccup), so both ignore `--hz-loading-ease` and stay constant-speed.
+   The ease hook applies only to the **dots cycle** (a pulse, not a traveling
+   loop, so an ease reads cleanly). (Determinate variants have no animation, so
+   timing hooks are moot for them.) *(Amended 2026-07-27 from live feedback: the
+   bar sweep was originally specced to pick up the ease hook; a looping sweep
+   under ease-in-out hiccups, so it now runs linear like the spinner.)*
 8. **CONFIRMED — calmer defaults, twice retuned from live feedback.** (a) The
-   indeterminate **bar** sweep uses the `--hz-loading-ease` default (ease-in-out
-   `--hz-ease-standard`) and runs at `calc(var(--hz-loading-speed) * 1.6)` over
-   gentle low-contrast keyframes — a calm pulse of light, not a fast scanning
-   bar. (b) The base **`--hz-loading-speed` default is substantially slower**
+   indeterminate **bar** sweep runs `linear` (see R7 amendment) at
+   `calc(var(--hz-loading-speed) * 1.6)` over gentle low-contrast keyframes — a
+   calm pulse of light, not a fast scanning bar. Its gradient tile is track at
+   both edges and `background-size: 200%`, and the sweep shifts
+   `background-position` by exactly one tile (100% → -100%) so the loop is
+   pixel-seamless (no positional jump at the wrap). (b) The base
+   **`--hz-loading-speed` default is substantially slower**
    than the first draft: **`calc(var(--hz-duration-base, 400ms) * 6)` = 2.4s**
    (spinner spin & dots), so the bar sweep lands at ≈ 3.84s — a clearly
    ambient/calm pace. Tunable via the hook; this is only the default (R8).
@@ -212,8 +219,9 @@ The two are designed to pair: **Loading announces** (labelled, `role=progressbar
 <!-- Retune indeterminate timing via the paired speed + ease hooks -->
 <Loading variant="spinner" label="Saving"
   style="--hz-loading-speed: 1.5s" />           <!-- spinner spin ignores ease; stays linear -->
-<Loading label="Loading"
-  style="--hz-loading-speed: 3s; --hz-loading-ease: ease-in-out" />
+<Loading label="Loading" style="--hz-loading-speed: 3s" /> <!-- bar sweep is always linear (seamless loop) -->
+<Loading variant="dots" label="Loading"
+  style="--hz-loading-speed: 1.2s; --hz-loading-ease: ease-in-out" /> <!-- only dots pick up the ease -->
 ```
 
 ```svelte
@@ -408,10 +416,16 @@ is treated as `px`; a `string` is used verbatim (any CSS length/percentage).
        calm ambient pace). Anchored to the `--hz-duration-*` scale so retuning
        `--hz-duration-base` drags the cadence with it; overridable with any
        `<time>`;
-     - **`--hz-loading-ease`** (timing function of the indeterminate **bar
-       sweep** and **dots cycle** — **not** the spinner spin, which stays
-       `linear`), defaulting to
+     - **`--hz-loading-ease`** (timing function of the indeterminate **dots
+       cycle** only — **not** the spinner spin nor the bar sweep, both of which
+       stay `linear` so their loops don't hiccup, R7 amendment), defaulting to
        **`var(--hz-ease-standard, cubic-bezier(0.2, 0, 0, 1))`**. Overridable;
+     - **`--hz-loading-pulse-width`** (width of the indeterminate **bar's**
+       moving highlight as a **percentage of the bar width** — wider reads
+       softer/more ambient), defaulting to **`150%`**; the seamless loop holds
+       up to ~200% (added 2026-07-27 from live feedback). The gradient stops are
+       derived from it as `calc(50% ∓ var(--hz-loading-pulse-width) / 4)` in the
+       2×-bar tile;
    - switches `--hz-loading-fill` per intent via `:where([data-intent='…'])`
      rules across the registry Button covers (primary/secondary/danger/warning/
      success/info; neutral is the base). **Every intent applies to every
@@ -435,8 +449,12 @@ is treated as `px`; a `string` is used verbatim (any CSS length/percentage).
      wrapped in `no-preference` — the Decision 9 exception):
      - **indeterminate bar** — a soft moving-highlight gradient sweep,
        `animation-duration: calc(var(--hz-loading-speed) * 1.6)` (≈ 3.84s at the
-       default), `animation-timing-function: var(--hz-loading-ease)`, low
-       contrast between track and highlight (Decision 8a);
+       default), **`animation-timing-function: linear`** (NOT
+       `--hz-loading-ease` — a looping sweep must hold constant velocity or it
+       hiccups at the seam; R7 amendment / Decision 8), over a periodic gradient
+       tile (`background-size: 200%`, track at both edges) shifted exactly one
+       tile per cycle (`background-position` 100% → -100%) for a pixel-seamless
+       loop, low contrast between track and highlight (Decision 8a);
      - **indeterminate spinner** — `@keyframes hz-spin` (identical to Button's —
        Decision 4), `animation-duration: var(--hz-loading-speed)` (≈ 2.4s),
        **`animation-timing-function: linear`** — explicitly NOT

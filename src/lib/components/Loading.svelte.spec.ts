@@ -528,14 +528,19 @@ describe('Loading-R8 — recipe pin: paired speed + ease hooks', () => {
 		expect(getComputedStyle(svg).animationTimingFunction).toBe('linear');
 	});
 
-	it('the bar and dots pick up an overridden --hz-loading-ease', () => {
+	it('the bar sweep is always linear even when --hz-loading-ease is overridden (Decision 8, seamless loop)', () => {
+		// A looping translate must run at constant velocity or it hiccups at the
+		// loop seam — so the bar sweep, like the spinner (Decision 7), ignores
+		// the ease hook. Only the dots pick it up (asserted below).
 		const barResult = render(Loading, {
 			label: 'Loading',
-			style: '--hz-loading-ease: linear'
+			style: '--hz-loading-ease: ease-in-out'
 		} as Record<string, unknown>);
 		const bar = getLoading(barResult.container).querySelector('.hz-loading-bar') as HTMLElement;
 		expect(getComputedStyle(bar).animationTimingFunction).toBe('linear');
+	});
 
+	it('the dots pick up an overridden --hz-loading-ease', () => {
 		const dotsResult = render(Loading, {
 			variant: 'dots',
 			label: 'Loading',
