@@ -100,7 +100,9 @@ export const manifest: ManifestEntry[] = [
 					{ label: 'Modal', href: '/components/modal' },
 					{ label: 'Accordion', href: '/components/accordion' },
 					{ label: 'Tabs', href: '/components/tabs' },
-					{ label: 'Table', href: '/components/table' }
+					{ label: 'Table', href: '/components/table' },
+					{ label: 'Loading', href: '/components/loading' },
+					{ label: 'Skeleton', href: '/components/skeleton' }
 				]
 			},
 			{

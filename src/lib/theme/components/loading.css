@@ -1,0 +1,339 @@
+/**
+ * @hyzer-labs/ui reference theme — Loading
+ *
+ * Determinate: paints the native <progress>'s vendor pseudo-elements
+ * (fill/track), and the static SVG ring's two circles (track + arc).
+ * Indeterminate: an animated gradient sweep on the track (the table-shimmer
+ * recipe, generalised), a rotating IconLoader glyph, or a three-dot ellipsis
+ * loader. Timing is driven by the paired --hz-loading-speed (duration) /
+ * --hz-loading-ease (easing) hooks (specs/49 R8) — the spinner ignores the
+ * ease hook and always spins linear (Decision 7); the bar sweep runs at 1.6x
+ * the base speed with gentler, low-contrast keyframes than a hard edge-to-edge
+ * wipe (Decision 8). The base speed is deliberately calm: 2.4s (6x
+ * --hz-duration-base), retuned slower from an earlier draft (Decision 8b).
+ *
+ * Reduced motion is a DELIBERATE, documented exception (Decision 9): unlike
+ * the rest of the library, Loading does NOT freeze under
+ * `prefers-reduced-motion: reduce` — a stalled-looking indicator reads as
+ * broken. Instead every animation keeps running, scaled by a private
+ * --_loading-rm-scale multiplier (1 normally, 2 under reduce — re-picked
+ * against the slower 2.4s base so the result (~4.8s) still reads as
+ * perceptibly moving, not frozen), and the bar additionally swaps from the
+ * traveling sweep to a gentle low-amplitude opacity pulse of the static
+ * track. The determinate ring/bar are static regardless — this exception
+ * never touches them.
+ */
+@layer hz-theme {
+	.hz-loading {
+		/* documented hook */
+		--hz-loading-fill: var(--hz-intent-primary, #2563eb);
+		/* documented hook */
+		--hz-loading-track: color-mix(
+			in srgb,
+			var(--hz-intent-neutral, #6b7280) 16%,
+			var(--hz-color-surface, #fff)
+		);
+		/* documented hook — bar thickness by default; the spinner/ring override
+		 * below repurposes it as a diameter (R8: "the size dimension"). */
+		--hz-loading-size: 0.5rem;
+		/* documented hook — the determinate ring's stroke width, scaled off
+		 * --hz-loading-size so it stays proportional to the ring diameter.
+		 * vector-effect: non-scaling-stroke (below) keeps it a true length. */
+		--hz-loading-ring-width: calc(var(--hz-loading-size, 1.5rem) / 8);
+		/* documented hook — Decision 8b: a calm, ambient default (2.4s), 6x
+		 * --hz-duration-base, so the bar sweep (1.6x this) lands at ~3.84s. */
+		--hz-loading-speed: calc(var(--hz-duration-base, 400ms) * 6);
+		/* documented hook */
+		--hz-loading-ease: var(--hz-ease-standard, cubic-bezier(0.2, 0, 0, 1));
+		/* Private — the reduced-motion slow multiplier (Decision 9). 1 normally,
+		 * 2 under prefers-reduced-motion: reduce, below — re-picked against the
+		 * slower 2.4s base (a 6x factor here would look frozen). Not a
+		 * documented hook (the underscore keeps it out of the drift check and
+		 * off the table). */
+		--_loading-rm-scale: 1;
+	}
+
+	.hz-loading:where([data-size='sm']) {
+		--hz-loading-size: 0.25rem;
+	}
+	.hz-loading:where([data-size='lg']) {
+		--hz-loading-size: 0.75rem;
+	}
+
+	/* Intent → fill. Primary is the base declared above (Decision 2); the rest
+	 * of the registry Button covers gets its own override, the same 1:1
+	 * mapping button.css uses. */
+	.hz-loading:where([data-intent='neutral']) {
+		--hz-loading-fill: var(--hz-intent-neutral, #6b7280);
+	}
+	.hz-loading:where([data-intent='secondary']) {
+		--hz-loading-fill: var(--hz-intent-secondary, #7c3aed);
+	}
+	.hz-loading:where([data-intent='danger']) {
+		--hz-loading-fill: var(--hz-intent-danger, #b91c1c);
+	}
+	.hz-loading:where([data-intent='warning']) {
+		--hz-loading-fill: var(--hz-intent-warning, #b45309);
+	}
+	.hz-loading:where([data-intent='success']) {
+		--hz-loading-fill: var(--hz-intent-success, #15803d);
+	}
+	.hz-loading:where([data-intent='info']) {
+		--hz-loading-fill: var(--hz-intent-info, #0e7490);
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* Bar — native <progress>, vendor pseudo-elements paint fill and track.  */
+	/* -------------------------------------------------------------------- */
+
+	.hz-loading-bar {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		border: none;
+		display: block;
+		width: 100%;
+		block-size: var(--hz-loading-size);
+		border-radius: var(--hz-radius-full, 9999px);
+		background-color: var(--hz-loading-track);
+	}
+
+	.hz-loading-bar::-webkit-progress-bar {
+		background-color: var(--hz-loading-track);
+		border-radius: var(--hz-radius-full, 9999px);
+	}
+
+	.hz-loading-bar::-webkit-progress-value {
+		background-color: var(--hz-loading-fill);
+		border-radius: var(--hz-radius-full, 9999px);
+		transition: width var(--hz-duration-base, 400ms) var(--hz-ease-standard, ease);
+	}
+
+	.hz-loading-bar::-moz-progress-bar {
+		background-color: var(--hz-loading-fill);
+		border-radius: var(--hz-radius-full, 9999px);
+	}
+
+	/* Indeterminate: neither engine renders a "value" portion with no value
+	 * attribute, so the sweep paints the track element/pseudo itself — the
+	 * table-shimmer recipe (table.css lines 142-168), generalised.
+	 *
+	 * Decision 8 — retuned calmer: a narrow, low-contrast highlight easing
+	 * across a mostly-static track (rather than a hard, high-contrast wipe),
+	 * at 1.6x the base speed with the ease-in-out --hz-loading-ease curve.
+	 *
+	 * Decision 9 — UNCONDITIONAL, not gated behind
+	 * `prefers-reduced-motion: no-preference`: this is the deliberate
+	 * exception. The reduced-motion block below swaps this rule out for a
+	 * static pulse rather than removing it. */
+	.hz-loading:where([data-indeterminate]) .hz-loading-bar,
+	.hz-loading:where([data-indeterminate]) .hz-loading-bar::-webkit-progress-bar {
+		background-image: linear-gradient(
+			90deg,
+			var(--hz-loading-track) 35%,
+			color-mix(in srgb, var(--hz-loading-fill) 40%, var(--hz-loading-track)) 50%,
+			var(--hz-loading-track) 65%
+		);
+		background-size: 220% 100%;
+		animation: hz-loading-bar-sweep calc(var(--hz-loading-speed) * 1.6 * var(--_loading-rm-scale))
+			var(--hz-loading-ease) infinite;
+	}
+
+	@keyframes hz-loading-bar-sweep {
+		from {
+			background-position: 200% 0;
+		}
+		to {
+			background-position: -200% 0;
+		}
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* Value readout                                                         */
+	/* -------------------------------------------------------------------- */
+
+	.hz-loading-value {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+
+	/* R7/R3: the ring's readout is centered over the wrapper (relatively
+	 * positioned in the component's own scoped style) instead of sitting
+	 * inline beside it. The font-size is scaled off --hz-loading-size (rather
+	 * than the fixed --hz-font-size-sm the inline bar readout uses) so the
+	 * string stays clear of the ring's stroke at every size — a fixed size
+	 * comfortably fits beside a bar but crowds a small circle. Docs still
+	 * recommend lg / a larger --hz-loading-size for this mode (R7 edge case):
+	 * at sm this remains a tight fit by design. */
+	.hz-loading:where([data-variant='spinner']) .hz-loading-value {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: calc(var(--hz-loading-size) * 0.3);
+		line-height: 1;
+		white-space: nowrap;
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* Spinner / ring — the indeterminate glyph is the same IconLoader Button */
+	/* uses (Decision 4: keyframes stay co-located per sheet, not shared);    */
+	/* the determinate ring (R3) is a component-authored static SVG arc.      */
+	/* Both read --hz-loading-size as a DIAMETER (repurposed from the bar's   */
+	/* thickness use, R8) — overridden here per data-size, after (so it wins  */
+	/* by source order over) the bar-thickness defaults above.                */
+	/* -------------------------------------------------------------------- */
+
+	.hz-loading:where([data-variant='spinner']) {
+		--hz-loading-size: 1.5rem;
+	}
+	.hz-loading:where([data-variant='spinner'][data-size='sm']) {
+		--hz-loading-size: 1rem;
+	}
+	.hz-loading:where([data-variant='spinner'][data-size='lg']) {
+		--hz-loading-size: 2rem;
+	}
+
+	.hz-loading-spinner .hz-icon {
+		width: var(--hz-loading-size);
+		height: var(--hz-loading-size);
+		color: var(--hz-loading-fill);
+	}
+
+	/* Decision 7 — the spinner is ALWAYS linear: it ignores --hz-loading-ease
+	 * on purpose (an eased rotation looks like it stutters). Decision 9 — this
+	 * is unconditional, not gated behind no-preference: the reduced-motion
+	 * block below only lengthens --_loading-rm-scale, it never stops this. */
+	.hz-loading-spinner .hz-icon {
+		animation: hz-spin calc(var(--hz-loading-speed) * var(--_loading-rm-scale)) linear infinite;
+	}
+
+	@keyframes hz-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	/* R3 — the determinate ring: a STATIC arc (no animation — its position
+	 * *is* the information, Out of Scope). Sized square off --hz-loading-size
+	 * (the spinner-diameter override above); vector-effect: non-scaling-stroke
+	 * keeps --hz-loading-ring-width a true rendered length under the viewBox
+	 * scale. The fill circle is rotated -90deg about its own center so the arc
+	 * starts at 12 o'clock and fills clockwise; the component writes its
+	 * stroke-dashoffset inline as the live value/max fraction (R3). */
+	.hz-loading-ring {
+		display: block;
+		width: var(--hz-loading-size);
+		height: var(--hz-loading-size);
+	}
+
+	.hz-loading-ring-track,
+	.hz-loading-ring-fill {
+		fill: none;
+		stroke-width: var(--hz-loading-ring-width);
+		vector-effect: non-scaling-stroke;
+	}
+
+	.hz-loading-ring-track {
+		stroke: var(--hz-loading-track);
+	}
+
+	.hz-loading-ring-fill {
+		stroke: var(--hz-loading-fill);
+		stroke-dasharray: 100;
+		stroke-linecap: round;
+		transform: rotate(-90deg);
+		transform-origin: center;
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* Dots — the three-dot ellipsis loader (Decision 6).                    */
+	/* -------------------------------------------------------------------- */
+
+	.hz-loading-dots {
+		gap: 0.25rem;
+	}
+
+	.hz-loading-dot {
+		width: 0.375rem;
+		height: 0.375rem;
+		border-radius: var(--hz-radius-full, 9999px);
+		background-color: var(--hz-loading-fill);
+		opacity: 1;
+	}
+
+	.hz-loading:where([data-size='sm']) .hz-loading-dot {
+		width: 0.25rem;
+		height: 0.25rem;
+	}
+	.hz-loading:where([data-size='lg']) .hz-loading-dot {
+		width: 0.5rem;
+		height: 0.5rem;
+	}
+
+	/* Decision 9 — unconditional; the dots keep --hz-loading-speed's base
+	 * cadence (unlike the bar's 1.6x) and DO pick up --hz-loading-ease. The
+	 * per-dot stagger is derived from --hz-loading-speed rather than a literal,
+	 * so retuning the speed keeps the stagger proportional. */
+	.hz-loading-dot {
+		animation: hz-loading-dots calc(var(--hz-loading-speed) * var(--_loading-rm-scale))
+			var(--hz-loading-ease) infinite;
+	}
+	.hz-loading-dot:nth-child(2) {
+		animation-delay: calc(var(--hz-loading-speed) / 7 * var(--_loading-rm-scale));
+	}
+	.hz-loading-dot:nth-child(3) {
+		animation-delay: calc(var(--hz-loading-speed) * 2 / 7 * var(--_loading-rm-scale));
+	}
+
+	@keyframes hz-loading-dots {
+		0%,
+		80%,
+		100% {
+			opacity: 0.3;
+			transform: scale(0.75);
+		}
+		40% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	/* -------------------------------------------------------------------- */
+	/* Reduced motion — the Decision 9 exception: SLOWS, never halts.        */
+	/* -------------------------------------------------------------------- */
+
+	@media (prefers-reduced-motion: reduce) {
+		.hz-loading {
+			/* One multiplier, applied everywhere above via calc() — this is the
+			 * only place the reduced-motion cadence needs retuning. Decision 9 —
+			 * re-picked against the slower 2.4s base: 2x lands at ~4.8s
+			 * (spinner/dots), a clearly slower but still-perceptibly-moving pace;
+			 * the old 6x factor would look frozen at this base. */
+			--_loading-rm-scale: 2;
+		}
+
+		/* The bar softens to a low-amplitude opacity pulse of the *static*
+		 * muted track — no traveling sweep — while staying clearly animated,
+		 * at the same slowed cadence as the spinner/dots (Decision 9). */
+		.hz-loading:where([data-indeterminate]) .hz-loading-bar,
+		.hz-loading:where([data-indeterminate]) .hz-loading-bar::-webkit-progress-bar {
+			background-image: none;
+			animation: hz-loading-bar-pulse calc(var(--hz-loading-speed) * 1.6 * var(--_loading-rm-scale))
+				var(--hz-loading-ease) infinite;
+		}
+	}
+
+	@keyframes hz-loading-bar-pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.6;
+		}
+	}
+}

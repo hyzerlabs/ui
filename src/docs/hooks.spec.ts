@@ -106,8 +106,8 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		]);
 		expect(section.groups.every((g) => g.pages.length > 0)).toBe(true);
 		// 38 + Header (spec 35) + Table (spec 37) + Toc (spec 38) + Banner (spec 41)
-		// + CodeBlock (spec 47).
-		expect(componentPages).toHaveLength(43);
+		// + CodeBlock (spec 47) + Loading + Skeleton (spec 49).
+		expect(componentPages).toHaveLength(45);
 	});
 });
 

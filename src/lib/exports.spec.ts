@@ -60,6 +60,10 @@ describe('subpath exports', () => {
 		expect(mod.Pagination).toBeDefined();
 		// Form-R9: Form component exported from $lib.
 		expect(mod.Form).toBeDefined();
+		// Loading-R15: Loading exported from $lib.
+		expect(mod.Loading).toBeDefined();
+		// Skeleton-R15: Skeleton exported from $lib.
+		expect(mod.Skeleton).toBeDefined();
 		// Form-R11: toFormErrors helper exported from $lib.
 		expect(mod.toFormErrors).toBeDefined();
 		// Lightbox-R16: lightboxGroup attachment factory exported from $lib.
@@ -84,6 +88,21 @@ describe('subpath exports', () => {
 		const mod = await import('$lib');
 		const { body } = render(mod.CodeBlock, { props: { code: 'const x = 1;' } });
 		expect(body).toContain('hz-code-block');
+	});
+
+	// Loading-R15/Skeleton-R15: smoke render — resolves from $lib and renders
+	// its root class. SSR only (this file runs in the node project, not the
+	// browser one), which doubles as a check that the component is SSR-safe.
+	it('$lib — Loading resolves and smoke-renders `.hz-loading`', async () => {
+		const mod = await import('$lib');
+		const { body } = render(mod.Loading, { props: { label: 'Loading' } });
+		expect(body).toContain('hz-loading');
+	});
+
+	it('$lib — Skeleton resolves and smoke-renders `.hz-skeleton`', async () => {
+		const mod = await import('$lib');
+		const { body } = render(mod.Skeleton, { props: {} });
+		expect(body).toContain('hz-skeleton');
 	});
 
 	it('$lib/icons — exports the full generated Lucide barrel + IconProps (specs/36 R3)', async () => {

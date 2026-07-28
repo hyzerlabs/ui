@@ -27,6 +27,8 @@ import { heroDoc } from './hero.js';
 import { modalDoc } from './modal.js';
 import { tabsDoc } from './tabs.js';
 import { tableDoc } from './table.js';
+import { loadingDoc } from './loading.js';
+import { skeletonDoc } from './skeleton.js';
 
 import { containerDoc } from './container.js';
 import { stackDoc } from './stack.js';
@@ -83,6 +85,8 @@ export const componentDocs: Record<string, ComponentDoc> = {
 	Modal: modalDoc,
 	Tabs: tabsDoc,
 	Table: tableDoc,
+	Loading: loadingDoc,
+	Skeleton: skeletonDoc,
 
 	// ---------------------------------------------------------------- Layout
 	Container: containerDoc,

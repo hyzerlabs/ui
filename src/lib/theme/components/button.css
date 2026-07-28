@@ -177,8 +177,25 @@
 	 * down from an initial 0.8s/rev (read as anxious/rushed) to 1.4s/rev —
 	 * a calmer, more legible rotation, still clearly "in progress" (user
 	 * feedback, audit round). */
+	/* R19 (specs/49) — UNCONDITIONAL, matching Loading's own spinner: a
+	 * frozen "in progress" button reads as broken, so this does NOT sit
+	 * behind `prefers-reduced-motion: no-preference` (unlike table.css/
+	 * carousel.css, which halt). The reduced-motion block below only slows
+	 * it (~3x), it never stops it. */
 	.hz-button:where([data-state='loading']) .hz-icon {
 		animation: hz-spin 1.4s linear infinite;
+	}
+
+	/* R19 (specs/49, amended 2026-07-27) — the Loading exception (Decision 9),
+	 * applied here for consistency: slows to ~4s/rev (roughly 3x the
+	 * unchanged 1.4s base — slow but clearly turning) rather than halting.
+	 * Loading semantics (aria-busy, data-state, cursor: progress, the
+	 * sr-only loadingLabel) are unaffected — only the rotation speed
+	 * changes. */
+	@media (prefers-reduced-motion: reduce) {
+		.hz-button:where([data-state='loading']) .hz-icon {
+			animation-duration: 4.2s;
+		}
 	}
 
 	.hz-button:where([data-full-width]) {

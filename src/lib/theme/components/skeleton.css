@@ -1,0 +1,114 @@
+/**
+ * @hyzer-labs/ui reference theme — Skeleton
+ *
+ * Paints the base block (single-shape variants) and the multi-line text bars
+ * from one shared color pair, with an optional shimmer/pulse animation. Both
+ * animated modes are gated behind `@media (prefers-reduced-motion: no-
+ * preference)` (specs/49 R12/R14) — under reduced motion every mode collapses
+ * to the same static muted block as `animation="none"`.
+ */
+@layer hz-theme {
+	.hz-skeleton {
+		/* documented hook */
+		--hz-skeleton-color: color-mix(
+			in srgb,
+			var(--hz-intent-neutral, #6b7280) 12%,
+			var(--hz-color-surface, #fff)
+		);
+		/* documented hook */
+		--hz-skeleton-highlight: color-mix(
+			in srgb,
+			var(--hz-intent-neutral, #6b7280) 26%,
+			var(--hz-color-surface, #fff)
+		);
+		/* documented hook */
+		--hz-skeleton-speed: 1.4s;
+	}
+
+	/* Dark mode strengthens the tint — the Badge --hz-badge-tint precedent
+	 * (badge.css lines 68-70): a weak tint barely reads as color over a dark
+	 * surface. */
+	:where([data-theme='dark']) .hz-skeleton {
+		--hz-skeleton-color: color-mix(
+			in srgb,
+			var(--hz-intent-neutral, #6b7280) 24%,
+			var(--hz-color-surface, #fff)
+		);
+		--hz-skeleton-highlight: color-mix(
+			in srgb,
+			var(--hz-intent-neutral, #6b7280) 42%,
+			var(--hz-color-surface, #fff)
+		);
+	}
+
+	/* Base fill — every animation mode (including 'none' and reduced motion)
+	 * falls back to this flat color. Targets the root when it is itself the
+	 * painted block, and every .hz-skeleton-line when it is a container. */
+	.hz-skeleton:not(:has(.hz-skeleton-line)),
+	.hz-skeleton .hz-skeleton-line {
+		background-color: var(--hz-skeleton-color);
+	}
+
+	/* Radius — 1:1 with the token scale, same targeting as the fill above. */
+	.hz-skeleton:where([data-rounded='none']):not(:has(.hz-skeleton-line)),
+	.hz-skeleton:where([data-rounded='none']) .hz-skeleton-line {
+		border-radius: var(--hz-radius-none, 0);
+	}
+	.hz-skeleton:where([data-rounded='sm']):not(:has(.hz-skeleton-line)),
+	.hz-skeleton:where([data-rounded='sm']) .hz-skeleton-line {
+		border-radius: var(--hz-radius-sm, 0.25rem);
+	}
+	.hz-skeleton:where([data-rounded='md']):not(:has(.hz-skeleton-line)),
+	.hz-skeleton:where([data-rounded='md']) .hz-skeleton-line {
+		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+	.hz-skeleton:where([data-rounded='lg']):not(:has(.hz-skeleton-line)),
+	.hz-skeleton:where([data-rounded='lg']) .hz-skeleton-line {
+		border-radius: var(--hz-radius-lg, 1rem);
+	}
+	.hz-skeleton:where([data-rounded='full']):not(:has(.hz-skeleton-line)),
+	.hz-skeleton:where([data-rounded='full']) .hz-skeleton-line {
+		border-radius: var(--hz-radius-full, 9999px);
+	}
+
+	/* shimmer/pulse — the gradient/keyframes apply ONLY under no-preference,
+	 * so reduced motion falls through to the flat background-color above,
+	 * identical to animation="none" (R12). */
+	@media (prefers-reduced-motion: no-preference) {
+		.hz-skeleton:where([data-animation='shimmer']):not(:has(.hz-skeleton-line)),
+		.hz-skeleton:where([data-animation='shimmer']) .hz-skeleton-line {
+			background-image: linear-gradient(
+				90deg,
+				var(--hz-skeleton-color) 25%,
+				var(--hz-skeleton-highlight) 50%,
+				var(--hz-skeleton-color) 75%
+			);
+			background-size: 200% 100%;
+			animation: hz-skeleton-shimmer var(--hz-skeleton-speed, 1.4s) ease-in-out infinite;
+		}
+
+		.hz-skeleton:where([data-animation='pulse']):not(:has(.hz-skeleton-line)),
+		.hz-skeleton:where([data-animation='pulse']) .hz-skeleton-line {
+			animation: hz-skeleton-pulse var(--hz-skeleton-speed, 1.4s) ease-in-out infinite;
+		}
+	}
+
+	@keyframes hz-skeleton-shimmer {
+		from {
+			background-position: 200% 0;
+		}
+		to {
+			background-position: -200% 0;
+		}
+	}
+
+	@keyframes hz-skeleton-pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+	}
+}

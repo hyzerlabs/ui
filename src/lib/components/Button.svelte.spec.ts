@@ -1,8 +1,11 @@
-import { page } from 'vitest/browser';
-import { describe, expect, it, vi } from 'vitest';
+import { page, cdp } from 'vitest/browser';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
 import Button from './Button.svelte';
+// R19 (specs/49) recipe pin — the reference theme must be loaded so the
+// computed hz-spin animation-duration reflects the actual reduced-motion rule.
+import '../theme/components/button.css';
 
 // ---------------------------------------------------------------------------
 // Snippet helpers
@@ -524,5 +527,51 @@ describe('Edge cases', () => {
 		await expect.element(el).toBeInTheDocument();
 		expect(el.element().tagName).toBe('A');
 		await expect.element(el).not.toHaveAttribute('type');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// R19 (specs/49) — loading spinner slows, does not halt, under reduced
+// motion. Forces prefers-reduced-motion via the real Chrome DevTools
+// Protocol media emulation, matching Loading's own reduced-motion pin.
+// ---------------------------------------------------------------------------
+
+describe('R19 — loading spinner slows (not halts) under reduced motion', () => {
+	afterEach(async () => {
+		await cdp().send('Emulation.setEmulatedMedia', { media: 'screen', features: [] });
+	});
+
+	it('the loading .hz-icon still runs hz-spin, with a much longer duration, under a forced reduced-motion context', async () => {
+		const { container } = render(Button, { loading: true });
+		const icon = container.querySelector('.hz-icon') as HTMLElement;
+		const normalDuration = parseFloat(getComputedStyle(icon).animationDuration);
+		expect(getComputedStyle(icon).animationName).not.toBe('none');
+
+		await cdp().send('Emulation.setEmulatedMedia', {
+			media: 'screen',
+			features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
+		});
+
+		const reducedName = getComputedStyle(icon).animationName;
+		const reducedDuration = parseFloat(getComputedStyle(icon).animationDuration);
+		expect(reducedName).not.toBe('none');
+		// ~4.2s vs the unchanged 1.4s base — roughly 3x (specs/49 R19, amended
+		// 2026-07-27, down from an earlier 6x/8.4s draft).
+		expect(reducedDuration).toBeGreaterThan(normalDuration * 2.5);
+		expect(reducedDuration).toBeCloseTo(normalDuration * 3, 0);
+	});
+
+	it('aria-busy, data-state="loading", and cursor: progress are unaffected by reduced motion', async () => {
+		const { container } = render(Button, { loading: true });
+		const btn = page.getByRole('button');
+		await cdp().send('Emulation.setEmulatedMedia', {
+			media: 'screen',
+			features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
+		});
+		await expect.element(btn).toHaveAttribute('aria-busy', 'true');
+		await expect.element(btn).toHaveAttribute('data-state', 'loading');
+		expect(getComputedStyle(container.querySelector('.hz-button') as Element).cursor).toBe(
+			'progress'
+		);
 	});
 });

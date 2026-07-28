@@ -83,8 +83,15 @@ export const INTERNAL_HOOKS: Record<string, string> = {
 //   inline by their components, carrying values CSS cannot compute (a live
 //   fraction, a normalized tick list). They never appear in theme CSS, so the
 //   drift check never sees them; they are internal by construction.
-// - `--_c`, `--_bs`, `--_bw`, `--_threshold`, `--_chars` are private by the
-//   underscore convention and never match the --hz-* scan.
+// - Loading's determinate ring writes its `.hz-loading-ring-fill` inline
+//   `stroke-dashoffset` (the live value/max fraction) directly as an SVG
+//   attribute style, not a `--hz-*` custom property — the same JS→CSS
+//   live-value precedent as `--hz-slider-fill*` above (specs/49 R3).
+// - `--_c`, `--_bs`, `--_bw`, `--_threshold`, `--_chars`, `--_loading-rm-scale`
+//   are private by the underscore convention and never match the --hz-* scan.
+//   `--_loading-rm-scale` is Loading's reduced-motion slow multiplier (1
+//   normally, 2 under `prefers-reduced-motion: reduce`, specs/49 Decision 9) —
+//   deliberately not a public hook (Out of Scope, specs/49).
 
 /**
  * The field family's shared contract. Every member carries a .hz-field root
@@ -1754,5 +1761,149 @@ export const hooks: Record<string, ComponentHooks> = {
 				note: 'Zebra striping. Pass it via class — like Card’s treatment classes, this is a theme look, not a prop.'
 			}
 		]
+	},
+	Loading: {
+		root: 'hz-loading',
+		attrs: [
+			{
+				name: 'data-intent',
+				values: "'primary' | any registered intent",
+				note: 'Drives the fill via --hz-loading-fill for every variant/mode (bar, ring, spinner, dots). Spans the intent registry. Default primary — a fill is an accent by nature, unlike Badge/Banner’s neutral default.'
+			},
+			{
+				name: 'data-size',
+				values: "'sm' | 'md' | 'lg'",
+				note: 'Bar thickness, spinner-ring diameter, and dot size. Default md.'
+			},
+			{
+				name: 'data-variant',
+				values: "'bar' | 'spinner' | 'dots'",
+				note: 'Default bar. dots is indeterminate-only; a value on spinner is valid and renders a determinate ring.'
+			},
+			{
+				name: 'data-indeterminate',
+				values: 'present when there is no value',
+				note: 'Present whenever value is absent/NaN on bar or spinner, and always for dots (indeterminate by construction). :not([data-indeterminate]) selects a determinate form — the linear bar or the circular ring.'
+			}
+		],
+		props: [
+			{
+				name: '--hz-loading-fill',
+				values: '<color> — default var(--hz-intent-primary)',
+				note: 'The filled portion — the bar fill, the ring arc, the spinner stroke, and the dot color — switched per intent.'
+			},
+			{
+				name: '--hz-loading-track',
+				values: '<color>',
+				note: 'The unfilled track / unfilled ring.'
+			},
+			{
+				name: '--hz-loading-size',
+				values: '<length> — defaulted per data-size',
+				note: 'Bar thickness for the bar; spinner-glyph / ring diameter for the spinner; dot diameter for dots — each defaulted per data-size.'
+			},
+			{
+				name: '--hz-loading-ring-width',
+				values: '<length> — default calc(var(--hz-loading-size) / 8)',
+				note: 'The determinate ring’s stroke width, scaled off --hz-loading-size so it stays proportional to the ring diameter. Applied with vector-effect: non-scaling-stroke so it stays a true length under the SVG viewBox scale.'
+			},
+			{
+				name: '--hz-loading-speed',
+				values: '<time> — default calc(var(--hz-duration-base) * 6) ≈ 2.4s',
+				note: 'Base duration of the indeterminate animations: the spinner rotation and the dots cycle run at exactly this; the bar sweep runs at 1.6x it. Anchored to the --hz-duration-* scale rather than a bare token, since that scale is tuned for one-shot transitions, not continuous loops. Under reduced motion the effective duration is slowed (≈2x, ≈4.8s), never zeroed — Loading keeps animating (the deliberate exception; contrast Skeleton). The determinate ring/bar are static, so this hook is moot for them.'
+			},
+			{
+				name: '--hz-loading-ease',
+				values: '<timing-function> — default var(--hz-ease-standard)',
+				note: 'Easing of the bar sweep and the dots cycle. The spinner spin is always linear, independent of this hook — an eased rotation reads as stuttering.'
+			}
+		],
+		parts: [
+			{
+				name: '.hz-loading-bar',
+				values: 'the native <progress>',
+				note: 'The bar variant’s real progressbar.'
+			},
+			{
+				name: '.hz-loading-value',
+				values: 'child element',
+				note: 'The formatted readout, present only with showValue on a determinate form (the bar, inline; the ring, centered).'
+			},
+			{
+				name: '.hz-loading-spinner',
+				values: 'child element',
+				note: 'The spinner-variant wrapper — role="progressbar". Wraps the indeterminate IconLoader glyph (aria-busy="true") or the determinate ring (aria-valuemin/max/now, no aria-busy).'
+			},
+			{
+				name: '.hz-loading-ring',
+				values: 'child element',
+				note: 'The determinate spinner’s SVG ring — a static arc, role="img" aria-hidden="true" (the wrapper carries the ARIA).'
+			},
+			{
+				name: '.hz-loading-ring-track',
+				values: 'child element',
+				note: 'The ring’s unfilled circle.'
+			},
+			{
+				name: '.hz-loading-ring-fill',
+				values: 'child element',
+				note: 'The ring’s arc circle. stroke-dasharray is a theme hook; the live stroke-dashoffset fraction is written inline by the component (the Slider-fill precedent), not a documented hook.'
+			},
+			{
+				name: '.hz-loading-dots',
+				values: 'child element',
+				note: 'The ellipsis-loader wrapper — role="progressbar" aria-busy="true". Adds no new custom-property hooks: reuses --hz-loading-fill, --hz-loading-size, --hz-loading-speed, and --hz-loading-ease.'
+			},
+			{ name: '.hz-loading-dot', values: 'child element', note: 'One of the dots’ three spans.' }
+		]
+	},
+	Skeleton: {
+		root: 'hz-skeleton',
+		attrs: [
+			{
+				name: 'data-variant',
+				values: "'text' | 'circle' | 'rect' | 'block'",
+				note: 'Default text.'
+			},
+			{
+				name: 'data-animation',
+				values: "'shimmer' | 'pulse' | 'none'",
+				note: 'Default shimmer. Collapses to a static block (same as none) under prefers-reduced-motion: reduce.'
+			},
+			{
+				name: 'data-rounded',
+				values: "'none' | 'sm' | 'md' | 'lg' | 'full'",
+				note: '1:1 with the --hz-radius-* scale. circle forces full regardless of the rounded prop.'
+			}
+		],
+		props: [
+			{
+				name: '--hz-skeleton-color',
+				values: '<color>',
+				note: 'The base block color. Strengthened in dark (the Badge --hz-badge-tint precedent).'
+			},
+			{
+				name: '--hz-skeleton-highlight',
+				values: '<color>',
+				note: 'The shimmer sweep color.'
+			},
+			{
+				name: '--hz-skeleton-speed',
+				values: '<time> — default 1.4s',
+				note: 'The shimmer/pulse animation cycle.'
+			}
+		],
+		parts: [
+			{
+				name: '.hz-skeleton-line',
+				values: 'child element',
+				note: 'One bar in a multi-line text skeleton (variant="text", lines > 1).'
+			}
+		]
 	}
 };
+
+// Not listed above, and deliberately: Skeleton's `width`/`height` (and
+// `lastLineWidth`) are per-instance inline styles, not theme hooks — CSS
+// cannot compute an arbitrary consumer dimension, the Grid --hz-grid-cols*
+// precedent.

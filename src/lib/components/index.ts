@@ -44,3 +44,5 @@ export { default as RangeSlider } from './RangeSlider.svelte';
 export { default as Toggle } from './Toggle.svelte';
 export { default as Form } from './Form.svelte';
 export { default as Table } from './Table.svelte';
+export { default as Loading } from './Loading.svelte';
+export { default as Skeleton } from './Skeleton.svelte';

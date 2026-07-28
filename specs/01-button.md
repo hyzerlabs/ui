@@ -246,3 +246,19 @@ specs/15) is tuned for one-shot transitions, and even `slow` is under a third
 of a comfortable continuous-spin rate — a literal value, with a comment
 explaining why, is more honest than stretching a token past its intended
 range. No API change; `keyframes hz-spin` (the rotation itself) is unchanged.
+
+**2026-07-27 — loading spin slowed (not halted) under prefers-reduced-motion,
+spec 49 (R19).** Button's loading spinner is brought into line with Loading's
+own reduced-motion posture (specs/49 Decision 9): a frozen "in progress"
+button reads as stalled/broken, which is worse for every user than a slow
+spin. `button.css`'s `.hz-icon` `hz-spin` animation stays **unconditional**
+(it is deliberately NOT wrapped in
+`@media (prefers-reduced-motion: no-preference)` — unlike the halting
+convention `table.css`/`carousel.css` follow), and a new
+`@media (prefers-reduced-motion: reduce)` block slows it to `4.2s` per
+revolution (~3x the normal 1.4s, ≈4s) — still spinning, still `linear`, just
+barely perceptible. No API change: `aria-busy`, `data-state="loading"`,
+`cursor: progress`, and the sr-only `loadingLabel` are all unchanged; only the
+rotation speed changes under reduced motion. The `@keyframes hz-spin`
+definition itself is unchanged and stays in `button.css` (co-located per
+specs/49 Decision 4, not shared with `loading.css`).
