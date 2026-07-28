@@ -755,6 +755,44 @@ describe('Combobox-R4/R10 — selection & binding', () => {
 		expect(input.getAttribute('aria-expanded')).toBe('false');
 		expect(getHiddenInputs(container).map((i) => i.value)).toEqual(['a']);
 	});
+
+	it('the placeholder shows only while nothing is selected', async () => {
+		const { container } = render(Combobox, { name: 'x', label: 'X', options: opts });
+		const input = getInput(container);
+		expect(input.getAttribute('placeholder')).toBe('Search...');
+
+		input.focus();
+		await pressKey(input, 'ArrowDown');
+		await pressKey(input, 'Enter');
+		expect(getHiddenInputs(container).length).toBeGreaterThan(0);
+		expect(input.getAttribute('placeholder')).toBeNull();
+	});
+
+	it('a scrollbar-style press inside the control keeps the popup open through the blur it causes', async () => {
+		const { container } = render(Combobox, { name: 'x', label: 'X', options: opts });
+		const input = getInput(container);
+		input.focus();
+		await pressKey(input, 'ArrowDown');
+		expect(input.getAttribute('aria-expanded')).toBe('true');
+
+		// A press on the listbox itself — the scrollbar/gutter case: unlike a
+		// press on an option, nothing preventDefaults it, so the input blurs
+		// with a null relatedTarget (which used to read as "focus left the
+		// control" and close the popup mid-scroll).
+		const listbox = container.querySelector('.hz-combobox-listbox') as HTMLElement;
+		listbox.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+		input.blur();
+		await tick();
+
+		expect(input.getAttribute('aria-expanded')).toBe('true');
+		expect(document.activeElement).toBe(input);
+
+		// The guard is per-press: after mouseup, a genuine departure still
+		// closes exactly as before.
+		window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+		await blurOutside();
+		expect(input.getAttribute('aria-expanded')).toBe('false');
+	});
 });
 
 // ---------------------------------------------------------------------------

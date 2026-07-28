@@ -39,6 +39,13 @@
 	 * outside the visible viewport from the previous position. Only big
 	 * jumps (Home/End over 25,000 rows) take an extra frame while
 	 * Virtualizer's own window catches up to the new scroll position.
+	 *
+	 * The same invariant holds in REVERSE for pointer scrolling: a wheel
+	 * scroll can window the committed active row out of the DOM with no
+	 * keydown involved, so a second effect demotes `activeIndex` back to
+	 * `pendingIndex` the moment its row unmounts — activedescendant goes
+	 * undefined (valid: "no active option") and re-commits by itself if the
+	 * row scrolls back in; Arrow keys resume from the demoted position.
 	 */
 	import { Virtualizer, Badge } from '$lib';
 	import { uid } from '$lib/utils';
@@ -196,6 +203,24 @@
 		}
 	});
 
+	// The reverse guard — the POINTER-scroll path. Keyboard moves go through
+	// the two-phase commit above, but a mouse-wheel scroll can window the
+	// COMMITTED active row out of the DOM with no keydown involved, leaving
+	// aria-activedescendant pointing at a removed id. The moment the active
+	// row leaves `renderedIndices` it is demoted back to `pendingIndex`: the
+	// input stops advertising it (an undefined aria-activedescendant is
+	// valid — "no active option"), and the commit effect above reinstates it
+	// automatically if the row scrolls back into the window. Arrow keys
+	// resume from the demoted position (`activeIndex ?? pendingIndex` in
+	// onKeydown), so wheel-browsing never resets keyboard navigation to the
+	// top of the list.
+	$effect(() => {
+		if (activeIndex !== null && !renderedIndices.has(activeIndex)) {
+			pendingIndex = activeIndex;
+			activeIndex = null;
+		}
+	});
+
 	/** Factory attachment: `{@attach trackRendered(i)}` on a row. */
 	function trackRendered(index: number) {
 		// The node itself is irrelevant — only its mount/unmount timing is.
@@ -260,7 +285,10 @@
 					return;
 				}
 				if (filtered.length === 0) return;
-				const next = activeIndex === null ? 0 : Math.min(filtered.length - 1, activeIndex + 1);
+				// `?? pendingIndex`: the active row may be demoted while its
+				// node is windowed out (wheel scroll) — resume from there.
+				const base = activeIndex ?? pendingIndex;
+				const next = base === null ? 0 : Math.min(filtered.length - 1, base + 1);
 				moveTo(next);
 				return;
 			}
@@ -271,7 +299,8 @@
 					return;
 				}
 				if (filtered.length === 0) return;
-				const prev = activeIndex === null ? filtered.length - 1 : Math.max(0, activeIndex - 1);
+				const base = activeIndex ?? pendingIndex;
+				const prev = base === null ? filtered.length - 1 : Math.max(0, base - 1);
 				moveTo(prev);
 				return;
 			}
@@ -333,7 +362,24 @@
 		}
 	}
 
+	// A mouse press inside the widget whose default ISN'T cancelled — the
+	// options preventDefault, but the listbox's own SCROLLBAR can't — blurs
+	// the input with a null relatedTarget, which would read as "focus left"
+	// below and close the popup mid-scroll (mirrors Combobox.svelte's own
+	// guard). Cleared on the next mouseup wherever it lands.
+	let pressInside = false;
+	function onMousedown() {
+		pressInside = true;
+		window.addEventListener('mouseup', () => (pressInside = false), { once: true, capture: true });
+	}
+
 	function onFocusOut(e: FocusEvent) {
+		if (pressInside) {
+			// A scrollbar grab stole focus — keep the popup open and hand
+			// focus back to the input.
+			inputEl?.focus();
+			return;
+		}
 		const related = e.relatedTarget as HTMLElement | null;
 		if (related && related.closest('.vcombo')) return;
 		open = false;
@@ -341,7 +387,8 @@
 	}
 </script>
 
-<div class="vcombo" onfocusout={onFocusOut}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="vcombo" onmousedown={onMousedown} onfocusout={onFocusOut}>
 	<label class="vcombo-label" for={inputId}>Search rounds</label>
 	<div class="vcombo-control">
 		<!-- One Badge chip per selected round, in selection order — mirrors
@@ -363,7 +410,9 @@
 			role="combobox"
 			autocomplete="off"
 			value={query}
-			placeholder="Search {rounds.length.toLocaleString()} rounds…"
+			placeholder={selectedIds.length === 0
+				? `Search ${rounds.length.toLocaleString()} rounds…`
+				: undefined}
 			aria-autocomplete="list"
 			aria-expanded={open ? 'true' : 'false'}
 			aria-controls={listId}

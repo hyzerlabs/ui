@@ -287,10 +287,31 @@
 		inputEl?.focus();
 	}
 
+	// A mouse press inside the control whose default ISN'T cancelled — the
+	// options and toggle preventDefault, but the listbox's own SCROLLBAR
+	// can't — blurs the input with a null relatedTarget, which would read as
+	// "focus left the control" below and close the popup mid-scroll. Track
+	// the press so that focusout can tell a scrollbar grab from a genuine
+	// departure; cleared on the next mouseup wherever it lands.
+	let pressInsideControl = false;
+	function onControlMousedown() {
+		pressInsideControl = true;
+		window.addEventListener('mouseup', () => (pressInsideControl = false), {
+			once: true,
+			capture: true
+		});
+	}
+
 	// Combobox-R10: focus leaving the whole control (relatedTarget not within
 	// .hz-combobox — chips and the input are both "within") clears the query
 	// and closes the popup. `value` (the chips) is never touched by blur.
 	function onControlFocusOut(e: FocusEvent) {
+		if (pressInsideControl) {
+			// A scrollbar (or other non-option) press inside the control stole
+			// focus — keep the popup open and hand focus back to the input.
+			inputEl?.focus();
+			return;
+		}
 		const related = e.relatedTarget as HTMLElement | null;
 		if (related && related.closest('.hz-combobox')) return;
 		open = false;
@@ -338,7 +359,15 @@
 	chips, toggle, or listbox.
 -->
 {#snippet control()}
-	<div class="hz-combobox-control" data-open={open ? '' : undefined} onfocusout={onControlFocusOut}>
+	<!-- The mousedown only tracks press state for the focusout guard above —
+	     the div itself is not an interactive control. -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		class="hz-combobox-control"
+		data-open={open ? '' : undefined}
+		onmousedown={onControlMousedown}
+		onfocusout={onControlFocusOut}
+	>
 		<!-- Combobox-R5: one Badge chip per selected value, in selection order. -->
 		{#each selectedOptions as option (option.value)}
 			<Badge
@@ -360,7 +389,7 @@
 			class="hz-combobox-input"
 			role="combobox"
 			value={query}
-			{placeholder}
+			placeholder={value.length === 0 ? placeholder : undefined}
 			{disabled}
 			aria-autocomplete="list"
 			aria-expanded={open ? 'true' : 'false'}

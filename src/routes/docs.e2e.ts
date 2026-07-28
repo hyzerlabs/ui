@@ -1312,6 +1312,66 @@ test.describe('Virtualized combobox pattern', () => {
 		await page.getByRole('combobox').click();
 		await expect(page.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
 	});
+
+	test('a wheel scroll that windows the active row out demotes aria-activedescendant; scrolling back re-commits it', async ({
+		page
+	}) => {
+		await page.goto('/patterns/virtualized-combobox');
+		const input = page.getByRole('combobox');
+		// A click opens the popup with option 0 committed active.
+		await input.click();
+		const activeId = await input.getAttribute('aria-activedescendant');
+		expect(activeId).toBeTruthy();
+
+		// Wheel far down the 27,000-row list — the active row's node unmounts,
+		// and aria-activedescendant must NOT be left dangling at a removed id:
+		// it is withdrawn entirely (undefined = "no active option").
+		await page.getByRole('listbox').hover();
+		await page.mouse.wheel(0, 50_000);
+		await expect(input).not.toHaveAttribute('aria-activedescendant');
+
+		// Wheel back to the top — the same row remounts and the demoted active
+		// option re-commits on its own, same id.
+		await page.mouse.wheel(0, -200_000);
+		await expect(input).toHaveAttribute('aria-activedescendant', activeId!);
+
+		// Arrow navigation resumes from the demoted position, not the top:
+		// scroll away again (demote), then ArrowDown → the option AFTER the
+		// remembered one (index 1), never a reset to index 0.
+		await page.mouse.wheel(0, 50_000);
+		await expect(input).not.toHaveAttribute('aria-activedescendant');
+		await page.keyboard.press('ArrowDown');
+		await expect(input).toHaveAttribute('aria-activedescendant', /-1$/);
+		// The advertised id always resolves to a real, mounted DOM node.
+		const resolved = await page.evaluate(() => {
+			const el = document.querySelector('[role="combobox"]')!;
+			const id = el.getAttribute('aria-activedescendant');
+			return id !== null && document.getElementById(id) !== null;
+		});
+		expect(resolved, 'aria-activedescendant points at an unmounted id').toBe(true);
+	});
+
+	test('a scrollbar press in the listbox does not close the popup', async ({ page }) => {
+		await page.goto('/patterns/virtualized-combobox');
+		const input = page.getByRole('combobox');
+		await input.click();
+		await expect(input).toHaveAttribute('aria-expanded', 'true');
+
+		// A press on the listbox that is NOT on an option — the scrollbar/
+		// gutter case (a literal scrollbar hit isn't reachable with headless
+		// overlay scrollbars, so simulate its two observable effects: an
+		// un-prevented mousedown inside the widget, then the input blur it
+		// causes).
+		await page.evaluate(() => {
+			document
+				.querySelector('[role="listbox"]')!
+				.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+			(document.querySelector('[role="combobox"]') as HTMLElement).blur();
+		});
+
+		await expect(input).toHaveAttribute('aria-expanded', 'true');
+		await expect(input).toBeFocused();
+	});
 });
 
 // ---------------------------------------------------------------------------

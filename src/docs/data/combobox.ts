@@ -30,7 +30,12 @@ export const comboboxDoc: ComponentDoc = {
 			default: '[]',
 			note: 'Bindable. Selected option values, in selection order.'
 		},
-		{ name: 'placeholder', type: 'string', default: "'Search...'" },
+		{
+			name: 'placeholder',
+			type: 'string',
+			default: "'Search...'",
+			note: 'Shown only while nothing is selected — once chips exist, they say it better.'
+		},
 		{
 			name: 'filter',
 			type: '(query: string, option: FormOption) => boolean',

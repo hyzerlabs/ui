@@ -2594,9 +2594,14 @@ Files: `src/routes/+page.svelte`, `src/routes/foundation/colors/
   attachment needs 5.32, and a peer floor below a documented feature's
   requirement was dishonest. Prereqs lists on the homepage and
   getting-started simplify to "Svelte 5.32 or newer."
-- **PRE-PUBLISH BLOCKER (user-confirmed): VirtualizedCombobox wheel
-  scroll** — a mouse-wheel scroll that unmounts the committed active row
-  leaves aria-activedescendant pointing at a gone id (keyboard path is
-  guaranteed; pointer-scroll path is not). Must fix before publishing —
-  likely a scroll handler that clears or re-commits activeIndex when the
-  active row leaves the rendered window.
+- ~~**PRE-PUBLISH BLOCKER (user-confirmed): VirtualizedCombobox wheel
+  scroll**~~ — **RESOLVED 2026-07-28.** A mouse-wheel scroll that unmounted
+  the committed active row left aria-activedescendant pointing at a gone id
+  (keyboard path was guaranteed; pointer-scroll path was not). Fixed with
+  the reverse of the existing two-phase commit: an effect demotes
+  `activeIndex` back to `pendingIndex` the moment its row leaves
+  `renderedIndices` — activedescendant is withdrawn (undefined = "no active
+  option"), the commit effect re-instates it if the row scrolls back in,
+  and Arrow keys resume from `activeIndex ?? pendingIndex` so wheel
+  browsing never resets navigation to the top. E2e pins demote, re-commit,
+  arrow-resume, and the always-resolvable-id invariant.
