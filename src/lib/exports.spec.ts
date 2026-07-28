@@ -35,6 +35,11 @@ describe('subpath exports', () => {
 		expect(mod.Combobox).toBeDefined();
 		// Dropdown-R16: Dropdown exported from $lib.
 		expect(mod.Dropdown).toBeDefined();
+		// specs/50 R-PO: Popover exported from $lib.
+		expect(mod.Popover).toBeDefined();
+		// specs/50 R-TT: tooltip attachment exported from $lib.
+		expect(mod.tooltip).toBeDefined();
+		expect(typeof mod.tooltip).toBe('function');
 		// FileUpload-R14: FileUpload exported from $lib.
 		expect(mod.FileUpload).toBeDefined();
 		expect(mod.Checkbox).toBeDefined();
@@ -103,6 +108,14 @@ describe('subpath exports', () => {
 		const mod = await import('$lib');
 		const { body } = render(mod.Skeleton, { props: {} });
 		expect(body).toContain('hz-skeleton');
+	});
+
+	// specs/50 R-PO: smoke render — resolves from $lib and renders its root
+	// class + inert panel markup with no throw (SSR-safe, no showPopover call).
+	it('$lib — Popover resolves and smoke-renders `.hz-popover`', async () => {
+		const mod = await import('$lib');
+		const { body } = render(mod.Popover, { props: { triggerLabel: 'Open' } });
+		expect(body).toContain('hz-popover');
 	});
 
 	it('$lib/icons — exports the full generated Lucide barrel + IconProps (specs/36 R3)', async () => {

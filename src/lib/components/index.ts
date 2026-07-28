@@ -35,6 +35,7 @@ export { default as Textarea } from './Textarea.svelte';
 export { default as Select } from './Select.svelte';
 export { default as Combobox } from './Combobox.svelte';
 export { default as Dropdown } from './Dropdown.svelte';
+export { default as Popover } from './Popover.svelte';
 export { default as FileUpload } from './FileUpload.svelte';
 export { default as Checkbox } from './Checkbox.svelte';
 export { default as RadioGroup } from './RadioGroup.svelte';

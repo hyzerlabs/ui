@@ -224,6 +224,10 @@ export const zIndex = {
 	raised: '1',
 	dropdown: '10',
 	sticky: '100',
+	// tooltip (specs/50): above dropdown/sticky, below popover — mainly
+	// matters on the non-top-layer fallback path (older browsers); a real
+	// top-layer tooltip stacks above everything regardless of z-index.
+	tooltip: '150',
 	popover: '200',
 	overlay: '1000',
 	modal: '1100'

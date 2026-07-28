@@ -1,0 +1,54 @@
+/**
+ * @hyzer-labs/ui reference theme — Tooltip
+ *
+ * The tooltip node is created by the `tooltip` attachment (not a Svelte
+ * component), so its structural correctness (hidden-by-default, position:
+ * fixed) is inline-JS-owned (src/lib/attachments/tooltip.ts) — this sheet is
+ * chrome only: surface, elevation, and the entrance keyframe.
+ *
+ * NO ARROW ships here (user-directed 2026-07-27): a caret is a visual
+ * decision the consumer owns. To draw your own, style `.hz-tooltip::after`
+ * keyed off `[data-side]`/`[data-align]` — the attachment sets both from the
+ * RESOLVED (post-flip) placement, so a caret always points at the trigger —
+ * and protrude it with a negative inset: the tooltip node is position: fixed
+ * in the top layer, so that can never grow the document's scrollable area.
+ */
+@layer hz-theme {
+	.hz-tooltip {
+		position: relative;
+		z-index: var(--hz-z-tooltip, 150);
+		max-width: 16rem;
+		padding: 0.375rem 0.625rem;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		background-color: var(--hz-color-surface, #fff);
+		color: var(--hz-color-text, #000);
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+		box-shadow: var(--hz-shadow-sm, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		line-height: var(--hz-line-height-tight, 1.2);
+	}
+
+	/* Entrance — fade + small rise, the Dropdown menu-entrance precedent.
+	 * Entry only: hiding is immediate (inline display: none), matching a
+	 * tooltip's snappy dismiss. JS is the primary reduced-motion gate
+	 * (inline `animation: none`, src/lib/attachments/tooltip.ts); this media
+	 * query is the belt-and-braces backup. */
+	.hz-tooltip[data-state='open'] {
+		animation: hz-tooltip-in var(--hz-duration-fast, 250ms)
+			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
+	}
+
+	@keyframes hz-tooltip-in {
+		from {
+			opacity: 0;
+			translate: 0 0.25rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hz-tooltip[data-state='open'] {
+			animation: none;
+		}
+	}
+}

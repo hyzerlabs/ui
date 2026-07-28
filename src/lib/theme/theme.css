@@ -38,6 +38,8 @@
 @import './components/field.css';
 @import './components/combobox.css';
 @import './components/dropdown.css';
+@import './components/tooltip.css';
+@import './components/popover.css';
 @import './components/file-upload.css';
 @import './components/form.css';
 @import './components/card.css';

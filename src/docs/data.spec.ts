@@ -18,6 +18,7 @@ import { componentDocs } from './data/index.js';
 import { isSection, manifest, sectionPages } from './manifest';
 
 const COMPONENTS = join(process.cwd(), 'src/lib/components');
+const LIB = join(process.cwd(), 'src/lib');
 
 /** Component pages, from the manifest's Components section — same helper as hooks.spec.ts. */
 const componentPages = (() => {
@@ -34,6 +35,11 @@ const componentPages = (() => {
  * no matching file fails loudly rather than silently reading nothing.
  */
 function componentSource(name: string): string {
+	// Tooltip (specs/50) has no Tooltip.svelte — `tooltip` is an attachment,
+	// not a component; its documented options live in attachments/tooltip.ts.
+	if (name === 'Tooltip') {
+		return readFileSync(join(LIB, 'attachments/tooltip.ts'), 'utf8');
+	}
 	return readFileSync(join(COMPONENTS, `${name}.svelte`), 'utf8');
 }
 

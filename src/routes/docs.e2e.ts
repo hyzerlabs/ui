@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { allRoutes } from '../docs/manifest';
 
 // ---------------------------------------------------------------------------
@@ -1529,5 +1530,408 @@ test.describe('Product detail pattern — thumbnail strip', () => {
 		await activeSlideImg.focus();
 		await page.keyboard.press('Enter');
 		await expect(page.getByRole('dialog')).toBeVisible();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/50 — Tooltip
+// ---------------------------------------------------------------------------
+
+test.describe('specs/50 — Tooltip', () => {
+	test('hovering the trigger reveals the tooltip, positioned near it (not at 0,0)', async ({
+		page
+	}) => {
+		await page.goto('/components/tooltip');
+		const trigger = page.getByRole('button', { name: 'Add to bag' });
+		await trigger.hover();
+		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
+		await expect(tooltipEl).toBeVisible();
+
+		const triggerBox = await trigger.boundingBox();
+		const tooltipBox = await tooltipEl.boundingBox();
+		if (!triggerBox || !tooltipBox) throw new Error('missing bounding box');
+
+		// Real geometry, not a stub — the tooltip must not be pinned at the
+		// viewport's top-left corner, and must sit near the trigger.
+		expect(tooltipBox.x === 0 && tooltipBox.y === 0).toBe(false);
+		const horizontalGap = Math.max(
+			triggerBox.x - (tooltipBox.x + tooltipBox.width),
+			tooltipBox.x - (triggerBox.x + triggerBox.width),
+			0
+		);
+		const verticalGap = Math.max(
+			triggerBox.y - (tooltipBox.y + tooltipBox.height),
+			tooltipBox.y - (triggerBox.y + triggerBox.height),
+			0
+		);
+		// Default placement is 'top': the tooltip sits directly above, so the
+		// horizontal gap should be ~0 (overlapping columns) and the vertical
+		// gap small (offset + tolerance).
+		expect(horizontalGap).toBeLessThan(triggerBox.width);
+		expect(verticalGap).toBeLessThan(40);
+	});
+
+	test('focusing the trigger reveals the tooltip immediately; the trigger carries aria-describedby to a role="tooltip" node', async ({
+		page
+	}) => {
+		await page.goto('/components/tooltip');
+		const trigger = page.getByRole('button', { name: 'Add to bag' });
+		await trigger.focus();
+		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
+		await expect(tooltipEl).toBeVisible();
+		await expect(tooltipEl).toHaveAttribute('role', 'tooltip');
+
+		const describedBy = await trigger.getAttribute('aria-describedby');
+		const tooltipId = await tooltipEl.getAttribute('id');
+		expect(describedBy).toBe(tooltipId);
+	});
+
+	test('Escape dismisses the tooltip', async ({ page }) => {
+		await page.goto('/components/tooltip');
+		const trigger = page.getByRole('button', { name: 'Add to bag' });
+		await trigger.hover();
+		await expect(page.locator('.hz-tooltip[data-state="open"]')).toBeVisible();
+		await page.keyboard.press('Escape');
+		await expect(page.locator('.hz-tooltip[data-state="open"]')).toHaveCount(0);
+	});
+
+	test('moving the pointer onto the tooltip itself keeps it open (hoverable bridge)', async ({
+		page
+	}) => {
+		await page.goto('/components/tooltip');
+		await page.getByRole('tab', { name: 'Hover & keyboard' }).click();
+		const trigger = page.getByRole('button', { name: 'Info' });
+		await trigger.hover();
+		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
+		await expect(tooltipEl).toBeVisible();
+
+		await tooltipEl.hover();
+		// Held for well past the 150ms closeDelay — still visible since the
+		// pointer is on the tooltip, not the trigger.
+		await page.waitForTimeout(300);
+		await expect(tooltipEl).toBeVisible();
+	});
+
+	test('a forced no-anchor-positioning fallback still positions the tooltip near the trigger', async ({
+		page
+	}) => {
+		// Force the JS measure-and-place fallback (R-POS-4) by making the
+		// anchor-positioning probe fail, exactly as the unit tests do, but
+		// against a real page/browser instead of a stub.
+		await page.addInitScript(() => {
+			const original = CSS.supports.bind(CSS);
+			CSS.supports = ((...args: Parameters<typeof CSS.supports>) => {
+				if (typeof args[0] === 'string' && args[0].includes('anchor-name')) return false;
+				return original(...args);
+			}) as typeof CSS.supports;
+		});
+		await page.goto('/components/tooltip');
+		const trigger = page.getByRole('button', { name: 'Add to bag' });
+		await trigger.hover();
+		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
+		await expect(tooltipEl).toBeVisible();
+
+		const triggerBox = await trigger.boundingBox();
+		const tooltipBox = await tooltipEl.boundingBox();
+		if (!triggerBox || !tooltipBox) throw new Error('missing bounding box');
+		expect(tooltipBox.x === 0 && tooltipBox.y === 0).toBe(false);
+		expect(Math.abs(tooltipBox.x - triggerBox.x)).toBeLessThan(triggerBox.width + 40);
+	});
+
+	test('both examples on the page are keyboard-operable and every h2 has a stable id (TOC)', async ({
+		page
+	}) => {
+		await page.goto('/components/tooltip');
+		await expect(page.locator('h2#demo-heading')).toHaveCount(1);
+		await expect(page.locator('h2#props-heading')).toHaveCount(1);
+		await expect(page.locator('h2#a11y-heading')).toHaveCount(1);
+	});
+
+	// -------------------------------------------------------------------------
+	// R-THEME-2 — a tooltip shown with its trigger flush to each viewport
+	// edge must never grow the document's scrollable area — real geometry
+	// against a real browser, both positioning paths. (The library ships no
+	// arrow — a consumer caret keyed off data-side relies on this same
+	// scrollbar-free posture.)
+	// -------------------------------------------------------------------------
+
+	/** Relocates an already-tooltip-enhanced trigger (its `{@attach
+	 *  tooltip(...)}` listeners are closures over the element, so moving it
+	 *  in the viewport doesn't disturb them) flush against a viewport edge,
+	 *  hovers it, and asserts no horizontal scrollbar appeared. The docs
+	 *  shell's own fixed sidebar/nav chrome would otherwise obstruct a
+	 *  trigger relocated to a screen edge — hidden once per page so hover
+	 *  hit-tests the trigger itself, not the shell. */
+	async function assertEdgeFlushTooltipIsScrollbarSafe(
+		page: Page,
+		buttonName: string,
+		style: Record<string, string>
+	): Promise<void> {
+		await page.evaluate(() => {
+			for (const sel of ['#docs-sidebar', '.docs-header', 'header']) {
+				document.querySelectorAll(sel).forEach((el) => {
+					(el as HTMLElement).style.display = 'none';
+				});
+			}
+		});
+		const trigger = page.getByRole('button', { name: buttonName, exact: true });
+		await trigger.evaluate((el: HTMLElement, style) => Object.assign(el.style, style), style);
+		await trigger.hover();
+		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
+		await expect(tooltipEl).toBeVisible();
+
+		const overflow = await page.evaluate(
+			() => document.documentElement.scrollWidth <= document.documentElement.clientWidth
+		);
+		expect(overflow, `horizontal scrollbar appeared for "${buttonName}"`).toBe(true);
+	}
+
+	test('the tooltip never causes a horizontal scrollbar with the trigger flush to each viewport edge (anchor path)', async ({
+		page
+	}) => {
+		await page.goto('/components/tooltip');
+		await page.getByRole('tab', { name: 'Placement' }).click();
+
+		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'top', {
+			position: 'fixed',
+			top: '2px',
+			left: '200px'
+		});
+		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'bottom', {
+			position: 'fixed',
+			bottom: '2px',
+			left: '200px'
+		});
+		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'left', {
+			position: 'fixed',
+			top: '300px',
+			left: '2px'
+		});
+		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'right', {
+			position: 'fixed',
+			top: '300px',
+			right: '2px'
+		});
+	});
+
+	test('the tooltip never causes a horizontal scrollbar with the trigger flush to each viewport edge (forced JS-fallback path)', async ({
+		page
+	}) => {
+		await page.addInitScript(() => {
+			const original = CSS.supports.bind(CSS);
+			CSS.supports = ((...args: Parameters<typeof CSS.supports>) => {
+				if (typeof args[0] === 'string' && args[0].includes('anchor-name')) return false;
+				return original(...args);
+			}) as typeof CSS.supports;
+		});
+		await page.goto('/components/tooltip');
+		await page.getByRole('tab', { name: 'Placement' }).click();
+
+		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'top', {
+			position: 'fixed',
+			top: '2px',
+			left: '200px'
+		});
+		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'bottom', {
+			position: 'fixed',
+			bottom: '2px',
+			left: '200px'
+		});
+		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'left', {
+			position: 'fixed',
+			top: '300px',
+			left: '2px'
+		});
+		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'right', {
+			position: 'fixed',
+			top: '300px',
+			right: '2px'
+		});
+	});
+
+	// -------------------------------------------------------------------------
+	// R-POS-6 — RTL: left/right resolve through the trigger's direction.
+	// -------------------------------------------------------------------------
+
+	test('a trigger inside dir="rtl" flips a left/right tooltip to the opposite physical side; block-axis flip/shift stay correct', async ({
+		page
+	}) => {
+		await page.goto('/components/tooltip');
+		await page.getByRole('tab', { name: 'Placement' }).click();
+
+		const leftTrigger = page.getByRole('button', { name: 'left', exact: true });
+		await leftTrigger.evaluate((el: HTMLElement) => el.setAttribute('dir', 'rtl'));
+		const leftTriggerBox = await leftTrigger.boundingBox();
+		await leftTrigger.hover();
+		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
+		await expect(tooltipEl).toBeVisible();
+		await expect(tooltipEl).toHaveAttribute('data-side', 'right');
+		const tooltipBox = await tooltipEl.boundingBox();
+		if (!leftTriggerBox || !tooltipBox) throw new Error('missing bounding box');
+		// 'left' under RTL renders on the physical right — the tooltip's left
+		// edge should sit at/after the trigger's right edge, not before it.
+		expect(tooltipBox.x).toBeGreaterThanOrEqual(leftTriggerBox.x + leftTriggerBox.width - 1);
+		await page.mouse.move(0, 0);
+
+		// Block axis (top/bottom) is unaffected by direction: flip/shift stay
+		// correct for an RTL trigger too. The docs shell's own fixed sidebar
+		// would otherwise obstruct a trigger relocated to the top edge.
+		await page.evaluate(() => {
+			document
+				.querySelectorAll('#docs-sidebar')
+				.forEach((el) => ((el as HTMLElement).style.display = 'none'));
+		});
+		await page.getByRole('button', { name: 'top', exact: true }).evaluate((el: HTMLElement) => {
+			el.setAttribute('dir', 'rtl');
+			Object.assign(el.style, { position: 'fixed', top: '2px', left: '200px' });
+		});
+		const topTrigger = page.getByRole('button', { name: 'top', exact: true });
+		await topTrigger.hover();
+		const flippedTooltip = page.locator('.hz-tooltip[data-state="open"]');
+		await expect(flippedTooltip).toBeVisible();
+		await expect(flippedTooltip).toHaveAttribute('data-side', 'bottom');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/50 — Popover
+// ---------------------------------------------------------------------------
+
+test.describe('specs/50 — Popover', () => {
+	test('clicking the trigger opens the panel and flips aria-expanded; positioned adjacent to the trigger, not pinned at 0,0', async ({
+		page
+	}) => {
+		// A tall viewport guarantees room below the trigger, so the native
+		// flip-block fallback never kicks in here — a separate assertion
+		// below (adjacentGap) tolerates a flip either way regardless.
+		await page.setViewportSize({ width: 1280, height: 1400 });
+		await page.goto('/components/popover');
+		const trigger = page.getByRole('button', { name: 'Filters' });
+		await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+		await trigger.click();
+		await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+
+		const panel = page.locator('.hz-popover-panel[data-state="open"]');
+		await expect(panel).toBeVisible();
+
+		const triggerBox = await trigger.boundingBox();
+		const panelBox = await panel.boundingBox();
+		if (!triggerBox || !panelBox) throw new Error('missing bounding box');
+		expect(panelBox.x === 0 && panelBox.y === 0).toBe(false);
+		// bottom-start (the page's default placement): the panel's top edge
+		// should sit close to the trigger's bottom edge (or, if a genuine
+		// overflow forced the native flip-block fallback, close to the
+		// trigger's top edge instead) — either way, adjacent, never centered
+		// or pinned elsewhere in the viewport.
+		const gapBelow = Math.abs(panelBox.y - (triggerBox.y + triggerBox.height));
+		const gapAbove = Math.abs(triggerBox.y - (panelBox.y + panelBox.height));
+		expect(Math.min(gapBelow, gapAbove)).toBeLessThan(40);
+		// start-aligned: the panel's left edge lines up with the trigger's.
+		expect(Math.abs(panelBox.x - triggerBox.x)).toBeLessThan(4);
+	});
+
+	test('Escape closes the panel and returns focus to the trigger', async ({ page }) => {
+		await page.goto('/components/popover');
+		const trigger = page.getByRole('button', { name: 'Filters' });
+		await trigger.click();
+		await expect(page.locator('.hz-popover-panel[data-state="open"]')).toBeVisible();
+		await page.keyboard.press('Escape');
+		await expect(page.locator('.hz-popover-panel[data-state="open"]')).toHaveCount(0);
+		await expect(trigger).toBeFocused();
+	});
+
+	test('an outside click light-dismisses the panel', async ({ page }) => {
+		await page.goto('/components/popover');
+		const trigger = page.getByRole('button', { name: 'Filters' });
+		await trigger.click();
+		await expect(page.locator('.hz-popover-panel[data-state="open"]')).toBeVisible();
+		await page.locator('h1').click();
+		await expect(page.locator('.hz-popover-panel[data-state="open"]')).toHaveCount(0);
+	});
+
+	test('an interactive control inside the panel is operable', async ({ page }) => {
+		await page.goto('/components/popover');
+		const trigger = page.getByRole('button', { name: 'Filters' });
+		await trigger.click();
+		const checkbox = page.getByRole('checkbox', { name: 'Finished rounds' });
+		const wasChecked = await checkbox.isChecked();
+		await checkbox.click();
+		expect(await checkbox.isChecked()).toBe(!wasChecked);
+	});
+
+	test('no backdrop element is present', async ({ page }) => {
+		await page.goto('/components/popover');
+		const trigger = page.getByRole('button', { name: 'Filters' });
+		await trigger.click();
+		await expect(page.locator('.hz-popover-panel[data-state="open"]')).toBeVisible();
+		expect(await page.locator('[class*="backdrop"]').count()).toBe(0);
+	});
+
+	test('the open panel is not a scroll container and grows no document scrollbar (consumer-caret posture)', async ({
+		page
+	}) => {
+		await page.goto('/components/popover');
+		await page.getByRole('button', { name: 'Filters' }).click();
+		const panel = page.locator('.hz-popover-panel[data-state="open"]');
+		await expect(panel).toBeVisible();
+		// A consumer caret keys off the resolved data-side — pin its presence.
+		await expect(panel).toHaveAttribute('data-side', /^(top|bottom|left|right)$/);
+
+		// The library ships no arrow, but a consumer-drawn caret must be able
+		// to protrude past the panel edge: the panel must NOT be a scroll
+		// container (the UA [popover] stylesheet defaults it to overflow:
+		// auto, which would clip/scrollbar a protruding caret — scrolling
+		// lives on .hz-popover-content instead), and the top-layer fixed
+		// panel must never grow a document scrollbar.
+		const overflow = await page.evaluate(() => {
+			const p = document.querySelector('.hz-popover-panel[data-state="open"]')!;
+			const s = getComputedStyle(p);
+			return {
+				doc: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+				panelScrolls: s.overflowX !== 'visible' || s.overflowY !== 'visible',
+				contentScrolls:
+					getComputedStyle(p.querySelector('.hz-popover-content')!).overflowY === 'auto'
+			};
+		});
+		expect(overflow.doc, 'open panel grew a document scrollbar').toBe(false);
+		expect(overflow.panelScrolls, 'panel is a scroll container — a consumer caret would clip').toBe(
+			false
+		);
+		expect(overflow.contentScrolls, '.hz-popover-content lost its scroll role').toBe(true);
+	});
+
+	test('a forced no-anchor-positioning fallback still positions the panel near the trigger', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 1400 });
+		await page.addInitScript(() => {
+			const original = CSS.supports.bind(CSS);
+			CSS.supports = ((...args: Parameters<typeof CSS.supports>) => {
+				if (typeof args[0] === 'string' && args[0].includes('anchor-name')) return false;
+				return original(...args);
+			}) as typeof CSS.supports;
+		});
+		await page.goto('/components/popover');
+		const trigger = page.getByRole('button', { name: 'Filters' });
+		await trigger.click();
+		const panel = page.locator('.hz-popover-panel[data-state="open"]');
+		await expect(panel).toBeVisible();
+
+		const triggerBox = await trigger.boundingBox();
+		const panelBox = await panel.boundingBox();
+		if (!triggerBox || !panelBox) throw new Error('missing bounding box');
+		expect(panelBox.x === 0 && panelBox.y === 0).toBe(false);
+		const gapBelow = Math.abs(panelBox.y - (triggerBox.y + triggerBox.height));
+		const gapAbove = Math.abs(triggerBox.y - (panelBox.y + panelBox.height));
+		expect(Math.min(gapBelow, gapAbove)).toBeLessThan(40);
+	});
+
+	test('the page renders with every example operable and every h2 has a stable id (TOC)', async ({
+		page
+	}) => {
+		await page.goto('/components/popover');
+		await expect(page.locator('h2#demo-heading')).toHaveCount(1);
+		await expect(page.locator('h2#props-heading')).toHaveCount(1);
+		await expect(page.locator('h2#a11y-heading')).toHaveCount(1);
 	});
 });

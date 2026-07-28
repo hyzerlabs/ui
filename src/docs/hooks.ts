@@ -1642,6 +1642,88 @@ export const hooks: Record<string, ComponentHooks> = {
 			{ name: '::backdrop', values: 'pseudo-element', note: 'The native dialog backdrop.' }
 		]
 	},
+	Tooltip: {
+		root: 'hz-tooltip',
+		attrs: [
+			{
+				name: 'data-state',
+				values: "'open' | 'closed'",
+				note: 'Drives visibility (inline display, not the theme) — the hook to animate the entrance/exit against.'
+			},
+			{
+				name: 'data-placement',
+				values: 'Placement',
+				note: 'The requested placement string, e.g. "top" or "bottom-start" — mirrors the placement option verbatim.'
+			},
+			{
+				name: 'data-side',
+				values: "'top' | 'bottom' | 'left' | 'right'",
+				note: "The resolved, physical side — after any overflow flip and after RTL resolves left/right through the trigger's direction. Key a caret of your own off this if you want one."
+			},
+			{
+				name: 'data-align',
+				values: "'start' | 'center' | 'end'",
+				note: 'The resolved cross-axis alignment (RTL-aware for a top/bottom placement).'
+			}
+		],
+		props: [
+			{
+				name: '--hz-z-tooltip',
+				values: '<number> — default 150',
+				note: 'Matters mainly on the non-top-layer fallback path (older browsers) — a real top-layer tooltip stacks above everything regardless of z-index.'
+			}
+		]
+	},
+	Popover: {
+		root: 'hz-popover',
+		attrs: [
+			{
+				name: 'data-open',
+				values: 'present while open',
+				note: 'On the root — the Dropdown parity hook.'
+			},
+			{
+				name: 'data-state (panel)',
+				values: "'open' | 'closed'",
+				note: 'On .hz-popover-panel — mirrors the open prop; the hook to animate the entrance against.'
+			},
+			{
+				name: 'data-placement',
+				values: 'Placement',
+				note: 'On .hz-popover-panel — the requested placement string, e.g. "bottom-start".'
+			},
+			{
+				name: 'data-side',
+				values: "'top' | 'bottom' | 'left' | 'right'",
+				note: "On .hz-popover-panel — the resolved, physical side (after any overflow flip and RTL resolution through the trigger's direction). Key a caret of your own off this if you want one."
+			},
+			{
+				name: 'data-align',
+				values: "'start' | 'center' | 'end'",
+				note: 'On .hz-popover-panel — the resolved cross-axis alignment (RTL-aware for a top/bottom placement).'
+			}
+		],
+		props: [
+			{
+				name: '--hz-z-popover',
+				values: '<number> — default 200',
+				note: 'Matters mainly on the non-top-layer fallback path (older browsers) — a real top-layer panel stacks above everything regardless of z-index.'
+			}
+		],
+		parts: [
+			{
+				name: '.hz-popover-trigger',
+				values: 'on a Button',
+				note: 'Merged onto the default composed Button trigger — absent when the `trigger` snippet escape hatch is used instead, since that renders your own element.'
+			},
+			{ name: '.hz-popover-panel', values: 'child element', note: 'The disclosure panel surface.' },
+			{
+				name: '.hz-popover-content',
+				values: 'child element',
+				note: 'The scroll container inside the panel — padding and max-height live here, keeping the panel itself overflow-visible so a caret you draw (keyed off data-side) can protrude without being clipped.'
+			}
+		]
+	},
 	Accordion: {
 		root: 'hz-accordion',
 		attrs: [

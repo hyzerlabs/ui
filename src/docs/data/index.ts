@@ -25,6 +25,8 @@ import { dropdownDoc } from './dropdown.js';
 import { carouselDoc } from './carousel.js';
 import { heroDoc } from './hero.js';
 import { modalDoc } from './modal.js';
+import { tooltipDoc } from './tooltip.js';
+import { popoverDoc } from './popover.js';
 import { tabsDoc } from './tabs.js';
 import { tableDoc } from './table.js';
 import { loadingDoc } from './loading.js';
@@ -83,6 +85,8 @@ export const componentDocs: Record<string, ComponentDoc> = {
 	Carousel: carouselDoc,
 	Hero: heroDoc,
 	Modal: modalDoc,
+	Tooltip: tooltipDoc,
+	Popover: popoverDoc,
 	Tabs: tabsDoc,
 	Table: tableDoc,
 	Loading: loadingDoc,

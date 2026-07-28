@@ -1,0 +1,57 @@
+/**
+ * @hyzer-labs/ui reference theme — Popover
+ * The trigger ships no Popover CSS of its own (the default trigger is a
+ * Button, fully covered by button.css); this sheet owns the panel surface.
+ * No backdrop rule — Popover is non-modal (contrast .hz-modal::backdrop).
+ */
+@layer hz-theme {
+	.hz-popover-panel {
+		z-index: var(--hz-z-popover, 200);
+		min-width: 12rem;
+		max-width: min(24rem, calc(100vw - 2rem));
+		/* NOT auto: the UA [popover] stylesheet makes the panel a scroll
+		 * container, which would scrollbar/clip a consumer-drawn caret
+		 * protruding past the panel edge (keyed off data-side; the library
+		 * ships none) — scrolling lives on .hz-popover-content below. */
+		overflow: visible;
+		background-color: var(--hz-color-surface, #fff);
+		color: var(--hz-color-text, #000);
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		box-shadow: var(--hz-shadow-md, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+	}
+
+	/* Scrolling lives on the inner content wrapper (Popover.svelte), NOT the
+	 * panel: the panel keeps overflow visible so a consumer-drawn caret can
+	 * protrude past its edge without being clipped or growing a panel
+	 * scrollbar. The panel is top-layer position: fixed, so a protruding
+	 * caret can never grow the document's scrollable area either. */
+	.hz-popover-content {
+		max-height: calc(100dvh - 2rem);
+		overflow: auto;
+		padding: 0.75rem;
+		border-radius: inherit;
+	}
+
+	/* Entrance — fade + small rise, the Dropdown menu-entrance precedent. JS
+	 * is the primary reduced-motion gate (inline `animation: none`,
+	 * Popover.svelte); this media query is the belt-and-braces backup. */
+	.hz-popover-panel[data-state='open'] {
+		animation: hz-popover-in var(--hz-duration-fast, 250ms)
+			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
+	}
+
+	@keyframes hz-popover-in {
+		from {
+			opacity: 0;
+			translate: 0 -0.25rem;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.hz-popover-panel[data-state='open'] {
+			animation: none;
+		}
+	}
+}

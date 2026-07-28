@@ -31,8 +31,16 @@ const componentPages = (() => {
 	return sectionPages(section);
 })();
 
-/** <Name> → its .svelte source. Named for the manifest label, e.g. TextInput. */
+/**
+ * <Name> → its source. Named for the manifest label, e.g. TextInput — with
+ * one exception: Tooltip (specs/50) has no Tooltip.svelte, since `tooltip`
+ * is an attachment, not a component; its root class and data-* hooks live
+ * in src/lib/attachments/tooltip.ts instead.
+ */
 function componentSource(name: string): string {
+	if (name === 'Tooltip') {
+		return readFileSync(join(LIB, 'attachments/tooltip.ts'), 'utf8');
+	}
 	return readFileSync(join(COMPONENTS, `${name}.svelte`), 'utf8');
 }
 
@@ -106,8 +114,9 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		]);
 		expect(section.groups.every((g) => g.pages.length > 0)).toBe(true);
 		// 38 + Header (spec 35) + Table (spec 37) + Toc (spec 38) + Banner (spec 41)
-		// + CodeBlock (spec 47) + Loading + Skeleton (spec 49).
-		expect(componentPages).toHaveLength(45);
+		// + CodeBlock (spec 47) + Loading + Skeleton (spec 49) + Tooltip + Popover
+		// (spec 50).
+		expect(componentPages).toHaveLength(47);
 	});
 });
 

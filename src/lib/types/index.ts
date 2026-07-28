@@ -306,3 +306,106 @@ export interface FileRejection {
 	reason: FileRejectionReason;
 	message: string;
 }
+
+// ---------------------------------------------------------------------------
+// Positioning vocabulary — shared by Tooltip and Popover (specs/50, R-POS-1).
+// Internal placement math lives in src/lib/positioning/ (not a public
+// export); only the vocabulary is public API, via the two primitives' props.
+// ---------------------------------------------------------------------------
+
+/** One of the four physical placement sides. */
+export type PopoverSide = 'top' | 'bottom' | 'left' | 'right';
+
+/** Cross-axis alignment relative to the trigger. */
+export type PopoverAlign = 'start' | 'center' | 'end';
+
+/**
+ * Preferred floating-element placement, shared by `tooltip` and `Popover`.
+ * `'top'` == `'top-center'`; `-start`/`-end` add alignment. Logical, not
+ * physical — `left`/`right` resolve through the trigger's `direction`, so
+ * RTL flips the physical side.
+ */
+export type Placement = PopoverSide | `${PopoverSide}-start` | `${PopoverSide}-end`;
+
+/**
+ * `tooltip()` attachment options (specs/50, R-TT-1) — `{@attach
+ * tooltip({ text: '…' })}`. The string overload (`tooltip('…')`) is sugar
+ * for `{ text: '…' }`.
+ */
+export interface TooltipOptions {
+	/** The tooltip text. Required (string form or this field). Non-interactive
+	 *  text only — interactive content belongs in a `Popover`. */
+	text: string;
+	/** Preferred placement. Default `'top'`. */
+	placement?: Placement;
+	/** Gap from the trigger in px. Default `8`. */
+	offset?: number;
+	/** Delay before showing on hover-intent (ms). Default `400`. Bypassed by
+	 *  keyboard focus, which shows immediately. */
+	openDelay?: number;
+	/** Delay before hiding after leave — the hoverable bridge (ms). Default `150`. */
+	closeDelay?: number;
+	/** Extra class merged onto the created `.hz-tooltip` node. */
+	class?: string;
+}
+
+/**
+ * Appearance passthrough for Popover's default composed Button trigger —
+ * mirrors `DropdownTriggerProps`. Ignored when the `trigger` snippet escape
+ * hatch is used instead.
+ */
+export interface PopoverTriggerProps {
+	variant?: Variant;
+	intent?: Intent;
+	size?: 'sm' | 'md' | 'lg';
+	class?: string;
+	/** Accessible name for an icon-only default trigger (no `triggerLabel`).
+	 *  R-PO-1b dev-warns when neither this nor `triggerLabel` is set. */
+	ariaLabel?: string;
+}
+
+/**
+ * The attribute bag a Popover `trigger` snippet spreads onto its own
+ * element (a link, avatar, or other custom control) — specs/50, R-PO-1.
+ */
+export interface TriggerAttrs {
+	id: string;
+	'aria-expanded': 'true' | 'false';
+	'aria-controls': string;
+	popovertarget: string;
+	onclick: (e: MouseEvent) => void;
+}
+
+/** `<Popover>` props (specs/50, R-PO-1). */
+export interface PopoverProps {
+	/** Two-way open state. Default `false`. */
+	open?: boolean;
+	/** Preferred placement. Default `'bottom-start'`. */
+	placement?: Placement;
+	/** Gap from the trigger in px. Default `8`. */
+	offset?: number;
+	/** Move focus to the first focusable element in the panel on open.
+	 *  Default `false` — a disclosure never steals focus by default. */
+	autoFocus?: boolean;
+	/** Close on outside interaction; Escape always closes regardless.
+	 *  Default `true`. */
+	dismissible?: boolean;
+	/** Accessible label for the panel region when it has no heading. */
+	label?: string;
+	onopen?: () => void;
+	onclose?: () => void;
+	/** Visible label for the default Button trigger. */
+	triggerLabel?: string;
+	/** Appearance passthrough for the default Button. */
+	triggerProps?: PopoverTriggerProps;
+	/** Icon snippet for the default Button trigger. */
+	triggerIcon?: Snippet;
+	/** Escape hatch: when provided, WINS over `triggerLabel`/`triggerProps`/
+	 *  `triggerIcon` — receives a `TriggerAttrs` bag to spread onto any
+	 *  element (link, avatar, icon button). */
+	trigger?: Snippet<[TriggerAttrs]>;
+	/** The panel content — rich/interactive content is allowed. */
+	children: Snippet;
+	class?: string;
+	[key: string]: unknown;
+}

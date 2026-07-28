@@ -14,6 +14,7 @@ export * from './components/index.js';
 export type { Intent, IntentRegistry } from './types/index.js';
 export { toFormErrors, type FormErrorsInput } from './utils/form.js';
 export { lightboxGroup } from './attachments/lightboxGroup.js';
+export { tooltip } from './attachments/tooltip.js';
 export {
 	hexToRgb,
 	rgbToHex,

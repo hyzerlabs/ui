@@ -98,6 +98,8 @@ export const manifest: ManifestEntry[] = [
 					{ label: 'Carousel', href: '/components/carousel' },
 					{ label: 'Hero', href: '/components/hero' },
 					{ label: 'Modal', href: '/components/modal' },
+					{ label: 'Tooltip', href: '/components/tooltip' },
+					{ label: 'Popover', href: '/components/popover' },
 					{ label: 'Accordion', href: '/components/accordion' },
 					{ label: 'Tabs', href: '/components/tabs' },
 					{ label: 'Table', href: '/components/table' },
