@@ -3,17 +3,16 @@
 	 * A recipe page composed entirely from the library.
 	 *
 	 * It imports only public exports. The main dish photo is a `Hero`'s own
-	 * `split` layout — title/subtitle beside the photo, the same media form
-	 * the Hero docs page's split demo uses — rather than a bare `<Image>` at
-	 * the top of the page. A short prose intro and the serving/dietary
-	 * metadata sit under the hero, before the ingredient list starts. The
-	 * ingredient list is a plain, non-sorting Table (the same PropsTable-style
-	 * columns config the Table docs page's "No sorting" demo uses — no
-	 * `sortable` flag, no sort buttons) placed in a `Split` next to the
-	 * technique Video, so a reader can follow the clip with the ingredient
-	 * amounts still in view; `Split`'s `stackBelow` collapses the pair to one
-	 * column on narrow viewports. The method is step-by-step prose with a
-	 * photo along the way.
+	 * `split` layout rather than a bare `<Image>` at the top of the page:
+	 * title and subtitle sit beside the photo, the same media form the Hero
+	 * docs page's split demo uses. A short prose intro and the serving and
+	 * dietary metadata sit under the hero, before the ingredient list starts.
+	 * The ingredient list is a plain, non-sorting Table (no `sortable` flag and
+	 * no sort buttons, the same shape as the Table docs page's "No sorting"
+	 * demo). It sits in a `Split` next to the technique Video, so a reader can
+	 * follow the clip with the ingredient amounts still in view. `Split`'s
+	 * `stackBelow` collapses the pair to one column on narrow viewports. The
+	 * instructions are step-by-step prose with a photo along the way.
 	 */
 	import { Hero, Video, Table, Image, Badge, Divider, Split, Stack, Cluster } from '$lib';
 	import type { TableColumn } from '$lib/types';
@@ -39,19 +38,20 @@
 		{ item: 'Sliced scallions', amount: 'For serving' }
 	];
 
-	// No `sortable` on any column — this is the plain, non-sorting shape (the
-	// Table docs page's own "No sorting" demo), not a client/external-sort one.
+	// No `sortable` on any column: this is the plain, non-sorting shape, the
+	// same as the Table docs page's own "No sorting" demo. Client-side and
+	// external sorting are separate shapes.
 	const columns: TableColumn<Ingredient>[] = [
 		{ key: 'item', header: 'Ingredient' },
 		{ key: 'amount', header: 'Amount', align: 'end' },
 		{ key: 'notes', header: 'Notes' }
 	];
 
-	// Self-contained food photography — a real recipe would serve photos and
-	// a filmed clip here. Asset-URL swap point: real media will land at
-	// static/media/recipes/league-night-chili-<slot>.{jpg,mp4}. The two
-	// render call sites below read RECIPE_MEDIA[key], never a raw URL, so
-	// pointing this map at real files later is a constants-only change.
+	// Generated food art and a placeholder clip, so this file needs no asset
+	// files to run. Swap in your own photo and video by pointing RECIPE_MEDIA
+	// at your media source, whatever it is: imported files, a static path, or
+	// a CDN URL. The two render call sites below read RECIPE_MEDIA[key] and
+	// never a raw URL, so that swap is a change to this one constant.
 	function foodArt(label: string, bg: string, fg: string): string {
 		return (
 			`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E` +
@@ -74,25 +74,25 @@
 	const RECIPE_MEDIA = {
 		finished: foodArt('Finished chili, ready to serve', '7c2d12', 'fb923c'),
 		simmering: foodArt('The pot at the 45-minute mark', '78350f', 'fbbf24'),
-		videoPoster: posterArt('Building the base — watch')
+		videoPoster: posterArt('Building the base, watch the clip')
 	};
 
-	// about:blank: no real clip exists yet — the aspect box and poster still
-	// render, same convention as the Video docs page's own demos.
+	// about:blank: no real clip exists yet. The aspect box and poster still
+	// render, the same convention as the Video docs page's own demos.
 	const videoSrc = 'about:blank';
 </script>
 
 <Stack gap="away" padding="lg">
 	<!-- headingLevel=2: the route's own h1 is the page title, so the sample's
 	     top heading sits a level below it rather than competing for the
-	     document's h1. layout="split": the finished-dish photo sits beside
-	     the title/subtitle instead of stacked above it — Hero's media form
-	     for a page that opens on a photograph. -->
+	     document's h1. layout="split" puts the finished-dish photo beside the
+	     title and subtitle instead of stacked above it, which is Hero's media
+	     form for a page that opens on a photograph. -->
 	<Hero
 		layout="split"
 		headingLevel={2}
 		title="Leicester League-Night Chili"
-		subtitle="A dutch-oven chili built to feed a full card after a wet Sunday round — thick enough to hold a spoon upright, and it only gets better reheated for Monday's leftovers."
+		subtitle="A dutch-oven chili built to feed a full card after a wet Sunday round. It's thick enough to hold a spoon upright, and it only gets better reheated for Monday's leftovers."
 	>
 		{#snippet media()}
 			<Image
@@ -120,13 +120,13 @@
 		</Cluster>
 		<div class="prose">
 			<p>
-				This one started as a way to feed the whole card after a wet Sunday round at Maple Hill —
-				something that could sit on low heat in a crockpot at the clubhouse while the last few
-				groups finished up. It's built thick enough to eat standing up with a plastic fork, which,
-				on league night, is usually exactly how it gets eaten.
+				This one started as a way to feed the whole card after a wet Sunday round at Maple Hill. It
+				had to sit on low heat in a crockpot at the clubhouse while the last few groups finished up.
+				It's thick enough to eat standing up with a plastic fork, which, on league night, is usually
+				exactly how it gets eaten.
 			</p>
 			<p>
-				It keeps for four days in the fridge and freezes well in individual portions — pack it flat
+				It keeps for four days in the fridge and freezes well in individual portions. Pack it flat
 				in a freezer bag and it thaws in about twenty minutes under hot water, which makes it a
 				reasonable answer to "what's for dinner" after a Tuesday doubles round.
 			</p>
@@ -136,7 +136,7 @@
 	<!-- Ingredients and the technique clip side by side, so a reader can check
 	     an amount without losing their place in the video. stackBelow="sm"
 	     (not the Hero split's own "md") because this Split sits inside the
-	     page's own padded column rather than spanning a full breakout — table
+	     page's own padded column rather than spanning a full breakout. Table
 	     above video below sm keeps both columns legible without cramming a
 	     three-column table into a narrow half. -->
 	<Split fraction="1/2" gap="lg" stackBelow="sm">

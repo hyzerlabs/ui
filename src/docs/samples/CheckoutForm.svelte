@@ -2,12 +2,12 @@
 	/**
 	 * A checkout page composed entirely from the library.
 	 *
-	 * It imports only public exports and exercises the whole Form workflow —
-	 * submit-time validation builds a plain field-name → message record,
+	 * It imports only public exports and runs the whole Form workflow. On
+	 * submit, validation builds a plain field-name → message record,
 	 * `toFormErrors` reshapes it, and Form renders the linked error summary
 	 * and moves focus to it. Inline field errors come from the same array, so
-	 * the summary and the fields can never disagree. The order summary
-	 * derives its totals from the same bound state the form controls edit.
+	 * the summary and the fields can never disagree. The order summary derives
+	 * its totals from the same bound state the form controls edit.
 	 */
 	import {
 		Form,
@@ -43,9 +43,15 @@
 		{ value: 'KY', label: 'Kentucky' }
 	];
 
+	// Priced once. Every label and every total reads these, so the copy a
+	// shopper sees cannot drift away from what the order actually costs.
+	const EXPRESS_SHIPPING = 8.99;
+	const GIFT_WRAP = 2;
+	const FREE_SHIPPING_OVER = 35;
+
 	const shippingOptions: FormOption[] = [
 		{ value: 'standard', label: 'Standard (3–5 days) — free' },
-		{ value: 'express', label: 'Express (1–2 days) — $8.99' }
+		{ value: 'express', label: `Express (1–2 days) — $${EXPRESS_SHIPPING.toFixed(2)}` }
 	];
 
 	let fullName = $state('');
@@ -64,12 +70,12 @@
 	let placed = $state(false);
 
 	const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
-	const shippingCost = $derived(shipping === 'express' ? 8.99 : 0);
-	const giftWrapCost = $derived(giftWrap ? 2 : 0);
+	const shippingCost = $derived(shipping === 'express' ? EXPRESS_SHIPPING : 0);
+	const giftWrapCost = $derived(giftWrap ? GIFT_WRAP : 0);
 	const total = $derived(subtotal + shippingCost + giftWrapCost);
 
-	// One record, keyed by field `name` — toFormErrors turns it into the
-	// FormError[] the summary links from. The same array feeds the inline
+	// One record, keyed by field `name`. toFormErrors turns it into the
+	// FormError[] the summary links from, and the same array feeds the inline
 	// `error` prop on each field.
 	function validate(): FormError[] {
 		const problems: Record<string, string> = {};
@@ -106,7 +112,7 @@
 			headingLevel={3}
 			onDismiss={() => (placed = false)}
 		>
-			{cart.length} discs on the way — ${total.toFixed(2)} charged. A confirmation is headed to
+			{cart.length} discs are on the way. We charged ${total.toFixed(2)} and sent a confirmation to
 			{email}.
 		</Alert>
 	{/if}
@@ -129,7 +135,7 @@
 						label="Email"
 						type="email"
 						autocomplete="email"
-						description="Receipt and shipping updates go here."
+						description="Your receipt and shipping updates go here."
 						required
 						bind:value={email}
 						error={fieldError('email')}
@@ -188,11 +194,15 @@
 					<Textarea
 						name="notes"
 						label="Delivery notes"
-						description="Optional — gate codes, safe drop spots."
+						description="Optional: gate codes, safe places to leave a package."
 						rows={3}
 						bind:value={notes}
 					/>
-					<Toggle name="gift-wrap" label="Gift wrap ($2.00)" bind:checked={giftWrap} />
+					<Toggle
+						name="gift-wrap"
+						label={`Gift wrap ($${GIFT_WRAP.toFixed(2)})`}
+						bind:checked={giftWrap}
+					/>
 				</Stack>
 
 				<Stack gap="sm">
@@ -242,7 +252,9 @@
 					<strong>Total</strong>
 					<strong>${total.toFixed(2)}</strong>
 				</Cluster>
-				<p class="muted small">Free standard shipping on orders over $35 — applied.</p>
+				<!-- A standing policy, not a claim about this order: the line renders
+			     whichever shipping speed is selected. -->
+				<p class="muted small">Standard shipping is free on orders over ${FREE_SHIPPING_OVER}.</p>
 			</Stack>
 		</Card>
 	</Split>

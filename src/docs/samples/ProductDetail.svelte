@@ -2,24 +2,22 @@
 	/**
 	 * A product detail page composed entirely from the library.
 	 *
-	 * It imports only public exports. The buy panel is
-	 * live — the plastic RadioGroup drives the derived price, the Carousel
-	 * pages through colorways, and "Add to cart" raises a dismissible success
-	 * Alert. The active carousel slide is a lightboxGroup trigger — click it
-	 * (or Tab to it and press Enter/Space) to open the full-size viewer at
-	 * that colorway, still able to page through every colorway inside it.
-	 * Product art is generated SVG data URIs so the sample stays
-	 * self-contained.
+	 * It imports only public exports. The buy panel is live: the plastic
+	 * RadioGroup drives the derived price, the Carousel pages through
+	 * colorways, and "Add to cart" raises a dismissible success Alert. The
+	 * active carousel slide is a lightboxGroup trigger. Click it (or Tab to it
+	 * and press Enter or Space) to open the full-size viewer at that colorway,
+	 * where you can still page through every colorway. Product art is
+	 * generated SVG data URIs so the sample stays self-contained.
 	 *
-	 * Media area — vertical thumbnail strip beside the main carousel, the
-	 * classic PDP composition: `activeIndex` is bound both ways to
+	 * Media area: a vertical thumbnail strip beside the main carousel, the
+	 * classic product-page shape. `activeIndex` is bound both ways to
 	 * `Carousel`'s own `index` prop, so a thumb click pages the carousel and
-	 * dragging/paging the carousel updates the active thumb, via one shared
-	 * value — no extra wiring. Thumbs are real `<button>`s, so
-	 * `lightboxGroup`'s own interactive-ancestor exclusion (it never
-	 * enhances an `<img>` inside an `<a>`/`<button>`) keeps them out of the
-	 * gallery automatically: the main slide stays the one obvious
-	 * open-the-viewer affordance, exactly as before.
+	 * dragging or paging the carousel moves the active thumb. One shared
+	 * value, no extra wiring. The thumbs are real `<button>`s, and
+	 * `lightboxGroup` never enhances an `<img>` inside an `<a>` or `<button>`,
+	 * so it leaves them out of the gallery on its own. The main slide stays
+	 * the one obvious way to open the viewer.
 	 */
 	import {
 		Breadcrumbs,
@@ -59,7 +57,9 @@
 		{ id: 'meadow', label: 'Meadow green', bg: '14532d', fg: '4ade80' }
 	];
 
-	// Self-contained product art — a real shop would serve photos here.
+	// Generated product art, so this file needs no asset files to run. Swap in
+	// your own photography wherever discArt is called: imported files, a static
+	// path, or a CDN URL.
 	function discArt(colorway: Colorway): string {
 		return (
 			`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E` +
@@ -70,10 +70,10 @@
 		);
 	}
 
-	// Asset-URL swap point: real photography will land at
-	// static/media/products/voyager-<id>.jpg. Every render call site below
-	// reads PRODUCT_MEDIA[colorway.id], never a raw URL, so pointing this map
-	// at real files later is a constants-only change — nothing else in this
+	// Swap in your own photography by pointing PRODUCT_MEDIA at your image
+	// source, whatever it is: imported files, a static path, or a CDN URL.
+	// Every render below reads PRODUCT_MEDIA[colorway.id] rather than a raw
+	// URL, so that swap is a change to one constant and nothing else in this
 	// sample touches image URLs.
 	const PRODUCT_MEDIA: Record<string, string> = Object.fromEntries(
 		colorways.map((c) => [c.id, discArt(c)])
@@ -102,10 +102,9 @@
 	let plastic = $state('champion');
 	let weight = $state('173');
 	let added = $state(false);
-	// Bound both ways to Carousel's own `index` — a thumb click sets it
-	// (paging the carousel), and dragging/paging the carousel updates it
-	// right back (moving the active thumb). One value, one direction of
-	// truth either way.
+	// Bound both ways to Carousel's own `index`. A thumb click sets it, which
+	// pages the carousel; dragging or paging the carousel sets it back, which
+	// moves the active thumb. One value, either direction.
 	let activeIndex = $state(0);
 
 	const price = $derived(plasticPrices[plastic]);
@@ -124,15 +123,15 @@
 	<Breadcrumbs items={breadcrumbs} ariaLabel="Shop breadcrumbs" />
 
 	<Split fraction="1/2" gap="lg" stackBelow="md">
-		<!-- lightboxGroup enhances the carousel's own rendered <img> in place —
-		     no separate Lightbox component. Off-screen slides are inert (native
-		     browser behavior, not this attachment), so only the active slide is
-		     actually clickable/focusable; every colorway still joins the shared
-		     gallery, so the viewer pages across all of them. The thumb strip
-		     lives inside the same attached container, but each thumb's <img> is
-		     wrapped in a <button> — lightboxGroup structurally excludes any
-		     media with an interactive ancestor, so the thumbs never become
-		     second triggers; they only ever drive `activeIndex`. -->
+		<!-- lightboxGroup enhances the carousel's own rendered <img> in place, so
+		     there is no separate Lightbox component. Off-screen slides are inert
+		     (native browser behavior, not this attachment), so only the active
+		     slide is clickable and focusable. Every colorway still joins the
+		     shared gallery, so the viewer pages across all of them. The thumb
+		     strip lives inside the same attached container, but each thumb's
+		     <img> sits inside a <button>, and lightboxGroup skips any media with
+		     an interactive ancestor. The thumbs never become second triggers;
+		     they only drive `activeIndex`. -->
 		<div class="pdp-media" {@attach lightboxGroup({ dialogLabel: 'Voyager colorways' })}>
 			<div class="pdp-thumbs" role="group" aria-label="Choose a colorway">
 				{#each colorways as colorway, i (colorway.id)}
@@ -215,10 +214,10 @@
 		{#snippet panel(section)}
 			{#if section.id === 'description'}
 				<p>
-					The Voyager was tuned for players who want one driver that does it all: full flex lines in
-					the woods, big sweeping hyzers in the open, and a flat, late fade that keeps it in the
-					fairway. The rim is comfortable for smaller hands, and the flight stays true as the disc
-					beats in.
+					The Voyager was tuned for players who want one driver that does it all. It holds full flex
+					lines in the woods, big sweeping hyzers in the open, and a flat, late fade that keeps it
+					in the fairway. The rim is comfortable for smaller hands, and the flight stays true as the
+					disc beats in.
 				</p>
 			{:else if section.id === 'specs'}
 				<ul>
@@ -229,8 +228,8 @@
 				</ul>
 			{:else}
 				<p>
-					Free standard shipping on orders over $35. Unthrown discs can be returned within 30 days;
-					field-tested discs can be exchanged within 14 days if the flight isn't right for you.
+					Free standard shipping on orders over $35. Return unthrown discs within 30 days. Exchange
+					field-tested discs within 14 days if the flight is not right for you.
 				</p>
 			{/if}
 		{/snippet}
@@ -239,13 +238,13 @@
 
 <style>
 	/* Mobile-first: the main image on top, the thumb strip a horizontal row
-	   below it (column-reverse — DOM order is [thumbs, carousel], so the
-	   carousel, last in the DOM, paints first). Above the sm width, it
-	   flips to the classic PDP shape: a vertical thumb column on the left,
-	   the main image filling the rest on the right. Split's own stackBelow
-	   only stacks in DOM order without reversing it, so this bespoke
-	   direction flip is hand-rolled — the sm threshold (640px) matches
-	   Split's own --hz-width-sm fallback for consistency. */
+	   below it (column-reverse, since DOM order is [thumbs, carousel], so the
+	   carousel, last in the DOM, paints first). Above the sm width it flips to
+	   the classic product-page shape: a vertical thumb column on the left, the
+	   main image filling the rest on the right. Split's own stackBelow stacks
+	   in DOM order without reversing it, so this direction flip is
+	   hand-rolled. The sm threshold (640px) matches Split's own --hz-width-sm
+	   fallback for consistency. */
 	.pdp-media {
 		display: flex;
 		flex-direction: column-reverse;

@@ -2,7 +2,7 @@
 	import { Stack, Container, CodeBlock } from '$lib';
 	import Homepage from '../../../../docs/samples/Homepage.svelte';
 	// ?raw keeps the listing in lockstep with the component that renders above
-	// it — the sample is never hand-copied into a string.
+	// it. The sample is never hand-copied into a string.
 	import homepageSource from '../../../../docs/samples/Homepage.svelte?raw';
 	import { consumerSource } from '../../../../docs/consumerSource';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
@@ -64,10 +64,10 @@
 	>
 		<h2 id="source-heading">Source</h2>
 		<p class="source-note">
-			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
+			The whole page, verbatim. Every import is a public export. Copy it into an app with the theme
 			installed and it renders the same.
 		</p>
-		<CodeBlock code={consumerSource(homepageSource)} collapsible />
+		<CodeBlock code={consumerSource(homepageSource)} collapsible lineNumbers />
 	</Stack>
 </Stack>
 
@@ -78,9 +78,9 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
-	 * margin zeroed so the Stack's own gap owns the rhythm (DocPage.svelte's
-	 * .type-heading/.hooks-intro convention). */
+	/* Direct child of the Source section Stack (gap="away", data-density-shift).
+	 * Margin is zeroed so the Stack's own gap owns the rhythm, matching
+	 * DocPage.svelte's .type-heading/.hooks-intro convention. */
 	.source-note {
 		margin: 0;
 	}

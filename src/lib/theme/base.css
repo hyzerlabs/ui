@@ -41,6 +41,22 @@
 	:where(a:visited) {
 		color: var(--hz-intent-secondary, #7c3aed);
 	}
+
+	/* Keyboard keys. <kbd> is the native element for "press this", and the UA
+	 * default (bare monospace, no shape) does not read as a key next to running
+	 * text. This paints one, from the same tokens everything else uses, so any
+	 * page documenting a shortcut gets it without a component or a class.
+	 * :where() keeps specificity at zero, so a consumer class always wins. */
+	:where(kbd) {
+		font-family: var(--hz-font-family-mono, monospace);
+		font-size: var(--hz-font-size-xs, 0.75rem);
+		color: var(--hz-color-text-muted, #6b7280);
+		background-color: var(--hz-color-surface-muted, #f6f7f7);
+		border: var(--hz-border-width-thin, 1px) solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		padding: 0.05em 0.35em;
+		white-space: nowrap;
+	}
 }
 
 /*

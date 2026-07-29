@@ -34,9 +34,8 @@
 		</div>
 		<p class="note">
 			Press <kbd>⌘K</kbd> (or <kbd>Ctrl K</kbd>) anywhere on this page, or click
-			<strong>Search</strong> above. Type to filter; ↑/↓ move, Enter opens the highlighted destination,
-			Esc closes. Selecting a result navigates — this is a working palette, so it will take you to that
-			page.
+			<strong>Search</strong> above. Type to filter. ↑ and ↓ move the highlight, Enter opens the highlighted
+			result, and Esc closes. This is a working palette, so choosing a result takes you to that page.
 		</p>
 	</Stack>
 
@@ -49,11 +48,11 @@
 	>
 		<h2 id="source-heading">Source</h2>
 		<p class="source-note">
-			The whole composition, verbatim. Every import is a public export (plus SvelteKit's
-			<code>goto</code> for navigation) — copy it into an app with the theme installed and it works the
+			The whole composition, verbatim. Every import is a public export, plus SvelteKit's
+			<code>goto</code> for navigation. Copy it into an app with the theme installed and it works the
 			same.
 		</p>
-		<CodeBlock code={consumerSource(paletteSource)} collapsible />
+		<CodeBlock code={consumerSource(paletteSource)} collapsible lineNumbers />
 	</Stack>
 </Stack>
 
@@ -71,7 +70,7 @@
 		padding: 0.05rem 0.3rem;
 	}
 
-	/* Direct children of their Stack (gap="away", data-density-shift) — margin
+	/* Direct children of their Stack (gap="away", data-density-shift). Margin is
 	 * zeroed so the Stack's own gap owns the rhythm. */
 	.source-note {
 		margin: 0;

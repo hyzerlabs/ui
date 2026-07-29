@@ -20,6 +20,10 @@ const REWRITES: [RegExp, string][] = [
 	// would otherwise ship a specifier no consumer app has.
 	[/(['"])\$lib\/icons\1/g, "'@hyzer-labs/ui/icons'"],
 	[/(['"])\$lib\/utils\1/g, "'@hyzer-labs/ui/utils'"],
+	// Same trap, same fix, for the other two subpath exports a sample can
+	// legitimately reach for.
+	[/(['"])\$lib\/motion\1/g, "'@hyzer-labs/ui/motion'"],
+	[/(['"])\$lib\/observers\1/g, "'@hyzer-labs/ui/observers'"],
 	[/(['"])\$lib\1/g, "'@hyzer-labs/ui'"]
 ];
 

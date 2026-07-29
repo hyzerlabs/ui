@@ -3,7 +3,7 @@
  * `pnpm gen:tokens` renders this through the token engine (overrides mode,
  * scoped to `.hz-theme-terminal`) into the committed terminal.tokens.css next
  * to it — generated from this config, regenerate rather than hand-editing
- * terminal.tokens.css directly. The config doubles as docs: /theming/examples
+ * terminal.tokens.css directly. The config doubles as docs: /docs/theming/examples
  * shows it verbatim.
  *
  * Terminal is the STANDALONE example: the sheets in ./components style the

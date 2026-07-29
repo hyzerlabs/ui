@@ -33,8 +33,8 @@
 
 	<Alert intent="info" title="You are inside this pattern right now">
 		{#snippet icon()}<IconInfo />{/snippet}
-		The shell around this page — the sidebar, this reading column, and the rail on the right — is the
-		same composition at full size: the library's vertical <a href="/docs/components/nav">Nav</a>
+		The shell around this page (the sidebar, this reading column, and the rail on the right) is the same
+		composition at full size: the library's vertical <a href="/docs/components/nav">Nav</a>
 		and
 		<a href="/docs/components/toc">Toc</a>, skinned with plain CSS on the role tokens.
 	</Alert>
@@ -66,10 +66,10 @@
 	>
 		<h2 id="source-heading">Source</h2>
 		<p class="source-note">
-			The whole pattern, verbatim. Every import is a public export — copy it into an app with the
+			The whole pattern, verbatim. Every import is a public export. Copy it into an app with the
 			theme installed and it renders the same.
 		</p>
-		<CodeBlock code={consumerSource(docsShellSource)} collapsible />
+		<CodeBlock code={consumerSource(docsShellSource)} collapsible lineNumbers />
 	</Stack>
 </Stack>
 
@@ -80,7 +80,7 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Direct children of their Stack (gap="away", data-density-shift) — margin
+	/* Direct children of their Stack (gap="away", data-density-shift). Margin is
 	 * zeroed so the Stack's own gap owns the rhythm. */
 	.source-note {
 		margin: 0;

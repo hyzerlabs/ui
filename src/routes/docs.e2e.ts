@@ -1258,7 +1258,7 @@ test.describe('Virtualized combobox pattern', () => {
 		// Toggle-to-select: the popup stays open, mirroring Combobox's own
 		// commit behavior (it never closes on a selection).
 		await expect(input).toHaveAttribute('aria-expanded', 'true');
-		await expect(page.locator('.vcombo-proof')).toContainText('Selected:');
+		await expect(page.locator('.vcombo-selected')).toContainText('Selected:');
 		await expect(page.locator('.hz-badge')).toHaveCount(1);
 	});
 

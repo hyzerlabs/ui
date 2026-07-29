@@ -32,25 +32,25 @@
 		</p>
 	</div>
 
-	<!-- Both alerts as one tight callout cluster — gap="near" on a
+	<!-- Both alerts as one tight callout cluster: gap="near" on a
 	     density-shifted Stack reads them as a single grouped recommendation
 	     instead of two sections at normal page rhythm (same mechanism as
-	     /patterns/virtualized-combobox). -->
+	     /docs/patterns/virtualized-combobox). -->
 	<Stack gap="near" data-density-shift>
 		<Alert intent="warning" title="Reach for this only when the whole list needs to scroll at once">
 			{#snippet icon()}<IconTriangleAlert />{/snippet}
-			Most apps don't need to virtualize the full dataset.
-			<a href="/docs/components/pagination">Pagination</a> — the library ships it — server-side paging,
-			or filtering down the set usually eases rendering and is the simpler, often more accessible design.
-			Reach for virtualization when the product genuinely requires the whole list scrollable in one view,
-			not paged.
+			Most apps do not need to virtualize the full dataset.
+			<a href="/docs/components/pagination">Pagination</a> (the library ships it), server-side paging,
+			and filtering the set down all ease rendering. They are also simpler, and often more accessible.
+			Reach for virtualization when your product needs the whole list scrollable in one view rather than
+			paged.
 		</Alert>
 
 		<Alert intent="info" title="Pick per dataset size, not by default">
 			{#snippet icon()}<IconInfo />{/snippet}
 			Real <code>&lt;table&gt;</code> semantics (the <a href="/docs/components/table">Table</a>
-			component) give you native screen-reader table navigation for free and no ARIA to keep in sync —
-			reach for it up to some thousands of rows. Only past that point, where rendering every
+			component) give you native screen-reader table navigation for free, with no ARIA to keep in sync.
+			Reach for it up to some thousands of rows. Only past that point, where rendering every
 			<code>&lt;tr&gt;</code> becomes the bottleneck, does the windowed ARIA table below earn its keep.
 		</Alert>
 	</Stack>
@@ -82,10 +82,10 @@
 	>
 		<h2 id="source-heading">Source</h2>
 		<p class="source-note">
-			The whole pattern, verbatim. Every import is a public export — copy it into an app with the
-			theme installed and it renders the same.
+			The whole pattern, verbatim. Every import is a public export, so you can copy it into an app
+			with the theme installed and it renders the same.
 		</p>
-		<CodeBlock code={consumerSource(virtualizedTableSource)} collapsible />
+		<CodeBlock code={consumerSource(virtualizedTableSource)} collapsible lineNumbers />
 	</Stack>
 </Stack>
 
@@ -96,7 +96,7 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
+	/* Direct child of the Source section Stack (gap="away", data-density-shift):
 	 * margin zeroed so the Stack's own gap owns the rhythm. */
 	.source-note {
 		margin: 0;

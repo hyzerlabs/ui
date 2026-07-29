@@ -4,16 +4,17 @@
 	 *
 	 * It imports only public exports and reaches for no docs-site helpers. The
 	 * one concession to living inside the docs frame is that its own
-	 * nav/footer links are bare `#` — readers browse the sample, they don't
-	 * navigate away from it.
+	 * nav/footer links are bare `#`: readers browse the sample rather than
+	 * navigating away from it.
 	 *
 	 * Below the "Popular this week" grid, the page runs a second, marketing-
 	 * style Hero slice (overlay layout, full-bleed gradient background) as a
 	 * mid-page break, then a row of stat cards, then closes with a contact
-	 * CTA — the same three-beat rhythm (browse → promo → proof → contact) a
-	 * real landing page follows.
+	 * CTA. That is the rhythm a real landing page follows: browse, promo,
+	 * proof, contact.
 	 */
 	import { Header, Hero, Container, Grid, Stack, Cluster, Card, Badge, Button, Footer } from '$lib';
+	import { revealGroup } from '$lib/motion';
 	import type { NavItem, FooterColumn } from '$lib/types';
 
 	const navItems: NavItem[] = [
@@ -55,8 +56,7 @@
 			holes: 18,
 			par: 63,
 			tag: 'Technical',
-			blurb:
-				'Hand-built, relentlessly technical, and beloved for it. Bring your patience and a putter.'
+			blurb: 'Hand-built and technical all the way through. Bring your patience and a putter.'
 		},
 		{
 			name: 'Fox Run Meadows',
@@ -112,8 +112,12 @@
 </script>
 
 <!-- The sample's own header. Its nav's label distinguishes it from the docs
-     sidebar nav it renders inside — nested landmarks need distinct names. -->
-<Header items={navItems} ariaLabel="Sample site navigation" bordered>
+     sidebar nav it renders inside. Nested landmarks need distinct names. -->
+<!-- mobileBreakpoint="sm": four short links and one button fit in the bar well
+     below the md default of 968px, so the bar keeps its full width down to
+     640px instead of collapsing to a menu button while there is room to
+     spare. -->
+<Header items={navItems} ariaLabel="Sample site navigation" bordered mobileBreakpoint="sm">
 	{#snippet brand()}
 		<strong>Hyzer</strong>
 	{/snippet}
@@ -128,7 +132,7 @@
 	headingLevel={2}
 	eyebrow="Over 8,000 courses"
 	title="Find your next round."
-	subtitle="Course conditions, league schedules, and tee times — for players who'd rather be throwing than planning."
+	subtitle="Course conditions, league schedules, and tee times, for players who'd rather be throwing than planning."
 >
 	{#snippet actions()}
 		<Cluster gap="sm" justify="center">
@@ -145,7 +149,14 @@
 			<p class="muted">Courses players are logging the most rounds on right now.</p>
 		</Stack>
 
-		<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
+		<!-- The cards rise in as the grid scrolls into view, one after another.
+		     revealGroup puts a single observer on the grid rather than one per
+		     card, and it does nothing at all under prefers-reduced-motion. -->
+		<Grid
+			columns={{ sm: 1, md: 2, lg: 3 }}
+			gap="md"
+			{@attach revealGroup({ effect: 'fly', stagger: 80 })}
+		>
 			{#each courses as course (course.name)}
 				<Card class="hz-card--outlined" padding="md" rounded="md">
 					<Stack gap="sm">
@@ -170,16 +181,15 @@
 	</Stack>
 </Container>
 
-<!-- A second, marketing-style Hero — full-bleed gradient background via
-     overlay layout instead of the top Hero's plain surface, breaking up the
-     page's rhythm the way a real landing page's mid-page promo banner
-     would. -->
+<!-- A second, marketing-style Hero. It takes a full-bleed gradient background
+     from the overlay layout instead of the top Hero's plain surface, breaking
+     up the page the way a real landing page's mid-page promo banner would. -->
 <Hero
 	layout="overlay"
 	headingLevel={2}
 	eyebrow="Fall league registration"
 	title="Six-week leagues. No experience required."
-	subtitle="Card up with players at your skill level and play the same course every week this fall — divisions run from beginner to advanced."
+	subtitle="Card up with players at your skill level and play the same course every week this fall. Divisions run from beginner to advanced."
 >
 	{#snippet media()}
 		<div class="promo-media" aria-hidden="true"></div>
@@ -199,7 +209,11 @@
 			<p class="muted">A snapshot of the community logging rounds through the app.</p>
 		</Stack>
 
-		<Grid columns={{ sm: 1, md: 2, lg: 4 }} gap="md">
+		<Grid
+			columns={{ sm: 1, md: 2, lg: 4 }}
+			gap="md"
+			{@attach revealGroup({ effect: 'fly', stagger: 80 })}
+		>
 			{#each stats as stat (stat.label)}
 				<Card class="hz-card--outlined" padding="lg" rounded="md">
 					<Stack gap="xs">
@@ -228,7 +242,7 @@
 		</Stack>
 	{/snippet}
 	{#snippet bottom()}
-		<span class="muted">&copy; 2026 Hyzer Labs — a sample composition.</span>
+		<span class="muted">&copy; 2026 Hyzer Labs (a sample composition).</span>
 	{/snippet}
 </Footer>
 
@@ -254,7 +268,7 @@
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 
-	/* Marketing-slice Hero background — a bolder gradient than the Hero docs
+	/* Marketing-slice Hero background: a bolder gradient than the Hero docs
 	 * page's own demo swatch, but still mixed toward the surface color so the
 	 * default (unstyled) hero text keeps its normal contrast on top of it. */
 	.promo-media {
@@ -278,7 +292,7 @@
 	}
 
 	/* .contact-cta lands on Stack's rendered root, not a literal element in
-	 * this file, so the ancestor segment has to be marked :global — h3/p
+	 * this file, so the ancestor segment has to be marked :global. h3 and p
 	 * stay literal children here and keep their normal scoping. */
 	:global(.contact-cta) h3,
 	:global(.contact-cta) p {

@@ -68,11 +68,11 @@
 	>
 		<h2 id="source-heading">Source</h2>
 		<p class="source-note">
-			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
-			installed and it works the same. Try placing an order with empty fields to see the summary
-			link to each problem.
+			The whole page, verbatim. Every import is a public export, so you can copy it into an app with
+			the theme installed and it works the same. Try placing an order with empty fields to see the
+			summary link to each problem.
 		</p>
-		<CodeBlock code={consumerSource(checkoutSource)} collapsible />
+		<CodeBlock code={consumerSource(checkoutSource)} collapsible lineNumbers />
 	</Stack>
 </Stack>
 
@@ -83,7 +83,7 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
+	/* Direct child of the Source section Stack (gap="away", data-density-shift):
 	 * margin zeroed so the Stack's own gap owns the rhythm. */
 	.source-note {
 		margin: 0;

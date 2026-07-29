@@ -5,24 +5,23 @@
 	 * headings. The shell around the page you are reading is this same
 	 * composition at full size.
 	 *
-	 * The Toc is scoped to the content column by element reference — pass a
-	 * selector or an element as `container` and it collects only that
-	 * subtree's headings, so several shells (or a shell inside another page,
-	 * like this demo) never pick up each other's sections. Nav sections are
-	 * label-only toggles; the current page's link carries `ariaCurrent`, and
-	 * `defaultOpen` keeps its section expanded when the items array is
-	 * rebuilt on navigation.
+	 * The Toc is scoped to the content column by element reference. Pass a
+	 * selector or an element as `container` and it collects only that subtree's
+	 * headings, so several shells (or a shell inside another page, like this
+	 * demo) never pick up each other's sections. Nav sections are label-only
+	 * toggles. The current page's link carries `ariaCurrent`, and `defaultOpen`
+	 * keeps its section expanded when the items array is rebuilt on navigation.
 	 *
 	 * Heading levels adapt to where the shell renders. A real app would use
-	 * h1 for the page title and h2 for sections — and Toc's default
-	 * `levels={[2]}` would apply. Embedded in this docs page's own outline,
-	 * the sample title is an h3, sections are h4, and `levels={[4]}` keeps
-	 * the rail in step.
+	 * h1 for the page title and h2 for sections, where Toc's default
+	 * `levels={[2]}` applies. Embedded in this docs page's own outline, the
+	 * sample title is an h3, sections are h4, and `levels={[4]}` keeps the rail
+	 * in step.
 	 */
 	import { Nav, Toc, Stack, Badge } from '$lib';
 	import type { NavItem } from '$lib/types';
 
-	// The miniature site's routes — hash links into the reading column below,
+	// The miniature site's routes are hash links into the reading column below,
 	// so the sidebar, the content, and the Toc all describe the same page.
 	const navItems: NavItem[] = [
 		{ label: 'Introduction', href: '#shell-requirements' },
@@ -62,7 +61,7 @@
 			<header class="shell-page-header">
 				<h3 class="shell-title">Install &amp; import</h3>
 				<p class="shell-lead">
-					Get the library into a project and render a first component — three short steps.
+					Get the library into a project and render a first component in a few short steps.
 				</p>
 			</header>
 
@@ -70,7 +69,7 @@
 				<h4 id="shell-requirements">Requirements</h4>
 				<p>
 					Any bundler that resolves package exports works. The library ships plain modules and plain
-					CSS — there is no build plugin to install and no compiler configuration to copy.
+					CSS, so there is no build plugin to install and no compiler configuration to copy.
 				</p>
 				<p>
 					Styles are optional at every tier: the components run headless, and the theme is a
@@ -82,8 +81,8 @@
 				<h4 id="shell-install">Install</h4>
 				<p>
 					Add the package with your package manager of choice, then import the theme once at the app
-					root. Every component after that is a named import — no barrel side effects, so your
-					bundler keeps only what a page actually renders.
+					root. Every component after that is a named import. There are no barrel side effects, so
+					your bundler keeps only what a page renders.
 				</p>
 				<p>
 					The first render is the whole integration test: if a styled button shows up, the tokens,
@@ -94,9 +93,9 @@
 			<section class="shell-section">
 				<h4 id="shell-theme">Theme your app</h4>
 				<p>
-					Override a palette token and watch every role that references it follow — borders, muted
-					text, and tinted surfaces all chain through the token graph. Most brands need only a
-					handful of overrides.
+					Override a palette token and every role that references it follows: borders, muted text,
+					and tinted surfaces all chain through the token graph. Most brands need only a handful of
+					overrides.
 				</p>
 				<p>
 					Dark mode is one attribute on the root element. The palette re-resolves per mode, and
@@ -108,7 +107,7 @@
 				<h4 id="shell-ship">Ship it</h4>
 				<p>
 					Check your overridden pairings against WCAG with the exported contrast helpers, run your
-					usual build, and deploy — the library adds no runtime beyond the components you render.
+					usual build, and deploy. The library adds no runtime beyond the components you render.
 				</p>
 			</section>
 		</Stack>
@@ -128,9 +127,9 @@
 		gap: 2rem;
 	}
 
-	/* Sidebar and rail stick while the reading column scrolls by — the same
-	 * behavior as a fixed shell, but scoped so the demo works embedded in a
-	 * larger page. align-self keeps the sticky element from stretching to the
+	/* Sidebar and rail stick while the reading column scrolls by. That is the
+	 * same behavior as a fixed shell, but scoped so the demo works embedded in
+	 * a larger page. align-self keeps the sticky element from stretching to the
 	 * full grid-row height (a stretched item has nowhere to stick). */
 	.shell-sidebar,
 	.shell-rail {
@@ -160,7 +159,7 @@
 		white-space: nowrap;
 	}
 
-	/* Sidebar Nav skin — quiet uppercase section toggles, indented page links,
+	/* Sidebar Nav skin: quiet uppercase section toggles, indented page links,
 	 * an accent on the current page. Unlayered, so it wins over the theme
 	 * layer without a specificity fight. */
 	.shell :global(.shell-nav .hz-nav-inner) {
@@ -235,7 +234,7 @@
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
-	/* Below tablet width the rail hides and the sidebar stacks on top — the
+	/* Below tablet width the rail hides and the sidebar stacks on top, the
 	 * simplest honest collapse for a demo. A production shell would trade the
 	 * sidebar for a drawer (see Header's mobile pattern). */
 	@media (max-width: 767px) {

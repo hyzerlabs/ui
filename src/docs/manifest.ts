@@ -523,7 +523,7 @@ export const manifest: ManifestEntry[] = [
 				label: 'Homepage',
 				href: '/docs/patterns/homepage',
 				description:
-					'A marketing-style landing page assembled entirely from library components, with no bespoke layout code and no custom CSS beyond a few type sizes.'
+					'A marketing-style landing page assembled entirely from library components, with no bespoke layout code.'
 			},
 			{
 				label: 'Article',
@@ -535,7 +535,7 @@ export const manifest: ManifestEntry[] = [
 				label: 'Recipe',
 				href: '/docs/patterns/recipe',
 				description:
-					"A recipe page where the main dish photo opens as a Hero's split media, ahead of the ingredients and method."
+					"A recipe page where the main dish photo opens as a Hero's split media, ahead of the ingredients and instructions."
 			},
 			{
 				label: 'Docs shell',
@@ -546,7 +546,8 @@ export const manifest: ManifestEntry[] = [
 			{
 				label: 'Command palette',
 				href: '/docs/patterns/command-palette',
-				description: 'A ⌘K quick-search overlay assembled from library components.'
+				description:
+					'A ⌘K quick-search overlay built on Modal, which supplies the backdrop, focus trap, and Escape to close.'
 			},
 			{
 				label: 'Product listing',
@@ -556,12 +557,14 @@ export const manifest: ManifestEntry[] = [
 			{
 				label: 'Product detail',
 				href: '/docs/patterns/product-detail',
-				description: 'A single product page with a buy panel that updates as you pick options.'
+				description:
+					'A single product page with a thumbnail gallery and a buy panel that updates as you pick options.'
 			},
 			{
 				label: 'Checkout form',
 				href: '/docs/patterns/checkout-form',
-				description: 'The full Form workflow on a realistic checkout page.'
+				description:
+					'The full Form workflow on a realistic checkout page: submit-time validation, a linked error summary, and inline field errors.'
 			},
 			{
 				label: 'Contact form',
@@ -578,7 +581,7 @@ export const manifest: ManifestEntry[] = [
 				label: 'Virtualized combobox',
 				href: '/docs/patterns/virtualized-combobox',
 				description:
-					'A multi-select text input plus a role="listbox" popup, windowed by Virtualizer, over tens of thousands of rows.'
+					'A multi-select autocomplete over tens of thousands of rows, windowed by Virtualizer.'
 			}
 		]
 	}

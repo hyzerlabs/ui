@@ -2,13 +2,13 @@
 	/**
 	 * A small contact form composed entirely from the library.
 	 *
-	 * It imports only public exports. It's the minimal
-	 * end of the Form spectrum — four fields, one Select, no Split/Card order
-	 * summary — but the validation flow is the same one CheckoutForm uses at
-	 * full size: submit-time validation builds a plain field-name → message
-	 * record, `toFormErrors` reshapes it, and Form renders the linked error
-	 * summary and moves focus to it. See /patterns/checkout-form for the
-	 * larger, multi-section version of this same workflow.
+	 * It imports only public exports. This is the minimal end of the Form
+	 * spectrum: four fields, one Select, and no Split/Card order summary. The
+	 * validation flow is the same one CheckoutForm uses at full size. On
+	 * submit, validation builds a plain field-name → message record,
+	 * `toFormErrors` reshapes it, and Form renders the linked error summary
+	 * and moves focus to it. See /docs/patterns/checkout-form for the larger,
+	 * multi-section version of this workflow.
 	 */
 	import {
 		Form,
@@ -38,8 +38,8 @@
 	let errors = $state<FormError[]>([]);
 	let sent = $state(false);
 
-	// One record, keyed by field `name` — toFormErrors turns it into the
-	// FormError[] the summary links from. The same array feeds the inline
+	// One record, keyed by field `name`. toFormErrors turns it into the
+	// FormError[] the summary links from, and the same array feeds the inline
 	// `error` prop on each field.
 	function validate(): FormError[] {
 		const problems: Record<string, string> = {};
@@ -64,7 +64,7 @@
 	<Stack gap="lg">
 		<Stack gap="xs">
 			<h2>Contact us</h2>
-			<p class="muted">Questions about an order, a course, or anything else — we read every one.</p>
+			<p class="muted">Ask about an order, a course, or anything else. We read every message.</p>
 		</Stack>
 
 		{#if sent}
@@ -74,7 +74,7 @@
 				headingLevel={3}
 				onDismiss={() => (sent = false)}
 			>
-				Thanks, {name.split(' ')[0] || 'friend'} — we'll reply to {email} within a business day.
+				Thanks, {name.split(' ')[0] || 'friend'}. We'll reply to {email} within one business day.
 			</Alert>
 		{/if}
 

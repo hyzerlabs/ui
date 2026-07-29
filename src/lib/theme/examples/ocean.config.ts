@@ -3,7 +3,7 @@
  * `pnpm gen:tokens` renders this through the token engine (overrides mode)
  * into the committed ocean.css next to it — generated from this config,
  * regenerate rather than hand-editing ocean.css directly. The config doubles
- * as docs: /theming/examples shows it verbatim.
+ * as docs: /docs/theming/examples shows it verbatim.
  */
 import { defineConfig } from '../../config/index.js';
 

@@ -303,13 +303,9 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
+	/* The key treatment itself now ships with the theme's bare <kbd>; this only
+	   keeps the hint from being squeezed by the input beside it. */
 	.cmd-hint {
-		font-family: var(--hz-font-family-mono, monospace);
-		font-size: var(--hz-font-size-xs, 0.75rem);
-		color: var(--hz-color-text-muted, #6b7280);
-		border: 1px solid var(--hz-color-border, #6b7280);
-		border-radius: var(--hz-radius-sm, 0.25rem);
-		padding: 0.05rem 0.3rem;
 		flex-shrink: 0;
 	}
 

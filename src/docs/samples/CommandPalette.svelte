@@ -2,10 +2,11 @@
 	/**
 	 * A command palette composed from library primitives.
 	 *
-	 * The overlay, backdrop, focus trap, and Escape-to-close come from `Modal` —
-	 * so this recipe only has to add the search field, the filtered results, and
-	 * the keyboard wiring. It imports only public exports and reads like consumer
-	 * code (bare `#`-free: it navigates to real routes via SvelteKit's goto).
+	 * The overlay, backdrop, focus trap, and Escape-to-close come from `Modal`,
+	 * so this pattern only adds the search field, the filtered results, and the
+	 * keyboard wiring. It imports only public exports and reads like consumer
+	 * code: choosing a result navigates to a real route through SvelteKit's
+	 * `goto`, not to a placeholder `#` link.
 	 */
 	import { Modal } from '$lib';
 	import { IconSearch } from '$lib/icons';
@@ -55,7 +56,7 @@
 		if (open && inputEl) inputEl.focus();
 	});
 
-	// The conventional global shortcut — ⌘K / Ctrl-K opens the palette anywhere.
+	// The conventional global shortcut: ⌘K or Ctrl-K opens the palette anywhere.
 	$effect(() => {
 		function onKey(e: KeyboardEvent) {
 			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {

@@ -2949,3 +2949,88 @@ both inherited verbatim from the theming page:
 - 31 titled Alerts across the site still relied on the old h2 default; the
   default is now h3, so they inherit the fix, but a few pages pass explicit
   levels that may now be redundant or wrong relative to their surroundings.
+
+## Re-audit round 4 — Patterns (2026-07-29)
+
+Editor pass first, partitioned across two runs (five pattern pages + samples,
+then six), then this technical pass over their flags. The samples carry most of
+the words on these pages: each route page renders its sample and then shows that
+same file verbatim, so a sample's headings, labels, help text and code comments
+are read twice, once as a demo and once as source somebody copies.
+
+**Verified false alarms.** Two of the editor's flags were wrong, and both were
+worth checking anyway:
+
+- The command-palette sample's docblock says "it imports only public exports",
+  and the sample imports `uid` from `$lib/utils`. That claim holds: `./utils` is
+  a real subpath export, `uid` is exported from its barrel, and `consumerSource`
+  rewrites `$lib/utils` to `@hyzer-labs/ui/utils` before the source is shown.
+- The virtualized combobox's `aria-expanded` was reported as hard-coded `true`.
+  It is bound to `open`.
+
+**Fixed — copy that disagreed with the code.**
+
+- The combobox pattern claimed "25,000+ rows" in two places. The dataset is 30
+  courses x 900 rounds = 27,000. The visible count in the sample was already
+  derived from `rounds.length`; only the prose was hand-written, and it is now
+  either derived or unnumbered.
+- The checkout summary rendered "Free standard shipping on orders over $35 —
+  applied." even when the shopper picked Express and was charged $8.99. It is
+  now worded as the standing policy it is, which is true whichever speed is
+  selected.
+- Express shipping ($8.99) and gift wrap ($2.00) were each written twice, once
+  in a label and once in the totals math. Both are single constants now, so the
+  price a shopper reads cannot drift from the price they are charged.
+
+**Fixed — accessibility in copy-paste teaching material.**
+
+- The combobox's `aria-controls` pointed at the listbox id unconditionally. When
+  a query matches nothing, no listbox is rendered, so the reference dangled. It
+  now names the listbox only while one exists.
+- The same empty state was silent: the message sat in no live region and there
+  was no active option to announce, so a screen reader user typing a
+  non-matching query got nothing. The message now carries `role="status"`.
+- The product-listing card art had `alt="{disc.name} disc"` directly above an
+  `<h3>` with the name and a Badge with the type, so the name was announced
+  twice. The thumbnail is decorative next to that text: `alt=""`.
+
+**Fixed — the Header headroom item carried from round 3.** The homepage sample's
+Header used the default `mobileBreakpoint="md"`, which collapses below 968px of
+*header* width. Measured in the docs frame, the header renders 974px at both
+1280 and 1440: six pixels of headroom. Any classic scrollbar (~15px), zoom step
+or narrowed window flipped the demo to a menu button, and at 1200 it was already
+collapsed. It now uses `mobileBreakpoint="sm"`, the same fix the Header
+component page's own demos took, and it is honest as copied code: four short
+links and a button fit the bar far below 968px. Re-measured after the change,
+the bar survives at 1200. It is the only sample that renders a Header.
+
+**Fixed — stale paths from the IA move.** `ContactForm` linked
+`/patterns/checkout-form` (no `/docs`). A sweep for the same class of break
+found two more in shipped files: `ocean.config.ts` and `terminal.config.ts` both
+cite `/theming/examples` in comments, and those configs are shown verbatim on
+the examples page, so the stale path ships to consumers. All corrected.
+
+**Manifest descriptions.** Six rewritten. The homepage claimed "no custom CSS
+beyond a few type sizes" while the sample carries a gradient promo panel and
+centering rules; the recipe pointed at "the ingredients and method" when the
+sample's heading is Instructions; the command palette did not mention Modal,
+which supplies the backdrop, focus trap and Escape handling and is the reusable
+lesson. Checkout, product detail and virtualized combobox gained or lost detail
+to match what their samples actually show.
+
+**Open, not done.**
+
+- Two command palettes exist: the live docs-site one (`src/docs/CommandPalette
+  .svelte`) and the pattern sample. They are separate implementations of the
+  same widget. Worth deciding whether the site can render the sample.
+- The eleven pattern route pages are near-identical boilerplate (the `composed`
+  join, the `.source-note`, the `.sample-frame` CSS, the same breakout comment).
+  That duplication is how the `/patterns/checkout-form` link went stale in one
+  copy and not the others. A shared page component would make the next copy pass
+  one edit instead of eleven.
+- The sample palette's `role="option"` rows carry pointer handlers only; the
+  input owns all key handling. That is the correct virtual-focus pattern, but it
+  ships as teaching material and deserves a comment saying so deliberately.
+- Recipe copy asserts a "Gluten-free" badge on a chili with commercial chili
+  powder, and pairs "Serves 6" with prose about feeding a card of 4-5 plus
+  leftovers. Fictional, but they are factual claims on screen.

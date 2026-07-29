@@ -3,9 +3,9 @@
 	 * A windowed ARIA table over a large (6,000-row) generated dataset. It
 	 * imports only public exports.
 	 *
-	 * Why an ARIA table, not real <table> markup: `Virtualizer` windows rows
-	 * inside a div viewport/sizer/window stack, and a `<tr>` cannot live in
-	 * that structure — a table row outside a `<table>` loses its row
+	 * Why an ARIA table instead of real <table> markup: `Virtualizer` windows
+	 * rows inside a div viewport/sizer/window stack, and a `<tr>` cannot live
+	 * in that structure. A table row outside a `<table>` loses its row
 	 * semantics entirely. So this pattern builds the table's semantics with
 	 * `role="table"` / `"row"` / `"columnheader"` / `"cell"` on plain divs
 	 * instead: a sticky header row rendered OUTSIDE the Virtualizer (so it
@@ -14,17 +14,17 @@
 	 * columns always line up.
 	 *
 	 * The tradeoff, plainly: a real `<table>` (the Table component) gives you
-	 * native screen-reader table navigation for free and no ARIA to keep in
-	 * sync — reach for it up to some thousands of rows. Past the point where
+	 * native screen-reader table navigation for free, with no ARIA to keep in
+	 * sync. Reach for it up to some thousands of rows. Past the point where
 	 * rendering every row becomes the bottleneck, this windowed ARIA table
-	 * trades a little semantic richness for a DOM that stays small regardless
-	 * of dataset size. Pick per dataset size, not by default.
+	 * trades a little semantic richness for a DOM that stays small whatever
+	 * the dataset size. Pick per dataset size, not by default.
 	 *
-	 * Sorting is composed in this sample (not a Table/Virtualizer feature) to
-	 * show it coexists with windowing: it re-sorts the full 6,000-row array,
-	 * and the Virtualizer windows whatever order results.
+	 * Sorting is composed in this sample (it is not a Table or Virtualizer
+	 * feature) to show that it works alongside windowing: it re-sorts the full
+	 * 6,000-row array, and the Virtualizer windows whatever order results.
 	 */
-	import { Virtualizer } from '$lib';
+	import { Stack, Virtualizer } from '$lib';
 
 	interface Round {
 		id: number;
@@ -74,8 +74,8 @@
 		'Willow Bend'
 	];
 
-	// Deterministic PRNG (mulberry32) — a fixed seed keeps SSR and client
-	// output identical, unlike Math.random(), which would mismatch on hydrate.
+	// Deterministic PRNG (mulberry32). A fixed seed keeps SSR and client output
+	// identical, unlike Math.random(), which would mismatch on hydrate.
 	function mulberry32(seed: number): () => number {
 		let a = seed;
 		return () => {
@@ -129,82 +129,85 @@
 </script>
 
 <!--
-	Classes follow the library's `.hz-` convention throughout — `.hz-table-wrap`
+	Classes follow the library's `.hz-` convention throughout. `.hz-table-wrap`
 	and `.hz-table` are the REAL Table component's own classes, reused here
-	as-is so this pattern picks up the same wrap chrome (border/radius) and
-	base type from table.css; `.hz-table-sort`/`.hz-table-sort-icon` likewise
-	give the sort trigger identical chrome to Table's. Everything with no
-	real-Table equivalent (the grid template, header surface, row/cell
-	layout — all div-based, so table.css's th/td-scoped rules can't reach
-	them) is namespaced `.hz-vtable-*` below, styled fresh but from the same
-	design tokens.
+	as-is so this pattern picks up the same wrap chrome (border and radius) and
+	base type from table.css; `.hz-table-sort` and `.hz-table-sort-icon`
+	likewise give the sort trigger the same chrome as Table's. Everything with
+	no real-Table equivalent (the grid template, header surface, and row/cell
+	layout, all div-based, so table.css's th/td-scoped rules cannot reach them)
+	is namespaced `.hz-vtable-*` below, styled fresh from the same design
+	tokens.
 -->
-<div
-	class="hz-vtable hz-table-wrap hz-table"
-	role="table"
-	aria-label="Disc golf rounds ({ROW_COUNT.toLocaleString()} total)"
-	aria-rowcount={sortedRounds.length + 1}
->
-	<!-- The header row lives OUTSIDE the Virtualizer, so it never scrolls with
-	     the windowed body — a sticky header with no CSS `position: sticky` needed. -->
-	<div class="hz-vtable-thead" role="rowgroup">
-		<div class="hz-vtable-row hz-vtable-grid hz-vtable-header" role="row" aria-rowindex={1}>
-			{#each columns as column, i (column.key)}
-				<div
-					class="hz-vtable-headercell"
-					role="columnheader"
-					aria-colindex={i + 1}
-					aria-sort={ariaSortFor(column.key)}
-					data-align={column.align}
-				>
-					<button type="button" class="hz-table-sort" onclick={() => toggleSort(column.key)}>
-						{column.header}
-						{#if sort?.key === column.key}
-							<span class="hz-table-sort-icon" aria-hidden="true">
-								{sort.direction === 'asc' ? '▲' : '▼'}
-							</span>
-						{/if}
-					</button>
-				</div>
-			{/each}
-		</div>
-	</div>
-
-	<Virtualizer
-		role="rowgroup"
-		class="hz-vtable-tbody"
-		items={sortedRounds}
-		itemHeight={40}
-		height={480}
+<Stack gap="sm" padding="lg">
+	<div
+		class="hz-vtable hz-table-wrap hz-table"
+		role="table"
+		aria-label="Disc golf rounds ({ROW_COUNT.toLocaleString()} total)"
+		aria-rowcount={sortedRounds.length + 1}
 	>
-		{#snippet row(round, index)}
-			<div class="hz-vtable-row hz-vtable-grid" role="row" aria-rowindex={index + 2}>
+		<!-- The header row lives OUTSIDE the Virtualizer, so it never scrolls with
+	     the windowed body: a sticky header with no CSS `position: sticky`. -->
+		<div class="hz-vtable-thead" role="rowgroup">
+			<div class="hz-vtable-row hz-vtable-grid hz-vtable-header" role="row" aria-rowindex={1}>
 				{#each columns as column, i (column.key)}
-					<div class="hz-vtable-cell" role="cell" aria-colindex={i + 1} data-align={column.align}>
-						{round[column.key]}
+					<div
+						class="hz-vtable-headercell"
+						role="columnheader"
+						aria-colindex={i + 1}
+						aria-sort={ariaSortFor(column.key)}
+						data-align={column.align}
+					>
+						<button type="button" class="hz-table-sort" onclick={() => toggleSort(column.key)}>
+							{column.header}
+							{#if sort?.key === column.key}
+								<span class="hz-table-sort-icon" aria-hidden="true">
+									{sort.direction === 'asc' ? '▲' : '▼'}
+								</span>
+							{/if}
+						</button>
 					</div>
 				{/each}
 			</div>
-		{/snippet}
-	</Virtualizer>
-</div>
+		</div>
 
-<p class="hz-vtable-proof">
-	{sortedRounds.length.toLocaleString()} rows in the dataset — only the rows in view are ever in the DOM.
-</p>
+		<Virtualizer
+			role="rowgroup"
+			class="hz-vtable-tbody"
+			items={sortedRounds}
+			itemHeight={40}
+			height={480}
+		>
+			{#snippet row(round, index)}
+				<div class="hz-vtable-row hz-vtable-grid" role="row" aria-rowindex={index + 2}>
+					{#each columns as column, i (column.key)}
+						<div class="hz-vtable-cell" role="cell" aria-colindex={i + 1} data-align={column.align}>
+							{round[column.key]}
+						</div>
+					{/each}
+				</div>
+			{/snippet}
+		</Virtualizer>
+	</div>
+
+	<p class="hz-vtable-proof">
+		{sortedRounds.length.toLocaleString()} rows in the dataset. Only the rows in view are ever in the
+		DOM.
+	</p>
+</Stack>
 
 <style>
-	/* .hz-table-wrap (border/radius) and .hz-table (font-size/color) come
-	   from the reference theme's table.css — reused, not redeclared. This
-	   pattern only adds what the real Table's th/td-scoped rules can't
-	   reach for a div-based row/cell structure. */
+	/* .hz-table-wrap (border and radius) and .hz-table (font-size and color)
+	   come from the reference theme's table.css. They are reused, not
+	   redeclared. This pattern only adds what the real Table's th/td-scoped
+	   rules cannot reach for a div-based row/cell structure. */
 	.hz-vtable {
 		display: block;
 		overflow: hidden;
 	}
 
-	/* One shared column template — header and body rows both use it, so
-	   their cells always line up. */
+	/* One shared column template: header and body rows both use it, so their
+	   cells always line up. */
 	.hz-vtable-grid {
 		display: grid;
 		grid-template-columns: 5rem 1fr 1fr 5rem 6.5rem;
@@ -242,15 +245,16 @@
 		text-align: end;
 	}
 
-	/* The sort trigger reuses .hz-table-sort/-icon from table.css directly —
-	   no bespoke button styling needed here. */
+	/* The sort trigger reuses .hz-table-sort and .hz-table-sort-icon from
+	   table.css directly, so it needs no button styling here. */
 
 	:global(.hz-vtable-tbody) {
 		scrollbar-gutter: stable;
 	}
 
+	/* Stack owns the space above this line. */
 	.hz-vtable-proof {
-		margin: 0.75rem 0 0;
+		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 	}

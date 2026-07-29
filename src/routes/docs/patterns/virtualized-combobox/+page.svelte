@@ -32,30 +32,31 @@
 		</p>
 	</div>
 
-	<!-- Both alerts as one tight callout cluster — gap="near" on a
+	<!-- Both alerts as one tight callout cluster: gap="near" on a
 	     density-shifted Stack reads them as a single grouped warning instead
 	     of two sections at normal page rhythm. -->
 	<Stack gap="near" data-density-shift>
-		<Alert intent="warning" title="Reach for this only when the dataset can't be narrowed down">
+		<Alert intent="warning" title="Reach for this only when you cannot narrow the dataset">
 			{#snippet icon()}<IconTriangleAlert />{/snippet}
-			A windowed listbox over tens of thousands of rows is a last resort, not a starting point. If there's
-			any way to cut the list down first — server-side search, filtering by category or region before
-			a picker ever opens, a shortlist of recent or favorite items — do that instead and use the plain
-			<a href="/docs/components/combobox">Combobox</a> on the smaller result. It's the more accessible
-			pattern: a real option per row, simpler keyboard behavior, and nothing for assistive tech to lose
-			track of. Only reach for this pattern once narrowing the data genuinely isn't an option.
+			A windowed listbox over tens of thousands of rows is a last resort, not a starting point. If you
+			can cut the list down first, do that instead and use the plain
+			<a href="/docs/components/combobox">Combobox</a> on the smaller result. Server-side search, filtering
+			by category or region before a picker ever opens, and a shortlist of recent or favorite items all
+			work. The plain Combobox is the more accessible pattern: a real option per row, simpler keyboard
+			behavior, and nothing for assistive tech to lose track of. Reach for this pattern only once narrowing
+			the data is not an option.
 		</Alert>
 
 		<Alert intent="info" title="Why a pattern, not a component">
 			{#snippet icon()}<IconInfo />{/snippet}
 			<a href="/docs/components/combobox">Combobox</a> deliberately renders every matching option
-			rather than windowing the list. Combobox's own "Large list" demo is honest about the ceiling:
-			every matching option gets a real
-			<code>&lt;li&gt;</code>, which is fine into the low thousands but not at real scale. This
-			pattern is what filling that gap looks like today: the same chip-based multi-select identity
-			as Combobox — dismissible chips, toggle-to-select without closing the popup, the same focus
-			management on chip dismiss — over a windowed listbox instead of a plain array, for the
-			datasets where rendering every option would visibly lag.
+			rather than windowing the list. Its own "Large list" demo names the ceiling: every matching
+			option gets a real <code>&lt;li&gt;</code>, which is fine into the low thousands but not at
+			real scale. This pattern is what filling that gap looks like today. It keeps the same
+			chip-based multi-select identity as Combobox (dismissible chips, toggle-to-select without
+			closing the popup, and the same focus management when a chip is dismissed) over a windowed
+			listbox instead of a plain array, for the datasets where rendering every option would visibly
+			lag.
 		</Alert>
 	</Stack>
 
@@ -84,30 +85,33 @@
 		class="doc-section"
 		aria-labelledby="technique-heading"
 	>
-		<h2 id="technique-heading">The scroll-follows-active technique</h2>
+		<h2 id="technique-heading">How the scroll follows the active option</h2>
 		<p class="section-note">
 			APG's combobox pattern expects <code>aria-activedescendant</code> to point at a real,
-			currently-rendered option — but Virtualizer only ever mounts the rows near the current scroll
-			position, so most of a 25,000+ row list is never in the DOM. Every keyboard move (<kbd
+			currently-rendered option. Virtualizer only ever mounts the rows near the current scroll
+			position, so most of a list this size is never in the DOM. Every keyboard move (<kbd
 				>ArrowUp</kbd
-			>/<kbd>ArrowDown</kbd>/<kbd>Home</kbd>/<kbd>End</kbd>) goes through a two-phase commit instead
-			of a direct index assignment: it nudges the Virtualizer viewport's <code>scrollTop</code>
-			toward the target row first (the same "nearest" math <code>Element.scrollIntoView()</code>
-			does, computed by hand since the target usually isn't mounted yet to call the real thing on), and
-			only writes the active index — and therefore <code>aria-activedescendant</code> — once that
-			row is confirmed present, via a small <code>&#123;@attach&#125;</code> each row uses to report
-			its own mount/unmount. A generous <code>overscan</code> means a single-step arrow move
-			resolves within the same tick, since the target row is usually already sitting in the overscan
-			buffer just outside the visible viewport. Only big jumps — <kbd>Home</kbd>/<kbd>End</kbd>
-			across tens of thousands of rows — take an extra frame while Virtualizer's own window catches up
-			to the new scroll position.
+			>/<kbd>ArrowDown</kbd>/<kbd>Home</kbd>/<kbd>End</kbd>) therefore goes through a two-phase
+			commit rather than a direct index assignment. It first nudges the Virtualizer viewport's
+			<code>scrollTop</code> toward the target row, using the same "nearest" math
+			<code>Element.scrollIntoView()</code> does, computed by hand since the target usually is not
+			mounted yet to call the real thing on. It writes the active index, and therefore
+			<code>aria-activedescendant</code>, only once that row is confirmed present. Each row reports
+			its own mount and unmount through a small <code>&#123;@attach&#125;</code>, which is what
+			makes that confirmation possible.
 		</p>
 		<p class="section-note">
-			Selection has the same windowing constraint: the listbox carries
-			<code>aria-multiselectable="true"</code>, and each rendered row's <code>aria-selected</code> is
-			derived from the selected-ids list, not from any DOM state — so a row reports the right selected
-			state the instant Virtualizer mounts it, whether it was selected before the popup opened or a moment
-			ago.
+			A generous <code>overscan</code> means a single-step arrow move resolves within the same tick,
+			since the target row is usually already sitting in the overscan buffer just outside the
+			visible viewport. Only big jumps take an extra frame while Virtualizer's own window catches up
+			to the new scroll position: <kbd>Home</kbd> and <kbd>End</kbd> across tens of thousands of rows.
+		</p>
+		<p class="section-note">
+			Selection has the same windowing constraint. The listbox carries
+			<code>aria-multiselectable="true"</code>, and each rendered row's <code>aria-selected</code>
+			comes from the selected-ids list rather than from any DOM state. A row therefore reports the right
+			selected state the instant Virtualizer mounts it, whether you selected it before the popup opened
+			or a moment ago.
 		</p>
 	</Stack>
 
@@ -120,10 +124,10 @@
 	>
 		<h2 id="source-heading">Source</h2>
 		<p class="source-note">
-			The whole pattern, verbatim. Every import is a public export — copy it into an app with the
-			theme installed and it renders the same.
+			The whole pattern, verbatim. Every import is a public export, so you can copy it into an app
+			with the theme installed and it renders the same.
 		</p>
-		<CodeBlock code={consumerSource(virtualizedComboboxSource)} collapsible />
+		<CodeBlock code={consumerSource(virtualizedComboboxSource)} collapsible lineNumbers />
 	</Stack>
 </Stack>
 
@@ -134,7 +138,7 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Direct children of their Stack (gap="away", data-density-shift) —
+	/* Direct children of their Stack (gap="away", data-density-shift):
 	 * margin zeroed so the Stack's own gap owns the rhythm. */
 	.section-note,
 	.source-note {
@@ -143,10 +147,10 @@
 
 	/* A hairline frame so the bleed reads as a distinct artifact rather than
 	 * as the docs page suddenly changing shape. No overflow clip here: the
-	 * open popup (chips + input row, then a windowed listbox) is
+	 * open popup (chips and input row, then a windowed listbox) is
 	 * absolutely positioned and would otherwise be cut off at the frame's
-	 * edge. min-height reserves room for the fully open state — chip row,
-	 * input, and the windowed listbox — so opening the popup never reflows
+	 * edge. min-height reserves room for the fully open state (chip row,
+	 * input, and the windowed listbox), so opening the popup never reflows
 	 * the rest of the page. */
 	.sample-frame {
 		border: 1px solid var(--hz-color-border, #6b7280);

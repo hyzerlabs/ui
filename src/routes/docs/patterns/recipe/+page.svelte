@@ -27,7 +27,7 @@
 	<DocIntro>
 		{#snippet lead()}
 			A recipe page: the main dish photo opens it as a <a href="/docs/components/hero">Hero</a>'s
-			<code>split</code> media, ahead of the ingredients and method.
+			<code>split</code> media, ahead of the ingredients and instructions.
 		{/snippet}
 	</DocIntro>
 
@@ -36,8 +36,7 @@
 			Composes
 			{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1
 						? ', and '
-						: ', '}{/if}<a href={c.href}>{c.label}</a>{/each}
-			(plus the layout primitives).
+						: ', '}{/if}<a href={c.href}>{c.label}</a>{/each}.
 		</p>
 	</div>
 
@@ -68,10 +67,10 @@
 	>
 		<h2 id="source-heading">Source</h2>
 		<p class="source-note">
-			The whole page, verbatim. Every import is a public export — copy it into an app with the theme
+			The whole page, verbatim. Every import is a public export. Copy it into an app with the theme
 			installed and it renders the same.
 		</p>
-		<CodeBlock code={consumerSource(recipeSource)} collapsible />
+		<CodeBlock code={consumerSource(recipeSource)} collapsible lineNumbers />
 	</Stack>
 </Stack>
 
@@ -82,8 +81,8 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Direct child of the Source section Stack (gap="away", data-density-shift) —
-	 * margin zeroed so the Stack's own gap owns the rhythm. */
+	/* Direct child of the Source section Stack (gap="away", data-density-shift).
+	 * Margin is zeroed so the Stack's own gap owns the rhythm. */
 	.source-note {
 		margin: 0;
 	}
