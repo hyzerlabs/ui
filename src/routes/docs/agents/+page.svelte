@@ -1,40 +1,25 @@
 <script lang="ts">
-	import { Stack, Alert, CodeBlock } from '$lib';
+	import { Stack, CodeBlock } from '$lib';
 	import DocIntro from '../../../docs/DocIntro.svelte';
+	import { agentRules, importSurface, renderAgentsMd } from '../../../docs/agentRules';
 
 	const llmsCode = 'https://design.hyzer.sh/llms.txt';
 
-	const importsCode = [
-		"import { Button, Modal, Combobox } from '@hyzer-labs/ui';   // components",
-		"import { defineConfig } from '@hyzer-labs/ui/config';        // token engine",
-		"import { reveal, fade } from '@hyzer-labs/ui/motion';        // motion",
-		"import { intersect } from '@hyzer-labs/ui/observers';        // observers",
-		"import { IconSearch } from '@hyzer-labs/ui/icons';           // icons",
-		"import { contrastRatio } from '@hyzer-labs/ui/utils';        // utilities",
-		"import type { Intent } from '@hyzer-labs/ui/types';          // types",
-		'',
-		"import '@hyzer-labs/ui/tokens.css';    // required",
-		"import '@hyzer-labs/ui/theme';         // optional reference theme",
-		"import '@hyzer-labs/ui/reset.css';     // optional structural reset"
-	].join('\n');
+	// The file served at /agents.md, shown verbatim — what you copy here is
+	// byte-identical to what the route returns.
+	const agentsMd = renderAgentsMd();
 
-	const themeCode = [
-		'// hyzer.config.ts — themes are named; dark is one of them',
-		'export default defineConfig({',
-		'\tthemes: {',
-		"\t\tdark: { palette: { primary: '#60a5fa' } },",
-		"\t\tocean: { palette: { primary: '#0ea5e9' } }",
-		'\t}',
-		'});'
-	].join('\n');
-
-	const classCode = [
-		'<!-- Restyle through the class prop, which merges after the root class -->',
-		'<Button class="checkout-cta">Place order</Button>',
-		'',
-		'<!-- Not this: wrapping to reach the component -->',
-		'<div class="checkout-cta"><Button>Place order</Button></div>'
-	].join('\n');
+	/** Split a markdown body on `inline code` so the page can render <code>. */
+	function segments(body: string): { text: string; code: boolean }[] {
+		return body
+			.split(/(`[^`]+`)/)
+			.filter(Boolean)
+			.map((part) =>
+				part.startsWith('`') && part.endsWith('`')
+					? { text: part.slice(1, -1), code: true }
+					: { text: part, code: false }
+			);
+	}
 </script>
 
 <svelte:head>
@@ -54,13 +39,13 @@
 		<h2 id="llms-heading">Point the agent at llms.txt</h2>
 		<p>
 			Every page on this site is indexed in a single machine-readable file, following the
-			<a href="https://llmstxt.org" target="_blank" rel="noreferrer">llms.txt</a> convention: one line
-			per page, with its URL and a one-sentence description of what it covers.
+			<a href="https://llmstxt.org" target="_blank" rel="noreferrer">llms.txt</a> convention. There is
+			one line per page, with its URL and a one-sentence description of what it covers.
 		</p>
 		<CodeBlock code={llmsCode} />
 		<p>
-			<a href="/llms.txt">Read it here</a> — it is generated from the same manifest that builds this site's
-			navigation, so it cannot fall out of date with the docs it points at.
+			<a href="/llms.txt">Read it here</a>. It is generated from the same manifest that builds this
+			site's navigation, so it cannot fall out of date with the docs it points at.
 		</p>
 	</Stack>
 
@@ -71,12 +56,12 @@
 		class="doc-section"
 		aria-labelledby="imports-heading"
 	>
-		<h2 id="imports-heading">The import surface</h2>
+		<h2 id="imports-heading">Where each import comes from</h2>
 		<p>
 			Components come from the package root. Everything else lives behind a named subpath, so an
 			agent never has to guess whether something is a component, a utility, or a type.
 		</p>
-		<CodeBlock code={importsCode} />
+		<CodeBlock code={importSurface} language="ts" />
 	</Stack>
 
 	<Stack
@@ -87,36 +72,22 @@
 		aria-labelledby="rules-heading"
 	>
 		<h2 id="rules-heading">House rules</h2>
-		<p>Four conventions account for most of what generated code gets wrong against this library.</p>
-
-		<h3>Generate tokens; never hand-edit them</h3>
 		<p>
-			<code>tokens.css</code> is build output. Change <code>hyzer.config.ts</code> and run
-			<code>hyzer generate</code> — a hand edit is silently overwritten on the next run, and it skips
-			the contrast grading that would have caught an inaccessible pairing.
+			These are the conventions that account for most of what generated code gets wrong with this
+			library. They are also the contents of the AGENTS.md file below, so a rule stated here and a
+			rule handed to an agent cannot drift apart.
 		</p>
 
-		<h3>Resolve through roles and intents, never the palette</h3>
-		<p>
-			In component CSS, use <code>--hz-color-*</code> (structural roles) and
-			<code>--hz-intent-*</code> (meaning). <code>--hz-palette-*</code> is the raw hue layer that those
-			resolve through; reading it directly bypasses the indirection that makes theming and dark mode work.
-		</p>
-
-		<h3>Themes are named entries, applied with data-theme</h3>
-		<p>
-			Define them under <code>themes</code> in the config, then apply one with a
-			<code>data-theme</code> attribute or the <code>theme</code> attachment — on
-			<code>&lt;html&gt;</code> or on any element, which is how a single section gets its own theme.
-		</p>
-		<CodeBlock code={themeCode} />
-
-		<h3>Restyle through the class prop</h3>
-		<p>
-			Every component accepts <code>class</code> and merges it after its own root class, so a single
-			instance can be restyled without a wrapper element and without <code>!important</code>.
-		</p>
-		<CodeBlock code={classCode} />
+		{#each agentRules as rule (rule.title)}
+			<h3>{rule.title}</h3>
+			<p>
+				{#each segments(rule.body) as seg, i (i)}{#if seg.code}<code>{seg.text}</code
+						>{:else}{seg.text}{/if}{/each}
+			</p>
+			{#if rule.code}
+				<CodeBlock code={rule.code.source} language={rule.code.lang} />
+			{/if}
+		{/each}
 	</Stack>
 
 	<Stack
@@ -124,16 +95,18 @@
 		gap="away"
 		data-density-shift
 		class="doc-section"
-		aria-labelledby="a11y-heading"
+		aria-labelledby="file-heading"
 	>
-		<h2 id="a11y-heading">What not to reimplement</h2>
-		<Alert intent="info" title="The accessibility is already there">
-			Components ship the ARIA roles, keyboard handling and focus management of their WAI-ARIA
-			pattern. Adding <code>role</code>, <code>tabindex</code>, or key handlers on top of a
-			component usually breaks the built-in behavior rather than adding to it. If a component seems
-			to be missing an accessible name, look for a label prop before reaching for
-			<code>aria-label</code> on a wrapper.
-		</Alert>
+		<h2 id="file-heading">Drop this in your repo</h2>
+		<p>
+			The rules above, as a file. Save it as <code>AGENTS.md</code> in your project root, where coding
+			agents look for project instructions. It is generated from the same source as this page, so it never
+			falls behind what you just read.
+		</p>
+		<CodeBlock code={agentsMd} title="AGENTS.md" language="markdown" collapsible />
+		<p>
+			You can also fetch it directly: <a href="/agents.md">/agents.md</a>.
+		</p>
 	</Stack>
 </Stack>
 

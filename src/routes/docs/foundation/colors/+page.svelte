@@ -4,30 +4,45 @@
 	import { palette, color, intent } from '$lib/tokens';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
-	// The docs shell's own theme toggle, verbatim — the Dark mode section
-	// shows the real thing (src/routes/+layout.svelte), not an idealization.
+	// The docs shell's own theme toggle, verbatim — this is the real thing
+	// (src/docs/theme.svelte.ts + ThemeToggle.svelte), not an idealization.
 	const toggleCode = [
 		"import { Button } from '@hyzer-labs/ui';",
 		"import IconSun from '@hyzer-labs/ui/icons/sun';",
 		"import IconMoon from '@hyzer-labs/ui/icons/moon';",
 		'',
-		'let dark = $state(false);',
+		'// Two separate things: whether the reader has made an EXPLICIT choice,',
+		'// and what their system prefers. null = no choice yet, so the attribute',
+		"// stays off and the sheet's prefers-color-scheme block picks the",
+		'// default — following the system needs no JS at all.',
+		"let choice = $state(null); // 'light' | 'dark' | null",
+		'let systemDark = $state(false);',
+		"const dark = $derived(choice ? choice === 'dark' : systemDark);",
 		'',
-		'// An explicit stored choice wins; with no stored key, follow the system.',
 		'$effect(() => {',
 		"\tconst stored = localStorage.getItem('hz-theme');",
-		"\tdark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;",
+		"\tif (stored === 'light' || stored === 'dark') choice = stored;",
+		'',
+		'\t// Only so the button can show the right icon while no choice is set.',
+		"\tconst q = window.matchMedia('(prefers-color-scheme: dark)');",
+		'\tsystemDark = q.matches;',
+		'\tconst onChange = (e) => (systemDark = e.matches);',
+		"\tq.addEventListener('change', onChange);",
+		"\treturn () => q.removeEventListener('change', onChange);",
 		'});',
+		'',
+		'// WRITE the choice; never signal light by removing the attribute. The',
+		'// system default is :root:not([data-theme]), so a removed attribute',
+		'// hands a system-dark reader dark mode and the light half of the',
+		'// toggle appears to do nothing.',
 		'$effect(() => {',
-		"\tif (dark) document.documentElement.setAttribute('data-theme', 'dark');",
+		"\tif (choice) document.documentElement.setAttribute('data-theme', choice);",
 		"\telse document.documentElement.removeAttribute('data-theme');",
 		'});',
 		'',
-		'// Storage is only written on an actual toggle, so "follow the system"',
-		"// stays live until the user chooses — 'light' is stored explicitly.",
 		'function toggleTheme() {',
-		'\tdark = !dark;',
-		"\tlocalStorage.setItem('hz-theme', dark ? 'dark' : 'light');",
+		"\tchoice = dark ? 'light' : 'dark';",
+		"\tlocalStorage.setItem('hz-theme', choice);",
 		'}',
 		'',
 		'<Button',
@@ -327,20 +342,21 @@
 	>
 		<h2 id="dark-heading">Dark mode</h2>
 		<p>
-			Dark mode is optional, with three equally supported postures. Do nothing and the light values
-			stay the values — no toggle, no extra CSS. Prefer a dark-only site? Set <code
-				>data-theme="dark"</code
-			>
-			on <code>&lt;html&gt;</code> once and stop there — the overrides apply and no toggle ever needs
-			to exist. Or wire a toggle that flips the attribute, like this docs site does. Components resolve
-			the same role and intent tokens in every posture, so nothing else in your markup or CSS changes
-			between them.
+			Dark mode is optional, with three equally supported postures. <strong>Do nothing</strong> and
+			the sheet follows the reader's system preference on its own — it ships a
+			<code>prefers-color-scheme</code> block that applies only while no choice has been made, so
+			obeying the system costs you no JavaScript. <strong>Pin one mode</strong> by setting
+			<code>data-theme="light"</code> or <code>data-theme="dark"</code> on
+			<code>&lt;html&gt;</code> once and stopping there. Or <strong>wire a toggle</strong> that writes
+			the attribute, like this docs site does. Components resolve the same role and intent tokens in every
+			posture, so nothing else in your markup or CSS changes between them.
 		</p>
 		<p>
-			The toggle in this site's sidebar is exactly this — an icon-only <code>Button</code> flipping
-			the attribute and remembering the choice. Until a choice is stored, the site follows the
-			system's
-			<code>prefers-color-scheme</code>:
+			The toggle in this site's sidebar is exactly this — an icon-only <code>Button</code> that
+			writes the reader's choice and remembers it. Note what it does <em>not</em> do: it never
+			signals light mode by removing the attribute. The system default is scoped to
+			<code>:root:not([data-theme])</code>, so a removed attribute hands a system-dark reader dark
+			mode and makes the light half of the toggle look broken.
 		</p>
 		<CodeBlock code={toggleCode} />
 		<h3 id="dark-overrides-heading">Overrides</h3>

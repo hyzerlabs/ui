@@ -15,6 +15,7 @@
 	import DemoCircleCheck from '../../../../lib/icons/generated/circle-check.svelte';
 	import DemoInfo from '../../../../lib/icons/generated/info.svelte';
 	import PropsTable from '../../../../docs/PropsTable.svelte';
+	import { iconsDoc } from '../../../../docs/data/icons';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
 	// R9 — lazy per-glyph loading. This catalog page is the one place in the
@@ -94,31 +95,6 @@
 		{ id: 'size', label: 'Size & stroke' },
 		{ id: 'intent', label: 'Intent' },
 		{ id: 'a11y', label: 'Decorative vs. labelled' }
-	];
-
-	const iconProps = [
-		{ name: 'size', type: 'number', default: '24', note: 'Width and height in px.' },
-		{ name: 'strokeWidth', type: 'number', default: '2' },
-		{
-			name: 'intent',
-			type: 'Intent',
-			default: '—',
-			note: 'See Foundation → Colors & Intent.',
-			noteHref: '/docs/foundation/colors#intent'
-		},
-		{
-			name: 'ariaLabel',
-			type: 'string',
-			default: '—',
-			note: 'Absent or empty → decorative (aria-hidden="true").'
-		},
-		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-icon class.' },
-		{
-			name: '…rest',
-			type: 'SVGAttributes<SVGSVGElement>',
-			default: '—',
-			note: 'Forwarded to the svg root.'
-		}
 	];
 
 	const rows = $derived.by(() => {
@@ -304,8 +280,12 @@
 		aria-labelledby="props-heading"
 	>
 		<h2 id="props-heading">Props</h2>
-		<p>Every icon in the library shares the same interface.</p>
-		<PropsTable label="Icon props" props={iconProps} />
+		<p>
+			Every icon in the library shares the same interface. Anything else you pass is forwarded to
+			the
+			<code>svg</code> root.
+		</p>
+		<PropsTable label="Icon props" props={iconsDoc.props ?? []} />
 	</Stack>
 
 	<Stack

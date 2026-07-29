@@ -26,12 +26,7 @@
 </svelte:head>
 
 <Stack gap="away">
-	<DocIntro>
-		{#snippet lead()}
-			A marketing-style landing page assembled entirely from library components — no bespoke layout
-			code, no custom CSS beyond a few type sizes.
-		{/snippet}
-	</DocIntro>
+	<DocIntro />
 
 	<div class="doc-intro">
 		<p class="composed">

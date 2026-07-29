@@ -40,7 +40,14 @@
 		'   only applies in the dark: */',
 		"[data-theme='dark'] {",
 		'\t--hz-intent-fairway: #a3e635;',
-		'}'
+		'}',
+		'',
+		'/* Two things you get without writing them:',
+		'   - the sheet already follows the system preference, so you only need',
+		'     a script to OVERRIDE it, never to obey it;',
+		'   - data-theme works on ANY element, not just <html> \u2014 so one section',
+		'     can be dark inside a light page, and data-theme="light" switches',
+		'     a section back. See Section themes. */'
 	].join('\n');
 
 	const verifyCode = [
@@ -237,6 +244,12 @@
 			your components and the reference theme never read <code>--hz-palette-*</code> directly, so they
 			keep resolving through roles and intents either way.
 		</p>
+		<p class="doctrine-note">
+			Dark is not a special case in the config, either: it is one entry in a
+			<code>themes</code> map, and you can add as many more as you like.
+			<a href="/docs/theming/sections">Section themes</a> covers naming them and scoping one to part of
+			a page.
+		</p>
 	</div>
 
 	<Stack
@@ -306,7 +319,7 @@
 	>
 		<h2 id="icons-config-heading">Trimming the icon set</h2>
 		<p>
-			The same config extends to <a href="/docs/foundation/icons">icons</a>: an optional
+			The same config extends to <a href="/docs/components/icons">icons</a>: an optional
 			<code>icons: string[]</code> list of kebab-case Lucide names. <code>hyzer generate</code>
 			emits an <code>icons.ts</code> module next to the tokens sheet — named re-exports from
 			<code>@hyzer-labs/ui/icons/&lt;name&gt;</code> deep paths for the union of your list and the library's

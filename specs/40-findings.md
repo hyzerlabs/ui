@@ -2605,3 +2605,130 @@ Files: `src/routes/+page.svelte`, `src/routes/foundation/colors/
   and Arrow keys resume from `activeIndex ?? pendingIndex` so wheel
   browsing never resets navigation to the top. E2e pins demote, re-commit,
   arrow-resume, and the always-resolvable-id invariant.
+
+---
+
+## Re-audit round 1 — theme doctrine after specs/52 (2026-07-28)
+
+Trigger: specs/52 (named themes) and specs/53 (IA move) changed behavior the
+audited pages describe. This round covers only the theme-doctrine pages, first,
+because everything else cross-links to them.
+
+- **Colors — the dark-mode toggle sample taught a bug.** The page publishes the
+  docs shell's toggle as "the real thing, not an idealization", and it still
+  signalled light mode by REMOVING `data-theme`. Since specs/52 the system
+  default is scoped to `:root:not([data-theme])`, so a removed attribute hands a
+  system-dark reader dark mode and the light half of the toggle appears dead —
+  the exact failure the docs site itself hit. Sample rewritten against the real
+  implementation (now `src/docs/theme.svelte.ts` + `ThemeToggle.svelte`):
+  explicit choice is written, `choice`/`systemDark` are separate, and matchMedia
+  is present only so the icon can be right while no choice is in force.
+
+- **Colors — the "do nothing" posture was backwards.** It claimed "do nothing
+  and the light values stay the values". Since specs/52 a page with no
+  `data-theme` follows `prefers-color-scheme`, so doing nothing means following
+  the reader's system. Rewritten as three postures: follow the system (free),
+  pin one mode, or wire a toggle.
+
+- **Tokens — the dark recipe was silent about two behaviors consumers now get
+  for free.** Added to the fence: the sheet already follows the system
+  preference (JS is only needed to override it), and `data-theme` works on any
+  element so a section can be dark inside a light page, with
+  `data-theme="light"` switching one back. Added a doctrine note that dark is
+  one entry in a `themes` map, cross-linked to Section themes.
+
+- **Theming overview — the tier table said "Dark mode (or any second mode)"**,
+  which predates named themes. Now "Dark mode, or any named theme", noting the
+  attribute is not `<html>`-only, cross-linked to Section themes.
+
+- **Verified, not assumed:** the page's full reference `hyzer.config.ts` claims
+  to be valid uncommented. Re-checked against `resolveConfig`/`generateCss` with
+  the new `themes` map — resolves clean and emits `[data-theme='ocean']`,
+  `[data-theme='light']` and the `prefers-color-scheme` block.
+
+- **Not a defect:** `theming/tokens`' palette fence ("every role and intent that
+  references it follows automatically") and the `[data-theme='dark']` recipe are
+  both still true — and truer than before, since theme blocks re-declare their
+  derived chain and so now work off-root too. Left alone.
+
+- **Regression found and fixed separately (989a066):** the specs/53 `DocIntro`
+  conversion renders the manifest label as the page heading, which silently
+  retitled `/docs/theming/overview` from "Theming" to "Overview". Checked every
+  page's pre-move `<h1>` against its label; that was the only meaningful one
+  (the other diff was `Section themes` → `Section Themes` casing, left as the
+  manifest's Title Case).
+
+**Still outstanding this round:** never-audited pages (Tooltip, Popover,
+Loading, Skeleton, CodeBlock, Observers, Positioning, Section themes, plus the
+new landing/Philosophy/Agents pages), then Patterns, then Getting Started as the
+new front door (specs/53 R6, not yet done).
+
+## Re-audit round 2 — landing page, Getting Started, Philosophy (2026-07-28)
+
+Editor (plain-language subagent) ran first on the landing page and Philosophy;
+Getting Started's copy pass is still outstanding because its structure changed
+in this round. Technical pass and layout work follow.
+
+**Errors corrected**
+
+- **Philosophy claimed the contrast report "fails the build".** It warns by
+  default; `--strict` is what turns an AA failure into a non-zero exit
+  (`cli/main.ts:202`). Rewritten to say both.
+
+- **The landing hero's code fence had lost its `<style>` block** when the page
+  was rewritten for specs/53, so the promise "the rendered result of exactly the
+  code above it" was false: the live card showed a tinted surface and muted text
+  the shown code never produced. The CSS comment still claimed to "mirror the
+  fence's own rules", which by then did not exist. Restored, and it now doubles
+  as a worked `class`-prop example.
+
+- **The editor introduced one technical error, caught on review.** Making the
+  Agents page's palette rule concrete, it wrote that reading `--hz-palette-*`
+  directly means "a named theme such as dark cannot change that color". False —
+  themes override the palette tier (`tokens.css` sets `--hz-palette-gray` inside
+  the dark block), so a palette read *does* follow dark. The real failure is that
+  role and intent overrides are ignored. Rewritten. It had flagged its own
+  uncertainty there, which is the argument for running it before the technical
+  pass rather than after.
+
+**Getting Started (closes specs/53 R6)**
+
+- As the new front door it walked the three tiers and then **dead-ended: no link
+  to Components anywhere on the page**. Added a "Where to go next" section
+  (Components, Theming, Section themes, Philosophy, Agents).
+- Its dark-mode sentence predated named themes. Now says dark is the theme that
+  ships with a name, the attribute works on any element, and a page with no
+  attribute follows the system with no script.
+
+**Landing page — dogfooding and layout (user-directed)**
+
+- Hand-rolled `<header>` replaced with the real `Header` component (`brand` /
+  `actions` snippets, `sticky`, `bordered`). Hand-rolled clamp padding replaced
+  with `Container`. Hand-rolled proof grid replaced with `Split fraction="2/3"`.
+- Hero simplified to eyebrow/title/subtitle/actions; the worked example moved
+  down under Install.
+- "Browse the docs" now lists **every** page rather than one link per section,
+  one card per band (Components split into its five groups, since 48 links under
+  one heading reads as a wall). Cards are containers; only the page names link.
+- Added a "Built for your agents too" box above the philosophy link.
+- **`@container` bug caught before it shipped:** the proof grid was written as a
+  container query, but `Container` sets no `container-type` and the landing page
+  has no docs shell — the query could never have matched. Moot under `Split`.
+
+**Verified, not assumed:** the "imports nothing from Kit" claim on the landing
+page and Getting Started is true — no `$app/` or `@sveltejs/kit` reference in
+`src/lib` or in the built `dist/`, and `peerDependencies` is Svelte only.
+
+**Deferred, with owners**
+
+- **Header docs need a sticky demo** (user, 2026-07-28), in the shape of
+  Banner's pin demo. Do it when the audit reaches
+  `/docs/components/header`. Hide-on-scroll was considered and **rejected** —
+  a keyboard user can tab to a link inside a hidden bar, and WCAG 2.2's
+  focus-not-obscured requirement bites.
+- **The homepage pattern's Header sits 8px above its 968px collapse threshold**
+  at a 1280 viewport, which is why a 15px `scrollbar-gutter` flipped it to
+  mobile. The TOC rail makes it non-monotonic: the demo is desktop at 1320,
+  mobile at 1440 (the rail reserves 12rem), desktop again at 1600. Give it
+  headroom in the **Patterns batch**; the `scrollbar-gutter` question stays open
+  until then.

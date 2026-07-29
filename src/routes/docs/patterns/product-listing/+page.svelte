@@ -25,11 +25,7 @@
 </svelte:head>
 
 <Stack gap="away">
-	<DocIntro>
-		{#snippet lead()}
-			A filterable shop page where the form controls are state sources, not decoration.
-		{/snippet}
-	</DocIntro>
+	<DocIntro />
 
 	<div class="doc-intro">
 		<p class="composed">

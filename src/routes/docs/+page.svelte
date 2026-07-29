@@ -1,30 +1,45 @@
 <script lang="ts">
-	import { Stack, CodeBlock } from '$lib';
+	import { Stack, Split, Grid, Card, Badge, Button, Image, CodeBlock } from '$lib';
 	import DocIntro from '../../docs/DocIntro.svelte';
 
 	const installCode = 'pnpm add @hyzer-labs/ui';
 
+	// The filename now lives in CodeBlock's `title`, so the fences no longer
+	// open with a comment repeating it.
 	const tierOneCss = [
-		'/* app.css — tokens first, then the reference theme */',
 		"@import '@hyzer-labs/ui/tokens.css';",
 		"@import '@hyzer-labs/ui/theme';",
-		"@import '@hyzer-labs/ui/utilities.css'; /* optional — opt-in utility classes, see Utilities */"
+		"@import '@hyzer-labs/ui/utilities.css'; /* optional, see Utilities */"
 	].join('\n');
+
+	// Placeholder art, inline so the example has no asset dependency. A real
+	// page would `import cover from './cover.jpg'`.
+	const COVER =
+		"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 200'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232563eb'/%3E%3Cstop offset='1' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='320' height='200' fill='url(%23g)'/%3E%3C/svg%3E";
 
 	// The script close tag is split so Svelte's parser doesn't end this block.
 	const tierOneSvelte = [
 		'<script>',
-		"\timport { Button, Card, Stack } from '@hyzer-labs/ui';",
+		"\timport { Card, Badge, Button, Image } from '@hyzer-labs/ui';",
+		"\timport cover from './cover.jpg';",
 		'</' + 'script>',
 		'',
-		'<Stack gap="md">',
-		'\t<Card>Ready to play.</Card>',
-		'\t<Button>Start a round</Button>',
-		'</Stack>'
+		'<Card horizontal>',
+		'\t{#snippet media()}',
+		'\t\t<Image src={cover} alt="" aspectRatio="16/9" rounded="md" />',
+		'\t{/snippet}',
+		'',
+		'\t<Badge intent="info">Technique</Badge>',
+		'\t<h3>Shaping a backhand roller</h3>',
+		'\t<p>Why nose angle matters more than arm speed, and how to feel it.</p>',
+		'',
+		'\t{#snippet actions()}',
+		'\t\t<Button variant="ghost" intent="neutral">Read more</Button>',
+		'\t{/snippet}',
+		'</Card>'
 	].join('\n');
 
 	const tierTwoCss = [
-		'/* Your own stylesheet, imported after tokens.css — no build step. */',
 		':root {',
 		'\t--hz-palette-primary: #0f766e; /* your brand */',
 		'\t--hz-radius-md: 0.625rem;',
@@ -36,7 +51,6 @@
 	].join('\n');
 
 	const tierThreeConfig = [
-		'// hyzer.config.ts',
 		"import { defineConfig } from '@hyzer-labs/ui/config';",
 		'',
 		'export default defineConfig({',
@@ -57,11 +71,39 @@
 	);
 
 	const tierThreeImport = [
-		'/* app.css — import YOUR generated sheet instead of ours */',
+		'/* import YOUR generated sheet instead of ours */',
 		"@import './styles/tokens.css';",
 		"@import '@hyzer-labs/ui/theme';",
-		"@import './styles/hyzer-utilities.css'; /* optional — only if you opted in with utilities: true */"
+		"@import './styles/hyzer-utilities.css'; /* only if you opted in */"
 	].join('\n');
+
+	const nextSteps = [
+		{
+			label: 'Components',
+			href: '/docs/components/button',
+			blurb: 'Every component, with its props, theme hooks and accessibility notes.'
+		},
+		{
+			label: 'Theming',
+			href: '/docs/theming/overview',
+			blurb: 'The layer model, and how far you can push it without forking the library.'
+		},
+		{
+			label: 'Section themes',
+			href: '/docs/theming/sections',
+			blurb: 'Name your own themes and scope one to part of a page.'
+		},
+		{
+			label: 'Philosophy',
+			href: '/docs/philosophy',
+			blurb: 'What every component commits to, and why.'
+		},
+		{
+			label: 'Agents',
+			href: '/docs/agents',
+			blurb: 'Point a coding agent at this library and keep its output correct.'
+		}
+	];
 </script>
 
 <svelte:head>
@@ -78,13 +120,13 @@
 		class="doc-section"
 		aria-labelledby="install-heading"
 	>
-		<h2 id="install-heading">Install</h2>
-		<CodeBlock code={installCode} />
+		<h2 id="install-heading">Install the package</h2>
+		<CodeBlock code={installCode} language="bash" />
 		<ul class="note-list">
 			<li><strong>Svelte</strong> 5.32 or newer.</li>
 			<li><strong>Node</strong> 22.18 or newer. Only the <code>hyzer</code> CLI needs it.</li>
-			<li><strong>TypeScript</strong> is optional — types ship with the package.</li>
-			<li><strong>SvelteKit</strong> is optional — the library imports nothing from Kit.</li>
+			<li><strong>TypeScript</strong> is optional. Types ship with the package.</li>
+			<li><strong>SvelteKit</strong> is optional. The library imports nothing from Kit.</li>
 		</ul>
 	</Stack>
 
@@ -97,14 +139,32 @@
 	>
 		<h2 id="tier-one-heading">1. Import and go</h2>
 		<p>
-			Import the committed token sheet and the reference theme once, globally, and use components.
-			Everything on this site renders exactly this setup.
+			Import the token sheet that ships with the package, and the reference theme, once and
+			globally. Then use the components. Every page on this site runs exactly this setup.
 		</p>
-		<CodeBlock code={tierOneCss} />
-		<CodeBlock code={tierOneSvelte} />
+		<CodeBlock code={tierOneCss} title="app.css" language="css" />
+		<Split fraction="2/3" gap="md" stackBelow="md">
+			<CodeBlock code={tierOneSvelte} title="+page.svelte" language="svelte" />
+			<!-- The same components the fence uses, rendered with the reference theme. -->
+			<div class="live-demo">
+				<Card horizontal>
+					{#snippet media()}
+						<Image src={COVER} alt="" aspectRatio="16/9" rounded="md" />
+					{/snippet}
+
+					<Badge intent="info">Technique</Badge>
+					<h3 class="teaser-title">Shaping a backhand roller</h3>
+					<p class="teaser-body">Why nose angle matters more than arm speed, and how to feel it.</p>
+
+					{#snippet actions()}
+						<Button variant="ghost" intent="neutral">Read more</Button>
+					{/snippet}
+				</Card>
+			</div>
+		</Split>
 		<p class="step-note">
-			The theme is optional — skip it and the components stay headless: behavior and accessibility
-			stay intact, with no appearance opinions beyond native element defaults.
+			The theme is optional. Skip it and the components stay headless: you keep the behavior and
+			accessibility, with no appearance opinions beyond native element defaults.
 		</p>
 	</Stack>
 
@@ -117,16 +177,21 @@
 	>
 		<h2 id="tier-two-heading">2. Override tokens in CSS</h2>
 		<p>
-			Every visual decision resolves through a <code>--hz-*</code> custom property. Redefine any of
-			them in your own stylesheet — palette, roles, intents, radius, density — with no build step.
-			Dark mode is the same hook the library uses: <code>[data-theme="dark"]</code>.
+			Every visual decision resolves through a <code>--hz-*</code> custom property, or design token. Redefine
+			any of them in your own stylesheet (palette, roles, intents, radius, density) with no build step.
 		</p>
-		<CodeBlock code={tierTwoCss} />
+		<p>
+			Dark mode runs on the same hook the library uses: <code>data-theme</code>. Dark is simply the
+			theme that ships with a name. The attribute works on any element, so one section can carry its
+			own theme. A page that sets no attribute at all follows the reader's system preference on its
+			own, with no script involved.
+		</p>
+		<CodeBlock code={tierTwoCss} title="app.css" language="css" />
 		<p class="step-note">
 			The full recipe collection lives in <a href="/docs/theming/tokens"
 				>Theming → Tokens &amp; Overrides</a
-			>, and <a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> shows how to verify
-			a new palette.
+			>. <a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> shows how to check a new
+			palette.
 		</p>
 	</Stack>
 
@@ -140,22 +205,40 @@
 		<h2 id="tier-three-heading">3. Generate your own tokens (optional)</h2>
 		<p>
 			For build-layer control, describe your system in <code>hyzer.config.ts</code> and let the
-			<code>hyzer</code> CLI generate the sheet — your settings merged over the base schema, with a
-			WCAG contrast report on every run (<code>--strict</code> fails the build on an AA miss).
+			<code>hyzer</code> CLI generate the sheet. It merges your settings over the base schema and
+			writes a WCAG contrast report on every run. Add <code>--strict</code> to fail the build on an AA
+			miss.
 		</p>
-		<CodeBlock code={tierThreeConfig} />
-		<CodeBlock code={tierThreeRun} />
-		<CodeBlock code={tierThreeImport} />
+		<CodeBlock code={tierThreeConfig} title="hyzer.config.ts" language="ts" />
+		<CodeBlock code={tierThreeRun} title="package.json" language="json" />
+		<CodeBlock code={tierThreeImport} title="app.css" language="css" />
 		<p class="step-note">
 			<code>hyzer generate --mode overrides</code> emits a patch sheet to import <em>after</em>
-			ours instead of replacing it — see <a href="/docs/theming/tokens">Tokens &amp; Overrides</a> for
+			ours instead of replacing it. See <a href="/docs/theming/tokens">Tokens &amp; Overrides</a> for
 			when to pick which.
 		</p>
 		<p class="step-note">
 			Add <code>utilities: true</code> to the config (or run with <code>--utilities</code>) to also
-			generate <code>hyzer-utilities.css</code>, the opt-in single-property helper classes — see
+			generate <code>hyzer-utilities.css</code>, the opt-in single-property helper classes. See
 			<a href="/docs/foundation/utilities">Utilities</a>.
 		</p>
+	</Stack>
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="next-heading"
+	>
+		<h2 id="next-heading">Where to go next</h2>
+		<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
+			{#each nextSteps as step (step.href)}
+				<Card class="hz-card--outlined" href={step.href} padding="md" rounded="md">
+					<h3 class="next-title">{step.label}</h3>
+					<p class="next-blurb">{step.blurb}</p>
+				</Card>
+			{/each}
+		</Grid>
 	</Stack>
 </Stack>
 
@@ -176,5 +259,37 @@
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
+	}
+
+	/* The live half of step one — the same components the fence declares,
+	   rendered by the reference theme this site runs on. */
+	.live-demo {
+		border: 1px dashed var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		padding: 1rem;
+	}
+
+	.teaser-title {
+		margin: 0.35rem 0 0.25rem;
+		font-size: var(--hz-font-size-lg, 1.4rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		line-height: var(--hz-line-height-tight, 1.2);
+	}
+
+	.teaser-body {
+		color: var(--hz-color-text-muted, #6b7280);
+		line-height: var(--hz-line-height-base, 1.5);
+	}
+
+	.next-title {
+		margin: 0 0 0.25rem;
+		font-size: var(--hz-font-size-base, 1rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.next-blurb {
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
+		line-height: var(--hz-line-height-base, 1.5);
 	}
 </style>

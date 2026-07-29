@@ -1330,6 +1330,16 @@ export const hooks: Record<string, ComponentHooks> = {
 			}
 		]
 	},
+	Icons: {
+		root: 'hz-icon',
+		attrs: [
+			{
+				name: 'data-intent',
+				values: 'any registered intent',
+				note: 'Present only when the intent prop is set; the glyph inherits currentColor otherwise.'
+			}
+		]
+	},
 	Link: {
 		root: 'hz-link',
 		attrs: [

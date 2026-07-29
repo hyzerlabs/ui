@@ -40,6 +40,11 @@ function componentSource(name: string): string {
 	if (name === 'Tooltip') {
 		return readFileSync(join(LIB, 'attachments/tooltip.ts'), 'utf8');
 	}
+	// Icons (specs/53 IA move) have no Icons.svelte either — every glyph is
+	// generated from one template, which is where the props are declared.
+	if (name === 'Icons') {
+		return readFileSync(join(LIB, '../../scripts/gen-icons.ts'), 'utf8');
+	}
 	return readFileSync(join(COMPONENTS, `${name}.svelte`), 'utf8');
 }
 

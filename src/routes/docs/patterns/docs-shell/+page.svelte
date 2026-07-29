@@ -18,12 +18,7 @@
 </svelte:head>
 
 <Stack gap="away">
-	<DocIntro>
-		{#snippet lead()}
-			A documentation layout: a sidebar of collapsible nav sections, a reading column, and an "On
-			this page" rail that follows the column's headings.
-		{/snippet}
-	</DocIntro>
+	<DocIntro />
 
 	<div class="doc-intro">
 		<p class="composed">

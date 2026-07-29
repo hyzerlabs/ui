@@ -22,12 +22,7 @@
 </svelte:head>
 
 <Stack gap="away">
-	<DocIntro>
-		{#snippet lead()}
-			A long-form editorial page: a Hero opener, a byline, and a body that runs through a Blockquote
-			pull-quote and a breakout image.
-		{/snippet}
-	</DocIntro>
+	<DocIntro />
 
 	<div class="doc-intro">
 		<p class="composed">

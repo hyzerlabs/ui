@@ -41,6 +41,12 @@ function componentSource(name: string): string {
 	if (name === 'Tooltip') {
 		return readFileSync(join(LIB, 'attachments/tooltip.ts'), 'utf8');
 	}
+	// Icons are generated per glyph from one template, so the template is the
+	// source of truth for the class and attributes every icon stamps. The
+	// generated files themselves are gitignored build output.
+	if (name === 'Icons') {
+		return readFileSync(join(LIB, '../../scripts/gen-icons.ts'), 'utf8');
+	}
 	return readFileSync(join(COMPONENTS, `${name}.svelte`), 'utf8');
 }
 
@@ -102,7 +108,7 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		expect(orphans).toEqual([]);
 	});
 
-	it('the Components section covers all 40 pages across five groups', () => {
+	it('the Components section covers all 41 pages across five groups', () => {
 		const section = manifest.find((e) => isSection(e) && e.label === 'Components');
 		if (!section || !isSection(section) || !isGrouped(section)) throw new Error('not grouped');
 		expect(section.groups.map((g) => g.label)).toEqual([
@@ -115,8 +121,8 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		expect(section.groups.every((g) => g.pages.length > 0)).toBe(true);
 		// 38 + Header (spec 35) + Table (spec 37) + Toc (spec 38) + Banner (spec 41)
 		// + CodeBlock (spec 47) + Loading + Skeleton (spec 49) + Tooltip + Popover
-		// (spec 50).
-		expect(componentPages).toHaveLength(47);
+		// (spec 50) + Icons (moved in from Foundation, spec 53).
+		expect(componentPages).toHaveLength(48);
 	});
 });
 

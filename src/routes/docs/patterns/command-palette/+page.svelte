@@ -12,16 +12,12 @@
 </svelte:head>
 
 <Stack gap="away">
-	<DocIntro>
-		{#snippet lead()}
-			A ⌘K quick-search overlay assembled from the primitives.
-		{/snippet}
-	</DocIntro>
+	<DocIntro />
 
 	<div class="doc-intro">
 		<p class="composed">
 			Composes <a href="/docs/components/modal">Modal</a>, the shared
-			<a href="/docs/foundation/icons">icons</a>, and the design tokens.
+			<a href="/docs/components/icons">icons</a>, and the design tokens.
 		</p>
 	</div>
 

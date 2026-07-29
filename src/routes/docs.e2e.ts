@@ -186,7 +186,7 @@ const CORE_ICON_NAMES = ['IconChevronDown', 'IconX', 'IconMenu', 'IconSearch'] a
 
 test.describe('specs/36 R8 — icons catalog page', () => {
 	test('the manifest count renders as text, not one DOM node per icon', async ({ page }) => {
-		await page.goto('/docs/foundation/icons');
+		await page.goto('/docs/components/icons');
 		// The full Lucide set is well over a thousand icons — assert the
 		// count is shown as a number, not that this many DOM nodes exist.
 		await expect(page.getByText(/\d{3,5} icons/).first()).toBeVisible();
@@ -196,7 +196,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 	test('core icons render in a dedicated "Core icons" section, each badged "core"', async ({
 		page
 	}) => {
-		await page.goto('/docs/foundation/icons');
+		await page.goto('/docs/components/icons');
 		const heading = page.getByRole('heading', { name: 'Core icons' });
 		await expect(heading).toBeVisible();
 		for (const name of CORE_ICON_NAMES) {
@@ -208,7 +208,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 	test('the demo tabs cover size & stroke, intent, and decorative vs. labelled', async ({
 		page
 	}) => {
-		await page.goto('/docs/foundation/icons');
+		await page.goto('/docs/components/icons');
 		const demoTabs = page.getByRole('tablist', { name: 'Icon demos' });
 		await expect(demoTabs.getByRole('tab', { name: 'Size & stroke' })).toBeVisible();
 		await expect(page.getByRole('slider', { name: 'size' })).toBeVisible();
@@ -221,7 +221,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 	test('searching narrows the catalog to a known icon and updates the shown count', async ({
 		page
 	}) => {
-		await page.goto('/docs/foundation/icons');
+		await page.goto('/docs/components/icons');
 		const search = page.getByRole('textbox', { name: 'Search icons' });
 		await search.fill('a-arrow-down');
 		await expect(page.getByText('IconAArrowDown', { exact: true }).first()).toBeVisible();
@@ -229,7 +229,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 	});
 
 	test('a bring-your-own brand marks note is present (no brand-icon section)', async ({ page }) => {
-		await page.goto('/docs/foundation/icons');
+		await page.goto('/docs/components/icons');
 		await expect(page.getByText(/brand marks aren't included/i)).toBeVisible();
 	});
 });

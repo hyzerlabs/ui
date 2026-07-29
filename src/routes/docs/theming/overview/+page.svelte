@@ -3,21 +3,21 @@
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
 	const importStack = [
-		'/* Each line is optional — every tier works without the ones below it. */',
+		'/* Each line is optional. Every tier works without the ones below it. */',
 		"@import '@hyzer-labs/ui/reset.css';     /* structural reset (@layer hz-reset) */",
 		"@import '@hyzer-labs/ui/tokens.css';    /* the --hz-* custom properties */",
 		"@import '@hyzer-labs/ui/theme';         /* the reference theme (@layer hz-theme) */",
 		"@import '@hyzer-labs/ui/utilities.css'; /* optional: opt-in utility classes (unlayered) */",
-		"@import './your-overrides.css';         /* unlayered — always wins */"
+		"@import './your-overrides.css';         /* unlayered: always wins */"
 	].join('\n');
 
 	const layerCode = [
 		'/* Pinned by both reset.css and theme.css, so import order never matters: */',
 		'@layer hz-reset, hz-theme;',
 		'',
-		'/* Your stylesheet is UNLAYERED. Unlayered CSS beats every @layer rule,',
-		'   so any selector you write overrides the theme without specificity',
-		'   fights — even a bare class: */',
+		'/* Your stylesheet is UNLAYERED. Unlayered CSS beats every @layer rule.',
+		'   So any selector you write overrides the theme without specificity',
+		'   fights, even a bare class: */',
 		'.my-quiet-button {',
 		'\tbackground: transparent;',
 		'}'
@@ -53,21 +53,21 @@
 						<td>Headless components</td>
 						<td><code>@hyzer-labs/ui</code></td>
 						<td
-							>Structure, behavior, ARIA, keyboard support. Stable <code>hz-*</code> classes and
-							<code>data-*</code> hooks; native element defaults, no appearance opinions.</td
+							>Structure, behavior, ARIA, and keyboard support. Stable <code>hz-*</code> classes and
+							<code>data-*</code> hooks, plus native element defaults. No appearance opinions.</td
 						>
 					</tr>
 					<tr>
 						<td>Reset</td>
 						<td><code>reset.css</code></td>
-						<td>A structural-only reset in <code>@layer hz-reset</code> — no colors, no fonts.</td>
+						<td>A structural-only reset in <code>@layer hz-reset</code>. No colors, no fonts.</td>
 					</tr>
 					<tr>
 						<td>Tokens</td>
 						<td><code>tokens.css</code></td>
 						<td
 							>The <code>--hz-*</code> custom properties: palette, roles, intents, type, spacing,
-							radius, motion. Generated from one schema — see
+							radius, motion. They are generated from one schema. See
 							<a href="/docs/theming/tokens">Tokens &amp; Overrides</a>.</td
 						>
 					</tr>
@@ -75,27 +75,28 @@
 						<td>Reference theme</td>
 						<td><code>theme</code></td>
 						<td
-							>A complete, token-driven look for every component in
-							<code>@layer hz-theme</code> — the styled starting point this site runs on.
-							Cherry-pick per component via <code>theme/components/*.css</code>.</td
+							>A full, token-driven look for every component, in
+							<code>@layer hz-theme</code>. It is the styled starting point this site runs on. You
+							can take single components from it via <code>theme/components/*.css</code>.</td
 						>
 					</tr>
 					<tr>
 						<td>Utilities</td>
 						<td><code>utilities.css</code></td>
 						<td
-							>Token-derived, single-property helper classes — text-color roles/intents and logical
-							margins — for ad-hoc spots. Opt-in: imported like the theme, and free if you don't.
-							See <a href="/docs/foundation/utilities">Utilities</a>.</td
+							>Single-property helper classes built from tokens: text-color roles and intents, plus
+							logical margins. Use them for one-off spots. They are opt-in, imported like the theme,
+							and cost you nothing if you skip them. See
+							<a href="/docs/foundation/utilities">Utilities</a>.</td
 						>
 					</tr>
 					<tr>
 						<td>Your overrides</td>
 						<td>your CSS / <code>hyzer.config.ts</code></td>
 						<td
-							>Token overrides in plain CSS, generated sheets via the
+							>Token overrides in plain CSS, generated sheets from the
 							<code>hyzer</code> CLI, or component-level styling on the
-							<code>hz-*</code> hooks — see <a href="/docs/theming/examples">Example Themes</a>.</td
+							<code>hz-*</code> hooks. See <a href="/docs/theming/examples">Example Themes</a>.</td
 						>
 					</tr>
 				</tbody>
@@ -111,17 +112,19 @@
 		class="doc-section"
 		aria-labelledby="layers-heading"
 	>
-		<h2 id="layers-heading">The cascade-layer contract</h2>
+		<h2 id="layers-heading">How the cascade layers work</h2>
 		<p>
-			Every reference-theme rule lives in the <code>hz-theme</code> cascade layer, wrapped in
-			<code>:where()</code> so it stays at single-class specificity. Your stylesheet is unlayered,
-			and unlayered CSS always beats layered CSS — so overriding the theme never requires
-			<code>!important</code>, matching the theme's selectors, or specificity arithmetic.
+			Every reference-theme rule lives in the <code>hz-theme</code> cascade layer. Each rule is
+			wrapped in <code>:where()</code>, so it stays at single-class specificity. Your stylesheet is
+			unlayered, and unlayered CSS always beats layered CSS. Overriding the theme never needs
+			<code>!important</code>, a selector that matches the theme's, or specificity math.
 		</p>
 		<CodeBlock code={layerCode} />
 		<p>
-			The <code>class</code> prop on every component is merged <em>after</em> the component's
-			<code>hz-*</code> root class, so your class lands on the element ready to win.
+			Every component also takes a <code>class</code> prop, merged onto the same element as its
+			<code>hz-*</code> root class. What makes your rule win is not that ordering: class order in the
+			attribute has no effect on the cascade. Your rule wins because your stylesheet is unlayered and
+			the theme is not.
 		</p>
 	</Stack>
 
@@ -145,36 +148,39 @@
 					<tr>
 						<td>Retheme colors, type, spacing, radius everywhere</td>
 						<td
-							>Override <code>--hz-*</code> tokens — plain CSS or a generated sheet.
+							>Override <code>--hz-*</code> tokens in plain CSS or a generated sheet. See
 							<a href="/docs/theming/tokens">Tokens &amp; Overrides</a>.</td
 						>
 					</tr>
 					<tr>
-						<td>Dark mode (or any second mode)</td>
+						<td>Dark mode, or any named theme</td>
 						<td
-							>The <code>[data-theme="dark"]</code> hook — override hues at the palette layer and everything
-							chains through.</td
+							>Use the <code>data-theme</code> hook. Override hues at the palette layer and
+							everything chains through. Dark is one named theme among as many as you define, and
+							the attribute works on any element, not just <code>&lt;html&gt;</code>. See
+							<a href="/docs/theming/sections">Section themes</a>.</td
 						>
 					</tr>
 					<tr>
 						<td>Restyle one component, keep the rest</td>
 						<td
-							>Unlayered CSS on its <code>hz-*</code> class and <code>data-*</code> hooks, or the
-							<code>class</code> prop.
+							>Write unlayered CSS against its <code>hz-*</code> class and <code>data-*</code>
+							hooks, or use the
+							<code>class</code> prop. See
 							<a href="/docs/theming/components">Styling Components</a>.</td
 						>
 					</tr>
 					<tr>
 						<td>A different look entirely</td>
 						<td
-							>Skip the reference theme; style the headless hooks from scratch — the tokens still
+							>Skip the reference theme and style the headless hooks from scratch. The tokens still
 							help, but nothing requires them.</td
 						>
 					</tr>
 					<tr>
 						<td>Verify a palette still meets WCAG</td>
 						<td
-							>The exported contrast utilities and the CLI's report —
+							>Use the exported contrast utilities and the CLI's report. See
 							<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a>.</td
 						>
 					</tr>

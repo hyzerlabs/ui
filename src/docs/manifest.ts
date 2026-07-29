@@ -74,19 +74,19 @@ export const manifest: ManifestEntry[] = [
 		label: 'Getting Started',
 		href: '/docs',
 		description:
-			'Three tiers of adoption — each one optional, each one a superset of the last. The library makes the accessibility and functional choices; you only ever decide how things look.'
+			'Adopt the library in three tiers, each one optional and a superset of the last. The library makes the accessibility and behavior choices, and you decide how things look.'
 	},
 	{
 		label: 'Philosophy',
 		href: '/docs/philosophy',
 		description:
-			'The four commitments behind every component: accessibility shipped by default, headless structure you can override through snippets, theming through classes and data-* hooks, and plain language as part of accessibility.'
+			'The commitments that underpin this library: accessibility first, headless structure you can override through snippets and documented hooks, theming that is opt-in one tier at a time, no bloat, and plain language for you and your agents.'
 	},
 	{
 		label: 'Agents',
 		href: '/docs/agents',
 		description:
-			'Wiring this library up to a coding agent: where llms.txt lives, the import surface, and the house rules that keep generated code correct.'
+			'How to wire this library up to a coding agent: where llms.txt lives, the import surface, and the house rules that keep generated code correct.'
 	},
 	{
 		label: 'Foundation',
@@ -95,66 +95,60 @@ export const manifest: ManifestEntry[] = [
 				label: 'Colors & Intent',
 				href: '/docs/foundation/colors',
 				description:
-					'A two-layer color model: the palette (--hz-palette-*) authors hues per mode, and the semantic layer (--hz-color-*, --hz-intent-*) maps them to what a color does and what it means. Dark mode overrides land mostly on the palette; the semantic layer chains through automatically.'
+					'Color works in two layers: the palette (--hz-palette-*) authors hues per mode, and the semantic layer (--hz-color-*, --hz-intent-*) says what a color does and what it means. Dark mode overrides land mostly on the palette, and the semantic layer follows automatically.'
 			},
 			{
 				label: 'Typography',
 				href: '/docs/foundation/typography',
 				description:
-					'Three font families, a six-step type scale, four weights, and three line heights.'
+					'Type tokens: three font families, a six-step type scale, four weights, and three line heights.'
 			},
 			{
 				label: 'Contrast & Accessibility',
 				href: '/docs/foundation/contrast',
 				description:
-					'Every ratio on this page is computed live from the token metadata, per mode, with the same functions the library ships — so if your theme overrides the palette, you can run the identical WCAG check on it.'
+					'WCAG contrast ratios for every graded token pairing, computed live per mode from the token metadata. The library ships the same functions, so you can run the identical check against a theme of your own.'
 			},
 			{
 				label: 'Spacing & Sizing',
 				href: '/docs/foundation/spacing',
 				description:
-					'Three sizing systems, each answering a different question: a fixed spacing scale for explicit distances, density spacing that tightens automatically as content nests, and breakpoint width tokens.'
+					'Three sizing systems, each answering a different question: a fixed spacing scale for explicit distances, density spacing that tightens as content nests, and breakpoint width tokens.'
 			},
 			{
 				label: 'Borders & Elevation',
 				href: '/docs/foundation/borders-elevation',
-				description: 'Border radius, border width, box shadows, and z-index scale.'
+				description: 'Tokens for border radius, border width, box shadows, and the z-index scale.'
 			},
 			{
 				label: 'Motion',
 				href: '/docs/foundation/motion',
 				description:
-					'Duration and easing tokens, plus @hyzer-labs/ui/motion: token-bridged transitions, easing evaluators, a scroll-reveal attachment, and a view-transition helper — all reduced-motion-aware by default.'
+					'Duration and easing tokens, plus the @hyzer-labs/ui/motion module: token-bridged transitions, easing evaluators, a scroll-reveal attachment, and a view-transition helper. All of it respects reduced-motion settings by default.'
 			},
 			{
 				label: 'Observers',
 				href: '/docs/foundation/observers',
 				description:
-					'@hyzer-labs/ui/observers wraps the three platform observer APIs — IntersectionObserver, ResizeObserver, MutationObserver — as Svelte attachments: intersect, resize, mutate. Each creates its observer when the element mounts and disconnects it when the element is removed — no setup/teardown to hand-roll. Alongside them, announce sends a message to a visually-hidden live region, a natural pairing for an observer callback that just loaded more content or noticed a change.'
+					'@hyzer-labs/ui/observers wraps IntersectionObserver, ResizeObserver, and MutationObserver as Svelte attachments named intersect, resize, and mutate, each starting when the element mounts and disconnecting when it is removed. The module also exports announce, which sends a message to a visually hidden live region when a callback has loaded more content or spotted a change.'
 			},
 			{
 				label: 'Positioning',
 				href: '/docs/foundation/positioning',
 				description:
-					"Tooltip, Popover, and Dropdown's menu all place a floating element next to a trigger through the same engine: it prefers CSS anchor positioning where the browser supports it, falls back to measuring and placing the element itself elsewhere, and always resolves to physical, on-screen placement — flipping at the viewport edge, escaping clipping ancestors, and reporting back exactly what it rendered."
-			},
-			{
-				label: 'Icons',
-				href: '/docs/foundation/icons',
-				description:
-					'The full Lucide icon set (ISC) ships as generated per-icon Svelte components — decorative by default, labelled when you pass ariaLabel, and loaded one glyph at a time.'
+					'Tooltip, Popover, and the Dropdown menu all place a floating element next to its trigger through one engine. It prefers CSS anchor positioning where the browser supports it and measures the element itself where it does not, flipping at the viewport edge, escaping clipping ancestors, and reporting back exactly what it rendered.'
 			},
 			{
 				label: 'CSS Reset',
 				href: '/docs/foundation/reset',
 				description:
-					"An optional adaptation of Josh Comeau's custom CSS reset: box sizing, margins, media elements, and text wrapping — nothing about color or typefaces, so it works the same with the reference theme or fully headless."
+					"An optional adaptation of Josh Comeau's custom CSS reset, covering box sizing, margins, media elements, and text wrapping. It says nothing about color or typefaces, so it works the same with the reference theme or fully headless."
 			},
 			{
 				label: 'Utilities',
 				href: '/docs/foundation/utilities',
 				description:
-					'Three families of utility class, from least to most opt-in: the always-on .sr-only, component conventions the theme already ships, and a generated sheet of token-derived helpers you import separately — plus the JavaScript helpers the package exports.'
+					'Three families of utility class, from least to most opt-in: the always-on .sr-only, component conventions the theme already ships, and a generated sheet of token-derived helpers you import separately. It also covers the JavaScript helpers the package exports.'
 			}
 		]
 	},
@@ -168,19 +162,19 @@ export const manifest: ManifestEntry[] = [
 						label: 'Alert',
 						href: '/docs/components/alert',
 						description:
-							'An inline feedback banner on the shared intent scale, with an optional heading and dismiss button. Announcement semantics are opt-in, and the Form error summary is one of these.'
+							'An inline feedback banner on the shared intent scale, with an optional heading and dismiss button. Announcement semantics are opt-in, and the Form error summary is built from one.'
 					},
 					{
 						label: 'Badge',
 						href: '/docs/components/badge',
 						description:
-							'A small inline status chip with intent coloring, soft/solid/outline variants, the shared rounded scale, and an optional dismiss button — the building block for selected-option chips.'
+							'A small inline status chip with intent coloring, soft, solid, and outline variants, the shared rounded scale, and an optional dismiss button. It is the building block for selected-option chips.'
 					},
 					{
 						label: 'Banner',
 						href: '/docs/components/banner',
 						description:
-							'A full-width, solid-intent announcement bar with an optional dismiss button and top/bottom pinning. Made for page-level messages — maintenance notices, promos, and outage banners.'
+							'A full-width, solid-intent announcement bar with an optional dismiss button and top or bottom pinning. Made for page-level messages: maintenance notices, promos, and outage warnings.'
 					},
 					{
 						label: 'Blockquote',
@@ -192,13 +186,19 @@ export const manifest: ManifestEntry[] = [
 						label: 'Button',
 						href: '/docs/components/button',
 						description:
-							'A button component with solid, outline, ghost, and soft variants, intent colors, sizes, a loading state, and icon slots.'
+							'A button with solid, outline, ghost, and soft variants, plus intent colors, sizes, a loading state, and icon slots.'
 					},
 					{
 						label: 'CodeBlock',
 						href: '/docs/components/code-block',
 						description:
-							'A headless, read-only code viewer — copy button, opt-in title/language header, decorative line numbers, and a Show-more collapse for long listings. Ships no syntax highlighter; bring your own via the language class hook (client autoloaders) or the children escape hatch (build-time highlighters like Shiki).'
+							'A headless, read-only code viewer with a copy button, an opt-in title and language header, decorative line numbers, and a Show-more collapse for long listings. It ships no syntax highlighter, so bring your own through the language class hook (client autoloaders) or the children escape hatch (build-time highlighters like Shiki).'
+					},
+					{
+						label: 'Icons',
+						href: '/docs/components/icons',
+						description:
+							'The full Lucide icon set (ISC) ships as generated per-icon Svelte components, loaded one glyph at a time. Each icon is decorative by default and labeled when you pass ariaLabel.'
 					},
 					{
 						label: 'Link',
@@ -216,19 +216,19 @@ export const manifest: ManifestEntry[] = [
 						label: 'Divider',
 						href: '/docs/components/divider',
 						description:
-							'A thematic separator: a native hr when bare, and a labelled role=separator element when it wraps a centered text label.'
+							'A thematic separator: a native hr when bare, and a labeled role=separator element when it wraps a centered text label.'
 					},
 					{
 						label: 'Dropdown',
 						href: '/docs/components/dropdown',
 						description:
-							'A generic action menu — the WAI-ARIA APG menu button pattern — with real roving-tabindex keyboard focus.'
+							'A generic action menu built on the WAI-ARIA APG menu button pattern, with real roving-tabindex keyboard focus.'
 					},
 					{
 						label: 'Carousel',
 						href: '/docs/components/carousel',
 						description:
-							'An accessible, manually-rotated carousel: a draggable slide track, labelled slides, previous/next controls, arrow-key steering, and a live region announcing changes. No auto-rotation, by design.'
+							'An accessible, manually rotated carousel: a draggable slide track, labeled slides, previous and next controls, arrow-key steering, and a live region announcing changes. It does not auto-rotate, by design.'
 					},
 					{
 						label: 'Hero',
@@ -246,13 +246,13 @@ export const manifest: ManifestEntry[] = [
 						label: 'Tooltip',
 						href: '/docs/components/tooltip',
 						description:
-							'An accessible hover/focus description attached to any element you already have — an icon button, a link, an abbreviation. Non-interactive text only; for a click-triggered panel with rich content, use Popover instead.'
+							'An accessible hover and focus description for an element you already have, such as an icon button, a link, or an abbreviation. It holds non-interactive text only; for a click-triggered panel with rich content, use Popover.'
 					},
 					{
 						label: 'Popover',
 						href: '/docs/components/popover',
 						description:
-							'A click-triggered disclosure panel for rich or interactive content — a filter form, a settings menu, extra detail. Non-modal: no focus trap, no backdrop. Need a focus-trapped dialog? Use Modal. Need a menu of actions? Use Dropdown.'
+							'A click-triggered disclosure panel for rich or interactive content, such as a filter form, a settings menu, or extra detail. It is non-modal, with no focus trap and no backdrop: reach for Modal when you need a focus-trapped dialog, or Dropdown when you need a menu of actions.'
 					},
 					{
 						label: 'Accordion',
@@ -270,19 +270,19 @@ export const manifest: ManifestEntry[] = [
 						label: 'Table',
 						href: '/docs/components/table',
 						description:
-							'A data table with client sorting, row selection, a sticky header, built-in empty/loading states, and an opt-in stacked mode for narrow widths. Real <table> semantics throughout.'
+							'A data table with client sorting, row selection, a sticky header, built-in empty and loading states, and an opt-in stacked mode for narrow widths. Real <table> semantics throughout.'
 					},
 					{
 						label: 'Loading',
 						href: '/docs/components/loading',
 						description:
-							'An accessible loading indicator. Fundamentally indeterminate — four variants (spinner, ring, dots, bar) that say "something is happening" without knowing how far along it is. Passing a `value` progressively enhances the `bar` into a determinate linear progress bar; `ring` is the sole home of circular progress — no `value` renders a continuously pulsing, rotating loader, a `value` renders a determinate circular arc with a centered readout. `spinner` and `dots` are always indeterminate.'
+							'An accessible loading indicator in four variants: spinner, ring, dots, and bar. All four are indeterminate on their own; pass a value and bar becomes a linear progress bar while ring becomes a circular arc with a centered readout, and spinner and dots stay indeterminate.'
 					},
 					{
 						label: 'Skeleton',
 						href: '/docs/components/skeleton',
 						description:
-							'A decorative placeholder for content that has not loaded yet. A small set of shape variants (text lines, circle, rectangle, fill-the-box) composable into any card-like placeholder, with free width/height/radius overrides and a shimmer/pulse animation that goes still under reduced motion.'
+							'A decorative placeholder for content that has not loaded yet. Its shape variants (text lines, circle, rectangle, and fill-the-box) combine into any card-like placeholder, with free width, height, and radius overrides and a shimmer animation that goes still under reduced motion.'
 					}
 				]
 			},
@@ -293,7 +293,7 @@ export const manifest: ManifestEntry[] = [
 						label: 'Container',
 						href: '/docs/components/container',
 						description:
-							'Centers content horizontally with a configurable max-width and padding. Container decides how wide a region is — pair it with Stack, Cluster, Grid, or Split to arrange the content inside.'
+							'Centers content horizontally with a configurable max-width and padding. Container decides how wide a region is, so pair it with Stack, Cluster, Grid, or Split to arrange the content inside.'
 					},
 					{
 						label: 'Stack',
@@ -322,7 +322,7 @@ export const manifest: ManifestEntry[] = [
 						label: 'Virtualizer',
 						href: '/docs/components/virtualizer',
 						description:
-							'A headless windowing primitive that renders only the visible slice of a huge items array — uniform, known-variable, or runtime-measured row heights.'
+							'A headless windowing primitive that renders only the visible slice of a huge items array. Row heights can be uniform, known-variable, or measured at runtime.'
 					}
 				]
 			},
@@ -333,13 +333,13 @@ export const manifest: ManifestEntry[] = [
 						label: 'Nav',
 						href: '/docs/components/nav',
 						description:
-							'A horizontal row of links with dropdown menus, or a vertical sidebar column with nested, multi-open disclosure sections. A semantically correct navigation landmark in any context — standalone, in a sidebar, or composed by Header into a full top bar.'
+							'A horizontal row of links with dropdown menus, or a vertical sidebar column with nested, multi-open disclosure sections. It stays a semantically correct navigation landmark in any context: standalone, in a sidebar, or composed by Header into a full top bar.'
 					},
 					{
 						label: 'Header',
 						href: '/docs/components/header',
 						description:
-							'A site header bar: branding, navigation, and actions, with a responsive hamburger + drawer built in. It composes Nav — horizontally in the bar, vertically in the drawer — so one item set drives both.'
+							'A site header bar with branding, navigation, actions, and a responsive hamburger and drawer built in. It composes Nav horizontally in the bar and vertically in the drawer, so one item set drives both.'
 					},
 					{
 						label: 'Footer',
@@ -357,13 +357,13 @@ export const manifest: ManifestEntry[] = [
 						label: 'Pagination',
 						href: '/docs/components/pagination',
 						description:
-							'A navigation landmark of page controls — previous/next, boundary and sibling windows with ellipsis truncation, and button or real-link modes.'
+							'A navigation landmark of page controls: previous and next, boundary and sibling windows with ellipsis truncation, and button or real-link modes.'
 					},
 					{
 						label: 'Toc',
 						href: '/docs/components/toc',
 						description:
-							"A navigation rail: automatic heading collection, nested levels, scroll-spy, smooth scroll, and an optional mobile collapse — the docs site's own 'On this page' rail, generalized behind props."
+							"A table-of-contents rail with automatic heading collection, nested levels, scroll-spy, smooth scroll, and an optional mobile collapse. It is the docs site's own 'On this page' rail, generalized behind props."
 					}
 				]
 			},
@@ -374,13 +374,13 @@ export const manifest: ManifestEntry[] = [
 						label: 'Image',
 						href: '/docs/components/image',
 						description:
-							'Responsive image with aspect-ratio, object-fit, rounded corners, color/blur placeholder states, and a picture mode for art direction.'
+							'Responsive image with aspect-ratio, object-fit, rounded corners, color and blur placeholder states, and a picture mode for art direction.'
 					},
 					{
 						label: 'Lightbox',
 						href: '/docs/components/lightbox',
 						description:
-							'Click-to-enlarge media viewer: a thumbnail strip whose items open in an accessible, focus-trapped dialog — multiple images and videos page through an embedded Carousel.'
+							'A click-to-enlarge media viewer: a thumbnail strip whose items open in an accessible, focus-trapped dialog. Multiple images and videos page through an embedded Carousel.'
 					},
 					{
 						label: 'Video',
@@ -397,19 +397,19 @@ export const manifest: ManifestEntry[] = [
 						label: 'Form',
 						href: '/docs/components/form',
 						description:
-							"A form wrapper that renders an accessible error summary and manages focus on failed submits — while staying out of the way of native submission and SvelteKit's use:enhance."
+							"A form wrapper that renders an accessible error summary and moves focus on failed submits, while staying out of the way of native submission and SvelteKit's use:enhance."
 					},
 					{
 						label: 'TextInput',
 						href: '/docs/components/text-input',
 						description:
-							'A labeled single-line input covering the common HTML input types, with description, inline error, and decorative prefix/suffix slots.'
+							'A labeled single-line input covering the common HTML input types, with description, inline error, and decorative prefix and suffix slots.'
 					},
 					{
 						label: 'Textarea',
 						href: '/docs/components/textarea',
 						description:
-							'A labeled multi-line text area with configurable resize behavior — including an auto-grow mode — plus description and inline error.'
+							'A labeled multi-line text area with configurable resize behavior, including an auto-grow mode, plus description and inline error.'
 					},
 					{
 						label: 'Checkbox',
@@ -427,7 +427,7 @@ export const manifest: ManifestEntry[] = [
 						label: 'Toggle',
 						href: '/docs/components/toggle',
 						description:
-							'A switch for binary on/off settings — a native checkbox exposed with the switch role, so it submits a form value like any other field.'
+							'A switch for binary on and off settings. It is a native checkbox exposed with the switch role, so it submits a form value like any other field.'
 					},
 					{
 						label: 'Select',
@@ -445,25 +445,25 @@ export const manifest: ManifestEntry[] = [
 						label: 'FileUpload',
 						href: '/docs/components/file-upload',
 						description:
-							'A file selection field backed by a real native input — single or multiple, with accept/maxSize/maxFiles validation, a removable file list, and an optional drag-and-drop dropzone. It is a selection field, not a network uploader: the real named input carries the chosen files into a plain form submission or into your own upload code.'
+							'A file selection field backed by a real native input, single or multiple, with accept, maxSize, and maxFiles validation, a removable file list, and an optional drag-and-drop dropzone. It selects files rather than uploading them: the named input carries the chosen files into a plain form submission or into your own upload code.'
 					},
 					{
 						label: 'Slider',
 						href: '/docs/components/slider',
 						description:
-							'A labeled range slider paired with a synced number field for fine-tuned keyboard entry — typed values commit on change, snapped to the step and clamped to the range.'
+							'A labeled range slider paired with a synced number field for fine-tuned keyboard entry. Typed values commit on change, snapped to the step and clamped to the range.'
 					},
 					{
 						label: 'RangeSlider',
 						href: '/docs/components/range-slider',
 						description:
-							'A dual-thumb slider selecting a min–max interval on one track, with paired number fields for exact entry — thumbs can meet but never cross.'
+							'A dual-thumb slider that selects a min to max interval on one track, with paired number fields for exact entry. The thumbs can meet but never cross.'
 					},
 					{
 						label: 'ColorInput',
 						href: '/docs/components/color-input',
 						description:
-							'A labeled native color picker paired with a synced hex field for exact keyboard entry — typed values commit on change, validated and normalized.'
+							'A labeled native color picker paired with a synced hex field for exact keyboard entry. Typed values commit on change, validated and normalized.'
 					}
 				]
 			}
@@ -476,37 +476,37 @@ export const manifest: ManifestEntry[] = [
 				label: 'Overview',
 				href: '/docs/theming/overview',
 				description:
-					"The components are headless: they ship structure, behavior, and accessibility — the library makes those choices so you don't have to — and every visual decision is yours to keep, override, or replace. Styling arrives in opt-in tiers, each importable on its own."
+					'The components are headless: they ship structure, behavior, and accessibility, and every visual decision stays yours to keep, override, or replace. Styling arrives in opt-in tiers, each importable on its own.'
 			},
 			{
 				label: 'Tokens & Overrides',
 				href: '/docs/theming/tokens',
 				description:
-					"Two layers, one rule: Layer 1 is the palette (--hz-palette-*) — single-value hues, authored per mode. Layer 2 (semantic roles, --hz-color-*, and intents, --hz-intent-*) is pure var() indirection that chains through it, so overriding a hue cascades everywhere it's used."
+					'Theme tokens come in two layers: the palette (--hz-palette-*) authors single-value hues per mode, and the semantic roles (--hz-color-*) and intents (--hz-intent-*) are var() indirection that chains through it. Override one hue and the change cascades everywhere it is used.'
 			},
 			{
 				label: 'Styling Components',
 				href: '/docs/theming/components',
 				description:
-					'Components expose a stable styling contract: an hz-* root class, a data-* attribute per variant/state, and a class prop merged after the root class. The reference theme styles exactly these hooks — from @layer hz-theme, wrapped in :where() so everything stays at single-class specificity — which means your unlayered CSS wins by default.'
+					'Components expose a stable styling contract: an hz-* root class, a data-* attribute per variant and state, and a class prop merged after the root class. The reference theme styles exactly these hooks from @layer hz-theme, wrapped in :where() so everything stays at single-class specificity, which means your unlayered CSS wins by default.'
 			},
 			{
 				label: 'Using with Tailwind',
 				href: '/docs/theming/tailwind',
 				description:
-					"The library and Tailwind coexist cleanly: settle on one reset, order the cascade layers so Tailwind utilities win when you want them to, and pass utility classes to components through their class prop. Nothing here is Tailwind-specific plumbing — it's the same layer model the rest of the theme uses."
+					'The library and Tailwind coexist cleanly: settle on one reset, order the cascade layers so Tailwind utilities win when you want them to, and pass utility classes to components through their class prop. None of it is Tailwind-specific plumbing; it is the same layer model the rest of the theme uses.'
 			},
 			{
 				label: 'Section Themes',
 				href: '/docs/theming/sections',
 				description:
-					'A theme does not have to own the whole page. Any element can carry one, and everything inside it follows — so a single long page can change character section by section.'
+					'A theme does not have to own the whole page. Any element can carry one and everything inside it follows, so a single long page can change character section by section.'
 			},
 			{
 				label: 'Example Themes',
 				href: '/docs/theming/examples',
 				description:
-					'Three example themes, one arc: how much of the reference theme each tier keeps. Ocean keeps all of it and only redefines --hz-* tokens; Docs keeps all of it too and layers one class-hook override on top, adding no palette; Terminal keeps none of it. Ocean and Terminal are generated from a hyzer.config.ts next to them and, like the base tokens, meet WCAG AA on every graded pairing, in both modes.'
+					'Three example themes, sorted by how much of the reference theme each one keeps: Ocean keeps all of it and only redefines --hz-* tokens, Docs keeps all of it and layers one class-hook override on top with no palette of its own, and Terminal keeps none of it. Ocean and Terminal are generated from a hyzer.config.ts beside them and, like the base tokens, meet WCAG AA on every graded pairing, in both modes.'
 			}
 		]
 	},
@@ -517,7 +517,7 @@ export const manifest: ManifestEntry[] = [
 				label: 'Homepage',
 				href: '/docs/patterns/homepage',
 				description:
-					'A marketing-style landing page assembled entirely from library components — no bespoke layout code, no custom CSS beyond a few type sizes.'
+					'A marketing-style landing page assembled entirely from library components, with no bespoke layout code and no custom CSS beyond a few type sizes.'
 			},
 			{
 				label: 'Article',
@@ -529,7 +529,7 @@ export const manifest: ManifestEntry[] = [
 				label: 'Recipe',
 				href: '/docs/patterns/recipe',
 				description:
-					"A recipe page: the main dish photo opens it as a Hero's split media, ahead of the ingredients and method."
+					"A recipe page where the main dish photo opens as a Hero's split media, ahead of the ingredients and method."
 			},
 			{
 				label: 'Docs shell',
@@ -540,18 +540,17 @@ export const manifest: ManifestEntry[] = [
 			{
 				label: 'Command palette',
 				href: '/docs/patterns/command-palette',
-				description: 'A ⌘K quick-search overlay assembled from the primitives.'
+				description: 'A ⌘K quick-search overlay assembled from library components.'
 			},
 			{
 				label: 'Product listing',
 				href: '/docs/patterns/product-listing',
-				description:
-					'A filterable shop page where the form controls are state sources, not decoration.'
+				description: 'A filterable shop page where the form controls drive the visible results.'
 			},
 			{
 				label: 'Product detail',
 				href: '/docs/patterns/product-detail',
-				description: "A single product's page with a live buy panel."
+				description: 'A single product page with a buy panel that updates as you pick options.'
 			},
 			{
 				label: 'Checkout form',
@@ -562,7 +561,7 @@ export const manifest: ManifestEntry[] = [
 				label: 'Contact form',
 				href: '/docs/patterns/contact-form',
 				description:
-					'The minimal end of the Form spectrum — four fields, one Select, no order summary.'
+					'The minimal end of the Form spectrum: four fields, one Select, and no order summary.'
 			},
 			{
 				label: 'Virtualized table',

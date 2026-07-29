@@ -17,17 +17,17 @@
 		class="doc-section"
 		aria-labelledby="a11y-heading"
 	>
-		<h2 id="a11y-heading">Accessibility is prioritized</h2>
+		<h2 id="a11y-heading">Accessibility first</h2>
 		<p>
 			Each component ships the ARIA roles, keyboard interactions, and focus management of its
-			WAI-ARIA pattern by default — not bolted on afterward. A Modal traps focus and restores it on
-			close; a Combobox implements the full editable-combobox pattern with
-			<code>aria-activedescendant</code>; Tabs handle arrow keys and roving tabindex. You do not opt
-			in, and you cannot accidentally opt out by restyling.
+			WAI-ARIA pattern by default. A Modal traps focus and restores it on close. A Combobox
+			implements the full editable-combobox pattern with <code>aria-activedescendant</code>. Tabs
+			handle arrow keys and roving tabindex. You cannot accidentally opt out by restyling.
 		</p>
 		<p>
-			The same applies to color: the token engine grades every text-on-surface and text-on-intent
-			pairing against WCAG AA and fails the build when a theme drops below it.
+			The same applies to color. The token engine grades every text-on-surface and text-on-intent
+			pairing against WCAG AA every time it generates a sheet. It warns by default; pass
+			<code>--strict</code> and a failure stops the build.
 			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> shows the live ratios.
 		</p>
 	</Stack>
@@ -39,11 +39,19 @@
 		class="doc-section"
 		aria-labelledby="headless-heading"
 	>
-		<h2 id="headless-heading">Headless components can be overridden via snippets</h2>
+		<h2 id="headless-heading">Headless structure: override with snippets or documented hooks</h2>
+		<p>Two routes get you past a decision the library made.</p>
 		<p>
-			Structure and per-item content are yours to shape — pass a <code>children</code> or per-item snippet
-			and render your own markup without forking the component. The component keeps owning the parts that
-			are easy to get wrong (roles, keyboard, focus order) while you own the parts that make it yours.
+			<strong>Snippets</strong> hand you the markup. Pass a <code>children</code> or per-item snippet
+			and render your own structure, without forking the component. The component keeps the parts that
+			are easy to get wrong: roles, keyboard behavior, focus order.
+		</p>
+		<p>
+			<strong>Documented hooks</strong> hand you the styling. Every component ships a stable
+			<code>hz-*</code> root class plus <code>data-*</code> and <code>aria-*</code> attributes for
+			every variant and state, listed on the component's own page. They are API, so styling against
+			them is supported. Every component also takes a <code>class</code> prop, merged onto its root, so
+			restyling one instance never means wrapping it in a div.
 		</p>
 	</Stack>
 
@@ -54,16 +62,47 @@
 		class="doc-section"
 		aria-labelledby="theming-heading"
 	>
-		<h2 id="theming-heading">Theming is via classes and data-* attributes</h2>
+		<h2 id="theming-heading">Theming is opt-in, one tier at a time</h2>
 		<p>
-			Components ship only structural CSS plus stable <code>hz-*</code> classes and
-			<code>data-*</code>/<code>aria-*</code> hooks — all visual chrome lives in the theme layer,
-			keyed on those hooks. Every component also takes a <code>class</code> prop, merged after its own,
-			so restyling one instance never means wrapping it in a div.
+			On their own, components render with native element defaults. From there you add exactly as
+			much as you want: the token sheet, then the reference theme, then token overrides of your own,
+			then a generated sheet from your own config. Each tier is a superset of the one before. You
+			can stop at any of them.
 		</p>
 		<p>
-			That contract is what makes the <a href="/docs/theming/examples">example themes</a> possible: Ocean
-			redefines only tokens, Terminal imports no reference theme at all, and both drive the same components.
+			The <a href="/docs/theming/examples">example themes</a> are the proof. Ocean redefines only tokens.
+			Terminal imports no reference theme and styles the raw hooks from scratch. Both drive the same components,
+			unchanged.
+		</p>
+		<p>
+			This site sits in the middle of that range. It runs the reference theme as shipped, plus a
+			small sheet of class overrides that adds no palette and redefines no token. That sheet ships
+			as the Docs example theme, so the styling you are reading is a tier you can import.
+		</p>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="bloat-heading"
+	>
+		<h2 id="bloat-heading">No bloat</h2>
+		<p>
+			The package has zero runtime dependencies. Components carry structural CSS and nothing else.
+			The reset, token sheet, reference theme and utility classes are separate imports, so you take
+			only the ones you want. Icons come one glyph at a time rather than as a barrel.
+		</p>
+		<p>
+			Shipping less is what makes the headless API and the theming tiers possible: there is no
+			visual opinion for you to undo, and no layer you are forced to carry.
+		</p>
+		<p>
+			It also explains the choice of Svelte. Markup, script and styles sit in one file, so there is
+			one place to look and one file to change. That suits a person reading the source and an agent
+			editing it. Svelte also reports accessibility problems at compile time, so mistakes surface
+			before review does.
 		</p>
 	</Stack>
 
@@ -74,18 +113,21 @@
 		class="doc-section"
 		aria-labelledby="plain-heading"
 	>
-		<h2 id="plain-heading">Plain language is part of accessibility</h2>
+		<h2 id="plain-heading">Plain language, for you and your agents</h2>
 		<p>
-			The words a component ships by default — labels, error messages, empty states — are as much a
-			part of its design as the markup. We write short sentences and skip jargon, and every default
-			string follows the same rule: say the plain thing.
+			The words a component ships by default (labels, error messages, empty states) are as much a
+			part of its design as the markup. We write short sentences and skip jargon.
 		</p>
 		<p>
 			<a href="/docs/components/form">Form</a>'s error summary is the worked example. Its default
-			title counts the errors and says so in plain words — "There is a problem" for one, "There are
-			3 problems" for three — not a vague fragment like "Errors detected." The count is information
-			a screen-reader user gets before they start navigating the list, and the phrasing is one a
-			reader in a hurry does not have to decode.
+			title counts the errors: "There is a problem" for one, "There are 3 problems" for three. A
+			screen-reader user gets the count before they start navigating the list.
+		</p>
+		<p>
+			These docs are indexed in <a href="/llms.txt">llms.txt</a>, generated from the same manifest
+			that builds the navigation. The <a href="/docs/agents">Agents</a> page states the conventions plainly
+			enough to be followed literally. Prose that a person can read without decoding is prose a coding
+			agent can act on without guessing.
 		</p>
 	</Stack>
 </Stack>

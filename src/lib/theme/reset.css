@@ -24,6 +24,18 @@
 		margin: 0;
 	}
 
+	/* Stop mobile Safari (and Firefox on Android) inflating text on its own.
+	 * The engines do this to rescue non-responsive pages, and on a responsive
+	 * layout it just makes some text bigger than you asked for — most visibly
+	 * in landscape. `none` does NOT disable user zoom: the old WebKit bug that
+	 * made `100%` the safer value has been fixed.
+	 * https://kilianvalkhof.com/2022/css-html/your-css-reset-needs-text-size-adjust-probably/ */
+	html {
+		-moz-text-size-adjust: none;
+		-webkit-text-size-adjust: none;
+		text-size-adjust: none;
+	}
+
 	@media (prefers-reduced-motion: no-preference) {
 		html {
 			interpolate-size: allow-keywords;
@@ -78,5 +90,19 @@
 	h5,
 	h6 {
 		text-wrap: balance;
+	}
+
+	/* An anchored element otherwise lands flush against the top of the
+	 * viewport, or underneath a sticky header. `ex` scales with the font, so
+	 * the offset stays proportional to the text rather than a fixed guess. */
+	:target {
+		scroll-margin-block: 5ex;
+	}
+
+	/* Descenders stay legible where an underline would cut through them.
+	 * Scoped to unstyled links so a themed link keeps whatever its theme
+	 * decides — and no color is set here, which is the reset's whole posture. */
+	a:not([class]) {
+		text-decoration-skip-ink: auto;
 	}
 }
