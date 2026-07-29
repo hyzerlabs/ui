@@ -29,7 +29,7 @@
 </svelte:head>
 
 <Stack gap="away">
-	<DocIntro />
+	<DocIntro title="Theming" />
 
 	<Stack
 		as="section"
