@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Stack, CodeBlock } from '$lib';
+	import { Alert, Stack, CodeBlock } from '$lib';
 	import DocIntro from '../../../docs/DocIntro.svelte';
 	import { agentRules, importSurface, renderAgentsMd } from '../../../docs/agentRules';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const llmsCode = 'https://design.hyzer.sh/llms.txt';
 
@@ -44,8 +45,9 @@
 		</p>
 		<CodeBlock code={llmsCode} />
 		<p>
-			<a href="/llms.txt">Read it here</a>. It is generated from the same manifest that builds this
-			site's navigation, so it cannot fall out of date with the docs it points at.
+			<a href="/llms.txt" target="_blank" rel="noreferrer">Read it here</a>. It is generated from
+			the same manifest that builds this site's navigation, so it cannot fall out of date with the
+			docs it points at.
 		</p>
 	</Stack>
 
@@ -99,13 +101,17 @@
 	>
 		<h2 id="file-heading">Drop this in your repo</h2>
 		<p>
-			The rules above, as a file. Save it as <code>AGENTS.md</code> in your project root, where coding
-			agents look for project instructions. It is generated from the same source as this page, so it never
+			The rules above, as a file. It is generated from the same source as this page, so it never
 			falls behind what you just read.
 		</p>
+		<Alert intent="info">
+			{#snippet icon()}<IconInfo />{/snippet}
+			Save this as <code>AGENTS.md</code> in your project root, where coding agents look for project instructions.
+		</Alert>
 		<CodeBlock code={agentsMd} title="AGENTS.md" language="markdown" collapsible />
 		<p>
-			You can also fetch it directly: <a href="/agents.md">/agents.md</a>.
+			You can also fetch it directly:
+			<a href="/agents.md" target="_blank" rel="noreferrer">/agents.md</a>.
 		</p>
 	</Stack>
 </Stack>

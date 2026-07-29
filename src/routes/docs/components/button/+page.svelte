@@ -5,6 +5,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { buttonDoc } from '../../../../docs/data/button.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// primary leads: it's Button's default intent — a button is a call to
 	// action. The rest follow the registry order.
@@ -203,9 +204,10 @@
 					</Example>
 				{:else}
 					<Alert intent="info" title="Button vs Link">
-						Want it to look like a text link? Use <a href="/docs/components/link"
-							><code>Link</code></a
-						>. Want it to look like a button — including one that navigates? Use
+						{#snippet icon()}<IconInfo />{/snippet}
+						Want it to look like a text link? Use
+						<a href="/docs/components/link"><code>Link</code></a>. Want it to look like a button —
+						including one that navigates? Use
 						<code>Button</code>, adding <code>href</code> when it should navigate.
 					</Alert>
 					<p class="tab-note">

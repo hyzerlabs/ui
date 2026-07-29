@@ -178,7 +178,7 @@
 			list in
 			<code>hyzer.config.ts</code> and run <code>hyzer generate</code> to get a curated,
 			project-local barrel — see
-			<a href="/docs/theming/tokens#config-heading">Tokens &amp; Overrides</a>.
+			<a href="/docs/foundation/config#icons-config-heading">Config &amp; CLI</a>.
 		</p>
 		<CodeBlock code={importCode} />
 	</Stack>

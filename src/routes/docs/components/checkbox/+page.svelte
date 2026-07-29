@@ -3,6 +3,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { checkboxDoc } from '../../../../docs/data/checkbox.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	let ace = $state(false);
 
@@ -62,6 +63,7 @@
 
 <DocPage name="Checkbox" {...checkboxDoc}>
 	<Alert intent="info" title="Checkbox vs Toggle">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Reach for <code>Checkbox</code> when selecting from a list, building multi-select membership, or
 		driving the indeterminate select-all pattern. For a single on/off setting that reads like a
 		switch, use <a href="/docs/components/toggle">Toggle</a> instead.

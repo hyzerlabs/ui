@@ -39,19 +39,21 @@
 		class="doc-section"
 		aria-labelledby="headless-heading"
 	>
-		<h2 id="headless-heading">Headless structure: override with snippets or documented hooks</h2>
+		<h2 id="headless-heading">Headless structure: override with documented hooks or snippets</h2>
 		<p>Two routes get you past a decision the library made.</p>
 		<p>
-			<strong>Snippets</strong> hand you the markup. Pass a <code>children</code> or per-item snippet
-			and render your own structure, without forking the component. The component keeps the parts that
-			are easy to get wrong: roles, keyboard behavior, focus order.
+			<strong>Documented hooks</strong> hand you the styling, and they cover most of what you will
+			want to change. Every component ships a stable <code>hz-*</code> root class plus
+			<code>data-*</code> and <code>aria-*</code> attributes for every variant and state, listed on
+			the component's own page. They are API, so styling against them is supported. Every component
+			also takes a <code>class</code> prop, merged onto its root, so restyling one instance never means
+			wrapping it in a div.
 		</p>
 		<p>
-			<strong>Documented hooks</strong> hand you the styling. Every component ships a stable
-			<code>hz-*</code> root class plus <code>data-*</code> and <code>aria-*</code> attributes for
-			every variant and state, listed on the component's own page. They are API, so styling against
-			them is supported. Every component also takes a <code>class</code> prop, merged onto its root, so
-			restyling one instance never means wrapping it in a div.
+			<strong>Snippets</strong> are the escape hatch when styling is not enough and you need
+			different markup. Pass a <code>children</code> or per-item snippet and render your own structure,
+			without forking the component. The component keeps the parts that are easy to get wrong: roles,
+			keyboard behavior, focus order.
 		</p>
 	</Stack>
 

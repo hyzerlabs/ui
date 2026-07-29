@@ -13,7 +13,7 @@
 	// ------------------------------------------------------------------
 
 	const basicCode = [
-		'<Button ariaLabel="Add to bag" {@attach tooltip(\'Add to bag\')}>',
+		'<Button ariaLabel="Add to bag" {@attach tooltip(\'Your bag holds 20 discs\')}>',
 		'\t{#snippet iconStart()}<IconPlus />{/snippet}',
 		'</Button>'
 	].join('\n');
@@ -66,10 +66,11 @@
 
 <DocPage name="Tooltip" {...tooltipDoc}>
 	<Alert intent="info" title="An attachment, not a component">
-		<code>tooltip</code> attaches to an element you already have —
-		<code>{"{@attach tooltip('…')}"}</code>
-		— rather than wrapping it. For a click-triggered panel with interactive content, use
-		<a href="/docs/components/popover">Popover</a> instead; tooltips are text-only.
+		{#snippet icon()}<IconInfo />{/snippet}
+		<code>tooltip</code> attaches to an element you already have, with
+		<code>{"{@attach tooltip('…')}"}</code>, rather than wrapping it. Tooltips are text only. For a
+		click-triggered panel with interactive content, use
+		<a href="/docs/components/popover">Popover</a>.
 	</Alert>
 
 	<Tabs items={demoTabs} ariaLabel="Tooltip demos" defaultTab="basic">
@@ -78,17 +79,17 @@
 				{#if item.id === 'basic'}
 					<p class="tab-note">
 						Hover or focus the icon button. <code>ariaLabel</code> gives the button its own
-						accessible name — separate from the tooltip's <code>aria-describedby</code>, which adds
-						extra context rather than replacing the name.
+						accessible name. The tooltip's <code>aria-describedby</code> is separate: it adds context
+						rather than replacing that name.
 					</p>
 					<Example code={basicCode}>
-						<Button ariaLabel="Add to bag" {@attach tooltip('Add to bag')}>
+						<Button ariaLabel="Add to bag" {@attach tooltip('Your bag holds 20 discs')}>
 							{#snippet iconStart()}<IconPlus />{/snippet}
 						</Button>
 					</Example>
 				{:else if item.id === 'placement'}
 					<p class="tab-note">
-						<code>placement</code> prefers a side and alignment; it flips automatically if the preferred
+						<code>placement</code> prefers a side and alignment. It flips automatically if the preferred
 						side would overflow the viewport.
 					</p>
 					<Example code={placementCode}>
@@ -127,11 +128,11 @@
 				{:else}
 					<Stack gap="sm">
 						<p class="tab-note">
-							<strong>Dismissible</strong> — press <kbd>Escape</kbd> while a tooltip is showing; it
-							hides without moving focus and won't reopen until you leave and come back.
-							<strong>Hoverable</strong> — move the pointer from the trigger onto the tooltip
-							itself; it stays open. <strong>Persistent</strong> — it never disappears on its own while
-							you're hovering or focused on it.
+							<strong>Dismissible:</strong> press <kbd>Escape</kbd> while a tooltip is showing. It
+							hides without moving focus, and will not reopen until you leave and come back.
+							<strong>Hoverable:</strong> move the pointer from the trigger onto the tooltip itself
+							and it stays open. <strong>Persistent:</strong> it never disappears on its own while you
+							hover or keep focus on it.
 						</p>
 						<Cluster gap="sm" align="center">
 							<Button ariaLabel="Info" {@attach tooltip('Try hovering onto me, or press Escape')}>

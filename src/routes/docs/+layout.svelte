@@ -209,10 +209,12 @@
 		     unlayered so it wins over hz-theme without a specificity fight) —
 		     the component itself owns no page-level layout (spec 38, Out of
 		     Scope). -->
+		<!-- .hz-alert is excluded because a titled Alert emits an h2 by default,
+		     and a callout is not a section — no page wants its alerts in the rail. -->
 		<Toc
 			class="docs-toc-rail"
 			container=".docs-main-inner"
-			exclude={['.doc-example', '.sample-frame']}
+			exclude={['.doc-example', '.sample-frame', '.hz-alert']}
 			levels={tocLevels}
 		/>
 	</div>
@@ -220,8 +222,22 @@
 	<!-- Simple footer — no nav link columns -->
 	<footer class="docs-footer">
 		<p class="docs-footer-copy">
-			&copy; {new Date().getFullYear()} Hyzer Labs &mdash; MIT License
+			&copy; {new Date().getFullYear()}
+			<a href="https://hyzer.sh" target="_blank" rel="noreferrer">Hyzer</a> &mdash; MIT License
 		</p>
+		<!-- Only the off-site destinations live here; everything on this site is
+		     reachable from the sidebar. -->
+		<ul class="docs-footer-links">
+			<li>
+				<a href="https://www.npmjs.com/package/@hyzer-labs/ui" target="_blank" rel="noreferrer">
+					npm
+				</a>
+			</li>
+			<li>
+				<a href="https://github.com/hyzerlabs/ui" target="_blank" rel="noreferrer">GitHub</a>
+			</li>
+			<li><a href="/llms.txt" target="_blank" rel="noreferrer">llms.txt</a></li>
+		</ul>
 	</footer>
 </div>
 
@@ -588,6 +604,11 @@
 	/* ------------------------------------------------------------------ */
 
 	.docs-footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.5rem 1.5rem;
 		border-top: 1px solid var(--hz-color-border, #6b7280);
 		padding: 1rem 2rem;
 		margin-left: 15rem; /* align with main content area */
@@ -597,6 +618,16 @@
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
+	}
+
+	.docs-footer-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 
 	/* ------------------------------------------------------------------ */

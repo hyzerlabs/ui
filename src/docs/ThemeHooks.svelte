@@ -8,6 +8,7 @@
 	 * docs' flat look survives as the .docs-table override in docs.css.
 	 */
 	import { Table, Alert } from '$lib';
+	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 	import type { TableColumn } from '$lib/types';
 	import type { ComponentHooks, HookRow } from './hooks';
 
@@ -45,6 +46,7 @@
 		headingLevel={3}
 		class="hooks-warning"
 	>
+		{#snippet icon()}<IconTriangleAlert />{/snippet}
 		<!-- Backtick-split, same convention as DocPage's a11yNote. -->
 		{#each hooks.warning.split('`') as segment, i (i)}{#if i % 2 === 1}<code>{segment}</code
 				>{:else}{segment}{/if}{/each}

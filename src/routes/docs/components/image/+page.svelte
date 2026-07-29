@@ -3,6 +3,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { imageDoc } from '../../../../docs/data/image.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// Inline SVG data-URIs — no committed binary assets. Real photo assets
 	// coming soon.
@@ -84,6 +85,7 @@
 
 <DocPage name="Image" {...imageDoc}>
 	<Alert intent="info" title="Image + Lightbox">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Image renders media, Lightbox provides viewing. <code>Image</code> has no click-to-view of its
 		own — for that, pass an <code>Image</code> into a
 		<a href="/docs/components/lightbox">Lightbox</a>

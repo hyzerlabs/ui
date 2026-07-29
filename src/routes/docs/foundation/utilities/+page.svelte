@@ -21,30 +21,71 @@
 		'contrast: 92 pairings checked — all pass WCAG AA'
 	].join('\n');
 
-	// R2 — the two fixed text-color role helpers, derived from the `color`
-	// export (not hardcoded — `text`/`textMuted` are the metadata keys).
-	const textRoleRows = [
+	// R2 — the four color families, in the order the sheet emits them. The role
+	// rows are derived from the `color` export (not hardcoded — `text`,
+	// `surfaceMuted` and friends are the metadata keys).
+	const colorFamilies = [
 		{
-			className: 'hz-text',
-			cssVar: '--hz-color-text',
-			note: 'Resets inherited color back to the base text role — e.g. inside a tinted region.'
+			prefix: 'hz-text',
+			property: 'color',
+			roles: [
+				{
+					className: 'hz-text',
+					cssVar: '--hz-color-text',
+					note: 'Resets inherited color back to the base text role — e.g. inside a tinted region.'
+				},
+				{
+					className: 'hz-text-muted',
+					cssVar: '--hz-color-text-muted',
+					note: 'The muted text role — de-emphasized copy.'
+				}
+			]
 		},
 		{
-			className: 'hz-text-muted',
-			cssVar: '--hz-color-text-muted',
-			note: 'The muted text role — de-emphasized copy.'
+			prefix: 'hz-bg',
+			property: 'background-color',
+			roles: [
+				{ className: 'hz-bg', cssVar: '--hz-color-surface', note: 'The base surface role.' },
+				{
+					className: 'hz-bg-muted',
+					cssVar: '--hz-color-surface-muted',
+					note: 'The subdued opaque surface — quiet panels, code blocks.'
+				}
+			]
+		},
+		{
+			prefix: 'hz-border',
+			property: 'border-color',
+			roles: [
+				{
+					className: 'hz-border',
+					cssVar: '--hz-color-border',
+					note: 'Color only. Bring your own border-width and border-style.'
+				}
+			]
+		},
+		{
+			prefix: 'hz-fill',
+			property: 'fill',
+			roles: [
+				{ className: 'hz-fill', cssVar: '--hz-color-text', note: 'For SVG. Matches body text.' },
+				{ className: 'hz-fill-muted', cssVar: '--hz-color-text-muted', note: 'For SVG.' }
+			]
 		}
 	];
-	// Sanity — both role keys the sheet reads still exist in the metadata.
-	const hasTextRoles = color.text !== undefined && color.textMuted !== undefined;
 
-	// R2 — one row per resolved intent; a consumer config that adds an intent
-	// gets its `.hz-text-*` class generated automatically, and this table
-	// (driven by the same `intent` export the engine reads) would show it too.
+	// Sanity — every role key the sheet reads still exists in the metadata.
+	const hasColorRoles = (['text', 'textMuted', 'surface', 'surfaceMuted', 'border'] as const).every(
+		(key) => color[key] !== undefined
+	);
+
+	// R2 — one row per resolved intent, one column per family. A consumer config
+	// that adds an intent gets all four classes generated automatically, and this
+	// table (driven by the same `intent` export the engine reads) shows them too.
 	const intentRows = Object.keys(intent).map((key) => ({
-		className: `hz-text-${key}`,
+		key,
 		cssVar: `--hz-intent-${key}`,
-		key
+		classes: colorFamilies.map((f) => `${f.prefix}-${key}`)
 	}));
 
 	// R3 — the seven logical margin families, fixed emission order.
@@ -219,7 +260,7 @@
 			The flag opts in for a single run; set <code>utilities: true</code> (or
 			<code>{"{ output: '...' }"}</code>) in <code>hyzer.config.ts</code> to opt in every run — full
 			config surface on
-			<a href="/docs/theming/tokens#full-reference-heading">Tokens &amp; Overrides</a>.
+			<a href="/docs/foundation/config#full-reference-heading">Config &amp; CLI</a>.
 		</p>
 		<CodeBlock code={importLine} />
 		<p>
@@ -229,11 +270,19 @@
 			wins by source order.
 		</p>
 
-		<h3 id="text-utilities-heading">Text-color utilities</h3>
+		<h3 id="text-utilities-heading">Color utilities</h3>
 		<p>
-			Two fixed role helpers, plus one class per resolved intent — color only. No background,
-			border, or fill utilities; those are out of scope (Badge, Alert, and Banner own tinted
-			surfaces).
+			Four families — <code>.hz-text-*</code>, <code>.hz-bg-*</code>, <code>.hz-border-*</code> and
+			<code>.hz-fill-*</code> — each with its role helpers plus one class per resolved intent. One
+			property each, so <code>.hz-border-danger</code> sets <code>border-color</code> and nothing
+			else: bring your own width and style. <code>.hz-fill-*</code> is for SVG.
+		</p>
+		<p>
+			These are for ad-hoc spots. Components that own a tinted surface (<a
+				href="/docs/components/badge">Badge</a
+			>, <a href="/docs/components/alert">Alert</a>, <a href="/docs/components/banner">Banner</a>)
+			keep doing that themselves, and reaching for a background utility to restyle one is the wrong
+			tool — use their <code>intent</code> prop or their theme hooks.
 		</p>
 		<Example code={nudgeCode}>
 			<p>
@@ -247,27 +296,50 @@
 					<tr>
 						<th scope="col">Class</th>
 						<th scope="col">Declaration</th>
-						<th scope="col">Preview</th>
 						<th scope="col">Note</th>
 					</tr>
 				</thead>
 				<tbody>
-					{#if hasTextRoles}
-						{#each textRoleRows as row (row.className)}
-							<tr>
-								<td><code>.{row.className}</code></td>
-								<td><code>color: var({row.cssVar})</code></td>
-								<td><span class={row.className}>Sample text</span></td>
-								<td>{row.note}</td>
-							</tr>
+					{#if hasColorRoles}
+						{#each colorFamilies as family (family.prefix)}
+							{#each family.roles as row (row.className)}
+								<tr>
+									<td><code>.{row.className}</code></td>
+									<td><code>{family.property}: var({row.cssVar})</code></td>
+									<td>{row.note}</td>
+								</tr>
+							{/each}
 						{/each}
 					{/if}
-					{#each intentRows as row (row.className)}
+				</tbody>
+			</table>
+		</div>
+
+		<p class="tab-note">
+			And one class per intent, in every family. Every cell references the intent token, so a
+			remapped or added intent flows straight through with no regeneration needed:
+		</p>
+		<div class="token-table-wrapper">
+			<table class="token-table">
+				<thead>
+					<tr>
+						<th scope="col">Intent</th>
+						{#each colorFamilies as family (family.prefix)}
+							<th scope="col"><code>{family.property}</code></th>
+						{/each}
+						<th scope="col">Preview</th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each intentRows as row (row.key)}
 						<tr>
-							<td><code>.{row.className}</code></td>
-							<td><code>color: var({row.cssVar})</code></td>
-							<td><span class={row.className}>Sample text</span></td>
-							<td></td>
+							<td><code>{row.cssVar}</code></td>
+							{#each row.classes as className (className)}
+								<td><code>.{className}</code></td>
+							{/each}
+							<td>
+								<span class={`intent-preview ${row.classes[0]} ${row.classes[2]}`}>{row.key}</span>
+							</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -338,7 +410,20 @@
 			dark) — on any other background, contrast is yours to check.
 		</p>
 		<p>
-			The sheet introduces no new pairings — see
+			That includes a background utility. <code>.hz-bg-danger</code> is not one of those two
+			surfaces, so <code>.hz-text-danger</code> on <code>.hz-bg-danger</code> is a pairing nothing
+			has graded, and it will not pass. The combination the report does cover is the one Banner
+			ships: text in the <em>surface</em> role on a solid intent fill, which flips with the mode and
+			stays legible in both. Reach for <code>.hz-bg</code> or <code>.hz-bg-muted</code> under intent-colored
+			text, and for a solid intent fill, set the text to the surface role rather than an intent.
+		</p>
+		<p>
+			<code>.hz-border-*</code> is exempt either way: a border is non-text, so it answers to
+			<a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html">WCAG 1.4.11</a>
+			(3:1 against what it sits on) rather than to the 4.5:1 text rule.
+		</p>
+		<p>
+			Beyond that the sheet introduces no new pairings — see
 			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> for the full report, and
 			<a href="/docs/foundation/colors#intent">Colors &amp; Intent</a> for the intent vocabulary itself.
 		</p>
@@ -444,6 +529,20 @@
 		padding: 0.5rem;
 		border: 1px dashed var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+
+	/* Width and style only — border-color is left to the .hz-border-* utility
+	   on the same element, which is the point the table above is making. Using
+	   the `border` shorthand here would reset that color to currentColor and
+	   win, since this scoped rule outranks the unlayered utility. */
+	.intent-preview {
+		display: inline-block;
+		padding: 0.1rem 0.45rem;
+		border-width: var(--hz-border-width-thin, 1px);
+		border-style: solid;
+		border-radius: var(--hz-radius-sm, 0.25rem);
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		white-space: nowrap;
 	}
 
 	.demo-chip {

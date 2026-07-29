@@ -3,6 +3,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { toggleDoc } from '../../../../docs/data/toggle.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	let notifications = $state(true);
 
@@ -33,6 +34,7 @@
 
 <DocPage name="Toggle" {...toggleDoc}>
 	<Alert intent="info" title="Toggle vs Checkbox">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Reach for <code>Toggle</code> when a setting reads as on/off, like a preference — it renders
 		<code>role="switch"</code> and communicates state immediately. Use
 		<a href="/docs/components/checkbox">Checkbox</a> for selections from a list, multi-select membership,

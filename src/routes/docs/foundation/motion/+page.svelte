@@ -18,6 +18,7 @@
 	} from '$lib/motion';
 	import Example from '../../../../docs/Example.svelte';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// R7 — derive from token metadata (unchanged from the prior page).
 	const durationTokens = Object.entries(motion.duration).map(([key, value]) => ({
@@ -594,6 +595,7 @@
 							{/key}
 						</Example>
 						<Alert intent="info" title="Why reveal and not revealGroup here">
+							{#snippet icon()}<IconInfo />{/snippet}
 							<code>revealGroup</code> staggers a container's direct children, and the parts you
 							want sequenced are children of Hero's internal <code>.hz-hero-content</code> — which
 							the component does not expose, since <code>{'{...rest}'}</code> spreads onto its root.
@@ -632,6 +634,7 @@
 			</div>
 		</Example>
 		<Alert intent="info" title="Cross-fading real page navigations">
+			{#snippet icon()}<IconInfo />{/snippet}
 			For page-to-page transitions, SvelteKit's <code>onNavigate</code> is the integration point — a few
 			lines, and it doesn't even need this helper, since the DOM update it wraps is the navigation itself:
 		</Alert>
@@ -672,6 +675,7 @@
 			transition/reveal/view-transition — no reload needed.
 		</p>
 		<Alert intent="info">
+			{#snippet icon()}<IconInfo />{/snippet}
 			This is the script-side counterpart to the reference theme's own
 			<code>@media (prefers-reduced-motion: reduce)</code> collapse on its CSS transitions — that stays
 			exactly as-is; this module doesn't replace it, it extends the same default to script-driven motion.

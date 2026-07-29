@@ -2732,3 +2732,220 @@ page and Getting Started is true — no `$app/` or `@sveltejs/kit` reference in
   mobile at 1440 (the rail reserves 12rem), desktop again at 1600. Give it
   headroom in the **Patterns batch**; the `scrollbar-gutter` question stays open
   until then.
+
+## Re-audit round 3 — the never-audited pages (2026-07-28)
+
+Eight pages that no prior pass had touched: Tooltip, Popover, Loading, Skeleton,
+CodeBlock, Observers, Positioning, Section themes. The `editor` subagent ran
+first on all eight (two agents, partitioned by file so they could not collide),
+then the technical pass worked its ambiguity flags. That ordering paid again:
+the single most valuable finding below came from an editor flag, not from the
+technical read.
+
+**Errors corrected**
+
+- **Positioning overstated what the primary path does.** The page said a
+  floating element "flips to the opposite side and shifts along the cross axis
+  to stay fully on-screen". Only the JS fallback shifts (`place.ts` clamps
+  `left`/`top` into the viewport with a padding). The preferred CSS
+  anchor-positioning path sets `position-try-fallbacks: flip-block` or
+  `flip-inline` and nothing else — no shift tactic, no `position-area`, no
+  clamp. So on every evergreen browser, the behavior the sentence promised does
+  not happen. Rewritten to claim only the flip. **Open question for the user:**
+  this is a real behavior difference between the two paths near a viewport
+  edge, not just a wording problem, and CSS anchor positioning has no clamp
+  tactic that would make it a one-line fix.
+
+- **`data-align` was described as "resolved after any flip".** `position()`'s
+  live `settle()` loop re-stamps `data-side` only; `data-align` is written once
+  at open time by the callers. Since flipping never changes alignment that is
+  fine, but the sentence implied both attributes are re-measured. Split:
+  `data-side` is live and re-stamped from real geometry, `data-align` reports
+  the resolved logical-to-physical alignment.
+
+- **CodeBlock's Shiki source block showed a pre-IA-move path** in its title
+  (`src/routes/components/…` rather than `src/routes/docs/components/…`), on a
+  block whose heading promises "verbatim".
+
+- **CodeBlock's Shiki paragraph was genuinely ambiguous about whose background
+  gets dropped.** The theme clears CodeBlock's own surface fill
+  (`--hz-code-block-bg: transparent` under `[data-highlighted]`) so the
+  highlighter's palette shows through. Made explicit, with the frame the block
+  still supplies.
+
+- **Popover's Basic fence did not reproduce its own demo** — the demo passes a
+  `triggerIcon` snippet and wraps the checkboxes in a `Stack`, neither of which
+  appeared in the code a reader copies. Fence brought up to match.
+
+- **Tooltip's Basic demo undercut the point it was making.** The note says the
+  tooltip's `aria-describedby` "adds context rather than replacing that name",
+  demonstrated by `ariaLabel="Add to bag"` with `tooltip('Add to bag')` — a
+  screen reader announced the same string twice and the tooltip added nothing.
+  The tooltip now carries information the label does not.
+
+- **Section themes had no `<svelte:head><title>`**, alone among the six theming
+  pages.
+
+- **The AGENTS.md file told you to put AGENTS.md somewhere** (user, 2026-07-28).
+  "Drop this file into your project root" was the second line of the file's own
+  body, which is redundant once the file is in the root. Moved out of
+  `renderAgentsMd()` and onto the page as an Alert above the block. The
+  `/agents.md` route serves the shorter body too.
+
+**Documented gaps closed**
+
+- Observers never said `mutate`'s callback receives the whole
+  `MutationRecord[]` for a delivery rather than a single entry, and `once` was
+  mentioned only under Intersect though all three attachments take it.
+- Popover's `placement` row was a bare `Placement` type with no note while
+  Tooltip's spelled out the union and the RTL behavior.
+
+**Flags checked and cleared (no change needed)**
+
+- `--hz-loading-ease` is documented — it is in the theme-hooks table, which the
+  editor could not see from the page source.
+- `<Stack gap="away">` on the Popover page is not a typo; `near`/`away` are the
+  density values this site is built on.
+- Section themes' claim that `theme('light')` restores the default "even inside
+  a dark page" is accurate as scoped: the generated light block restores every
+  token any *named* theme declares. It would not reset a property only an
+  *inline* theme object set, but the page does not claim that.
+
+**Landing page and Getting Started (user-directed, same round)**
+
+- The install example's `Card horizontal` stacked below 640px, so the avatar
+  went full-width and the "player card" stopped reading as one. It now stays a
+  row at every width with a 3.5rem avatar track, tightened to `padding="sm"`.
+  Both halves changed together, since the fence promises to be the whole file.
+- "Browse the docs" reordered to Foundation, Theming, Agents, Patterns, then
+  the component groups, with Agents surfaced as its own card linking the Agents
+  page and `llms.txt`. Eyebrows dropped; each band is now tinted by intent
+  instead (Alert's soft mix, 10% light / 22% dark), which is what the eyebrows
+  were failing to do.
+- Getting Started's "Where to go next" swapped Section themes for Patterns.
+- Philosophy's headless section now leads with documented hooks and presents
+  snippets as the markup escape hatch, matching how the two are actually
+  reached for. The landing page's matching commitment card follows suit.
+
+**Config & CLI promoted to its own Foundation page (user, 2026-07-28)**
+
+The `hyzer.config.ts` documentation lived as four `<h2>` sections partway down
+`/docs/theming/tokens`. The decisive argument for moving it was not
+discoverability but that **most of it is not theming**: of the four sections,
+only the first is about tokens. `icons` trims the generated icon barrel and
+`utilities` generates the utility sheet, and both sat on a theming page purely
+because that is where the CLI first got written down — which is why the
+Utilities page had to link backwards into Theming to explain how its own sheet
+is produced.
+
+Now `/docs/foundation/config`, last in Foundation. Placement was reconsidered
+mid-flight: the first proposal put it third, next to the Colors/Contrast pages
+that describe its output, but Foundation already orders by *when you need a
+thing*, not by what it relates to, and CSS Reset and Utilities sit last
+precisely because they are opt-in. An optional CLI dropped into the middle of
+the non-optional vocabulary pages breaks that rule (user decision: "it's
+totally optional").
+
+Theming → Tokens keeps the plain-CSS tier and "Verify your palette", and hands
+off in a short section rather than repeating any config sample — the full
+reference is schema-exact, and two copies drift. Cross-links repointed:
+Icons → `#icons-config-heading`, Utilities → `#full-reference-heading`.
+
+One cleanup found on the way: the new page was first written with its own
+`.note` / `.detail-note` / `code` rules copied from the page it came from, all
+of which the shipped docs sheet already provides (`.tab-note`, and `p code` /
+`li code` chips). Dropped. **Open, not done:** nine local `.note` /
+`.detail-note` / `.doctrine-note` rules across seven pages duplicate
+`.tab-note` the same way. Worth a sweep, but each needs checking first in case
+its treatment is deliberately different.
+
+**Color utilities expanded (user, 2026-07-28)**
+
+`hz-bg-*`, `hz-border-*` and `hz-fill-*` join `hz-text-*` in the opt-in sheet,
+each with role helpers plus one class per resolved intent (77 classes, up from
+51). The generator now loops one family table instead of emitting text by hand,
+so collision tracking runs per family. Badge, Alert and Banner keep owning
+their own surfaces, and the page says so.
+
+Contrast doctrine needed a real correction, not just an extension: intent text
+is AA-verified **on the two surface roles only**, so `.hz-text-danger` on
+`.hz-bg-danger` is a pairing nothing grades and it does not pass. The page now
+names the combination the report does cover (Banner's recipe: surface-role text
+on a solid intent fill) and notes that `.hz-border-*` answers to 1.4.11's 3:1
+non-text rule instead. The live preview in the intent table sets
+`border-width`/`border-style` longhands rather than the `border` shorthand,
+which would reset `border-color` to `currentColor` and beat the utility — the
+same trap a reader will hit.
+
+**Alert icon and heading sweep (user, 2026-07-28)**
+
+Every editorial `Alert` now carries an intent-matched glyph: `info` gets the
+circle info icon, `warning` and `danger` get the triangle. 30 call sites across
+26 pages, plus the shared `ThemeHooks` warning, which covers every component's
+hooks caution at once. The Alert page's own `intents` and `icon` tab demos were
+deliberately left alone — the first shows intent color without icons, and the
+second exists to demonstrate the icon slot, so adding icons to both would erase
+the contrast the page is teaching.
+
+Two related defects surfaced while doing it:
+
+- **`Alert`'s `headingLevel` defaults to `2`, so every titled Alert emits an
+  `<h2>` — and the docs Toc was collecting them.** A callout is not a section,
+  so no page wants its alerts in the rail. Fixed once at the shell rather than
+  per page: `.hz-alert` joins the Toc's `exclude` list in `docs/+layout.svelte`,
+  which fixes every page at once, including future ones.
+- The same default also renders the title at h2 size, which reads too large
+  inside a callout. Fixed on the two pages the user flagged (Config, Section
+  themes) with `headingLevel={3}`. **Open:** 31 titled Alerts site-wide still
+  take the h2 default. Worth deciding whether that is 31 edits or one change to
+  Alert's default (h2 → h3), which is a library API change — free in the current
+  breaking window, but it is a real API decision, not a docs fix.
+
+**Config page editor pass — two factual corrections**
+
+The editor's ambiguity flags caught two claims that were wrong or unverifiable,
+both inherited verbatim from the theming page:
+
+- **`icons: []` versus omitting the key.** The copy ran the two together as
+  though they were the same minimal case. They are not: `resolveIcons` returns
+  `undefined` when the key is absent, so no `icons.ts` is written at all, while
+  `icons: []` returns the core set and still writes the file
+  (`src/lib/config/icons.ts:35`). That distinction is the only way a reader
+  learns how to get a core-only barrel, and the page had buried it.
+- **What `--utilities` overrides.** The copy said the flag "overrides the config
+  key", which reads as though it replaces the configured output path and writes
+  to the default filename. It does not: the flag only forces the opt-in, and the
+  path still comes from `resolved.utilities.output` (`cli/main.ts:178-181`).
+
+**Config page, final shape (user-directed)**
+
+- The ramps caveat went through three drafts before it was true, which is worth
+  recording. Draft one said ramps make the report noisy and cost you
+  `--strict`. Draft two kept that and added a per-rung escape that does not
+  exist. Both were wrong at the root: `contrastReport` grades
+  `--hz-color-text`, `--hz-color-text-muted` and every `--hz-intent-*` against
+  the two surface roles (`report.ts:204-206`). Raw `--hz-palette-*` hues are
+  never graded, and ramps are palette-only (`schema.ts:45`). So a ramp adds
+  **zero** pairings on its own. The failure only happens when an intent points
+  at a ramp's pale or dark end rung, and then `--strict` fails the whole run
+  because it cannot be scoped. The callout says that now, and the page's one
+  config sample carries the safe wiring inline (a `brand` intent aimed at the
+  500 rung) rather than shipping a second near-duplicate sample.
+- Added a CLI flag reference table. The flags are deliberately not 1:1 with the
+  config: `--mode`, `--check` and `--strict` have no config equivalent because
+  they describe one run, and `tokens` / `themes` / `icons` have no flag.
+- `WhereNext` extracted to `src/docs/WhereNext.svelte` and adopted by Getting
+  Started and Config, so onward-link blocks share one card layout and one
+  heading id instead of being re-hand-rolled per page.
+
+**Open items for the next session**
+
+- The Toc's `--strict` scope caveat lives only in the danger callout; a reader
+  who lands on the flag table from a cross-link will not see it.
+- Unverified, flagged by the editor and not resolved: whether `--check`
+  suppresses the `icons.ts` write as well as the CSS writes (the flag table
+  claims a CI check "touches nothing"), and whether `--out` also relocates the
+  utilities sheet when combined with `--utilities`.
+- 31 titled Alerts across the site still relied on the old h2 default; the
+  default is now h3, so they inherit the fix, but a few pages pass explicit
+  levels that may now be redundant or wrong relative to their surroundings.

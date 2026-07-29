@@ -31,8 +31,12 @@
  */
 
 /* =====================================================================
- * Text-color utilities
- * Role + intent helpers — color only, resolved from --hz-color-* / --hz-intent-*.
+ * Color utilities
+ * Role + intent helpers for text, background, border and fill, resolved from
+ * --hz-color-* / --hz-intent-*. One property each: .hz-border-* sets only
+ * border-color, so bring your own border-width/style; .hz-fill-* is for SVG.
+ * Components that own a surface (Badge, Alert, Banner) keep doing so — these
+ * are for ad-hoc spots, not for restyling a component.
  * ===================================================================== */
 
 .hz-text {
@@ -69,6 +73,110 @@
 
 .hz-text-info {
 	color: var(--hz-intent-info);
+}
+
+.hz-bg {
+	background-color: var(--hz-color-surface);
+}
+
+.hz-bg-muted {
+	background-color: var(--hz-color-surface-muted);
+}
+
+.hz-bg-neutral {
+	background-color: var(--hz-intent-neutral);
+}
+
+.hz-bg-primary {
+	background-color: var(--hz-intent-primary);
+}
+
+.hz-bg-secondary {
+	background-color: var(--hz-intent-secondary);
+}
+
+.hz-bg-danger {
+	background-color: var(--hz-intent-danger);
+}
+
+.hz-bg-warning {
+	background-color: var(--hz-intent-warning);
+}
+
+.hz-bg-success {
+	background-color: var(--hz-intent-success);
+}
+
+.hz-bg-info {
+	background-color: var(--hz-intent-info);
+}
+
+.hz-border {
+	border-color: var(--hz-color-border);
+}
+
+.hz-border-neutral {
+	border-color: var(--hz-intent-neutral);
+}
+
+.hz-border-primary {
+	border-color: var(--hz-intent-primary);
+}
+
+.hz-border-secondary {
+	border-color: var(--hz-intent-secondary);
+}
+
+.hz-border-danger {
+	border-color: var(--hz-intent-danger);
+}
+
+.hz-border-warning {
+	border-color: var(--hz-intent-warning);
+}
+
+.hz-border-success {
+	border-color: var(--hz-intent-success);
+}
+
+.hz-border-info {
+	border-color: var(--hz-intent-info);
+}
+
+.hz-fill {
+	fill: var(--hz-color-text);
+}
+
+.hz-fill-muted {
+	fill: var(--hz-color-text-muted);
+}
+
+.hz-fill-neutral {
+	fill: var(--hz-intent-neutral);
+}
+
+.hz-fill-primary {
+	fill: var(--hz-intent-primary);
+}
+
+.hz-fill-secondary {
+	fill: var(--hz-intent-secondary);
+}
+
+.hz-fill-danger {
+	fill: var(--hz-intent-danger);
+}
+
+.hz-fill-warning {
+	fill: var(--hz-intent-warning);
+}
+
+.hz-fill-success {
+	fill: var(--hz-intent-success);
+}
+
+.hz-fill-info {
+	fill: var(--hz-intent-info);
 }
 
 /* =====================================================================

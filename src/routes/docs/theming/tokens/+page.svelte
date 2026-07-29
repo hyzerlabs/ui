@@ -71,145 +71,6 @@
 		"\t--hz-font-family-sans: 'Inter', system-ui, sans-serif;",
 		'}'
 	].join('\n');
-
-	const configCode = [
-		'// hyzer.config.ts',
-		"import { defineConfig } from '@hyzer-labs/ui/config';",
-		'',
-		'export default defineConfig({',
-		"\toutput: 'src/styles/tokens.css',",
-		'\ttokens: {',
-		'\t\tpalette: {',
-		"\t\t\tprimary: '#0f766e',                              // override",
-		"\t\t\tfairway: '#3f6212',                              // add a hue",
-		"\t\t\tbrandRed: { 50: '#fef2f2', 900: '#7f1d1d' }      // add a ramp",
-		'\t\t},',
-		"\t\tintent: { fairway: 'var(--hz-palette-fairway)' }, // add an intent",
-		'\t\ttypography: { fontFamily: { sans: "\'Inter\', system-ui, sans-serif" } },',
-		"\t\tdensity: { unit: '0.5rem' }",
-		'\t},',
-		'\tthemes: {',
-		'\t\tdark: {',
-		"\t\t\tpalette: { primary: '#2dd4bf', fairway: '#a3e635' }",
-		'\t\t}',
-		'\t}',
-		'});'
-	].join('\n');
-
-	const reportCode = [
-		'$ hyzer generate',
-		'config: hyzer.config.ts',
-		'wrote src/styles/tokens.css (full, 89 tokens)',
-		'contrast: 104 pairings checked — all pass WCAG AA'
-	].join('\n');
-
-	const modesCode = [
-		'# A complete sheet — import it INSTEAD of tokens.css:',
-		'hyzer generate',
-		'',
-		'# A patch sheet with only your overrides — import it AFTER tokens.css:',
-		'hyzer generate --mode overrides',
-		'',
-		'# Also write the opt-in utilities sheet, next to the tokens sheet:',
-		'hyzer generate --utilities',
-		'',
-		'# Flags compose — a patch sheet AND the utilities sheet, one run:',
-		'hyzer generate --mode overrides --utilities',
-		'',
-		'# Validate without writing; fail CI on any AA miss (and any unknown icon):',
-		'hyzer generate --check --strict'
-	].join('\n');
-
-	const iconsConfigCode = [
-		'// hyzer.config.ts',
-		"import { defineConfig } from '@hyzer-labs/ui/config';",
-		'',
-		'export default defineConfig({',
-		"\t// kebab-case Lucide names — 'plus' is already core (deduped, no warning)",
-		"\ticons: ['plus', 'trash-2', 'settings', 'serch']",
-		'});'
-	].join('\n');
-
-	const iconsReportCode = [
-		'$ hyzer generate',
-		'wrote hyzer-tokens.css (full, 84 tokens)',
-		'wrote icons.ts (16 icons)',
-		'contrast: 92 pairings checked — all pass WCAG AA',
-		'  ? icons: "serch" is not a valid Lucide icon name — omitted from the barrel',
-		'icons: 1 unknown name(s) (warnings; use --strict to fail the build)',
-		'icons: 16 included (14 core, 2 configured)'
-	].join('\n');
-
-	const utilitiesConfigCode = [
-		'// hyzer.config.ts',
-		"import { defineConfig } from '@hyzer-labs/ui/config';",
-		'',
-		'export default defineConfig({',
-		'\t// true opts in with the default filename; { output } picks a custom path',
-		'\tutilities: true',
-		'});'
-	].join('\n');
-
-	const utilitiesReportCode = [
-		'$ hyzer generate',
-		'config: hyzer.config.ts',
-		'wrote hyzer-tokens.css (full, 84 tokens)',
-		'wrote hyzer-utilities.css',
-		'contrast: 92 pairings checked — all pass WCAG AA'
-	].join('\n');
-
-	// The complete option surface (src/lib/config/schema.ts) — every group is
-	// commented out, so this exact object is a valid, empty config as written
-	// (`defineConfig({})`); uncommenting any one line, or all of them, stays
-	// valid too (verified against resolveConfig — see specs/40-findings.md).
-	const fullReferenceConfigCode = [
-		'// hyzer.config.ts — every option group the schema accepts, commented out.',
-		'// Uncomment only what you need; each line is independently valid.',
-		"import { defineConfig } from '@hyzer-labs/ui/config';",
-		'',
-		'export default defineConfig({',
-		"\t// output: 'src/styles/tokens.css', // where `hyzer generate` writes the sheet",
-		'',
-		'\t// tokens: {',
-		'\t// \tpalette: {                          // raw hues (--hz-palette-*); ramps welcome',
-		"\t// \t\tprimary: '#0f766e',",
-		"\t// \t\tbrandRed: { 500: '#ef4444', 900: '#7f1d1d' }",
-		'\t// \t},',
-		"\t// \tcolor: { border: '#94a3b8' },       // structural role tokens (--hz-color-*)",
-		"\t// \tintent: { fairway: 'var(--hz-palette-primary)' }, // remap or add intents (--hz-intent-*)",
-		"\t// \tspace: { xs: '0.375rem' },          // the fixed margin/gap scale (--hz-space-*)",
-		"\t// \twidth: { md: '960px' },             // layout max-widths (--hz-width-*)",
-		'\t// \ttypography: {',
-		"\t// \t\tfontSize: { base: '1.05rem' },    // --hz-font-size-*",
-		'\t// \t\tfontFamily: { sans: "\'Inter\', system-ui, sans-serif" }, // --hz-font-family-*',
-		"\t// \t\tfontWeight: { semibold: '650' },  // --hz-font-weight-*",
-		"\t// \t\tlineHeight: { base: '1.6' }       // --hz-line-height-*",
-		'\t// \t},',
-		"\t// \tradius: { md: '0.625rem' },         // corner radii (--hz-radius-*)",
-		"\t// \tborder: { width: { thin: '1.5px' } }, // border widths (--hz-border-width-*)",
-		"\t// \tshadow: { md: '0 10px 15px -3px rgb(0 0 0 / 0.15)' }, // elevation (--hz-shadow-*)",
-		"\t// \tzIndex: { modal: '1200' },          // stacking order (--hz-z-*)",
-		'\t// \tmotion: {',
-		"\t// \t\tduration: { base: '350ms' },      // --hz-duration-*",
-		"\t// \t\tease: { standard: 'ease-out' }    // --hz-ease-*",
-		'\t// \t},',
-		"\t// \tdensity: { unit: '0.5rem' }         // the --hz-density grid unit (near/away cascade)",
-		'\t// },',
-		'',
-		'\t// themes: {                            // one block per data-theme="<name>"',
-		'\t// \tdark: {                            // [data-theme="dark"]',
-		"\t// \t\tpalette: { primary: '#2dd4bf' },  // hue overrides for dark",
-		"\t// \t\tcolor: { surface: '#020617' },    // role overrides for dark",
-		"\t// \t\tintent: { fairway: '#a3e635' }    // intent remaps for dark only",
-		'\t// \t},',
-		"\t// \tocean: { palette: { primary: '#0ea5e9' } } // any name you like",
-		'\t// },',
-		'',
-		"\t// icons: ['plus', 'trash-2', 'settings'], // trims the generated icons.ts barrel",
-		'',
-		"\t// utilities: true // opt in to hyzer-utilities.css (or { output: 'styles/hyzer-utilities.css' })",
-		'});'
-	].join('\n');
 </script>
 
 <svelte:head>
@@ -288,90 +149,19 @@
 		class="doc-section"
 		aria-labelledby="config-heading"
 	>
-		<h2 id="config-heading">With the <code>hyzer</code> CLI — a config as source of truth</h2>
+		<h2 id="config-heading">Or describe it once, in a config</h2>
 		<p>
-			The same engine that generates this library's own <code>tokens.css</code> ships in the
-			package. Describe your system once in <code>hyzer.config.ts</code> — overrides merge over the
-			base schema, new keys extend it, and nested <code>tokens.palette</code> objects generate ramps
-			(<code>--hz-palette-brand-red-900</code>) even though the base palette ships none.
+			Everything above is hand-written CSS, which is the whole point of this tier: no build step, no
+			tooling. If you would rather keep your system in one typed file and have the sheet generated
+			for you — with every pairing contrast-graded on each run —
+			<a href="/docs/foundation/config">Config &amp; CLI</a> covers
+			<code>hyzer.config.ts</code> end to end: the option surface, the
+			<code>hyzer generate</code> modes, the trimmed icon barrel and the utilities sheet.
 		</p>
-		<CodeBlock code={configCode} />
 		<p>
-			Every run prints a WCAG contrast report over the resolved tokens — the same math and the same
-			pairings used to validate this library's own token set, covering your custom intents too:
+			The two routes reach the same place. A config resolves to the same two-layer model this page
+			describes, so nothing you learn here is wasted if you adopt one later.
 		</p>
-		<CodeBlock code={reportCode} />
-		<CodeBlock code={modesCode} />
-		<p class="note">
-			TypeScript configs load via Node's native type stripping (Node ≥ 22.18); on older runtimes
-			name the file <code>hyzer.config.mjs</code>. The engine is also importable directly from
-			<code>@hyzer-labs/ui/config</code> (<code>resolveConfig</code>, <code>generateCss</code>,
-			<code>contrastReport</code>) for build scripts of your own.
-		</p>
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="icons-config-heading"
-	>
-		<h2 id="icons-config-heading">Trimming the icon set</h2>
-		<p>
-			The same config extends to <a href="/docs/components/icons">icons</a>: an optional
-			<code>icons: string[]</code> list of kebab-case Lucide names. <code>hyzer generate</code>
-			emits an <code>icons.ts</code> module next to the tokens sheet — named re-exports from
-			<code>@hyzer-labs/ui/icons/&lt;name&gt;</code> deep paths for the union of your list and the library's
-			always-shipped core set (the chevrons, close, menu, and friends its own components depend on) —
-			so your app's autocomplete surface is its own icon vocabulary, not the full 1,700-plus name Lucide
-			set.
-		</p>
-		<CodeBlock code={iconsConfigCode} />
-		<p>
-			Core icons are deduplicated into the core group with no warning if you list one explicitly. An
-			unknown name is a report warning by default; <code>--strict</code> turns it into a failing run
-			(the icon is still omitted from the emitted barrel either way). Omitting the
-			<code>icons</code> key entirely skips the file and the report section — <code>icons: []</code>
-			is a valid, minimal config: the core-only barrel.
-		</p>
-		<CodeBlock code={iconsReportCode} />
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="utilities-config-heading"
-	>
-		<h2 id="utilities-config-heading">Generating the utilities sheet</h2>
-		<p>
-			The <a href="/docs/foundation/utilities">opt-in utilities sheet</a> is engine output too: set
-			<code>utilities: true</code> in the config (or pass <code>--utilities</code> on the command
-			line, which overrides the config key when both are present) and <code>hyzer generate</code>
-			writes
-			<code>hyzer-utilities.css</code> next to the tokens sheet. An object form,
-			<code>utilities: {"{ output: '...' }"}</code>, picks a custom path. Omitting the key entirely
-			— the default — writes no utilities file at all.
-		</p>
-		<CodeBlock code={utilitiesConfigCode} />
-		<CodeBlock code={utilitiesReportCode} />
-	</Stack>
-
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="full-reference-heading"
-	>
-		<h2 id="full-reference-heading">Full reference</h2>
-		<p>
-			Every group <code>hyzer.config.ts</code> accepts, in one file, commented out — uncomment what you
-			need and delete the rest. The comments on each line name the tokens it drives.
-		</p>
-		<CodeBlock code={fullReferenceConfigCode} />
 	</Stack>
 
 	<Stack
@@ -416,12 +206,6 @@
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
-	}
-
-	.note {
-		margin: 0;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
 	}
 
 	.detail-note {

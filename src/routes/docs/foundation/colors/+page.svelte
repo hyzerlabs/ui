@@ -3,6 +3,7 @@
 	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 	import { palette, color, intent } from '$lib/tokens';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// The docs shell's own theme toggle, verbatim — this is the real thing
 	// (src/docs/theme.svelte.ts + ThemeToggle.svelte), not an idealization.
@@ -280,6 +281,7 @@
 			resolves through this layer.
 		</p>
 		<Alert intent="info" title="These seven are a starting set, not a ceiling" headingLevel={4}>
+			{#snippet icon()}<IconInfo />{/snippet}
 			A component only stamps <code>data-intent="&lt;name&gt;"</code> and lets the theme decide what
 			the name means, so the vocabulary is yours to grow. Define
 			<code>--hz-intent-&lt;name&gt;</code> in your config and it gets
@@ -328,6 +330,7 @@
 				<IconTriangleAlert intent="danger" />
 			</Cluster>
 			<Alert intent="danger" title="Course closed" headingLevel={4}>
+				{#snippet icon()}<IconTriangleAlert />{/snippet}
 				Lightning in the area — clear the course now.
 			</Alert>
 		</Stack>

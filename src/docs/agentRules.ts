@@ -91,9 +91,8 @@ export function renderAgentsMd(): string {
 	const parts: string[] = [
 		'# @hyzer-labs/ui — conventions for coding agents',
 		'',
-		'Drop this file into your project root. It states the conventions that keep',
-		'generated code correct against @hyzer-labs/ui, a headless Svelte 5 component',
-		'library.',
+		'The conventions that keep generated code correct against @hyzer-labs/ui, a',
+		'headless Svelte 5 component library.',
 		'',
 		`Full documentation: ${SITE}/docs`,
 		`Machine-readable index of every page: ${SITE}/llms.txt`,

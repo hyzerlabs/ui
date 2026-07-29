@@ -4,6 +4,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { lightboxDoc } from '../../../../docs/data/lightbox.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// Inline SVG data-URIs — no committed binary assets (same convention as
 	// the Image page). SVG <text> cannot wrap, so long labels are broken into
@@ -148,9 +149,9 @@
 
 <DocPage name="Lightbox" {...lightboxDoc}>
 	<Alert intent="info" title="Image + Lightbox">
-		Image renders media, Lightbox provides viewing. Compose an <a href="/docs/components/image"
-			>Image</a
-		>
+		{#snippet icon()}<IconInfo />{/snippet}
+		Image renders media, Lightbox provides viewing. Compose an
+		<a href="/docs/components/image">Image</a>
 		as a trigger face — see the "Image triggers" tab — or reach for the <code>lightboxGroup</code>
 		attachment on the "Group attachment" tab to add click-to-view over an <code>Image</code> grid you
 		already render.

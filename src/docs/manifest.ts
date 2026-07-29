@@ -149,6 +149,12 @@ export const manifest: ManifestEntry[] = [
 				href: '/docs/foundation/utilities',
 				description:
 					'Three families of utility class, from least to most opt-in: the always-on .sr-only, component conventions the theme already ships, and a generated sheet of token-derived helpers you import separately. It also covers the JavaScript helpers the package exports.'
+			},
+			{
+				label: 'Config & CLI',
+				href: '/docs/foundation/config',
+				description:
+					'One optional file, hyzer.config.ts, describes your design system; the hyzer CLI turns it into a token sheet, a trimmed icon barrel and an optional utility sheet, each graded against WCAG AA on the way out.'
 			}
 		]
 	},

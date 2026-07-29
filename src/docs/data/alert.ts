@@ -11,7 +11,12 @@ export const alertDoc: ComponentDoc = {
 			default: '—',
 			note: 'Optional heading; labels the alert via aria-labelledby.'
 		},
-		{ name: 'headingLevel', type: '2 | 3 | 4 | 5 | 6', default: '2' },
+		{
+			name: 'headingLevel',
+			type: '2 | 3 | 4 | 5 | 6',
+			default: '3',
+			note: 'An alert is nearly always a callout inside a section rather than a section of its own, so the default keeps it below your page headings. Raise or lower it to match the surrounding document.'
+		},
 		{
 			name: 'intent',
 			type: 'Intent',

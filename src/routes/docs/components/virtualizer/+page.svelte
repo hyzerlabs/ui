@@ -3,6 +3,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { virtualizerDoc } from '../../../../docs/data/virtualizer.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// Demo 1 — 10,000 uniform rows: only a handful of DOM nodes exist at once.
 	const bigList = Array.from({ length: 10000 }, (_, i) => `Row ${i + 1}`);
@@ -86,6 +87,7 @@
 
 <DocPage name="Virtualizer" {...virtualizerDoc}>
 	<Alert intent="info" title="Tabular data">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Windowing a real <code>&lt;table&gt;</code> doesn't work — a
 		<code>&lt;tr&gt;</code> outside a <code>&lt;table&gt;</code> loses its row semantics. For
 		tabular data, prefer the real <a href="/docs/components/table">Table</a> component up to some

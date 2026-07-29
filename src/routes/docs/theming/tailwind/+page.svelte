@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Stack, Alert, CodeBlock } from '$lib';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// One master layer declaration up front so precedence never depends on
 	// import order. `@layer name, name;` statements are allowed before @import,
@@ -101,9 +102,10 @@
 		</p>
 		<CodeBlock code={layerOrderCode} />
 		<Alert intent="info">
-			A layered rule always loses to an unlayered one, so a Tailwind utility (layered) overrides the
-			reference theme but <strong>not</strong> a bare class or ID you write yourself. Your own
-			unlayered CSS stays the final word — see
+			{#snippet icon()}<IconInfo />{/snippet}
+			A layered rule always loses to an unlayered one, so a Tailwind utility (layered) overrides the reference
+			theme but <strong>not</strong> a bare class or ID you write yourself. Your own unlayered CSS
+			stays the final word — see
 			<a href="/docs/theming/overview">Theming Overview</a> for the tier model.
 		</Alert>
 		<p>

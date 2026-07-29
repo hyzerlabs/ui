@@ -20,7 +20,7 @@
 	} from '$lib';
 	import { isGrouped, isSection, manifest, type ManifestSection } from '../docs/manifest';
 	import ThemeToggle from '../docs/ThemeToggle.svelte';
-	import type { NavItem } from '$lib/types';
+	import type { Intent, NavItem } from '$lib/types';
 
 	// Demo avatar — a labeled SVG data-URI per the placeholder-asset
 	// convention. The fence shows the realistic `import avatar from …` form.
@@ -33,9 +33,9 @@
 		"\timport avatar from './avatar.jpg';",
 		'</' + 'script>',
 		'',
-		'<Card horizontal class="player">',
+		'<Card horizontal padding="sm" class="player">',
 		'\t{#snippet media()}',
-		'\t\t<Image src={avatar} alt="" rounded="full" />',
+		'\t\t<Image src={avatar} alt="" rounded="full" class="avatar" />',
 		'\t{/snippet}',
 		'\t<strong>Sam Jensen</strong>',
 		'\t<span class="muted">Leicester, MA</span>',
@@ -47,6 +47,15 @@
 		'\t   restyles without a wrapper element. */',
 		'\t.player {',
 		'\t\tbackground: var(--hz-color-surface-muted);',
+		'\t\talign-items: center;',
+		'\t\t/* Card stacks below 640px by default. Keep this one a row at',
+		'\t\t   every width, with a small avatar track. */',
+		'\t\tflex-direction: row;',
+		'\t\t--hz-card-media-size: 3.5rem;',
+		'\t}',
+		'',
+		'\t.avatar {',
+		'\t\twidth: 3.5rem;',
 		'\t}',
 		'',
 		'\t.muted {',
@@ -65,7 +74,7 @@
 		},
 		{
 			title: 'Headless structure, overridable',
-			body: 'Snippets hand you the markup; documented hz-* classes and data-* hooks hand you the styling. Both are API, not implementation detail.'
+			body: 'Documented hz-* classes and data-* hooks hand you the styling; snippets hand you the markup when styling is not enough. Both are API, not implementation detail.'
 		},
 		{
 			title: 'Theming is opt-in, one tier at a time',
@@ -88,19 +97,45 @@
 		{ label: 'GitHub', href: 'https://github.com/hyzerlabs/ui' }
 	];
 
-	// The full index, one card per band: a grouped section (Components) yields
-	// a card per group, because 48 links under one heading reads as a wall.
-	const cards = manifest
-		.filter((e): e is ManifestSection => isSection(e))
-		.flatMap((section) =>
-			isGrouped(section)
-				? section.groups.map((g) => ({
-						parent: section.label,
-						label: g.label,
-						pages: g.pages
-					}))
-				: [{ parent: '', label: section.label, pages: section.children }]
-		);
+	// The full index, ordered for a newcomer: the three narrative bands, then
+	// the agent entry points, then one card per component group (48 component
+	// links under a single heading reads as a wall). Cards are tinted by
+	// intent so the bands are told apart at a glance.
+	const sections = manifest.filter((e): e is ManifestSection => isSection(e));
+	const named = (label: string) => sections.find((s) => s.label === label);
+
+	const flatPages = (label: string) => {
+		const section = named(label);
+		return section && !isGrouped(section) ? section.children : [];
+	};
+
+	const componentGroups = (() => {
+		const section = named('Components');
+		return section && isGrouped(section) ? section.groups : [];
+	})();
+
+	const cards: {
+		label: string;
+		intent: Intent;
+		pages: { label: string; href: string }[];
+	}[] = [
+		{ label: 'Foundation', intent: 'primary', pages: flatPages('Foundation') },
+		{ label: 'Theming', intent: 'secondary', pages: flatPages('Theming') },
+		{
+			label: 'Agents',
+			intent: 'warning',
+			pages: [
+				{ label: 'Writing for agents', href: '/docs/agents' },
+				{ label: 'llms.txt', href: '/llms.txt' }
+			]
+		},
+		{ label: 'Patterns', intent: 'success', pages: flatPages('Patterns') },
+		...componentGroups.map((g) => ({
+			label: g.label,
+			intent: 'primary' as const,
+			pages: g.pages
+		}))
+	];
 </script>
 
 <svelte:head>
@@ -172,9 +207,9 @@
 				<CodeBlock code={usageSvelteCode} />
 				<!-- The rendered result of exactly the code beside it. -->
 				<div class="proof-render">
-					<Card horizontal class="player">
+					<Card horizontal padding="sm" class="player">
 						{#snippet media()}
-							<Image src={AVATAR} alt="" rounded="full" />
+							<Image src={AVATAR} alt="" rounded="full" class="avatar" />
 						{/snippet}
 						<strong>Sam Jensen</strong>
 						<span class="muted">Leicester, MA</span>
@@ -189,11 +224,13 @@
 		<Stack as="section" gap="md" aria-labelledby="sections-heading">
 			<h2 id="sections-heading">Browse the docs</h2>
 			<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
-				{#each cards as card (card.parent + card.label)}
-					<Card class="hz-card--outlined" padding="md" rounded="md">
-						{#if card.parent}
-							<p class="index-parent">{card.parent}</p>
-						{/if}
+				{#each cards as card (card.label)}
+					<Card
+						class="index-card"
+						style="--accent: var(--hz-intent-{card.intent})"
+						padding="md"
+						rounded="md"
+					>
 						<h3 class="card-title">
 							{card.label}
 							<span class="index-count">{card.pages.length}</span>
@@ -293,30 +330,48 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
+	/* Mirrors the fence's own rules, so the two halves stay in step. */
 	.proof-render :global(.hz-card.player) {
 		background: var(--hz-color-surface-muted, #f3f4f6);
+		align-items: center;
+		flex-direction: row;
+		--hz-card-media-size: 3.5rem;
 	}
 
-	/* Index cards: the card is a container, only the page names are links. */
+	.proof-render :global(.avatar) {
+		width: 3.5rem;
+	}
+
+	/* Index cards: the card is a container, only the page names are links.
+	   Each band takes a soft fill in its own intent, the same mix Alert uses
+	   (10% light, 22% dark — a weak tint over a dark surface barely reads as
+	   color). Text stays the normal role pair, so contrast is unchanged. */
+	:global(.index-card) {
+		--tint: 10%;
+		background-color: color-mix(in srgb, var(--accent) var(--tint), var(--hz-color-surface, #fff));
+		border: var(--hz-border-width-thin, 1px) solid
+			color-mix(in srgb, var(--accent) 40%, transparent);
+	}
+
+	:global([data-theme='dark'] .index-card) {
+		--tint: 22%;
+	}
+
 	.index-count {
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		font-weight: var(--hz-font-weight-normal, 400);
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* The parent section name above a group card ("Components" over "Forms"). */
-	.index-parent {
-		margin: 0;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-
 	.index-pages {
 		margin: 0;
-		padding-left: 1.1rem;
+		padding: 0;
+		list-style: none;
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		line-height: var(--hz-line-height-base, 1.5);
+	}
+
+	.index-pages a {
+		text-underline-offset: 0.15em;
 	}
 </style>

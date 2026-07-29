@@ -8,31 +8,31 @@ export const codeBlockDoc: ComponentDoc = {
 			name: 'code',
 			type: 'string',
 			default: '—',
-			note: 'Required. The source text — always the truth for copy, line count, and the gutter, never `children` or highlighter-injected markup.'
+			note: 'Required. The source text. Copy, the line count, and the gutter always read from this, never from `children` or highlighter-injected markup.'
 		},
 		{
 			name: 'children',
 			type: 'Snippet',
 			default: '—',
-			note: "Pre-highlighted content escape hatch — typically a build-time highlighter's own `<pre>` via `{@html}` (Shiki first). Replaces the default `<pre><code>` entirely; `code` stays required."
+			note: "Escape hatch for pre-highlighted content, usually a build-time highlighter's own `<pre>` via `{@html}` (Shiki, for example). Replaces the default `<pre><code>` entirely; `code` is still required."
 		},
 		{
 			name: 'title',
 			type: 'string',
 			default: '—',
-			note: 'A filename/label. Renders the header bar together with `language`.'
+			note: 'A filename or label. Renders the header bar, together with `language`.'
 		},
 		{
 			name: 'language',
 			type: 'string',
 			default: '—',
-			note: 'Stamps `class="language-<language>"` on the default code (the client-autoloader hook) and a visible, non-interactive header tag.'
+			note: 'Stamps `class="language-<language>"` on the default code (the hook browser-side highlighters look for) and shows a visible, non-interactive tag in the header.'
 		},
 		{
 			name: 'lineNumbers',
 			type: 'boolean',
 			default: 'false',
-			note: 'Opt-in decorative line-number gutter. Never part of copy/selection.'
+			note: 'Opt-in decorative line-number gutter. Never part of copy or selection.'
 		},
 		{
 			name: 'copyable',
@@ -50,12 +50,12 @@ export const codeBlockDoc: ComponentDoc = {
 			name: 'collapsedLines',
 			type: 'number',
 			default: '16',
-			note: 'Rows shown while collapsed; the toggle only appears when the listing actually exceeds this.'
+			note: 'Rows shown while collapsed. The toggle appears only when the listing is longer than this.'
 		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-code-block class.' }
 	],
 	a11yNote:
-		'The copy button is a real labelled `<button>`; its ~2s "Copied" state is announced once via a polite live region, and a denied/unavailable clipboard is a silent no-op — never a false "copied" (WCAG 4.1.3).\n\nThe code region is a focusable, named `role="group"` in its default rendering, so an overflowing listing is arrow-scrollable by keyboard (WCAG 2.1.1). When `children` supplies pre-highlighted markup, the region yields its own tab stop to the consumer\'s focusable `<pre>` (Shiki\'s carries `tabindex="0"`) rather than creating a second one.\n\nThe language tag is plain visible text with no interactive role — it is never the region\'s accessible name, so nothing double-announces. The line-number gutter is `aria-hidden` and excluded from selection, so a screen-reader user and a mouse-copy both get clean source.\n\nA `children`-supplied highlighter\'s token palette (e.g. a Shiki theme) is the consumer\'s own contrast responsibility — CodeBlock contributes no colour to that markup.',
+		'The copy button is a real labelled `<button>`. Its "Copied" state lasts about 2 seconds and is announced once through a polite live region. If the clipboard is denied or unavailable, nothing happens and nothing is announced, so you never get a false "copied" (WCAG 4.1.3).\n\nIn its default rendering the code region is a focusable, named `role="group"`, so you can scroll an overflowing listing with the arrow keys (WCAG 2.1.1). When `children` supplies pre-highlighted markup, the region gives up its own tab stop to your focusable `<pre>` (Shiki\'s carries `tabindex="0"`) rather than creating a second one.\n\nThe language tag is plain visible text with no interactive role. It is never the region\'s accessible name, so nothing is announced twice. The line-number gutter is `aria-hidden` and left out of selection, so a screen-reader user and a mouse copy both get clean source.\n\nIf you supply a highlighter\'s markup through `children`, its token colours (a Shiki theme, say) are yours to check for contrast. CodeBlock adds no colour to that markup.',
 	a11yLinks: [
 		{
 			label: 'APG: Disclosure Pattern',

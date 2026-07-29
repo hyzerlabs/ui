@@ -591,13 +591,22 @@ describe('generateUtilitiesCss', () => {
 		expect(css).not.toMatch(/:root/);
 	});
 
-	it('class-count math: 2 role helpers + 7 intent helpers + 7 families × 6 space rungs = 51 rules', () => {
+	it('class-count math: 7 color role helpers + 4 × 7 intent helpers + 7 margin families × 6 space rungs = 77 rules', () => {
 		const css = generateUtilitiesCss(resolveConfig());
 		const ruleCount = (css.match(/^\.hz-[a-z0-9-]+ \{$/gm) ?? []).length;
 		expect(Object.keys(intent).length).toBe(7);
 		expect(Object.keys(space).length).toBe(6);
-		expect(ruleCount).toBe(2 + 7 + 7 * 6);
-		expect(ruleCount).toBe(51);
+		// Role helpers per family: text 2, bg 2, border 1, fill 2.
+		expect(ruleCount).toBe(2 + 2 + 1 + 2 + 4 * 7 + 7 * 6);
+		expect(ruleCount).toBe(77);
+	});
+
+	it('every color family emits its own property, for roles and intents alike', () => {
+		const css = generateUtilitiesCss(resolveConfig());
+		expect(css).toContain('.hz-bg-muted {\n\tbackground-color: var(--hz-color-surface-muted);\n}');
+		expect(css).toContain('.hz-border {\n\tborder-color: var(--hz-color-border);\n}');
+		expect(css).toContain('.hz-fill-primary {\n\tfill: var(--hz-intent-primary);\n}');
+		expect(css).toContain('.hz-bg-danger {\n\tbackground-color: var(--hz-intent-danger);\n}');
 	});
 
 	it('is deterministic — same resolved config, same bytes', () => {

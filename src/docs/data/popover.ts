@@ -5,19 +5,24 @@ export const popoverDoc: ComponentDoc = {
 	importLine: 'import { Popover } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'open', type: 'boolean', default: 'false', note: '$bindable.' },
-		{ name: 'placement', type: 'Placement', default: "'bottom-start'" },
+		{
+			name: 'placement',
+			type: "'top' | 'bottom' | 'left' | 'right' | '<side>-start' | '<side>-end'",
+			default: "'bottom-start'",
+			note: "A bare side centers on the trigger; -start/-end add alignment. left/right follow the trigger's writing direction, so RTL flips the physical side. See Positioning for how a placement resolves."
+		},
 		{ name: 'offset', type: 'number', default: '8', note: 'Gap from the trigger, in px.' },
 		{
 			name: 'autoFocus',
 			type: 'boolean',
 			default: 'false',
-			note: "true moves focus to the panel's first focusable element on open — off by default, since a disclosure shouldn't steal focus."
+			note: "true moves focus to the panel's first focusable element when it opens. Off by default, because a disclosure should not steal focus."
 		},
 		{
 			name: 'dismissible',
 			type: 'boolean',
 			default: 'true',
-			note: 'false suppresses outside-click dismissal; Escape always closes regardless — no opt-out.'
+			note: 'false turns off closing on an outside click. Escape still closes the panel either way; there is no opt-out.'
 		},
 		{
 			name: 'label',
@@ -49,18 +54,18 @@ export const popoverDoc: ComponentDoc = {
 			name: 'trigger',
 			type: 'Snippet<[TriggerAttrs]>',
 			default: '—',
-			note: 'Escape hatch — wins over triggerLabel/triggerProps/triggerIcon. Receives an attrs bag (id, aria-expanded, aria-controls, popovertarget, onclick) to spread onto your own element: a link, an avatar, a custom control.'
+			note: 'Escape hatch. Wins over triggerLabel/triggerProps/triggerIcon. Receives an attrs bag (id, aria-expanded, aria-controls, popovertarget, onclick) to spread onto your own element: a link, an avatar, a custom control.'
 		},
 		{
 			name: 'children',
 			type: 'Snippet',
 			default: '—',
-			note: 'Required. The panel content — interactive controls are fully supported.'
+			note: 'Required. The panel content. Interactive controls are supported.'
 		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-popover class.' }
 	],
 	a11yNote:
-		'The trigger carries `aria-expanded` and `aria-controls` pointing at the panel — the APG Disclosure pattern, not a dialog. The panel itself is a plain region by default, or a labelled `role="group"` when you pass `label` (for a panel with no visible heading). It is never `aria-modal`, never traps focus, and never renders a backdrop — interactive content inside just flows through the normal tab order and back out.\n\nEscape always closes the panel and returns focus to the trigger, even with `dismissible: false` — there is no opt-out, the same rule Modal follows for its own Escape handling. Clicking outside the panel closes it too (unless `dismissible: false`), and — unlike Escape — leaves focus wherever the click landed rather than pulling it back.\n\nBy default (`autoFocus: false`) opening the panel does not move focus at all, since a disclosure shouldn\'t steal it uninvited; set `autoFocus` when the panel\'s first control genuinely is the next thing a user wants (a search field, say).',
+		'The trigger carries `aria-expanded` and `aria-controls` pointing at the panel. That is the APG Disclosure pattern, not a dialog. The panel itself is a plain region by default, or a labelled `role="group"` when you pass `label` (for a panel with no visible heading). It is never `aria-modal`, never traps focus, and never renders a backdrop. Interactive content inside flows through the normal tab order and back out.\n\nEscape always closes the panel and returns focus to the trigger, even with `dismissible: false`. There is no opt-out, the same rule Modal follows for its own Escape handling. Clicking outside the panel closes it too, unless `dismissible: false`. Unlike Escape, an outside click leaves focus wherever the click landed rather than pulling it back.\n\nBy default (`autoFocus: false`) opening the panel does not move focus at all, because a disclosure should not take focus uninvited. Set `autoFocus` when the panel\'s first control really is the next thing someone wants, such as a search field.',
 	a11yLinks: [
 		{
 			label: 'APG Disclosure (Show/Hide) pattern',

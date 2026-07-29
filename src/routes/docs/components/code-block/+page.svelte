@@ -10,6 +10,7 @@
 	// Real, shipped content for the Collapsible demo (rather than filler
 	// lines) — the reference CSS reset, also used verbatim on the Reset page.
 	import resetSource from '$lib/theme/reset.css?raw';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -98,8 +99,8 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						No <code>title</code>, no <code>language</code> — the copy button floats over the top-right
-						corner of the code.
+						With no <code>title</code> and no <code>language</code>, the copy button floats over the
+						top-right corner of the code.
 					</p>
 					<Container breakout padding="none">
 						<Example code={basicUsage}>
@@ -118,9 +119,11 @@
 					</Container>
 				{:else if item.id === 'language'}
 					<p class="tab-note">
-						<code>language</code> alone renders a non-interactive tag in the header — and stamps
-						<code>class="language-css"</code> on the default code, the hook a client autoloader
-						(Prism, highlight.js) decorates after mount. Set both <code>title</code> and
+						<code>language</code> on its own renders a non-interactive tag in the header. It also
+						stamps
+						<code>class="language-css"</code> on the default code, the hook a highlighter that runs
+						in the browser (Prism, highlight.js) decorates after mount. Set both <code>title</code>
+						and
 						<code>language</code> to show them together.
 					</p>
 					<Container breakout padding="none">
@@ -135,8 +138,8 @@
 					</Container>
 				{:else if item.id === 'line-numbers'}
 					<p class="tab-note">
-						<code>lineNumbers</code> adds a decorative gutter — <code>aria-hidden</code> and excluded
-						from copy and selection, so a mouse drag or a screen reader both see clean source.
+						<code>lineNumbers</code> adds a decorative gutter. It is <code>aria-hidden</code> and left
+						out of copy and selection, so a mouse drag and a screen reader both get clean source.
 					</p>
 					<Container breakout padding="none">
 						<Example code={lineNumbersUsage}>
@@ -146,8 +149,8 @@
 				{:else if item.id === 'collapsible'}
 					<p class="tab-note">
 						<code>collapsible</code> clamps a listing longer than <code>collapsedLines</code>
-						(default 16) behind a Show-more/less toggle — the reference CSS reset, real and shipped, rather
-						than filler lines.
+						(default 16) behind a Show-more/less toggle. The code below is the reference CSS reset the
+						library ships, not filler lines.
 					</p>
 					<Container breakout padding="none">
 						<Example code={collapsibleUsage}>
@@ -156,19 +159,21 @@
 					</Container>
 				{:else}
 					<Alert intent="info" title="The library ships no highlighter">
-						Syntax highlighting is always bring-your-own — the <code>language</code> class hook for
-						a client autoloader (Prism, highlight.js), or the <code>children</code> escape hatch for a
-						build-time highlighter's own HTML (Shiki, first-class here). This subsection is self-contained
-						and can be deleted without touching the component or the tabs above it.
+						{#snippet icon()}<IconInfo />{/snippet}
+						Syntax highlighting is always bring-your-own. Use the <code>language</code> class hook
+						for a highlighter that runs in the browser (Prism, highlight.js), or the
+						<code>children</code> escape hatch to pass in a build-time highlighter's own HTML (Shiki,
+						shown below).
 					</Alert>
 
-					<h3 class="highlight-heading">Prism — client autoloader</h3>
+					<h3 class="highlight-heading">Prism: highlighting in the browser</h3>
 					<p class="tab-note">
-						<code>PrismCodeBlock</code> is a small docs-only wrapper: it renders a plain
+						<code>PrismCodeBlock</code> is a small wrapper written for these docs. It renders a
+						plain
 						<code>&lt;CodeBlock language&gt;</code> and runs Prism over its <code>pre code</code>
-						in an <code>$effect</code> after mount — the exact hook <code>language</code> stamps
-						(CodeBlock-R7). Prism's own token theme is scoped under
-						<code>.hz-docs-prism</code>, so it can't bleed onto any other block on this site.
+						in an <code>$effect</code> after mount, using the hook <code>language</code> stamps.
+						Prism's own token theme is scoped under <code>.hz-docs-prism</code>, so it cannot bleed
+						onto any other block on this site.
 					</p>
 					<Container breakout padding="none">
 						<Example code={prismUsage}>
@@ -186,14 +191,17 @@
 						/>
 					</section>
 
-					<h3 class="highlight-heading">Shiki — build-time (prerendered)</h3>
+					<h3 class="highlight-heading">Shiki: highlighting at build time</h3>
 					<p class="tab-note">
 						This block's HTML is produced once, at build, by this page's own
-						<code>+page.server.ts</code> — a server <code>load</code> that calls Shiki's
-						<code>codeToHtml</code> and returns the highlighted string. The page passes it through
-						the <code>children</code> escape hatch; Shiki's palette rides its own inline
-						<code>.shiki</code> styles (the theme suppresses its own background under
-						<code>data-highlighted</code>). No highlighter JS reaches the browser.
+						<code>+page.server.ts</code>: a server <code>load</code> that calls Shiki's
+						<code>codeToHtml</code> and returns the highlighted string. The page passes that string
+						through the <code>children</code> escape hatch. Shiki's palette comes from its own
+						inline
+						<code>.shiki</code> styles, so the reference theme clears CodeBlock's own surface fill
+						whenever <code>data-highlighted</code> is present and lets the highlighter's palette show
+						through. The block still supplies the frame: border, radius, header, copy button and collapse.
+						No highlighter JavaScript reaches the browser.
 					</p>
 					<Container breakout padding="none">
 						<Example code={shikiUsage}>
@@ -210,15 +218,16 @@
 						<h4 id="shiki-source-heading" class="source-heading">+page.server.ts, verbatim</h4>
 						<CodeBlock
 							code={shikiLoadSource}
-							title="src/routes/components/code-block/+page.server.ts"
+							title="src/routes/docs/components/code-block/+page.server.ts"
 							language="ts"
 							collapsible
 						/>
 					</section>
 
 					<p class="tab-note">
-						<code>highlight.js</code> works the same way as Prism — it decorates the same
-						<code>language-&lt;x&gt;</code> class after mount — with no sample or dependency here.
+						<code>highlight.js</code> works the same way as Prism: it decorates the same
+						<code>language-&lt;x&gt;</code> class after mount. These docs ship no sample or dependency
+						for it.
 					</p>
 				{/if}
 			</div>

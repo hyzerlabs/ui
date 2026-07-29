@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Stack, Split, Grid, Card, Badge, Button, Image, CodeBlock } from '$lib';
+	import { Stack, Split, Card, Badge, Button, Image, CodeBlock } from '$lib';
 	import DocIntro from '../../docs/DocIntro.svelte';
+	import WhereNext from '../../docs/WhereNext.svelte';
 
 	const installCode = 'pnpm add @hyzer-labs/ui';
 
@@ -89,9 +90,9 @@
 			blurb: 'The layer model, and how far you can push it without forking the library.'
 		},
 		{
-			label: 'Section themes',
-			href: '/docs/theming/sections',
-			blurb: 'Name your own themes and scope one to part of a page.'
+			label: 'Patterns',
+			href: '/docs/patterns/homepage',
+			blurb: 'Example patterns to help you get started.'
 		},
 		{
 			label: 'Philosophy',
@@ -214,8 +215,8 @@
 		<CodeBlock code={tierThreeImport} title="app.css" language="css" />
 		<p class="step-note">
 			<code>hyzer generate --mode overrides</code> emits a patch sheet to import <em>after</em>
-			ours instead of replacing it. See <a href="/docs/theming/tokens">Tokens &amp; Overrides</a> for
-			when to pick which.
+			ours instead of replacing it. See <a href="/docs/foundation/config">Config &amp; CLI</a> for the
+			whole option surface and when to pick which mode.
 		</p>
 		<p class="step-note">
 			Add <code>utilities: true</code> to the config (or run with <code>--utilities</code>) to also
@@ -223,23 +224,7 @@
 			<a href="/docs/foundation/utilities">Utilities</a>.
 		</p>
 	</Stack>
-	<Stack
-		as="section"
-		gap="away"
-		data-density-shift
-		class="doc-section"
-		aria-labelledby="next-heading"
-	>
-		<h2 id="next-heading">Where to go next</h2>
-		<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
-			{#each nextSteps as step (step.href)}
-				<Card class="hz-card--outlined" href={step.href} padding="md" rounded="md">
-					<h3 class="next-title">{step.label}</h3>
-					<p class="next-blurb">{step.blurb}</p>
-				</Card>
-			{/each}
-		</Grid>
-	</Stack>
+	<WhereNext items={nextSteps} />
 </Stack>
 
 <style>
@@ -277,18 +262,6 @@
 	}
 
 	.teaser-body {
-		color: var(--hz-color-text-muted, #6b7280);
-		line-height: var(--hz-line-height-base, 1.5);
-	}
-
-	.next-title {
-		margin: 0 0 0.25rem;
-		font-size: var(--hz-font-size-base, 1rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.next-blurb {
-		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 		line-height: var(--hz-line-height-base, 1.5);
 	}

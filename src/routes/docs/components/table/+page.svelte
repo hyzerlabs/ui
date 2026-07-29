@@ -6,6 +6,7 @@
 	import Example from '../../../../docs/Example.svelte';
 	import ResizableDemo from '../../../../docs/ResizableDemo.svelte';
 	import type { TableColumn, TableSort } from '$lib/types';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	interface Disc {
 		id: string;
@@ -252,6 +253,7 @@
 
 <DocPage name="Table" {...tableDoc}>
 	<Alert intent="info" title="Large datasets">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Real <code>&lt;table&gt;</code> semantics here give you native screen-reader table navigation
 		for free — reach for it up to some thousands of rows. Past the point where rendering every
 		<code>&lt;tr&gt;</code> becomes the bottleneck, see the

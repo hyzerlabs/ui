@@ -33,6 +33,7 @@
 	// live, dogfooded sheet with no extra import at all.
 	import '$lib/theme/examples/terminal/terminal.css';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const scopedOceanCss = generateCss(resolveConfig(oceanConfig), {
 		mode: 'overrides',
@@ -201,6 +202,7 @@
 		</Cluster>
 
 		<Alert intent="info" title="Course update" headingLevel={3}>
+			{#snippet icon()}<IconInfo />{/snippet}
 			Hole 7 tee pad moves back to the long position this weekend.
 		</Alert>
 

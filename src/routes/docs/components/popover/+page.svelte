@@ -5,6 +5,7 @@
 	import Example from '../../../../docs/Example.svelte';
 	import IconSettings from '$lib/icons/generated/settings.svelte';
 	import IconUser from '$lib/icons/generated/user.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// ------------------------------------------------------------------
 	// Basic — a settings/filter popover with interactive fields.
@@ -18,8 +19,11 @@
 		'let showUpcoming = $state(true);',
 		'',
 		'<Popover triggerLabel="Filters">',
-		'\t<Checkbox name="finished" label="Finished rounds" bind:checked={showFinished} />',
-		'\t<Checkbox name="upcoming" label="Upcoming tee times" bind:checked={showUpcoming} />',
+		'\t{#snippet triggerIcon()}<IconSettings />{/snippet}',
+		'\t<Stack gap="sm">',
+		'\t\t<Checkbox name="finished" label="Finished rounds" bind:checked={showFinished} />',
+		'\t\t<Checkbox name="upcoming" label="Upcoming tee times" bind:checked={showUpcoming} />',
+		'\t</Stack>',
 		'</Popover>'
 	].join('\n');
 
@@ -78,9 +82,9 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Click the trigger to open the panel — interactive controls inside are fully operable,
-						and <kbd>Tab</kbd> flows through them and back out (no focus trap). Click outside, or
-						press <kbd>Escape</kbd>, to close.
+						Click the trigger to open the panel. Controls inside work normally, and <kbd>Tab</kbd>
+						moves through them and back out again, with no focus trap. Click outside, or press
+						<kbd>Escape</kbd>, to close.
 					</p>
 					<Example code={basicCode}>
 						<Popover triggerLabel="Filters">
@@ -93,7 +97,7 @@
 					</Example>
 				{:else if item.id === 'placement'}
 					<p class="tab-note">
-						<code>placement</code> combines a side with a start/end/center alignment; it flips automatically
+						<code>placement</code> combines a side with a start/end/center alignment. It flips automatically
 						if the preferred side would overflow the viewport.
 					</p>
 					<Example code={placementCode}>
@@ -113,9 +117,9 @@
 					<Stack gap="away">
 						<div>
 							<p class="tab-note">
-								The <code>trigger</code> snippet escape hatch spreads an attrs bag onto any element
-								— here, a ghost-variant <code>Button</code> with its own icon and label, instead of the
-								default trigger appearance.
+								The <code>trigger</code> snippet is an escape hatch: it hands you an attrs bag to
+								spread onto any element. Here that is a ghost-variant <code>Button</code> with its own
+								icon and label, in place of the default trigger.
 							</p>
 							<Example code={customTriggerCode}>
 								<Popover placement="bottom-end">
@@ -133,17 +137,16 @@
 				{:else}
 					<Stack gap="sm">
 						<Alert intent="info" title="Popover vs Modal vs Dropdown">
-							Popover is a non-modal <strong>disclosure</strong> — no <code>aria-modal</code>, no
-							focus trap, no backdrop; the page behind it stays interactive. Need a focus-trapped
+							{#snippet icon()}<IconInfo />{/snippet}
+							Popover is a non-modal <strong>disclosure</strong>: no <code>aria-modal</code>, no
+							focus trap, no backdrop. The page behind it stays interactive. Need a focus-trapped
 							dialog that takes over the screen? Use <a href="/docs/components/modal">Modal</a>.
 							Need a menu of actions with roving keyboard focus? Use
 							<a href="/docs/components/dropdown">Dropdown</a>.
 						</Alert>
 						<Cluster gap="sm" align="center">
 							<Popover triggerLabel="Open popover">
-								<p class="panel-demo-text">
-									The page behind this panel is still fully interactive.
-								</p>
+								<p class="panel-demo-text">You can still use the page behind this panel.</p>
 							</Popover>
 						</Cluster>
 					</Stack>

@@ -64,10 +64,11 @@ describe('Alert-R1 — structure', () => {
 		}
 	});
 
-	it('string title renders a default h2 with id wired to aria-labelledby', () => {
+	it('string title renders a default h3 with id wired to aria-labelledby', () => {
 		const { container } = render(Alert, { ...base, title: 'Weather delay' });
 		const heading = container.querySelector('.hz-alert-title') as HTMLElement;
-		expect(heading.tagName.toLowerCase()).toBe('h2');
+		// h3, not h2: an alert is a callout inside a section, not a section.
+		expect(heading.tagName.toLowerCase()).toBe('h3');
 		expect(heading.textContent?.trim()).toBe('Weather delay');
 		expect(heading.id).toMatch(/^hz-alert-title-/);
 		expect(getAlert(container).getAttribute('aria-labelledby')).toBe(heading.id);

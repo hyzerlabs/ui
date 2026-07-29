@@ -152,10 +152,10 @@
 					</Example>
 				{:else if item.id === 'pattern'}
 					<p class="tab-note">
-						Skeleton is decorative (<code>aria-hidden</code>) and cannot announce loading on its own
-						— pair it with a labelled indeterminate <code>Loading</code> (or a polite
-						<code>aria-live</code> message) inside an <code>aria-busy</code> region, so screen-reader
-						users hear that content is coming, then hear when it arrives.
+						Skeleton is decorative (<code>aria-hidden</code>) and cannot announce loading on its
+						own. Pair it with a labelled indeterminate <code>Loading</code> (or a polite
+						<code>aria-live</code> message) inside an <code>aria-busy</code> region. Screen-reader users
+						then hear that content is coming, and hear when it arrives.
 					</p>
 					<Example code={pairedCode}>
 						<div aria-busy="true">
@@ -167,8 +167,8 @@
 					</Example>
 				{:else if item.id === 'card'}
 					<p class="tab-note">
-						No card-skeleton prop — compose several Skeletons in your own Card/Stack/Cluster layout
-						instead.
+						There is no card-skeleton prop. Compose several Skeletons in your own Card/Stack/Cluster
+						layout instead.
 					</p>
 					<Example code={cardCode}>
 						<div class="composed-frame">

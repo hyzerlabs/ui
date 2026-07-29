@@ -4,6 +4,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { selectDoc } from '../../../../docs/data/select.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const putters: SelectOption[] = [
 		{ value: 'aviar', label: 'Aviar' },
@@ -121,6 +122,7 @@
 
 <DocPage name="Select" {...selectDoc}>
 	<Alert intent="info" title="Select vs Combobox">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Reach for <code>Select</code> when your option set is small and static — single-select, or
 		multi-select via the native <code>multiple</code> attribute. When there are many options (where
 		filtering or virtualization helps) or you need search / type-to-filter, use

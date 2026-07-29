@@ -9,6 +9,13 @@
 	interface Props {
 		children: Snippet;
 		title?: string | Snippet;
+		/**
+		 * Heading tag for `title`. Defaults to 3: an alert is nearly always a
+		 * callout inside a section rather than a section of its own, so h2
+		 * would both oversize the title and make the callout a peer of the
+		 * page's real sections in the heading outline. Raise or lower it to
+		 * match the surrounding document.
+		 */
 		headingLevel?: 2 | 3 | 4 | 5 | 6;
 		intent?: AlertIntent;
 		rounded?: Rounded;
@@ -25,7 +32,7 @@
 	let {
 		children,
 		title,
-		headingLevel = 2,
+		headingLevel = 3,
 		intent = 'neutral',
 		rounded = 'md',
 		icon,

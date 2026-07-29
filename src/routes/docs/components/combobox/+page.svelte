@@ -5,6 +5,8 @@
 	import { comboboxDoc } from '../../../../docs/data/combobox.js';
 	import { COURSES, courseSlug } from '../../../../docs/data/courses.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const putters: FormOption[] = [
 		{ value: 'aviar', label: 'Aviar' },
@@ -121,6 +123,7 @@
 
 <DocPage name="Combobox" {...comboboxDoc}>
 	<Alert intent="info" title="Select vs Combobox">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Reach for <code>Combobox</code> when there are many options — where filtering or virtualization
 		helps — or when you need search / type-to-filter. For a small, static option set, prefer the
 		simpler native <a href="/docs/components/select">Select</a>, including its own native
@@ -164,6 +167,7 @@
 						match isn't anchored to the start of the label.
 					</p>
 					<Alert intent="warning" title="Combobox doesn't window its listbox">
+						{#snippet icon()}<IconTriangleAlert />{/snippet}
 						Filtering is a plain in-memory scan, and every matching option gets a real
 						<code>&lt;li&gt;</code>. A list this size is comfortable even on the unfiltered open,
 						but opening tens of thousands of options would mount that many nodes and visibly lag.

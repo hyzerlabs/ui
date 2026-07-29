@@ -3,6 +3,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { bannerDoc } from '../../../../docs/data/banner.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const intents = [
 		'neutral',
@@ -102,6 +103,7 @@
 
 <DocPage name="Banner" {...bannerDoc}>
 	<Alert intent="info" title="Banner vs Alert">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Reach for <code>Banner</code> for a full-width, solid, page-level announcement — maintenance
 		notices, promos, outage bars — optionally pinned to an edge. When the message is a soft, inline,
 		contextual one, use <a href="/docs/components/alert">Alert</a> instead.

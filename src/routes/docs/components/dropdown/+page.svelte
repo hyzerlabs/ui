@@ -8,6 +8,7 @@
 	import IconPlus from '$lib/icons/generated/plus.svelte';
 	import IconX from '$lib/icons/generated/x.svelte';
 	import IconMenu from '$lib/icons/generated/menu.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// ------------------------------------------------------------------
 	// Basic action menu — a round's kebab menu, each item logging its action.
@@ -112,6 +113,7 @@
 
 <DocPage name="Dropdown" {...dropdownDoc}>
 	<Alert intent="info" title="Dropdown vs Nav">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Reach for <code>Dropdown</code> when the entries are <strong>actions</strong> — an action menu
 		or kebab menu that does something (edit, duplicate, delete). For <strong>navigation</strong> —
 		links a reader clicks through to another page or section — use

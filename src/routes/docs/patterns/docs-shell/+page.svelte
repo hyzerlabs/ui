@@ -5,6 +5,7 @@
 	import docsShellSource from '../../../../docs/samples/DocsShell.svelte?raw';
 	import { consumerSource } from '../../../../docs/consumerSource';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const composed = [
 		{ label: 'Nav', href: '/docs/components/nav' },
@@ -31,8 +32,9 @@
 	</div>
 
 	<Alert intent="info" title="You are inside this pattern right now">
-		The shell around this page — the sidebar, this reading column, and the rail on the right — is
-		the same composition at full size: the library's vertical <a href="/docs/components/nav">Nav</a>
+		{#snippet icon()}<IconInfo />{/snippet}
+		The shell around this page — the sidebar, this reading column, and the rail on the right — is the
+		same composition at full size: the library's vertical <a href="/docs/components/nav">Nav</a>
 		and
 		<a href="/docs/components/toc">Toc</a>, skinned with plain CSS on the role tokens.
 	</Alert>

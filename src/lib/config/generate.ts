@@ -605,9 +605,54 @@ const UTILITIES_HEADER = [
 	' */'
 ].join('\n');
 
-const TEXT_UTILITIES_BANNER = [
-	'Text-color utilities',
-	'Role + intent helpers — color only, resolved from --hz-color-* / --hz-intent-*.'
+const COLOR_UTILITIES_BANNER = [
+	'Color utilities',
+	'Role + intent helpers for text, background, border and fill, resolved from',
+	'--hz-color-* / --hz-intent-*. One property each: .hz-border-* sets only',
+	'border-color, so bring your own border-width/style; .hz-fill-* is for SVG.',
+	'Components that own a surface (Badge, Alert, Banner) keep doing so — these',
+	'are for ad-hoc spots, not for restyling a component.'
+];
+
+/**
+ * The four color-utility families (R2), fixed emission order. Each emits its
+ * role helpers first, then one class per resolved intent. A `suffix` of `''`
+ * is the bare family class (`.hz-text`, `.hz-bg`).
+ */
+const COLOR_FAMILIES: readonly {
+	prefix: string;
+	property: string;
+	roles: readonly { suffix: string; role: string }[];
+}[] = [
+	{
+		prefix: 'hz-text',
+		property: 'color',
+		roles: [
+			{ suffix: '', role: 'text' },
+			{ suffix: 'muted', role: 'textMuted' }
+		]
+	},
+	{
+		prefix: 'hz-bg',
+		property: 'background-color',
+		roles: [
+			{ suffix: '', role: 'surface' },
+			{ suffix: 'muted', role: 'surfaceMuted' }
+		]
+	},
+	{
+		prefix: 'hz-border',
+		property: 'border-color',
+		roles: [{ suffix: '', role: 'border' }]
+	},
+	{
+		prefix: 'hz-fill',
+		property: 'fill',
+		roles: [
+			{ suffix: '', role: 'text' },
+			{ suffix: 'muted', role: 'textMuted' }
+		]
+	}
 ];
 
 const MARGIN_UTILITIES_BANNER = [
@@ -632,9 +677,10 @@ function utilityRule(className: string, property: string, value: string): string
 }
 
 /**
- * Renders the opt-in utility sheet from the resolved token
- * model: `.hz-text`/`.hz-text-muted`, one `.hz-text-<intent>` per resolved
- * intent, and the seven logical margin families per resolved space rung.
+ * Renders the opt-in utility sheet from the resolved token model: four color
+ * families (`hz-text`, `hz-bg`, `hz-border`, `hz-fill`), each emitting its
+ * role helpers plus one class per resolved intent, and the seven logical
+ * margin families per resolved space rung.
  * Deterministic and unlayered — mirrors `.sr-only`'s specificity posture.
  * Does NOT re-resolve tokens; reads only `resolved.sections`.
  */
@@ -646,42 +692,43 @@ export function generateUtilitiesCss(
 	const intentEntries = resolved.sections.find((s) => s.id === 'intent')!.entries;
 	const spaceEntries = resolved.sections.find((s) => s.id === 'space')!.entries;
 
-	const text = roles.find((e) => e.key === 'text');
-	const textMuted = roles.find((e) => e.key === 'textMuted');
-	if (!text || !textMuted) {
-		throw new HyzerConfigError(
-			'generateUtilitiesCss requires the base "text" and "textMuted" color roles.'
-		);
-	}
-
 	const parts: string[] = [withIntro(UTILITIES_HEADER, options.intro)];
 
-	// --- text-color utilities (R2) --------------------------------------------
-	parts.push('', banner(TEXT_UTILITIES_BANNER, ''));
-	parts.push('', utilityRule('hz-text', 'color', `var(${text.cssName})`));
-	parts.push('', utilityRule('hz-text-muted', 'color', `var(${textMuted.cssName})`));
+	// --- color utilities (R2) --------------------------------------------------
+	parts.push('', banner(COLOR_UTILITIES_BANNER, ''));
 
-	// Utility-class-namespace collision tracking (edge case: a consumer
-	// intent named "muted" kebab-cases to the fixed .hz-text-muted role
-	// helper's class name) — a hard generation error naming both parties,
-	// mirroring the engine's existing kebab-collision rule (schema.ts).
-	const usedClasses = new Map<string, string>([
-		['hz-text', 'the base text-color role helper (.hz-text)'],
-		['hz-text-muted', 'the muted text-color role helper (.hz-text-muted)']
-	]);
+	for (const family of COLOR_FAMILIES) {
+		// Utility-class-namespace collision tracking, per family (edge case: a
+		// consumer intent named "muted" kebab-cases to the fixed .hz-text-muted
+		// role helper's class name) — a hard generation error naming both
+		// parties, mirroring the engine's existing kebab-collision rule
+		// (schema.ts).
+		const usedClasses = new Map<string, string>();
 
-	for (const entry of intentEntries) {
-		const suffix = toKebab(entry.key);
-		const className = `hz-text-${suffix}`;
-		const owner = usedClasses.get(className);
-		if (owner) {
-			throw new HyzerConfigError(
-				`config.tokens.intent.${entry.key} kebab-cases to the utility class ".${className}", ` +
-					`which ${owner} already defines. Rename the intent to avoid the collision.`
-			);
+		for (const { suffix, role } of family.roles) {
+			const entry = roles.find((e) => e.key === role);
+			if (!entry) {
+				throw new HyzerConfigError(
+					`generateUtilitiesCss requires the "${role}" color role (for the .${family.prefix} utility family).`
+				);
+			}
+			const className = suffix ? `${family.prefix}-${suffix}` : family.prefix;
+			usedClasses.set(className, `the "${role}" role helper (.${className})`);
+			parts.push('', utilityRule(className, family.property, `var(${entry.cssName})`));
 		}
-		usedClasses.set(className, `intent "${entry.key}" (config.tokens.intent.${entry.key})`);
-		parts.push('', utilityRule(className, 'color', `var(${entry.cssName})`));
+
+		for (const entry of intentEntries) {
+			const className = `${family.prefix}-${toKebab(entry.key)}`;
+			const owner = usedClasses.get(className);
+			if (owner) {
+				throw new HyzerConfigError(
+					`config.tokens.intent.${entry.key} kebab-cases to the utility class ".${className}", ` +
+						`which ${owner} already defines. Rename the intent to avoid the collision.`
+				);
+			}
+			usedClasses.set(className, `intent "${entry.key}" (config.tokens.intent.${entry.key})`);
+			parts.push('', utilityRule(className, family.property, `var(${entry.cssName})`));
+		}
 	}
 
 	// --- margin utilities (R3) -------------------------------------------------

@@ -155,17 +155,18 @@
 			<div class="tab-content">
 				{#if item.id === 'variants'}
 					<p class="tab-note">
-						Loading is fundamentally indeterminate — <code>bar</code> (the default),
+						Loading is indeterminate unless you give it a value. <code>bar</code> (the default),
 						<code>spinner</code>
 						(the same <code>IconLoader</code> glyph Button's loading state renders),
 						<code>ring</code>
-						(a rotating, arc-length-pulsing loader), and <code>dots</code> (a three-dot ellipsis
-						loader) all say "something is happening" with no value attached. A <code>value</code>
-						progressively enhances <code>ring</code> into a
-						<strong>determinate circular arc</strong>
-						— static, shown here alongside its indeterminate spin.
-						<code>spinner</code> and <code>dots</code> stay indeterminate-only; a <code>value</code>
-						passed to either is ignored (dev-warn).
+						(a rotating loader whose arc grows and shrinks), and <code>dots</code> (a three-dot
+						ellipsis loader) all say "something is happening" with no value attached. Add a
+						<code>value</code>
+						and <code>ring</code> becomes a
+						<strong>determinate circular arc</strong>: static, shown here alongside its
+						indeterminate spin. <code>spinner</code> and <code>dots</code> stay indeterminate only,
+						so a
+						<code>value</code> passed to either is ignored (dev-warn).
 					</p>
 					<Example code={variantsCode}>
 						<Stack gap="md">
@@ -178,13 +179,14 @@
 					</Example>
 				{:else if item.id === 'enhancement'}
 					<p class="tab-note">
-						Passing a <code>value</code> progressively enhances the <code>bar</code> into a
-						determinate native <code>&lt;progress value max&gt;</code>, and the
+						Passing a <code>value</code> turns the <code>bar</code> into a determinate native
+						<code>&lt;progress value max&gt;</code>, and the
 						<code>ring</code>
-						into a determinate circular arc — an SVG arc that fills to <code>value / max</code>.
-						<code>showValue</code> renders a formatted readout — inline beside the bar, centered
-						inside the ring — the same string also feeds <code>aria-valuetext</code> when a custom
-						<code>format</code> or a non-100 <code>max</code> is in play.
+						into an SVG arc that fills to <code>value / max</code>. <code>showValue</code> renders a
+						formatted readout: inline beside the bar, centered inside the ring. That same string
+						feeds
+						<code>aria-valuetext</code>
+						when a custom <code>format</code> or a <code>max</code> other than 100 is in play.
 					</p>
 					<Example code={enhancementCode}>
 						<Stack gap="md">
@@ -209,7 +211,7 @@
 					</Example>
 				{:else if item.id === 'format'}
 					<p class="tab-note">
-						<code>format</code> feeds both the visible readout and <code>aria-valuetext</code> — pass
+						<code>format</code> feeds both the visible readout and <code>aria-valuetext</code>. Pass
 						one for any non-percentage unit, on either the linear bar or the circular ring.
 					</p>
 					<Example code={formatCode}>
@@ -234,10 +236,10 @@
 					</Example>
 				{:else if item.id === 'intents'}
 					<p class="tab-note">
-						Every registered intent, each its own row of <code>spinner</code>, <code>ring</code>,
-						<code>bar</code>, and <code>dots</code> — <code>--hz-loading-fill</code> switches colour
-						alone, reaching every variant alike. <code>intent</code> defaults to
-						<code>primary</code>, not <code>neutral</code> — a fill is an accent by nature.
+						Every intent, each on its own row of <code>spinner</code>, <code>ring</code>,
+						<code>bar</code>, and <code>dots</code>. <code>--hz-loading-fill</code> changes colour
+						and nothing else, and it reaches every variant alike. <code>intent</code> defaults to
+						<code>primary</code> rather than <code>neutral</code>, since a fill reads as an accent.
 					</p>
 					<Example code={intentsCode}>
 						<Stack gap="sm">
@@ -255,9 +257,9 @@
 					</Example>
 				{:else if item.id === 'sizes'}
 					<p class="tab-note">
-						Every size, each its own row of <code>spinner</code>, <code>ring</code>,
-						<code>bar</code>, and <code>dots</code> — <code>--hz-loading-size</code> sizes every
-						variant off
+						Every size, each on its own row of <code>spinner</code>, <code>ring</code>,
+						<code>bar</code>, and <code>dots</code>. <code>--hz-loading-size</code> sizes every
+						variant from
 						<code>data-size</code>.
 					</p>
 					<Example code={sizesCode}>
@@ -278,14 +280,14 @@
 					<p class="tab-note">
 						<code>--hz-loading-speed</code> sets how long one cycle takes.
 						<code>--hz-loading-pulse-width</code> sets the width of the bar's moving highlight (a
-						percentage of the bar, default 150%; bar only) — wider reads softer. Rotation always
-						runs at a constant rate: an eased loop stalls and lurches on every cycle. The ring's
-						growing arc and the dots do follow <code>--hz-loading-ease</code>.
+						percentage of the bar, default 150%; bar only), and wider reads softer. Rotation always
+						runs at a constant rate, because an eased loop stalls and lurches on every cycle. The
+						ring's growing arc and the dots do follow <code>--hz-loading-ease</code>.
 					</p>
 					<p class="tab-note">
-						With reduced motion on, Loading slows to about half speed instead of freezing — a paused
-						loader looks finished — and the bar trades its sweep for an in-place pulse. Skeleton,
-						which only decorates, goes fully still.
+						With reduced motion on, Loading slows to about half speed instead of freezing, because a
+						paused loader looks finished. The bar also trades its sweep for a pulse in place.
+						Skeleton, which only decorates, goes fully still.
 					</p>
 					<Example code={timingCode}>
 						<Stack gap="md">

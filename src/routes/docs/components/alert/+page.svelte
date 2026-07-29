@@ -5,6 +5,7 @@
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { alertDoc } from '../../../../docs/data/alert.js';
 	import Example from '../../../../docs/Example.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const intents = [
 		'neutral',
@@ -101,6 +102,7 @@
 
 <DocPage name="Alert" {...alertDoc}>
 	<Alert intent="info" title="Alert vs Banner">
+		{#snippet icon()}<IconInfo />{/snippet}
 		Reach for <code>Alert</code> when the message is soft, inline, and contextual — feedback that
 		sits next to the thing it describes. For a full-width, solid, page-level announcement you can
 		pin to the top or bottom, use <a href="/docs/components/banner">Banner</a> instead.

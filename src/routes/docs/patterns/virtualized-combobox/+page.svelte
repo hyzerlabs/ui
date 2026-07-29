@@ -5,6 +5,8 @@
 	import virtualizedComboboxSource from '../../../../docs/samples/VirtualizedCombobox.svelte?raw';
 	import { consumerSource } from '../../../../docs/consumerSource';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
+	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const composed = [{ label: 'Virtualizer', href: '/docs/components/virtualizer' }];
 </script>
@@ -35,15 +37,17 @@
 	     of two sections at normal page rhythm. -->
 	<Stack gap="near" data-density-shift>
 		<Alert intent="warning" title="Reach for this only when the dataset can't be narrowed down">
-			A windowed listbox over tens of thousands of rows is a last resort, not a starting point. If
-			there's any way to cut the list down first — server-side search, filtering by category or
-			region before a picker ever opens, a shortlist of recent or favorite items — do that instead
-			and use the plain <a href="/docs/components/combobox">Combobox</a> on the smaller result. It's the
-			more accessible pattern: a real option per row, simpler keyboard behavior, and nothing for assistive
-			tech to lose track of. Only reach for this pattern once narrowing the data genuinely isn't an option.
+			{#snippet icon()}<IconTriangleAlert />{/snippet}
+			A windowed listbox over tens of thousands of rows is a last resort, not a starting point. If there's
+			any way to cut the list down first — server-side search, filtering by category or region before
+			a picker ever opens, a shortlist of recent or favorite items — do that instead and use the plain
+			<a href="/docs/components/combobox">Combobox</a> on the smaller result. It's the more accessible
+			pattern: a real option per row, simpler keyboard behavior, and nothing for assistive tech to lose
+			track of. Only reach for this pattern once narrowing the data genuinely isn't an option.
 		</Alert>
 
 		<Alert intent="info" title="Why a pattern, not a component">
+			{#snippet icon()}<IconInfo />{/snippet}
 			<a href="/docs/components/combobox">Combobox</a> deliberately renders every matching option
 			rather than windowing the list. Combobox's own "Large list" demo is honest about the ceiling:
 			every matching option gets a real

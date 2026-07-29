@@ -5,6 +5,8 @@
 	import virtualizedTableSource from '../../../../docs/samples/VirtualizedTable.svelte?raw';
 	import { consumerSource } from '../../../../docs/consumerSource';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
+	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	const composed = [{ label: 'Virtualizer', href: '/docs/components/virtualizer' }];
 </script>
@@ -36,14 +38,16 @@
 	     /patterns/virtualized-combobox). -->
 	<Stack gap="near" data-density-shift>
 		<Alert intent="warning" title="Reach for this only when the whole list needs to scroll at once">
-			Most apps don't need to virtualize the full dataset. <a href="/docs/components/pagination"
-				>Pagination</a
-			> — the library ships it — server-side paging, or filtering down the set usually eases rendering
-			and is the simpler, often more accessible design. Reach for virtualization when the product genuinely
-			requires the whole list scrollable in one view, not paged.
+			{#snippet icon()}<IconTriangleAlert />{/snippet}
+			Most apps don't need to virtualize the full dataset.
+			<a href="/docs/components/pagination">Pagination</a> — the library ships it — server-side paging,
+			or filtering down the set usually eases rendering and is the simpler, often more accessible design.
+			Reach for virtualization when the product genuinely requires the whole list scrollable in one view,
+			not paged.
 		</Alert>
 
 		<Alert intent="info" title="Pick per dataset size, not by default">
+			{#snippet icon()}<IconInfo />{/snippet}
 			Real <code>&lt;table&gt;</code> semantics (the <a href="/docs/components/table">Table</a>
 			component) give you native screen-reader table navigation for free and no ARIA to keep in sync —
 			reach for it up to some thousands of rows. Only past that point, where rendering every

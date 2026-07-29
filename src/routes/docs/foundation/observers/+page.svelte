@@ -3,6 +3,7 @@
 	import { intersect, resize, mutate, announce } from '$lib/observers';
 	import Example from '../../../../docs/Example.svelte';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// -------------------------------------------------------------------------
 	// Intersect — a scrollable pane with a sentinel BETWEEN two lists (content
@@ -158,24 +159,29 @@
 
 <DocIntro>
 	{#snippet lead()}
-		<code>@hyzer-labs/ui/observers</code> wraps the three platform observer APIs —
-		<code>IntersectionObserver</code>, <code>ResizeObserver</code>, <code>MutationObserver</code> —
-		as Svelte attachments: <code>intersect</code>, <code>resize</code>, <code>mutate</code>. Each
-		creates its observer when the element mounts and disconnects it when the element is removed — no
-		setup/teardown to hand-roll. Alongside them, <code>announce</code> sends a message to a visually-hidden
-		live region, a natural pairing for an observer callback that just loaded more content or noticed a
-		change.
+		<code>@hyzer-labs/ui/observers</code> wraps the three platform observer APIs (<code
+			>IntersectionObserver</code
+		>, <code>ResizeObserver</code>, <code>MutationObserver</code>) as Svelte attachments:
+		<code>intersect</code>, <code>resize</code>, <code>mutate</code>. Each one creates its observer
+		when the element mounts and disconnects it when the element is removed, so there is no setup or
+		teardown to write yourself. All three also take <code>{'{ once: true }'}</code> to disconnect
+		after the first delivery. The module also exports <code>announce</code>, which sends a message
+		to a visually hidden live region. It pairs well with an observer callback that has just loaded
+		more content or spotted a change.
 	{/snippet}
 </DocIntro>
 
 <section class="doc-section" aria-labelledby="intersect-heading">
 	<h2 id="intersect-heading">Intersect</h2>
 	<p>
-		<code>intersect(callback, options)</code> creates one <code>IntersectionObserver</code>, passing
-		<code>root</code>/<code>rootMargin</code>/<code>threshold</code> straight through, and calls
-		your callback with the entry <em>every</em> time it fires — entering <strong>and</strong>
-		leaving. The sentinel sits between two lists, so scroll it in and out: the corner badge tracks
-		<code>isIntersecting</code> live in both directions, and crossing into view announces.
+		<code>intersect(callback, options)</code> creates one <code>IntersectionObserver</code> and
+		passes
+		<code>root</code>, <code>rootMargin</code>, and <code>threshold</code> straight through. Your
+		callback runs with the entry <em>every</em> time the observer fires, on the way
+		<strong>in</strong>
+		and on the way <strong>out</strong>. The sentinel sits between two lists, so scroll it in and
+		out: the corner badge tracks <code>isIntersecting</code> live in both directions, and crossing into
+		view sends an announcement.
 	</p>
 	<Example code={intersectCode}>
 		<div class="intersect-demo">
@@ -207,8 +213,9 @@
 		</div>
 	</Example>
 	<p class="tab-note">
-		IO delivers an initial entry as soon as it starts observing, which may report
-		<code>isIntersecting: false</code> — expected, not filtered out. <code>{'{ once: true }'}</code>
+		The observer delivers an initial entry as soon as it starts watching, and that entry may report
+		<code>isIntersecting: false</code>. That is expected, and it is not filtered out.
+		<code>{'{ once: true }'}</code>
 		disconnects after the first entry that actually intersects, never on that initial report.
 	</p>
 </section>
@@ -217,8 +224,8 @@
 	<h2 id="resize-heading">Resize</h2>
 	<p>
 		<code>resize(callback, options)</code> creates one <code>ResizeObserver</code> and reports the observed
-		box back to you on every delivery. Drag the corner below, or just resize your window — the readout
-		tracks the element's own live dimensions.
+		box back to you on every delivery. Drag the corner below, or resize your window: the readout tracks
+		the element's own live dimensions.
 	</p>
 	<Example code={resizeCode}>
 		<div class="resize-demo" {@attach resize(onResize, { box: 'border-box' })}>
@@ -231,16 +238,18 @@
 <section class="doc-section" aria-labelledby="mutate-heading">
 	<h2 id="mutate-heading">Mutate</h2>
 	<p>
-		<code>mutate(callback, options)</code> creates one <code>MutationObserver</code>, with the
-		native <code>MutationObserverInit</code> passed straight to <code>observe()</code>. Reach for it
-		when the DOM you care about changes for reasons a component doesn't control — there's no
+		<code>mutate(callback, options)</code> creates one <code>MutationObserver</code> and passes the
+		native <code>MutationObserverInit</code> straight to <code>observe()</code>. Your callback
+		receives the whole array of <code>MutationRecord</code>s for that delivery, not a single entry,
+		because one delivery is inherently multi-record. Reach for it when the DOM you care about
+		changes for reasons your component does not control. There is no
 		<code>$state</code> to bind against, so an observer is the only way to notice. The region below
 		is
 		<code>contenteditable</code>: type or paste into it and the browser mutates its text nodes
-		directly, no Svelte reactivity involved. <code>debounce</code> coalesces the burst of individual
-		character mutations a fast typist produces into one callback after a quiet period — the same
-		option <a href="/docs/components/toc">Toc</a> uses to avoid re-collecting its headings on every single
-		change inside content it doesn't own either.
+		directly, with no Svelte reactivity involved. <code>debounce</code> gathers the burst of
+		character mutations a fast typist produces into one callback after a quiet period.
+		<a href="/docs/components/toc">Toc</a> uses the same option, so it does not re-collect its headings
+		on every change inside content it does not own either.
 	</p>
 	<Example code={mutateCode}>
 		<div
@@ -268,13 +277,13 @@
 <section class="doc-section" aria-labelledby="announce-heading">
 	<h2 id="announce-heading">Announce</h2>
 	<p>
-		<code>announce(message, options)</code> lazily creates two reused, visually-hidden live regions
-		— one polite, one assertive — and writes your message into one of them.
-		<code>{'{ assertive: true }'}</code> is for genuine interruptions; everything else should stay polite.
-		It never moves focus or adds a role, so it's safe to call from anywhere, including an observer callback
-		— the sentinel above already calls it on every reveal. Try the buttons below with a screen reader
-		running (the log underneath just echoes what was sent, for sighted reference — the live region itself
-		is off-screen):
+		<code>announce(message, options)</code> writes your message into a visually hidden live region.
+		It creates two regions the first time you call it, one polite and one assertive, then reuses
+		them. Use <code>{'{ assertive: true }'}</code> for genuine interruptions; everything else should stay
+		polite. It never moves focus and adds no role, so you can call it from anywhere, including an observer
+		callback. The sentinel above calls it on every reveal. Try the buttons below with a screen reader
+		running. The log underneath echoes what was sent, for sighted reference; the live region itself is
+		off-screen.
 	</p>
 	<Example code={announceCode}>
 		<div class="announce-controls">
@@ -298,21 +307,22 @@
 <section class="doc-section" aria-labelledby="reduced-motion-heading">
 	<h2 id="reduced-motion-heading">Reduced motion</h2>
 	<p>
-		None of the three attachments read <code>prefers-reduced-motion</code> themselves — an observer
-		firing isn't motion, and plenty of uses (lazy-loading, analytics, a live width readout)
-		shouldn't be suppressed just because a reader prefers less animation. If you're building your
-		own observer-driven motion, guard the animation inside the callback with
+		None of the three attachments read <code>prefers-reduced-motion</code> themselves. An observer
+		firing is not motion, and plenty of uses (lazy-loading, analytics, a live width readout) should
+		keep working for a reader who prefers less animation. If you are building your own
+		observer-driven motion, guard the animation inside the callback with
 		<code>svelte/motion</code>'s
-		<code>prefersReducedMotion</code> — the same mechanism
+		<code>prefersReducedMotion</code>, the same mechanism
 		<a href="/docs/foundation/motion#reveal-heading"><code>revealGroup</code></a> and
 		<a href="/docs/components/toc">Toc</a> already use:
 	</p>
 	<CodeBlock code={reducedMotionCode} />
 	<Alert intent="info">
-		Already-built, reduced-motion-aware scroll entrances live in
-		<a href="/docs/foundation/motion"><code>@hyzer-labs/ui/motion</code></a> — reach for
-		<code>reveal</code>/<code>revealGroup</code> there before reaching for raw
-		<code>intersect</code>, unless you need something they don't offer.
+		{#snippet icon()}<IconInfo />{/snippet}
+		Scroll entrances that already handle reduced motion live in
+		<a href="/docs/foundation/motion"><code>@hyzer-labs/ui/motion</code></a>. Reach for
+		<code>reveal</code> or <code>revealGroup</code> there before reaching for raw
+		<code>intersect</code>, unless you need something they do not offer.
 	</Alert>
 </section>
 
