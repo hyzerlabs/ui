@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const gridDoc: ComponentDoc = {
-	description:
-		'Responsive CSS grid that adapts its column count to its own width via container queries.',
 	importLine: 'import { Grid } from "@hyzer-labs/ui"',
 	props: [
 		{

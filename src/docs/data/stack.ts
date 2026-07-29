@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const stackDoc: ComponentDoc = {
-	description:
-		'Lays children out in a vertical column with consistent spacing between items. Stack arranges content; pair it with a Container when the column also needs a max-width or page gutters.',
 	importLine: 'import { Stack } from "@hyzer-labs/ui"',
 	props: [
 		{

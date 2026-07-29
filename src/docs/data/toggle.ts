@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const toggleDoc: ComponentDoc = {
-	description:
-		'A switch for binary on/off settings — a native checkbox exposed with the switch role, so it submits a form value like any other field.',
 	importLine: 'import { Toggle } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'name', type: 'string', default: '—', note: 'Required. Form field name.' },

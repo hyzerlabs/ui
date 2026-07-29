@@ -131,7 +131,13 @@ pnpm test             # all tests
 
 ## Docs
 
-Live at [design.hyzer.sh](https://design.hyzer.sh)
+Live at [design.hyzer.sh](https://design.hyzer.sh).
+
+- [Getting Started](https://design.hyzer.sh/docs) — install, first component, the three styling tiers
+- [Philosophy](https://design.hyzer.sh/docs/philosophy) — what every component commits to
+- [Theming](https://design.hyzer.sh/docs/theming/overview) — tokens, named themes, styling components
+- [Agents](https://design.hyzer.sh/docs/agents) — wiring this up to a coding agent
+- [llms.txt](https://design.hyzer.sh/llms.txt) — the whole site, indexed for machines
 
 ## License
 

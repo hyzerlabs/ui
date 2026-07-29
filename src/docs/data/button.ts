@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const buttonDoc: ComponentDoc = {
-	description:
-		'A button component with solid, outline, ghost, and soft variants, intent colors, sizes, a loading state, and icon slots.',
 	importLine: 'import { Button } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'variant', type: "'solid' | 'outline' | 'ghost' | 'soft'", default: "'solid'" },
@@ -12,7 +10,7 @@ export const buttonDoc: ComponentDoc = {
 			type: 'Intent',
 			default: "'primary'",
 			note: 'The full intent registry, not a hand-picked subset — see Foundation → Colors & Intent.',
-			noteHref: '/foundation/colors#intent'
+			noteHref: '/docs/foundation/colors#intent'
 		},
 		{
 			name: 'size',

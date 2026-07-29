@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const breadcrumbsDoc: ComponentDoc = {
-	description:
-		'A wrapping breadcrumb trail of navigation links with chevron separators and automatic current-page semantics.',
 	importLine: 'import { Breadcrumbs } from "@hyzer-labs/ui"',
 	props: [
 		{

@@ -20,13 +20,13 @@
 
 	// A real app builds this from its routes; here it's a small fixed set.
 	const commands: Command[] = [
-		{ label: 'Button', href: '/components/button', context: 'Components · Common' },
-		{ label: 'Card', href: '/components/card', context: 'Components · Common' },
-		{ label: 'Modal', href: '/components/modal', context: 'Components · Common' },
-		{ label: 'Select', href: '/components/select', context: 'Components · Forms' },
-		{ label: 'Toggle', href: '/components/toggle', context: 'Components · Forms' },
-		{ label: 'Colors & Intent', href: '/foundation/colors', context: 'Foundation' },
-		{ label: 'Theming Overview', href: '/theming/overview', context: 'Theming' }
+		{ label: 'Button', href: '/docs/components/button', context: 'Components · Common' },
+		{ label: 'Card', href: '/docs/components/card', context: 'Components · Common' },
+		{ label: 'Modal', href: '/docs/components/modal', context: 'Components · Common' },
+		{ label: 'Select', href: '/docs/components/select', context: 'Components · Forms' },
+		{ label: 'Toggle', href: '/docs/components/toggle', context: 'Components · Forms' },
+		{ label: 'Colors & Intent', href: '/docs/foundation/colors', context: 'Foundation' },
+		{ label: 'Theming Overview', href: '/docs/theming/overview', context: 'Theming' }
 	];
 
 	let open = $state(false);

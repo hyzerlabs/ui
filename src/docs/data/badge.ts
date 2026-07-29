@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const badgeDoc: ComponentDoc = {
-	description:
-		'A small inline status chip with intent coloring, soft/solid/outline variants, the shared rounded scale, and an optional dismiss button — the building block for selected-option chips.',
 	importLine: 'import { Badge } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The badge content.' },
@@ -12,7 +10,7 @@ export const badgeDoc: ComponentDoc = {
 			type: 'Intent',
 			default: "'neutral'",
 			note: 'See Foundation → Colors & Intent.',
-			noteHref: '/foundation/colors#intent'
+			noteHref: '/docs/foundation/colors#intent'
 		},
 		{ name: 'variant', type: "'soft' | 'solid' | 'outline'", default: "'soft'" },
 		{ name: 'size', type: "'sm' | 'md'", default: "'md'" },

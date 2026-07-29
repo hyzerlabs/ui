@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const loadingDoc: ComponentDoc = {
-	description:
-		'An accessible loading indicator. Fundamentally indeterminate — four variants (spinner, ring, dots, bar) that say "something is happening" without knowing how far along it is. Passing a `value` progressively enhances the `bar` into a determinate linear progress bar; `ring` is the sole home of circular progress — no `value` renders a continuously pulsing, rotating loader, a `value` renders a determinate circular arc with a centered readout. `spinner` and `dots` are always indeterminate.',
 	importLine: 'import { Loading } from "@hyzer-labs/ui"',
 	props: [
 		{
@@ -18,7 +16,7 @@ export const loadingDoc: ComponentDoc = {
 			type: 'Intent',
 			default: "'primary'",
 			note: 'Unlike Badge/Banner, defaults to primary — a fill is an accent by nature. See Foundation → Colors & Intent.',
-			noteHref: '/foundation/colors#intent'
+			noteHref: '/docs/foundation/colors#intent'
 		},
 		{ name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'" },
 		{

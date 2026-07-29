@@ -82,7 +82,7 @@ describe('R18 — docs highlighter imports are firewalled to exactly two files',
 	const SCAN_DIRS = ['src/routes', 'src/docs'];
 	const ALLOWED_FILES = new Set([
 		'src/docs/PrismCodeBlock.svelte',
-		'src/routes/components/code-block/+page.server.ts'
+		'src/routes/docs/components/code-block/+page.server.ts'
 	]);
 
 	it('a highlighter import appears in exactly the two allow-listed docs files, and nowhere else', () => {

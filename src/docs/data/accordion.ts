@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const accordionDoc: ComponentDoc = {
-	description:
-		'A disclosure component using native <details>/<summary> elements, supporting single and multiple open modes with keyboard navigation. Item titles accept plain strings or snippets.',
 	importLine: 'import { Accordion } from "@hyzer-labs/ui"',
 	props: [
 		{

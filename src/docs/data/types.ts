@@ -11,7 +11,6 @@ import type { PropRow } from '../PropsTable.svelte';
 import type { TypeTable, A11yLink } from '../DocPage.svelte';
 
 export interface ComponentDoc {
-	description: string;
 	importLine: string;
 	props?: PropRow[];
 	/** Supporting item/option types rendered as sub-tables in the Props section. */

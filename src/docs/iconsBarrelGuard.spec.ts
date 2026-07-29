@@ -20,7 +20,7 @@ const repoRoot = join(here, '../..');
 
 const SCAN_DIRS = ['src/routes', 'src/docs'];
 const ALLOWED_FILES = new Set([
-	'src/routes/foundation/icons/+page.svelte',
+	'src/routes/docs/foundation/icons/+page.svelte',
 	// Audit-R3 (specs/40): the command-palette pattern sample imports named
 	// exports from the barrel on purpose — its ?raw source is shown verbatim
 	// (through consumerSource) as the copy-pasteable recipe, so the import a
@@ -64,7 +64,7 @@ describe('R9 — no full icon-barrel imports outside the catalog page', () => {
 	});
 
 	it('the catalog page itself never eagerly imports the full generated barrel', () => {
-		const catalogPath = join(repoRoot, 'src/routes/foundation/icons/+page.svelte');
+		const catalogPath = join(repoRoot, 'src/routes/docs/foundation/icons/+page.svelte');
 		const src = readFileSync(catalogPath, 'utf8');
 		expect(/from\s+['"].*\/icons\/generated\/index(\.js)?['"]/.test(src)).toBe(false);
 		expect(/import\s+\*\s+as\s+\w+\s+from\s+['"]\$lib\/icons['"]/.test(src)).toBe(false);

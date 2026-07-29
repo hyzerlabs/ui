@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const carouselDoc: ComponentDoc = {
-	description:
-		'An accessible, manually-rotated carousel: a draggable slide track, labelled slides, previous/next controls, arrow-key steering, and a live region announcing changes. No auto-rotation, by design.',
 	importLine: 'import { Carousel } from "@hyzer-labs/ui"',
 	props: [
 		{

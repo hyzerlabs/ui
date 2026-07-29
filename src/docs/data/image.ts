@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const imageDoc: ComponentDoc = {
-	description:
-		'Responsive image with aspect-ratio, object-fit, rounded corners, color/blur placeholder states, and a picture mode for art direction.',
 	importLine: 'import { Image } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'src', type: 'string', default: '—', note: 'Required. Fallback in picture mode.' },

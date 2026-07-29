@@ -1,0 +1,292 @@
+<script lang="ts">
+	import { Container, Hero, Button, Tabs, Toggle } from '$lib';
+	import DocPage from '../../../../docs/DocPage.svelte';
+	import { heroDoc } from '../../../../docs/data/hero.js';
+	import Example from '../../../../docs/Example.svelte';
+	import ResizableDemo from '../../../../docs/ResizableDemo.svelte';
+
+	const layouts = ['center', 'split', 'overlay'] as const;
+	const heights = ['auto', 'half', 'screen'] as const;
+	const aligns = ['start', 'center', 'end'] as const;
+
+	const demoTabs = [
+		{ id: 'layout', label: 'Layout' },
+		{ id: 'height', label: 'Height' },
+		{ id: 'align', label: 'Align' },
+		{ id: 'reverse', label: 'Reverse on mobile' }
+	];
+
+	// Example-code builders — derived from the selected sub-tab so the code
+	// pane updates live with the demo. headingLevel={2} keeps the docs page's
+	// heading hierarchy intact (the shell owns the h1).
+	function layoutCode(layout: string): string {
+		if (layout === 'split') {
+			return [
+				'<!-- Text slots take strings — or snippets when you need inner markup -->',
+				'<Hero layout="split" subtitle="Content on one side, media on the other." headingLevel={2}>',
+				'\t{#snippet title()}Split hero with <em>styled</em> media{/snippet}',
+				'\t{#snippet actions()}<Button>Get started</Button>{/snippet}',
+				'\t{#snippet media()}<img src="…" alt="…" />{/snippet}',
+				'</Hero>'
+			].join('\n');
+		}
+		if (layout === 'overlay') {
+			return [
+				'<!-- In overlay, media becomes the full-bleed background -->',
+				'<Hero',
+				'\tlayout="overlay"',
+				'\ttitle="Overlay hero"',
+				'\tsubtitle="Content sits on top of the media background."',
+				'\theadingLevel={2}',
+				'>',
+				'\t{#snippet media()}<img src="…" alt="" />{/snippet}',
+				'</Hero>'
+			].join('\n');
+		}
+		return [
+			'<Hero',
+			'\teyebrow="What\'s new"',
+			'\ttitle="Headless components for Svelte 5"',
+			'\tsubtitle="Ships behavior, structure, and accessibility — not visual opinions."',
+			'\theadingLevel={2}',
+			'>',
+			'\t{#snippet actions()}',
+			'\t\t<Button>Get started</Button>',
+			'\t\t<Button variant="outline">Learn more</Button>',
+			'\t{/snippet}',
+			'</Hero>'
+		].join('\n');
+	}
+
+	function heightCode(height: string): string {
+		return [
+			height === 'auto' ? '<Hero' : `<Hero height="${height}"`,
+			`\ttitle={'height="${height}"'}`,
+			'\tsubtitle="auto hugs content; half is 50vh; screen is 100vh."',
+			'\theadingLevel={2}',
+			'/>'
+		].join('\n');
+	}
+
+	function alignCode(align: string): string {
+		return [
+			align === 'center' ? '<Hero' : `<Hero align="${align}"`,
+			`\ttitle={'align="${align}"'}`,
+			'\tsubtitle="Controls content alignment in the center layout."',
+			'\theadingLevel={2}',
+			'>',
+			'\t{#snippet actions()}<Button>Action</Button>{/snippet}',
+			'</Hero>'
+		].join('\n');
+	}
+
+	// Live-toggled in the demo below, so the code sample shows the prop only
+	// when it's on — the honest thing a consumer would actually write.
+	let reverseOnMobile = $state(true);
+
+	const reverseCode = $derived(
+		[
+			'<Hero',
+			'\tlayout="split"',
+			...(reverseOnMobile ? ['\treverseOnMobile'] : []),
+			'\ttitle="Split hero"',
+			'\tsubtitle="Resize to stack; toggle to flip which comes first."',
+			'\theadingLevel={2}',
+			'>',
+			'\t{#snippet media()}<img src="…" alt="…" />{/snippet}',
+			'</Hero>'
+		].join('\n')
+	);
+</script>
+
+<DocPage name="Hero" {...heroDoc}>
+	<p class="demo-note">
+		Hero is headless — the dashed outline below is docs scaffolding so its bounds are visible.
+	</p>
+	<Tabs items={demoTabs} ariaLabel="Hero demos" defaultTab="layout">
+		{#snippet panel(item)}
+			<div class="tab-content">
+				{#if item.id === 'layout'}
+					<Tabs
+						items={layouts.map((l) => ({ id: l, label: l }))}
+						ariaLabel="Hero layout"
+						defaultTab="center"
+					>
+						{#snippet panel(lItem)}
+							<div class="inner-tab">
+								<Container breakout padding="none">
+									<Example code={layoutCode(lItem.id)}>
+										<div class="demo-hero-wrap">
+											{#if lItem.id === 'center'}
+												<Hero
+													eyebrow="What's new"
+													title="Headless components for Svelte 5"
+													subtitle="Ships behavior, structure, and accessibility — not visual opinions."
+													headingLevel={2}
+												>
+													{#snippet actions()}
+														<Button>Get started</Button>
+														<Button variant="outline">Learn more</Button>
+													{/snippet}
+												</Hero>
+											{:else if lItem.id === 'split'}
+												<Hero
+													layout="split"
+													subtitle="Content on one side, media on the other."
+													headingLevel={2}
+												>
+													{#snippet title()}Split hero with <em>styled</em> media{/snippet}
+													{#snippet actions()}<Button>Get started</Button>{/snippet}
+													{#snippet media()}
+														<div
+															class="media-block"
+															role="img"
+															aria-label="Media placeholder"
+														></div>
+													{/snippet}
+												</Hero>
+											{:else}
+												<Hero
+													layout="overlay"
+													title="Overlay hero"
+													subtitle="Content sits on top of the media background."
+													headingLevel={2}
+												>
+													{#snippet media()}<div
+															class="bg-block"
+															aria-hidden="true"
+														></div>{/snippet}
+												</Hero>
+											{/if}
+										</div>
+									</Example>
+								</Container>
+							</div>
+						{/snippet}
+					</Tabs>
+				{:else if item.id === 'height'}
+					<p class="tab-note">
+						Heights are viewport-relative: <code>half</code> is 50vh and <code>screen</code> is 100vh,
+						so those demos grow well beyond the content.
+					</p>
+					<Tabs
+						items={heights.map((h) => ({ id: h, label: h }))}
+						ariaLabel="Hero height"
+						defaultTab="auto"
+					>
+						{#snippet panel(hItem)}
+							<div class="inner-tab">
+								<Example code={heightCode(hItem.id)}>
+									<div class="demo-hero-wrap">
+										<Hero
+											height={hItem.id as (typeof heights)[number]}
+											title={`height="${hItem.id}"`}
+											subtitle="auto hugs content; half is 50vh; screen is 100vh."
+											headingLevel={2}
+										/>
+									</div>
+								</Example>
+							</div>
+						{/snippet}
+					</Tabs>
+				{:else if item.id === 'align'}
+					<Tabs
+						items={aligns.map((a) => ({ id: a, label: a }))}
+						ariaLabel="Hero align"
+						defaultTab="center"
+					>
+						{#snippet panel(aItem)}
+							<div class="inner-tab">
+								<Example code={alignCode(aItem.id)}>
+									<div class="demo-hero-wrap">
+										<Hero
+											align={aItem.id as (typeof aligns)[number]}
+											title={`align="${aItem.id}"`}
+											subtitle="Controls content alignment in the center layout."
+											headingLevel={2}
+										>
+											{#snippet actions()}<Button>Action</Button>{/snippet}
+										</Hero>
+									</div>
+								</Example>
+							</div>
+						{/snippet}
+					</Tabs>
+				{:else}
+					<p class="tab-note">
+						Only affects the split layout, and only while it's stacked — media moves above the
+						content, with DOM and reading order unchanged. The split stacks below 968px (<code
+							>--hz-width-md</code
+						>) of its own width; use the slider to cross the threshold, and toggle
+						<code>reverseOnMobile</code> to flip which element leads once it stacks.
+					</p>
+					<Container breakout padding="none">
+						<Example code={reverseCode}>
+							<div class="reverse-toggle">
+								<Toggle
+									name="hero-reverse-on-mobile"
+									label="reverseOnMobile"
+									bind:checked={reverseOnMobile}
+								/>
+							</div>
+							<ResizableDemo
+								initial={720}
+								describe={(w) =>
+									w >= 968 ? 'side by side' : reverseOnMobile ? 'media on top' : 'content on top'}
+							>
+								<!-- No wrapper and no inline padding: the demo width IS the split's width. -->
+								<Hero
+									layout="split"
+									{reverseOnMobile}
+									title="Split hero"
+									subtitle="Resize to stack; toggle to flip which comes first."
+									headingLevel={2}
+									class="demo-hero-flush"
+								>
+									{#snippet media()}
+										<div class="media-block" role="img" aria-label="Media placeholder"></div>
+									{/snippet}
+								</Hero>
+							</ResizableDemo>
+						</Example>
+					</Container>
+				{/if}
+			</div>
+		{/snippet}
+	</Tabs>
+</DocPage>
+
+<style>
+	.demo-note,
+	.demo-note {
+		margin-bottom: 0.5rem;
+	}
+	.demo-hero-wrap {
+		border: 1px dashed var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+		overflow: hidden;
+	}
+	.reverse-toggle {
+		margin-bottom: 1rem;
+	}
+	/* Reverse demo: zero the theme's inline padding so the slider width is
+	 * exactly the split's width (unlayered rule beats the hz-theme layer). */
+	:global(.hz-hero.demo-hero-flush) {
+		padding-inline: 0;
+	}
+	.media-block {
+		width: 100%;
+		min-height: 12rem;
+		background: var(--hz-intent-neutral, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+	.bg-block {
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(
+			135deg,
+			color-mix(in srgb, var(--hz-intent-primary, #2563eb) 18%, var(--hz-color-surface, #fff)),
+			color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 18%, var(--hz-color-surface, #fff))
+		);
+	}
+</style>

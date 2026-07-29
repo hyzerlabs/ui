@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const fileUploadDoc: ComponentDoc = {
-	description:
-		'A file selection field backed by a real native input — single or multiple, with accept/maxSize/maxFiles validation, a removable file list, and an optional drag-and-drop dropzone. It is a selection field, not a network uploader: the real named input carries the chosen files into a plain form submission or into your own upload code.',
 	importLine: 'import { FileUpload } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'name', type: 'string', default: '—', note: 'Required. Carried by the native input.' },

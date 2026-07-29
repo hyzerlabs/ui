@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const bannerDoc: ComponentDoc = {
-	description:
-		'A full-width, solid-intent announcement bar with an optional dismiss button and top/bottom pinning. Made for page-level messages — maintenance notices, promos, and outage banners.',
 	importLine: 'import { Banner } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The banner body.' },
@@ -12,7 +10,7 @@ export const bannerDoc: ComponentDoc = {
 			type: 'Intent',
 			default: "'neutral'",
 			note: 'See Foundation → Colors & Intent.',
-			noteHref: '/foundation/colors#intent'
+			noteHref: '/docs/foundation/colors#intent'
 		},
 		{
 			name: 'pin',

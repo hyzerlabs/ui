@@ -56,12 +56,12 @@ test.describe('R-Responsive — no horizontal overflow', () => {
 test.describe('R2 — docs shell structure', () => {
 	test('docs sidebar nav is present on every page', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/');
+		await page.goto('/docs');
 		await expect(page.locator('#docs-sidebar')).toBeVisible();
 	});
 
 	test('docs footer is present on every page', async ({ page }) => {
-		await page.goto('/');
+		await page.goto('/docs');
 		await expect(page.locator('.docs-footer')).toBeVisible();
 	});
 });
@@ -73,18 +73,18 @@ test.describe('R2 — docs shell structure', () => {
 test.describe('R4 — nav links and aria-current', () => {
 	test('expanding a section toggle reveals its pages; clicking one navigates', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/');
+		await page.goto('/docs');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
 		// Sections are label-only toggles (no cover pages) — expand Foundation…
 		await sidebar.getByRole('button', { name: 'Foundation' }).click();
 		// …then click a page link inside it.
 		await sidebar.getByRole('link', { name: 'Colors' }).click();
-		await expect(page).toHaveURL('/foundation/colors');
+		await expect(page).toHaveURL('/docs/foundation/colors');
 	});
 
 	test('active nav link exposes aria-current="page"', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/foundation/colors');
+		await page.goto('/docs/foundation/colors');
 		// The active page's sidebar link should carry aria-current="page"
 		const navLinks = page.locator('#docs-sidebar a[aria-current="page"]');
 		await expect(navLinks.first()).toBeVisible();
@@ -97,7 +97,7 @@ test.describe('R4 — nav links and aria-current', () => {
 
 test.describe('R5/R6 — real components render on component pages', () => {
 	test('/components/button renders button.hz-button', async ({ page }) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		// The docs shell's theme toggle is an .hz-button too (dogfooded), and
 		// its mobile-topbar instance is display:none at desktop width — assert
 		// on the demo area's visible buttons, not the shell's.
@@ -105,13 +105,13 @@ test.describe('R5/R6 — real components render on component pages', () => {
 	});
 
 	test('/components/card renders .hz-card', async ({ page }) => {
-		await page.goto('/components/card');
+		await page.goto('/docs/components/card');
 		// Tabs keeps inactive panels in the DOM (hidden) — assert the visible card.
 		await expect(page.locator('.hz-card').filter({ visible: true }).first()).toBeVisible();
 	});
 
 	test('/components/tabs renders .hz-tabs', async ({ page }) => {
-		await page.goto('/components/tabs');
+		await page.goto('/docs/components/tabs');
 		await expect(page.locator('.hz-tabs').first()).toBeVisible();
 	});
 });
@@ -122,14 +122,14 @@ test.describe('R5/R6 — real components render on component pages', () => {
 
 test.describe('Example code blocks', () => {
 	test('/components/button shows example code below the demo', async ({ page }) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		const code = page.locator('.doc-example pre code').first();
 		await expect(code).toBeVisible();
 		await expect(code).toContainText('<Button');
 	});
 
 	test('selecting a demo tab updates the visible example code', async ({ page }) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		// Tabs keeps inactive panels in the DOM (hidden), so assert on the
 		// visible code block only. The page lands on Variants (row-matrix
 		// demo; defaults omitted from samples — a bare <Button> is solid +
@@ -143,7 +143,7 @@ test.describe('Example code blocks', () => {
 	});
 
 	test('example code block has a copy button', async ({ page }) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		await expect(page.getByRole('button', { name: 'Copy' }).first()).toBeVisible();
 	});
 });
@@ -154,20 +154,20 @@ test.describe('Example code blocks', () => {
 
 test.describe('Modal demo edge case', () => {
 	test('no dialog is open on /components/modal page load', async ({ page }) => {
-		await page.goto('/components/modal');
+		await page.goto('/docs/components/modal');
 		// dialog[open] should not exist on page load
 		const openDialog = page.locator('dialog[open]');
 		expect(await openDialog.count()).toBe(0);
 	});
 
 	test('trigger button opens the modal', async ({ page }) => {
-		await page.goto('/components/modal');
+		await page.goto('/docs/components/modal');
 		await page.getByRole('button', { name: 'Open modal' }).click();
 		await expect(page.locator('dialog[open]')).toBeVisible();
 	});
 
 	test('Esc closes the open modal', async ({ page }) => {
-		await page.goto('/components/modal');
+		await page.goto('/docs/components/modal');
 		await page.getByRole('button', { name: 'Open modal' }).click();
 		await expect(page.locator('dialog[open]')).toBeVisible();
 		await page.keyboard.press('Escape');
@@ -186,7 +186,7 @@ const CORE_ICON_NAMES = ['IconChevronDown', 'IconX', 'IconMenu', 'IconSearch'] a
 
 test.describe('specs/36 R8 — icons catalog page', () => {
 	test('the manifest count renders as text, not one DOM node per icon', async ({ page }) => {
-		await page.goto('/foundation/icons');
+		await page.goto('/docs/foundation/icons');
 		// The full Lucide set is well over a thousand icons — assert the
 		// count is shown as a number, not that this many DOM nodes exist.
 		await expect(page.getByText(/\d{3,5} icons/).first()).toBeVisible();
@@ -196,7 +196,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 	test('core icons render in a dedicated "Core icons" section, each badged "core"', async ({
 		page
 	}) => {
-		await page.goto('/foundation/icons');
+		await page.goto('/docs/foundation/icons');
 		const heading = page.getByRole('heading', { name: 'Core icons' });
 		await expect(heading).toBeVisible();
 		for (const name of CORE_ICON_NAMES) {
@@ -208,7 +208,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 	test('the demo tabs cover size & stroke, intent, and decorative vs. labelled', async ({
 		page
 	}) => {
-		await page.goto('/foundation/icons');
+		await page.goto('/docs/foundation/icons');
 		const demoTabs = page.getByRole('tablist', { name: 'Icon demos' });
 		await expect(demoTabs.getByRole('tab', { name: 'Size & stroke' })).toBeVisible();
 		await expect(page.getByRole('slider', { name: 'size' })).toBeVisible();
@@ -221,7 +221,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 	test('searching narrows the catalog to a known icon and updates the shown count', async ({
 		page
 	}) => {
-		await page.goto('/foundation/icons');
+		await page.goto('/docs/foundation/icons');
 		const search = page.getByRole('textbox', { name: 'Search icons' });
 		await search.fill('a-arrow-down');
 		await expect(page.getByText('IconAArrowDown', { exact: true }).first()).toBeVisible();
@@ -229,7 +229,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 	});
 
 	test('a bring-your-own brand marks note is present (no brand-icon section)', async ({ page }) => {
-		await page.goto('/foundation/icons');
+		await page.goto('/docs/foundation/icons');
 		await expect(page.getByText(/brand marks aren't included/i)).toBeVisible();
 	});
 });
@@ -240,7 +240,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 
 test.describe('R7 — foundation colors page', () => {
 	test('each palette color token name appears on /foundation/colors', async ({ page }) => {
-		await page.goto('/foundation/colors');
+		await page.goto('/docs/foundation/colors');
 
 		// Palette tokens from metadata (specs/42 R1 — --hz-palette-* namespace)
 		const paletteKeys = [
@@ -263,7 +263,7 @@ test.describe('R7 — foundation colors page', () => {
 	test('color values appear as text alongside token names on /foundation/colors', async ({
 		page
 	}) => {
-		await page.goto('/foundation/colors');
+		await page.goto('/docs/foundation/colors');
 		// At least one hex value should be visible
 		await expect(page.getByText('#2563eb', { exact: true }).first()).toBeVisible();
 	});
@@ -275,7 +275,7 @@ test.describe('R7 — foundation colors page', () => {
 
 test.describe('R9 — theme toggle', () => {
 	test('toggle button has aria-pressed reflecting current state', async ({ page }) => {
-		await page.goto('/');
+		await page.goto('/docs');
 		const toggleBtn = page.getByRole('button', { name: /theme/i });
 		// Initially light → aria-pressed="false"
 		await expect(toggleBtn).toHaveAttribute('aria-pressed', 'false');
@@ -284,7 +284,7 @@ test.describe('R9 — theme toggle', () => {
 	test('clicking toggle sets data-theme="dark" on <html> and aria-pressed="true"', async ({
 		page
 	}) => {
-		await page.goto('/');
+		await page.goto('/docs');
 		const toggleBtn = page.getByRole('button', { name: /theme/i });
 		await toggleBtn.click();
 
@@ -293,7 +293,7 @@ test.describe('R9 — theme toggle', () => {
 	});
 
 	test('--hz-color-surface changes to dark value after toggle', async ({ page }) => {
-		await page.goto('/');
+		await page.goto('/docs');
 		const toggleBtn = page.getByRole('button', { name: /theme/i });
 
 		const lightSurface = await page.evaluate(() =>
@@ -312,7 +312,7 @@ test.describe('R9 — theme toggle', () => {
 	test('--hz-intent-primary lightens to its dark companion after toggle (R9 dogfoods specs/15 R5, specs/42 R1)', async ({
 		page
 	}) => {
-		await page.goto('/');
+		await page.goto('/docs');
 		const primaryBefore = await page.evaluate(() =>
 			getComputedStyle(document.documentElement).getPropertyValue('--hz-intent-primary').trim()
 		);
@@ -336,7 +336,7 @@ test.describe('R9 — theme toggle', () => {
 
 test.describe('specs/31 + 34 — grouped, collapsible sidebar', () => {
 	test('Components shows five collapsible group toggles in order', async ({ page }) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
 
 		// The active section auto-expands, so its group toggles are visible.
@@ -347,7 +347,7 @@ test.describe('specs/31 + 34 — grouped, collapsible sidebar', () => {
 	test('the active group auto-expands; a collapsed group toggles open (spec 34)', async ({
 		page
 	}) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
 		const common = sidebar.getByRole('button', { name: /Common/ });
 		const layout = sidebar.getByRole('button', { name: /Layout/ });
@@ -370,13 +370,13 @@ test.describe('specs/31 + 34 — grouped, collapsible sidebar', () => {
 	});
 
 	test('navigates to a moved page at its flat URL and marks it current', async ({ page }) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
 		// Select is in Forms, collapsed on a Common page — expand it first (spec 34).
 		await sidebar.getByRole('button', { name: /Forms/ }).click();
 		// Select moved from /forms/select — the sidebar link must be the flat one.
 		await sidebar.getByRole('link', { name: 'Select', exact: true }).click();
-		await expect(page).toHaveURL('/components/select');
+		await expect(page).toHaveURL('/docs/components/select');
 		await expect(page.locator('h1')).toHaveText('Select');
 		// On the Select page, Forms auto-expands (it holds the active page).
 		await expect(sidebar.getByRole('link', { name: 'Select', exact: true })).toHaveAttribute(
@@ -390,7 +390,7 @@ test.describe('specs/31 R9/R10 — theme hooks', () => {
 	test('a component page lists its root class, data hooks, and custom properties', async ({
 		page
 	}) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		const hooks = page.locator('section', {
 			has: page.getByRole('heading', { name: 'Theme hooks' })
 		});
@@ -402,7 +402,7 @@ test.describe('specs/31 R9/R10 — theme hooks', () => {
 	test('the theming roll-up lists hooks from across the library and links their pages', async ({
 		page
 	}) => {
-		await page.goto('/theming/components');
+		await page.goto('/docs/theming/components');
 		const table = page.locator('.token-table');
 		// Sourced from hooks.ts, so it spans components the old hand-written
 		// table never covered.
@@ -412,7 +412,7 @@ test.describe('specs/31 R9/R10 — theme hooks', () => {
 		// Button contributes multiple rows (the accent pair + the soft tint), so it links more than once.
 		await expect(table.getByRole('link', { name: 'Button' }).first()).toHaveAttribute(
 			'href',
-			'/components/button'
+			'/docs/components/button'
 		);
 	});
 });
@@ -420,7 +420,7 @@ test.describe('specs/31 R9/R10 — theme hooks', () => {
 test.describe('specs/31 R5 — Patterns sample', () => {
 	test('the Homepage sample bleeds wider than the prose column', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/patterns/homepage');
+		await page.goto('/docs/patterns/homepage');
 
 		const proseWidth = await page.locator('h1').evaluate((el) => el.getBoundingClientRect().width);
 		const sampleWidth = await page
@@ -430,7 +430,7 @@ test.describe('specs/31 R5 — Patterns sample', () => {
 	});
 
 	test('the sample nav landmark is named apart from the docs sidebar', async ({ page }) => {
-		await page.goto('/patterns/homepage');
+		await page.goto('/docs/patterns/homepage');
 		// Nested <nav>s: distinct accessible names or they collide.
 		await expect(page.getByRole('navigation', { name: 'Sample site navigation' })).toBeVisible();
 		await expect(page.getByRole('navigation', { name: 'Docs navigation' })).toBeAttached();
@@ -445,7 +445,7 @@ test.describe('specs/33 — carousel', () => {
 	// The basic demo (counter indicator) is the default-active tab.
 	async function gotoCarousel(page: import('@playwright/test').Page) {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/components/carousel');
+		await page.goto('/docs/components/carousel');
 		await expect(page.locator('.hz-carousel-track').first()).toBeVisible();
 	}
 
@@ -491,7 +491,7 @@ test.describe('specs/33 — carousel', () => {
 
 	test('dot hit areas are taller than the painted dot (R8)', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/components/carousel');
+		await page.goto('/docs/components/carousel');
 		await page.getByRole('tab', { name: 'Dots' }).click();
 		const dot = page.locator('.hz-carousel-dot').first();
 		// See the prev/next test above — scroll the viewport-relative probe
@@ -513,7 +513,7 @@ test.describe('specs/43 — carousel drag mode', () => {
 	// The Drag tab's demo composes draggable + loop + seamless + controls="focus".
 	async function gotoDrag(page: import('@playwright/test').Page) {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/components/carousel');
+		await page.goto('/docs/components/carousel');
 		await page.getByRole('tab', { name: 'Drag' }).click();
 		const root = page.locator('.hz-carousel[data-seamless]').first();
 		await expect(root).toBeVisible();
@@ -615,7 +615,7 @@ test.describe('specs/43 — carousel drag mode', () => {
 
 	test('no horizontal overflow at 375px', async ({ page }) => {
 		await page.setViewportSize({ width: 375, height: 812 });
-		await page.goto('/components/carousel');
+		await page.goto('/docs/components/carousel');
 		await page.getByRole('tab', { name: 'Drag' }).click();
 		const overflow = await page.evaluate(
 			() => document.documentElement.scrollWidth > document.documentElement.clientWidth
@@ -646,7 +646,7 @@ test.describe('specs/43 — carousel drag mode', () => {
 test.describe('specs/34 — command palette (modal)', () => {
 	test('the search trigger opens a modal; typing + Enter navigates', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/');
+		await page.goto('/docs');
 		await page.getByRole('button', { name: /Search docs/ }).click();
 		const dialog = page.getByRole('dialog', { name: 'Search documentation' });
 		await expect(dialog).toBeVisible();
@@ -655,25 +655,25 @@ test.describe('specs/34 — command palette (modal)', () => {
 		await input.fill('toggle');
 		await expect(page.getByRole('option', { name: /Toggle/ })).toBeVisible();
 		await input.press('Enter');
-		await expect(page).toHaveURL('/components/toggle');
+		await expect(page).toHaveURL('/docs/components/toggle');
 		await expect(dialog).toBeHidden();
 	});
 
 	test('a result shows its section/group breadcrumb and click navigates', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/');
+		await page.goto('/docs');
 		await page.getByRole('button', { name: /Search docs/ }).click();
 		const input = page.getByRole('combobox', { name: 'Search documentation' });
 		await input.fill('select');
 		const option = page.getByRole('option', { name: /Select/ }).first();
 		await expect(option).toContainText('Components · Forms');
 		await option.click();
-		await expect(page).toHaveURL('/components/select');
+		await expect(page).toHaveURL('/docs/components/select');
 	});
 
 	test('the backdrop dismisses the modal', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/');
+		await page.goto('/docs');
 		await page.getByRole('button', { name: /Search docs/ }).click();
 		const dialog = page.getByRole('dialog', { name: 'Search documentation' });
 		await expect(dialog).toBeVisible();
@@ -683,7 +683,7 @@ test.describe('specs/34 — command palette (modal)', () => {
 
 	test('no horizontal overflow at 375px with the palette open', async ({ page }) => {
 		await page.setViewportSize({ width: 375, height: 700 });
-		await page.goto('/');
+		await page.goto('/docs');
 		await page.getByRole('button', { name: 'Toggle navigation menu' }).first().click();
 		await page.getByRole('button', { name: /Search docs/ }).click();
 		const input = page.getByRole('combobox', { name: 'Search documentation' });
@@ -705,7 +705,7 @@ test.describe('On this page rail', () => {
 
 	test('lists the section headings on a component page at 1536px', async ({ page }) => {
 		await page.setViewportSize({ width: 1536, height: 900 });
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		const rail = page.locator(toc);
 		await expect(rail).toBeVisible();
 		for (const label of ['Import', 'Demo', 'Props', 'Accessibility']) {
@@ -717,16 +717,16 @@ test.describe('On this page rail', () => {
 
 	test('clicking an entry jumps to the section and marks it current', async ({ page }) => {
 		await page.setViewportSize({ width: 1536, height: 900 });
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		await page.locator(toc).getByRole('link', { name: 'Accessibility' }).click();
-		await expect(page).toHaveURL('/components/button#a11y-heading');
+		await expect(page).toHaveURL('/docs/components/button#a11y-heading');
 		await expect(page.locator('h2#a11y-heading')).toBeInViewport();
 		await expect(page.locator(`${toc} a[aria-current="location"]`)).toHaveText('Accessibility');
 	});
 
 	test('scroll-spy tracks the reading position', async ({ page }) => {
 		await page.setViewportSize({ width: 1536, height: 900 });
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
 		// Pinned to the bottom, the last section wins even if its heading
 		// never crosses the threshold.
@@ -735,7 +735,7 @@ test.describe('On this page rail', () => {
 
 	test('hidden below the 1440px breakpoint (breakouts need the width)', async ({ page }) => {
 		await page.setViewportSize({ width: 1280, height: 800 });
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		await expect(page.locator(toc)).toBeHidden();
 	});
 
@@ -745,7 +745,7 @@ test.describe('On this page rail', () => {
 		// .sample-frame (the sample's own composition, not the docs page's
 		// structure) — excluded, so the rail lists only the page's own
 		// "Demo"/"Source" sections and never any sample-internal heading.
-		await page.goto('/patterns/homepage');
+		await page.goto('/docs/patterns/homepage');
 		const rail = page.locator(toc);
 		await expect(rail).toBeVisible();
 		const labels = await rail.getByRole('link').allTextContents();
@@ -754,7 +754,7 @@ test.describe('On this page rail', () => {
 
 	test('no horizontal overflow at 1536px with the rail and a breakout demo', async ({ page }) => {
 		await page.setViewportSize({ width: 1536, height: 900 });
-		await page.goto('/patterns/product-listing');
+		await page.goto('/docs/patterns/product-listing');
 		const overflow = await page.evaluate(
 			() => document.documentElement.scrollWidth > document.documentElement.clientWidth
 		);
@@ -768,12 +768,12 @@ test.describe('On this page rail', () => {
 
 test.describe('specs/37 — Table', () => {
 	test('/components/table renders a real table', async ({ page }) => {
-		await page.goto('/components/table');
+		await page.goto('/docs/components/table');
 		await expect(page.locator('table.hz-table').filter({ visible: true }).first()).toBeVisible();
 	});
 
 	test('sorting a demo column reorders visible rows', async ({ page }) => {
-		await page.goto('/components/table');
+		await page.goto('/docs/components/table');
 		// The "Basic" demo (default-active tab) has sortable columns already.
 		const firstRowHeader = page
 			.locator('table.hz-table tbody tr th')
@@ -785,7 +785,7 @@ test.describe('specs/37 — Table', () => {
 	});
 
 	test('selection updates the demo readout', async ({ page }) => {
-		await page.goto('/components/table');
+		await page.goto('/docs/components/table');
 		await page.getByRole('tab', { name: 'Selection' }).click();
 		await expect(page.getByText('Selected: none')).toBeVisible();
 		await page.getByRole('checkbox', { name: 'Voyager' }).check();
@@ -798,7 +798,7 @@ test.describe('specs/37 — Table', () => {
 	test('the stacked demo renders column headers as inline labels below the sm threshold, and reverts to a real table row above it (both directions)', async ({
 		page
 	}) => {
-		await page.goto('/components/table');
+		await page.goto('/docs/components/table');
 		await page.getByRole('tab', { name: 'Stacked mode' }).click();
 		// The demo is a ResizableDemo (stack="sm", 640px threshold) — drag the
 		// bounded box under/over 640px via its exact-entry input rather than
@@ -848,7 +848,7 @@ test.describe('specs/37 R11 — virtualized table pattern', () => {
 	test('rendered row elements stay far below the dataset size (windowing proof)', async ({
 		page
 	}) => {
-		await page.goto('/patterns/virtualized-table');
+		await page.goto('/docs/patterns/virtualized-table');
 		const rowCount = await page.locator('.sample-frame [role="row"]').count();
 		// 6,000 rows total (plus 1 header row) — only a small windowed slice is
 		// ever mounted, regardless of dataset size.
@@ -857,7 +857,7 @@ test.describe('specs/37 R11 — virtualized table pattern', () => {
 	});
 
 	test('scrolling the window changes the visible rows', async ({ page }) => {
-		await page.goto('/patterns/virtualized-table');
+		await page.goto('/docs/patterns/virtualized-table');
 		const viewport = page.locator('.sample-frame .hz-vtable-tbody');
 		const firstCellText = () => page.locator('.sample-frame .hz-vtable-cell').first().textContent();
 		const before = await firstCellText();
@@ -868,7 +868,7 @@ test.describe('specs/37 R11 — virtualized table pattern', () => {
 	});
 
 	test('sorting reorders rows within the window', async ({ page }) => {
-		await page.goto('/patterns/virtualized-table');
+		await page.goto('/docs/patterns/virtualized-table');
 		const firstCellText = () => page.locator('.sample-frame .hz-vtable-cell').first().textContent();
 		const before = await firstCellText();
 		await page.getByRole('button', { name: 'Player' }).click();
@@ -887,7 +887,7 @@ test.describe('specs/38 — Toc', () => {
 	const demoToc = 'nav[aria-label="On this article"]';
 
 	test('the basic demo lists the article headings', async ({ page }) => {
-		await page.goto('/components/toc');
+		await page.goto('/docs/components/toc');
 		const rail = page.locator(demoToc);
 		await expect(rail).toBeVisible();
 		for (const label of ['Choosing a disc', 'Grip and stance', 'Reading the wind']) {
@@ -896,7 +896,7 @@ test.describe('specs/38 — Toc', () => {
 	});
 
 	test('clicking an entry scrolls its own bounded article, not the page', async ({ page }) => {
-		await page.goto('/components/toc');
+		await page.goto('/docs/components/toc');
 		const article = page.locator('.toc-demo-article--basic');
 		const entry = page.locator(demoToc).getByRole('link', { name: 'Reading the wind' });
 		// The density-scaffold docs pages (specs/40) run roomier now, so this
@@ -916,7 +916,7 @@ test.describe('specs/38 — Toc', () => {
 	});
 
 	test('scrolling the bounded article updates the active entry', async ({ page }) => {
-		await page.goto('/components/toc');
+		await page.goto('/docs/components/toc');
 		const article = page.locator('.toc-demo-article--basic');
 		await article.evaluate((el) => {
 			el.scrollTop = el.scrollHeight - el.clientHeight;
@@ -927,7 +927,7 @@ test.describe('specs/38 — Toc', () => {
 	});
 
 	test('the nested-levels demo nests h3s under their h2', async ({ page }) => {
-		await page.goto('/components/toc');
+		await page.goto('/docs/components/toc');
 		await page.getByRole('tab', { name: 'Nested levels' }).click();
 		const rail = page.locator(demoToc);
 		await expect(rail.getByRole('link', { name: 'Getting started' })).toBeVisible();
@@ -938,7 +938,7 @@ test.describe('specs/38 — Toc', () => {
 
 	test('the collapse demo shows a disclosure trigger below the breakpoint', async ({ page }) => {
 		await page.setViewportSize({ width: 800, height: 900 });
-		await page.goto('/components/toc');
+		await page.goto('/docs/components/toc');
 		await page.getByRole('tab', { name: 'Collapse mode' }).click();
 		const rail = page.locator(demoToc);
 		const trigger = rail.locator('.hz-toc-trigger');
@@ -954,7 +954,7 @@ test.describe('specs/38 — Toc', () => {
 		page
 	}) => {
 		await page.setViewportSize({ width: 1280, height: 900 });
-		await page.goto('/components/toc');
+		await page.goto('/docs/components/toc');
 		await page.getByRole('tab', { name: 'Collapse mode' }).click();
 		const rail = page.locator(demoToc);
 		await expect(rail.locator('.hz-toc-title')).toBeVisible();
@@ -962,7 +962,7 @@ test.describe('specs/38 — Toc', () => {
 	});
 
 	test('the callback demo readout tracks bind:active and onActive together', async ({ page }) => {
-		await page.goto('/components/toc');
+		await page.goto('/docs/components/toc');
 		await page.getByRole('tab', { name: 'Callback / bindable active' }).click();
 		const rail = page.locator(demoToc);
 		await rail.getByRole('link', { name: 'Details' }).click();
@@ -987,7 +987,7 @@ test.describe('specs/39 — Motion', () => {
 	]) {
 		test(`duration demo dot reaches the track's far edge at ${vp.name}`, async ({ page }) => {
 			await page.setViewportSize({ width: vp.width, height: vp.height });
-			await page.goto('/foundation/motion');
+			await page.goto('/docs/foundation/motion');
 
 			const section = page.locator('section', { has: page.locator('#duration-demo-heading') });
 			await section.getByRole('button', { name: 'Animate' }).click();
@@ -1014,7 +1014,7 @@ test.describe('specs/39 — Motion', () => {
 	}
 
 	test('a transition demo toggles its box via the R3 helpers', async ({ page }) => {
-		await page.goto('/foundation/motion');
+		await page.goto('/docs/foundation/motion');
 		const section = page.locator('section', { has: page.locator('#transitions-heading') });
 		await expect(section.locator('.transition-box').filter({ visible: true })).toBeVisible();
 
@@ -1026,7 +1026,7 @@ test.describe('specs/39 — Motion', () => {
 	});
 
 	test('switching the transition sub-tab swaps the demo (fly)', async ({ page }) => {
-		await page.goto('/foundation/motion');
+		await page.goto('/docs/foundation/motion');
 		// The reveal-entrance tabs mirror the transition tabs 1:1, so "Fly"
 		// exists twice on the page — scope to the transition tablist.
 		await page.getByLabel('Transition demos').getByRole('tab', { name: 'Fly' }).click();
@@ -1037,7 +1037,7 @@ test.describe('specs/39 — Motion', () => {
 	// The reveal demos live in tabs now (single / group / hero); the card strip
 	// is the GROUP tab, which is not the default, so each test selects it.
 	async function openRevealGroupTab(page: Page) {
-		await page.goto('/foundation/motion');
+		await page.goto('/docs/foundation/motion');
 		await page
 			.getByLabel('Scroll reveal demos')
 			.getByRole('tab', { name: 'revealGroup — a list' })
@@ -1073,7 +1073,7 @@ test.describe('specs/39 — Motion', () => {
 	});
 
 	test('the single-element reveal demo plays on the default tab', async ({ page }) => {
-		await page.goto('/foundation/motion');
+		await page.goto('/docs/foundation/motion');
 		const solo = page.locator('.reveal-solo');
 		await solo.scrollIntoViewIfNeeded();
 		await expect.poll(async () => solo.evaluate((el) => getComputedStyle(el).opacity)).toBe('1');
@@ -1085,7 +1085,7 @@ test.describe('specs/39 — Motion', () => {
 		const errors: string[] = [];
 		page.on('pageerror', (e) => errors.push(e.message));
 
-		await page.goto('/foundation/motion');
+		await page.goto('/docs/foundation/motion');
 		const section = page.locator('section', { has: page.locator('#view-transition-heading') });
 		const button = section.getByRole('button', { name: /Switch to/ });
 		const layout = section.locator('.layout-demo');
@@ -1109,7 +1109,7 @@ test.describe('specs/39 — Motion', () => {
 
 test.describe('specs/48 — Observers', () => {
 	test('all four worked examples are present and operable', async ({ page }) => {
-		await page.goto('/foundation/observers');
+		await page.goto('/docs/foundation/observers');
 
 		await expect(page.locator('#intersect-heading')).toBeVisible();
 		await expect(page.locator('.intersect-pane')).toBeVisible();
@@ -1125,7 +1125,7 @@ test.describe('specs/48 — Observers', () => {
 	});
 
 	test('the intersect demo updates once its sentinel is scrolled into view', async ({ page }) => {
-		await page.goto('/foundation/observers');
+		await page.goto('/docs/foundation/observers');
 		const section = page.locator('section', { has: page.locator('#intersect-heading') });
 		const sentinel = section.locator('.intersect-sentinel');
 
@@ -1139,7 +1139,7 @@ test.describe('specs/48 — Observers', () => {
 
 	test('the resize demo reports a changed dimension after a viewport resize', async ({ page }) => {
 		await page.setViewportSize({ width: 1000, height: 800 });
-		await page.goto('/foundation/observers');
+		await page.goto('/docs/foundation/observers');
 		const section = page.locator('section', { has: page.locator('#resize-heading') });
 		const readout = section.locator('.resize-readout');
 
@@ -1153,7 +1153,7 @@ test.describe('specs/48 — Observers', () => {
 	test('the mutate demo derives a live word count from typed contenteditable input', async ({
 		page
 	}) => {
-		await page.goto('/foundation/observers');
+		await page.goto('/docs/foundation/observers');
 		const section = page.locator('section', { has: page.locator('#mutate-heading') });
 		const editor = section.getByRole('textbox', { name: 'Editable notes' });
 
@@ -1170,7 +1170,7 @@ test.describe('specs/48 — Observers', () => {
 	test('announce creates its live regions in the DOM with the expected aria-live values (not asserted visually)', async ({
 		page
 	}) => {
-		await page.goto('/foundation/observers');
+		await page.goto('/docs/foundation/observers');
 		const section = page.locator('section', { has: page.locator('#announce-heading') });
 
 		await section.getByRole('button', { name: 'Announce status (polite)' }).click();
@@ -1196,7 +1196,7 @@ test.describe('specs/48 — Observers', () => {
 
 test.describe('Virtualized combobox pattern', () => {
 	test('rendered options stay far below the dataset size (windowing proof)', async ({ page }) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		await page.getByRole('combobox').click();
 		const optionCount = await page.locator('[role="option"]').count();
 		// 27,000 rows total (30 real courses × 900 rounds) — only a small
@@ -1208,7 +1208,7 @@ test.describe('Virtualized combobox pattern', () => {
 	test('aria-activedescendant always references a currently-rendered option, including across a Home/End jump', async ({
 		page
 	}) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		await input.click();
 
@@ -1239,7 +1239,7 @@ test.describe('Virtualized combobox pattern', () => {
 	test('typing filters by substring across the whole label, windowed the same way', async ({
 		page
 	}) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		await input.click();
 		await input.fill('nokia');
@@ -1250,7 +1250,7 @@ test.describe('Virtualized combobox pattern', () => {
 	});
 
 	test('Enter toggles the active option without closing the popup', async ({ page }) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		await input.click();
 		await page.keyboard.press('ArrowDown');
@@ -1263,7 +1263,7 @@ test.describe('Virtualized combobox pattern', () => {
 	});
 
 	test('Escape closes the popup without touching the selection', async ({ page }) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		await input.click();
 		await page.keyboard.press('ArrowDown');
@@ -1279,7 +1279,7 @@ test.describe('Virtualized combobox pattern', () => {
 	test('a selected round renders a dismissible chip, and dismissing it removes the selection', async ({
 		page
 	}) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		// A click alone opens the popup with the first option already active
 		// — no ArrowDown needed to reach it.
@@ -1299,7 +1299,7 @@ test.describe('Virtualized combobox pattern', () => {
 	test('aria-selected reflects the data, not DOM history, as a selected row windows back into view', async ({
 		page
 	}) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		await input.click();
 
@@ -1325,7 +1325,7 @@ test.describe('Virtualized combobox pattern', () => {
 	});
 
 	test('the listbox is marked aria-multiselectable', async ({ page }) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		await page.getByRole('combobox').click();
 		await expect(page.getByRole('listbox')).toHaveAttribute('aria-multiselectable', 'true');
 	});
@@ -1333,7 +1333,7 @@ test.describe('Virtualized combobox pattern', () => {
 	test('a wheel scroll that windows the active row out demotes aria-activedescendant; scrolling back re-commits it', async ({
 		page
 	}) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		// A click opens the popup with option 0 committed active.
 		await input.click();
@@ -1369,7 +1369,7 @@ test.describe('Virtualized combobox pattern', () => {
 	});
 
 	test('a scrollbar press in the listbox does not close the popup', async ({ page }) => {
-		await page.goto('/patterns/virtualized-combobox');
+		await page.goto('/docs/patterns/virtualized-combobox');
 		const input = page.getByRole('combobox');
 		await input.click();
 		await expect(input).toHaveAttribute('aria-expanded', 'true');
@@ -1415,7 +1415,7 @@ test.describe('specs/46 — content focus-visible ring travels with the docs exa
 	}
 
 	test('a content link gets the offset 2px currentColor ring', async ({ page }) => {
-		await page.goto('/theming/examples');
+		await page.goto('/docs/theming/examples');
 		const link = page.getByRole('link', { name: 'WCAG AA on every graded pairing' });
 		await link.focus();
 		await expect(link).toBeFocused();
@@ -1432,7 +1432,7 @@ test.describe('specs/46 — content focus-visible ring travels with the docs exa
 	test('a .hz-button does NOT get the offset ring — it keeps its own themed ring', async ({
 		page
 	}) => {
-		await page.goto('/components/button');
+		await page.goto('/docs/components/button');
 		const button = page.locator('button.hz-button').filter({ visible: true }).first();
 		await button.focus();
 		await expect(button).toBeFocused();
@@ -1448,7 +1448,7 @@ test.describe('specs/46 — content focus-visible ring travels with the docs exa
 	test('a .hz-field input does NOT get the offset ring — it keeps its own themed ring', async ({
 		page
 	}) => {
-		await page.goto('/components/text-input');
+		await page.goto('/docs/components/text-input');
 		const input = page.locator('.hz-field input').filter({ visible: true }).first();
 		await input.focus();
 		await expect(input).toBeFocused();
@@ -1473,7 +1473,7 @@ test.describe('specs/46 — content focus-visible ring travels with the docs exa
 
 test.describe('specs/45 — Slider vertical orientation', () => {
 	test('Slider Vertical demo tab renders a track taller than wide', async ({ page }) => {
-		await page.goto('/components/slider');
+		await page.goto('/docs/components/slider');
 		await page.getByRole('tab', { name: 'Vertical' }).click();
 		// Tabs keeps inactive panels in the DOM (hidden) — assert on the visible
 		// panel only (docs-page-pattern gotcha).
@@ -1486,7 +1486,7 @@ test.describe('specs/45 — Slider vertical orientation', () => {
 	test('Vert-R6: ArrowUp increases a focused vertical thumb, ArrowDown decreases it', async ({
 		page
 	}) => {
-		await page.goto('/components/slider');
+		await page.goto('/docs/components/slider');
 		await page.getByRole('tab', { name: 'Vertical' }).click();
 		const slider = page.getByRole('slider', { name: 'Elevation', exact: true });
 		await slider.focus();
@@ -1505,7 +1505,7 @@ test.describe('specs/45 — Slider vertical orientation', () => {
 	test('Vert-R3: inputPosition places the number field above the track when "start", below when "end"', async ({
 		page
 	}) => {
-		await page.goto('/components/slider');
+		await page.goto('/docs/components/slider');
 		await page.getByRole('tab', { name: 'Vertical' }).click();
 
 		const endRow = page
@@ -1528,7 +1528,7 @@ test.describe('specs/45 — Slider vertical orientation', () => {
 	});
 
 	test('RangeSlider Vertical demo tab renders a track taller than wide', async ({ page }) => {
-		await page.goto('/components/range-slider');
+		await page.goto('/docs/components/range-slider');
 		await page.getByRole('tab', { name: 'Vertical' }).click();
 		const track = page.locator('.hz-slider-track').filter({ visible: true }).first();
 		const box = await track.boundingBox();
@@ -1537,7 +1537,7 @@ test.describe('specs/45 — Slider vertical orientation', () => {
 	});
 
 	test('Vert-R6/R7: ArrowUp increases a focused vertical RangeSlider thumb', async ({ page }) => {
-		await page.goto('/components/range-slider');
+		await page.goto('/docs/components/range-slider');
 		await page.getByRole('tab', { name: 'Vertical' }).click();
 		const minThumb = page.getByRole('slider', {
 			name: 'Hole length (vertical) (minimum)',
@@ -1553,7 +1553,7 @@ test.describe('specs/45 — Slider vertical orientation', () => {
 	test('Vert-R3: RangeSlider min–max cluster stays above the track when inputPosition="start"', async ({
 		page
 	}) => {
-		await page.goto('/components/range-slider');
+		await page.goto('/docs/components/range-slider');
 		await page.getByRole('tab', { name: 'Vertical' }).click();
 		const startRow = page
 			.locator('.hz-slider-row[data-input-position="start"]')
@@ -1574,7 +1574,7 @@ test.describe('Product detail pattern — thumbnail strip', () => {
 	test('clicking a thumb pages the carousel and marks that thumb aria-current', async ({
 		page
 	}) => {
-		await page.goto('/patterns/product-detail');
+		await page.goto('/docs/patterns/product-detail');
 		const thumbs = page.locator('.pdp-thumb');
 		await expect(thumbs).toHaveCount(3);
 		await expect(thumbs.first()).toHaveAttribute('aria-current', 'true');
@@ -1589,7 +1589,7 @@ test.describe('Product detail pattern — thumbnail strip', () => {
 	});
 
 	test('paging the carousel moves the active thumb back', async ({ page }) => {
-		await page.goto('/patterns/product-detail');
+		await page.goto('/docs/patterns/product-detail');
 		await page.getByRole('button', { name: 'Next slide' }).click();
 		await expect(page.locator('.pdp-thumb').nth(1)).toHaveAttribute('aria-current', 'true');
 	});
@@ -1597,14 +1597,14 @@ test.describe('Product detail pattern — thumbnail strip', () => {
 	test('thumbs are a labeled group of buttons and never open the lightbox viewer', async ({
 		page
 	}) => {
-		await page.goto('/patterns/product-detail');
+		await page.goto('/docs/patterns/product-detail');
 		await expect(page.getByRole('group', { name: 'Choose a colorway' })).toBeVisible();
 		await page.locator('.pdp-thumb').nth(1).click();
 		await expect(page.getByRole('dialog')).toHaveCount(0);
 	});
 
 	test('the active slide still opens the lightbox viewer via keyboard', async ({ page }) => {
-		await page.goto('/patterns/product-detail');
+		await page.goto('/docs/patterns/product-detail');
 		const activeSlideImg = page.locator('.hz-carousel-slide[data-active] img').first();
 		await activeSlideImg.focus();
 		await page.keyboard.press('Enter');
@@ -1620,7 +1620,7 @@ test.describe('specs/49 amendment — Loading ring variant', () => {
 	test('the Variants tab shows an indeterminate ring and a determinate ring, both real SVGs', async ({
 		page
 	}) => {
-		await page.goto('/components/loading');
+		await page.goto('/docs/components/loading');
 		const rings = page.locator('.hz-loading svg.hz-loading-ring').filter({ visible: true });
 		// Indeterminate (no readout) + determinate (with a centered readout).
 		await expect(rings).toHaveCount(2);
@@ -1632,7 +1632,7 @@ test.describe('specs/49 amendment — Loading ring variant', () => {
 	test('the Intents and Sizes tabs include a ring alongside spinner/bar/dots in every row', async ({
 		page
 	}) => {
-		await page.goto('/components/loading');
+		await page.goto('/docs/components/loading');
 		await page.getByRole('tab', { name: 'Intents' }).click();
 		const intentsPanel = page.locator('.tab-content').filter({ visible: true }).first();
 		await expect(intentsPanel.locator('svg.hz-loading-ring').first()).toBeVisible();
@@ -1651,7 +1651,7 @@ test.describe('specs/50 — Tooltip', () => {
 	test('hovering the trigger reveals the tooltip, positioned near it (not at 0,0)', async ({
 		page
 	}) => {
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		const trigger = page.getByRole('button', { name: 'Add to bag' });
 		await trigger.hover();
 		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
@@ -1684,7 +1684,7 @@ test.describe('specs/50 — Tooltip', () => {
 	test('focusing the trigger reveals the tooltip immediately; the trigger carries aria-describedby to a role="tooltip" node', async ({
 		page
 	}) => {
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		const trigger = page.getByRole('button', { name: 'Add to bag' });
 		await trigger.focus();
 		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
@@ -1697,7 +1697,7 @@ test.describe('specs/50 — Tooltip', () => {
 	});
 
 	test('Escape dismisses the tooltip', async ({ page }) => {
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		const trigger = page.getByRole('button', { name: 'Add to bag' });
 		await trigger.hover();
 		await expect(page.locator('.hz-tooltip[data-state="open"]')).toBeVisible();
@@ -1708,7 +1708,7 @@ test.describe('specs/50 — Tooltip', () => {
 	test('moving the pointer onto the tooltip itself keeps it open (hoverable bridge)', async ({
 		page
 	}) => {
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		await page.getByRole('tab', { name: 'Hover & keyboard' }).click();
 		const trigger = page.getByRole('button', { name: 'Info' });
 		await trigger.hover();
@@ -1735,7 +1735,7 @@ test.describe('specs/50 — Tooltip', () => {
 				return original(...args);
 			}) as typeof CSS.supports;
 		});
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		const trigger = page.getByRole('button', { name: 'Add to bag' });
 		await trigger.hover();
 		const tooltipEl = page.locator('.hz-tooltip[data-state="open"]');
@@ -1751,7 +1751,7 @@ test.describe('specs/50 — Tooltip', () => {
 	test('both examples on the page are keyboard-operable and every h2 has a stable id (TOC)', async ({
 		page
 	}) => {
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		await expect(page.locator('h2#demo-heading')).toHaveCount(1);
 		await expect(page.locator('h2#props-heading')).toHaveCount(1);
 		await expect(page.locator('h2#a11y-heading')).toHaveCount(1);
@@ -1799,7 +1799,7 @@ test.describe('specs/50 — Tooltip', () => {
 	test('the tooltip never causes a horizontal scrollbar with the trigger flush to each viewport edge (anchor path)', async ({
 		page
 	}) => {
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		await page.getByRole('tab', { name: 'Placement' }).click();
 
 		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'top', {
@@ -1834,7 +1834,7 @@ test.describe('specs/50 — Tooltip', () => {
 				return original(...args);
 			}) as typeof CSS.supports;
 		});
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		await page.getByRole('tab', { name: 'Placement' }).click();
 
 		await assertEdgeFlushTooltipIsScrollbarSafe(page, 'top', {
@@ -1866,7 +1866,7 @@ test.describe('specs/50 — Tooltip', () => {
 	test('a trigger inside dir="rtl" flips a left/right tooltip to the opposite physical side; block-axis flip/shift stay correct', async ({
 		page
 	}) => {
-		await page.goto('/components/tooltip');
+		await page.goto('/docs/components/tooltip');
 		await page.getByRole('tab', { name: 'Placement' }).click();
 
 		const leftTrigger = page.getByRole('button', { name: 'left', exact: true });
@@ -1915,7 +1915,7 @@ test.describe('specs/50 — Popover', () => {
 		// flip-block fallback never kicks in here — a separate assertion
 		// below (adjacentGap) tolerates a flip either way regardless.
 		await page.setViewportSize({ width: 1280, height: 1400 });
-		await page.goto('/components/popover');
+		await page.goto('/docs/components/popover');
 		const trigger = page.getByRole('button', { name: 'Filters' });
 		await expect(trigger).toHaveAttribute('aria-expanded', 'false');
 		await trigger.click();
@@ -1941,7 +1941,7 @@ test.describe('specs/50 — Popover', () => {
 	});
 
 	test('Escape closes the panel and returns focus to the trigger', async ({ page }) => {
-		await page.goto('/components/popover');
+		await page.goto('/docs/components/popover');
 		const trigger = page.getByRole('button', { name: 'Filters' });
 		await trigger.click();
 		await expect(page.locator('.hz-popover-panel[data-state="open"]')).toBeVisible();
@@ -1951,7 +1951,7 @@ test.describe('specs/50 — Popover', () => {
 	});
 
 	test('an outside click light-dismisses the panel', async ({ page }) => {
-		await page.goto('/components/popover');
+		await page.goto('/docs/components/popover');
 		const trigger = page.getByRole('button', { name: 'Filters' });
 		await trigger.click();
 		await expect(page.locator('.hz-popover-panel[data-state="open"]')).toBeVisible();
@@ -1960,7 +1960,7 @@ test.describe('specs/50 — Popover', () => {
 	});
 
 	test('an interactive control inside the panel is operable', async ({ page }) => {
-		await page.goto('/components/popover');
+		await page.goto('/docs/components/popover');
 		const trigger = page.getByRole('button', { name: 'Filters' });
 		await trigger.click();
 		const checkbox = page.getByRole('checkbox', { name: 'Finished rounds' });
@@ -1970,7 +1970,7 @@ test.describe('specs/50 — Popover', () => {
 	});
 
 	test('no backdrop element is present', async ({ page }) => {
-		await page.goto('/components/popover');
+		await page.goto('/docs/components/popover');
 		const trigger = page.getByRole('button', { name: 'Filters' });
 		await trigger.click();
 		await expect(page.locator('.hz-popover-panel[data-state="open"]')).toBeVisible();
@@ -1980,7 +1980,7 @@ test.describe('specs/50 — Popover', () => {
 	test('the open panel is not a scroll container and grows no document scrollbar (consumer-caret posture)', async ({
 		page
 	}) => {
-		await page.goto('/components/popover');
+		await page.goto('/docs/components/popover');
 		await page.getByRole('button', { name: 'Filters' }).click();
 		const panel = page.locator('.hz-popover-panel[data-state="open"]');
 		await expect(panel).toBeVisible();
@@ -2021,7 +2021,7 @@ test.describe('specs/50 — Popover', () => {
 				return original(...args);
 			}) as typeof CSS.supports;
 		});
-		await page.goto('/components/popover');
+		await page.goto('/docs/components/popover');
 		const trigger = page.getByRole('button', { name: 'Filters' });
 		await trigger.click();
 		const panel = page.locator('.hz-popover-panel[data-state="open"]');
@@ -2039,7 +2039,7 @@ test.describe('specs/50 — Popover', () => {
 	test('the page renders with every example operable and every h2 has a stable id (TOC)', async ({
 		page
 	}) => {
-		await page.goto('/components/popover');
+		await page.goto('/docs/components/popover');
 		await expect(page.locator('h2#demo-heading')).toHaveCount(1);
 		await expect(page.locator('h2#props-heading')).toHaveCount(1);
 		await expect(page.locator('h2#a11y-heading')).toHaveCount(1);
@@ -2068,7 +2068,7 @@ test.describe('specs/51 — Dropdown positioning', () => {
 	}
 
 	async function assertAdjacentNotAtOrigin(page: Page): Promise<void> {
-		await page.goto('/components/dropdown');
+		await page.goto('/docs/components/dropdown');
 		const trigger = page.getByRole('button', { name: 'Round actions' });
 		await trigger.click();
 		const menu = page.locator(OPEN_MENU);
@@ -2104,7 +2104,7 @@ test.describe('specs/51 — Dropdown positioning', () => {
 	 *  the trigger flush to the viewport's bottom edge, opens the menu, and
 	 *  asserts it flipped above and stayed fully on-screen. */
 	async function assertBottomFlushFlipsAbove(page: Page): Promise<void> {
-		await page.goto('/components/dropdown');
+		await page.goto('/docs/components/dropdown');
 		await page.evaluate(() => {
 			for (const sel of ['#docs-sidebar', '.docs-header', 'header']) {
 				document.querySelectorAll(sel).forEach((el) => {
@@ -2144,7 +2144,7 @@ test.describe('specs/51 — Dropdown positioning', () => {
 	test('a trigger inside an overflow: hidden ancestor still shows a fully clickable menu (top-layer escape)', async ({
 		page
 	}) => {
-		await page.goto('/components/dropdown');
+		await page.goto('/docs/components/dropdown');
 		// The demo frame around the trigger — clipped down to 60px tall. The
 		// pre-move, absolutely-positioned menu would have been cut off along
 		// with its ancestor; the top-layer popover must not be.
@@ -2171,7 +2171,7 @@ test.describe('specs/51 — Dropdown positioning', () => {
 	// -------------------------------------------------------------------------
 
 	async function assertRtlAlignEquivalence(page: Page): Promise<void> {
-		await page.goto('/components/dropdown');
+		await page.goto('/docs/components/dropdown');
 
 		// align="start" (default, Basic tab) under RTL attaches to the
 		// trigger's right edge.
@@ -2224,7 +2224,7 @@ test.describe('specs/51 — Dropdown positioning', () => {
 
 test.describe('specs/51 — Positioning (foundation page)', () => {
 	test('every section renders with a stable h2 id (TOC)', async ({ page }) => {
-		await page.goto('/foundation/positioning');
+		await page.goto('/docs/foundation/positioning');
 		for (const id of [
 			'vocabulary-heading',
 			'logical-heading',
@@ -2240,7 +2240,7 @@ test.describe('specs/51 — Positioning (foundation page)', () => {
 	test('the flip demo renders above mid-page, then flips below as the trigger nears the viewport top', async ({
 		page
 	}) => {
-		await page.goto('/foundation/positioning');
+		await page.goto('/docs/foundation/positioning');
 		const trigger = page.getByRole('button', { name: 'Focus me, then scroll' });
 		await trigger.hover();
 		const tip = page.locator('.hz-tooltip[data-state="open"]');
@@ -2296,7 +2296,7 @@ test.describe('specs/51 — Positioning (foundation page)', () => {
 	test('the caret recipe code sample is present and its live demo draws a protruding caret without scrollbars', async ({
 		page
 	}) => {
-		await page.goto('/foundation/positioning');
+		await page.goto('/docs/foundation/positioning');
 		const section = page.locator('section', { has: page.locator('#caret-heading') });
 		// .last(): the recipe CodeBlock — the live demo (and its own example
 		// code block) leads the section, the recipe CSS closes it.

@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const codeBlockDoc: ComponentDoc = {
-	description:
-		'A headless, read-only code viewer — copy button, opt-in title/language header, decorative line numbers, and a Show-more collapse for long listings. Ships no syntax highlighter; bring your own via the language class hook (client autoloaders) or the children escape hatch (build-time highlighters like Shiki).',
 	importLine: 'import { CodeBlock } from "@hyzer-labs/ui"',
 	props: [
 		{

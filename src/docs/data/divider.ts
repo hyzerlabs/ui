@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const dividerDoc: ComponentDoc = {
-	description:
-		'A thematic separator: a native hr when bare, and a labelled role=separator element when it wraps a centered text label.',
 	importLine: 'import { Divider } from "@hyzer-labs/ui"',
 	props: [
 		{

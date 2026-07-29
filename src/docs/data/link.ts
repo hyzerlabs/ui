@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const linkDoc: ComponentDoc = {
-	description:
-		'An accessible anchor component with variant styles, external link support, and icon slots. Links inherit the surrounding text size.',
 	importLine: 'import { Link } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'href', type: 'string', default: '—', note: 'Required.' },

@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const checkboxDoc: ComponentDoc = {
-	description:
-		'A labeled checkbox with description, inline error, and an indeterminate state for select-all patterns.',
 	importLine: 'import { Checkbox } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'name', type: 'string', default: '—', note: 'Required. Form field name.' },

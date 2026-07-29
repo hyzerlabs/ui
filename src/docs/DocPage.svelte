@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import Stack from '$lib/components/Stack.svelte';
 	import { CodeBlock } from '$lib';
+	import DocIntro from './DocIntro.svelte';
 	import PropsTable from './PropsTable.svelte';
 	import type { PropRow } from './PropsTable.svelte';
 	import ThemeHooks from './ThemeHooks.svelte';
@@ -21,7 +22,6 @@
 
 	interface Props {
 		name: string;
-		description: string;
 		importLine: string;
 		props?: PropRow[];
 		/** Supporting item/option types rendered as sub-tables in the Props section. */
@@ -35,7 +35,6 @@
 
 	let {
 		name,
-		description,
 		importLine,
 		props = [],
 		types = [],
@@ -56,10 +55,9 @@
 </svelte:head>
 
 <Stack gap="away">
-	<div class="doc-intro">
-		<h1>{name}</h1>
-		<p class="doc-description">{description}</p>
-	</div>
+	<!-- Heading and lead line come from the manifest, like every other docs
+	     page — `name` still titles the tab and labels the tables below. -->
+	<DocIntro title={name} />
 
 	<Stack
 		as="section"
@@ -114,7 +112,7 @@
 			<p class="hooks-intro">
 				What this component promises your CSS. The reference theme styles exactly these — from
 				<code>@layer hz-theme</code>, so your unlayered rules win. See
-				<a href="/theming/components">Styling Components</a> for the how.
+				<a href="/docs/theming/components">Styling Components</a> for the how.
 			</p>
 			<ThemeHooks hooks={componentHooks} />
 		</Stack>

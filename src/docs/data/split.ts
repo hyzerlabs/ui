@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const splitDoc: ComponentDoc = {
-	description:
-		'Two-column layout with configurable proportions that stacks to a single column when its own width gets narrow.',
 	importLine: 'import { Split } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'fraction', type: "'1/4' | '1/3' | '1/2' | '2/3' | '3/4' | 'auto'", default: "'1/2'" },

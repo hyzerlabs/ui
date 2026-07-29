@@ -3,10 +3,10 @@ import { render } from 'vitest-browser-svelte';
 import CommandPalette, { type CommandItem } from './CommandPalette.svelte';
 
 const items: CommandItem[] = [
-	{ label: 'Toggle', href: '/components/toggle', context: 'Components · Forms' },
-	{ label: 'Button', href: '/components/button', context: 'Components · Common' },
-	{ label: 'Textarea', href: '/components/textarea', context: 'Components · Forms' },
-	{ label: 'Colors & Intent', href: '/foundation/colors', context: 'Foundation' }
+	{ label: 'Toggle', href: '/docs/components/toggle', context: 'Components · Forms' },
+	{ label: 'Button', href: '/docs/components/button', context: 'Components · Common' },
+	{ label: 'Textarea', href: '/docs/components/textarea', context: 'Components · Forms' },
+	{ label: 'Colors & Intent', href: '/docs/foundation/colors', context: 'Foundation' }
 ];
 
 function tick(): Promise<void> {
@@ -79,7 +79,7 @@ describe('CommandPalette', () => {
 		expect(options()[1].hasAttribute('data-active')).toBe(true);
 		key(input, 'Enter');
 		await tick();
-		expect(onSelect).toHaveBeenCalledWith('/components/textarea');
+		expect(onSelect).toHaveBeenCalledWith('/docs/components/textarea');
 	});
 
 	it('Enter with no navigation yet picks the first result', async () => {
@@ -89,7 +89,7 @@ describe('CommandPalette', () => {
 		await type(input, 'toggle');
 		key(input, 'Enter');
 		await tick();
-		expect(onSelect).toHaveBeenCalledWith('/components/toggle');
+		expect(onSelect).toHaveBeenCalledWith('/docs/components/toggle');
 	});
 
 	it('clicking a result selects it', async () => {
@@ -99,7 +99,7 @@ describe('CommandPalette', () => {
 		await type(input, 'button');
 		options()[0].dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
 		await tick();
-		expect(onSelect).toHaveBeenCalledWith('/components/button');
+		expect(onSelect).toHaveBeenCalledWith('/docs/components/button');
 	});
 
 	it('Escape clears the query, then closes; selecting clears too', async () => {
@@ -187,7 +187,7 @@ describe('CommandPalette — modal mode', () => {
 		await type(parts(container).input, 'toggle');
 		key(parts(container).input, 'Enter');
 		await tick();
-		expect(onSelect).toHaveBeenCalledWith('/components/toggle');
+		expect(onSelect).toHaveBeenCalledWith('/docs/components/toggle');
 		expect(dialog(container)).toBeNull();
 	});
 });

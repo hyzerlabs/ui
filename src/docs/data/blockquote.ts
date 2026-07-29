@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const blockquoteDoc: ComponentDoc = {
-	description:
-		'A semantic quote: a figure wrapping a blockquote, with an optional visible attribution and an optional machine-readable source URL.',
 	importLine: 'import { Blockquote } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The quoted content.' },
@@ -30,7 +28,7 @@ export const blockquoteDoc: ComponentDoc = {
 			type: 'Intent',
 			default: '—',
 			note: 'See Foundation → Colors & Intent.',
-			noteHref: '/foundation/colors#intent'
+			noteHref: '/docs/foundation/colors#intent'
 		},
 		{
 			name: 'intentScope',

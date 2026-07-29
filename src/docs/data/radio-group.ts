@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const radioGroupDoc: ComponentDoc = {
-	description:
-		'A group of radio buttons in a fieldset with a legend, vertical or horizontal layout, and standard field accessibility.',
 	importLine: 'import { RadioGroup } from "@hyzer-labs/ui"',
 	props: [
 		{

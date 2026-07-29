@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const cardDoc: ComponentDoc = {
-	description:
-		'A content container with optional media, actions, horizontal layout, and clickable-overlay support.',
 	importLine: 'import { Card } from "@hyzer-labs/ui"',
 	props: [
 		{

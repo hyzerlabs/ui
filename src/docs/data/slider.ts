@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const sliderDoc: ComponentDoc = {
-	description:
-		'A labeled range slider paired with a synced number field for fine-tuned keyboard entry — typed values commit on change, snapped to the step and clamped to the range.',
 	importLine: 'import { Slider } from "@hyzer-labs/ui"',
 	props: [
 		{

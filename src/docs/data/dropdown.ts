@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const dropdownDoc: ComponentDoc = {
-	description:
-		'A generic action menu — the WAI-ARIA APG menu button pattern — with real roving-tabindex keyboard focus.',
 	importLine: 'import { Dropdown } from "@hyzer-labs/ui"',
 	props: [
 		{

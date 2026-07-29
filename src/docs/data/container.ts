@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const containerDoc: ComponentDoc = {
-	description:
-		'Centers content horizontally with a configurable max-width and padding. Container decides how wide a region is — pair it with Stack, Cluster, Grid, or Split to arrange the content inside.',
 	importLine: 'import { Container } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'max', type: "'sm' | 'md' | 'lg' | 'xl' | 'full'", default: "'lg'" },

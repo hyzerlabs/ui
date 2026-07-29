@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const tabsDoc: ComponentDoc = {
-	description:
-		'An accessible tab interface with roving tabindex, arrow-key navigation, and horizontal or vertical orientation. Tab labels accept plain strings or snippets.',
 	importLine: 'import { Tabs } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'items', type: 'TabItem[]', default: '—', note: 'Required. See TabItem below.' },

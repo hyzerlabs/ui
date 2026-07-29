@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const popoverDoc: ComponentDoc = {
-	description:
-		'A click-triggered disclosure panel for rich or interactive content — a filter form, a settings menu, extra detail. Non-modal: no focus trap, no backdrop. Need a focus-trapped dialog? Use Modal. Need a menu of actions? Use Dropdown.',
 	importLine: 'import { Popover } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'open', type: 'boolean', default: 'false', note: '$bindable.' },

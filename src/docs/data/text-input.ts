@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const textInputDoc: ComponentDoc = {
-	description:
-		'A labeled single-line input covering the common HTML input types, with description, inline error, and decorative prefix/suffix slots.',
 	importLine: 'import { TextInput } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'name', type: 'string', default: '—', note: 'Required. Form field name.' },

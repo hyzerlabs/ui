@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const tooltipDoc: ComponentDoc = {
-	description:
-		'An accessible hover/focus description attached to any element you already have — an icon button, a link, an abbreviation. Non-interactive text only; for a click-triggered panel with rich content, use Popover instead.',
 	importLine: 'import { tooltip } from "@hyzer-labs/ui"',
 	props: [
 		{

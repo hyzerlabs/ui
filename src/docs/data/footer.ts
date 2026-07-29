@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const footerDoc: ComponentDoc = {
-	description:
-		'Site footer with auto-fitting multi-column link groups, optional logo, social links, and a bottom bar.',
 	importLine: 'import { Footer } from "@hyzer-labs/ui"',
 	props: [
 		{

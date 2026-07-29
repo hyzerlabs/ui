@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const tableDoc: ComponentDoc = {
-	description:
-		'A data table with client sorting, row selection, a sticky header, built-in empty/loading states, and an opt-in stacked mode for narrow widths. Real <table> semantics throughout.',
 	importLine: 'import { Table } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'items', type: 'T[]', default: '—', note: 'Required.' },

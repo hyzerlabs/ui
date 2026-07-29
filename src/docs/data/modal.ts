@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const modalDoc: ComponentDoc = {
-	description:
-		'An accessible dialog built on the native <dialog> element with focus trap, Esc-to-close, scroll lock, and configurable sizes.',
 	importLine: 'import { Modal } from "@hyzer-labs/ui"',
 	props: [
 		{ name: 'title', type: 'string', default: '—', note: 'Required for accessibility.' },

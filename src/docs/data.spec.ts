@@ -59,10 +59,12 @@ describe('data/ — coverage (specs 40 R1)', () => {
 		expect(orphans).toEqual([]);
 	});
 
-	it('every entry has a description and an importLine', () => {
+	// Descriptions moved to the manifest (specs/53 R8) — one source for the
+	// sidebar, the page's own lead line and llms.txt. manifest.spec.ts owns
+	// the "every page has one" guard now.
+	it('every entry has an importLine', () => {
 		const violations: string[] = [];
 		for (const [name, doc] of Object.entries(componentDocs)) {
-			if (!doc.description.length) violations.push(`${name}: empty description`);
 			if (!doc.importLine.length) violations.push(`${name}: empty importLine`);
 		}
 		expect(violations).toEqual([]);

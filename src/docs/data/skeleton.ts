@@ -2,8 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const skeletonDoc: ComponentDoc = {
-	description:
-		'A decorative placeholder for content that has not loaded yet. A small set of shape variants (text lines, circle, rectangle, fill-the-box) composable into any card-like placeholder, with free width/height/radius overrides and a shimmer/pulse animation that goes still under reduced motion.',
 	importLine: 'import { Skeleton } from "@hyzer-labs/ui"',
 	props: [
 		{

@@ -2,7 +2,6 @@
 import type { ComponentDoc } from './types.js';
 
 export const clusterDoc: ComponentDoc = {
-	description: 'Lays children out in a horizontal row that wraps to new lines as needed.',
 	importLine: 'import { Cluster } from "@hyzer-labs/ui"',
 	props: [
 		{
