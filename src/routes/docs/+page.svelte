@@ -2,6 +2,7 @@
 	import { Stack, Split, Card, Badge, Button, Image, CodeBlock } from '$lib';
 	import DocIntro from '../../docs/DocIntro.svelte';
 	import WhereNext from '../../docs/WhereNext.svelte';
+	import { nextSteps } from '../../docs/nextSteps';
 
 	const installCode = 'pnpm add @hyzer-labs/ui';
 
@@ -77,34 +78,6 @@
 		"@import '@hyzer-labs/ui/theme';",
 		"@import './styles/hyzer-utilities.css'; /* only if you opted in */"
 	].join('\n');
-
-	const nextSteps = [
-		{
-			label: 'Components',
-			href: '/docs/components/button',
-			blurb: 'Every component, with its props, theme hooks and accessibility notes.'
-		},
-		{
-			label: 'Theming',
-			href: '/docs/theming/overview',
-			blurb: 'The layer model, and how far you can push it without forking the library.'
-		},
-		{
-			label: 'Patterns',
-			href: '/docs/patterns/homepage',
-			blurb: 'Example patterns to help you get started.'
-		},
-		{
-			label: 'Philosophy',
-			href: '/docs/philosophy',
-			blurb: 'What every component commits to, and why.'
-		},
-		{
-			label: 'Agents',
-			href: '/docs/agents',
-			blurb: 'Point a coding agent at this library and keep its output correct.'
-		}
-	];
 </script>
 
 <svelte:head>

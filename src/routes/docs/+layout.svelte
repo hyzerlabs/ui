@@ -114,7 +114,7 @@
 <div class="docs-shell">
 	<!-- Mobile top bar — only visible below sidebar breakpoint -->
 	<header class="docs-topbar">
-		<a href="/" class="docs-logo">@hyzer-labs/ui</a>
+		<a href="/" class="site-logo">@hyzer-labs/ui</a>
 		<div class="docs-topbar-end">
 			<!-- Dogfooded: the icon-only Button form (no children + iconStart). The
 			     colors page's Dark mode section shows this exact pattern. -->
@@ -148,7 +148,7 @@
 			<!-- Sidebar header: logo + theme toggle row, then the search box -->
 			<div class="docs-sidebar-header">
 				<div class="docs-sidebar-headrow">
-					<a href="/" class="docs-logo" onclick={closeMobileNav}>@hyzer-labs/ui</a>
+					<a href="/" class="site-logo" onclick={closeMobileNav}>@hyzer-labs/ui</a>
 					<ThemeToggle />
 				</div>
 				<!-- The /patterns/command-palette page ships its own ⌘K demo; yield the
@@ -242,25 +242,8 @@
 </div>
 
 <style>
-	/* ------------------------------------------------------------------ */
-	/* Skip to content                                                       */
-	/* ------------------------------------------------------------------ */
-
-	.skip-to-content {
-		position: absolute;
-		top: -100%;
-		left: 0;
-		z-index: 9999;
-		padding: 0.5rem 1rem;
-		background: var(--hz-color-text, #000);
-		color: var(--hz-color-surface, #fff);
-		text-decoration: none;
-		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.skip-to-content:focus-visible {
-		top: 0;
-	}
+	/* .skip-to-content and .site-logo are shared with the non-docs shell and
+	   live in src/docs/chrome.css. */
 
 	/* ------------------------------------------------------------------ */
 	/* Shell                                                                */
@@ -365,22 +348,6 @@
 		 * mode); a subtle text-tinted thumb adapts to either mode. */
 		scrollbar-color: color-mix(in srgb, var(--hz-color-text, #000) 22%, transparent) transparent;
 		padding: 0.75rem 0 1.25rem;
-	}
-
-	/* ------------------------------------------------------------------ */
-	/* Logo                                                                  */
-	/* ------------------------------------------------------------------ */
-
-	.docs-logo {
-		font-weight: var(--hz-font-weight-bold, 700);
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		text-decoration: none;
-		color: inherit;
-		white-space: nowrap;
-	}
-
-	.docs-logo:hover {
-		text-decoration: underline;
 	}
 
 	/* ------------------------------------------------------------------ */

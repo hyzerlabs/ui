@@ -31,7 +31,15 @@
 	<h2 {id}>{title}</h2>
 	<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
 		{#each items as step (step.href)}
-			<Card class="hz-card--outlined" href={step.href} padding="md" rounded="md">
+			<!-- The card's link is a bare overlay anchor, so it needs its own
+			     name: without ariaLabel it reaches the a11y tree unlabeled. -->
+			<Card
+				class="hz-card--outlined"
+				href={step.href}
+				ariaLabel={step.label}
+				padding="md"
+				rounded="md"
+			>
 				<h3 class="next-title">{step.label}</h3>
 				<p class="next-blurb">{step.blurb}</p>
 			</Card>

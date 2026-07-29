@@ -1,0 +1,35 @@
+/**
+ * The chrome bits both shells share — the docs layout and SiteChrome (landing
+ * page, error page). Site-local on purpose: this is NOT part of the shipped
+ * `docs` example theme, which ships page-rhythm scaffold and prose treatment
+ * for anyone building a docs site, not this site's own wordmark and skip link.
+ * Imported once from the root layout.
+ */
+
+.skip-to-content {
+	position: absolute;
+	top: -100%;
+	left: 0;
+	z-index: 9999;
+	padding: 0.5rem 1rem;
+	background: var(--hz-color-text, #000);
+	color: var(--hz-color-surface, #fff);
+	text-decoration: none;
+	font-weight: var(--hz-font-weight-semibold, 600);
+}
+
+.skip-to-content:focus-visible {
+	top: 0;
+}
+
+.site-logo {
+	font-weight: var(--hz-font-weight-bold, 700);
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	text-decoration: none;
+	color: inherit;
+	white-space: nowrap;
+}
+
+.site-logo:hover {
+	text-decoration: underline;
+}

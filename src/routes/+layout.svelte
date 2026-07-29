@@ -25,6 +25,9 @@
 	// look (scaffold classes, .docs-table, code chips, content focus ring),
 	// dogfooded as the literal shipped sheet rather than a private copy.
 	import '$lib/theme/examples/docs/docs.css';
+	// Site-local chrome shared by both shells (skip link, wordmark) — not part
+	// of the shipped docs example theme. See src/docs/chrome.css.
+	import '../docs/chrome.css';
 
 	interface Props {
 		children: Snippet;
