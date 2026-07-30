@@ -1,8 +1,8 @@
 /**
- * CodeBlock-R17 — the live "Shiki, build-time" demo.
+ * the live "Shiki, build-time" demo.
  *
- * The ONLY docs importer of `shiki` (highlighter-isolation.spec.ts pins it,
- * CodeBlock-R18). This is the first `+page.server.ts` in the repo: a server
+ * The ONLY docs importer of `shiki`, which highlighter-isolation.spec.ts pins.
+ * This is the first `+page.server.ts` in the repo: a server
  * `load` runs only at build/prerender time — the root layout sets
  * `prerender = true` and the docs site is adapter-static, so this executes
  * once, at build, and is never bundled into the client. `+page.svelte`

@@ -1,4 +1,4 @@
-/** FileUpload's DocPage inputs — specs/40 R1. */
+/** FileUpload's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const fileUploadDoc: ComponentDoc = {

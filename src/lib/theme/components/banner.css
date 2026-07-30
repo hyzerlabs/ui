@@ -4,7 +4,7 @@
  * role (flips with the mode), bg is the intent token. This is the exact
  * `solid:intent-<name>` pairing the token engine's contrastReport grades AA
  * for — keep the recipe identical (no extra colour-mix on the text) or the
- * AA gate stops covering what actually ships (Banner-R9).
+ * AA gate stops covering what actually ships.
  */
 @layer hz-theme {
 	.hz-banner {

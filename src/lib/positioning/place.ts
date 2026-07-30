@@ -1,7 +1,7 @@
 /**
  * @hyzer-labs/ui — shared positioning core, JS measure-and-place fallback
- * (specs/50-tooltip-popover.md, R-POS-4). Runs only when CSS anchor
- * positioning (R-POS-3) is unsupported. Internal — see placement.ts.
+ *. Runs only when CSS anchor
+ * positioning is unsupported. Internal — see placement.ts.
  */
 import type { PopoverAlign, PopoverSide } from '$lib/types';
 import { resize } from '../observers/resize.js';
@@ -35,7 +35,7 @@ const OPPOSITE: Record<PopoverSide, PopoverSide> = {
  * axis to stay within a small viewport padding, and applies `position:
  * fixed` + `top`/`left` directly onto `floating`. Returns the resolved
  * `{ side, align }` (data-attribute / consumer-caret styling reads this back).
- * R-POS-6: `opts.side`/`opts.align` are logical (`left`/`right` are inline-
+ * `opts.side`/`opts.align` are logical (`left`/`right` are inline-
  * start/inline-end) — resolved through the trigger's `direction` before any
  * of the fit/flip/shift math below, so everything past that point (and the
  * returned result) is physical. SSR-safe: no-ops (returns the unresolved
@@ -121,7 +121,7 @@ export function place(trigger: Element, floating: HTMLElement, opts: PlaceOption
 }
 
 /**
- * Wires the JS fallback's reposition-on-scroll/resize (R-POS-4): places once
+ * Wires the JS fallback's reposition-on-scroll/resize: places once
  * immediately, then re-places on the floating element's own resize (`resize`
  * from `@hyzer-labs/ui/observers`) and on any ancestor scroll (a
  * capture-phase passive listener, so scroll containers are caught, not just

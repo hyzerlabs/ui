@@ -1,9 +1,9 @@
 /**
  * Fixtures for the CodeBlock docs page's "Syntax highlighting (bring your
- * own)" subsection (specs/47 R14) — one snippet per highlighter, each in the
+ * own)" subsection — one snippet per highlighter, each in the
  * language that highlighter is shown running against:
  *
- * - `prismDemoSource` — fed to the live Prism block (CodeBlock-R17) through
+ * - `prismDemoSource` — fed to the live Prism block through
  *   the default `language` class hook. Plain TypeScript, since only the
  *   clike/javascript/typescript grammars are loaded there.
  * - `shikiDemoSource` — fed to Shiki's `codeToHtml` at prerender

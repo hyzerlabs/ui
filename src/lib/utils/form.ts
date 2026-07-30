@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — form error mapping (Form-R11).
+ * @hyzer-labs/ui — form error mapping.
  * Reshapes common validation-error payloads — SvelteKit ActionData records and
  * zod's flattened shape — into the FormError[] the Form summary consumes.
  * Pure mapping: no validation, never throws.

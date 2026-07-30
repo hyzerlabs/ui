@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui token engine — icons config (specs/36 R6).
+ * @hyzer-labs/ui token engine — icons config.
  *
  * Resolves a consumer's `icons: string[]` against the always-shipped
  * `CORE_ICONS` set and the generated Lucide manifest into the trimmed
@@ -56,7 +56,7 @@ export function resolveIcons(resolved: ResolvedConfig): IconsResult | undefined 
 function renderIconsModule(names: string[]): string {
 	const header = [
 		'/**',
-		' * @hyzer-labs/ui trimmed icon barrel (hyzer generate, specs/36 R6).',
+		' * @hyzer-labs/ui trimmed icon barrel (hyzer generate).',
 		' *',
 		` * GENERATED FILE — do not edit by hand. Lucide v${LUCIDE_VERSION} (ISC).`,
 		' * Core icons (the chevrons, close, menu, ...) are always included, no',

@@ -17,7 +17,7 @@
 	];
 
 	// Pre-selects a disabled option's value too — its chip still renders and
-	// stays dismissible even though its <li> is inert (Combobox-R5/R11).
+	// stays dismissible even though its <li> is inert.
 	let bag = $state<string[]>(['aviar', 'zone']);
 
 	const basicCode = [
@@ -77,7 +77,7 @@
 
 	// Demo: a real, curated dataset (src/docs/data/courses.ts) — actual disc
 	// golf courses, not generated filler. Combobox has no windowing
-	// (specs/23-virtualizer.md's Out of Scope defers that integration), so
+	// ('s Out of Scope defers that integration), so
 	// this is the honest ceiling: a static dataset filtered client-side. A
 	// few dozen real courses is comfortably inside that ceiling — see the
 	// Virtualized combobox pattern for what tens of thousands of rows needs.

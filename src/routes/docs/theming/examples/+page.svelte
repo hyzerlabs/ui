@@ -26,7 +26,7 @@
 
 	// The class-override theme is imported as the REAL shipped sheet — every
 	// rule in it is rooted at .hz-theme-<id>, so nothing reaches :root and the
-	// docs app's own theme is untouched (specs/30 R2's invariant). Ocean can't
+	// docs app's own theme is untouched ('s invariant). Ocean can't
 	// do this: it's a :root sheet by design, so it gets re-generated scoped
 	// below instead. Docs needs no such gymnastics: it is UNSCOPED and already
 	// loaded globally by the root layout, so its tier below runs on the real,
@@ -65,7 +65,7 @@
 	// tokens; Docs keeps all of it too and layers one class-hook override on
 	// top, adding no palette; Terminal keeps none of it. Docs sits in the
 	// middle — the slot Sunset held before its retirement — as a peer tier
-	// (amended 2026-07-23; see specs/46-docs-theme-example.md).
+	// (amended 2026-07-23).
 	const examples: Example[] = [
 		{
 			id: 'ocean',
@@ -538,7 +538,7 @@
 	}
 
 	/*
-	 * The per-instance override (R6). These are consumer rules — the theme
+	 * The per-instance override. These are consumer rules — the theme
 	 * sheets never mention .cta. They carry the theme's root class AND the
 	 * component's root class (0-3-0) because the example themes are unlayered
 	 * at 0-2-0: unlike the reference theme, they don't lose to a bare class.

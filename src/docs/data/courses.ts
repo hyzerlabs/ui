@@ -1,6 +1,6 @@
 /**
  * A curated starter set of REAL disc golf courses — Combobox's "Large list"
- * demo (specs/40 findings, course-correction round).
+ * demo ( findings, course-correction round).
  *
  * Every entry names a real course at a real place, authored from general
  * disc-golf knowledge (iconic/well-known venues spread across US regions

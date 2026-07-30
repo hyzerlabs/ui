@@ -3,7 +3,7 @@
 	import { color, intent, space } from '$lib/tokens';
 	import Example from '../../../../docs/Example.svelte';
 	// ?raw keeps the docs in lockstep with the shipped, engine-generated sheet
-	// — no hand copy (specs/44 R1/R8, the reset page's `?raw` precedent).
+	// — no hand copy (/R8, the reset page's `?raw` precedent).
 	import utilitiesSource from '$lib/theme/utilities.css?raw';
 	import srOnlySource from '$lib/theme/base.css?raw';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
@@ -21,7 +21,7 @@
 		'contrast: 92 pairings checked — all pass WCAG AA'
 	].join('\n');
 
-	// R2 — the four color families, in the order the sheet emits them. The role
+	// The four color families, in the order the sheet emits them. The role
 	// rows are derived from the `color` export (not hardcoded — `text`,
 	// `surfaceMuted` and friends are the metadata keys).
 	const colorFamilies = [
@@ -79,7 +79,7 @@
 		(key) => color[key] !== undefined
 	);
 
-	// R2 — one row per resolved intent, one column per family. A consumer config
+	// One row per resolved intent, one column per family. A consumer config
 	// that adds an intent gets all four classes generated automatically, and this
 	// table (driven by the same `intent` export the engine reads) shows them too.
 	const intentRows = Object.keys(intent).map((key) => ({
@@ -88,7 +88,7 @@
 		classes: colorFamilies.map((f) => `${f.prefix}-${key}`)
 	}));
 
-	// R3 — the seven logical margin families, fixed emission order.
+	// The seven logical margin families, fixed emission order.
 	const marginFamilies = [
 		{ suffix: '', property: 'margin', label: 'All sides' },
 		{ suffix: 'block', property: 'margin-block', label: 'Block axis (both)' },
@@ -99,7 +99,7 @@
 		{ suffix: 'inline-end', property: 'margin-inline-end', label: 'Inline end' }
 	];
 
-	// R3 — the fixed space scale, one column per rung; a consumer-added rung
+	// The fixed space scale, one column per rung; a consumer-added rung
 	// (e.g. `xxl`) gets all seven families generated automatically.
 	const spaceRungs = Object.keys(space);
 

@@ -20,7 +20,7 @@
 		padding-block: var(--hz-space-sm, 1rem);
 		padding-inline-start: var(--hz-space-sm, 1rem);
 		border-inline-start: var(--hz-blockquote-border-width) solid var(--_c);
-		/* Blockquote-R10: --_tc (text color) is only ever set when
+		/* --_tc (text color) is only ever set when
 		 * data-intent-scope="full" — unset otherwise, so this falls through
 		 * to inherit, i.e. today's look. */
 		color: var(--_tc, inherit);
@@ -52,7 +52,7 @@
 		--_c: var(--hz-intent-neutral, #6b7280);
 	}
 
-	/* Blockquote-R10: intentScope="full" opt-in — extends the intent color
+	/* intentScope="full" opt-in — extends the intent color
 	 * from the accent line to the quote text. Reads whatever --_c currently
 	 * resolves to, so it always matches the active intent above. The
 	 * attribution row never reads --_tc, so it stays muted either way. */
@@ -71,7 +71,7 @@
 		font-style: normal;
 	}
 
-	/* Blockquote-R4b: attribution-row alignment. The inline-start padding
+	/* attribution-row alignment. The inline-start padding
 	 * exists to line the row up with the quote's accent bar — drop it for
 	 * center/end, where the row is positioned by text-align instead. */
 	.hz-blockquote:where([data-align='center']) :where(.hz-blockquote-attribution) {

@@ -33,16 +33,16 @@
 </script>
 
 <!--
-	Blockquote-R1: figure is always the single root — quote inside <blockquote>,
+	figure is always the single root — quote inside <blockquote>,
 	attribution (when present) outside it in a <figcaption><cite>.
-	Blockquote-R5: rest spread first so managed attrs (class) win; rest never
+	rest spread first so managed attrs (class) win; rest never
 	reaches the inner <blockquote> — its cite attribute is component-managed.
 -->
-<!-- Blockquote-R4b: data-align always present; the THEME aligns the
+<!-- data-align always present; the THEME aligns the
      attribution row on it — the quote body is deliberately untouched. -->
-<!-- Blockquote-R9: data-intent present only when set — no intent leaves
+<!-- data-intent present only when set — no intent leaves
      the accent bar exactly as it renders today. -->
-<!-- Blockquote-R10: data-intent-scope present only when intent is set — it
+<!-- data-intent-scope present only when intent is set — it
      has no meaning without an intent to scope, so it mirrors data-intent's
      own presence rule rather than being always-stamped like data-align.
      Its value is always the resolved intentScope ('line' or 'full'), giving
@@ -68,7 +68,7 @@
 </figure>
 
 <style>
-	/* Blockquote-R7: structural resets only — browsers give figure and
+	/* structural resets only — browsers give figure and
 	 * blockquote large default margins that fight the theme's chrome. */
 	.hz-blockquote {
 		margin: 0;

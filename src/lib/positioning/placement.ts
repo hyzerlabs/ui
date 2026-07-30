@@ -1,6 +1,6 @@
 /**
  * @hyzer-labs/ui — shared positioning core, placement vocabulary
- * (specs/50-tooltip-popover.md, R-POS-1). Internal — not exported from the
+ *. Internal — not exported from the
  * package (no `./positioning` subpath); only `tooltip.ts`, `Popover.svelte`,
  * and `Dropdown.svelte` import it.
  */
@@ -8,7 +8,7 @@ import type { Placement, PopoverAlign, PopoverSide } from '$lib/types';
 
 /**
  * Normalizes a `Placement` string into its side + alignment parts.
- * `'top'` == `'top-center'`; `-start`/`-end` add alignment (R-POS-1). The
+ * `'top'` == `'top-center'`; `-start`/`-end` add alignment. The
  * single normalizer both primitives use — pure string parsing, safe to call
  * anywhere (including SSR/no-`document`).
  */
@@ -24,9 +24,9 @@ export function parsePlacement(placement: Placement): { side: PopoverSide; align
 }
 
 /**
- * R-POS-6 — logical direction. `left`/`right` are treated as inline-start/
+ * Logical direction. `left`/`right` are treated as inline-start/
  * inline-end and resolve through the TRIGGER's resolved `direction` (not
- * the floating element's — the tooltip's node is body-appended, R-POS-2a,
+ * the floating element's — the tooltip's node is body-appended,
  * so its own inherited direction can differ from the trigger's actual
  * position in the document): under `direction: rtl`, `left` renders on the
  * physical right and vice-versa. `-start`/`-end` alignment respects

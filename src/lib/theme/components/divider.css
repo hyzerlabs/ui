@@ -16,7 +16,7 @@
 	.hz-divider:where([data-variant='dotted']) {
 		--_bs: dotted;
 	}
-	/* Divider-R3/R7: line weight from the border-width tokens; the custom
+	/* line weight from the border-width tokens; the custom
 	 * property inherits into the labeled form's pseudo-elements. */
 	.hz-divider:where([data-line-width='thick']) {
 		--_bw: var(--hz-border-width-thick, 2px);

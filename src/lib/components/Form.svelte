@@ -32,7 +32,7 @@
 
 	// ---------------------------------------------------------------------------
 	// Plain-language default: count-aware, singular vs. plural, numeral count.
-	// The summary lists one item per entry in `errors` (Form-R4 — form-level
+	// The summary lists one item per entry in `errors` (form-level
 	// entries count too), so `errors.length` is the total it enumerates.
 	// ---------------------------------------------------------------------------
 	function defaultSummaryTitle(count: number): string {
@@ -45,24 +45,24 @@
 			: (summaryTitle ?? defaultSummaryTitle(errors.length))
 	);
 
-	// Form-R1: bind:this on the form element for form.elements access (Form-R4/R7).
+	// bind:this on the form element for form.elements access.
 	let formEl: HTMLFormElement | null = $state(null);
 
-	// Form-R2/R5: internal flag — set true on every submit, consumed by the focus
+	// internal flag — set true on every submit, consumed by the focus
 	// effect on the first `errors` reassignment after the submit (sync from
 	// onSubmit or async from an action response). `errorsAtSubmit` snapshots the
 	// pre-submit reference so async errors are awaited, not the stale array.
 	let submitAttempted = $state(false);
 	let errorsAtSubmit: FormError[] | null = null;
 
-	// Form-R3/Alert-R5: the summary is an Alert (no element ref exposed) —
+	// The summary is an Alert (no element ref exposed) —
 	// focus resolves it by class inside this form.
 	function summaryEl(): HTMLElement | null {
 		return formEl?.querySelector<HTMLElement>('.hz-form-error-summary') ?? null;
 	}
 
 	// ---------------------------------------------------------------------------
-	// Form-R4: resolve a field element from form.elements[name].
+	// resolve a field element from form.elements[name].
 	// Returns the first radio for RadioNodeList; null when unresolvable.
 	// ---------------------------------------------------------------------------
 	function resolveElement(name: string): HTMLElement | null {
@@ -81,7 +81,7 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// Form-R4: sort resolved errors by DOM position; form-level errors last.
+	// sort resolved errors by DOM position; form-level errors last.
 	// ---------------------------------------------------------------------------
 	interface ResolvedError {
 		message: string;
@@ -116,11 +116,11 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// Form-R2: submit handler.
+	// submit handler.
 	// ---------------------------------------------------------------------------
 	function handleSubmit(e: SubmitEvent) {
-		// Form-R2: client mode (onSubmit provided) intercepts the submit; native
-		// mode lets it proceed — full-page POST or use:enhance (Form-R10).
+		// client mode (onSubmit provided) intercepts the submit; native
+		// mode lets it proceed — full-page POST or use:enhance.
 		if (onSubmit) e.preventDefault();
 		submitAttempted = true;
 		errorsAtSubmit = errors;
@@ -128,7 +128,7 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// Form-R6: jump-to-field handler for summary links / buttons.
+	// jump-to-field handler for summary links / buttons.
 	// ---------------------------------------------------------------------------
 	function handleItemActivation(e: MouseEvent | KeyboardEvent, el: HTMLElement) {
 		e.preventDefault();
@@ -139,7 +139,7 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// Form-R5: move focus exactly once per submit attempt, when errors are present.
+	// move focus exactly once per submit attempt, when errors are present.
 	// The flag is consumed by the first `errors` REASSIGNMENT after the submit —
 	// until then (async validation still in flight) it stays pending.
 	// ---------------------------------------------------------------------------
@@ -172,7 +172,7 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// Form-R5: a native `reset` (use:enhance's default success path) consumes the
+	// a native `reset` (use:enhance's default success path) consumes the
 	// flag without moving focus. addEventListener — not a managed onreset — so a
 	// consumer `onreset` passed via ...rest is not clobbered.
 	// ---------------------------------------------------------------------------
@@ -188,9 +188,9 @@
 </script>
 
 <!--
-	Form-R1: <form class="hz-form"> with rest-first spread (managed attrs win).
-	Form-R8: cx('hz-form', className).
-	Form-R3: data-state="error" when summary is shown.
+	<form class="hz-form"> with rest-first spread (managed attrs win).
+	cx('hz-form', className).
+	data-state="error" when summary is shown.
 -->
 <form
 	{...rest}
@@ -202,9 +202,9 @@
 	onsubmit={handleSubmit}
 >
 	<!--
-		Form-R3/Alert-R5: the summary IS a danger Alert — first child of the
+		The summary IS a danger Alert — first child of the
 		form, rendered only when errors.length > 0. role="alert" (announces) and
-		tabindex="-1" (programmatic focus, Form-R5) ride Alert's rest; the Alert
+		tabindex="-1" (programmatic focus) ride Alert's rest; the Alert
 		labels itself from its title.
 	-->
 	{#if errors.length > 0}
@@ -217,7 +217,7 @@
 			headingLevel={summaryHeadingLevel}
 		>
 			<!--
-				Form-R4: one <li> per resolved error, sorted by DOM position with
+				one <li> per resolved error, sorted by DOM position with
 				form-level errors last. Each item is:
 				  - <a href="#id"> when control has an id
 				  - <button type="button"> when control has no id
@@ -252,7 +252,7 @@
 
 <style>
 	/* Structural list reset — no visual list markers. The summary box itself
-	 * is the Alert's concern (Alert-R5). */
+	 * is the Alert's concern. */
 	.hz-form-error-list {
 		list-style: none;
 		margin: 0;

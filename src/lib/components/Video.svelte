@@ -35,7 +35,7 @@
 		...rest
 	}: Props = $props();
 
-	// VID-R6: autoplay w/o muted → suppress + dev warn
+	// autoplay w/o muted → suppress + dev warn
 	if (import.meta.env.DEV) {
 		if (untrack(() => autoplay && !muted)) {
 			console.warn(
@@ -45,16 +45,16 @@
 		}
 	}
 
-	// VID-R6: reduced-motion gating
+	// reduced-motion gating
 	const reducedMotion = $derived(
 		browser ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
 	);
 
-	// VID-R6: autoplay is only permitted when autoplay+muted+!reducedMotion
+	// autoplay is only permitted when autoplay+muted+!reducedMotion
 	const autoplayPermitted = $derived(autoplay && muted && !reducedMotion);
 
 	// ---------------------------------------------------------------------------
-	// VID-R1 — Provider detection helpers
+	// Provider detection helpers
 	// ---------------------------------------------------------------------------
 
 	/** Extract YouTube video ID from known YouTube URL patterns. */
@@ -126,7 +126,7 @@
 	const youtubeId = $derived(extractYouTubeId(src));
 	const vimeoId = $derived(extractVimeoId(src));
 
-	// VID-R1: provider detection; warn on host-match but no parseable ID
+	// provider detection; warn on host-match but no parseable ID
 	const provider = $derived.by((): Provider => {
 		if (isYouTubeHost(src)) {
 			if (youtubeId) return 'youtube';
@@ -153,7 +153,7 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// VID-R2 — YouTube embed URL
+	// YouTube embed URL
 	// ---------------------------------------------------------------------------
 	const youtubeEmbedSrc = $derived.by((): string => {
 		const id = youtubeId ?? '';
@@ -172,7 +172,7 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// VID-R3 — Vimeo embed URL
+	// Vimeo embed URL
 	// ---------------------------------------------------------------------------
 	const vimeoEmbedSrc = $derived.by((): string => {
 		const id = vimeoId ?? '';
@@ -190,12 +190,12 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// VID-R4 — Native preload mapping: lazy→"none", eager→"metadata"
+	// Native preload mapping: lazy→"none", eager→"metadata"
 	// ---------------------------------------------------------------------------
 	const nativePreload = $derived(loading === 'eager' ? 'metadata' : 'none');
 
 	// ---------------------------------------------------------------------------
-	// VID-R8 — Native state machine
+	// Native state machine
 	// ---------------------------------------------------------------------------
 	let videoState = $state<VideoState>('idle');
 
@@ -211,9 +211,9 @@
 </script>
 
 <!--
-	VID-R10: cx('hz-video', className) on wrapper; hz-video first.
-	VID-R1: data-provider and data-aspect-ratio on wrapper.
-	VID-R7: aspect-ratio applied as inline style.
+	cx('hz-video', className) on wrapper; hz-video first.
+	data-provider and data-aspect-ratio on wrapper.
+	aspect-ratio applied as inline style.
 -->
 <div
 	class={cx('hz-video', className)}
@@ -223,7 +223,7 @@
 	style="aspect-ratio: {aspectRatio}"
 >
 	{#if provider === 'youtube'}
-		<!-- VID-R2: YouTube iframe — ...rest first so managed attrs win -->
+		<!-- YouTube iframe — ...rest first so managed attrs win -->
 		<iframe
 			{...rest}
 			class="hz-video__el"
@@ -234,7 +234,7 @@
 			allowfullscreen
 		></iframe>
 	{:else if provider === 'vimeo'}
-		<!-- VID-R3: Vimeo iframe — ...rest first so managed attrs win -->
+		<!-- Vimeo iframe — ...rest first so managed attrs win -->
 		<iframe
 			{...rest}
 			class="hz-video__el"
@@ -246,7 +246,7 @@
 		></iframe>
 	{:else}
 		<!--
-			VID-R4: native <video> — ...rest first so managed attrs win.
+			native <video> — ...rest first so managed attrs win.
 			muted/autoplay use boolean true/undefined pattern; Svelte 5 maps
 			undefined → attribute absent, true → attribute present.
 		-->
@@ -271,14 +271,14 @@
 </div>
 
 <style>
-	/* VID-R7: wrapper is a positioned block that fills its parent */
+	/* wrapper is a positioned block that fills its parent */
 	.hz-video {
 		display: block;
 		width: 100%;
 		position: relative;
 	}
 
-	/* VID-R7: inner iframe/video fills the aspect-ratio box */
+	/* inner iframe/video fills the aspect-ratio box */
 	.hz-video__el {
 		position: absolute;
 		inset: 0;

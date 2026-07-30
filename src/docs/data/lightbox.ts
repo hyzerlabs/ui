@@ -1,4 +1,4 @@
-/** Lightbox's DocPage inputs — specs/40 R1. */
+/** Lightbox's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const lightboxDoc: ComponentDoc = {

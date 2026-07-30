@@ -1,7 +1,7 @@
 /**
  * @hyzer-labs/ui reference theme — Header
  * The bar chrome: surface, border, padding, the hamburger control, and the
- * mobile drawer. Composes Nav (specs/35); Nav owns the navigation styling.
+ * mobile drawer. Composes Nav; Nav owns the navigation styling.
  */
 @layer hz-theme {
 	.hz-header {

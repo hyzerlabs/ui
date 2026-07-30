@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui reference theme — Toc (specs/38)
+ * @hyzer-labs/ui reference theme — Toc
  * Muted small-type links with a left hairline, per-level indent, the sidebar
  * active idiom (primary text + inset accent bar), an uppercase eyebrow title,
  * and cosmetic chrome for the mobile disclosure trigger/panel.
@@ -81,7 +81,7 @@
 	}
 
 	/* -------------------------------------------------------------------- */
-	/* R6 — mobile disclosure chrome (trigger + chevron). Show/hide itself is */
+	/* Mobile disclosure chrome (trigger + chevron). Show/hide itself is */
 	/* structural — see the note above.                                      */
 	/* -------------------------------------------------------------------- */
 

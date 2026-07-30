@@ -50,22 +50,22 @@
 		...rest
 	}: Props = $props();
 
-	// Field-R1: derive one stable uid base per instance.
+	// derive one stable uid base per instance.
 	const _uid = uid('hz');
 	const inputId = `hz-input-${_uid}`;
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
 
-	// Field-R6: aria-describedby chains desc then error; omit when neither present.
+	// aria-describedby chains desc then error; omit when neither present.
 	const describedBy = $derived(
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 </script>
 
 <!--
-	TextInput-R1: hz-input-wrapper with optional prefix/suffix spans.
-	TextInput-R4: data-has-prefix / data-has-suffix present when snippet provided.
-	Forms-R2: {...rest} spread first so managed attrs win.
+	hz-input-wrapper with optional prefix/suffix spans.
+	data-has-prefix / data-has-suffix present when snippet provided.
+	{...rest} spread first so managed attrs win.
 -->
 {#snippet control()}
 	<div
@@ -100,7 +100,7 @@
 	</div>
 {/snippet}
 
-<!-- Forms-R1: root class is cx('hz-field', className). -->
+<!-- root class is cx('hz-field', className). -->
 <Field
 	{label}
 	{description}
@@ -116,7 +116,7 @@
 />
 
 <style>
-	/* TextInput-R1/R4: wrapper is a flex row so prefix, input, suffix align. */
+	/* wrapper is a flex row so prefix, input, suffix align. */
 	.hz-input-wrapper {
 		display: flex;
 		flex-direction: row;

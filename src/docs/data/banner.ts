@@ -1,4 +1,4 @@
-/** Banner's DocPage inputs — specs/41 R12. */
+/** Banner's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const bannerDoc: ComponentDoc = {

@@ -241,7 +241,7 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Minimal-controls restyle (specs/40 tweak batch): every class here
+	/* Minimal-controls restyle ( tweak batch): every class here
 	 * targets DOM rendered by the child Carousel, not this page's own
 	 * template, so both the outer class and the theme's part classes need
 	 * :global() (Lightbox's .gallery-strip/.hz-lightbox-trigger precedent). */

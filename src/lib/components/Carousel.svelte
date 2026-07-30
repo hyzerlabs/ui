@@ -23,14 +23,14 @@
 		 * `'visible'` (default) is today's always-shown control row. `'focus'`
 		 * keeps the row in the DOM and fully operable but visually hides it
 		 * until `:hover`/`:focus-within` reveals it — the WCAG 2.5.7 drag
-		 * alternative, presentation-only (specs/43 R1–R4).
+		 * alternative, presentation-only (–R4).
 		 */
 		controls?: 'visible' | 'focus';
 		/**
 		 * Opt-in continuous boundary wrap: with `loop`, every ±1 wrap step
 		 * (drag settle, buttons, an adjacent-wrap dot click, arrow keys) settles
 		 * through a hidden clone instead of sweeping back through the row.
-		 * Inert without `loop` (specs/43 R6).
+		 * Inert without `loop`.
 		 */
 		seamless?: boolean;
 		/** Position display: the "1 / 3" counter, or clickable slide-picker dots. */
@@ -70,7 +70,7 @@
 	const count = $derived(items.length);
 	const canPrev = $derived(loop ? count > 1 : index > 0);
 	const canNext = $derived(loop ? count > 1 : index < count - 1);
-	// seamless is only meaningful with loop (specs/43 R6) — the hook reflects
+	// seamless is only meaningful with loop — the hook reflects
 	// effective behavior, never advertising a wrap that cannot happen.
 	const seamlessActive = $derived(seamless && loop);
 
@@ -84,7 +84,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Seamless boundary wrap (specs/43 R6) — every ±1 wrap step crossing the
+	// Seamless boundary wrap — every ±1 wrap step crossing the
 	// first/last boundary settles through an inert clone of the opposite end
 	// instead of go()'s plain rewind, so the track never sweeps backward
 	// through the intervening slides. Adjacent-only: a caller decides the
@@ -168,9 +168,9 @@
 	// Raw horizontal delta (undamped) — drives the release decision, while
 	// dragOffset (damped at the ends) drives only the visual.
 	let lastDx = 0;
-	// Did the gesture cross into a real drag? Gates click-through (R6).
+	// Did the gesture cross into a real drag? Gates click-through.
 	let dragged = false;
-	// Recent (x, time) samples for the release velocity (R4).
+	// Recent (x, time) samples for the release velocity.
 	let samples: { x: number; t: number }[] = [];
 
 	// Horizontal movement to commit to a drag; below it, the press is a click.
@@ -276,7 +276,7 @@
 		axis = 'undecided';
 		const kind = dir != null ? wrapKind(index, dir) : null;
 		if (kind) {
-			// Seamless (R6): fold the drag's live (possibly rubber-banded) offset
+			// Seamless: fold the drag's live (possibly rubber-banded) offset
 			// into a continuous forward settle through a clone, rather than the
 			// plain go() rewind below.
 			seamlessWrap(target, kind);
@@ -309,7 +309,7 @@
 
 	// A press that turned into a drag must not also fire the click it lands on
 	// (e.g. a link inside a slide). Capture phase so it beats the target's own
-	// handler; one-shot, so a subsequent real click passes through (R6).
+	// handler; one-shot, so a subsequent real click passes through.
 	function onclickcapture(e: MouseEvent) {
 		if (dragged) {
 			e.preventDefault();
@@ -418,7 +418,7 @@
 		wrapTransform = revealTarget;
 		await waitForSettle();
 		go(target);
-		// Silent reset (R6): index has already moved to the real target, whose
+		// Silent reset: index has already moved to the real target, whose
 		// clone-mirrored content is pixel-identical to what's on screen — swap
 		// the transform source back with the transition off so nothing moves.
 		if (trackEl) trackEl.style.transition = 'none';
@@ -436,7 +436,7 @@
 	the slide viewport can be an aria-live=polite region: slide changes are
 	announced via each slide's aria-label ("2 of 5" by default). Arrow keys
 	work while focus is anywhere inside the carousel. The slides sit in a
-	sliding track (R1); off-screen slides are inert (R2) so only the active
+	sliding track; off-screen slides are inert so only the active
 	one is exposed and focusable.
 -->
 <div
@@ -466,7 +466,7 @@
 			ondragstart={onDragStart}
 		>
 			{#if clone === 'start'}
-				<!-- Seamless (R6/R7): a clone of the last slide, prepended so a
+				<!-- Seamless: a clone of the last slide, prepended so a
 				     backward wrap (first → last) can settle forward into it. Outside
 				     the real-slide index space, always inert/aria-hidden, never
 				     counted in count/dots/status, never focusable. -->
@@ -487,7 +487,7 @@
 				</div>
 			{/each}
 			{#if clone === 'end'}
-				<!-- Seamless (R6/R7): a clone of the first slide, appended so a
+				<!-- Seamless: a clone of the first slide, appended so a
 				     forward wrap (last → first) can settle forward into it. -->
 				<div class="hz-carousel-slide" data-clone inert aria-hidden="true">
 					{@render slide(items[0], 0)}
@@ -563,7 +563,7 @@
 		will-change: transform;
 	}
 
-	/* The settle animation (R7) — structural, because sliding is how the
+	/* The settle animation — structural, because sliding is how the
 	 * carousel works, not chrome. Suppressed during the drag so the track
 	 * tracks the finger 1:1, and honored only when motion is welcome. */
 	@media (prefers-reduced-motion: no-preference) {
@@ -586,7 +586,7 @@
 
 	/* Structural row only — dot visuals (size, circle, active state) are the
 	 * theme's job. The pitch is set here because it's a touch-target concern
-	 * (R8): with an 8px dot, a 1rem gap gives a 24px slot, so each dot's hit
+	 *: with an 8px dot, a 1rem gap gives a 24px slot, so each dot's hit
 	 * area tiles the slot without overlapping its neighbor. */
 	.hz-carousel-dots {
 		display: flex;

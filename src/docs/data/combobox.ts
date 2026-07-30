@@ -1,4 +1,4 @@
-/** Combobox's DocPage inputs — specs/40 R1. */
+/** Combobox's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const comboboxDoc: ComponentDoc = {

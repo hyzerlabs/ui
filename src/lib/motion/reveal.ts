@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — scroll-reveal attachments (specs/39-motion.md, Motion-R4).
+ * @hyzer-labs/ui — scroll-reveal attachments.
  *
  * `reveal(options?)` is a Svelte attachment (the `lightboxGroup` precedent:
  * `(options) => (node) => cleanup`) that hides an element via inline style
@@ -186,7 +186,7 @@ function play(el: HTMLElement, opts: Resolved, spec: EffectSpec, extraDelay = 0)
  */
 export function reveal(options: RevealOptions = {}): (node: Element) => () => void {
 	return (element: Element) => {
-		// Motion-R4: attachments only ever run client-side, but guard
+		// attachments only ever run client-side, but guard
 		// defensively against any SSR-time invocation.
 		if (typeof document === 'undefined') return () => {};
 

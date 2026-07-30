@@ -80,7 +80,7 @@
 	];
 
 	// Toc instances bound per demo, keyed by tab id — refreshed on tab change
-	// since inactive Tabs panels stay mounted but hidden (Tabs-R5's native
+	// since inactive Tabs panels stay mounted but hidden (the native
 	// [hidden]), and R1 skips hidden headings (offsetParent === null) at
 	// collection time. `onChange` fires synchronously, right after the
 	// `activeTab` state write and before Svelte flushes it to the DOM's

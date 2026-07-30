@@ -56,17 +56,17 @@
 		...rest
 	}: Props = $props();
 
-	// R8: anchor only when href is a non-empty string
+	// Anchor only when href is a non-empty string
 	const isAnchor = $derived(typeof href === 'string' && href.length > 0);
 
-	// R4b: icon-only is DERIVED from the established usage pattern (an icon
+	// Icon-only is DERIVED from the established usage pattern (an icon
 	// snippet with no children) — no prop; the theme renders the circle form.
 	const iconOnly = $derived(!children && !!(iconStart || iconEnd));
 
-	// R11: disabled takes precedence over loading for data-state
+	// Disabled takes precedence over loading for data-state
 	const dataState = $derived(disabled ? 'disabled' : loading ? 'loading' : undefined);
 
-	// R14: dev-only warning for icon-only usage without an accessible name.
+	// Dev-only warning for icon-only usage without an accessible name.
 	// untrack() opts out of reactive tracking — we intentionally read only the
 	// initial prop values to warn once at component creation time.
 	if (import.meta.env.DEV) {
@@ -78,7 +78,7 @@
 		}
 	}
 
-	// R9/R10/R15: swallow onclick and prevent navigation when inactive
+	// Swallow onclick and prevent navigation when inactive
 	function handleClick(e: MouseEvent): void {
 		if (disabled || loading) {
 			e.preventDefault();

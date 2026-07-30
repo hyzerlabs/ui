@@ -1,4 +1,4 @@
-/** Image's DocPage inputs — specs/40 R1. */
+/** Image's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const imageDoc: ComponentDoc = {

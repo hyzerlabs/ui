@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — theme attachment (specs/52-theme-attachment.md).
+ * @hyzer-labs/ui — theme attachment.
  *
  * Scopes a theme to a subtree: `{@attach theme('dark')}` on a `<section>`
  * themes that section and nothing else. Two forms —

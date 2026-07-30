@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — core icon set (specs/36 R4).
+ * @hyzer-labs/ui — core icon set.
  *
  * The core icons are ordinary generated Lucide icons — same pipeline, same
  * files, nothing hand-drawn. What's committed here is only the *name list*:

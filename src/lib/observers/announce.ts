@@ -1,6 +1,6 @@
 /**
  * @hyzer-labs/ui/observers — `announce` live-region helper
- * (specs/48-observers.md, Observers-R6). SSR-safe: a no-op when
+ *. SSR-safe: a no-op when
  * `typeof document === 'undefined'`, matching the attachments' own guard.
  *
  * Lazily creates and reuses two visually-hidden (`class="sr-only"`, the

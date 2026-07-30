@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — view-transition helper (specs/39-motion.md, Motion-R5).
+ * @hyzer-labs/ui — view-transition helper.
  *
  * Wraps `document.startViewTransition`. Unsupported browsers and reduced
  * motion (unless `essential: true`) run `update()` directly instead — a

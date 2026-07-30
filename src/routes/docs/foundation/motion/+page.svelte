@@ -20,7 +20,7 @@
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 	import IconInfo from '$lib/icons/generated/info.svelte';
 
-	// R7 — derive from token metadata (unchanged from the prior page).
+	// Derive from token metadata (unchanged from the prior page).
 	const durationTokens = Object.entries(motion.duration).map(([key, value]) => ({
 		key,
 		cssVar: `--hz-duration-${key}`,

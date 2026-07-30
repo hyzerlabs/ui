@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui token engine — CSS emission (specs/29).
+ * @hyzer-labs/ui token engine — CSS emission.
  *
  * Deterministic: same resolved config → same bytes. Full mode renders the
  * complete tokens sheet (the committed `tokens.css` is this output with no
@@ -365,7 +365,7 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 		const comment = theme.name === 'dark' ? DARK_COMMENT : themeComment(theme.name);
 		parts.push('', comment, `${themeSelector(selector, theme.name)} {`);
 		// Roles, then hues, then intents — sourced directly from the three
-		// resolved lists (specs/42 R2.3); no value-shape inference.
+		// resolved lists (.3); no value-shape inference.
 		parts.push(...declarations(theme.color, '\t', false));
 		for (const group of [theme.palette, theme.intent]) {
 			if (group.length === 0) continue;
@@ -582,7 +582,7 @@ export function themeVars(override: HyzerThemeOverride): Record<string, string> 
 }
 
 // ---------------------------------------------------------------------------
-// generateUtilitiesCss (specs/44) — the opt-in utility sheet
+// generateUtilitiesCss — the opt-in utility sheet
 // ---------------------------------------------------------------------------
 
 export interface GenerateUtilitiesOptions {
@@ -637,7 +637,7 @@ const COLOR_UTILITIES_BANNER = [
 ];
 
 /**
- * The four color-utility families (R2), fixed emission order. Each emits its
+ * The four color-utility families, fixed emission order. Each emits its
  * role helpers first, then one class per resolved intent. A `suffix` of `''`
  * is the bare family class (`.hz-text`, `.hz-bg`).
  */
@@ -683,7 +683,7 @@ const MARGIN_UTILITIES_BANNER = [
 	'margin-inline(-start/-end). No padding — padding is owned by components.'
 ];
 
-/** The seven logical margin families, fixed emission order (R3). */
+/** The seven logical margin families, fixed emission order. */
 const MARGIN_FAMILIES: readonly { suffix: string; property: string }[] = [
 	{ suffix: '', property: 'margin' },
 	{ suffix: 'block', property: 'margin-block' },
@@ -716,7 +716,7 @@ export function generateUtilitiesCss(
 
 	const parts: string[] = [withIntro(UTILITIES_HEADER, options.intro)];
 
-	// --- color utilities (R2) --------------------------------------------------
+	// --- color utilities --------------------------------------------------
 	parts.push('', banner(COLOR_UTILITIES_BANNER, ''));
 
 	for (const family of COLOR_FAMILIES) {
@@ -753,7 +753,7 @@ export function generateUtilitiesCss(
 		}
 	}
 
-	// --- margin utilities (R3) -------------------------------------------------
+	// --- margin utilities -------------------------------------------------
 	parts.push('', banner(MARGIN_UTILITIES_BANNER, ''));
 	for (const family of MARGIN_FAMILIES) {
 		for (const rung of spaceEntries) {

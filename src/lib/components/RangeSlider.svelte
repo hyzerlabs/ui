@@ -45,42 +45,42 @@
 		...rest
 	}: Props = $props();
 
-	// Field-R1: derive one stable uid base per instance.
+	// derive one stable uid base per instance.
 	const _uid = uid('hz');
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
 
-	// Field-R6: aria-describedby chain (applied to both ranges, Range-R4).
+	// aria-describedby chain (applied to both ranges).
 	const describedBy = $derived(
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 
-	// Field-R1: error wins over disabled wins over default.
+	// error wins over disabled wins over default.
 	const dataState = $derived(error ? 'error' : disabled ? 'disabled' : 'default');
 
-	// Slider-R1: widest formatted bound sizes the number fields via the theme.
+	// widest formatted bound sizes the number fields via the theme.
 	const decimals = $derived(step % 1 === 0 ? 0 : (String(step).split('.')[1]?.length ?? 0));
 	const chars = $derived(Math.max(min.toFixed(decimals).length, max.toFixed(decimals).length));
 
-	// Fill-R1: live thumb positions as 0–1 fractions for the theme's fill.
+	// live thumb positions as 0–1 fractions for the theme's fill.
 	const fraction = (v: number) =>
 		max === min ? 0 : Math.min(1, Math.max(0, (v - min) / (max - min)));
 	const fillStart = $derived(fraction(valueMin));
 	const fillEnd = $derived(fraction(valueMax));
 
-	// Ticks-R1: normalize; entries outside [min, max] are skipped, not clamped.
+	// normalize; entries outside [min, max] are skipped, not clamped.
 	const tickList = $derived(
 		(ticks ?? [])
 			.map((t) => (typeof t === 'number' ? { value: t, label: undefined } : t))
 			.filter((t) => t.value >= min && t.value <= max)
 	);
 
-	// Range-R3: on exact overlap, raise the thumb with an escape route — past
+	// on exact overlap, raise the thumb with an escape route — past
 	// the midpoint only the min thumb can move (leftward), else the max thumb.
 	const topThumb = $derived(valueMin === valueMax && valueMin > (min + max) / 2 ? 'min' : 'max');
 
 	// ---------------------------------------------------------------------------
-	// Range-R2: thumbs can meet but never cross — the moved thumb clamps at its
+	// thumbs can meet but never cross — the moved thumb clamps at its
 	// partner; the partner never moves. No bind: on the thumbs so the clamp and
 	// the DOM value stay in lockstep even while a drag keeps pushing past.
 	// ---------------------------------------------------------------------------
@@ -99,7 +99,7 @@
 		};
 	}
 
-	// Slider-R3 semantics with the partner as the effective bound (Range-R2).
+	// the same stepping semantics, with the partner as the effective bound.
 	function commitNumber(which: 'min' | 'max') {
 		return (e: Event) => {
 			const el = e.currentTarget as HTMLInputElement;
@@ -122,23 +122,23 @@
 </script>
 
 <!--
-	Range-R1: fieldset/legend root (like RadioGroup — two controls cannot share
+	fieldset/legend root (like RadioGroup — two controls cannot share
 	one for/id label); two overlapped native ranges on one visual track, each
 	with its own aria-label, then the exact-entry pair.
-	Forms-R2: {...rest} spread first on the fieldset so managed attrs win.
+	{...rest} spread first on the fieldset so managed attrs win.
 -->
 <fieldset
 	{...rest}
 	class={cx('hz-field', 'hz-field--slider', 'hz-field--slider-range', className)}
 	data-state={dataState}
 >
-	<!-- Field-R2: legend always in DOM; sr-only when hideLabel. -->
+	<!-- legend always in DOM; sr-only when hideLabel. -->
 	<legend class={cx('hz-field-label', hideLabel && 'sr-only')}>
 		{label}
 		{#if required}<span aria-hidden="true" class="hz-field-required">*</span>{/if}
 	</legend>
 
-	<!-- Field-R4: description when non-empty. -->
+	<!-- description when non-empty. -->
 	{#if description}
 		<p class="hz-field-description" id={descId}>{description}</p>
 	{/if}
@@ -186,7 +186,7 @@
 				aria-orientation={orientation === 'vertical' ? 'vertical' : undefined}
 			/>
 
-			<!-- Ticks-R1: decorative marks; the ranges announce the real values. -->
+			<!-- decorative marks; the ranges announce the real values. -->
 			{#if tickList.length > 0}
 				<div class="hz-slider-ticks" aria-hidden="true">
 					{#each tickList as tick (tick.value)}
@@ -199,7 +199,7 @@
 		</div>
 
 		<!--
-			Vert-R3: the min/max exact-entry pair is wrapped in one cluster so it
+			the min/max exact-entry pair is wrapped in one cluster so it
 			stays a single inline "min – max" group, placed above/below the track
 			per inputPosition, rather than stacking to mirror the thumbs (RangeSlider
 			vertical-only concern — Slider has no pair to cluster).
@@ -230,7 +230,7 @@
 					onchange={commitNumber('max')}
 				/>
 			{:else}
-				<!-- Range-R1: values stay visible; aria-hidden — the ranges announce them. -->
+				<!-- values stay visible; aria-hidden — the ranges announce them. -->
 				<span class="hz-slider-value" aria-hidden="true">{valueMin}–{valueMax}</span>
 			{/if}
 		</div>
@@ -240,7 +240,7 @@
 		{/if}
 	</div>
 
-	<!-- Field-R5: error when non-empty. -->
+	<!-- error when non-empty. -->
 	{#if error}
 		<p class="hz-field-error" id={errorId} role="alert">{error}</p>
 	{/if}
@@ -255,7 +255,7 @@
 		min-width: 0;
 	}
 
-	/* Slider-R8: one flex line — the track flexes; fields/sep/unit intrinsic. */
+	/* one flex line — the track flexes; fields/sep/unit intrinsic. */
 	.hz-slider-row {
 		display: flex;
 		align-items: center;
@@ -273,7 +273,7 @@
 	}
 
 	/*
-	 * Vert-R3: the min/max exact-entry pair (or the readout) stays a single
+	 * the min/max exact-entry pair (or the readout) stays a single
 	 * inline "min – max" cluster regardless of the row's own flex-direction —
 	 * same gap token as the row so horizontal spacing is byte-identical to
 	 * the previous unwrapped siblings.
@@ -286,7 +286,7 @@
 	}
 
 	/*
-	 * Vert-R1/R2: horizontal keeps the current structural rules verbatim,
+	 * horizontal keeps the current structural rules verbatim,
 	 * just scoped behind the (always-stamped) attribute — width stays
 	 * component-owned here so the track always fills the row's available
 	 * space; in vertical the cross-axis size becomes a theme concern instead,
@@ -307,7 +307,7 @@
 	}
 
 	/*
-	 * Vert-R2/R7: native vertical mechanism, CSS-only over the value logic —
+	 * native vertical mechanism, CSS-only over the value logic —
 	 * writing-mode + direction: rtl on both stacked ranges (bottom-up growth),
 	 * the row switches to a column, and the track gets a fixed block length
 	 * with its inline size collapsed to the thumb thickness.
@@ -329,7 +329,7 @@
 	}
 
 	/*
-	 * Vert-R3: input position is logical on both axes — reordering the track
+	 * input position is logical on both axes — reordering the track
 	 * via `order` works identically whether the row is a flex row or column,
 	 * so one rule covers all four orientation × inputPosition combinations.
 	 * The input cluster and the unit both stay at the default order, so they

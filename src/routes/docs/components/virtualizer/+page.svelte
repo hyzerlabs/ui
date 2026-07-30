@@ -217,7 +217,7 @@
 	}
 
 	/*
-	 * Virtualizer-R14 fluid demo: this container is the CSS size source — the
+	 * Fluid demo: this container is the CSS size source — the
 	 * Virtualizer inside carries no `height` prop and no inline height, only
 	 * `style="height: 100%"`, so it fills this box and re-measures whenever it
 	 * resizes. `resize: vertical` lets a visitor drag the corner to see the

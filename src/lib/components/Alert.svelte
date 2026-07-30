@@ -46,12 +46,12 @@
 </script>
 
 <!--
-	Alert-R1: flex banner — optional decorative icon, body (optional heading +
+	flex banner — optional decorative icon, body (optional heading +
 	content), optional dismiss button.
-	Alert-R2: NO role and no live-region attributes by default — a live role
+	NO role and no live-region attributes by default — a live role
 	only announces dynamically inserted content; consumers pass role="status"
 	or role="alert" via rest when inserting after load.
-	Alert-R4: rest spread first so managed attrs (class, data-*, and
+	rest spread first so managed attrs (class, data-*, and
 	aria-labelledby when titled) win.
 -->
 <div
@@ -79,7 +79,7 @@
 	</div>
 
 	{#if onDismiss}
-		<!-- Alert-R3: same contract as Badge — real labeled button, decorative icon. -->
+		<!-- same contract as Badge — real labeled button, decorative icon. -->
 		<button type="button" class="hz-alert-dismiss" aria-label={dismissLabel} onclick={onDismiss}>
 			<IconX />
 		</button>
@@ -87,7 +87,7 @@
 </div>
 
 <style>
-	/* Alert-R7: structural only — banner row; all chrome is the theme's. */
+	/* structural only — banner row; all chrome is the theme's. */
 	.hz-alert {
 		display: flex;
 		flex-direction: row;

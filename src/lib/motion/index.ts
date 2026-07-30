@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui/motion (specs/39-motion.md).
+ * @hyzer-labs/ui/motion.
  *
  * House defaults on top of Svelte's own motion primitives
  * (`svelte/transition`, `svelte/motion`, WAAPI): the `--hz-duration-*` /
@@ -14,7 +14,7 @@
  * place).
  */
 
-// Motion-R2 — token mirrors (durations, CSS + JS easing forms).
+// token mirrors (durations, CSS + JS easing forms).
 export { durations, easingCss, easeStandard, easeIn, easeOut } from './tokens.js';
 
 // The JS easing evaluator + CSS-string parser backing the mirrors above —
@@ -22,7 +22,7 @@ export { durations, easingCss, easeStandard, easeIn, easeOut } from './tokens.js
 // its own right (e.g. driving a `Tween` off a custom cubic-bezier).
 export { cubicBezier, parseCubicBezier } from './bezier.js';
 
-// Motion-R3 — token-bridged svelte/transition wrappers.
+// token-bridged svelte/transition wrappers.
 export { fade, fly, slide, scale } from './transitions.js';
 export type {
 	FadeParams,
@@ -32,10 +32,10 @@ export type {
 	MotionEssential
 } from './transitions.js';
 
-// Motion-R4 — scroll-reveal attachments.
+// scroll-reveal attachments.
 export { reveal, revealGroup } from './reveal.js';
 export type { RevealOptions, RevealGroupOptions, RevealEffect } from './reveal.js';
 
-// Motion-R5 — view-transition helper.
+// view-transition helper.
 export { viewTransition } from './viewTransition.js';
 export type { ViewTransitionOptions, ViewTransitionResult } from './viewTransition.js';

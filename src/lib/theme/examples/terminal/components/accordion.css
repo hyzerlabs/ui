@@ -1,5 +1,5 @@
 /**
- * Terminal — Accordion (specs/32 R1)
+ * Terminal — Accordion
  *
  * Standalone: assumes tokens.css only.
  *
@@ -79,7 +79,7 @@
 	font-size: var(--hz-font-size-sm, 0.875rem);
 }
 
-/* Motion opt-out (specs/32 R2 coverage): the reference theme animates the
+/* Motion opt-out ( coverage): the reference theme animates the
  * panel entrance and interpolates <details> height. A terminal is instant —
  * a selected line, not a reveal — so each of those properties is re-declared
  * at its no-motion value. */

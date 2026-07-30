@@ -18,7 +18,7 @@
 		'}'
 	].join('\n');
 
-	// R7 — derive from token metadata
+	// Derive from token metadata
 	const radiusTokens = Object.entries(radius).map(([key, value]) => ({
 		key,
 		cssVar: `--hz-radius-${key}`,

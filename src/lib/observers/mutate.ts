@@ -1,7 +1,7 @@
 /**
- * @hyzer-labs/ui/observers — `mutate` attachment (specs/48-observers.md,
- * Observers-R4). The Toc dogfood (R9, `src/lib/components/Toc.svelte`) is
- * the reference consumer for the `debounce` option's `120ms` precedent.
+ * @hyzer-labs/ui/observers — `mutate` attachment (,
+ * one place). `Toc` is the in-library consumer of the `debounce` option, at
+ * 120ms.
  */
 import { createAttachment } from './factory.js';
 

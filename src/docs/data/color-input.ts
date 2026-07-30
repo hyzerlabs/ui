@@ -1,4 +1,4 @@
-/** ColorInput's DocPage inputs — specs/40 R1. */
+/** ColorInput's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const colorInputDoc: ComponentDoc = {

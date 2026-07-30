@@ -18,7 +18,7 @@
 	import { iconsDoc } from '../../../../docs/data/icons';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
-	// R9 — lazy per-glyph loading. This catalog page is the one place in the
+	// Lazy per-glyph loading. This catalog page is the one place in the
 	// docs app allowed to reach across the whole generated set; it never
 	// eagerly imports the 1,748-component barrel, only this manifest (names +
 	// version) plus one glyph at a time as rows scroll into view (or, for the

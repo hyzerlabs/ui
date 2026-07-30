@@ -1,4 +1,4 @@
-/** Pagination's DocPage inputs — specs/40 R1. */
+/** Pagination's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const paginationDoc: ComponentDoc = {

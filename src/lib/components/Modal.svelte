@@ -39,22 +39,22 @@
 		...rest
 	}: Props = $props();
 
-	// Stable IDs for ARIA labeling (Modal-R1, R2, R3).
+	// Stable IDs for ARIA labeling.
 	const titleId = uid('hz-modal-title');
 	const descId = uid('hz-modal-desc');
 
-	// Modal-R7: data-state derived from open prop.
+	// data-state derived from open prop.
 	const dataState = $derived(open ? 'open' : 'closed');
 
-	// Modal-R1: dialog element reference (null until mounted).
+	// dialog element reference (null until mounted).
 	let dialogEl: HTMLDialogElement | null = $state(null);
 
-	// Per-instance scroll-lock state (Modal-R16).
+	// Per-instance scroll-lock state.
 	let previousFocus: HTMLElement | null = null;
 	let prevBodyOverflow = '';
 	let scrollLockActive = false;
 
-	// Modal-R14: dev warning for missing title.
+	// dev warning for missing title.
 	if (import.meta.env.DEV) {
 		if (untrack(() => !title)) {
 			console.warn(
@@ -65,12 +65,12 @@
 	}
 
 	// -------------------------------------------------------------------------
-	// Modal-R8: reconcile `open` with the DOM via showModal() / close().
-	// Modal-R9: all close paths set open = false (two-way bindable).
-	// Modal-R10: onclose fires once per dismissal after open is set false.
-	// Modal-R11: focus management on open.
-	// Modal-R12: focus return on close.
-	// Modal-R16: scroll lock — captured/restored per instance.
+	// reconcile `open` with the DOM via showModal() / close().
+	// all close paths set open = false (two-way bindable).
+	// onclose fires once per dismissal after open is set false.
+	// focus management on open.
+	// focus return on close.
+	// scroll lock — captured/restored per instance.
 	// Guarded by `if (!dialogEl)` so it is a no-op on SSR / before mount.
 	// -------------------------------------------------------------------------
 	$effect(() => {
@@ -78,10 +78,10 @@
 
 		if (open) {
 			if (!dialogEl.open) {
-				// Modal-R12: capture the element that currently owns focus.
+				// capture the element that currently owns focus.
 				previousFocus = document.activeElement as HTMLElement;
 
-				// Modal-R16: lock body scroll, capturing the previous inline value.
+				// lock body scroll, capturing the previous inline value.
 				if (preventScroll) {
 					prevBodyOverflow = document.body.style.overflow;
 					document.body.style.overflow = 'hidden';
@@ -91,7 +91,7 @@
 				// Show the dialog in the top layer (native backdrop + focus trap).
 				dialogEl.showModal();
 
-				// Modal-R11: after showModal() settles, move focus per the fallback chain:
+				// after showModal() settles, move focus per the fallback chain:
 				//   1. First focusable element that is NOT the close control.
 				//   2. The close control (when showClose=true).
 				//   3. The dialog element itself (tabindex="-1", always focusable).
@@ -125,25 +125,25 @@
 			if (dialogEl.open) {
 				dialogEl.close();
 
-				// Modal-R16: restore the original inline overflow value.
+				// restore the original inline overflow value.
 				if (scrollLockActive) {
 					document.body.style.overflow = prevBodyOverflow;
 					scrollLockActive = false;
 				}
 
-				// Modal-R12: return focus to the pre-open element (if still in DOM).
+				// return focus to the pre-open element (if still in DOM).
 				const el = previousFocus;
 				previousFocus = null;
 				if (el && document.contains(el)) {
 					el.focus();
 				}
 
-				// Modal-R10: fire the onclose callback exactly once.
+				// fire the onclose callback exactly once.
 				onclose?.();
 			}
 		}
 
-		// Modal-R16: teardown cleanup — restore scroll if unmounted while open.
+		// teardown cleanup — restore scroll if unmounted while open.
 		return () => {
 			if (scrollLockActive) {
 				document.body.style.overflow = prevBodyOverflow;
@@ -156,7 +156,7 @@
 	// Event handlers
 	// -------------------------------------------------------------------------
 
-	// Modal-R13: intercept the native cancel event (fired by Escape).
+	// intercept the native cancel event (fired by Escape).
 	// preventDefault suppresses the native close so dismissal is re-routed
 	// through R9/R10. Escape ALWAYS closes — the WAI-ARIA dialog pattern
 	// requires it, so there is deliberately no opt-out prop.
@@ -165,7 +165,7 @@
 		open = false;
 	}
 
-	// Modal-R14: close when the backdrop (dialog element itself) is clicked.
+	// close when the backdrop (dialog element itself) is clicked.
 	// Clicks on inner content bubble up but carry the inner element as target.
 	function handleDialogClick(e: MouseEvent) {
 		if (closeOnOverlay && e.target === dialogEl) {
@@ -173,16 +173,16 @@
 		}
 	}
 
-	// Modal-R15: close button handler.
+	// close button handler.
 	function handleClose() {
 		open = false;
 	}
 </script>
 
 <!--
-	Modal-R1: Root <dialog> always rendered — never conditionally mounted.
-	Visibility is driven by showModal() / close() (R8).
-	Modal-R18: {...rest} spread first so managed attrs win.
+	Root <dialog> always rendered — never conditionally mounted.
+	Visibility is driven by showModal() / close().
+	{...rest} spread first so managed attrs win.
 -->
 <dialog
 	bind:this={dialogEl}
@@ -197,34 +197,34 @@
 	oncancel={handleCancel}
 	onclick={handleDialogClick}
 >
-	<!-- Modal-R2: Header — always rendered, contains title + optional close control,
-	     plus the optional description on its own row (Modal-R3) so the body region
+	<!-- Header — always rendered, contains title + optional close control,
+	     plus the optional description on its own row so the body region
 	     holds nothing but consumer content. -->
 	<div class="hz-modal-header">
 		<h2 id={titleId} class="hz-modal-title">{title}</h2>
 
-		<!-- Modal-R15: Close control — composes library Button with IconX. -->
+		<!-- Close control — composes library Button with IconX. -->
 		{#if showClose}
 			<Button ariaLabel={closeLabel} data-modal-close="" onclick={handleClose}>
 				{#snippet iconStart()}
-					<!-- IconX gets no ariaLabel → aria-hidden decorative (R15). -->
+					<!-- IconX gets no ariaLabel → aria-hidden decorative. -->
 					<IconX />
 				{/snippet}
 			</Button>
 		{/if}
 
-		<!-- Modal-R3: Description — rendered only when description is a non-empty string. -->
+		<!-- Description — rendered only when description is a non-empty string. -->
 		{#if description}
 			<p id={descId} class="hz-modal-description">{description}</p>
 		{/if}
 	</div>
 
-	<!-- Modal-R4: Body — always rendered; stable scroll region even when empty. -->
+	<!-- Body — always rendered; stable scroll region even when empty. -->
 	<div class="hz-modal-body">
 		{#if children}{@render children()}{/if}
 	</div>
 
-	<!-- Modal-R5: Footer — only rendered when actions snippet is provided. -->
+	<!-- Footer — only rendered when actions snippet is provided. -->
 	{#if actions}
 		<div class="hz-modal-footer">{@render actions()}</div>
 	{/if}
@@ -232,7 +232,7 @@
 
 <style>
 	/* ------------------------------------------------------------------ */
-	/* Modal-R1: Root dialog — flex column so regions pin correctly.      */
+	/* Root dialog — flex column so regions pin correctly.      */
 	/* display only on [open] to avoid overriding the UA's display:none   */
 	/* for the closed state.                                               */
 	/* ------------------------------------------------------------------ */
@@ -257,7 +257,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Modal-R6: Size hook — width: var(--hz-modal-width, <fallback>)     */
+	/* Size hook — width: var(--hz-modal-width, <fallback>)     */
 	/* Mobile: max-width caps at viewport minus margin.                   */
 	/* ------------------------------------------------------------------ */
 
@@ -279,7 +279,7 @@
 		max-height: calc(100dvh - var(--hz-space-xl, 8rem));
 	}
 
-	/* Modal-R6 / Responsive: full fills the entire viewport. */
+	/* Responsive: full fills the entire viewport. */
 	dialog[data-size='full'][open] {
 		width: 100vw;
 		max-width: 100vw;
@@ -289,7 +289,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Modal-R2: Header — pinned (flex-shrink: 0), row layout.            */
+	/* Header — pinned (flex-shrink: 0), row layout.            */
 	/* ------------------------------------------------------------------ */
 
 	/* No gap: the title flexes so the close control already pins to the end,
@@ -315,7 +315,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Modal-R4: Body — scrollable, grows to fill remaining space.        */
+	/* Body — scrollable, grows to fill remaining space.        */
 	/* min-height: 0 is required for flex overflow-y to engage.           */
 	/* ------------------------------------------------------------------ */
 
@@ -326,7 +326,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Modal-R5: Footer — pinned at bottom (flex-shrink: 0).              */
+	/* Footer — pinned at bottom (flex-shrink: 0).              */
 	/* ------------------------------------------------------------------ */
 
 	.hz-modal-footer {

@@ -1,4 +1,4 @@
-/** Skeleton's DocPage inputs — specs/49 R17. */
+/** Skeleton's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const skeletonDoc: ComponentDoc = {

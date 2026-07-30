@@ -3,7 +3,7 @@
  * Icon-button controls and the slide-position status.
  */
 @layer hz-theme {
-	/* Anchors the focus-mode control row as an overlay (specs/43 R3) — harmless
+	/* Anchors the focus-mode control row as an overlay — harmless
 	 * in the default 'visible' mode, where the row stays in normal flow. */
 	.hz-carousel {
 		position: relative;
@@ -13,7 +13,7 @@
 		margin-top: 0.75rem;
 	}
 
-	/* controls="focus" (specs/43 R1–R4): the control row is in-DOM and fully
+	/* controls="focus" (–R4): the control row is in-DOM and fully
 	 * operable throughout (Carousel.svelte never touches display/visibility/
 	 * aria-hidden/inert for it — R2) but visually hidden at rest and revealed
 	 * together on :hover/:focus-within, the skip-link idiom (.sr-only in
@@ -24,7 +24,7 @@
 	 * Contrast (1.4.11, amended 2026-07-23): the prev/next Buttons compose
 	 * variant="ghost" now (borderless, transparent at rest — see the
 	 * .hz-carousel-prev/-next comment below), not the opaque-background
-	 * outline variant specs/43's Accessibility section originally named. In
+	 * outline variant's Accessibility section originally named. In
 	 * this focus-mode overlay the row sits on top of arbitrary slide media,
 	 * so the *row itself* carries the opaque-ish backdrop below — every
 	 * revealed control (chevrons, dots, counter) sits on it, so contrast
@@ -66,7 +66,7 @@
 		 * their small hit areas intercept a press exactly like the
 		 * controls="visible" row's buttons already do, and nothing more.
 		 * Keyboard reach is untouched either way — pointer-events has no effect
-		 * on Tab order or on Enter/Space activating a focused control (R2). */
+		 * on Tab order or on Enter/Space activating a focused control. */
 		pointer-events: none;
 	}
 
@@ -93,7 +93,7 @@
 	/* Prev/next chrome is Button's (button.css) — they compose <Button
 	 * variant="ghost">: borderless and transparent at rest, "just the chevron
 	 * sitting there neatly" (user decision 2026-07-23, amended same day —
-	 * see specs/33-carousel.md's Amendments). Ghost still paints a soft
+	 *'s Amendments). Ghost still paints a soft
 	 * background on hover/active (button.css), so the un-circling override
 	 * below stays live — it is not moot with ghost, it shapes that hover/
 	 * active fill to the outline button's normal corner radius instead of

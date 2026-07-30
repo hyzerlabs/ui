@@ -1,4 +1,4 @@
-/** Divider's DocPage inputs — specs/40 R1. */
+/** Divider's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const dividerDoc: ComponentDoc = {

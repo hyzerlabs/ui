@@ -7,7 +7,7 @@
 	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 	import { position, supportsPopoverApi } from '../positioning/index.js';
 
-	// specs/51 R-DD-4: reproduces today's rendered gap (structural `top: 100%`
+	// reproduces today's rendered gap (structural `top: 100%`
 	// plus the theme's former `margin-top: 0.25rem`, i.e. 4px at the root font
 	// size) — hardcoded here now that the core, not the theme, owns the gap.
 	const DROPDOWN_OFFSET = 4;
@@ -38,7 +38,7 @@
 		...rest
 	}: Props = $props();
 
-	// Dropdown-R2: appearance defaults for the composed Button trigger.
+	// appearance defaults for the composed Button trigger.
 	const mergedVariant = $derived(triggerProps.variant ?? 'outline');
 	const mergedIntent = $derived(triggerProps.intent ?? 'neutral');
 
@@ -53,8 +53,8 @@
 		return 'separator' in entry ? `hz-dd-sep-${i}` : entry.id;
 	}
 
-	// Dropdown-R3/R4: the roving sequence — actionable items only, separators
-	// excluded. Disabled items stay in the sequence (Dropdown-R10).
+	// the roving sequence — actionable items only, separators
+	// excluded. Disabled items stay in the sequence.
 	const menuItems = $derived(items.filter((e): e is DropdownItem => !('separator' in e)));
 
 	// ------------------------------------------------------------------
@@ -67,7 +67,7 @@
 	let rootEl = $state<HTMLDivElement | null>(null);
 	let menuEl = $state<HTMLUListElement | null>(null);
 
-	// specs/51 R-DD-3: teardown for the core's active positioning (scroll/
+	// teardown for the core's active positioning (scroll/
 	// resize tracking on the JS-fallback path) — stored across the open/close
 	// cycle, not reactive state (the Popover.svelte precedent).
 	let stopPositioning: (() => void) | null = null;
@@ -80,7 +80,7 @@
 		return menuItems.length > 0 ? menuItems[menuItems.length - 1].id : null;
 	}
 
-	/** Sets the active item and moves real DOM focus onto it (Dropdown-R6). */
+	/** Sets the active item and moves real DOM focus onto it. */
 	function setActive(id: string | null): void {
 		activeId = id;
 		if (id === null) return;
@@ -109,12 +109,12 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Activation — Dropdown-R4/R9
+	// Activation
 	// ------------------------------------------------------------------
 
 	function activate(item: DropdownItem): void {
 		// Disabled items use aria-disabled (not native disabled), so a click
-		// still dispatches — guard here (Dropdown-R10).
+		// still dispatches — guard here.
 		if (item.disabled) return;
 		item.onselect?.();
 		onselect?.(item.id, item);
@@ -123,7 +123,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Trigger — Dropdown-R5/R7
+	// Trigger
 	// ------------------------------------------------------------------
 
 	function onTriggerClick(): void {
@@ -153,7 +153,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// In-menu keyboard — Dropdown-R7/R8
+	// In-menu keyboard
 	// ------------------------------------------------------------------
 
 	function moveActive(delta: 1 | -1): void {
@@ -165,7 +165,7 @@
 		setActive(menuItems[nextIdx].id);
 	}
 
-	/** Dropdown-R8: single-character cyclic typeahead, matching disabled items. */
+	/** single-character cyclic typeahead, matching disabled items. */
 	function typeahead(char: string): void {
 		const n = menuItems.length;
 		if (n === 0) return;
@@ -205,7 +205,7 @@
 				break;
 			case 'Tab':
 				// Close and let the browser's native focus move proceed — no
-				// preventDefault (Dropdown-R7); the focusout backstop below
+				// preventDefault; the focusout backstop below
 				// also closes as focus actually leaves the root.
 				closeMenu();
 				break;
@@ -220,7 +220,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Outside click / focus-out — Dropdown-R12 (no focus trap)
+	// Outside click / focus-out (no focus trap)
 	// ------------------------------------------------------------------
 
 	function onDocumentClick(e: MouseEvent): void {
@@ -242,7 +242,7 @@
 	});
 
 	// ------------------------------------------------------------------
-	// specs/51 R-DD-2/R-DD-3: menu positioning + top layer — reconciles
+	// Menu positioning and top layer — reconciles
 	// `open` with the menu's showPopover()/hidePopover() (guarded so it is a
 	// no-op on SSR/before mount, the Popover.svelte precedent). `"manual"`,
 	// not `"auto"`: Dropdown already owns dismissal (onDocumentClick/
@@ -252,7 +252,7 @@
 	// against, so — unlike Popover's toggle-event-gated handleShown/
 	// handleHidden — positioning and the popover call run synchronously
 	// together, in lockstep with `open`, keeping the existing
-	// openTo() → tick() → focus sequencing exactly as it was (Dropdown-R6).
+	// openTo() → tick() → focus sequencing exactly as it was.
 	// On a browser without the Popover API, `popover="manual"` is inert and
 	// the existing CSS `display` toggling (driven by the root's data-open)
 	// remains the whole visibility mechanism, unchanged.
@@ -270,7 +270,7 @@
 			}
 			const triggerEl = document.getElementById(triggerId) ?? rootEl;
 			if (triggerEl) {
-				// R-THEME-3: data-side/data-align reflect the RESOLVED (post-flip)
+				// Data-side/data-align reflect the RESOLVED (post-flip)
 				// placement, measured from real layout, so a consumer-drawn caret
 				// always points at the trigger after a flip.
 				const resolved = position(triggerEl, menuEl, {
@@ -307,8 +307,8 @@
 {/snippet}
 
 <!--
-	Dropdown-R1: root is the menu's positioning ancestor and the focus-return /
-	focus-containment anchor. Dropdown-R14: rest spreads first so component-
+	root is the menu's positioning ancestor and the focus-return /
+	focus-containment anchor. rest spreads first so component-
 	managed attributes win.
 -->
 <div
@@ -319,7 +319,7 @@
 	data-state={disabled ? 'disabled' : undefined}
 	onfocusout={onRootFocusOut}
 >
-	<!-- Dropdown-R2: trigger composes Button; menu-button ARIA reaches Button
+	<!-- trigger composes Button; menu-button ARIA reaches Button
 	     via ...rest. Two branches (rather than a conditional icon prop) keep
 	     Button's iconOnly derivation (no children ⇒ icon-only circle) intact. -->
 	{#if label}
@@ -359,9 +359,9 @@
 		</Button>
 	{/if}
 
-	<!-- Dropdown-R3: rendered at all times, hidden via CSS while closed
-	     (Dropdown-R17) so a closed menu is out of the a11y tree. specs/51
-	     R-DD-2: popover="manual" — top-layer escape, dismissal stays
+	<!-- rendered at all times, hidden via CSS while closed
+ so a closed menu is out of the a11y tree.
+	     Popover="manual" — top-layer escape, dismissal stays
 	     component-owned (never native light-dismiss/Escape). -->
 	<ul
 		bind:this={menuEl}
@@ -377,8 +377,8 @@
 				<li role="separator" class="hz-dropdown-separator"></li>
 			{:else}
 				<li role="none">
-					<!-- Dropdown-R6: roving tabindex — the active item is the sole
-					     tab stop. Dropdown-R10: disabled items stay focusable
+					<!-- roving tabindex — the active item is the sole
+					     tab stop. disabled items stay focusable
 					     (aria-disabled, not native disabled). -->
 					<button
 						id={itemId(entry.id)}
@@ -403,8 +403,8 @@
 </div>
 
 <style>
-	/* Dropdown-R17: structural CSS only — all chrome is theme/dropdown.css.
-	   specs/51 R-DD-3: no positioning CSS here anymore — the menu is
+	/* structural CSS only — all chrome is theme/dropdown.css.
+ no positioning CSS here anymore — the menu is
 	   position: fixed, placed by the shared positioning core (anchor path or
 	   the JS measure-and-place fallback), same as Popover's panel. */
 

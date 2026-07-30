@@ -4,11 +4,11 @@
 	import { cx } from '$lib/utils';
 
 	// ---------------------------------------------------------------------------
-	// Skeleton (specs/49) — a decorative loading placeholder. A small set of
+	// Skeleton — a decorative loading placeholder. A small set of
 	// shape variants (text lines, circle, rectangle, fill-the-box) with free
 	// width/height/rounded overrides, composable into any card-like placeholder
 	// in the consumer's own layout (Decision 3 — no card-skeleton prop). Always
-	// aria-hidden: Loading announces, Skeleton decorates (R13).
+	// aria-hidden: Loading announces, Skeleton decorates.
 	// ---------------------------------------------------------------------------
 
 	type SkeletonVariant = 'text' | 'circle' | 'rect' | 'block';
@@ -40,7 +40,7 @@
 		...rest
 	}: Props = $props();
 
-	/** R10: a number width/height/lastLineWidth is px; a string is verbatim. */
+	/** A number width/height/lastLineWidth is px; a string is verbatim. */
 	function toCss(dim: string | number | undefined): string | undefined {
 		if (dim === undefined) return undefined;
 		return typeof dim === 'number' ? `${dim}px` : dim;
@@ -60,7 +60,7 @@
 		block: 'md'
 	};
 
-	// R10: circle squares from whichever of width/height is given; falls back
+	// Circle squares from whichever of width/height is given; falls back
 	// to the shared 2.5rem default when neither is set.
 	const resolvedWidth = $derived.by((): string => {
 		if (variant === 'circle') {
@@ -78,18 +78,18 @@
 
 	const resolvedLastLineWidth = $derived(toCss(lastLineWidth) ?? '60%');
 
-	// R10: circle forces full regardless of the rounded prop; every other
+	// Circle forces full regardless of the rounded prop; every other
 	// variant's default is overridable.
 	const effectiveRounded: Rounded = $derived(
 		variant === 'circle' ? 'full' : (rounded ?? DEFAULT_ROUNDED[variant])
 	);
 
-	// R11: lines is meaningful for text only; clamped to >= 1 elsewhere/on a
+	// Lines is meaningful for text only; clamped to >= 1 elsewhere/on a
 	// non-positive value.
 	const effectiveLines = $derived(variant === 'text' ? Math.max(1, lines) : 1);
 	const isMultiline = $derived(variant === 'text' && effectiveLines > 1);
 
-	// R9/R10: the root is the single painted block unless it holds multiple
+	// The root is the single painted block unless it holds multiple
 	// text lines, in which case the lines carry the dimensions instead.
 	const rootStyle = $derived(
 		isMultiline ? undefined : `width: ${resolvedWidth}; height: ${resolvedHeight};`
@@ -100,7 +100,7 @@
 		return `width: ${lineWidth}; height: ${resolvedHeight};`;
 	}
 
-	// R11: a non-positive `lines` dev-warns once at creation and clamps to 1.
+	// A non-positive `lines` dev-warns once at creation and clamps to 1.
 	if (import.meta.env.DEV) {
 		untrack(() => {
 			if (variant === 'text' && lines <= 0) {
@@ -111,8 +111,8 @@
 </script>
 
 <!--
-	R9: root is a div carrying data-variant/data-animation/data-rounded.
-	R13: aria-hidden="true" by default — placed BEFORE the rest spread (the
+	Root is a div carrying data-variant/data-animation/data-rounded.
+	Aria-hidden="true" by default — placed BEFORE the rest spread (the
 	one exception to the library's usual "rest first" convention) so a
 	consumer can override it via rest for the rare case they want it exposed.
 	class/data-*/style still come after rest, so those stay component-managed.
@@ -127,7 +127,7 @@
 	style={rootStyle}
 >
 	{#if isMultiline}
-		<!-- R11: lines stacked bars; the last one uses lastLineWidth so the
+		<!-- Lines stacked bars; the last one uses lastLineWidth so the
 		     block reads like a real paragraph. -->
 		{#each { length: effectiveLines }, i (i)}
 			<span class="hz-skeleton-line" style={lineStyle(i)}></span>
@@ -136,7 +136,7 @@
 </div>
 
 <style>
-	/* R14: structure only — multi-line text as a flex column with a token gap.
+	/* Structure only — multi-line text as a flex column with a token gap.
 	 * Harmless as a bare block too: with no children, a flex container paints
 	 * identically to a plain block. */
 	.hz-skeleton {

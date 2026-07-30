@@ -1,5 +1,5 @@
 /**
- * Shared shape for the per-component doc modules — specs/40 R1.
+ * Shared shape for the per-component doc modules.
  *
  * One component page's DocPage inputs, minus `name`: the registry in
  * index.ts supplies that as the object key, the same convention hooks.ts

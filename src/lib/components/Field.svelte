@@ -16,13 +16,13 @@
 		class: string;
 		/**
 		 * Optional `data-open` hook on the root, boolean-presence style.
-		 * Combobox-R1: the popup open/closed state needs to surface on the
+		 * the popup open/closed state needs to surface on the
 		 * Field-rendered root div, which no other field family member needs.
 		 */
 		dataOpen?: boolean;
 		/**
 		 * Optional `data-dropzone` hook on the root, boolean-presence style.
-		 * FileUpload-R1: the dropzone-vs-basic presentation mode needs to surface
+		 * the dropzone-vs-basic presentation mode needs to surface
 		 * on the Field-rendered root div, which no other field family member needs.
 		 */
 		dataDropzone?: boolean;
@@ -46,16 +46,16 @@
 		control
 	}: Props = $props();
 
-	// Field-R1: error wins over disabled wins over default.
+	// error wins over disabled wins over default.
 	const dataState = $derived(error ? 'error' : disabled ? 'disabled' : 'default');
 </script>
 
 <!--
-	Field-R1: root div carries hz-field + optional variant/consumer classes + data-state.
-	Field-R2: label always in DOM; sr-only when hideLabel.
-	Field-R3: required * indicator.
-	Field-R4: description only when non-empty.
-	Field-R5: error only when non-empty; role="alert".
+	root div carries hz-field + optional variant/consumer classes + data-state.
+	label always in DOM; sr-only when hideLabel.
+	required * indicator.
+	description only when non-empty.
+	error only when non-empty; role="alert".
 -->
 <div
 	class={wrapperClass}
@@ -80,7 +80,7 @@
 </div>
 
 <style>
-	/* Field-R1: full-width block at all breakpoints. */
+	/* full-width block at all breakpoints. */
 	:global(.hz-field) {
 		display: block;
 		width: 100%;

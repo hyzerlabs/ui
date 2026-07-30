@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — motion token mirrors (specs/39-motion.md, Motion-R2).
+ * @hyzer-labs/ui — motion token mirrors.
  *
  * Everything here is *derived from* `$lib/tokens`'s `motion` metadata, never
  * hand-copied — `tokens.spec.ts` is a parity spec that fails the moment

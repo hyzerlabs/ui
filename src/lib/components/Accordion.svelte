@@ -46,7 +46,7 @@
 	}: Props = $props();
 
 	// ---------------------------------------------------------------------------
-	// Accordion-R17 — dev warning for duplicate ids (read once at creation time)
+	// dev warning for duplicate ids (read once at creation time)
 	// ---------------------------------------------------------------------------
 
 	if (import.meta.env.DEV) {
@@ -62,13 +62,13 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// Accordion-R6 — stable group name for the single-expand native grouping
+	// stable group name for the single-expand native grouping
 	// ---------------------------------------------------------------------------
 
 	const groupName = uid('hz-accordion');
 
 	// ---------------------------------------------------------------------------
-	// Accordion-R8 — compute initial open set from defaultOpen (uncontrolled)
+	// compute initial open set from defaultOpen (uncontrolled)
 	// untrack() reads props once at creation time so Svelte does not warn about
 	// capturing a reactive value as a snapshot (same pattern as Card/Button).
 	// ---------------------------------------------------------------------------
@@ -117,8 +117,8 @@
 	let summaryEls = $state<(HTMLElement | null)[]>([]);
 
 	// ---------------------------------------------------------------------------
-	// Accordion-R9 / R12 — toggle event listener with cleanup
-	// Accordion-R7 is fulfilled by data-state={openStates[i] ? 'open' : 'closed'}
+	// toggle event listener with cleanup
+	// data-state={openStates[i] ? 'open' : 'closed'} keeps the hook in sync
 	// and by updating openStates here.
 	// ---------------------------------------------------------------------------
 
@@ -134,13 +134,13 @@
 				// Guard: bail when state is already in sync (programmatic change we caused).
 				if (isNowOpen === openStates[i]) return;
 
-				// Accordion-R11: disabled — revert the native toggle immediately.
+				// disabled — revert the native toggle immediately.
 				if (items[i]?.disabled) {
 					openStates[i] = !isNowOpen; // schedules DOM revert via open={openStates[i]}
 					return; // do not call onToggle
 				}
 
-				// Accordion-R10: non-collapsible + single — reopen if user just closed it.
+				// non-collapsible + single — reopen if user just closed it.
 				if (!collapsible && type === 'single' && !isNowOpen) {
 					openStates[i] = true; // schedules DOM reopen
 					return; // do not call onToggle
@@ -149,14 +149,14 @@
 				// Update this item's state.
 				openStates[i] = isNowOpen;
 
-				// Accordion-R9: single mode — close all other items.
+				// single mode — close all other items.
 				if (type === 'single' && isNowOpen) {
 					items.forEach((_, j) => {
 						if (j !== i) openStates[j] = false;
 					});
 				}
 
-				// Accordion-R12: fire onToggle with current open ids in DOM order.
+				// fire onToggle with current open ids in DOM order.
 				if (onToggle) {
 					const openIds = items.filter((_, idx) => openStates[idx]).map((item) => item.id);
 					onToggle(openIds);
@@ -171,30 +171,30 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// Accordion-R11 — click guard (disabled)
-	// Accordion-R10 — click guard (non-collapsible)
+	// click guard (disabled)
+	// click guard (non-collapsible)
 	// ---------------------------------------------------------------------------
 
 	function handleSummaryClick(e: MouseEvent, i: number) {
-		// R11: disabled item — prevent any toggle.
+		// Disabled item — prevent any toggle.
 		if (items[i]?.disabled) {
 			e.preventDefault();
 			return;
 		}
-		// R10: non-collapsible + single — prevent closing the open item.
+		// Non-collapsible + single — prevent closing the open item.
 		if (!collapsible && type === 'single' && openStates[i]) {
 			e.preventDefault();
 		}
 	}
 
 	// ---------------------------------------------------------------------------
-	// Accordion-R11 / R14 — keydown handler
+	// keydown handler
 	// ---------------------------------------------------------------------------
 
 	function handleSummaryKeydown(e: KeyboardEvent, i: number) {
 		const key = e.key;
 
-		// Accordion-R14: arrow/Home/End navigation between summaries.
+		// arrow/Home/End navigation between summaries.
 		if (key === 'ArrowDown') {
 			e.preventDefault();
 			summaryEls[Math.min(i + 1, summaryEls.length - 1)]?.focus();
@@ -216,13 +216,13 @@
 			return;
 		}
 
-		// Accordion-R11: disabled — prevent Enter/Space toggle via keyboard.
+		// disabled — prevent Enter/Space toggle via keyboard.
 		if (items[i]?.disabled && (key === 'Enter' || key === ' ')) {
 			e.preventDefault();
 			return;
 		}
 
-		// Accordion-R10: non-collapsible — prevent closing the open item via keyboard.
+		// non-collapsible — prevent closing the open item via keyboard.
 		if (!collapsible && type === 'single' && openStates[i] && (key === 'Enter' || key === ' ')) {
 			e.preventDefault();
 		}
@@ -230,17 +230,17 @@
 </script>
 
 <!--
-	Accordion-R1: root <div class="hz-accordion"> with data-type.
-	Accordion-R16: {...rest} spread first so managed attrs (class, data-type) win.
+	root <div class="hz-accordion"> with data-type.
+	{...rest} spread first so managed attrs (class, data-type) win.
 -->
 <div {...rest} class={cx('hz-accordion', className)} data-type={type}>
 	{#each items as item, i (i)}
 		<!--
-			Accordion-R2: <details class="hz-accordion-item">
-			Accordion-R6: name attribute for single-expand native grouping.
-			Accordion-R7: data-state kept in sync with openStates[i].
-			Accordion-R8: open attribute seeds initial open state.
-			Accordion-R11: data-disabled present when item.disabled is true.
+			<details class="hz-accordion-item">
+			name attribute for single-expand native grouping.
+			data-state kept in sync with openStates[i].
+			open attribute seeds initial open state.
+			data-disabled present when item.disabled is true.
 		-->
 		<details
 			bind:this={detailsEls[i]}
@@ -251,8 +251,8 @@
 			data-disabled={item.disabled ? '' : undefined}
 		>
 			<!--
-				Accordion-R2: <summary class="hz-accordion-trigger">
-				Accordion-R11: aria-disabled="true" on disabled summaries.
+				<summary class="hz-accordion-trigger">
+				aria-disabled="true" on disabled summaries.
 			-->
 			<summary
 				bind:this={summaryEls[i]}
@@ -262,14 +262,14 @@
 				onkeydown={(e) => handleSummaryKeydown(e, i)}
 			>
 				<!--
-					Accordion-R3: heading element via svelte:element; icon is a sibling.
+					heading element via svelte:element; icon is a sibling.
 				-->
 				<svelte:element this={'h' + headingLevel} class="hz-accordion-heading">
 					{#if typeof item.title === 'string'}{item.title}{:else}{@render item.title()}{/if}
 				</svelte:element>
 
 				<!--
-					Accordion-R5: icon span is aria-hidden; renders custom icon or default chevron.
+					icon span is aria-hidden; renders custom icon or default chevron.
 				-->
 				<span class="hz-accordion-icon" aria-hidden="true">
 					{#if icon}
@@ -281,7 +281,7 @@
 			</summary>
 
 			<!--
-				Accordion-R2/R4: panel div; no display/overflow/height CSS shipped (Theming Hooks).
+				panel div; no display/overflow/height CSS shipped (Theming Hooks).
 			-->
 			<div class="hz-accordion-panel">
 				{@render panel(item)}
@@ -296,14 +296,14 @@
 	   icon rotation, or panel animation — those are theme concerns).
 	   ----------------------------------------------------------------------- */
 
-	/* Accordion-R2: full-width block for every <details>. */
+	/* full-width block for every <details>. */
 	.hz-accordion-item {
 		display: block;
 		width: 100%;
 	}
 
 	/*
-	 * Accordion-R3 / Structural CSS:
+	 * Structural CSS:
 	 * summary as a flex row — heading takes available space, icon sits at the end.
 	 * align-items: flex-start keeps the icon aligned to the top of the row so it
 	 * does not vertically center against wrapped multi-line titles (spec §Responsive).
@@ -338,7 +338,7 @@
 	}
 
 	/*
-	 * Accordion-R2 / Theming Hooks:
+	 * Theming hooks:
 	 * NO display / overflow / height / content-visibility on .hz-accordion-panel.
 	 * Native <details> visibility drives show/hide.
 	 * The panel element is stable so themes can animate it freely.

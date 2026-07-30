@@ -1,4 +1,4 @@
-/** CodeBlock's DocPage inputs — specs/47. */
+/** CodeBlock's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const codeBlockDoc: ComponentDoc = {

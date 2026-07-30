@@ -4,7 +4,7 @@
  * Paints the base block (single-shape variants) and the multi-line text bars
  * from one shared color pair, with an optional shimmer/pulse animation. Both
  * animated modes are gated behind `@media (prefers-reduced-motion: no-
- * preference)` (specs/49 R12/R14) — under reduced motion every mode collapses
+ * preference)` — under reduced motion every mode collapses
  * to the same static muted block as `animation="none"`.
  */
 @layer hz-theme {
@@ -73,7 +73,7 @@
 
 	/* shimmer/pulse — the gradient/keyframes apply ONLY under no-preference,
 	 * so reduced motion falls through to the flat background-color above,
-	 * identical to animation="none" (R12). */
+	 * identical to animation="none". */
 	@media (prefers-reduced-motion: no-preference) {
 		.hz-skeleton:where([data-animation='shimmer']):not(:has(.hz-skeleton-line)),
 		.hz-skeleton:where([data-animation='shimmer']) .hz-skeleton-line {

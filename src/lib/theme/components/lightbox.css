@@ -15,7 +15,7 @@
 	.hz-lightbox :where(.hz-lightbox-img) {
 		border-radius: var(--hz-radius-md, 0.5rem);
 		box-shadow: var(--hz-shadow-lg, 0 20px 25px -5px rgb(0 0 0 / 0.18));
-		/* Lightbox-R15: `.hz-lightbox-img` is now Image's wrapper box, sized to
+		/* `.hz-lightbox-img` is now Image's wrapper box, sized to
 		 * exactly hug its bitmap (see LightboxOverlay.svelte) — overflow:hidden
 		 * clips the bitmap's square corners to the wrapper's rounded ones, the
 		 * same visual result the raw <img>'s own border-radius gave pre-R15. */
@@ -57,7 +57,7 @@
 		opacity: 0.85;
 	}
 
-	/* lightboxGroup attachment (Lightbox-R27): the only styling hook the
+	/* lightboxGroup attachment: the only styling hook the
 	 * attachment ships — a cursor affordance, parity with .hz-lightbox-trigger
 	 * above. No other visual opinion is added. */
 	[data-lightbox-trigger] {

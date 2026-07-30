@@ -66,7 +66,7 @@
 	// `?raw` or not, since that boundary is what keeps Shiki out of the
 	// browser bundle in the first place). The 'shiki' specifier is split so
 	// this display-only text doesn't itself read as a real import to
-	// highlighter-isolation.spec.ts's file-content scan (CodeBlock-R18) —
+	// highlighter-isolation.spec.ts's file-content scan —
 	// the same trick titledCode above uses to keep its own closing script
 	// tag from ending this block early.
 	const shikiLoadSource = [
@@ -208,7 +208,7 @@
 							<CodeBlock code={shikiDemoSource}>
 								<!-- Shiki's own output, produced at prerender from our own
 								     committed fixture (code-block-demo.ts) — no user input,
-								     CodeBlock-R19's idiomatic 'children' usage. -->
+								     the idiomatic 'children' usage. -->
 								<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 								{@html data.shikiHtml}
 							</CodeBlock>

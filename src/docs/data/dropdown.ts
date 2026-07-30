@@ -1,4 +1,4 @@
-/** Dropdown's DocPage inputs — specs/40 R1. */
+/** Dropdown's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const dropdownDoc: ComponentDoc = {

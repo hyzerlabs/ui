@@ -14,7 +14,7 @@
 		'}'
 	].join('\n');
 
-	// R7 — derive from token metadata
+	// Derive from token metadata
 	const fontSizes = Object.entries(typography.fontSize).map(([key, value]) => ({
 		key,
 		cssVar: `--hz-font-size-${key}`,

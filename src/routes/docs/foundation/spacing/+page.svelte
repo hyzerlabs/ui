@@ -4,7 +4,7 @@
 	import Example from '../../../../docs/Example.svelte';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
-	// R7 — derive from token metadata
+	// Derive from token metadata
 	const spaceTokens = Object.entries(space).map(([key, value]) => ({
 		key,
 		cssVar: `--hz-space-${key}`,

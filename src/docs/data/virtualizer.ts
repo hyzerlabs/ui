@@ -1,4 +1,4 @@
-/** Virtualizer's DocPage inputs — specs/40 R1. */
+/** Virtualizer's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const virtualizerDoc: ComponentDoc = {

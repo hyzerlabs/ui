@@ -4,7 +4,7 @@
  * Keys are camelCase; CSS var names follow --hz-<group>-<key> convention.
  * No window/DOM access — SSR-safe.
  *
- * R7: typed metadata exported alongside tokens.css so tooling and docs
+ * Typed metadata exported alongside tokens.css so tooling and docs
  *     can read token values without parsing CSS.
  */
 
@@ -12,7 +12,7 @@
 export const prefix = '--hz' as const;
 
 // ---------------------------------------------------------------------------
-// Palette — Layer 1: raw hues, single value each, no ramps (specs/42 R1).
+// Palette — Layer 1: raw hues, single value each, no ramps.
 // ---------------------------------------------------------------------------
 
 export const palette = {
@@ -29,7 +29,7 @@ export const palette = {
 	gray: '#6b7280',
 
 	// Dark-theme companion map (R5, revised 2026-07-15; moved to the palette
-	// tier by specs/42 R1) — the two-tier rule: dark mode is authored
+	// tier by) — the two-tier rule: dark mode is authored
 	// ENTIRELY at this layer. Every hue lightens to a companion that keeps
 	// WCAG AA (≥ 4.5:1) as text on both dark surfaces. Roles and intents are
 	// pure var() chains in both modes, so all of Layer 2 follows
@@ -50,7 +50,7 @@ export const palette = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Color — Layer 2: semantic roles (specs/42 R1). Structural roles reference
+// Color — Layer 2: semantic roles. Structural roles reference
 // the palette namespace via var(); `black`/`white` are mode-invariant alias
 // roles (absolute anchors for hover-darkening mixes and on-media controls)
 // that deliberately carry no dark override.
@@ -141,7 +141,7 @@ export const width = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Typography — six font-size steps (R6)
+// Typography — six font-size steps
 // ---------------------------------------------------------------------------
 
 export const typography = {
@@ -172,7 +172,7 @@ export const typography = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Radius (R6)
+// Radius
 // ---------------------------------------------------------------------------
 
 export const radius = {
@@ -184,7 +184,7 @@ export const radius = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Border width (R6)
+// Border width
 // ---------------------------------------------------------------------------
 
 export const border = {
@@ -196,7 +196,7 @@ export const border = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Elevation / shadows (R6)
+// Elevation / shadows
 // ---------------------------------------------------------------------------
 
 // Rescaled bolder 2026-07-22 (user decision, audit): the old sm was barely
@@ -210,10 +210,10 @@ export const shadow = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Z-index (R6, revised Banner-R13 — specs/41)
+// Z-index
 // ---------------------------------------------------------------------------
 
-// `toast` retired 2026-07-23 (Banner-R13): no Toast component ships, so the
+// `toast` retired 2026-07-23: no Toast component ships, so the
 // tier was dead. `raised` and `sticky` are new: `raised` covers small local
 // layering (a bg/content pair, a sticky table cell), `sticky` is the global
 // tier a pinned Header/Banner sits at. `popover` covers a floating menu that
@@ -224,7 +224,7 @@ export const zIndex = {
 	raised: '1',
 	dropdown: '10',
 	sticky: '100',
-	// tooltip (specs/50): above dropdown/sticky, below popover — mainly
+	// tooltip: above dropdown/sticky, below popover — mainly
 	// matters on the non-top-layer fallback path (older browsers); a real
 	// top-layer tooltip stacks above everything regardless of z-index.
 	tooltip: '150',
@@ -234,7 +234,7 @@ export const zIndex = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Motion (R6)
+// Motion
 // ---------------------------------------------------------------------------
 
 export const motion = {

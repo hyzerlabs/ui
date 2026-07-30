@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui token engine — contrast report (specs/29 R5).
+ * @hyzer-labs/ui token engine — contrast report.
  *
  * Grades the resolved token set against WCAG AA exactly like the library's
  * own token-compliance suite: text roles and every intent as text on both

@@ -29,7 +29,7 @@
 	// surface-muted's color-mix(). Panels are painted from these resolved
 	// hexes (not live tokens) so each panel stays pinned to its mode
 	// regardless of the site theme toggle. Raw hues come from the `palette`
-	// export (specs/42 R1) — `color` (the role tier) holds indirection
+	// export — `color` (the role tier) holds indirection
 	// strings like `var(--hz-palette-white)`, not hexes.
 	// -------------------------------------------------------------------------
 
@@ -118,7 +118,7 @@
 	// The demo panels are deliberately mode-PINNED (painted from static
 	// hexes), but which panel you land on should match the mode you're in —
 	// a dark-mode reader shouldn't open onto a wall of white. Mirror the
-	// layout's resolution order (R9): an explicit stored choice wins, else
+	// layout's resolution order: an explicit stored choice wins, else
 	// the system preference. SSR/prerender renders the light default and
 	// hydration reconciles.
 	const storedTheme = typeof localStorage !== 'undefined' ? localStorage.getItem('hz-theme') : null;

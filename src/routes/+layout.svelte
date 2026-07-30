@@ -18,10 +18,10 @@
 	// styled starting point; the docs chrome stays hand-rolled CSS on the
 	// same role tokens.
 	import '$lib/theme/theme.css';
-	// Opt-in utility sheet (specs/44 R10) — dogfooded content-only: page/demo
+	// Opt-in utility sheet — dogfooded content-only: page/demo
 	// content may use these classes, but the docs shell never depends on it.
 	import '$lib/theme/utilities.css';
-	// The shipped "Docs" example theme (specs/46) — this site's own reading
+	// The shipped "Docs" example theme — this site's own reading
 	// look (scaffold classes, .docs-table, code chips, content focus ring),
 	// dogfooded as the literal shipped sheet rather than a private copy.
 	import '$lib/theme/examples/docs/docs.css';

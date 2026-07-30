@@ -1,4 +1,4 @@
-/** Toc's DocPage inputs — specs/40 R1. */
+/** Toc's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const tocDoc: ComponentDoc = {

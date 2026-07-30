@@ -265,8 +265,8 @@
 		max-width: 30rem;
 	}
 
-	/* Field-R1 gives every field a full-width block root — expected, since a
-	 * vertical RangeSlider is still a block Field (Vert-R8). Side-by-side
+	/* The field scaffold gives every field a full-width block root — expected, since a
+	 * vertical RangeSlider is still a block Field. Side-by-side
 	 * layout is the author's job, so this demo shrinks the roots to content. */
 	.vertical-demo :global(.hz-field--slider) {
 		width: auto;

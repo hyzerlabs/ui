@@ -7,7 +7,7 @@
 	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 
 	// ---------------------------------------------------------------------------
-	// Table (specs/37) — data table with client sorting, row selection, sticky
+	// Table — data table with client sorting, row selection, sticky
 	// header, empty/loading states, and an opt-in stacked mode below a named
 	// width. Headless: real <table> semantics + behavior live here; the
 	// reference theme (table.css) styles the hooks this component stamps.
@@ -73,7 +73,7 @@
 	}: Props = $props();
 
 	// ---------------------------------------------------------------------------
-	// R1 — caption or ariaLabel is required (the Tabs precedent: dev-only warn,
+	// Caption or ariaLabel is required (the Tabs precedent: dev-only warn,
 	// re-evaluated whenever either prop changes).
 	// ---------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@
 	const hasCaption = $derived(caption !== undefined);
 
 	// ---------------------------------------------------------------------------
-	// R2 — cell value access. Bracket access through Record<string, unknown>
+	// Cell value access. Bracket access through Record<string, unknown>
 	// because T carries no index signature; a missing key resolves to
 	// undefined → empty string, never a throw.
 	// ---------------------------------------------------------------------------
@@ -143,7 +143,7 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// R3 — sorting. Cycles asc → desc → asc on the active column; clicking a
+	// Sorting. Cycles asc → desc → asc on the active column; clicking a
 	// different sortable column always starts it at asc. `clientSort` (default)
 	// reorders a COPY of `items` (never mutates); false leaves `rows` as given
 	// and only the `sort` state (and aria-sort) move.
@@ -193,7 +193,7 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// R4 — selection. `selected` is a bindable SvelteSet<string> of ids
+	// Selection. `selected` is a bindable SvelteSet<string> of ids
 	// (fine-grained reactivity). Select-all targets every id in `items`
 	// (not just the rendered rows), so it stays correct under `clientSort`.
 	// ---------------------------------------------------------------------------
@@ -227,7 +227,7 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// R6 — empty/loading. Loading suppresses both real rows and the empty
+	// Empty/loading. Loading suppresses both real rows and the empty
 	// state, so a `loading` flip to false with empty `items` shows the empty
 	// state directly (no flash of skeleton + empty together).
 	// ---------------------------------------------------------------------------
@@ -236,10 +236,10 @@
 </script>
 
 <!--
-	R1: .hz-table-wrap (overflow-x: auto) wraps <table class="hz-table">.
+	.hz-table-wrap (overflow-x: auto) wraps <table class="hz-table">.
 	{...rest} spread first on the wrap so managed attrs win — the wrap is the
 	outermost element, so it (not the inner <table>) is the one a consumer's
-	`class` reaches, e.g. to cap max-height for a scrolling sticky header (R5).
+	`class` reaches, e.g. to cap max-height for a scrolling sticky header.
 -->
 <div
 	{...rest}
@@ -248,8 +248,8 @@
 	data-sticky={stickyHeader ? '' : undefined}
 	data-stack={stack}
 >
-	<!-- R1: role="table" is stamped explicitly (redundant on a <table> today) so it
-	     survives the stacked mode's display overrides (R7), which is when it stops
+	<!-- Role="table" is stamped explicitly (redundant on a <table> today) so it
+	     survives the stacked mode's display overrides, which is when it stops
 	     being redundant. -->
 	<!-- svelte-ignore a11y_no_redundant_roles -->
 	<table
@@ -264,7 +264,7 @@
 			</caption>
 		{/if}
 
-		<!-- R2: a real colgroup — width per column, an inline style on <col>. -->
+		<!-- A real colgroup — width per column, an inline style on <col>. -->
 		<colgroup>
 			{#if selectable}
 				<col class="hz-table-col-select" />
@@ -298,7 +298,7 @@
 						aria-sort={ariaSortFor(column)}
 					>
 						{#if column.sortable}
-							<!-- R3: real button; its text IS the accessible name. -->
+							<!-- Real button; its text IS the accessible name. -->
 							<button
 								type="button"
 								class="hz-table-sort"
@@ -326,7 +326,7 @@
 
 		<tbody>
 			{#if loading}
-				<!-- R6: skeleton rows, one cell per real column, hidden from AT. -->
+				<!-- Skeleton rows, one cell per real column, hidden from AT. -->
 				{#each { length: loadingRows }, i (i)}
 					<!-- svelte-ignore a11y_no_redundant_roles -->
 					<tr class="hz-table-skeleton" role="row" aria-hidden="true">
@@ -343,7 +343,7 @@
 					</tr>
 				{/each}
 			{:else if rows.length === 0}
-				<!-- R6: one full-width empty row. -->
+				<!-- One full-width empty row. -->
 				<!-- svelte-ignore a11y_no_redundant_roles -->
 				<tr role="row">
 					<td role="cell" class="hz-table-empty" colspan={totalColumnCount}>
@@ -356,7 +356,7 @@
 				{#each rows as row (row)}
 					{@const id = idFor(row)}
 					{@const isSelected = selected.has(id)}
-					<!-- R4: selected rows carry data-selected + aria-selected. -->
+					<!-- Selected rows carry data-selected + aria-selected. -->
 					<!-- svelte-ignore a11y_no_redundant_roles -->
 					<tr
 						role="row"
@@ -377,7 +377,7 @@
 						{/if}
 						{#each columns as column, ci (column.key)}
 							{#if ci === 0}
-								<!-- R1: the first data cell of each row is a row header. -->
+								<!-- The first data cell of each row is a row header. -->
 								<th
 									scope="row"
 									role="rowheader"
@@ -400,7 +400,7 @@
 </div>
 
 <style>
-	/* R1: the wrap is the default responsive answer — a horizontal scroll
+	/* The wrap is the default responsive answer — a horizontal scroll
 	 * affordance, structural regardless of theme. */
 	.hz-table-wrap {
 		overflow-x: auto;

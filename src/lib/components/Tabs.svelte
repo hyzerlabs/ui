@@ -43,7 +43,7 @@
 	}: Props = $props();
 
 	// ---------------------------------------------------------------------------
-	// Tabs-R15 — dev warning for duplicate ids (read once at creation time)
+	// dev warning for duplicate ids (read once at creation time)
 	// ---------------------------------------------------------------------------
 
 	if (import.meta.env.DEV) {
@@ -59,7 +59,7 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// Stable base id per component instance (Tabs-R3, R5)
+	// Stable base id per component instance
 	// ---------------------------------------------------------------------------
 
 	const baseId = uid('hz-tabs');
@@ -75,7 +75,7 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// Tabs-R7 — Active state (uncontrolled, seeded by defaultTab)
+	// Active state (uncontrolled, seeded by defaultTab)
 	// Computed once via untrack() so Svelte does not warn about capturing a
 	// reactive prop snapshot (same pattern as Accordion _initialOpenIds).
 	// ---------------------------------------------------------------------------
@@ -94,14 +94,14 @@
 	let activeTab = $state<string | null>(_initialActive);
 
 	// ---------------------------------------------------------------------------
-	// Element references — populated via bind:this in the template (Tabs-R10)
+	// Element references — populated via bind:this in the template
 	// ---------------------------------------------------------------------------
 
 	let triggerEls = $state<(HTMLButtonElement | null)[]>([]);
 	let panelEls = $state<(HTMLElement | null)[]>([]);
 
 	// ---------------------------------------------------------------------------
-	// Tabs-R6 — panel tab stop, per the APG recommendation: a tabpanel is only
+	// panel tab stop, per the APG recommendation: a tabpanel is only
 	// focusable itself (tabindex 0) when it contains NO focusable elements, so
 	// keyboard users can still reach/scroll text-only panels. Panels with
 	// interactive content are not extra tab stops.
@@ -120,26 +120,26 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// Tabs-R7 / Tabs-R9 — Internal activation helper
+	// Internal activation helper
 	// ---------------------------------------------------------------------------
 
 	function activate(id: string): void {
-		if (activeTab === id) return; // Tabs-R9: no-op; onChange does not fire
+		if (activeTab === id) return; // no-op; onChange does not fire
 		activeTab = id;
 		onChange?.(id);
 	}
 
 	// ---------------------------------------------------------------------------
-	// Tabs-R8 — Click handler
+	// Click handler
 	// ---------------------------------------------------------------------------
 
 	function handleTriggerClick(item: TabItem): void {
-		if (item.disabled) return; // Tabs-R8: disabled tabs do not activate
+		if (item.disabled) return; // disabled tabs do not activate
 		activate(item.id);
 	}
 
 	// ---------------------------------------------------------------------------
-	// Tabs-R10 / Tabs-R11 — Keyboard handler (roving focus + activation mode)
+	// Keyboard handler (roving focus + activation mode)
 	// ---------------------------------------------------------------------------
 
 	function handleTriggerKeydown(e: KeyboardEvent, index: number): void {
@@ -147,12 +147,12 @@
 		const isHorizontal = orientation === 'horizontal';
 
 		// Determine which arrow keys are "next" and "prev" for this orientation.
-		// Horizontal handles Left/Right; vertical handles Up/Down (R10).
+		// Horizontal handles Left/Right; vertical handles Up/Down.
 		const isNext = isHorizontal ? key === 'ArrowRight' : key === 'ArrowDown';
 		const isPrev = isHorizontal ? key === 'ArrowLeft' : key === 'ArrowUp';
 
 		if (isNext || isPrev || key === 'Home' || key === 'End') {
-			e.preventDefault(); // Tabs-R10: suppress native scroll
+			e.preventDefault(); // suppress native scroll
 
 			// Collect indices of all non-disabled triggers for navigation.
 			const enabledIndices = items.reduce<number[]>((acc, item, i) => {
@@ -184,7 +184,7 @@
 
 			triggerEls[targetIndex]?.focus();
 
-			// Tabs-R11: auto mode — moving focus also activates the tab immediately.
+			// auto mode — moving focus also activates the tab immediately.
 			if (activation === 'auto') {
 				activate(items[targetIndex].id);
 			}
@@ -192,7 +192,7 @@
 			return;
 		}
 
-		// Tabs-R11: manual mode — Enter / Space on focused trigger activates it.
+		// manual mode — Enter / Space on focused trigger activates it.
 		if (activation === 'manual' && (key === 'Enter' || key === ' ')) {
 			e.preventDefault();
 			const item = items[index];
@@ -204,19 +204,19 @@
 </script>
 
 <!--
-	Tabs-R1: root <div class="hz-tabs"> with data-orientation.
-	Tabs-R14: {...rest} spread first so managed attrs (class, data-orientation) win.
+	root <div class="hz-tabs"> with data-orientation.
+	{...rest} spread first so managed attrs (class, data-orientation) win.
 -->
 <div {...rest} class={cx('hz-tabs', className)} data-orientation={orientation}>
 	<!--
-		Tabs-R2: tablist with role="tablist", aria-orientation, aria-label.
+		tablist with role="tablist", aria-orientation, aria-label.
 	-->
 	<div class="hz-tabs-list" role="tablist" aria-orientation={orientation} aria-label={ariaLabel}>
 		{#each items as item, i (i)}
 			<!--
-				Tabs-R3: trigger with all required ARIA attributes and type="button".
-				Tabs-R4: roving tabindex — active trigger = 0, all others = -1.
-				Tabs-R8: aria-disabled + data-disabled present on disabled triggers.
+				trigger with all required ARIA attributes and type="button".
+				roving tabindex — active trigger = 0, all others = -1.
+				aria-disabled + data-disabled present on disabled triggers.
 			-->
 			<button
 				bind:this={triggerEls[i]}
@@ -239,10 +239,10 @@
 	</div>
 
 	<!--
-		Tabs-R5/R6: one panel per item, all rendered and always mounted.
+		one panel per item, all rendered and always mounted.
 		Active panel: data-state="active", no hidden → visible and in tab order.
 		Inactive panels: data-state="inactive" + hidden → removed from layout and tab order.
-		The panel snippet is invoked once per item with that item (R5).
+		The panel snippet is invoked once per item with that item.
 	-->
 	{#each items as item, i (i)}
 		<div
@@ -266,13 +266,13 @@
 	   active-indicator, or animation — those are theme concerns).
 	   ----------------------------------------------------------------------- */
 
-	/* Tabs-R1: full-width block at every breakpoint. */
+	/* full-width block at every breakpoint. */
 	.hz-tabs {
 		display: block;
 		width: 100%;
 	}
 
-	/* Tabs-R2: tablist as a flex row (horizontal orientation, default). */
+	/* tablist as a flex row (horizontal orientation, default). */
 	.hz-tabs-list {
 		display: flex;
 		flex-direction: row;
@@ -281,14 +281,14 @@
 		-webkit-overflow-scrolling: touch;
 	}
 
-	/* Tabs-R2: tablist as a flex column (vertical orientation). */
+	/* tablist as a flex column (vertical orientation). */
 	.hz-tabs[data-orientation='vertical'] .hz-tabs-list {
 		flex-direction: column;
 		overflow-x: visible;
 		flex-shrink: 0;
 	}
 
-	/* Tabs-R1: vertical orientation is a split layout — the rail sits beside
+	/* vertical orientation is a split layout — the rail sits beside
 	   the active panel, not above it. */
 	.hz-tabs[data-orientation='vertical'] {
 		display: flex;
@@ -301,7 +301,7 @@
 	}
 
 	/*
-	 * Tabs-R5: inactive panels use the native [hidden] attribute.
+	 * inactive panels use the native [hidden] attribute.
 	 * Explicit display: none ensures the attribute wins even if a
 	 * consumer resets [hidden] in their stylesheet.
 	 */

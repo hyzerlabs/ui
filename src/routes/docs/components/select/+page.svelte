@@ -85,7 +85,7 @@
 		'<Select name="card" label="Card" options={tees} disabled />'
 	].join('\n');
 
-	// Select-R7: live Multiple demo — bound to a string[], with a form
+	// live Multiple demo — bound to a string[], with a form
 	// showing FormData.getAll returning each selected value.
 	const discOptions: SelectOption[] = [
 		{ value: 'destroyer', label: 'Destroyer' },

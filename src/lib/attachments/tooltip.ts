@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — tooltip attachment (specs/50-tooltip-popover.md, R-TT).
+ * @hyzer-labs/ui — tooltip attachment (, R-TT).
  *
  * An accessible, non-interactive hover/focus description attached to any
  * existing element — `{@attach tooltip('Save changes')}` — satisfying the
@@ -10,7 +10,7 @@
  * SSR guard / `prefersReducedMotion` gating.
  *
  * The tooltip node is created lazily, client-only, and appended to
- * `document.body` (R-POS-2a) — because it attaches to a consumer element
+ * `document.body` — because it attaches to a consumer element
  * whose markup it does not own, unlike Popover's inline-authored panel.
  */
 import { prefersReducedMotion } from 'svelte/motion';
@@ -20,7 +20,7 @@ import { parsePlacement, position } from '../positioning/index.js';
 
 const FOCUSABLE_TAGS = new Set(['BUTTON', 'SELECT', 'TEXTAREA', 'INPUT']);
 
-/** R-TT-3: dev-only warning heuristic — is this element reachable by Tab? */
+/** Dev-only warning heuristic — is this element reachable by Tab? */
 function isFocusable(el: HTMLElement): boolean {
 	if (el.hasAttribute('tabindex')) return true;
 	if (el.isContentEditable) return true;
@@ -38,14 +38,14 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 	const options: TooltipOptions = typeof arg === 'string' ? { text: arg } : arg;
 
 	return (node: Element) => {
-		// R-TT-7: attachments only ever run client-side, but guard defensively
+		// Attachments only ever run client-side, but guard defensively
 		// against any SSR-time invocation — no tooltip node is created server-
 		// side; the trigger renders normally and is fully usable without JS.
 		if (typeof document === 'undefined') return () => {};
 
 		const trigger = node as HTMLElement;
 
-		// R-TT-2: text only, non-interactive. TypeScript already prevents a
+		// Text only, non-interactive. TypeScript already prevents a
 		// snippet at the type level for TS consumers — this defends the
 		// runtime boundary for anyone bypassing it (a plain-JS consumer).
 		if (import.meta.env.DEV && typeof options.text !== 'string') {
@@ -55,7 +55,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 			);
 		}
 
-		// R-TT-3: dev-only warning — the attachment never adds tabindex itself
+		// Dev-only warning — the attachment never adds tabindex itself
 		// (contrast lightboxGroup, which enhances non-interactive media); it
 		// targets already-focusable controls.
 		if (import.meta.env.DEV && !isFocusable(trigger)) {
@@ -71,14 +71,14 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 		const openDelay = options.openDelay ?? 400;
 		const closeDelay = options.closeDelay ?? 150;
 
-		// R-TT-2: append (not overwrite) any existing aria-describedby, and
+		// Append (not overwrite) any existing aria-describedby, and
 		// restore it verbatim on teardown (the lightboxGroup prior-attribute-
 		// state discipline).
 		const id = uid('hz-tooltip');
 		const priorDescribedBy = trigger.getAttribute('aria-describedby');
 		trigger.setAttribute('aria-describedby', priorDescribedBy ? `${priorDescribedBy} ${id}` : id);
 
-		// R-POS-2a: created and appended to document.body, lazily, client-only
+		// Created and appended to document.body, lazily, client-only
 		// — the `announce` live-region precedent. Hidden by default via an
 		// inline style (not a theme rule) so the tooltip is correctly inert
 		// even when the optional reference theme isn't loaded (headless-safe).
@@ -96,7 +96,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 		let openTimer: ReturnType<typeof setTimeout> | null = null;
 		let closeTimer: ReturnType<typeof setTimeout> | null = null;
 		let shown = false;
-		// R-TT-4 Dismissible: cleared on pointerleave/blur — a genuine leave —
+		// Dismissible: cleared on pointerleave/blur — a genuine leave —
 		// so only a continued hover/focus session stays suppressed post-Escape.
 		let suppressedUntilLeave = false;
 		let stopPositioning: (() => void) | null = null;
@@ -117,7 +117,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 
 		function onDocumentKeydown(e: KeyboardEvent): void {
 			if (e.key !== 'Escape') return;
-			// R-TT-4 Dismissible: hides without moving focus/pointer; suppressed
+			// Dismissible: hides without moving focus/pointer; suppressed
 			// until the trigger is re-entered/re-focused.
 			suppressedUntilLeave = true;
 			hide();
@@ -131,12 +131,12 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 			const { side, align } = parsePlacement(placement);
 			el.setAttribute('data-placement', placement);
 			el.setAttribute('data-state', 'open');
-			// R-TT-6: JS is the primary reduced-motion gate (single source of
+			// JS is the primary reduced-motion gate (single source of
 			// truth); the theme's own @media strip is the belt-and-braces backup.
 			el.style.animation = prefersReducedMotion.current ? 'none' : '';
 			el.style.display = '';
 
-			// R-POS-2: promote to the top layer when the platform supports it —
+			// Promote to the top layer when the platform supports it —
 			// this was previously missing, leaving the tooltip invisible even
 			// though `display` was cleared (a `manual` popover without an actual
 			// showPopover() call never leaves the UA's forced-hidden state).
@@ -148,7 +148,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 				}
 			}
 
-			// R-THEME-2: data-side/data-align reflect the RESOLVED (post-flip)
+			// Data-side/data-align reflect the RESOLVED (post-flip)
 			// side — measured from real layout by position(), not the
 			// requested/pre-flip side — so a consumer-drawn caret keyed off
 			// them always points at the trigger even after a flip on either
@@ -192,9 +192,9 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 			}, closeDelay);
 		}
 
-		// R-TT-3: hover, after openDelay (pointer-noise filter only).
+		// Hover, after openDelay (pointer-noise filter only).
 		function onTriggerPointerEnter(e: PointerEvent): void {
-			// R-TT-8: no hover-open on touch/coarse pointer — a tap should
+			// No hover-open on touch/coarse pointer — a tap should
 			// activate the underlying control, not reveal a description.
 			if (e.pointerType === 'touch') return;
 			clearCloseTimer();
@@ -205,7 +205,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 			}, openDelay);
 		}
 
-		// R-TT-4 Hoverable/Persistent: leaving the trigger arms the closeDelay
+		// Hoverable and persistent: leaving the trigger arms the closeDelay
 		// bridge; entering the tooltip itself (below) cancels it.
 		function onTriggerPointerLeave(e: PointerEvent): void {
 			if (e.pointerType === 'touch') return;
@@ -214,7 +214,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 			armClose();
 		}
 
-		// R-TT-3: focus shows immediately — no delay for focus, per APG.
+		// Focus shows immediately — no delay for focus, per APG.
 		function onTriggerFocus(): void {
 			clearOpenTimer();
 			clearCloseTimer();
@@ -241,7 +241,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 		el.addEventListener('pointerenter', onTooltipPointerEnter);
 		el.addEventListener('pointerleave', onTooltipPointerLeave);
 
-		// R-TT-9: teardown — hide + remove the node, clear both timers, drop
+		// Teardown — hide + remove the node, clear both timers, drop
 		// every listener, restore the trigger's prior aria-describedby.
 		return () => {
 			clearOpenTimer();

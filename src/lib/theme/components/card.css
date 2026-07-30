@@ -54,7 +54,7 @@
 		box-shadow: var(--hz-shadow-lg, 0 20px 25px -5px rgb(0 0 0 / 0.18));
 	}
 
-	/* Opt-in title convention (specs/30) — consumers bring their own heading
+	/* Opt-in title convention — consumers bring their own heading
 	 * element: <h3 class="hz-card-title">…</h3>. A class rather than a Card
 	 * prop: headings aren't load-bearing for Card (unlike Modal/Accordion/
 	 * Hero), so the consumer keeps full control of the level. */

@@ -28,10 +28,10 @@
 </script>
 
 <!--
-	Divider-R1/R2: root differs by mode — bare <hr> (no children) can't hold
+	root differs by mode — bare <hr> (no children) can't hold
 	text, so a labeled divider is a role="separator" div whose only child in
 	the a11y tree is the label (the flanking rules are ::before/::after).
-	Divider-R5: rest spread first so managed attrs (class, data-*, role,
+	rest spread first so managed attrs (class, data-*, role,
 	aria-orientation) win.
 -->
 {#if children}
@@ -58,7 +58,7 @@
 {/if}
 
 <style>
-	/* Divider-R7: structural only — geometry, no chrome color/weight.
+	/* structural only — geometry, no chrome color/weight.
 	 * Deliberately NO rule for the bare <hr>: a scoped (unlayered) border/
 	 * margin reset would beat the @layer hz-theme line and spacing rules
 	 * (unlayered author styles win over all layered ones), leaving the hr

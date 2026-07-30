@@ -1,4 +1,4 @@
-/** Blockquote's DocPage inputs — specs/40 R1. */
+/** Blockquote's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const blockquoteDoc: ComponentDoc = {

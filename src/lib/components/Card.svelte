@@ -35,10 +35,10 @@
 		...rest
 	}: Props = $props();
 
-	// Card-R9: clickable when href is a non-empty string
+	// clickable when href is a non-empty string
 	const isClickable = $derived(typeof href === 'string' && href.length > 0);
 
-	// Card-R11: dev-only warning for missing accessible name on clickable card.
+	// dev-only warning for missing accessible name on clickable card.
 	// untrack() reads the initial prop values once at creation time (no re-run on prop change).
 	if (import.meta.env.DEV) {
 		if (untrack(() => typeof href === 'string' && href.length > 0 && !ariaLabel)) {
@@ -52,8 +52,8 @@
 </script>
 
 <!--
-	Card-R1: root div with hz-card class and data-* attributes.
-	Card-R14: {...rest} spread first so managed attrs (class, data-*) win.
+	root div with hz-card class and data-* attributes.
+	{...rest} spread first so managed attrs (class, data-*) win.
 -->
 <!--
 	No variant prop by design: visual treatments are theme classes
@@ -69,7 +69,7 @@
 	data-clickable={isClickable ? '' : undefined}
 >
 	{#if isClickable}
-		<!-- Card-R9: overlay link rendered as first child of hz-card -->
+		<!-- overlay link rendered as first child of hz-card -->
 		<a class="hz-card-link" {href} aria-label={ariaLabel}>
 			<span class="hz-card-link-overlay"></span>
 		</a>
@@ -77,7 +77,7 @@
 
 	{#if mediaPosition === 'start'}
 		<!--
-			Card-R4: mediaPosition="start" → media before content in DOM.
+			mediaPosition="start" → media before content in DOM.
 			DOM order drives reading/visual order; no CSS `order` reflow needed.
 		-->
 		{#if media}
@@ -91,7 +91,7 @@
 		{/if}
 	{:else}
 		<!--
-			Card-R4: mediaPosition="end" → content before media in DOM.
+			mediaPosition="end" → content before media in DOM.
 		-->
 		{#if children || actions}
 			<div class="hz-card-content">
@@ -106,7 +106,7 @@
 </div>
 
 <style>
-	/* Card-R1/R5: root is a flex column, positioned for the clickable overlay (Card-R9). */
+	/* root is a flex column, positioned for the clickable overlay. */
 	.hz-card {
 		display: flex;
 		flex-direction: column;
@@ -114,7 +114,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Card-R8: padding on the content region; media bleeds edge-to-edge. */
+	/* padding on the content region; media bleeds edge-to-edge. */
 	/* ------------------------------------------------------------------ */
 
 	.hz-card[data-padding='none'] .hz-card-content {
@@ -154,8 +154,8 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Card-R6: horizontal side-by-side layout at ≥640px.                 */
-	/* Card-R7: below 640px the default column direction handles stacking. */
+	/* horizontal side-by-side layout at ≥640px.                 */
+	/* below 640px the default column direction handles stacking. */
 	/* ------------------------------------------------------------------ */
 
 	@media (min-width: 640px) {
@@ -185,19 +185,19 @@
 			gap: var(--hz-space-sm, 1rem);
 		}
 
-		/* Card-R6: actions pin to the bottom of the content column. */
+		/* actions pin to the bottom of the content column. */
 		.hz-card[data-horizontal] .hz-card-actions {
 			margin-top: auto;
 		}
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Card-R9: clickable-overlay positioning.                             */
+	/* clickable-overlay positioning.                             */
 	/* ------------------------------------------------------------------ */
 
 	/*
 	 * The overlay link covers the entire card. Use the child combinator (specificity
-	 * 0,4,0 when Svelte adds its scope hash) so this rule beats the Card-R10 rule
+	 * 0,4,0 when Svelte adds its scope hash) so this rule beats the overlay rule
 	 * (0,3,0) for the `position` property, keeping the link absolutely positioned.
 	 */
 	.hz-card > .hz-card-link {
@@ -216,7 +216,7 @@
 	}
 
 	/*
-	 * Card-R10: inner interactive elements (from consumer snippets) remain
+	 * inner interactive elements (from consumer snippets) remain
 	 * independently clickable and focusable above the overlay (z-index: 0).
 	 * :where() keeps the selector's own specificity at 0,0,0; :global() is
 	 * required so the rule matches consumer snippet elements that do not carry

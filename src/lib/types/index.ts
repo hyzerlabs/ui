@@ -180,7 +180,7 @@ export type Variant = 'solid' | 'outline' | 'ghost' | 'soft';
 export type Rounded = 'none' | 'sm' | 'md' | 'lg' | 'full';
 
 /**
- * Loading's shape vocabulary (specs/49, amended 2026-07-27 — the spinner/ring
+ * Loading's shape vocabulary (, amended 2026-07-27 — the spinner/ring
  * split) — one variant, one shape:
  * - `bar` — a linear progress bar; indeterminate by default, a determinate
  *   native `<progress>` with a `value`.
@@ -323,7 +323,7 @@ export interface FileRejection {
 }
 
 // ---------------------------------------------------------------------------
-// Positioning vocabulary — shared by Tooltip and Popover (specs/50, R-POS-1).
+// Positioning vocabulary — shared by Tooltip and Popover.
 // Internal placement math lives in src/lib/positioning/ (not a public
 // export); only the vocabulary is public API, via the two primitives' props.
 // ---------------------------------------------------------------------------
@@ -343,7 +343,7 @@ export type PopoverAlign = 'start' | 'center' | 'end';
 export type Placement = PopoverSide | `${PopoverSide}-start` | `${PopoverSide}-end`;
 
 /**
- * `tooltip()` attachment options (specs/50, R-TT-1) — `{@attach
+ * `tooltip()` attachment options — `{@attach
  * tooltip({ text: '…' })}`. The string overload (`tooltip('…')`) is sugar
  * for `{ text: '…' }`.
  */
@@ -375,13 +375,13 @@ export interface PopoverTriggerProps {
 	size?: 'sm' | 'md' | 'lg';
 	class?: string;
 	/** Accessible name for an icon-only default trigger (no `triggerLabel`).
-	 *  R-PO-1b dev-warns when neither this nor `triggerLabel` is set. */
+	 *  Logs a warning in development when neither this nor `triggerLabel` is set. */
 	ariaLabel?: string;
 }
 
 /**
  * The attribute bag a Popover `trigger` snippet spreads onto its own
- * element (a link, avatar, or other custom control) — specs/50, R-PO-1.
+ * element (a link, avatar, or other custom control).
  */
 export interface TriggerAttrs {
 	id: string;
@@ -391,7 +391,7 @@ export interface TriggerAttrs {
 	onclick: (e: MouseEvent) => void;
 }
 
-/** `<Popover>` props (specs/50, R-PO-1). */
+/** `<Popover>` props. */
 export interface PopoverProps {
 	/** Two-way open state. Default `false`. */
 	open?: boolean;

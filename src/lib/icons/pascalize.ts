@@ -1,6 +1,6 @@
 /**
  * kebab-case → PascalCase, used to derive `Icon<PascalName>` barrel export
- * names from Lucide's canonical kebab icon names (specs/36 R1/R2).
+ * names from Lucide's canonical kebab icon names.
  *
  * Shared by the generator (`scripts/gen-icons.ts`) and the config engine's
  * trimmed-barrel emission (`src/lib/config/icons.ts`) — one pascalizer, one

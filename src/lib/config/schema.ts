@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui token engine — config schema & resolution (specs/29).
+ * @hyzer-labs/ui token engine — config schema & resolution.
  *
  * The token metadata in `src/lib/tokens/index.ts` is the single source of
  * truth. This module merges an optional consumer `HyzerConfig` over that
@@ -301,7 +301,7 @@ function mergeGroup(
 /**
  * Flatten ramp objects in a palette group: `{ red: { 50: '#fef2f2' } }` →
  * `{ 'red-50': '#fef2f2' }`. The base palette ships no ramps; consumers may
- * add any (specs/42 R2.4 — ramp nesting lives under `tokens.palette` only).
+ * add any (.4 — ramp nesting lives under `tokens.palette` only).
  */
 function flattenRampGroup(
 	group: RampGroupOverride | undefined,
@@ -331,7 +331,7 @@ function flattenRampGroup(
 }
 
 /**
- * Normalizes `config.utilities` (specs/44 R4) — `undefined`/`false` means
+ * Normalizes `config.utilities` — `undefined`/`false` means
  * "not opted in" (the CLI writes no utilities file); `true` opts in with the
  * default filename; an object opts in with a custom `output` path.
  */
@@ -491,7 +491,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	}
 
 	// --- palette + roles: two independent groups, split by config shape,
-	// not value inference (specs/42 R2.2 — "clarity is kindness"). ------------
+	// not value inference (.2 — "clarity is kindness"). ------------
 	const paletteEntries = mergeGroup(
 		stringEntries(palette),
 		flattenRampGroup(tokens?.palette, 'config.tokens.palette'),
@@ -641,7 +641,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 
 /**
  * Every `--hz-*` reference inside a token value must resolve to a defined
- * token (specs/29 R5). `--hz-space-near`/`--hz-space-away` are derived by
+ * token. `--hz-space-near`/`--hz-space-away` are derived by
  * the density block and count as defined.
  */
 function validateReferences(resolved: ResolvedConfig): void {

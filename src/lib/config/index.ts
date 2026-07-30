@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui token engine — the `./config` subpath (specs/29).
+ * @hyzer-labs/ui token engine — the `./config` subpath.
  *
  * `hyzer.config.ts` consumer hook: `defineConfig` for typed configs, plus
  * the pure engine (`resolveConfig` → `generateCss`/`contrastReport`) the

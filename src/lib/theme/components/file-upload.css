@@ -2,7 +2,7 @@
  * @hyzer-labs/ui reference theme — FileUpload
  * The basic control box, the dropzone border/focus ring, and the
  * error/disabled chrome are shared with the rest of the field family
- * (field.css's amended text-control selector, FileUpload-R13); this sheet
+ * (field.css's amended text-control selector); this sheet
  * owns the dropzone's dashed-border surface, the [data-dragover] active
  * state, the activation button, and the file-list-row chrome.
  */
@@ -29,7 +29,7 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* FileUpload-R6: the active dragover state — a background AND border
+	/* the active dragover state — a background AND border
 	 * change, not a hue-only signal (WCAG 1.4.1). */
 	.hz-file-dropzone[data-dragover] {
 		border-color: var(--hz-intent-primary, #2563eb);

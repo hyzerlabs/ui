@@ -1,4 +1,4 @@
-/** Tabs's DocPage inputs — specs/40 R1. */
+/** Tabs's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const tabsDoc: ComponentDoc = {

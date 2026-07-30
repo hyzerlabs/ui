@@ -37,7 +37,7 @@
 		...rest
 	}: Props = $props();
 
-	// R12: dev-only warning for icon-only usage without an accessible name.
+	// Dev-only warning for icon-only usage without an accessible name.
 	// untrack() opts out of reactive tracking — we intentionally read only the
 	// initial prop values to warn once at component creation time.
 	if (import.meta.env.DEV) {
@@ -51,7 +51,7 @@
 </script>
 
 <!--
-	R13: {…rest} is spread first so that every subsequently-listed attribute
+	{…rest} is spread first so that every subsequently-listed attribute
 	(class, href, data-variant, data-external, target, rel, aria-current,
 	aria-label) is applied after and wins over any conflicting key that a
 	consumer accidentally passes through rest.

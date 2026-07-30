@@ -1,4 +1,4 @@
-/** TextInput's DocPage inputs — specs/40 R1. */
+/** TextInput's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const textInputDoc: ComponentDoc = {

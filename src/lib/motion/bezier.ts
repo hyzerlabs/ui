@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — cubic-bezier evaluator (specs/39-motion.md, Motion-R2).
+ * @hyzer-labs/ui — cubic-bezier evaluator.
  *
  * A real `(t: number) => number` evaluator for a CSS `cubic-bezier(x1, y1,
  * x2, y2)` curve — Newton–Raphson iteration on the curve's `x(t)`, falling
@@ -140,7 +140,7 @@ const CUBIC_BEZIER_RE =
 
 /** Parses the four control-point numbers out of a `cubic-bezier(…)` CSS
  * string — the parsing half of "derive from the token metadata, never
- * hand-copy" (Motion-R2). Throws on anything that isn't that exact shape. */
+ * hand-copy". Throws on anything that isn't that exact shape. */
 export function parseCubicBezier(css: string): [number, number, number, number] {
 	const match = CUBIC_BEZIER_RE.exec(css);
 	if (!match) {

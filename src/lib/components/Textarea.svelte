@@ -28,21 +28,21 @@
 		...rest
 	}: Props = $props();
 
-	// Field-R1: derive one stable uid base per instance.
+	// derive one stable uid base per instance.
 	const _uid = uid('hz');
 	const inputId = `hz-input-${_uid}`;
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
 
-	// Field-R6: aria-describedby chain.
+	// aria-describedby chain.
 	const describedBy = $derived(
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 
-	// Textarea-R3: bind:this for the auto-resize JS fallback.
+	// bind:this for the auto-resize JS fallback.
 	let textareaEl: HTMLTextAreaElement | null = $state(null);
 
-	// Textarea-R3: 'vertical' (default) and 'auto' both grow with content —
+	// 'vertical' (default) and 'auto' both grow with content —
 	// field-sizing: content is the primary mechanism ('vertical' keeps the
 	// drag handle as a manual override). When the browser lacks support, a
 	// JS height-sync fallback is used.
@@ -69,9 +69,9 @@
 </script>
 
 <!--
-	Textarea-R1: textarea inside Field scaffold.
-	Textarea-R3: data-resize reflects the resize prop; CSS maps it to behavior.
-	Forms-R2: {...rest} spread first so managed attrs win.
+	textarea inside Field scaffold.
+	data-resize reflects the resize prop; CSS maps it to behavior.
+	{...rest} spread first so managed attrs win.
 -->
 {#snippet control()}
 	<textarea
@@ -90,7 +90,7 @@
 		bind:value></textarea>
 {/snippet}
 
-<!-- Forms-R1: root class is cx('hz-field', className). -->
+<!-- root class is cx('hz-field', className). -->
 <Field
 	{label}
 	{description}
@@ -106,7 +106,7 @@
 />
 
 <style>
-	/* Textarea-R3: resize mapping via data-resize attribute. */
+	/* resize mapping via data-resize attribute. */
 	textarea[data-resize='none'] {
 		resize: none;
 	}

@@ -42,29 +42,29 @@
 		...rest
 	}: Props = $props();
 
-	// Field-R1: derive one stable uid base per instance.
+	// derive one stable uid base per instance.
 	const _uid = uid('hz');
 	const inputId = `hz-input-${_uid}`;
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
 
-	// Field-R6: aria-describedby chains desc then error; omit when neither present.
+	// aria-describedby chains desc then error; omit when neither present.
 	const describedBy = $derived(
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 
-	// Slider-R1: widest value the field can hold (bounds formatted at the
+	// widest value the field can hold (bounds formatted at the
 	// step's precision) — exposed as --hz-slider-chars so the theme can size
 	// the number field / readout to fit instead of guessing.
 	const decimals = $derived(step % 1 === 0 ? 0 : (String(step).split('.')[1]?.length ?? 0));
 	const chars = $derived(Math.max(min.toFixed(decimals).length, max.toFixed(decimals).length));
 
-	// Fill-R1: live thumb position as a 0–1 fraction for the theme's fill.
+	// live thumb position as a 0–1 fraction for the theme's fill.
 	const fillFraction = $derived(
 		max === min ? 0 : Math.min(1, Math.max(0, (value - min) / (max - min)))
 	);
 
-	// Ticks-R1: normalize; entries outside [min, max] are skipped, not clamped.
+	// normalize; entries outside [min, max] are skipped, not clamped.
 	const tickList = $derived(
 		(ticks ?? [])
 			.map((t) => (typeof t === 'number' ? { value: t, label: undefined } : t))
@@ -72,7 +72,7 @@
 	);
 	const tickFraction = (v: number) => (max === min ? 0 : (v - min) / (max - min));
 
-	// Slider-R3: number-field commits on change — parse, snap to the step grid
+	// number-field commits on change — parse, snap to the step grid
 	// anchored at min, clamp to [min, max]; empty/NaN restores the display.
 	function commitNumber(e: Event) {
 		const el = e.currentTarget as HTMLInputElement;
@@ -89,11 +89,11 @@
 </script>
 
 <!--
-	Slider-R1: hz-slider-row with the range as the labeled, named, primary
+	hz-slider-row with the range as the labeled, named, primary
 	control; the number input is an exact-entry affordance — no name, own
-	aria-label. Slider-R2: bind:value (numeric) on the range; the number field
-	displays it one-way and commits via change (Slider-R3).
-	Forms-R2: {...rest} spread first on the range so managed attrs win.
+	aria-label. bind:value (numeric) on the range; the number field
+	displays it one-way and commits via change.
+	{...rest} spread first on the range so managed attrs win.
 -->
 {#snippet control()}
 	<div
@@ -122,7 +122,7 @@
 				aria-orientation={orientation === 'vertical' ? 'vertical' : undefined}
 			/>
 
-			<!-- Ticks-R1: decorative marks; the range announces the real value. -->
+			<!-- decorative marks; the range announces the real value. -->
 			{#if tickList.length > 0}
 				<div class="hz-slider-ticks" aria-hidden="true">
 					{#each tickList as tick (tick.value)}
@@ -147,7 +147,7 @@
 				onchange={commitNumber}
 			/>
 		{:else}
-			<!-- Slider-R1: the value stays visible without the input; aria-hidden
+			<!-- the value stays visible without the input; aria-hidden
 			     because the range itself announces it. -->
 			<span class="hz-slider-value" aria-hidden="true">{value}</span>
 		{/if}
@@ -158,7 +158,7 @@
 	</div>
 {/snippet}
 
-<!-- Forms-R1: root class is cx('hz-field', 'hz-field--slider', className). -->
+<!-- root class is cx('hz-field', 'hz-field--slider', className). -->
 <Field
 	{label}
 	{description}
@@ -174,7 +174,7 @@
 />
 
 <style>
-	/* Slider-R8: one flex line — the track flexes, number/unit keep intrinsic
+	/* one flex line — the track flexes, number/unit keep intrinsic
 	 * width. The track wrapper is the positioning host for ticks (and the
 	 * painted track in RangeSlider). */
 	.hz-slider-row {
@@ -192,7 +192,7 @@
 	}
 
 	/*
-	 * Vert-R1/R2: horizontal keeps the current structural rules verbatim,
+	 * horizontal keeps the current structural rules verbatim,
 	 * just scoped behind the (always-stamped) attribute — width stays
 	 * component-owned here so the track always fills the row's available
 	 * space; in vertical the cross-axis size becomes a theme concern instead
@@ -213,7 +213,7 @@
 	}
 
 	/*
-	 * Vert-R2: native vertical mechanism — writing-mode + direction: rtl on
+	 * native vertical mechanism — writing-mode + direction: rtl on
 	 * the range (bottom-up growth), the row switches to a column, and the
 	 * track gets a fixed block length (the vertical analogue of horizontal's
 	 * flex: 1) with its inline size collapsed to the thumb thickness.
@@ -235,7 +235,7 @@
 	}
 
 	/*
-	 * Vert-R3: input position is logical on both axes — reordering the track
+	 * input position is logical on both axes — reordering the track
 	 * via `order` works identically whether the row is a flex row or column,
 	 * so one rule covers all four orientation × inputPosition combinations.
 	 */

@@ -92,7 +92,7 @@
 		min-height: 2.5rem;
 	}
 
-	/* Icon-only (R4b): a circle of the size's control height. */
+	/* Icon-only: a circle of the size's control height. */
 	.hz-button:where([data-icon-only]) {
 		padding: 0;
 		border-radius: var(--hz-radius-full, 9999px);
@@ -162,7 +162,7 @@
 		background-color: color-mix(in srgb, var(--hz-button-accent) 10%, transparent);
 	}
 
-	/* Variant: soft — the Badge soft recipe (specs/01 amendment 2026-07-27):
+	/* Variant: soft — the Badge soft recipe ( amendment 2026-07-27):
 	 * the intent color color-mix'd into the surface as the background, with
 	 * intent-colored text. `--hz-button-tint` is the same documented hook as
 	 * Badge's `--hz-badge-tint`, at the identical strengths, so it inherits
@@ -205,13 +205,13 @@
 	}
 
 	/* Spin speed is a literal, not a motion.duration token — the duration
-	 * scale (fast 250ms / base 400ms / slow 550ms, specs/15) is tuned for
+	 * scale (fast 250ms / base 400ms / slow 550ms) is tuned for
 	 * one-shot transitions, not a continuous animation's per-cycle length,
 	 * and even `slow` is under a third of a comfortable spin rate. Tuned
 	 * down from an initial 0.8s/rev (read as anxious/rushed) to 1.4s/rev —
 	 * a calmer, more legible rotation, still clearly "in progress" (user
 	 * feedback, audit round). */
-	/* R19 (specs/49) — UNCONDITIONAL, matching Loading's own spinner: a
+	/* R19 — UNCONDITIONAL, matching Loading's own spinner: a
 	 * frozen "in progress" button reads as broken, so this does NOT sit
 	 * behind `prefers-reduced-motion: no-preference` (unlike table.css/
 	 * carousel.css, which halt). The reduced-motion block below only slows
@@ -220,7 +220,7 @@
 		animation: hz-spin 1.4s linear infinite;
 	}
 
-	/* R19 (specs/49, amended 2026-07-27) — the Loading exception (Decision 9),
+	/* R19 (, amended 2026-07-27) — the Loading exception (Decision 9),
 	 * applied here for consistency: slows to ~4s/rev (roughly 3x the
 	 * unchanged 1.4s base — slow but clearly turning) rather than halting.
 	 * Loading semantics (aria-busy, data-state, cursor: progress, the

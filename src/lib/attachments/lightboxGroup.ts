@@ -1,19 +1,19 @@
 /**
- * @hyzer-labs/ui — lightboxGroup attachment (specs/25-lightbox.md).
+ * @hyzer-labs/ui — lightboxGroup attachment.
  *
  * Enhances a container's own media (img / picture>img / video) so any one of
  * them opens a shared, focus-trapped lightbox at its index — no thumbnail
  * strip, no markup restructuring. The overlay is the exact same accessible
  * viewer the `Lightbox` component ships (`LightboxOverlay.svelte`, shared
- * internal, Lightbox-R28).
+ * internal).
  *
- * Deliberate a11y deviation (Lightbox-R29): the library's rule is that
+ * Deliberate a11y deviation: the library's rule is that
  * click targets are real `<button>`/`<a>` elements. This attachment instead
  * makes plain media operable via `tabindex="0"` + `role="button"` + an
  * accessible name, because the whole point is to enhance *existing* page
  * media in place without restructuring markup. The mitigation is complete
- * keyboard support (Enter/Space activation, Lightbox-R23) and a correct
- * accessible name (Lightbox-R19) — the docs steer consumers who control
+ * keyboard support (Enter/Space activation) and a correct
+ * accessible name — the docs steer consumers who control
  * their own markup to the real `Lightbox` component instead.
  */
 import { mount, unmount } from 'svelte';
@@ -39,7 +39,7 @@ interface PriorState {
  */
 export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Element) => () => void {
 	return (element: Element) => {
-		// Lightbox-R17: attachments only ever run client-side, but guard
+		// attachments only ever run client-side, but guard
 		// defensively against any SSR-time invocation — no window/document
 		// access executes server-side.
 		if (typeof document === 'undefined') return () => {};
@@ -57,17 +57,17 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 			nextLabel = 'Next item'
 		} = options;
 
-		// Lightbox-R19/R25: prior attribute state, recorded once per element
+		// prior attribute state, recorded once per element
 		// so cleanup can restore it (rather than clobber a pre-existing
 		// tabindex/role/aria-label permanently).
 		const prior = new Map<Trigger, PriorState>();
 
-		// Lightbox-R24: single mounted overlay instance, guarded so a
+		// single mounted overlay instance, guarded so a
 		// second activation while one is open is ignored.
 		let overlay: Record<string, unknown> | null = null;
 
 		// The enhancement pass (below) overwrites `aria-label`, which is also
-		// one of the video-name precedence sources (Lightbox-R20). Cache
+		// one of the video-name precedence sources. Cache
 		// the name computed at enhance time so item derivation reads the
 		// original source, not our own `View larger: …` overwrite.
 		// Un-enhanced elements (e.g. added after attach, R7) have no cache
@@ -75,7 +75,7 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 		const videoLabelCache = new Map<HTMLVideoElement, string>();
 
 		// -----------------------------------------------------------------
-		// Lightbox-R18: qualifying elements & exclusions
+		// qualifying elements & exclusions
 		// -----------------------------------------------------------------
 
 		function isRendered(el: Element): boolean {
@@ -139,8 +139,8 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 			return Array.from(node.querySelectorAll<Trigger>('img, video')).filter(qualifies);
 		}
 
-		/** Lightbox-R21: the visible qualifying set, re-queried at activation —
-		 * only rendered media joins the viewer. Enhancement (R19) deliberately uses
+		/** the visible qualifying set, re-queried at activation —
+		 * only rendered media joins the viewer. Enhancement deliberately uses
 		 * the structural set instead: media hidden at attach time (an inactive tab
 		 * panel, a closed accordion) must still be enhanced so it is interactive
 		 * the moment it is revealed. */
@@ -149,7 +149,7 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 		}
 
 		// -----------------------------------------------------------------
-		// Lightbox-R20: item derivation
+		// item derivation
 		// -----------------------------------------------------------------
 
 		function figcaptionOf(el: Element): string | undefined {
@@ -192,7 +192,7 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 		}
 
 		// -----------------------------------------------------------------
-		// Lightbox-R19: enhancement pass
+		// enhancement pass
 		// -----------------------------------------------------------------
 
 		function enhance() {
@@ -231,11 +231,11 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 		}
 
 		// -----------------------------------------------------------------
-		// Lightbox-R21/R24: activation → scan, derive, mount the overlay
+		// activation → scan, derive, mount the overlay
 		// -----------------------------------------------------------------
 
 		function activate(el: Trigger, focusEl: HTMLElement) {
-			// Lightbox-R24: single-instance guard — ignore while open.
+			// single-instance guard — ignore while open.
 			if (overlay) return;
 			const els = scan();
 			const startIndex = els.indexOf(el);
@@ -263,7 +263,7 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 		}
 
 		// -----------------------------------------------------------------
-		// Lightbox-R22/R23: delegated pointer + keyboard activation
+		// delegated pointer + keyboard activation
 		// -----------------------------------------------------------------
 
 		function resolveFromTarget(target: EventTarget | null): Trigger | null {
@@ -276,7 +276,7 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 		function onClick(e: MouseEvent) {
 			const el = resolveFromTarget(e.target);
 			if (!el) return;
-			// Innermost group wins on nested containers (Lightbox-R22).
+			// Innermost group wins on nested containers.
 			e.preventDefault();
 			e.stopPropagation();
 			activate(el, el);
@@ -298,7 +298,7 @@ export function lightboxGroup(options: LightboxGroupOptions = {}): (node: Elemen
 		node.addEventListener('click', onClick);
 		node.addEventListener('keydown', onKeydown);
 
-		// Lightbox-R25: cleanup — listeners off, attributes restored, any
+		// cleanup — listeners off, attributes restored, any
 		// open overlay force-unmounted (no onclose, no focus move — matching
 		// Modal's existing forced-teardown semantics).
 		return () => {

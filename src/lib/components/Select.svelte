@@ -37,7 +37,7 @@
 		hideLabel = false,
 		options,
 		// `multiple` is destructured before `value` so the default below can
-		// reference it (Select-R1).
+		// reference it.
 		multiple = false,
 		value = $bindable(multiple ? [] : ''),
 		placeholder = 'Select...',
@@ -45,20 +45,20 @@
 		...rest
 	}: Props = $props();
 
-	// Field-R1: derive one stable uid base per instance.
+	// derive one stable uid base per instance.
 	const _uid = uid('hz');
 	const inputId = `hz-input-${_uid}`;
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
 
-	// Field-R6: aria-describedby chain.
+	// aria-describedby chain.
 	const describedBy = $derived(
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 </script>
 
 <!--
-	Select-R4: flat options and optgroups rendered in array order, shared by
+	flat options and optgroups rendered in array order, shared by
 	both the single and multiple render branches below.
 -->
 {#snippet optionsList()}
@@ -76,16 +76,16 @@
 {/snippet}
 
 <!--
-	Select-R1: two <select> render branches — one with the literal `multiple`
+	two <select> render branches — one with the literal `multiple`
 	attribute (Svelte binds a string[]), one without (Svelte binds a string).
 	A single element with a dynamic multiple={…} would break the array
 	binding, because Svelte infers select array-binding from the literal
 	attribute. Everything else (id/name/disabled/aria/rest/options) is shared.
-	Forms-R2: {...rest} spread first so managed attrs win.
+	{...rest} spread first so managed attrs win.
 -->
 {#snippet control()}
 	{#if multiple}
-		<!-- Select-R2/R3: multiple mode — no placeholder option; size flows via ...rest. -->
+		<!-- multiple mode — no placeholder option; size flows via ...rest. -->
 		<select
 			{...rest}
 			id={inputId}
@@ -100,7 +100,7 @@
 			{@render optionsList()}
 		</select>
 	{:else}
-		<!-- Select-R3: leading placeholder <option value="" disabled selected>. -->
+		<!-- leading placeholder <option value="" disabled selected>. -->
 		<select
 			{...rest}
 			id={inputId}
@@ -117,7 +117,7 @@
 	{/if}
 {/snippet}
 
-<!-- Forms-R1: root class is cx('hz-field', className). -->
+<!-- root class is cx('hz-field', className). -->
 <Field
 	{label}
 	{description}

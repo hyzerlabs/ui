@@ -2,13 +2,13 @@
  * @hyzer-labs/ui reference theme — Dropdown
  * The trigger ships no Dropdown CSS (it's a Button, fully covered by
  * button.css); this sheet owns the popup surface and menuitem chrome.
- * specs/51: the menu's placement (including the trigger gap) is owned by the
+ *: the menu's placement (including the trigger gap) is owned by the
  * shared positioning core (Dropdown.svelte) — this sheet is chrome only.
  */
 @layer hz-theme {
 	/* Popup surface — placed by the positioning core (Dropdown.svelte).
 	 * --_dropdown-menu-in-y is the entrance keyframe's rise/fall distance —
-	 * see the R-DD-5 comment further down, where it flips per data-side. */
+	 * see the comment further down, where it flips per data-side. */
 	.hz-dropdown-menu {
 		--_dropdown-menu-in-y: -0.25rem;
 		z-index: var(--hz-z-dropdown, 10);
@@ -31,7 +31,7 @@
 		transition: background-color var(--hz-duration-fast, 250ms) var(--hz-ease-standard, ease);
 	}
 
-	/* Dropdown-R6/APG: the active item is real DOM focus — native :focus /
+	/* Per the APG: the active item is real DOM focus — native :focus /
 	 * :focus-visible, never aria-activedescendant or data-active. A
 	 * background/contrast change, not a hue-only signal (1.4.1). */
 	.hz-dropdown-item:where(:hover, :focus, :focus-visible) {
@@ -54,7 +54,7 @@
 		background-color: color-mix(in srgb, var(--hz-intent-danger, #b91c1c) 12%, transparent);
 	}
 
-	/* Dropdown-R10: disabled items stay focusable — muted, not hidden. */
+	/* disabled items stay focusable — muted, not hidden. */
 	.hz-dropdown-item[data-disabled] {
 		color: var(--hz-color-text-muted, #6b7280);
 		opacity: 0.6;
@@ -86,7 +86,7 @@
 	 * counterpart of the motion module's fly-in. Entry only: no exit
 	 * animation, so a closed menu's display: none (component-owned) takes
 	 * effect immediately and its items leave the accessibility tree at once.
-	 * specs/51 R-DD-5: direction mirrors the RESOLVED data-side — a
+	 * direction mirrors the RESOLVED data-side — a
 	 * bottom-placed menu rises up into place (starts above, the historic
 	 * direction); a top-flipped menu falls down into place instead (starts
 	 * below), so the entrance always reads as "grows out from the trigger."

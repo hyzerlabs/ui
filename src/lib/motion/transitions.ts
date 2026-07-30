@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — token-bridged transitions (specs/39-motion.md, Motion-R3).
+ * @hyzer-labs/ui — token-bridged transitions.
  *
  * Thin wrappers around `svelte/transition`'s `fade`/`fly`/`slide`/`scale`:
  * same params, same semantics, same return shape (`TransitionConfig`) — the
@@ -39,7 +39,7 @@ import type {
 } from 'svelte/transition';
 import { durations, easeOut, easeStandard } from './tokens.js';
 
-/** Motion-R3: the one option every token-bridged transition adds on top of
+/** the one option every token-bridged transition adds on top of
  * its `svelte/transition` params — opts a specific instance out of the
  * reduced-motion collapse. */
 export interface MotionEssential {

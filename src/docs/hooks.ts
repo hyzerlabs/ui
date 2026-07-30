@@ -86,12 +86,12 @@ export const INTERNAL_HOOKS: Record<string, string> = {
 // - Loading's determinate ring writes its `.hz-loading-ring-fill` inline
 //   `stroke-dashoffset` (the live value/max fraction) directly as an SVG
 //   attribute style, not a `--hz-*` custom property — the same JS→CSS
-//   live-value precedent as `--hz-slider-fill*` above (specs/49 R3).
+//   live-value precedent as `--hz-slider-fill*` above.
 // - `--_c`, `--_bs`, `--_bw`, `--_threshold`, `--_chars`, `--_loading-rm-scale`
 //   are private by the underscore convention and never match the --hz-* scan.
 //   `--_loading-rm-scale` is Loading's reduced-motion slow multiplier (1
-//   normally, 2 under `prefers-reduced-motion: reduce`, specs/49 Decision 9) —
-//   deliberately not a public hook (Out of Scope, specs/49).
+//   normally, 2 under `prefers-reduced-motion: reduce` Decision 9) —
+//   deliberately not a public hook (Out of Scope).
 
 /**
  * The field family's shared contract. Every member carries a .hz-field root

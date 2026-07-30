@@ -42,35 +42,35 @@
 		...rest
 	}: Props = $props();
 
-	// Field-R1: derive one stable uid base per instance.
+	// derive one stable uid base per instance.
 	const _uid = uid('hz');
 	const inputId = `hz-input-${_uid}`;
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
-	// FileUpload-R16/R8: live-region + list ids.
+	// live-region + list ids.
 	const statusId = `hz-status-${_uid}`;
 	const listId = `hz-filelist-${_uid}`;
 
-	// Field-R6: aria-describedby chain.
+	// aria-describedby chain.
 	const describedBy = $derived(
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 
 	// ------------------------------------------------------------------
-	// Element refs — FileUpload-R2/R4/R8/R10.
+	// Element refs.
 	// ------------------------------------------------------------------
 	let inputEl = $state<HTMLInputElement | null>(null);
 	let buttonEl = $state<HTMLButtonElement | null>(null);
 	let listEl = $state<HTMLUListElement | null>(null);
 
-	// FileUpload-R6: dragover depth counter (survives enter/leave on children).
+	// dragover depth counter (survives enter/leave on children).
 	let dragCounter = $state(0);
 
-	// FileUpload-R16: live-region status text.
+	// live-region status text.
 	let statusMessage = $state('');
 
 	// ------------------------------------------------------------------
-	// Size formatter — FileUpload-R8. SI base-1000 units, integer bytes, one
+	// Size formatter. SI base-1000 units, integer bytes, one
 	// decimal place for KB and above. Locale-agnostic (fixed '.' separator).
 	// ------------------------------------------------------------------
 	function formatSize(bytes: number): string {
@@ -85,13 +85,13 @@
 		return `${value.toFixed(1)} ${units[unitIndex]}`;
 	}
 
-	// Stable file identity — name + size + lastModified (FileUpload-R8/R9).
+	// Stable file identity — name + size + lastModified.
 	function fileKey(f: File): string {
 		return `${f.name}\0${f.size}\0${f.lastModified}`;
 	}
 
 	// ------------------------------------------------------------------
-	// Validation — FileUpload-R7. Pure per-file accept/maxSize check, run on
+	// Validation. Pure per-file accept/maxSize check, run on
 	// every incoming file from both the picker and drop paths.
 	// ------------------------------------------------------------------
 	function matchesAccept(file: File, acceptList: string): boolean {
@@ -127,7 +127,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// DataTransfer sync — FileUpload-R4. Keeps the real input's FileList
+	// DataTransfer sync. Keeps the real input's FileList
 	// exactly equal to `files` so a plain form POST submits precisely the
 	// selected files. Reassigning input.files does not fire `change`.
 	// SSR-safe: DataTransfer/File are browser-only globals.
@@ -140,7 +140,7 @@
 	}
 
 	// Covers programmatic `files` changes (parent rebinds the array) and the
-	// initial mount sync (FileUpload-R4 SSR note). Internal mutations below
+	// initial mount sync (see the SSR note above). Internal mutations below
 	// also call syncInput() explicitly and synchronously so rejected files
 	// never linger on the native input, even when the accepted model is
 	// unchanged (e.g. every incoming file was rejected).
@@ -148,7 +148,7 @@
 		syncInput(files);
 	});
 
-	// FileUpload-R16: announce the outcome of a pick/drop.
+	// announce the outcome of a pick/drop.
 	function announceIngest(added: number, rejected: number) {
 		const parts: string[] = [];
 		if (added > 0) parts.push(`${added} file${added === 1 ? '' : 's'} added`);
@@ -157,7 +157,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Ingestion pipeline — FileUpload-R5/R6/R7/R9. Shared by the picker
+	// Ingestion pipeline. Shared by the picker
 	// (`change`) and drop paths so both validate identically.
 	// ------------------------------------------------------------------
 	function ingest(incoming: File[]) {
@@ -175,7 +175,7 @@
 		let added = 0;
 
 		if (!multiple) {
-			// FileUpload-R7/R9: single mode's cap is inherently 1 — the first
+			// single mode's cap is inherently 1 — the first
 			// valid file replaces `files`; every additional valid file rejects.
 			if (valid.length > 0) {
 				const [first, ...extra] = valid;
@@ -190,7 +190,7 @@
 				}
 			}
 		} else {
-			// FileUpload-R7/R9: de-dupe by identity BEFORE cap accounting — a
+			// de-dupe by identity BEFORE cap accounting — a
 			// duplicate consumes no slot and is not a rejection — then fill the
 			// remaining slots (cap − files.length) in order.
 			const cap = maxFiles ?? Infinity;
@@ -214,7 +214,7 @@
 			if (added > 0) files = next;
 		}
 
-		// FileUpload-R4/R7: rebuild the input regardless of whether the model
+		// rebuild the input regardless of whether the model
 		// changed, so rejected files never linger on the native input's
 		// FileList even when `files` itself is unchanged.
 		syncInput(files);
@@ -224,20 +224,20 @@
 		announceIngest(added, rejections.length);
 	}
 
-	// FileUpload-R5: picker-path ingestion.
+	// picker-path ingestion.
 	function handleInputChange(e: Event) {
 		const target = e.currentTarget as HTMLInputElement;
 		const incoming = target.files ? Array.from(target.files) : [];
 		ingest(incoming);
 	}
 
-	// FileUpload-R10: the activation button opens the native picker.
+	// the activation button opens the native picker.
 	function openPicker() {
 		inputEl?.click();
 	}
 
 	// ------------------------------------------------------------------
-	// Drag-and-drop — FileUpload-R6. No-ops entirely while disabled.
+	// Drag-and-drop. No-ops entirely while disabled.
 	// ------------------------------------------------------------------
 	function onDragEnter(e: DragEvent) {
 		if (disabled) return;
@@ -266,7 +266,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Removal — FileUpload-R8. Splices `files`, re-syncs, announces, and
+	// Removal. Splices `files`, re-syncs, announces, and
 	// moves focus to a neighbor control so focus never drops to <body>.
 	// ------------------------------------------------------------------
 	async function removeFile(index: number) {
@@ -291,17 +291,17 @@
 </script>
 
 <!--
-	FileUpload-R1: Field scaffold via the control snippet — control region
+	Field scaffold via the control snippet — control region
 	(basic input or dropzone), then the removable file list, then the
 	live-region status.
-	FileUpload-R2: a single real input[type=file] renders in both modes;
-	{...rest} spreads first so component-managed attributes win (FileUpload-R12).
+	a single real input[type=file] renders in both modes;
+	{...rest} spreads first so component-managed attributes win.
 -->
 {#snippet control()}
 	{#if dropzone}
-		<!-- FileUpload-R6/R10: drop target + activation button; the native
+		<!-- drop target + activation button; the native
 		     input is visually hidden but remains the submission source of
-		     truth (FileUpload-R2). The real operable control is the button
+		     truth. The real operable control is the button
 		     below, not this div — drag handlers are a progressive enhancement
 		     (WCAG 2.5.7), so no interactive role belongs here. -->
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -342,7 +342,7 @@
 			/>
 		</div>
 	{:else}
-		<!-- FileUpload-R2: basic mode — the visible native input is itself the
+		<!-- basic mode — the visible native input is itself the
 		     operable control. -->
 		<div class="hz-file-control">
 			<input
@@ -362,7 +362,7 @@
 		</div>
 	{/if}
 
-	<!-- FileUpload-R8: removable file list, rendered only when non-empty. -->
+	<!-- removable file list, rendered only when non-empty. -->
 	{#if files.length > 0}
 		<ul class="hz-file-list" id={listId} bind:this={listEl}>
 			{#each files as file, i (fileKey(file))}
@@ -384,11 +384,11 @@
 		</ul>
 	{/if}
 
-	<!-- FileUpload-R16: separate live status region — not the list made live. -->
+	<!-- separate live status region — not the list made live. -->
 	<div class="sr-only" role="status" aria-live="polite" id={statusId}>{statusMessage}</div>
 {/snippet}
 
-<!-- FileUpload-R1/R12: root class is cx('hz-field hz-file-upload', className). -->
+<!-- root class is cx('hz-field hz-file-upload', className). -->
 <Field
 	{label}
 	{description}
@@ -405,7 +405,7 @@
 />
 
 <style>
-	/* FileUpload-R13: structural CSS only — no chrome. */
+	/* structural CSS only — no chrome. */
 
 	.hz-file-control {
 		display: block;

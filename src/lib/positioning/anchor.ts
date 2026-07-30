@@ -1,6 +1,6 @@
 /**
  * @hyzer-labs/ui — shared positioning core, CSS anchor positioning
- * (specs/50-tooltip-popover.md, R-POS-3). The preferred path — no JS runs
+ *. The preferred path — no JS runs
  * beyond stamping the two custom idents and the static inset/fallback
  * declarations below. Internal — see placement.ts.
  */
@@ -11,7 +11,7 @@ let _uidCounter = 0;
 
 /**
  * Lazily probes CSS anchor positioning support — never at module scope
- * (R-POS-6). SSR-safe: `typeof CSS` is always a safe check, even when `CSS`
+ *. SSR-safe: `typeof CSS` is always a safe check, even when `CSS`
  * was never declared.
  */
 export function supportsAnchorPositioning(): boolean {
@@ -40,12 +40,12 @@ export interface AnchorPositionOptions {
  * per-instance `@position-try` rule needed. Returns a teardown that clears
  * every property this function set. SSR-safe no-op without `document`.
  *
- * R-POS-6: `opts.side`/`opts.align` are logical — resolved through the
+ * `opts.side`/`opts.align` are logical — resolved through the
  * TRIGGER's `direction` (via `resolveLogicalDirection`, the `place.ts`
  * precedent) into physical `top`/`bottom`/`left`/`right` values before any
  * `anchor(...)` calls are stamped. This is a physical (not a CSS logical-
  * property) resolution deliberately: the tooltip's floating node is
- * body-appended (R-POS-2a), so ITS OWN inherited `direction` can differ
+ * body-appended, so ITS OWN inherited `direction` can differ
  * from the trigger's actual position in the document — logical properties
  * on the floating element would resolve against the wrong context. Reading
  * the trigger's `direction` directly is correct regardless of where the

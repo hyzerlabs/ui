@@ -84,7 +84,7 @@
 		'<Lightbox {items} />'
 	].join('\n');
 
-	// Lightbox-R30: the `trigger` snippet swaps each strip button's face
+	// the `trigger` snippet swaps each strip button's face
 	// for an Image-composed one — Lightbox still owns the button, the
 	// aria-haspopup="dialog" name, and the click wiring.
 	const triggerCode = [
@@ -95,7 +95,7 @@
 		'</Lightbox>'
 	].join('\n');
 
-	// Lightbox-R30: a plain figure grid — no thumbnail strip, no Lightbox
+	// a plain figure grid — no thumbnail strip, no Lightbox
 	// component at all. The attachment enhances the grid's own <img> media
 	// directly (its normal rendered size IS the trigger surface).
 	// The second photo demonstrates data-lightbox-src: its rendered src is the
@@ -260,7 +260,7 @@
 	}
 
 	/* Gives the trigger snippet's Image faces a definite inline size so the
-	   1/1 aspect-ratio box resolves (Lightbox-R30). */
+	   1/1 aspect-ratio box resolves. */
 	:global(.trigger-strip) :global(.hz-lightbox-trigger) {
 		width: 8rem;
 	}

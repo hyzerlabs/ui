@@ -1,4 +1,4 @@
-/** Footer's DocPage inputs — specs/40 R1. */
+/** Footer's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const footerDoc: ComponentDoc = {

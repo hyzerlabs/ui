@@ -38,8 +38,8 @@
 	/* Text-like controls: bare select/textarea, the TextInput wrapper (which
 	 * carries the border so prefix/suffix sit inside the box), the
 	 * exact-entry fields (slider numbers, color hex), the Combobox
-	 * control row (Combobox-R18), and FileUpload's basic control box /
-	 * dropzone surface (FileUpload-R13) — one chrome for all. */
+	 * control row, and FileUpload's basic control box /
+	 * dropzone surface — one chrome for all. */
 	.hz-field :where(select, textarea, .hz-slider-number, .hz-color-hex),
 	.hz-input-wrapper,
 	.hz-combobox-control,
@@ -227,7 +227,7 @@
 	}
 
 	/* Single slider: the input itself is the track; the fill is a two-stop
-	 * gradient with the stop driven by --hz-slider-fill (Fill-R1). */
+	 * gradient with the stop driven by --hz-slider-fill. */
 	.hz-field--slider input.hz-slider {
 		--_fill-stop: calc(
 			var(--hz-slider-thumb-size) / 2 + var(--hz-slider-fill, 0) *
@@ -284,7 +284,7 @@
 	}
 
 	/*
-	 * Vert-R4: the fill gradient rotates to the block axis; --_fill-stop
+	 * the fill gradient rotates to the block axis; --_fill-stop
 	 * itself is axis-agnostic (declared above, unchanged) — 100% now resolves
 	 * against the vertical track's block length instead of its inline width.
 	 * The single slider's own inline size also rotates onto the thin
@@ -370,7 +370,7 @@
 		z-index: var(--hz-z-raised, 1);
 	}
 
-	/* Range-R3: raise the escapable thumb on exact overlap (max is later in
+	/* raise the escapable thumb on exact overlap (max is later in
 	 * DOM and wins by default). */
 	.hz-field--slider-range .hz-slider-row[data-top='min'] input.hz-slider-min {
 		z-index: calc(var(--hz-z-raised, 1) + 1);
@@ -387,7 +387,7 @@
 	}
 
 	/*
-	 * Vert-R4: RangeSlider's own two ranges stay thumb-size-filled (matching
+	 * RangeSlider's own two ranges stay thumb-size-filled (matching
 	 * inset: 0 above) instead of picking up the single slider's thin
 	 * track-height + recentring rules just above — equal specificity to
 	 * those, later in source, so these win for .hz-slider-min/.hz-slider-max.
@@ -405,7 +405,7 @@
 	}
 
 	/*
-	 * Vert-R4: rotate the RangeSlider track (::before) and the between-thumbs
+	 * rotate the RangeSlider track (::before) and the between-thumbs
 	 * fill (::after) onto the block axis — same thumb-center corrected fill
 	 * math, just read against the track's block length instead of its width,
 	 * and centered on the (now thumb-thickness-wide) inline axis.
@@ -472,7 +472,7 @@
 	}
 
 	/*
-	 * Vert-R4: ticks move beside the track (inline-end) instead of beneath it
+	 * ticks move beside the track (inline-end) instead of beneath it
 	 * — the room-reservation switches from bottom padding to inline-end
 	 * padding, marks position via `bottom` on the block axis (same
 	 * thumb-center math), and labels sit beside their mark, vertically

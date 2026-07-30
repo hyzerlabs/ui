@@ -2,7 +2,7 @@
 	/**
 	 * Internal, non-exported viewer — the accessible `<dialog>` shared by the
 	 * `Lightbox` component and the `lightboxGroup` attachment
-	 * (Lightbox-R28). Same pattern as the internal `Field.svelte`
+	 *. Same pattern as the internal `Field.svelte`
 	 * scaffold: used by peers, never added to the barrel.
 	 *
 	 * Focus-return is the only seam: the overlay does not own the trigger
@@ -55,7 +55,7 @@
 	const dataState = $derived(open ? 'open' : 'closed');
 	const dialogName = $derived(items.length === 1 ? nameOf(items[0]) : dialogLabel);
 
-	// Per-instance scroll-lock state (mirrors Modal-R16).
+	// Per-instance scroll-lock state (mirrors Modal's).
 	let prevBodyOverflow = '';
 	let scrollLockActive = false;
 	// Fallback focus target when the caller doesn't pass `returnFocusTo`:
@@ -133,7 +133,7 @@
 			</div>
 		{:else}
 			<!--
-				Lightbox-R15: image items render through the library's own `Image`
+				image items render through the library's own `Image`
 				component instead of a raw <img> — a load-state affordance, an
 				error state, and a free blur-up reveal keyed on the strip thumb.
 				`fit="contain"` (never crop) + `loading="eager"` (this IS the
@@ -281,8 +281,8 @@
 		margin: 0;
 	}
 
-	/* Lightbox-R15: `.hz-lightbox-img` now lands on Image's wrapper <div>
-	 * (see "The .hz-lightbox-img hook decision" in specs/25-lightbox.md), not
+	/* `.hz-lightbox-img` now lands on Image's wrapper <div>
+	 * (see "The .hz-lightbox-img hook decision" in), not
 	 * a raw <img> — Image's own scoped CSS forces the wrapper to
 	 * `width: 100%`, which would stretch it to the dialog's fit-content
 	 * (shrink-wrapped) box instead of hugging the actual media. `width:

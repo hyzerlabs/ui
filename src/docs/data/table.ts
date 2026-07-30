@@ -1,4 +1,4 @@
-/** Table's DocPage inputs — specs/40 R1. */
+/** Table's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const tableDoc: ComponentDoc = {

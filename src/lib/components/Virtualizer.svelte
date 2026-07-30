@@ -32,23 +32,23 @@
 		...rest
 	}: Props = $props();
 
-	// Virtualizer-R5: the viewport ref + the scrollTop driving the window math.
+	// the viewport ref + the scrollTop driving the window math.
 	let viewportEl: HTMLDivElement | null = $state(null);
 	let scrollTop = $state(0);
 
-	// Virtualizer-R14: fluid mode's measured viewport box height, seeded 0 so
+	// fluid mode's measured viewport box height, seeded 0 so
 	// SSR / first paint renders the minimal 1 + overscan window until the
 	// instance ResizeObserver's initial callback delivers the real height.
 	// Unused (stays 0) when `height` is provided.
 	let viewportHeight = $state(0);
 	const effectiveHeight = $derived(height ?? viewportHeight);
 
-	// Virtualizer-R6: measured-height cache, keyed by absolute index. A
+	// measured-height cache, keyed by absolute index. A
 	// SvelteMap so reads inside $derived.by register fine-grained reactivity.
 	const measuredHeights = new SvelteMap<number, number>();
 
 	// ---------------------------------------------------------------------------
-	// Virtualizer-R2: height model.
+	// height model.
 	// ---------------------------------------------------------------------------
 
 	const n = $derived(items.length);
@@ -107,10 +107,10 @@
 	}
 
 	// ---------------------------------------------------------------------------
-	// Virtualizer-R3: window math.
+	// window math.
 	// ---------------------------------------------------------------------------
 
-	// Virtualizer-R3/R14: `effectiveHeight` is the fixed `height` prop when
+	// `effectiveHeight` is the fixed `height` prop when
 	// provided, else the fluid-mode measured `viewportHeight`. In fluid mode
 	// before the first measurement (viewportHeight still 0), `scrollTop +
 	// effectiveHeight` is 0, so `last` resolves to `first` and the window
@@ -124,7 +124,7 @@
 	const visibleItems = $derived(items.slice(startIndex, endIndex));
 
 	// ---------------------------------------------------------------------------
-	// Virtualizer-R5: scroll re-windowing — addEventListener in an $effect (not
+	// scroll re-windowing — addEventListener in an $effect (not
 	// an inline onscroll) so a consumer onscroll via ...rest is never clobbered.
 	// scrollTop commits are coalesced with requestAnimationFrame: multiple
 	// scroll events within a frame trigger a single re-window.
@@ -154,7 +154,7 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// Virtualizer-R6: measured heights via ResizeObserver, one per rendered row
+	// measured heights via ResizeObserver, one per rendered row
 	// (observed/unobserved as rows enter/leave the window via the `measureRow`
 	// attachment). Created once per instance (SSR-safe: ResizeObserver is
 	// undefined server-side); its lifecycle is disconnected via $effect cleanup.
@@ -167,7 +167,7 @@
 		for (const entry of entries) {
 			const target = entry.target as HTMLElement;
 
-			// Virtualizer-R14: the fluid-mode viewport itself is observed with
+			// the fluid-mode viewport itself is observed with
 			// this same instance observer — branch on target identity (not
 			// dataset absence) so its box updates viewportHeight instead of
 			// going through the row-measurement path below.
@@ -212,7 +212,7 @@
 		return () => ro?.disconnect();
 	});
 
-	// Virtualizer-R1/R10: the managed height style, spread onto the viewport
+	// the managed height style, spread onto the viewport
 	// AFTER ...rest so a fixed numeric `height` wins over a conflicting rest
 	// `style`. In fluid mode this is an EMPTY object (not `{ style: undefined
 	// }`) — spreading `{}` contributes no key at all, so it never clobbers a
@@ -227,7 +227,7 @@
 		return () => ro.unobserve(node);
 	}
 
-	// Virtualizer-R14: in fluid mode (no `height` prop), observe the viewport
+	// in fluid mode (no `height` prop), observe the viewport
 	// element itself with the same instance ResizeObserver so its measured box
 	// drives the window math. Observed only while fluid — a numeric `height`
 	// unobserves (the effect re-runs, tearing down the prior observation).
@@ -241,7 +241,7 @@
 		return () => ro.unobserve(el);
 	});
 
-	// Virtualizer-R7: a wholesale `items` replacement invalidates the
+	// a wholesale `items` replacement invalidates the
 	// index-keyed cache — entries for indices the old array measured are
 	// meaningless against the new one. Clear it and re-measure the rows
 	// currently in the DOM directly: the ResizeObserver alone can't repopulate
@@ -268,10 +268,10 @@
 </script>
 
 <!--
-	Virtualizer-R1: viewport > sizer (full-height spacer) > window (offset-
-	translated) > rows. Virtualizer-R9: no role/aria-*/tabindex anywhere — the
+	viewport > sizer (full-height spacer) > window (offset-
+	translated) > rows. no role/aria-*/tabindex anywhere — the
 	consumer owns all semantics via the row snippet and ...rest on the viewport.
-	Virtualizer-R10: ...rest spread first so component-managed class/style win.
+	...rest spread first so component-managed class/style win.
 -->
 <div {...rest} {...heightStyleAttrs} bind:this={viewportEl} class={cx('hz-virtualizer', className)}>
 	<div class="hz-virtualizer-sizer" style="height: {totalHeight}px">
@@ -293,7 +293,7 @@
 
 <style>
 	/*
-	 * Virtualizer-R12: structural only, no chrome. scrollbar-gutter: stable is
+	 * structural only, no chrome. scrollbar-gutter: stable is
 	 * a layout-stability property (reserves the scrollbar track) not visual
 	 * chrome. All dimensional values (height/totalHeight/translateY/row
 	 * height) are inline styles computed from props/state, not tokens.

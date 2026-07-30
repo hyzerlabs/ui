@@ -1,4 +1,4 @@
-/** Link's DocPage inputs — specs/40 R1. */
+/** Link's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const linkDoc: ComponentDoc = {

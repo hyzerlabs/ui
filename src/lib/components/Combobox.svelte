@@ -38,24 +38,24 @@
 		...rest
 	}: Props = $props();
 
-	// Field-R1: derive one stable uid base per instance.
+	// derive one stable uid base per instance.
 	const _uid = uid('hz');
 	const inputId = `hz-input-${_uid}`;
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
 	const listboxId = `hz-listbox-${_uid}`;
 
-	// Combobox-R3: per-visible-option ids, keyed off the filtered index.
+	// per-visible-option ids, keyed off the filtered index.
 	function optionId(i: number): string {
 		return `hz-opt-${_uid}-${i}`;
 	}
 
-	// Field-R6: aria-describedby chain.
+	// aria-describedby chain.
 	const describedBy = $derived(
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 
-	// Combobox-R6: default filter — case-insensitive substring on the label.
+	// default filter — case-insensitive substring on the label.
 	function defaultFilter(q: string, option: FormOption): boolean {
 		return option.label.toLowerCase().includes(q.toLowerCase());
 	}
@@ -69,7 +69,7 @@
 	let activeIndex = $state<number | null>(null);
 	let inputEl = $state<HTMLInputElement | null>(null);
 
-	// Combobox-R4: the options (if any) matching the strict committed values,
+	// the options (if any) matching the strict committed values,
 	// in selection order. An entry with no matching option contributes no
 	// chip and no hidden input — the array itself is never mutated/pruned.
 	const selectedOptions = $derived(
@@ -78,7 +78,7 @@
 			.filter((o): o is FormOption => o !== undefined)
 	);
 
-	// Combobox-R6: visible options — unfiltered when the query is empty
+	// visible options — unfiltered when the query is empty
 	// (never a selected label, since the input only ever holds the filter
 	// query); otherwise filtered by the consumer's `filter` or the default
 	// case-insensitive substring.
@@ -89,7 +89,7 @@
 	});
 
 	// ------------------------------------------------------------------
-	// Active-option (virtual focus) navigation — Combobox-R9
+	// Active-option (virtual focus) navigation
 	// ------------------------------------------------------------------
 
 	function firstEnabled(list: FormOption[]): number | null {
@@ -131,7 +131,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Selection commit — Combobox-R10
+	// Selection commit
 	// ------------------------------------------------------------------
 
 	/** Toggles `option`'s membership in `value` (append if absent, remove if present). */
@@ -151,13 +151,13 @@
 		query = '';
 		const nextIdx = options.findIndex((o) => o.value === option.value);
 		activeIndex = nextIdx === -1 ? null : nextIdx;
-		// Popup stays open (Combobox-R7); DOM focus never left the input
+		// Popup stays open; DOM focus never left the input
 		// (mousedown on the option is prevented below), but return it
-		// explicitly per Combobox-R10.
+		// explicitly.
 		inputEl?.focus();
 	}
 
-	// Combobox-R5: dismissing a chip removes that value, fires onchange, and
+	// dismissing a chip removes that value, fires onchange, and
 	// moves focus to the input. Popup open state is unchanged.
 	function removeChip(v: string) {
 		value = value.filter((x) => x !== v);
@@ -166,7 +166,7 @@
 	}
 
 	// ------------------------------------------------------------------
-	// Keyboard — Combobox-R8
+	// Keyboard
 	// ------------------------------------------------------------------
 
 	function onInputKeydown(e: KeyboardEvent) {
@@ -256,9 +256,9 @@
 		}
 	}
 
-	// Combobox-R8 "character / editing keys": the 'input' event covers
+	// The "character / editing keys" case: the 'input' event covers
 	// typing, backspace/delete, cut, and paste uniformly.
-	// Combobox-R15: a forwarded rest `oninput` still reaches the input —
+	// a forwarded rest `oninput` still reaches the input —
 	// unlike the key/pointer handlers, Svelte does not compose two same-named
 	// event props on one element, so this chains it manually.
 	function onInputInput(e: Event) {
@@ -270,12 +270,12 @@
 		activeIndex = firstEnabled(visibleOptions);
 	}
 
-	// Combobox-R7: pointer click on the input opens (does not commit).
+	// pointer click on the input opens (does not commit).
 	function onInputClick() {
 		if (!open) openPopup(firstEnabled);
 	}
 
-	// Combobox-R12: the toggle button opens/closes and returns focus to the
+	// the toggle button opens/closes and returns focus to the
 	// input; mousedown below already keeps DOM focus on the input throughout.
 	function onToggleClick() {
 		if (open) {
@@ -302,7 +302,7 @@
 		});
 	}
 
-	// Combobox-R10: focus leaving the whole control (relatedTarget not within
+	// focus leaving the whole control (relatedTarget not within
 	// .hz-combobox — chips and the input are both "within") clears the query
 	// and closes the popup. `value` (the chips) is never touched by blur.
 	function onControlFocusOut(e: FocusEvent) {
@@ -319,10 +319,10 @@
 		query = '';
 	}
 
-	// Combobox-R7: outside pointer click closes the popup — mirrors
+	// outside pointer click closes the popup — mirrors
 	// Nav.svelte's document-level outside-click plumbing, but walks
 	// composedPath() rather than target.closest(): a chip dismiss click
-	// removes its own Badge from the DOM mid-dispatch (Combobox-R5), and a
+	// removes its own Badge from the DOM mid-dispatch, and a
 	// detached node's closest() can no longer see its former ancestors —
 	// composedPath() is captured at dispatch time and stays accurate.
 	function onDocumentClick(e: MouseEvent) {
@@ -341,7 +341,7 @@
 		return () => document.removeEventListener('click', onDocumentClick);
 	});
 
-	// Combobox-R9: scroll the active option into view — instant, so it is
+	// scroll the active option into view — instant, so it is
 	// reduced-motion-safe.
 	$effect(() => {
 		if (activeIndex === null) return;
@@ -350,11 +350,11 @@
 </script>
 
 <!--
-	Combobox-R1: Field scaffold via the control snippet — control row (chips +
+	Field scaffold via the control snippet — control row (chips +
 	input + toggle + popup, in order), then one hidden input per selected
 	value.
-	Combobox-R2: role="combobox" input, APG 1.2 attributes.
-	Combobox-R15: {...rest} spread first on the visible input so
+	role="combobox" input, APG 1.2 attributes.
+	{...rest} spread first on the visible input so
 	component-managed attributes win; rest never lands on the hidden inputs,
 	chips, toggle, or listbox.
 -->
@@ -368,7 +368,7 @@
 		onmousedown={onControlMousedown}
 		onfocusout={onControlFocusOut}
 	>
-		<!-- Combobox-R5: one Badge chip per selected value, in selection order. -->
+		<!-- one Badge chip per selected value, in selection order. -->
 		{#each selectedOptions as option (option.value)}
 			<Badge
 				size="sm"
@@ -404,7 +404,7 @@
 			onclick={onInputClick}
 		/>
 
-		<!-- Combobox-R12: out of tab order; toggles open/closed by pointer. -->
+		<!-- out of tab order; toggles open/closed by pointer. -->
 		<button
 			type="button"
 			class="hz-combobox-toggle"
@@ -417,9 +417,9 @@
 			<IconChevronDown />
 		</button>
 
-		<!-- Combobox-R1/R18: popup is the control's last child so it anchors
+		<!-- popup is the control's last child so it anchors
 		     to the control's bottom edge; always in the DOM, hidden via CSS
-		     while closed (Combobox-R3/R7). -->
+		     while closed. -->
 		<div class="hz-combobox-popup">
 			<ul
 				class="hz-combobox-listbox"
@@ -429,12 +429,12 @@
 				aria-multiselectable="true"
 			>
 				{#if visibleOptions.length === 0}
-					<!-- Combobox-R13: empty state — not an option, never active. -->
+					<!-- empty state — not an option, never active. -->
 					<li class="hz-combobox-empty" role="presentation">{emptyText}</li>
 				{:else}
 					{#each visibleOptions as option, i (option.value)}
 						<!--
-							Combobox-R3/R9: options are plain, non-focusable <li>s (no
+							options are plain, non-focusable <li>s (no
 							tabindex) — DOM focus never leaves the input, and keyboard
 							activation happens there (Enter), not on the option itself.
 						-->
@@ -459,14 +459,14 @@
 		</div>
 	</div>
 
-	<!-- Combobox-R4: one hidden input per selected value, in selection order;
+	<!-- one hidden input per selected value, in selection order;
 	     unknown entries (no matching option) contribute nothing. -->
 	{#each selectedOptions as option (option.value)}
 		<input type="hidden" {name} value={option.value} />
 	{/each}
 {/snippet}
 
-<!-- Combobox-R1/R14: root class is cx('hz-field hz-combobox', className). -->
+<!-- root class is cx('hz-field hz-combobox', className). -->
 <Field
 	{label}
 	{description}
@@ -483,7 +483,7 @@
 />
 
 <style>
-	/* Combobox-R18: structural CSS only — no chrome. */
+	/* structural CSS only — no chrome. */
 
 	.hz-combobox-control {
 		display: flex;
@@ -521,12 +521,12 @@
 		top: 100%;
 	}
 
-	/* Combobox-R3/R7: rendered at all times, hidden via CSS while closed. */
+	/* rendered at all times, hidden via CSS while closed. */
 	:global(.hz-combobox:not([data-open])) .hz-combobox-popup {
 		display: none;
 	}
 
-	/* Combobox-R18: the popup overlays the description/error region while
+	/* the popup overlays the description/error region while
 	   open, so they are visually suppressed (but stay in the DOM — the
 	   aria-describedby chain still resolves against hidden elements). */
 	:global(.hz-combobox[data-open] .hz-field-description),

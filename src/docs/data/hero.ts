@@ -1,4 +1,4 @@
-/** Hero's DocPage inputs — specs/40 R1. */
+/** Hero's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const heroDoc: ComponentDoc = {

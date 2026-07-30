@@ -45,14 +45,14 @@
 	// Stable title id per instance (counter-based, SSR-safe; mirrors Nav.svelte).
 	const titleId = uid('hz-hero-title');
 
-	// Hero-R2: hz-hero-content renders when any of eyebrow/title/subtitle/actions is present.
+	// hz-hero-content renders when any of eyebrow/title/subtitle/actions is present.
 	const hasContent = $derived(!!(eyebrow || title || subtitle || actions));
 </script>
 
 <!--
-	Hero-R1: root <section class="hz-hero"> with data-* attributes.
-	Hero-R15: {...rest} spread first so managed attrs (class, data-*, aria-*) win.
-	Hero-R7: aria-labelledby when title provided; aria-label when no title but ariaLabel set;
+	root <section class="hz-hero"> with data-* attributes.
+	{...rest} spread first so managed attrs (class, data-*, aria-*) win.
+	aria-labelledby when title provided; aria-label when no title but ariaLabel set;
 	         neither when both absent; aria-labelledby wins when both supplied.
 -->
 {#snippet heroContent()}
@@ -87,17 +87,17 @@
 	aria-label={!title && ariaLabel ? ariaLabel : undefined}
 >
 	{#if layout === 'overlay' && media}
-		<!-- Hero-R4: in overlay layout, media IS the background — first child of the root. -->
+		<!-- in overlay layout, media IS the background — first child of the root. -->
 		<div class="hz-hero-background">{@render media()}</div>
 	{/if}
 
 	{#if layout === 'split'}
 		<!--
-			Hero-R9: split layout composes the existing Split component.
+			split layout composes the existing Split component.
 			fraction="1/2" gives equal columns; stackBelow="md" collapses below
 			--hz-width-md (968px default, var-driven) of the split's own width.
 			Do NOT use Split's reverse prop — reverseOnMobile is handled by
-			Hero's own wrap-reverse rule (Hero-R10).
+			Hero's own wrap-reverse rule.
 		-->
 		<Split fraction="1/2" gap="lg" stackBelow="md">
 			{#if hasContent}
@@ -109,7 +109,7 @@
 		</Split>
 	{:else}
 		<!--
-			Hero-R8 (center) / Hero-R12 (overlay): content in the root flex column;
+			Center and overlay layouts: content in the root flex column;
 			center-layout media renders after it. DOM order is fixed; CSS handles
 			alignment and z-order.
 		-->
@@ -124,8 +124,8 @@
 
 <style>
 	/* ------------------------------------------------------------------ */
-	/* Hero-R1/R8/R11: root — flex column, vertically centers, positioned  */
-	/* for background overlay (R12) and content z-ordering.               */
+	/* root — flex column, vertically centers, positioned  */
+	/* for background overlay and content z-ordering.               */
 	/* ------------------------------------------------------------------ */
 
 	.hz-hero {
@@ -136,7 +136,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Hero-R11: height → min-height with dvh progressive override.        */
+	/* height → min-height with dvh progressive override.        */
 	/* dvh avoids mobile browser-chrome clipping (100vh can be too tall).  */
 	/* ------------------------------------------------------------------ */
 
@@ -153,7 +153,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Hero-R4/R12: background covers the section; content sits above it.  */
+	/* background covers the section; content sits above it.  */
 	/* Same positioning applies in all three layouts.                       */
 	/* ------------------------------------------------------------------ */
 
@@ -177,7 +177,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Hero-R8: center layout — align-items on root and content;           */
+	/* center layout — align-items on root and content;           */
 	/* text-align on content. Gap between content and media regions.        */
 	/* ------------------------------------------------------------------ */
 
@@ -213,7 +213,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Hero-R9: split layout — hz-split fills the root; align maps to      */
+	/* split layout — hz-split fills the root; align maps to      */
 	/* vertical alignment of content vs media via align-items on the       */
 	/* split's inner .hz-split-layout (the grid element).                  */
 	/* ------------------------------------------------------------------ */
@@ -244,11 +244,11 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* Hero-R10: reverseOnMobile — media above content, but only while the  */
+	/* reverseOnMobile — media above content, but only while the  */
 	/* split is stacked. wrap-reverse makes flex lines fill bottom-up: on   */
 	/* one line (side by side) the inline order is unchanged, and when the  */
 	/* switcher wraps, the second child (media) lands on the top line. No   */
-	/* threshold to keep in sync, and DOM order is never changed (R5).      */
+	/* threshold to keep in sync, and DOM order is never changed.      */
 	/* wrap-reverse inverts the cross axis, so the start/end align rules    */
 	/* above are flipped back to keep their visual meaning side by side.    */
 	/* ------------------------------------------------------------------ */

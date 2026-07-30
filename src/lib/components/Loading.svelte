@@ -5,7 +5,7 @@
 	import IconLoader from '$lib/icons/generated/loader.svelte';
 
 	// ---------------------------------------------------------------------------
-	// Loading (specs/49, amended 2026-07-27 — the spinner/ring split) — an
+	// Loading (, amended 2026-07-27 — the spinner/ring split) — an
 	// accessible loading indicator. Fundamentally indeterminate: `spinner` and
 	// `dots` are always indeterminate (a `value` on either is ignored,
 	// dev-warn); `bar` and `ring` are the two progressive-enhancement
@@ -39,7 +39,7 @@
 	}
 
 	/**
-	 * R7: the default percentage formatter. Declared as a named function (not
+	 * The default percentage formatter. Declared as a named function (not
 	 * inline in the destructuring default) so R3's aria-valuetext omission can
 	 * compare `format` against this exact reference — telling "the consumer
 	 * left format at its default" apart from "a custom format happens to also
@@ -62,7 +62,7 @@
 		...rest
 	}: Props = $props();
 
-	// R6: the alternative accessible-name channel — rest is spread onto the
+	// The alternative accessible-name channel — rest is spread onto the
 	// root, but the name has to land on the actual progressbar-role element
 	// (the <progress>, the spinner span, or the dots span), so both are read
 	// out of rest here and re-applied there.
@@ -78,10 +78,10 @@
 	// indeterminate-only by construction, regardless of value (Decision 6,
 	// extended to spinner by the amendment).
 	const indeterminate = $derived(variant === 'dots' || variant === 'spinner' || !hasValue);
-	// R3: negatives clamp to 0, over-max clamps to max.
+	// Negatives clamp to 0, over-max clamps to max.
 	const clamped = $derived(hasValue ? Math.min(Math.max(value as number, 0), max) : undefined);
 
-	// R3: aria-valuetext carries human units only for a non-default format or a
+	// Aria-valuetext carries human units only for a non-default format or a
 	// non-100 max — the default percentage at max=100 lets AT read the native
 	// computed percentage instead. Applies to both determinate forms (bar, ring).
 	const isCustomFormat = $derived(format !== defaultFormat);
@@ -89,10 +89,10 @@
 		!indeterminate && (isCustomFormat || max !== 100) ? format(clamped as number, max) : undefined
 	);
 
-	// R1/R7: the readout renders only for the determinate forms (bar, ring).
+	// The readout renders only for the determinate forms (bar, ring).
 	const showReadout = $derived(showValue && !indeterminate);
 
-	// R3: the determinate ring's live fraction, written inline (the
+	// The determinate ring's live fraction, written inline (the
 	// Slider-fill precedent) — 0 → 100 (empty), max → 0 (full circle), clamped
 	// so an over-max value never renders an over-full ring. Only meaningful
 	// for the ring variant; unused (and unread) otherwise.
@@ -126,7 +126,7 @@
 					'[hyzer-ui] <Loading>: variant="spinner" is indeterminate-only — `value` is ignored. Use variant="ring" for determinate circular progress.'
 				);
 			}
-			// R7: showValue only renders a readout in a determinate presentation
+			// ShowValue only renders a readout in a determinate presentation
 			// (the bar or the ring with a value) — warn for any indeterminate
 			// presentation (bare bar, spinner glyph, dots, indeterminate ring).
 			if (showValue && (variant === 'dots' || variant === 'spinner' || !hasValue)) {
@@ -153,7 +153,7 @@
 	data-indeterminate={indeterminate ? '' : undefined}
 >
 	{#if variant === 'bar'}
-		<!-- R3/R4: native <progress> carries role/aria-value* for free. Two
+		<!-- Native <progress> carries role/aria-value* for free. Two
 		     branches (rather than a single value={hasValue ? clamped : undefined})
 		     keep the indeterminate branch from ever emitting a `value` attribute. -->
 		{#if hasValue}
@@ -191,7 +191,7 @@
 		</span>
 	{:else if variant === 'ring'}
 		{#if hasValue}
-			<!-- R3: the determinate ring — a static SVG arc, ARIA on the wrapper
+			<!-- The determinate ring — a static SVG arc, ARIA on the wrapper
 			     (the SVG itself is decorative). No aria-busy: progress is known. -->
 			<span
 				class="hz-loading-ring-wrapper"
@@ -236,7 +236,7 @@
 			</span>
 		{/if}
 	{:else}
-		<!-- R5: the ellipsis loader — three decorative dots, no <progress>. -->
+		<!-- The ellipsis loader — three decorative dots, no <progress>. -->
 		<span
 			class="hz-loading-dots"
 			role="progressbar"
@@ -252,7 +252,7 @@
 </div>
 
 <style>
-	/* R8: structure only — the wrapper aligns the bar and the readout in a
+	/* Structure only — the wrapper aligns the bar and the readout in a
 	 * row; min-width: 0 lets the bar flex below its intrinsic content size.
 	 * width: 100% is scoped to the bar variant only (below) — per the
 	 * Responsive Behavior section, the spinner/ring and dots are

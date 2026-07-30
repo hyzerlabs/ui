@@ -34,7 +34,7 @@
 	].join('\n');
 
 	// ------------------------------------------------------------------
-	// Demo 4 — the paired loading pattern (R13): Loading announces,
+	// Demo 4 — the paired loading pattern: Loading announces,
 	// Skeleton decorates.
 	// ------------------------------------------------------------------
 

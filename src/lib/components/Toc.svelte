@@ -6,7 +6,7 @@
 	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 
 	// ---------------------------------------------------------------------------
-	// Toc (specs/38) — auto heading collection + scroll-spy, nested h2/h3
+	// Toc — auto heading collection + scroll-spy, nested h2/h3
 	// levels, mobile collapse, smooth scroll, and an active-heading callback.
 	// Promoted from the docs shell's prototype (src/docs/Toc.svelte, deleted by
 	// R9); the collection filter, rAF spy, and bottom-pin rule are unchanged,
@@ -66,7 +66,7 @@
 		...rest
 	}: Props = $props();
 
-	// R5: the nav landmark's name defaults to the visible title — literally,
+	// The nav landmark's name defaults to the visible title — literally,
 	// even when title is '' (an empty landmark name is then the consumer's to
 	// fix via an explicit ariaLabel; see the Toc docs page a11y note).
 	const effectiveAriaLabel = $derived(ariaLabel ?? title);
@@ -77,14 +77,14 @@
 	let triggerEl = $state<HTMLButtonElement | null>(null);
 
 	// ---------------------------------------------------------------------------
-	// R1/R2 — collection
+	// Collection
 	// ---------------------------------------------------------------------------
 
 	let entries = $state<TocEntry[]>([]);
 	// The live heading elements behind `entries`, same order — not reactive
 	// state; only the scroll-spy (imperative, rAF-driven) reads it.
 	let headingEls: HTMLHeadingElement[] = [];
-	// The resolved container, cached by collect() — the scroll-spy (R3) reads
+	// The resolved container, cached by collect() — the scroll-spy reads
 	// it every animation frame and has no reason to re-run resolveContainer()
 	// (and its selector query) that often.
 	let containerEl: HTMLElement | null = null;
@@ -134,8 +134,8 @@
 		return `${base}-${i}`;
 	}
 
-	/** R1 — collect headings inside `container` matching `levels`, skipping
-	 *  excluded/hidden/self headings. Re-run by the watch effect (R2) and
+	/** Collect headings inside `container` matching `levels`, skipping
+	 *  excluded/hidden/self headings. Re-run by the watch effect and
 	 *  exposed as `refresh()` for manual control. */
 	function collect(): void {
 		const target = resolveContainer();
@@ -210,8 +210,8 @@
 		collect();
 	});
 
-	// R2 — watch: MutationObserver on the container (childList + subtree),
-	// debounced 120ms — the observers module's `mutate` attachment (specs/48
+	// Watch: MutationObserver on the container (childList + subtree),
+	// debounced 120ms — the observers module's `mutate` attachment (
 	// R9), which already owns the debounce-timer + disconnect teardown
 	// discipline this effect used to hand-roll. No `$app/*` import — SPA
 	// navigations "just work" because the framework already mutates the DOM
@@ -231,7 +231,7 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// R1 — nesting: deeper levels nest under the nearest preceding shallower
+	// Nesting: deeper levels nest under the nearest preceding shallower
 	// entry; orphan deep headings (h3 before any h2) attach at the top level.
 	// ---------------------------------------------------------------------------
 
@@ -251,7 +251,7 @@
 	const visible = $derived(entries.length >= minEntries);
 
 	// ---------------------------------------------------------------------------
-	// R3 — scroll-spy. The active entry is the last heading at or above the top
+	// Scroll-spy. The active entry is the last heading at or above the top
 	// quarter of the SCROLLING VIEWPORT — the page itself, ordinarily, but
 	// `container` may just as well live inside its own `overflow: auto`
 	// region (a demo pane, a modal body, a split-pane doc viewer); the whole
@@ -345,7 +345,7 @@
 	});
 
 	// ---------------------------------------------------------------------------
-	// R4 — link activation: smooth scroll (instant under reduced motion or
+	// Link activation: smooth scroll (instant under reduced motion or
 	// smoothScroll={false}), URL hash via replaceState (no history spam), the
 	// active entry updates immediately. `history.state` is preserved rather
 	// than cleared, so this never fights a host router's own history state.
@@ -381,12 +381,12 @@
 		const instant = !smoothScroll || prefersReducedMotion.current;
 		if (heading) scrollToHeading(heading, instant);
 		history.replaceState(history.state, '', `#${id}`);
-		// R6: selecting an entry closes the mobile disclosure.
+		// Selecting an entry closes the mobile disclosure.
 		open = false;
 	}
 
 	// ---------------------------------------------------------------------------
-	// R6 — mobile collapse disclosure. Escape and outside-click close it;
+	// Mobile collapse disclosure. Escape and outside-click close it;
 	// Escape returns focus to the trigger (Header's drawer precedent) —
 	// outside-click does not (Dropdown's precedent: focus lands wherever the
 	// click's own default action put it).
@@ -448,11 +448,11 @@
 		data-collapsed={breakpoint !== 'none' && !open ? '' : undefined}
 	>
 		{#if title}
-			<!-- R5: a plain element, never a heading — the Toc must not add to the
+			<!-- A plain element, never a heading — the Toc must not add to the
 			     document outline or collect itself. -->
 			<p class="hz-toc-title">{title}</p>
 		{/if}
-		<!-- R6: always rendered; the theme shows this XOR the plain title above,
+		<!-- Always rendered; the theme shows this XOR the plain title above,
 		     by data-breakpoint and the viewport (Header's toggle precedent). -->
 		<button
 			bind:this={triggerEl}
@@ -475,11 +475,11 @@
 
 <style>
 	/*
-	 * R6/R7 — structural collapse mechanics only (which of title/trigger shows,
+	 * Structural collapse mechanics only (which of title/trigger shows,
 	 * whether the panel is visible); colors, spacing, and typography are
 	 * theme/toc.css. Breakpoints are literal px mirroring --hz-width-sm/md/lg
-	 * (640/968/1200) — the Grid BAND / Table stacked precedent (specs/29,
-	 * specs/37): CSS cannot read custom properties in a media query. This is a
+	 * (640/968/1200) — the Grid BAND / Table stacked precedent (,
+	 *): CSS cannot read custom properties in a media query. This is a
 	 * real @media query against the viewport, not a container query — the
 	 * rail's own box is typically narrow regardless of page width, so its own
 	 * inline-size is not a usable "mobile" signal (Header's container-query

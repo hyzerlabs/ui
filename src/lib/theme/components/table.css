@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui reference theme — Table (specs/37)
+ * @hyzer-labs/ui reference theme — Table
  * Wrap scroll affordance, header surface, row borders, density-aware cell
  * padding, sort-button chrome + active-column indicator, sticky header
  * shadow, skeleton shimmer, stacked-mode layout, and data-align handling.
@@ -85,7 +85,7 @@
 	}
 
 	/* -------------------------------------------------------------------- */
-	/* R3 — sort button chrome + active-column indicator                     */
+	/* Sort button chrome + active-column indicator                     */
 	/* -------------------------------------------------------------------- */
 
 	.hz-table-sort {
@@ -129,7 +129,7 @@
 	}
 
 	/* -------------------------------------------------------------------- */
-	/* R5 — sticky header, pinned against the wrap's own scroll               */
+	/* Sticky header, pinned against the wrap's own scroll               */
 	/* -------------------------------------------------------------------- */
 
 	.hz-table-wrap[data-sticky] thead th {
@@ -142,7 +142,7 @@
 	}
 
 	/* -------------------------------------------------------------------- */
-	/* R6 — empty state + loading skeleton                                   */
+	/* Empty state + loading skeleton                                   */
 	/* -------------------------------------------------------------------- */
 
 	.hz-table-empty {
@@ -217,8 +217,8 @@
 	}
 
 	/* -------------------------------------------------------------------- */
-	/* R7 — stacked mode. Literal px breakpoints mirroring --hz-width-sm/md/  */
-	/* lg (Grid BAND precedent, specs/29) — a container query cannot read a   */
+	/* Stacked mode. Literal px breakpoints mirroring --hz-width-sm/md/  */
+	/* lg (Grid BAND precedent) — a container query cannot read a   */
 	/* custom property, so these thresholds are fixed system constants, not  */
 	/* var() reads. Default (below every threshold): stacked. The matching   */
 	/* @container block reverts to the real table layout at/above the named  */

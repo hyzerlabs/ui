@@ -40,7 +40,7 @@
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
 	(class, data-variant, data-bordered) wins over any conflicting key a
-	consumer passes through rest (R11).
+	consumer passes through rest.
 -->
 <footer
 	{...rest}
@@ -89,7 +89,7 @@
 
 <style>
 	/*
-	 * R8 — Override Grid's track template with an auto-fit layout so columns
+	 * Override Grid's track template with an auto-fit layout so columns
 	 * stack when narrow and fill available tracks as width grows. No media or
 	 * container queries required; --hz-footer-col-min is consumer-tunable.
 	 *

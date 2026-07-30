@@ -49,7 +49,7 @@
 		...rest
 	}: Props = $props();
 
-	// IMG-R11: blur without placeholderSrc → fall back to none + dev warn
+	// blur without placeholderSrc → fall back to none + dev warn
 	if (import.meta.env.DEV) {
 		if (untrack(() => placeholder === 'blur' && !placeholderSrc)) {
 			console.warn(
@@ -64,23 +64,23 @@
 		placeholder === 'blur' && !placeholderSrc ? 'none' : placeholder
 	);
 
-	// IMG-R8 — load state machine
+	// load state machine
 	let loadState: LoadState = $state('loading');
 
-	// IMG-R12 — prefers-reduced-motion
+	// prefers-reduced-motion
 	const reducedMotion = $derived(
 		browser ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
 	);
 
-	// IMG-R7 — data-rounded: true → '' (present), string → verbatim, false → undefined
+	// data-rounded: true → '' (present), string → verbatim, false → undefined
 	const dataRounded = $derived(rounded === false ? undefined : rounded === true ? '' : rounded);
 
-	// IMG-R5 — aspect-ratio inline style (non-auto only)
+	// aspect-ratio inline style (non-auto only)
 	const aspectRatioStyle = $derived(
 		aspectRatio !== 'auto' ? `aspect-ratio: ${aspectRatio}` : undefined
 	);
 
-	// IMG-R10 — background-color while loading (color placeholder)
+	// background-color while loading (color placeholder)
 	const bgColorStyle = $derived(
 		effectivePlaceholder === 'color' && loadState === 'loading'
 			? `background-color: ${placeholderColor}`
@@ -94,7 +94,7 @@
 
 	let imgEl: HTMLImageElement | undefined = $state(undefined);
 
-	// IMG-R8 — check for cached/SSR images after mount
+	// check for cached/SSR images after mount
 	$effect(() => {
 		if (!imgEl) return;
 		if (imgEl.complete) {
@@ -116,8 +116,8 @@
 </script>
 
 <!--
-	IMG-R14: {...rest} spread first on <img> so managed attributes win.
-	IMG-R1: wrapper div carries data-* attrs; <img> carries src/alt/loading/dimensions.
+	{...rest} spread first on <img> so managed attributes win.
+	wrapper div carries data-* attrs; <img> carries src/alt/loading/dimensions.
 -->
 <div
 	class={cx('hz-image', className)}
@@ -132,11 +132,11 @@
 	style={wrapperStyle}
 >
 	{#if effectivePlaceholder === 'blur' && placeholderSrc}
-		<!-- IMG-R11: decorative low-res placeholder, aria-hidden -->
+		<!-- decorative low-res placeholder, aria-hidden -->
 		<img class="hz-image__placeholder" src={placeholderSrc} alt="" aria-hidden="true" />
 	{/if}
 
-	<!-- IMG-R14: ...rest first so managed attrs win -->
+	<!-- ...rest first so managed attrs win -->
 	{#snippet theImg()}
 		<img
 			{...rest}
@@ -186,14 +186,14 @@
 		display: contents;
 	}
 
-	/* IMG-R5 — img fills the aspect-ratio box */
+	/* img fills the aspect-ratio box */
 	.hz-image__img {
 		display: block;
 		width: 100%;
 		height: 100%;
 	}
 
-	/* IMG-R6 — object-fit via data-fit on the wrapper */
+	/* object-fit via data-fit on the wrapper */
 	.hz-image[data-fit='cover'] .hz-image__img {
 		object-fit: cover;
 	}
@@ -207,7 +207,7 @@
 		object-fit: none;
 	}
 
-	/* IMG-R11 — blur placeholder absolutely fills the wrapper */
+	/* blur placeholder absolutely fills the wrapper */
 	.hz-image__placeholder {
 		position: absolute;
 		inset: 0;
@@ -219,7 +219,7 @@
 		transition: opacity var(--hz-image-fade-duration, 0.3s) ease;
 	}
 
-	/* IMG-R11 — main image starts transparent in blur mode, crossfades in */
+	/* main image starts transparent in blur mode, crossfades in */
 	.hz-image[data-placeholder='blur'] .hz-image__img {
 		position: relative;
 		opacity: 0;
@@ -230,12 +230,12 @@
 		opacity: 1;
 	}
 
-	/* IMG-R11 — placeholder fades out once loaded */
+	/* placeholder fades out once loaded */
 	.hz-image[data-placeholder='blur'][data-state='loaded'] .hz-image__placeholder {
 		opacity: 0;
 	}
 
-	/* IMG-R12 — reduced-motion: zero transition duration */
+	/* reduced-motion: zero transition duration */
 	.hz-image[data-reduced-motion][data-placeholder='blur'] .hz-image__img {
 		transition-duration: 0s;
 	}

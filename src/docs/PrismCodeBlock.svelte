@@ -1,11 +1,11 @@
 <script lang="ts">
 	/**
-	 * CodeBlock-R17 — the live "Prism, client-autoloader" demo.
+	 * the live "Prism, client-autoloader" demo.
 	 *
 	 * The ONLY docs importer of `prismjs` (highlighter-isolation.spec.ts pins
-	 * it, CodeBlock-R18) — a self-contained wrapper the code-block docs page
+	 * it) — a self-contained wrapper the code-block docs page
 	 * uses for exactly one live block. Renders a plain `<CodeBlock
-	 * language>`, whose `language-<x>` class is the hook CodeBlock-R7 ships
+	 * language>`, whose `language-<x>` class is the hook CodeBlock ships
 	 * for precisely this: a client-side autoloader decorates it after mount.
 	 *
 	 * `prismjs` sets its shared state on the real DOM `window` (prism-core.js)
@@ -52,11 +52,11 @@
 	 * A hand-scoped port of Prism's own bundled "Tomorrow Night" theme
 	 * (prismjs/themes/prism-tomorrow.css) — same token colours, rescoped
 	 * under .hz-docs-prism so they cannot bleed onto any other code block on
-	 * the site (CodeBlock-R17). Prism's stock theme file targets bare
+	 * the site. Prism's stock theme file targets bare
 	 * `.token.*` selectors with no scoping mechanism of its own, so it can't
 	 * be imported as-is here. The dark surface these colours were designed
 	 * against is set locally via the documented --hz-code-block-bg hook
-	 * (CodeBlock-R10) — no fork of the component or its theme required.
+	 * — no fork of the component or its theme required.
 	 */
 	.hz-docs-prism :global(.hz-code-block) {
 		--hz-code-block-bg: #2d2d2d;

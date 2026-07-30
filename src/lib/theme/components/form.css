@@ -1,6 +1,6 @@
 /**
  * @hyzer-labs/ui reference theme — Form error summary
- * The summary box itself is a danger Alert (alert.css, Alert-R5) — only the
+ * The summary box itself is a danger Alert (alert.css) — only the
  * error list items and their jump links are styled here.
  */
 @layer hz-theme {

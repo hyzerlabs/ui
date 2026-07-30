@@ -51,8 +51,8 @@
 	}
 
 	/* Panel entrance — content fades + rises in when the item opens, on the
-	 * motion tokens (the component ships no panel motion by contract,
-	 * Accordion-R2/Theming Hooks). Replays on every open; close is handled
+	 * motion tokens. The component itself ships no panel motion, by contract,
+	 * so this belongs to the theme. Replays on every open; close is handled
 	 * by the height transition below where supported, instantly elsewhere.
 	 * base.css collapses both under prefers-reduced-motion. */
 	.hz-accordion-item[data-state='open'] .hz-accordion-panel {

@@ -1,12 +1,12 @@
 /**
- * Doc data registry — keyed by component name, specs/40 R1.
+ * Doc data registry — keyed by component name.
  *
  * Mirrors hooks.ts: one module per component under src/docs/data/, each
  * exporting a typed `ComponentDoc`, assembled here into a single lookup.
  * Route pages import their own module directly and spread it into
  * `DocPage`; this registry exists for `data.spec.ts`'s two-way coverage
  * pin (mirroring `hooks.spec.ts`) and for the planned `llms.txt`/markdown
- * endpoints and MCP server (specs/40 goal) — one source that cannot drift
+ * endpoints and MCP server ( goal) — one source that cannot drift
  * from the pages, the same way hooks.ts cannot drift from the theme.
  */
 import type { ComponentDoc } from './types.js';

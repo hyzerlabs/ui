@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui — `hyzer` CLI implementation (specs/29 R9).
+ * @hyzer-labs/ui — `hyzer` CLI implementation.
  *
  * `hyzer generate [--config <path>] [--out <path>] [--mode full|overrides]
  *                 [--utilities] [--check] [--strict]`
@@ -9,7 +9,7 @@
  * generated sheet, and always prints a WCAG contrast report — warnings by
  * default, `--strict` turns AA failures into a non-zero exit.
  *
- * The utilities sheet (specs/44 R4) is opt-in only — absent `--utilities`
+ * The utilities sheet is opt-in only — absent `--utilities`
  * and `config.utilities`, no utilities file is written.
  */
 
@@ -173,7 +173,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 			log(`wrote ${iconsPath} (${iconsResult.names.length} icons)`);
 		}
 
-		// --utilities overrides config.utilities when present (specs/44 R4);
+		// --utilities overrides config.utilities when present;
 		// absent both, no utilities file is written — non-users pay nothing.
 		const utilitiesEnabled = parsed.utilities === true || resolved.utilities.enabled;
 		if (utilitiesEnabled) {
@@ -203,7 +203,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 		error(`contrast: ${failures.length} of ${report.rows.length} pairings fail WCAG AA${suffix}`);
 	}
 
-	// --- icons report (specs/36 R6) ---------------------------------------------
+	// --- icons report ---------------------------------------------
 	let iconsFailed = false;
 	if (iconsResult) {
 		for (const name of iconsResult.unknown) {

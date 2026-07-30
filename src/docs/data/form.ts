@@ -1,4 +1,4 @@
-/** Form's DocPage inputs — specs/40 R1. */
+/** Form's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const formDoc: ComponentDoc = {

@@ -1,6 +1,6 @@
 /**
- * @hyzer-labs/ui/observers — `resize` attachment (specs/48-observers.md,
- * Observers-R3).
+ * @hyzer-labs/ui/observers — `resize` attachment (,
+ * one place).
  */
 import { createAttachment } from './factory.js';
 

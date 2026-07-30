@@ -1,6 +1,6 @@
 /**
- * @hyzer-labs/ui/observers — shared internal factory (specs/48-observers.md,
- * Observers-R5).
+ * @hyzer-labs/ui/observers — shared internal factory (,
+ * one place).
  *
  * DRYs the create → `observe` → `disconnect` skeleton and the `typeof
  * document` SSR guard shared by `intersect`/`resize`/`mutate` (the
@@ -36,7 +36,7 @@ export function createAttachment<TObserver extends { disconnect(): void }>(
 	setup: (node: Element) => ObserverHandle<TObserver>
 ): (node: Element) => () => void {
 	return (node: Element) => {
-		// Observers-R1/edge cases: attachments only ever run client-side, but
+		// Edge cases: attachments only ever run client-side, but
 		// guard defensively against any SSR-time invocation, and against a
 		// platform that never shipped this observer at all.
 		if (typeof document === 'undefined') return () => {};

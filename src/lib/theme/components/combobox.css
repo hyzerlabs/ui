@@ -1,13 +1,13 @@
 /**
  * @hyzer-labs/ui reference theme — Combobox
  * The input box, focus ring, and error/disabled chrome are shared with the
- * rest of the field family (field.css's amended text-control selector,
- * Combobox-R18); this sheet owns the control's interior spacing plus the
+ * rest of the field family through field.css's text-control selector. This
+ * sheet owns the control's interior spacing plus the
  * popup surface, listbox, and option chrome.
  */
 @layer hz-theme {
-	/* Combobox-R18: chip-row spacing — vertical padding so wrapped chip rows
-	   (Combobox-R5) don't crowd the control's border; the row/column gap
+	/* chip-row spacing — vertical padding so wrapped chip rows
+ don't crowd the control's border; the row/column gap
 	   values differ so wrapped chip rows sit tighter than the chip-to-input
 	   gap on a given row. */
 	.hz-combobox-control {
@@ -80,13 +80,13 @@
 		cursor: pointer;
 	}
 
-	/* Combobox-R8: the active (virtually focused) option — a background
+	/* the active (virtually focused) option — a background
 	 * change, not a hue-only signal. */
 	.hz-combobox-option[data-active] {
 		background-color: color-mix(in srgb, var(--hz-intent-primary, #2563eb) 12%, transparent);
 	}
 
-	/* Combobox-R9/R10: the committed selection — non-color-only affordance
+	/* the committed selection — non-color-only affordance
 	 * (a checkmark), reinforcing aria-selected/data-selected. */
 	.hz-combobox-option[data-selected] {
 		font-weight: var(--hz-font-weight-medium, 500);

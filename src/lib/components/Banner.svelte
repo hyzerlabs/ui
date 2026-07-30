@@ -41,12 +41,12 @@
 </script>
 
 <!--
-	Banner-R1: full-width solid bar — optional decorative icon, content,
+	full-width solid bar — optional decorative icon, content,
 	optional trailing actions, optional dismiss button.
-	Banner-R4: NO role and no live-region attributes by default — a live role
+	NO role and no live-region attributes by default — a live role
 	only announces dynamically inserted content; consumers pass role="status"
 	or role="alert" via rest when inserting a Banner after load.
-	Banner-R7: rest spreads first so managed attrs (class, data-*) win.
+	rest spreads first so managed attrs (class, data-*) win.
 -->
 <svelte:element
 	this={as}
@@ -69,7 +69,7 @@
 	{/if}
 
 	{#if onDismiss}
-		<!-- Banner-R5: same contract as Badge/Alert — real labeled button, decorative icon. -->
+		<!-- same contract as Badge/Alert — real labeled button, decorative icon. -->
 		<button type="button" class="hz-banner-dismiss" aria-label={dismissLabel} onclick={onDismiss}>
 			<IconX />
 		</button>
@@ -77,7 +77,7 @@
 </svelte:element>
 
 <style>
-	/* Banner-R8: structural only — full-width flex row; all colour is the theme's. */
+	/* structural only — full-width flex row; all colour is the theme's. */
 	.hz-banner {
 		display: flex;
 		width: 100%;
@@ -108,9 +108,9 @@
 		cursor: pointer;
 	}
 
-	/* Banner-R3: pinning is structural, per Header — position: sticky and the
+	/* pinning is structural, per Header — position: sticky and the
 	 * z-index live in the component, not the theme. The pin z-index is the
-	 * shared sticky tier (Banner-R13) — Header's own sticky bar uses the same
+	 * shared sticky tier — Header's own sticky bar uses the same
 	 * token, so a pinned Header and a pinned Banner never fight. */
 	.hz-banner[data-pin] {
 		position: sticky;

@@ -1,4 +1,4 @@
-/** Container's DocPage inputs — specs/40 R1. */
+/** Container's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const containerDoc: ComponentDoc = {

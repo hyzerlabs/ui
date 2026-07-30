@@ -24,12 +24,12 @@
 		...rest
 	}: PopoverProps = $props();
 
-	// R-PO-1: appearance defaults for the composed Button trigger — the
+	// Appearance defaults for the composed Button trigger — the
 	// Dropdown precedent.
 	const mergedVariant = $derived(triggerProps.variant ?? 'outline');
 	const mergedIntent = $derived(triggerProps.intent ?? 'neutral');
 
-	// R-PO-1b: dev-only warning — the default trigger (no `trigger` snippet)
+	// Dev-only warning — the default trigger (no `trigger` snippet)
 	// must have an accessible name from somewhere (`triggerLabel` or
 	// `triggerProps.ariaLabel`); the component never fabricates one.
 	if (import.meta.env.DEV) {
@@ -62,7 +62,7 @@
 		if (el && document.contains(el)) el.focus();
 	}
 
-	// R-PO-1: the library applies these to the default Button internally, or
+	// The library applies these to the default Button internally, or
 	// a consumer's own `trigger` snippet spreads them onto any element.
 	function onTriggerClick(): void {
 		// Native popovertarget invokers already toggle the panel themselves
@@ -87,7 +87,7 @@
 	}
 
 	// -------------------------------------------------------------------------
-	// R-PO-3/R-PO-4: single sources of truth for the "did the DOM's shown
+	// Single sources of truth for the "did the DOM's shown
 	// state actually change" bookkeeping — onopen/onclose fire exactly once
 	// per real transition, whether it was driven by us, a native invoker
 	// click, native light-dismiss, native Escape auto-dismiss, or another
@@ -101,7 +101,7 @@
 		escapePending = false;
 		dismissOriginInsidePanel = false;
 
-		// R-POS-3/R-POS-4: positioning + show-time wiring live HERE, not in
+		// Positioning + show-time wiring live HERE, not in
 		// showPanel() below — a native `popovertarget` invoker's own default
 		// action can open the panel before our JS ever calls showPopover()
 		// itself (it races/wins the click), which would otherwise skip
@@ -111,12 +111,12 @@
 		// what caused it, so positioning belongs here.
 		if (panelEl) {
 			const { side, align } = parsePlacement(placement);
-			// R-PO-6: JS is the primary reduced-motion gate; the theme's own
+			// JS is the primary reduced-motion gate; the theme's own
 			// @media strip (popover.css) is the belt-and-braces backup.
 			panelEl.style.animation = prefersReducedMotion.current ? 'none' : '';
 			const triggerEl = document.getElementById(triggerId) ?? rootEl;
 			if (triggerEl) {
-				// R-THEME-3: data-side/data-align reflect the RESOLVED (post-flip)
+				// Data-side/data-align reflect the RESOLVED (post-flip)
 				// side — measured from real layout, not the requested side — so a
 				// consumer-drawn caret always points at the trigger after a flip.
 				const resolved = position(triggerEl, panelEl, { side, align, offset });
@@ -131,7 +131,7 @@
 		document.addEventListener('keydown', onDocumentKeydown, true);
 
 		onopen?.();
-		// R-PO-2a: autoFocus:true moves focus to the first focusable element in
+		// AutoFocus:true moves focus to the first focusable element in
 		// the panel (or the panel container itself). Deferred a microtask so
 		// the panel's own visibility change has settled.
 		if (autoFocus) {
@@ -155,7 +155,7 @@
 		stopPositioning?.();
 		stopPositioning = null;
 
-		// R-PO-2a/R-PO-5: Escape or a dismiss originating inside the panel
+		// Escape or a dismiss originating inside the panel
 		// returns focus to the trigger; light-dismiss elsewhere leaves focus
 		// where the click landed (never yanked back).
 		if (escapePending || dismissOriginInsidePanel) {
@@ -167,7 +167,7 @@
 	}
 
 	// Native `toggle` event — the authoritative sync point for the
-	// Popover-API path (R-PO-4): fires for our own showPopover()/
+	// Popover-API path: fires for our own showPopover()/
 	// hidePopover() calls too, so handleShown/handleHidden stay single-fire
 	// regardless of who triggered the DOM change.
 	function onPanelToggle(e: Event): void {
@@ -190,7 +190,7 @@
 	}
 
 	// -------------------------------------------------------------------------
-	// R-PO-4 fallback backstop — only wired when the Popover API is
+	// Fallback backstop — only wired when the Popover API is
 	// unavailable (native "auto" popovers already provide real light-dismiss).
 	// Mirrors Dropdown's onDocumentClick/onRootFocusOut pattern exactly.
 	// -------------------------------------------------------------------------
@@ -249,7 +249,7 @@
 		}
 	}
 
-	// R-PO-3: reconciles `open` with the panel's showPopover()/hidePopover()
+	// Reconciles `open` with the panel's showPopover()/hidePopover()
 	// (guarded so it is a no-op on SSR / before mount — the Modal precedent).
 	// Idempotent against the current DOM state, so it never double-toggles a
 	// panel a native invoker (or the fallback backstop) already moved.
@@ -284,7 +284,7 @@
 {/snippet}
 
 <!--
-	R-PO-1: root wraps trigger + panel (the Dropdown precedent) and carries
+	Root wraps trigger + panel (the Dropdown precedent) and carries
 	{...rest}/class/data-open. `display: contents` — the root is pure
 	bookkeeping, not a layout box (the panel is position: fixed / top-layer;
 	the trigger owns its own box).
@@ -298,7 +298,7 @@
 	{#if trigger}
 		{@render trigger(triggerAttrs)}
 	{:else if triggerLabel}
-		<!-- R-PO-1: labeled default trigger — the visible text is the
+		<!-- Labeled default trigger — the visible text is the
 		     accessible name; no redundant aria-label. -->
 		<Button
 			id={triggerAttrs.id}
@@ -318,7 +318,7 @@
 		<!-- Icon-only default trigger — two branches (rather than a
 		     conditional icon prop) keep Button's iconOnly derivation (no
 		     children ⇒ icon-only circle) intact, the Dropdown precedent.
-		     R-PO-1b: `triggerProps.ariaLabel` is the accessible-name channel
+		     `triggerProps.ariaLabel` is the accessible-name channel
 		     here (triggerLabel is always empty in this branch by definition;
 		     the warning above fires when neither is set). -->
 		<Button
@@ -338,11 +338,11 @@
 	{/if}
 
 	<!--
-		R-PO-2: non-modal disclosure region — no aria-modal, no focus trap, no
+		Non-modal disclosure region — no aria-modal, no focus trap, no
 		backdrop. `popover="auto"` gives real platform light-dismiss + Escape +
 		one-open-at-a-time; `dismissible:false` switches to "manual" (Escape
 		still always closes, via our own handler above). Always rendered (SSR/
-		pre-mount safe — R-PO-3 edge case), visibility driven by [data-state].
+		pre-mount safe edge case), visibility driven by [data-state].
 	-->
 	<div
 		bind:this={panelEl}
@@ -366,7 +366,7 @@
 </div>
 
 <style>
-	/* R-PO-8: structural CSS only — chrome lives in theme/components/popover.css. */
+	/* Structural CSS only — chrome lives in theme/components/popover.css. */
 
 	.hz-popover {
 		display: contents;

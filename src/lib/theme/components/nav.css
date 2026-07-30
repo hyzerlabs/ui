@@ -2,7 +2,7 @@
  * @hyzer-labs/ui reference theme — Nav
  * The navigation itself: dropdown-panel surfaces, vertical disclosure, the
  * group-label banding, and the chevron/trigger controls. The bar chrome that
- * used to live here moved to header.css (specs/35).
+ * used to live here moved to header.css.
  */
 @layer hz-theme {
 	/* Dropdown panels — floating popovers on horizontal bars */

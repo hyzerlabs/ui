@@ -1,6 +1,6 @@
 /**
- * @hyzer-labs/ui/observers — `intersect` attachment (specs/48-observers.md,
- * Observers-R2).
+ * @hyzer-labs/ui/observers — `intersect` attachment (,
+ * one place).
  */
 import { createAttachment } from './factory.js';
 

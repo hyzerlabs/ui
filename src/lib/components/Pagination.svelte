@@ -41,7 +41,7 @@
 		return Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
 	}
 
-	// Pagination-R2: boundaries at the ends, a constant-size sibling window
+	// boundaries at the ends, a constant-size sibling window
 	// clamped inward at the edges, gaps elided only when they span 2+ pages.
 	const items = $derived.by((): (number | 'ellipsis')[] => {
 		if (count <= 0) return [];
@@ -64,7 +64,7 @@
 		return out;
 	});
 
-	// Pagination-R3: button-mode stepper — clamped, no-op on the current page.
+	// button-mode stepper — clamped, no-op on the current page.
 	function go(next: number) {
 		const target = Math.min(count, Math.max(1, next));
 		if (target !== page) {
@@ -75,9 +75,9 @@
 </script>
 
 <!--
-	Pagination-R1: a named nav landmark over one list — prev, windowed pages
+	a named nav landmark over one list — prev, windowed pages
 	with aria-hidden ellipses, next. Every control COMPOSES Button
-	(Pagination-R6): chevrons are icon-only neutral ghost Buttons (borderless,
+: chevrons are icon-only neutral ghost Buttons (borderless,
 	matching the page-number buttons' own ghost look), pages are neutral ghost
 	Buttons with the current one solid primary. Button owns the link/button
 	duality and the disabled contract (aria-disabled + swallowed clicks; in
@@ -146,7 +146,7 @@
 </nav>
 
 <style>
-	/* Pagination-R9: structural row only — all chrome is the theme's. */
+	/* structural row only — all chrome is the theme's. */
 	.hz-pagination-list {
 		display: flex;
 		flex-direction: row;

@@ -108,7 +108,7 @@
 	const tocLevels = $derived(tocLevelsByPath[page.url.pathname] ?? [2]);
 </script>
 
-<!-- R2 — skip-to-content stays the first focusable element -->
+<!-- Skip-to-content stays the first focusable element -->
 <a class="skip-to-content" href="#main-content">Skip to content</a>
 
 <div class="docs-shell">
@@ -201,7 +201,7 @@
 			</div>
 		</main>
 
-		<!-- "On this page" rail — dogfooded specs/38 Toc (R9). Fixed in the
+		<!-- "On this page" rail — dogfooded Toc. Fixed in the
 		     gutter .docs-main reserves at ≥1440px; a sibling of main, so it's
 		     its own nav landmark. h2-only, ≥2 entries, and the .doc-example /
 		     .sample-frame exclusions keep demo content out — same behavior as
@@ -542,7 +542,7 @@
 	}
 
 	/* ------------------------------------------------------------------ */
-	/* "On this page" rail — dogfooded Toc (specs/38 R9). Page-level          */
+	/* "On this page" rail — dogfooded Toc. Page-level          */
 	/* positioning is a consumer layout concern (Out of Scope) — the          */
 	/* component ships no display/position of its own, so the shell owns it   */
 	/* entirely here, unlayered so it wins over hz-theme without a            */

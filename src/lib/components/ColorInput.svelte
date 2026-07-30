@@ -26,18 +26,18 @@
 		...rest
 	}: Props = $props();
 
-	// Field-R1: derive one stable uid base per instance.
+	// derive one stable uid base per instance.
 	const _uid = uid('hz');
 	const inputId = `hz-input-${_uid}`;
 	const descId = `hz-desc-${_uid}`;
 	const errorId = `hz-error-${_uid}`;
 
-	// Field-R6: aria-describedby chains desc then error; omit when neither present.
+	// aria-describedby chains desc then error; omit when neither present.
 	const describedBy = $derived(
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 
-	// Color-R8: hex field commits on change — accept #rgb/#rrggbb (optional #,
+	// hex field commits on change — accept #rgb/#rrggbb (optional #,
 	// any case), normalize to lowercase #rrggbb; anything else restores.
 	function commitHex(e: Event) {
 		const el = e.currentTarget as HTMLInputElement;
@@ -59,11 +59,11 @@
 </script>
 
 <!--
-	Color-R1: swatch (the native color input) plus the exact-entry hex field —
+	swatch (the native color input) plus the exact-entry hex field —
 	the Slider precedent: the field has no name, its own aria-label, and
-	commits validated values on change (Color-R8). No aria-required — a color
-	input always holds a value (Color-R3).
-	Forms-R2: {...rest} spread first so managed attrs win.
+	commits validated values on change. No aria-required — a color
+	input always holds a value.
+	{...rest} spread first so managed attrs win.
 -->
 {#snippet control()}
 	<div class="hz-color-row">
@@ -91,14 +91,14 @@
 				onchange={commitHex}
 			/>
 		{:else}
-			<!-- Color-R1: the value stays visible without the field; aria-hidden
+			<!-- the value stays visible without the field; aria-hidden
 			     because the color input's own value is what assistive tech reads. -->
 			<span class="hz-color-value" aria-hidden="true">{value}</span>
 		{/if}
 	</div>
 {/snippet}
 
-<!-- Forms-R1: root class is cx('hz-field', 'hz-field--color', className). -->
+<!-- root class is cx('hz-field', 'hz-field--color', className). -->
 <Field
 	{label}
 	{description}
@@ -114,7 +114,7 @@
 />
 
 <style>
-	/* Color-R7: one flex line — swatch and hex field side by side. */
+	/* one flex line — swatch and hex field side by side. */
 	.hz-color-row {
 		display: flex;
 		flex-direction: row;

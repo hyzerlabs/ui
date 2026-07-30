@@ -15,7 +15,7 @@ const REWRITES: [RegExp, string][] = [
 	[/(['"])(?:\.\.\/)+config\/index\.js\1/g, "'@hyzer-labs/ui/config'"],
 	// The registry augmentation must name the DECLARING module.
 	[/(['"])\$lib\/types\1/g, "'@hyzer-labs/ui/types'"],
-	// Audit-R3: $lib/icons and $lib/utils are real subpath exports too — a
+	// $lib/icons and $lib/utils are real subpath exports too — a
 	// sample that reaches past the barrel into $lib/icons/generated/*.svelte
 	// would otherwise ship a specifier no consumer app has.
 	[/(['"])\$lib\/icons\1/g, "'@hyzer-labs/ui/icons'"],
@@ -34,7 +34,7 @@ export function consumerSource(source: string): string {
 /**
  * Specifiers that must never reach a copyable docs sample.
  *
- * Audit-R3: broadened from a single lowercase path segment to arbitrary
+ * broadened from a single lowercase path segment to arbitrary
  * `$lib` subpaths (any depth, any file extension) — otherwise a deep
  * specifier like `$lib/icons/generated/search.svelte` slipped past the old
  * `$lib(?:\/[a-z]+)?` shape uncaught.

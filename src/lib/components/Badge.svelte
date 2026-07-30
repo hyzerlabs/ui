@@ -32,10 +32,10 @@
 </script>
 
 <!--
-	Badge-R1: inline span, no implicit role — a badge is flowing text; the
-	content carries the meaning, intent color only reinforces it (Badge-R4).
-	Badge-R2: data hooks always present so theme/consumer CSS can target
-	every combination. Badge-R5: rest spread first so managed attrs win.
+	inline span, no implicit role — a badge is flowing text; the
+	content carries the meaning, intent color only reinforces it.
+	data hooks always present so theme/consumer CSS can target
+	every combination. rest spread first so managed attrs win.
 -->
 <span
 	{...rest}
@@ -49,7 +49,7 @@
 	{@render children()}
 
 	{#if onDismiss}
-		<!-- Badge-R3: the chip form — a real labeled button, decorative icon. -->
+		<!-- the chip form — a real labeled button, decorative icon. -->
 		<button type="button" class="hz-badge-dismiss" aria-label={dismissLabel} onclick={onDismiss}>
 			<IconX />
 		</button>
@@ -57,7 +57,7 @@
 </span>
 
 <style>
-	/* Badge-R7: structural only — inline chip row; all chrome is the theme's. */
+	/* structural only — inline chip row; all chrome is the theme's. */
 	.hz-badge {
 		display: inline-flex;
 		align-items: center;

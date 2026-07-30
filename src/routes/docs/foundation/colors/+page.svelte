@@ -59,8 +59,8 @@
 		'</Button>'
 	].join('\n');
 
-	// R7 — derive palette and role tokens from metadata; never hardcoded
-	// (specs/42 R1 — classification is by which export a token lives in, not
+	// Derive palette and role tokens from metadata; never hardcoded
+	// ( — classification is by which export a token lives in, not
 	// by value shape: `palette` is Layer 1, `color` is Layer 2 roles.)
 
 	type ColorEntry = { key: string; cssVar: string; value: string };
@@ -89,7 +89,7 @@
 
 	// Layer 2 — the seven structural roles in the `color` export: surface,
 	// surfaceMuted, text, textMuted, border, plus the black/white anchor
-	// aliases (specs/42 R1).
+	// aliases.
 	const roleTokens = colorEntries(color, '--hz-color');
 
 	// The dark block, combined for display: role overrides (surface,
@@ -123,7 +123,7 @@
 		return (palette.theme.dark as Record<string, string>)[key];
 	}
 
-	// R7 — the intent role tokens, derived from metadata.
+	// The intent role tokens, derived from metadata.
 	const intentNotes: Record<string, string> = {
 		neutral: 'The default — no particular status.',
 		primary: 'The brand action.',

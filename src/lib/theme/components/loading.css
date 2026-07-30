@@ -14,7 +14,7 @@
  * arc-length-pulsing ring; `spinner`/`dots` are always indeterminate — a
  * rotating IconLoader glyph, or a three-dot ellipsis loader. Timing is
  * driven by the paired --hz-loading-speed (duration) / --hz-loading-ease
- * (easing) hooks (specs/49 R8) — the spinner and the indeterminate ring's
+ * (easing) hooks — the spinner and the indeterminate ring's
  * rotation both ignore the ease hook and always spin linear (Decision 7,
  * extended to the ring's rotation by the amendment). The bar sweep ALSO runs
  * linear (Decision 8), and at 1.6x the base speed with gentler, low-contrast
@@ -198,7 +198,7 @@
 		white-space: nowrap;
 	}
 
-	/* R7/R3: the determinate ring's readout is centered over its wrapper
+	/* The determinate ring's readout is centered over its wrapper
 	 * (relatively positioned in the component's own scoped style) instead of
 	 * sitting inline beside it. The font-size is scaled off --hz-loading-size
 	 * (rather than the fixed --hz-font-size-sm the inline bar readout uses)
@@ -223,7 +223,7 @@
 	/* Spinner / ring — the indeterminate glyph is the same IconLoader Button */
 	/* uses (Decision 4: keyframes stay co-located per sheet, not shared);    */
 	/* the ring (amended 2026-07-27) is a component-authored SVG arc — static */
-	/* when determinate (R3), a rotating/pulsing loop when indeterminate.     */
+	/* when determinate, a rotating/pulsing loop when indeterminate.     */
 	/* Both read --hz-loading-size as a DIAMETER (repurposed from the bar's   */
 	/* thickness use, R8) — overridden here per data-size, after (so it wins  */
 	/* by source order over) the bar-thickness defaults above.                */
@@ -293,11 +293,11 @@
 		transform-origin: center;
 	}
 
-	/* R3 — the determinate ring: a STATIC arc (no animation — its position
+	/* The determinate ring: a STATIC arc (no animation — its position
 	 * *is* the information, Out of Scope). Rotated -90deg about its own
 	 * center so the arc starts at 12 o'clock and fills clockwise; the
 	 * component writes its stroke-dashoffset inline as the live value/max
-	 * fraction (R3). */
+	 * fraction. */
 	.hz-loading:where([data-variant='ring']:not([data-indeterminate])) .hz-loading-ring-fill {
 		transform: rotate(-90deg);
 	}
