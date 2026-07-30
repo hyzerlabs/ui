@@ -639,7 +639,7 @@
 			lines, and it doesn't even need this helper, since the DOM update it wraps is the navigation itself:
 		</Alert>
 		<CodeBlock code={onNavigateCode} />
-		<p class="note">
+		<p class="doc-note">
 			The reference theme adds no default <code>::view-transition-*</code> styling — the browser's own
 			root cross-fade is already a sensible default. Customizing it is consumer CSS, on the same tokens
 			as everything else:
@@ -710,11 +710,6 @@
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
-	}
-
-	.note {
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
 	}
 
 	.token-table-wrapper {

@@ -118,6 +118,13 @@
 		</div>
 
 		<ul id={listId} role="listbox" aria-label="Results" class="cmdk-results">
+			<!--
+				The options carry pointer handlers and no key handlers, on purpose. This
+				is virtual focus: DOM focus never leaves the input, which owns every
+				key, and `aria-activedescendant` above tells assistive tech which option
+				is current. Options are therefore not focusable and need no tabindex.
+				Adding key handlers here would be the bug, not the fix.
+			-->
 			{#each results as command, i (command.href)}
 				<li
 					id={optionId(i)}

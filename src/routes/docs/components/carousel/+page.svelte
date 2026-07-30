@@ -29,10 +29,20 @@
 
 	const loopCode = [
 		'<!-- loop: wraps in both directions, controls never disable -->',
-		'<Carousel items={quotes} loop ariaLabel="Customer quotes" />'
+		'<Carousel items={quotes} loop ariaLabel="Customer quotes">',
+		'\t{#snippet slide(quote)}',
+		'\t\t<Blockquote cite={quote.who}>{quote.text}</Blockquote>',
+		'\t{/snippet}',
+		'</Carousel>'
 	].join('\n');
 
-	const dotsCode = '<Carousel items={quotes} indicator="dots" ariaLabel="Customer quotes" />';
+	const dotsCode = [
+		'<Carousel items={quotes} indicator="dots" ariaLabel="Customer quotes">',
+		'\t{#snippet slide(quote)}',
+		'\t\t<Blockquote cite={quote.who}>{quote.text}</Blockquote>',
+		'\t{/snippet}',
+		'</Carousel>'
+	].join('\n');
 
 	const dragCode = [
 		'<!-- controls="focus": the row is hidden until hover/focus reveals it -->',
@@ -43,8 +53,13 @@
 		'\tloop',
 		'\tseamless',
 		'\tcontrols="focus"',
+		'\titems={quotes}',
 		'\tariaLabel="Customer quotes (drag)"',
-		'/>'
+		'>',
+		'\t{#snippet slide(quote)}',
+		'\t\t<Blockquote cite={quote.who}>{quote.text}</Blockquote>',
+		'\t{/snippet}',
+		'</Carousel>'
 	].join('\n');
 
 	// Minimal-controls restyle (theme example): dots become flat segments of a
@@ -133,7 +148,7 @@
 				{:else if item.id === 'dots'}
 					<p class="tab-note">
 						<code>indicator="dots"</code> swaps the counter for clickable slide pickers — each dot
-						is a labelled button (<code>aria-current</code> marks the active slide), and position changes
+						is a labeled button (<code>aria-current</code> marks the active slide), and position changes
 						still announce through the live region, so screen readers keep the "n of total" information
 						either way.
 					</p>

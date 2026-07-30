@@ -136,7 +136,7 @@
 				</Card>
 			</div>
 		</Split>
-		<p class="step-note">
+		<p class="doc-note">
 			The theme is optional. Skip it and the components stay headless: you keep the behavior and
 			accessibility, with no appearance opinions beyond native element defaults.
 		</p>
@@ -161,7 +161,7 @@
 			own, with no script involved.
 		</p>
 		<CodeBlock code={tierTwoCss} title="app.css" language="css" />
-		<p class="step-note">
+		<p class="doc-note">
 			The full recipe collection lives in <a href="/docs/theming/tokens"
 				>Theming → Tokens &amp; Overrides</a
 			>. <a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> shows how to check a new
@@ -186,12 +186,12 @@
 		<CodeBlock code={tierThreeConfig} title="hyzer.config.ts" language="ts" />
 		<CodeBlock code={tierThreeRun} title="package.json" language="json" />
 		<CodeBlock code={tierThreeImport} title="app.css" language="css" />
-		<p class="step-note">
+		<p class="doc-note">
 			<code>hyzer generate --mode overrides</code> emits a patch sheet to import <em>after</em>
 			ours instead of replacing it. See <a href="/docs/foundation/config">Config &amp; CLI</a> for the
 			whole option surface and when to pick which mode.
 		</p>
-		<p class="step-note">
+		<p class="doc-note">
 			Add <code>utilities: true</code> to the config (or run with <code>--utilities</code>) to also
 			generate <code>hyzer-utilities.css</code>, the opt-in single-property helper classes. See
 			<a href="/docs/foundation/utilities">Utilities</a>.
@@ -206,12 +206,6 @@
 	 * shift), which owns the space between them. */
 	p {
 		margin: 0;
-	}
-
-	.step-note {
-		margin: 0;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
 	}
 
 	code {

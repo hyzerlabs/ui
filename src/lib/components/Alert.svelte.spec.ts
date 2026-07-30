@@ -137,7 +137,7 @@ describe('Alert-R3 — dismiss', () => {
 		expect(getAlert(container).hasAttribute('data-dismissible')).toBe(false);
 	});
 
-	it('onDismiss renders a labelled button; click fires it; icon decorative', () => {
+	it('onDismiss renders a labeled button; click fires it; icon decorative', () => {
 		const onDismiss = vi.fn();
 		const { container } = render(Alert, { ...base, onDismiss });
 		expect(getAlert(container).hasAttribute('data-dismissible')).toBe(true);

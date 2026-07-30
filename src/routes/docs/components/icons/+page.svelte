@@ -88,13 +88,13 @@
 
 	const a11yCode = [
 		'<IconSearch />                    <!-- no ariaLabel: decorative, aria-hidden="true" -->',
-		'<IconSearch ariaLabel="Search" /> <!-- labelled: carries an accessible name -->'
+		'<IconSearch ariaLabel="Search" /> <!-- labeled: carries an accessible name -->'
 	].join('\n');
 
 	const demoTabs = [
 		{ id: 'size', label: 'Size & stroke' },
 		{ id: 'intent', label: 'Intent' },
-		{ id: 'a11y', label: 'Decorative vs. labelled' }
+		{ id: 'a11y', label: 'Decorative vs. labeled' }
 	];
 
 	const rows = $derived.by(() => {
@@ -148,13 +148,13 @@
 		{#snippet lead()}
 			The full <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide</a> set (ISC)
 			ships as generated per-icon Svelte components — <strong>{allNames.length} icons</strong>,
-			Lucide v{LUCIDE_VERSION} — decorative by default, labelled when you pass
+			Lucide v{LUCIDE_VERSION} — decorative by default, labeled when you pass
 			<code>ariaLabel</code>.
 		{/snippet}
 	</DocIntro>
 
 	<div class="doc-intro">
-		<p class="note">
+		<p class="doc-note">
 			Brand marks aren't included. Every icon-accepting component takes a snippet, so bring your own
 			as needed — an inline SVG, an icon font glyph, or a package like
 			<code>simple-icons</code> — the same way you'd pass any of these.
@@ -262,7 +262,7 @@
 								</div>
 								<div class="demo-item">
 									<DemoSearch ariaLabel="Search" />
-									<span>Labelled (ariaLabel="Search")</span>
+									<span>Labeled (ariaLabel="Search")</span>
 								</div>
 							</div>
 						</Example>
@@ -357,11 +357,6 @@
 
 	/* Nested inside .doc-intro (a plain div, not a section Stack) — keeps its
 	 * original margin (unaffected by the section-Stack conversion below). */
-	.note {
-		margin: 0 0 0.75rem;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
 
 	code {
 		font-family: var(--hz-font-family-mono, monospace);

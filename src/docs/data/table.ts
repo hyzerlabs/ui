@@ -15,7 +15,7 @@ export const tableDoc: ComponentDoc = {
 			name: 'caption',
 			type: 'string | Snippet',
 			default: '—',
-			note: 'Visible caption. `caption` or `ariaLabel` is required — dev-warns if neither is set. Caption wins if both are given (no aria-label).'
+			note: 'Visible caption. `caption` or `ariaLabel` is required — logs a warning in development if neither is set. Caption wins if both are given (no aria-label).'
 		},
 		{ name: 'ariaLabel', type: 'string', default: '—', note: 'See `caption`.' },
 		{

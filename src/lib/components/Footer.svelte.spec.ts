@@ -215,7 +215,7 @@ describe('R4 — column structure', () => {
 		expect(ul.querySelectorAll('li').length).toBe(2);
 	});
 
-	it('multiple columns render multiple distinctly-labelled <nav> elements', () => {
+	it('multiple columns render multiple distinctly-labeled <nav> elements', () => {
 		const { container } = render(Footer, { columns: threeColumns });
 		const navs = container.querySelectorAll('nav.hz-footer-column');
 		expect(navs.length).toBe(3);
@@ -509,7 +509,7 @@ describe('Edge cases', () => {
 		expect(heading.textContent?.trim()).toBe(longTitle);
 	});
 
-	it('six columns render six labelled nav landmarks', () => {
+	it('six columns render six labeled nav landmarks', () => {
 		const sixColumns: FooterColumn[] = Array.from({ length: 6 }, (_, i) => ({
 			title: `Column ${i + 1}`,
 			links: [{ label: `Link ${i + 1}`, href: `/link-${i + 1}` }]

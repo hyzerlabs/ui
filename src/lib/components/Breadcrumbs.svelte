@@ -38,7 +38,12 @@
 						{item.label}
 					</Link>
 				{:else}
-					<span class="hz-breadcrumbs-current" aria-current={last ? 'page' : undefined}>
+					<!-- The href-less item honors its own ariaCurrent too. It is usually
+					     the current page, so this is the branch the override matters on. -->
+					<span
+						class="hz-breadcrumbs-current"
+						aria-current={item.ariaCurrent ?? (last ? 'page' : undefined)}
+					>
 						{item.label}
 					</span>
 				{/if}

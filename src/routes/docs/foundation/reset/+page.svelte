@@ -35,7 +35,8 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 		<p>
 			Import the reset before other stylesheets. Every rule lives in the
 			<code>hz-reset</code> cascade layer, pinned below <code>hz-theme</code>, so the reference
-			theme and any unlayered CSS of yours always win ties — the reset never fights you.
+			theme always beats it. Your own unlayered CSS beats both, at any specificity, because an
+			unlayered rule outranks every layered one. The reset never fights you.
 		</p>
 		<CodeBlock code={importOrder} />
 	</Stack>

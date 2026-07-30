@@ -3034,3 +3034,100 @@ to match what their samples actually show.
 - Recipe copy asserts a "Gluten-free" badge on a chili with commercial chili
   powder, and pairs "Serves 6" with prose about feeding a card of 4-5 plus
   leftovers. Fictional, but they are factual claims on screen.
+
+## Re-audit round 5 — site-wide plain-language pass (2026-07-29)
+
+The 2026-07-23 sweep was a grep against a banned-word list. This is the first
+full editor read of the Foundation pages, all 45 component pages and their data
+modules, Theming, and the pages written this week. Five editors ran partitioned
+by file, then this technical pass worked their flags.
+
+**A literal NUL byte in library source.** `FileUpload.svelte` built its dedupe
+key as `` `${f.name}\x00${f.size}\x00${f.lastModified}` `` with the NULs written
+as raw bytes. `file` classified the whole component as binary data, so **grep
+skipped it silently** — including in this sweep, where three greps for
+`aria-live` and `required` came back empty and read as "the docs claim things
+the component does not do". Written as the `\0` escape now: identical runtime
+string, plain-text file. The claims it appeared to contradict are all true
+(`role="status" aria-live="polite"` on an sr-only div; `required` stamps
+`aria-required` and is deliberately not native).
+
+**Breadcrumbs ignored its own documented prop.** The props table and the
+component's own header comment both promise `item.ariaCurrent` overrides the
+automatic `aria-current="page"`. Only the linked branch honored it; the href-less
+branch hard-coded `last ? 'page' : undefined`. The current page is normally the
+href-less one, so the override did not work in the case it exists for. Fixed in
+the component rather than the docs.
+
+**Code samples that could not run.** Carousel's loop, dots and drag samples all
+omitted the required `slide` snippet, and the drag one omitted `items` too. The
+Select states sample passed `options={cards}`, a variable defined nowhere (the
+demo beside it uses `tees`). Virtualizer's measured sample declared
+`row(item, index)` while its demo used `row(item)`.
+
+**Claims corrected.**
+
+- FileUpload said enforcing `required` is "your code's job, or `Form`'s". Form
+  has a `novalidate` prop and no validation at all: it renders a summary from the
+  errors you hand it. The second half was wrong.
+- The reset page said the theme and your CSS "always win ties" against
+  `hz-reset`. That conflates two mechanisms: layer order settles theme-vs-reset,
+  and unlayered CSS beats any layered rule at any specificity, ties or not.
+- Borders & Elevation stated flatly that low-opacity shadows fail WCAG 1.4.11.
+  Now scoped to what is true of the shipped tokens.
+- Utilities asserted an ungraded utility pairing "will not pass" for every
+  intent, and claimed a same-specificity class of yours wins on source order
+  without mentioning that this depends on import order.
+- The Styling Components page said the `data-*` variant attributes are "always
+  present". True where the prop has a default; Blockquote deliberately omits
+  `data-intent` when unset so `:not([data-intent])` can style the plain case.
+- The same page said Example Themes shows two token-override sheets. It ships
+  three tiers, only two of which are generated from a config.
+- Spacing used "floor" for both the tightest density level and a cap, in two
+  paragraphs. The clamp is real (the depth-3 descendant selector keeps matching
+  deeper), so it now says so outright.
+- The structural-roles sentence announced seven roles, then listed five and two
+  in one breath without saying which are re-authored for dark. Verified against
+  `tokens.css`: `surface`, `surfaceMuted` and `text` are re-authored.
+- Video called its provider embeds "privacy-friendly". They are
+  `youtube-nocookie.com` and `dnt=1`, so the page names the mechanism now.
+
+**Stale promises the art decision invalidated.** Four places still said real
+photos and clips were "coming soon" or "until real demo assets land". The
+generated SVG art is the shipped choice, so they now say the page needs no media
+files and point the reader at their own source.
+
+**`kbd` shipped undocumented, and it was not alone.** The reference theme paints
+six things on bare markup: `body`, the `:focus-visible` ring, `:where(a)` and
+`:visited`, the new `:where(kbd)`, and `.sr-only`. Only `.sr-only` was documented
+anywhere. Theming Overview has a section listing all six, why they sit at zero
+specificity, and why `.sr-only` is the one deliberate exception.
+
+**Also:** `dev-warn` / `dev-warns` replaced with "a warning in development"
+across the data modules, the hooks roll-up and the Loading page; a duplicated
+`.demo-note, .demo-note` selector deduped on two pages; one e2e assertion
+re-pinned after an editor expanded the contraction it matched.
+
+**Verified false alarms.** `.demo-col` is a real class in the shipped docs sheet.
+Header's drawer nav really is named `` `${ariaLabel} (menu)` ``. Combobox chips
+really do drop their dismiss buttons when disabled. Pagination's ends really do
+disable natively in button mode.
+
+**Open, deliberately not changed.**
+
+- "labelled" (169) vs "labeled" (18). House spelling is clearly the former, but
+  `data-labeled` is a shipped attribute name on Divider and must not change, so
+  this wants a decision before a sweep.
+- Two editors stripped `specs/NN RN` citations from source comments in the files
+  they touched; the rest of `src/docs/data/` still carries them. Those comments
+  never render. Either finish the sweep or leave them, but the tree is now
+  inconsistent.
+- Alert and Banner both state that timed self-dismissing overlays fail WCAG
+  2.2.1. The success criterion is failed only when the timing cannot be adjusted,
+  extended or paused, so this is a deliberate library position stated as fact.
+- Accordion wraps a heading inside `<summary>`, the inverse of the APG's
+  heading-wraps-button shape. Valid for `<details>`, and the APG link sits beside
+  the claim.
+- Tailwind v3 emitting utilities unlayered: unverifiable from this repo.
+- Toc's scroll-spy rule is described against the viewport while every demo
+  scrolls a 16rem inner article.

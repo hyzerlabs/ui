@@ -26,7 +26,7 @@ export const videoDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-video class.' }
 	],
 	a11yNote:
-		'The `title` prop is required and maps to the iframe title or video aria-label. `autoplay` requires `muted` (a browser policy and an accessibility consideration) and is suppressed under `prefers-reduced-motion`.',
+		'The `title` prop is required and maps to the iframe title or video aria-label. `autoplay` requires `muted`, both because browsers refuse to autoplay sound and because motion a reader did not ask for is disorienting.',
 	a11yLinks: [
 		{
 			label: 'MDN: <video>',

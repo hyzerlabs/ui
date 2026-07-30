@@ -122,7 +122,7 @@ describe('R4b — derived icon-only form', () => {
 		).toBe(false);
 	});
 
-	it('plain labelled button: no data-icon-only', async () => {
+	it('plain labeled button: no data-icon-only', async () => {
 		const { container } = render(Button, {
 			children: createRawSnippet(() => ({ render: () => '<span>Save</span>' }))
 		});

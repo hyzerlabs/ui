@@ -51,8 +51,8 @@
 		},
 		{
 			type: 'video',
-			// about:blank renders the empty native player (and isn't followed
-			// by the prerender crawler) until real demo assets land.
+			// about:blank renders the empty native player, and the prerender
+			// crawler does not follow it. Point src at your own clip in real use.
 			src: 'about:blank',
 			label: 'Demo flight video',
 			thumbSrc: demoSvg('Video ▶', '0e7490', 600, 400),

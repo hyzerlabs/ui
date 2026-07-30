@@ -69,7 +69,7 @@ export interface ComponentHooks {
  */
 export const INTERNAL_HOOKS: Record<string, string> = {
 	'--hz-field-ring':
-		'Internal — one focus-ring recipe DRYed across the field controls. Unlabelled at its declaration (field.css), unlike every advertised knob; retune the ring through the focus/primary tokens instead.'
+		'Internal — one focus-ring recipe DRYed across the field controls. Unlabeled at its declaration (field.css), unlike every advertised knob; retune the ring through the focus/primary tokens instead.'
 };
 
 // Not listed here, and deliberately:
@@ -1450,8 +1450,8 @@ export const hooks: Record<string, ComponentHooks> = {
 			},
 			{
 				name: 'data-labeled',
-				values: 'present on the labelled form',
-				note: 'The labelled form is a div with rules; the plain form is a bare hr. The theme tells them apart by element (hr.hz-divider vs div.hz-divider), so match that if you restyle.'
+				values: 'present on the labeled form',
+				note: 'The labeled form is a div with rules; the plain form is a bare hr. The theme tells them apart by element (hr.hz-divider vs div.hz-divider), so match that if you restyle.'
 			}
 		],
 		parts: [
@@ -1887,7 +1887,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-variant',
 				values: "'bar' | 'spinner' | 'ring' | 'dots'",
-				note: 'Default bar. spinner and dots are indeterminate-only — a value passed to either is ignored (dev-warn). ring is the sole home of circular progress: determinate with a value (a static arc), indeterminate without one (a rotating, arc-length-pulsing loader).'
+				note: 'Default bar. spinner and dots are indeterminate-only — a value passed to either is ignored (with a warning in development). ring is the sole home of circular progress: determinate with a value (a static arc), indeterminate without one (a rotating, arc-length-pulsing loader).'
 			},
 			{
 				name: 'data-indeterminate',

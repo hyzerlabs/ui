@@ -49,7 +49,7 @@
 	{@render children()}
 
 	{#if onDismiss}
-		<!-- Badge-R3: the chip form — a real labelled button, decorative icon. -->
+		<!-- Badge-R3: the chip form — a real labeled button, decorative icon. -->
 		<button type="button" class="hz-badge-dismiss" aria-label={dismissLabel} onclick={onDismiss}>
 			<IconX />
 		</button>

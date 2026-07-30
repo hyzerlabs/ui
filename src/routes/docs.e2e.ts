@@ -205,7 +205,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 		await expect(page.getByText('core', { exact: true }).first()).toBeVisible();
 	});
 
-	test('the demo tabs cover size & stroke, intent, and decorative vs. labelled', async ({
+	test('the demo tabs cover size & stroke, intent, and decorative vs. labeled', async ({
 		page
 	}) => {
 		await page.goto('/docs/components/icons');
@@ -214,7 +214,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 		await expect(page.getByRole('slider', { name: 'size' })).toBeVisible();
 		await demoTabs.getByRole('tab', { name: 'Intent' }).click();
 		await expect(page.getByText('success', { exact: true })).toBeVisible();
-		await demoTabs.getByRole('tab', { name: 'Decorative vs. labelled' }).click();
+		await demoTabs.getByRole('tab', { name: 'Decorative vs. labeled' }).click();
 		await expect(page.getByText('Decorative (no ariaLabel → aria-hidden)')).toBeVisible();
 	});
 

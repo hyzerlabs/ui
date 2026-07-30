@@ -83,6 +83,26 @@
 	color: var(--hz-color-text-muted, #6b7280);
 }
 
+/* A supporting note that owns no space of its own: the same muted, small
+ * treatment as .tab-note, with the margin left to the Stack it sits in.
+ * Pages used to hand-roll this one per file. */
+.doc-note {
+	margin: 0;
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	color: var(--hz-color-text-muted, #6b7280);
+}
+
+/* A rule worth pausing on: the same muted note, set off by a border on the
+ * inline-start edge. Three pages hand-rolled this and had already drifted
+ * apart (one had lost its text color). */
+.doctrine-note {
+	margin: 0;
+	padding: 0.75rem 1rem;
+	border-inline-start: 3px solid var(--hz-color-border, #6b7280);
+	font-size: var(--hz-font-size-sm, 0.875rem);
+	color: var(--hz-color-text-muted, #6b7280);
+}
+
 /* The list counterpart to .tab-note — a muted supporting list (install
  * prerequisites, short caveat lists). Zero top margin: the surrounding
  * rhythm owns the spacing above it. */

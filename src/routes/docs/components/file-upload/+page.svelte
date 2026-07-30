@@ -228,8 +228,8 @@
 						<code>description</code> and <code>error</code> chain into
 						<code>aria-describedby</code>.
 						<code>required</code> sets <code>aria-required</code> and the visual asterisk only —
-						enforcement is the consumer's / <code>Form</code>'s job, since the field never applies a
-						native
+						enforcing it is your code's job. <code>Form</code> renders the summary from the errors
+						you hand it, and validates nothing itself. The field never applies a native
 						<code>required</code> attribute (a visually-hidden required input in dropzone mode would
 						be unfocusable). <code>disabled</code> applies native <code>disabled</code> to the input and
 						the activation button and drops remove buttons from the list.

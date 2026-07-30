@@ -89,7 +89,7 @@
 </script>
 
 <!--
-	Slider-R1: hz-slider-row with the range as the labelled, named, primary
+	Slider-R1: hz-slider-row with the range as the labeled, named, primary
 	control; the number input is an exact-entry affordance — no name, own
 	aria-label. Slider-R2: bind:value (numeric) on the range; the number field
 	displays it one-way and commits via change (Slider-R3).

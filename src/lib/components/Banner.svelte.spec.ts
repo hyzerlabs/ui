@@ -176,7 +176,7 @@ describe('Banner-R5 — dismiss', () => {
 		expect(getBanner(container).hasAttribute('data-dismissible')).toBe(false);
 	});
 
-	it('onDismiss renders a labelled button; click fires it once per activation; icon decorative', () => {
+	it('onDismiss renders a labeled button; click fires it once per activation; icon decorative', () => {
 		const onDismiss = vi.fn();
 		const { container } = render(Banner, { ...base, onDismiss });
 		const btn = container.querySelector('.hz-banner-dismiss') as HTMLButtonElement;

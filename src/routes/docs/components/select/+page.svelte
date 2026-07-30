@@ -82,7 +82,7 @@
 		'',
 		'<Select name="division" label="Division" options={divisions} error="Pick a division to register." />',
 		'<Select name="division2" label="Division" options={divisions} required />',
-		'<Select name="card" label="Card" options={cards} disabled />'
+		'<Select name="card" label="Card" options={tees} disabled />'
 	].join('\n');
 
 	// Select-R7: live Multiple demo — bound to a string[], with a form

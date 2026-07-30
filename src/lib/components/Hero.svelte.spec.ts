@@ -362,7 +362,7 @@ describe('Hero-R7 — accessible name', () => {
 		expect(hero.hasAttribute('aria-label')).toBe(false);
 	});
 
-	it('eyebrow/subtitle/actions without title → no heading; labelling falls to ariaLabel', () => {
+	it('eyebrow/subtitle/actions without title → no heading; labeling falls to ariaLabel', () => {
 		const { container } = render(Hero, {
 			eyebrow: eyebrowSnippet,
 			subtitle: subtitleSnippet,

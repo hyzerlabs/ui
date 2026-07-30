@@ -48,7 +48,7 @@
 
 	const measuredCode = [
 		'<Virtualizer {items} itemHeight={32} height={320} measure>',
-		'\t{#snippet row(item, index)}',
+		'\t{#snippet row(item)}',
 		'\t\t<div class="demo-row-measured">{item}</div>',
 		'\t{/snippet}',
 		'</Virtualizer>'

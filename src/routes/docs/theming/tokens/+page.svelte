@@ -211,12 +211,4 @@
 	.detail-note {
 		margin: 0.75rem 0;
 	}
-
-	.doctrine-note {
-		margin: 0;
-		padding: 0.75rem 1rem;
-		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
 </style>

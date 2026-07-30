@@ -153,7 +153,7 @@
 				{:else if item.id === 'pattern'}
 					<p class="tab-note">
 						Skeleton is decorative (<code>aria-hidden</code>) and cannot announce loading on its
-						own. Pair it with a labelled indeterminate <code>Loading</code> (or a polite
+						own. Pair it with a labeled indeterminate <code>Loading</code> (or a polite
 						<code>aria-live</code> message) inside an <code>aria-busy</code> region. Screen-reader users
 						then hear that content is coming, and hear when it arrives.
 					</p>

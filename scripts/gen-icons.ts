@@ -116,7 +116,7 @@ ${children}
 function barrelHeader(): string {
 	return [
 		'/**',
-		' * @hyzer-labs/ui generated icon barrel — the full Lucide set (specs/36).',
+		' * @hyzer-labs/ui generated icon barrel — the full Lucide set.',
 		' *',
 		` * GENERATED FILE — do not edit by hand. Lucide v${LUCIDE_VERSION} (ISC).`,
 		' * Regenerate with `pnpm gen:icons`. Not committed — produced fresh by the',
@@ -136,7 +136,7 @@ function renderBarrel(): string {
 function renderManifest(): string {
 	const header = [
 		'/**',
-		' * @hyzer-labs/ui generated icon manifest (specs/36 R1).',
+		' * @hyzer-labs/ui generated icon manifest.',
 		' *',
 		` * GENERATED FILE — do not edit by hand. Lucide v${LUCIDE_VERSION} (ISC).`,
 		' * Regenerate with `pnpm gen:icons`. Not committed. `LUCIDE_VERSION` is the',

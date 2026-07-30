@@ -32,7 +32,7 @@
 		<div class="sample-frame">
 			<CommandPalette />
 		</div>
-		<p class="note">
+		<p class="doc-note">
 			Press <kbd>⌘K</kbd> (or <kbd>Ctrl K</kbd>) anywhere on this page, or click
 			<strong>Search</strong> above. Type to filter. ↑ and ↓ move the highlight, Enter opens the highlighted
 			result, and Esc closes. This is a working palette, so choosing a result takes you to that page.
@@ -63,13 +63,6 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	.note kbd {
-		font-family: var(--hz-font-family-mono, monospace);
-		border: 1px solid var(--hz-color-border, #6b7280);
-		border-radius: var(--hz-radius-sm, 0.25rem);
-		padding: 0.05rem 0.3rem;
-	}
-
 	/* Direct children of their Stack (gap="away", data-density-shift). Margin is
 	 * zeroed so the Stack's own gap owns the rhythm. */
 	.source-note {
@@ -82,11 +75,5 @@
 		padding: 2rem;
 		display: flex;
 		justify-content: center;
-	}
-
-	.note {
-		margin: 0;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
 	}
 </style>

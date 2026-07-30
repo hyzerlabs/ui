@@ -79,7 +79,7 @@
 	</div>
 
 	{#if onDismiss}
-		<!-- Alert-R3: same contract as Badge — real labelled button, decorative icon. -->
+		<!-- Alert-R3: same contract as Badge — real labeled button, decorative icon. -->
 		<button type="button" class="hz-alert-dismiss" aria-label={dismissLabel} onclick={onDismiss}>
 			<IconX />
 		</button>

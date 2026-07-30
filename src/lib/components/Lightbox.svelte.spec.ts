@@ -117,7 +117,7 @@ describe('trigger', () => {
 // ---------------------------------------------------------------------------
 
 describe('dialog', () => {
-	it('is always rendered, closed by default, labelled by alt', () => {
+	it('is always rendered, closed by default, labeled by alt', () => {
 		const { container } = render(Lightbox, base);
 		const { dialog } = getParts(container);
 		expect(dialog).not.toBeNull();
@@ -347,7 +347,7 @@ describe('multi-item mode', () => {
 		await tick();
 	}
 
-	it('renders one labelled trigger per item in the strip', () => {
+	it('renders one labeled trigger per item in the strip', () => {
 		const { container } = render(Lightbox, { items });
 		const triggers = Array.from(container.querySelectorAll('.hz-lightbox-trigger'));
 		expect(triggers).toHaveLength(3);
@@ -373,7 +373,7 @@ describe('multi-item mode', () => {
 		);
 	});
 
-	it('multi-item dialog is labelled by dialogLabel and contains a carousel', async () => {
+	it('multi-item dialog is labeled by dialogLabel and contains a carousel', async () => {
 		const { container } = render(Lightbox, { items });
 		const dialog = openViewer(container);
 		await tick();

@@ -267,7 +267,8 @@
 			Every rule is unlayered, single-class specificity (<code>0,1,0</code>), with no
 			<code>!important</code> — the same posture as <code>.sr-only</code> above. A deliberately-applied
 			utility beats the layered reference theme, while your own unlayered class of equal specificity still
-			wins by source order.
+			wins on source order, so import your stylesheet after the utility sheet if you mean to override
+			one.
 		</p>
 
 		<h3 id="text-utilities-heading">Color utilities</h3>
@@ -412,10 +413,11 @@
 		<p>
 			That includes a background utility. <code>.hz-bg-danger</code> is not one of those two
 			surfaces, so <code>.hz-text-danger</code> on <code>.hz-bg-danger</code> is a pairing nothing
-			has graded, and it will not pass. The combination the report does cover is the one Banner
-			ships: text in the <em>surface</em> role on a solid intent fill, which flips with the mode and
-			stays legible in both. Reach for <code>.hz-bg</code> or <code>.hz-bg-muted</code> under intent-colored
-			text, and for a solid intent fill, set the text to the surface role rather than an intent.
+			has graded, and several of the intents fail it outright. The combination the report does cover
+			is the one Banner ships: text in the <em>surface</em> role on a solid intent fill, which flips
+			with the mode and stays legible in both. Reach for <code>.hz-bg</code> or
+			<code>.hz-bg-muted</code> under intent-colored text, and for a solid intent fill, set the text to
+			the surface role rather than an intent.
 		</p>
 		<p>
 			<code>.hz-border-*</code> is exempt either way: a border is non-text, so it answers to
@@ -483,12 +485,6 @@
 	code {
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: 0.875em;
-	}
-
-	.doctrine-note {
-		padding: 0.75rem 1rem;
-		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
-		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 
 	.js-utils-list {

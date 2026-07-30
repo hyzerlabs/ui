@@ -4,7 +4,7 @@
 	import { videoDoc } from '../../../../docs/data/video.js';
 	import Example from '../../../../docs/Example.svelte';
 
-	// Solid-color poster data URI — real video assets coming soon; the blank
+	// Solid-color poster data URI, so this page needs no committed media. The blank
 	// native source still renders the player chrome and the aspect box.
 	function posterSvg(label: string): string {
 		return (
@@ -51,8 +51,8 @@
 			<div class="tab-content">
 				{#if item.id === 'aspect'}
 					<p class="tab-note">
-						Demos use a blank native source with an SVG poster — real clips coming soon. The aspect
-						box is the component's; posters and embeds fill it.
+						These demos use a blank native source with an SVG poster, so the page carries no video
+						files. The aspect box is the component's; posters and embeds fill it.
 					</p>
 					<Tabs
 						items={aspectRatios.map((r) => ({ id: r.replace('/', '-'), label: r }))}
@@ -77,8 +77,10 @@
 					</Tabs>
 				{:else if item.id === 'providers'}
 					<p class="tab-note">
-						One prop, three players: YouTube and Vimeo URLs become privacy-friendly iframes with the
-						correct allow/referrer policies; anything else renders a native
+						One prop, three players. A YouTube URL becomes a <code>youtube-nocookie.com</code> embed
+						and a Vimeo URL carries <code>dnt=1</code>, so neither provider sets tracking cookies on
+						a visitor who never presses play. Both iframes carry the correct allow/referrer
+						policies; anything else renders a native
 						<code>&lt;video&gt;</code>. The demo below is the native player (embed demos land with
 						the real assets). <a href="/docs/components/lightbox">Lightbox</a> plays every video item
 						it shows through this component.

@@ -9,7 +9,7 @@
 	const lineWidths = ['thin', 'thick'] as const;
 
 	const bareCode = '<Divider />';
-	const labelledCode = ['<Divider>OR</Divider>'].join('\n');
+	const labeledCode = ['<Divider>OR</Divider>'].join('\n');
 
 	function variantCode(variant: (typeof variants)[number]): string {
 		return `<Divider variant="${variant}">Continue with</Divider>`;
@@ -25,7 +25,7 @@
 
 	const demoTabs = [
 		{ id: 'bare', label: 'Bare' },
-		{ id: 'labelled', label: 'Labelled' },
+		{ id: 'labeled', label: 'Labeled' },
 		{ id: 'variants', label: 'Variant' },
 		{ id: 'spacing', label: 'Spacing' },
 		{ id: 'line-width', label: 'Line width' }
@@ -47,12 +47,12 @@
 							<p class="fill">Round two</p>
 						</div>
 					</Example>
-				{:else if item.id === 'labelled'}
+				{:else if item.id === 'labeled'}
 					<p class="tab-note">
-						With <code>children</code>, Divider renders a labelled
+						With <code>children</code>, Divider renders a labeled
 						<code>role="separator"</code> row — the classic "OR" pattern between two sign-in options.
 					</p>
-					<Example code={labelledCode}>
+					<Example code={labeledCode}>
 						<div class="demo-col">
 							<p class="fill">Sign in with league account</p>
 							<Divider>OR</Divider>

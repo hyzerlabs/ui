@@ -30,10 +30,10 @@ describe('Divider-R1 — bare structure', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Divider-R2 — Labelled structure
+// Divider-R2 — Labeled structure
 // ---------------------------------------------------------------------------
 
-describe('Divider-R2 — labelled structure', () => {
+describe('Divider-R2 — labeled structure', () => {
 	it('with children, root is a div with role=separator, aria-orientation, data-labeled, and one label', () => {
 		const { container } = render(Divider, { children: label });
 		const divider = getDivider(container);
@@ -60,7 +60,7 @@ describe('Divider-R3 — data hooks', () => {
 		expect(divider.getAttribute('data-line-width')).toBe('thin');
 	});
 
-	it('defaults reflect data-variant="solid", data-spacing="md", data-line-width="thin" on the labelled form', () => {
+	it('defaults reflect data-variant="solid", data-spacing="md", data-line-width="thin" on the labeled form', () => {
 		const { container } = render(Divider, { children: label });
 		const divider = getDivider(container);
 		expect(divider.getAttribute('data-variant')).toBe('solid');
@@ -87,8 +87,8 @@ describe('Divider-R3 — data hooks', () => {
 			const bare = render(Divider, { lineWidth });
 			expect(getDivider(bare.container).getAttribute('data-line-width')).toBe(lineWidth);
 
-			const labelled = render(Divider, { lineWidth, children: label });
-			expect(getDivider(labelled.container).getAttribute('data-line-width')).toBe(lineWidth);
+			const labeled = render(Divider, { lineWidth, children: label });
+			expect(getDivider(labeled.container).getAttribute('data-line-width')).toBe(lineWidth);
 		}
 	});
 });
@@ -103,7 +103,7 @@ describe('Divider-R4 — orientation', () => {
 		expect(getDivider(container).hasAttribute('aria-orientation')).toBe(false);
 	});
 
-	it('labelled div sets aria-orientation="horizontal" explicitly', () => {
+	it('labeled div sets aria-orientation="horizontal" explicitly', () => {
 		const { container } = render(Divider, { children: label });
 		expect(getDivider(container).getAttribute('aria-orientation')).toBe('horizontal');
 	});
@@ -125,7 +125,7 @@ describe('Divider-R5 — class and rest forwarding', () => {
 		expect(divider.getAttribute('data-testid')).toBe('my-divider');
 	});
 
-	it('labelled form: class merges after hz-divider; rest forwards; managed role/class survive a clobber attempt', () => {
+	it('labeled form: class merges after hz-divider; rest forwards; managed role/class survive a clobber attempt', () => {
 		const { container } = render(Divider, {
 			children: label,
 			class: 'my-separator',
@@ -145,12 +145,12 @@ describe('Divider-R5 — class and rest forwarding', () => {
 // ---------------------------------------------------------------------------
 
 describe('Divider-R6 — barrel export', () => {
-	it('Divider resolves from $lib and smoke-renders in both bare and labelled forms', async () => {
+	it('Divider resolves from $lib and smoke-renders in both bare and labeled forms', async () => {
 		const { Divider: D } = await import('$lib');
 		expect(D).toBeDefined();
 		const { container: bareContainer } = render(D, {});
 		expect(bareContainer.querySelector('.hz-divider')).not.toBeNull();
-		const { container: labelledContainer } = render(D, { children: label });
-		expect(labelledContainer.querySelector('.hz-divider')).not.toBeNull();
+		const { container: labeledContainer } = render(D, { children: label });
+		expect(labeledContainer.querySelector('.hz-divider')).not.toBeNull();
 	});
 });

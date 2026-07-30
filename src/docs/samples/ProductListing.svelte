@@ -352,7 +352,7 @@
 										</Cluster>
 									{/if}
 									<!-- The four numbers as they are stamped on a disc, one chip each.
-									     Bare digits mean nothing without their order, so the labelled
+									     Bare digits mean nothing without their order, so the labeled
 									     reading is what a screen reader gets. -->
 									<div>
 										<span class="sr-only">
@@ -368,7 +368,7 @@
 										<p class="price">
 											${disc.salePrice.toFixed(2)}
 											<!-- The list price is struck through for sighted readers and
-											     labelled for everyone else: line-through carries no meaning
+											     labeled for everyone else: line-through carries no meaning
 											     in the accessibility tree on its own. -->
 											<s class="was">
 												<span class="sr-only">Was</span>
@@ -431,7 +431,7 @@
 	}
 
 	/* A dot in the same color that number's chip wears on every card, so the
-	   labelled slider and the bare chip are obviously the same thing. The
+	   labeled slider and the bare chip are obviously the same thing. The
 	   label is rendered by RangeSlider, hence :global. */
 	.flight-filter :global(.hz-field-label)::before {
 		content: '';

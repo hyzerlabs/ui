@@ -133,6 +133,48 @@
 		gap="away"
 		data-density-shift
 		class="doc-section"
+		aria-labelledby="elements-heading"
+	>
+		<h2 id="elements-heading">What the theme paints before you write a class</h2>
+		<p>
+			Importing the reference theme styles a handful of bare elements, with no class of yours
+			involved. That is the whole list:
+		</p>
+		<ul class="note-list">
+			<li>
+				<code>body</code> takes the <code>surface</code> and <code>text</code> roles, the sans font stack,
+				and the base line height.
+			</li>
+			<li>
+				<code>:focus-visible</code> gets a two-pixel <code>primary</code> outline at a two-pixel offset.
+			</li>
+			<li>
+				A bare <code>&lt;a&gt;</code> takes <code>primary</code>, and <code>:visited</code> takes
+				<code>secondary</code>. Browser blue and purple fail on a dark surface, which is why this
+				lives in the theme rather than the reset.
+			</li>
+			<li>
+				<code>&lt;kbd&gt;</code> renders as a key: mono font, muted text on the muted surface, a
+				thin border, and a small radius. Press <kbd>Escape</kbd> to see one.
+			</li>
+			<li>
+				<code>.sr-only</code> hides content visually while leaving it for screen readers. Components emit
+				this class, so the theme has to ship the rule.
+			</li>
+		</ul>
+		<p>
+			Each of these except <code>.sr-only</code> is wrapped in <code>:where()</code>, so it sits at
+			zero specificity: any class of yours wins without effort, and any element you style yourself
+			is untouched. <code>.sr-only</code> is unlayered on purpose, so a consumer layer reordering the
+			cascade cannot accidentally reveal hidden text.
+		</p>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
 		aria-labelledby="where-heading"
 	>
 		<h2 id="where-heading">Where to override what</h2>

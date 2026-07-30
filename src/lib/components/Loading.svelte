@@ -67,7 +67,7 @@
 	// (the <progress>, the spinner span, or the dots span), so both are read
 	// out of rest here and re-applied there.
 	const restAriaLabel = $derived(rest['aria-label'] as string | undefined);
-	const restAriaLabelledby = $derived(rest['aria-labelledby'] as string | undefined);
+	const restAriaLabeledby = $derived(rest['aria-labelledby'] as string | undefined);
 	const ariaLabel = $derived(label ?? restAriaLabel);
 
 	// R3/R4/Edge: a non-finite value (undefined or NaN) is indeterminate.
@@ -103,7 +103,7 @@
 	// the initial prop values are read.
 	if (import.meta.env.DEV) {
 		untrack(() => {
-			if (!ariaLabel && !restAriaLabelledby) {
+			if (!ariaLabel && !restAriaLabeledby) {
 				console.warn(
 					'[hyzer-ui] <Loading>: no accessible name was provided. ' +
 						'Pass `label`, `aria-label`, or `aria-labelledby` to satisfy WCAG 4.1.2 Name, Role, Value.'
@@ -162,7 +162,7 @@
 				value={clamped}
 				{max}
 				aria-label={ariaLabel}
-				aria-labelledby={restAriaLabelledby}
+				aria-labelledby={restAriaLabeledby}
 				aria-valuetext={valueText}
 			></progress>
 		{:else}
@@ -170,7 +170,7 @@
 				class="hz-loading-bar"
 				{max}
 				aria-label={ariaLabel}
-				aria-labelledby={restAriaLabelledby}
+				aria-labelledby={restAriaLabeledby}
 			></progress>
 		{/if}
 		{#if showReadout}
@@ -185,7 +185,7 @@
 			role="progressbar"
 			aria-busy="true"
 			aria-label={ariaLabel}
-			aria-labelledby={restAriaLabelledby}
+			aria-labelledby={restAriaLabeledby}
 		>
 			<IconLoader />
 		</span>
@@ -201,7 +201,7 @@
 				aria-valuenow={clamped}
 				aria-valuetext={valueText}
 				aria-label={ariaLabel}
-				aria-labelledby={restAriaLabelledby}
+				aria-labelledby={restAriaLabeledby}
 			>
 				<svg class="hz-loading-ring" viewBox="0 0 32 32" role="img" aria-hidden="true">
 					<circle class="hz-loading-ring-track" cx="16" cy="16" r="14" pathLength="100" />
@@ -227,7 +227,7 @@
 				role="progressbar"
 				aria-busy="true"
 				aria-label={ariaLabel}
-				aria-labelledby={restAriaLabelledby}
+				aria-labelledby={restAriaLabeledby}
 			>
 				<svg class="hz-loading-ring" viewBox="0 0 32 32" role="img" aria-hidden="true">
 					<circle class="hz-loading-ring-track" cx="16" cy="16" r="14" pathLength="100" />
@@ -242,7 +242,7 @@
 			role="progressbar"
 			aria-busy="true"
 			aria-label={ariaLabel}
-			aria-labelledby={restAriaLabelledby}
+			aria-labelledby={restAriaLabeledby}
 		>
 			<span class="hz-loading-dot" aria-hidden="true"></span>
 			<span class="hz-loading-dot" aria-hidden="true"></span>

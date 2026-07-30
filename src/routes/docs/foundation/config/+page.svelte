@@ -36,7 +36,7 @@
 		{
 			name: '--out <path>',
 			key: 'output',
-			note: 'Where the token sheet is written. The flag wins over the config key. Set neither and it goes to ./hyzer-tokens.css.'
+			note: 'Where the token sheet is written. The flag wins over the config key. Set neither and it goes to ./hyzer-tokens.css. The utilities sheet follows it, unless utilities.output names a path of its own.'
 		},
 		{
 			name: '--mode <mode>',
@@ -51,12 +51,12 @@
 		{
 			name: '--check',
 			key: null,
-			note: 'Resolve and report without writing any files. Pairs with --strict for a CI check that touches nothing.'
+			note: 'Resolve and report without writing any files: no token sheet, no utilities sheet, no icons.ts. Pairs with --strict for a CI check that touches nothing.'
 		},
 		{
 			name: '--strict',
 			key: null,
-			note: 'Exit non-zero if any pairing misses WCAG AA or any icon name is unknown. Without it, both are warnings and the run succeeds.'
+			note: 'Exit non-zero if any pairing misses WCAG AA or any icon name is unknown. Without it, both are warnings and the run succeeds. All-or-nothing: it cannot be narrowed to one pairing.'
 		},
 		{ name: '--help', key: null, note: 'Print the usage summary this table is drawn from.' }
 	];

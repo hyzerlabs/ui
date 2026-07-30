@@ -29,7 +29,7 @@
 
 <!--
 	Divider-R1/R2: root differs by mode — bare <hr> (no children) can't hold
-	text, so a labelled divider is a role="separator" div whose only child in
+	text, so a labeled divider is a role="separator" div whose only child in
 	the a11y tree is the label (the flanking rules are ::before/::after).
 	Divider-R5: rest spread first so managed attrs (class, data-*, role,
 	aria-orientation) win.

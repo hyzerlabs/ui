@@ -145,6 +145,16 @@
 		is escaped entirely by the top layer, not flipped around.
 	</p>
 	<p>
+		Flipping is the behavior both paths share, and it is deliberately the only one promised. Where
+		CSS anchor positioning is available, the browser does the work through
+		<code>position-try-fallbacks</code>, which offers a flip and nothing else. The JavaScript
+		fallback, used where anchor positioning is not supported, also nudges the element back inside
+		the window when a flip alone still leaves it hanging over an edge. So the fallback is slightly
+		more forgiving at an extreme edge, and the modern path is the one that stays correct without
+		script. Progressive enhancement, in the honest direction: the shared behavior is what the docs
+		promise, and neither path ever leaves a floating element unusable.
+	</p>
+	<p>
 		The button below asks for <code>placement: 'top'</code>. Click it or <kbd>Tab</kbd> to it, since focus
 		holds a tooltip open where hover would let go. Then scroll the page: as the button nears the top of
 		your window and the room above runs out, the tooltip flips below, and flips back the moment there

@@ -69,7 +69,7 @@ function wait(ms: number): Promise<void> {
 // ---------------------------------------------------------------------------
 
 describe('structure', () => {
-	it('root is a labelled group with aria-roledescription="carousel"', () => {
+	it('root is a labeled group with aria-roledescription="carousel"', () => {
 		const { container } = render(Carousel, base);
 		const { root } = parts(container);
 		expect(root.getAttribute('role')).toBe('group');
@@ -406,7 +406,7 @@ describe('indicator', () => {
 		expect(container.querySelector('.hz-carousel-dots')).toBeNull();
 	});
 
-	it('dots: one labelled button per slide, aria-current on the active one, no counter', () => {
+	it('dots: one labeled button per slide, aria-current on the active one, no counter', () => {
 		const { container } = render(Carousel, { ...base, indicator: 'dots' });
 		expect(container.querySelector('.hz-carousel-status')).toBeNull();
 		const dots = Array.from(container.querySelectorAll<HTMLButtonElement>('.hz-carousel-dot'));

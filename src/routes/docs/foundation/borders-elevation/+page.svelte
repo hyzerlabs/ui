@@ -208,8 +208,9 @@
 		</p>
 		<ul>
 			<li>
-				A shadow is decoration, never a boundary. Low-opacity shadows fail the 3:1 non-text contrast
-				minimum (WCAG 1.4.11), so anything interactive still needs a border, a background change, or
+				A shadow is decoration, never a boundary. A soft shadow rarely reaches the 3:1 non-text
+				contrast minimum (WCAG 1.4.11) against the surface behind it, and none of the shadow tokens
+				here are drawn to, so anything interactive still needs a border, a background change, or
 				spacing to mark its edge — and forced-colors mode removes shadows entirely.
 			</li>
 			<li>

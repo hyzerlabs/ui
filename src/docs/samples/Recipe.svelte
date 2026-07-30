@@ -114,7 +114,6 @@
 			<span class="meta">Cook 1 hr</span>
 		</Cluster>
 		<Cluster gap="sm">
-			<Badge variant="outline" size="sm">Gluten-free</Badge>
 			<Badge variant="outline" size="sm">Freezer-friendly</Badge>
 			<Badge variant="outline" size="sm">Dairy-free option</Badge>
 		</Cluster>

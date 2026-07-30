@@ -86,7 +86,7 @@ describe('Badge-R3 — dismiss', () => {
 		expect(container.querySelector('.hz-badge-dismiss')).toBeNull();
 	});
 
-	it('onDismiss renders a labelled button and data-dismissible; click fires it', async () => {
+	it('onDismiss renders a labeled button and data-dismissible; click fires it', async () => {
 		const onDismiss = vi.fn();
 		const { container } = render(Badge, {
 			...base,

@@ -166,7 +166,7 @@
 						<strong>determinate circular arc</strong>: static, shown here alongside its
 						indeterminate spin. <code>spinner</code> and <code>dots</code> stay indeterminate only,
 						so a
-						<code>value</code> passed to either is ignored (dev-warn).
+						<code>value</code> passed to either is ignored (with a warning in development).
 					</p>
 					<Example code={variantsCode}>
 						<Stack gap="md">

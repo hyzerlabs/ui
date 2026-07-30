@@ -5,8 +5,8 @@
 	import Example from '../../../../docs/Example.svelte';
 	import IconInfo from '$lib/icons/generated/info.svelte';
 
-	// Inline SVG data-URIs — no committed binary assets. Real photo assets
-	// coming soon.
+	// Inline SVG data-URIs, so the page ships no binary assets. Swap in your
+	// own photography wherever demoSvg is called.
 	function demoSvg(label: string, fill: string, w = 800, h = 450): string {
 		return (
 			`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'%3E%3Crect width='${w}' height='${h}' fill='%23${fill}'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23fff' font-size='28' font-family='system-ui'%3E` +
@@ -171,7 +171,7 @@
 					<p class="tab-note">
 						Placeholders fill the box while the image loads: <code>color</code> paints a flat
 						swatch, <code>blur</code> crossfades from a low-res <code>placeholderSrc</code>. The
-						demo SVGs load instantly, so the effect is brief — real photo assets coming soon.
+						demo SVGs load instantly, so the effect is brief here.
 					</p>
 					<Tabs
 						items={placeholders.map((p) => ({ id: p, label: p }))}

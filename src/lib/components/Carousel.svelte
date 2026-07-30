@@ -510,7 +510,7 @@
 				{#snippet iconStart()}<IconChevronLeft />{/snippet}
 			</Button>
 			{#if indicator === 'dots'}
-				<!-- Slide pickers: each dot is a labelled button (aria-current marks
+				<!-- Slide pickers: each dot is a labeled button (aria-current marks
 				     the active slide); position changes still announce via the
 				     viewport live region, so screen readers keep "{n} of {total}". -->
 				<div class="hz-carousel-dots">

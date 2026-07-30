@@ -39,7 +39,7 @@
 		...rest
 	}: Props = $props();
 
-	// Stable IDs for ARIA labelling (Modal-R1, R2, R3).
+	// Stable IDs for ARIA labeling (Modal-R1, R2, R3).
 	const titleId = uid('hz-modal-title');
 	const descId = uid('hz-modal-desc');
 

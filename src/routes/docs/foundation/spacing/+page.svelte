@@ -191,7 +191,8 @@
 			on the ladder. So the live version swaps each <code>near</code> for <code>away</code> (one rung
 			back up) and drops the shifts the shell already provides: every distance then renders at its fresh-page
 			value — heading and cards at 2rem, card rhythm at 0.8rem, tag gaps at 0.4rem — except the 8rem section
-			spacing, which the ambient floor caps at 2rem here.
+			spacing, which the tightest level caps at 2rem here. Three levels is as tight as the scale goes:
+			a fourth nested shift keeps the third level's values.
 		</p>
 	</Stack>
 

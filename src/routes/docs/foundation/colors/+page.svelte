@@ -214,9 +214,11 @@
 		</p>
 		<h3 id="structural-roles">Structural roles</h3>
 		<p>
-			Seven roles: <code>surface</code>, <code>surfaceMuted</code>, <code>text</code>,
-			<code>textMuted</code>, and <code>border</code> flip or track the palette per mode as the
-			table below shows; <code>black</code> and <code>white</code> are mode-invariant alias roles.
+			There are seven. <code>surface</code>, <code>surfaceMuted</code>, and <code>text</code> are
+			re-authored for dark mode, so their value changes with the mode. <code>textMuted</code> and
+			<code>border</code> are authored once and follow whatever the palette gives them.
+			<code>black</code> and <code>white</code> are alias roles, identical in both modes. The table shows
+			the value each one resolves to for the mode you are reading in.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -428,7 +430,8 @@
 		margin: 0;
 	}
 
-	.doctrine-note,
+	/* .doctrine-note now comes from the shipped docs sheet; .role-note is the
+	   same treatment under a different name, used on this page only. */
 	.role-note {
 		padding: 0.75rem 1rem;
 		border-inline-start: 3px solid var(--hz-color-border, #6b7280);

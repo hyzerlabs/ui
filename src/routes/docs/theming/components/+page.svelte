@@ -160,7 +160,10 @@
 			<strong>Theme hooks</strong> — root class, <code>data-*</code> vocabulary, custom properties,
 			and the part classes for its children. Variants land as
 			<code>data-variant</code>/<code>data-intent</code>/<code>data-size</code>; interactive state
-			as <code>data-state</code> and friends — always present, so CSS can target any combination.
+			as <code>data-state</code> and friends. A prop with a default stamps its attribute on every
+			render, so <code>[data-variant='solid'][data-size='md']</code> always matches. A prop with no
+			default (an unset <code>intent</code>, say) leaves the attribute off entirely, which is what
+			lets <code>:not([data-intent])</code> style the plain case.
 		</p>
 		<CodeBlock code={hooksCode} />
 	</Stack>
@@ -174,7 +177,7 @@
 	>
 		<h2 id="class-heading">The <code>class</code> prop</h2>
 		<CodeBlock code={classPropCode} />
-		<p class="note">
+		<p class="doc-note">
 			One caveat in the other direction: styles inside a component's own
 			<code>&lt;style&gt;</code> block are unlayered too — so if you build wrapper components,
 			prefer styling the <code>hz-*</code> hooks from stylesheets you control rather than re-declaring
@@ -228,7 +231,7 @@
 				</div>
 			{/snippet}
 		</Tabs>
-		<p class="note">
+		<p class="doc-note">
 			Wrap any table in <code>.docs-table</code> and its borders, padding, and header background
 			follow this sheet instead, on every property it sets and nothing else — a table with no
 			wrapper is left exactly as the reference theme paints it. The excerpt above is sliced from the
@@ -277,7 +280,7 @@
 			</table>
 		</div>
 		<CodeBlock code={hookPropsCode} />
-		<p class="note">
+		<p class="doc-note">
 			The tint defaults are graded on
 			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> — if you retune them, re-check
 			the soft pairings there.
@@ -335,8 +338,8 @@
 		</p>
 		<p>
 			For complete restyles, start from an example:
-			<a href="/docs/theming/examples">Example Themes</a> shows two full token-override sheets and the
-			configs that generate them.
+			<a href="/docs/theming/examples">Example Themes</a> shows three of them, and the configs behind
+			the configs that generate them.
 		</p>
 	</Stack>
 </Stack>
@@ -383,11 +386,5 @@
 
 	.token-table th {
 		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.note {
-		margin: 0;
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
 	}
 </style>
