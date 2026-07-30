@@ -98,16 +98,16 @@ export const manifest: ManifestEntry[] = [
 					'Color works in two layers: the palette (--hz-palette-*) authors hues per mode, and the semantic layer (--hz-color-*, --hz-intent-*) says what a color does and what it means. Dark mode overrides land mostly on the palette, and the semantic layer follows automatically.'
 			},
 			{
-				label: 'Typography',
-				href: '/docs/foundation/typography',
-				description:
-					'Type tokens: three font families, a six-step type scale, four weights, and three line heights.'
-			},
-			{
 				label: 'Contrast & Accessibility',
 				href: '/docs/foundation/contrast',
 				description:
 					'WCAG contrast ratios for every graded token pairing, computed live per mode from the token metadata. The library ships the same functions, so you can run the identical check against a theme of your own.'
+			},
+			{
+				label: 'Typography',
+				href: '/docs/foundation/typography',
+				description:
+					'Type tokens: three font families, a six-step type scale, four weights, and three line heights.'
 			},
 			{
 				label: 'Spacing & Sizing',
@@ -162,7 +162,90 @@ export const manifest: ManifestEntry[] = [
 		label: 'Components',
 		groups: [
 			{
-				label: 'Common',
+				label: 'Content',
+				pages: [
+					{
+						label: 'Accordion',
+						href: '/docs/components/accordion',
+						description:
+							'A disclosure component using native <details>/<summary> elements, supporting single and multiple open modes with keyboard navigation. Item titles accept plain strings or snippets.'
+					},
+					{
+						label: 'Blockquote',
+						href: '/docs/components/blockquote',
+						description:
+							'A semantic quote: a figure wrapping a blockquote, with an optional visible attribution and an optional machine-readable source URL.'
+					},
+					{
+						label: 'Button',
+						href: '/docs/components/button',
+						description:
+							'A button with solid, outline, ghost, and soft variants, plus intent colors, sizes, a loading state, and icon slots.'
+					},
+					{
+						label: 'Card',
+						href: '/docs/components/card',
+						description:
+							'A content container with optional media, actions, horizontal layout, and clickable-overlay support.'
+					},
+					{
+						label: 'Carousel',
+						href: '/docs/components/carousel',
+						description:
+							'An accessible, manually rotated carousel: a draggable slide track, labeled slides, previous and next controls, arrow-key steering, and a live region announcing changes. It does not auto-rotate, by design.'
+					},
+					{
+						label: 'CodeBlock',
+						href: '/docs/components/code-block',
+						description:
+							'A headless, read-only code viewer with a copy button, an opt-in title and language header, decorative line numbers, and a Show-more collapse for long listings. It ships no syntax highlighter, so bring your own through the language class hook (client autoloaders) or the children escape hatch (build-time highlighters like Shiki).'
+					},
+					{
+						label: 'Divider',
+						href: '/docs/components/divider',
+						description:
+							'A thematic separator: a native hr when bare, and a labeled role=separator element when it wraps a centered text label.'
+					},
+					{
+						label: 'Hero',
+						href: '/docs/components/hero',
+						description:
+							'A section component for page heroes supporting center, split, and overlay layouts. Text slots accept plain strings or snippets; in the overlay layout, media becomes the full-bleed background.'
+					},
+					{
+						label: 'Icons',
+						href: '/docs/components/icons',
+						description:
+							'The full Lucide icon set (ISC) ships as generated per-icon Svelte components, loaded one glyph at a time. Each icon is decorative by default and labeled when you pass ariaLabel.'
+					},
+					{
+						label: 'Link',
+						href: '/docs/components/link',
+						description:
+							'An accessible anchor component with variant styles, external link support, and icon slots. Links inherit the surrounding text size.'
+					},
+					{
+						label: 'Metatags',
+						href: '/docs/components/metatags',
+						description:
+							'The head tags one page needs for search results and link previews: title, description, canonical, Open Graph, and an X card. Site-level values are props too, so a small wrapper of your own holds them while each page passes only what changes.'
+					},
+					{
+						label: 'Table',
+						href: '/docs/components/table',
+						description:
+							'A data table with client sorting, row selection, a sticky header, built-in empty and loading states, and an opt-in stacked mode for narrow widths. Real <table> semantics throughout.'
+					},
+					{
+						label: 'Tabs',
+						href: '/docs/components/tabs',
+						description:
+							'An accessible tab interface with roving tabindex, arrow-key navigation, and horizontal or vertical orientation. Tab labels accept plain strings or snippets.'
+					}
+				]
+			},
+			{
+				label: 'Feedback & Status',
 				pages: [
 					{
 						label: 'Alert',
@@ -183,102 +266,6 @@ export const manifest: ManifestEntry[] = [
 							'A full-width, solid-intent announcement bar with an optional dismiss button and top or bottom pinning. Made for page-level messages: maintenance notices, promos, and outage warnings.'
 					},
 					{
-						label: 'Blockquote',
-						href: '/docs/components/blockquote',
-						description:
-							'A semantic quote: a figure wrapping a blockquote, with an optional visible attribution and an optional machine-readable source URL.'
-					},
-					{
-						label: 'Button',
-						href: '/docs/components/button',
-						description:
-							'A button with solid, outline, ghost, and soft variants, plus intent colors, sizes, a loading state, and icon slots.'
-					},
-					{
-						label: 'CodeBlock',
-						href: '/docs/components/code-block',
-						description:
-							'A headless, read-only code viewer with a copy button, an opt-in title and language header, decorative line numbers, and a Show-more collapse for long listings. It ships no syntax highlighter, so bring your own through the language class hook (client autoloaders) or the children escape hatch (build-time highlighters like Shiki).'
-					},
-					{
-						label: 'Icons',
-						href: '/docs/components/icons',
-						description:
-							'The full Lucide icon set (ISC) ships as generated per-icon Svelte components, loaded one glyph at a time. Each icon is decorative by default and labeled when you pass ariaLabel.'
-					},
-					{
-						label: 'Link',
-						href: '/docs/components/link',
-						description:
-							'An accessible anchor component with variant styles, external link support, and icon slots. Links inherit the surrounding text size.'
-					},
-					{
-						label: 'Card',
-						href: '/docs/components/card',
-						description:
-							'A content container with optional media, actions, horizontal layout, and clickable-overlay support.'
-					},
-					{
-						label: 'Divider',
-						href: '/docs/components/divider',
-						description:
-							'A thematic separator: a native hr when bare, and a labeled role=separator element when it wraps a centered text label.'
-					},
-					{
-						label: 'Dropdown',
-						href: '/docs/components/dropdown',
-						description:
-							'A generic action menu built on the WAI-ARIA APG menu button pattern, with real roving-tabindex keyboard focus.'
-					},
-					{
-						label: 'Carousel',
-						href: '/docs/components/carousel',
-						description:
-							'An accessible, manually rotated carousel: a draggable slide track, labeled slides, previous and next controls, arrow-key steering, and a live region announcing changes. It does not auto-rotate, by design.'
-					},
-					{
-						label: 'Hero',
-						href: '/docs/components/hero',
-						description:
-							'A section component for page heroes supporting center, split, and overlay layouts. Text slots accept plain strings or snippets; in the overlay layout, media becomes the full-bleed background.'
-					},
-					{
-						label: 'Modal',
-						href: '/docs/components/modal',
-						description:
-							'An accessible dialog built on the native <dialog> element with focus trap, Esc-to-close, scroll lock, and configurable sizes.'
-					},
-					{
-						label: 'Tooltip',
-						href: '/docs/components/tooltip',
-						description:
-							'An accessible hover and focus description for an element you already have, such as an icon button, a link, or an abbreviation. It holds non-interactive text only; for a click-triggered panel with rich content, use Popover.'
-					},
-					{
-						label: 'Popover',
-						href: '/docs/components/popover',
-						description:
-							'A click-triggered disclosure panel for rich or interactive content, such as a filter form, a settings menu, or extra detail. It is non-modal, with no focus trap and no backdrop: reach for Modal when you need a focus-trapped dialog, or Dropdown when you need a menu of actions.'
-					},
-					{
-						label: 'Accordion',
-						href: '/docs/components/accordion',
-						description:
-							'A disclosure component using native <details>/<summary> elements, supporting single and multiple open modes with keyboard navigation. Item titles accept plain strings or snippets.'
-					},
-					{
-						label: 'Tabs',
-						href: '/docs/components/tabs',
-						description:
-							'An accessible tab interface with roving tabindex, arrow-key navigation, and horizontal or vertical orientation. Tab labels accept plain strings or snippets.'
-					},
-					{
-						label: 'Table',
-						href: '/docs/components/table',
-						description:
-							'A data table with client sorting, row selection, a sticky header, built-in empty and loading states, and an opt-in stacked mode for narrow widths. Real <table> semantics throughout.'
-					},
-					{
 						label: 'Loading',
 						href: '/docs/components/loading',
 						description:
@@ -289,6 +276,35 @@ export const manifest: ManifestEntry[] = [
 						href: '/docs/components/skeleton',
 						description:
 							'A decorative placeholder for content that has not loaded yet. Its shape variants (text lines, circle, rectangle, and fill-the-box) combine into any card-like placeholder, with free width, height, and radius overrides and a shimmer animation that goes still under reduced motion.'
+					}
+				]
+			},
+			{
+				label: 'Overlays',
+				pages: [
+					{
+						label: 'Dropdown',
+						href: '/docs/components/dropdown',
+						description:
+							'A generic action menu built on the WAI-ARIA APG menu button pattern, with real roving-tabindex keyboard focus.'
+					},
+					{
+						label: 'Modal',
+						href: '/docs/components/modal',
+						description:
+							'An accessible dialog built on the native <dialog> element with focus trap, Esc-to-close, scroll lock, and configurable sizes.'
+					},
+					{
+						label: 'Popover',
+						href: '/docs/components/popover',
+						description:
+							'A click-triggered disclosure panel for rich or interactive content, such as a filter form, a settings menu, or extra detail. It is non-modal, with no focus trap and no backdrop: reach for Modal when you need a focus-trapped dialog, or Dropdown when you need a menu of actions.'
+					},
+					{
+						label: 'Tooltip',
+						href: '/docs/components/tooltip',
+						description:
+							'An accessible hover and focus description for an element you already have, such as an icon button, a link, or an abbreviation. It holds non-interactive text only; for a click-triggered panel with rich content, use Popover.'
 					}
 				]
 			},
@@ -387,6 +403,12 @@ export const manifest: ManifestEntry[] = [
 						href: '/docs/components/lightbox',
 						description:
 							'A click-to-enlarge media viewer: a thumbnail strip whose items open in an accessible, focus-trapped dialog. Multiple images and videos page through an embedded Carousel.'
+					},
+					{
+						label: 'Logo',
+						href: '/docs/components/logo',
+						description:
+							'Renders a raw inline SVG mark at a size normalized against its own aspect ratio, so a wide wordmark, a square badge, and a tall crest read as consistent side by side. With no SVG it falls back to the brand name as text.'
 					},
 					{
 						label: 'Video',
@@ -497,12 +519,6 @@ export const manifest: ManifestEntry[] = [
 					'Components expose a stable styling contract: an hz-* root class, a data-* attribute per variant and state, and a class prop merged after the root class. The reference theme styles exactly these hooks from @layer hz-theme, wrapped in :where() so everything stays at single-class specificity, which means your unlayered CSS wins by default.'
 			},
 			{
-				label: 'Using with Tailwind',
-				href: '/docs/theming/tailwind',
-				description:
-					'The library and Tailwind coexist cleanly: settle on one reset, order the cascade layers so Tailwind utilities win when you want them to, and pass utility classes to components through their class prop. None of it is Tailwind-specific plumbing; it is the same layer model the rest of the theme uses.'
-			},
-			{
 				label: 'Section Themes',
 				href: '/docs/theming/sections',
 				description:
@@ -513,6 +529,12 @@ export const manifest: ManifestEntry[] = [
 				href: '/docs/theming/examples',
 				description:
 					'Three example themes, sorted by how much of the reference theme each one keeps: Ocean keeps all of it and only redefines --hz-* tokens, Docs keeps all of it and layers one class-hook override on top with no palette of its own, and Terminal keeps none of it. Ocean and Terminal are generated from a hyzer.config.ts beside them and, like the base tokens, meet WCAG AA on every graded pairing, in both modes.'
+			},
+			{
+				label: 'Using with Tailwind',
+				href: '/docs/theming/tailwind',
+				description:
+					'The library and Tailwind coexist cleanly: settle on one reset, order the cascade layers so Tailwind utilities win when you want them to, and pass utility classes to components through their class prop. None of it is Tailwind-specific plumbing; it is the same layer model the rest of the theme uses.'
 			}
 		]
 	},
@@ -561,16 +583,16 @@ export const manifest: ManifestEntry[] = [
 					'A single product page with a thumbnail gallery and a buy panel that updates as you pick options.'
 			},
 			{
-				label: 'Checkout form',
-				href: '/docs/patterns/checkout-form',
-				description:
-					'The full Form workflow on a realistic checkout page: submit-time validation, a linked error summary, and inline field errors.'
-			},
-			{
 				label: 'Contact form',
 				href: '/docs/patterns/contact-form',
 				description:
 					'The minimal end of the Form spectrum: four fields, one Select, and no order summary.'
+			},
+			{
+				label: 'Checkout form',
+				href: '/docs/patterns/checkout-form',
+				description:
+					'The full Form workflow on a realistic checkout page: submit-time validation, a linked error summary, and inline field errors.'
 			},
 			{
 				label: 'Virtualized table',

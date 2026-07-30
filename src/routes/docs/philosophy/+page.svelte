@@ -94,17 +94,23 @@
 	>
 		<h2 id="bloat-heading">No bloat</h2>
 		<p>
-			The package has zero runtime dependencies. Components carry structural CSS and nothing else.
-			The reset, token sheet, reference theme and utility classes are separate imports, so you take
-			only the ones you want. Icons come one glyph at a time rather than as a barrel.
+			Components carry structural CSS and nothing else. The reset, token sheet, reference theme and
+			utility classes are separate imports, so you take only the ones you want. Icons come one glyph
+			at a time rather than as a barrel.
 		</p>
 		<p>
-			Shipping less is what makes the headless API and the theming tiers possible: there is no
-			visual opinion for you to undo, and no layer you are forced to carry. Here is what each layer
-			actually costs, measured from the published package rather than estimated:
+			The package has exactly one dependency: <code>esm-env</code>, a build-time helper that keeps
+			the dev-only warnings working in every bundler instead of only Vite. It resolves to constants
+			your bundler eliminates, so none of it reaches a production build. Svelte is the only peer
+			dependency.
+		</p>
+		<p>
+			Shipping less is what makes the headless API and the theming tiers possible: no visual opinion
+			for you to undo, and no layer you are forced to carry. These are the numbers for each layer,
+			measured from the published package rather than estimated:
 		</p>
 		<SizeTable />
-		<Alert intent="info" title="It also explains the choice of Svelte" headingLevel={3}>
+		<Alert intent="info" title="Why the library is written in Svelte" headingLevel={3}>
 			{#snippet icon()}<IconInfo />{/snippet}
 			Markup, script and styles sit in one file, so there is one place to look and one file to change.
 			That suits a person reading the source and an agent editing it. Svelte also reports accessibility
@@ -131,9 +137,9 @@
 		</p>
 		<p>
 			These docs are indexed in <a href="/llms.txt">llms.txt</a>, generated from the same manifest
-			that builds the navigation. The <a href="/docs/agents">Agents</a> page states the conventions plainly
-			enough to be followed literally. Prose that a person can read without decoding is prose a coding
-			agent can act on without guessing.
+			that builds the navigation. The <a href="/docs/agents">Agents</a> page spells out the conventions
+			so a coding agent can follow them literally. Prose that a person can read without decoding is prose
+			an agent can act on without guessing.
 		</p>
 	</Stack>
 </Stack>

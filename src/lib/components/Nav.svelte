@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { SvelteSet } from 'svelte/reactivity';
+	import { DEV } from 'esm-env';
 	import type { NavItem, NavChild } from '$lib/types';
 	import { cx, uid, isNavHeading } from '$lib/utils';
 	import Link from './Link.svelte';
@@ -39,7 +40,7 @@
 	const items = $derived(rawItems.filter((item) => !isNavHeading(item)) as NavItem[]);
 
 	$effect(() => {
-		if (!import.meta.env.DEV) return;
+		if (!DEV) return;
 		if (rawItems.some((item) => isNavHeading(item))) {
 			console.warn(
 				'[hz-nav] A heading entry appeared in the top-level `items` array and was ' +

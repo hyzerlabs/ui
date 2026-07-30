@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
+	import { DEV } from 'esm-env';
 	import { cx } from '$lib/utils';
 
 	type CardPadding = 'none' | 'sm' | 'md' | 'lg';
@@ -40,7 +41,7 @@
 
 	// dev-only warning for missing accessible name on clickable card.
 	// untrack() reads the initial prop values once at creation time (no re-run on prop change).
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		if (untrack(() => typeof href === 'string' && href.length > 0 && !ariaLabel)) {
 			console.warn(
 				'[hyzer-ui] <Card>: `href` is set without an `ariaLabel`. ' +

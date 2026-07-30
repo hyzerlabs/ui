@@ -4,9 +4,9 @@
  *
  * Measured from the files this package publishes. `browserItems` is exact for
  * the stylesheets: they are imported whole, so the gzipped bytes are what a
- * visitor downloads. `installParts` is the tarball, which also carries
- * declarations, unminified source, every icon and the CLI. None of those reach
- * a browser.
+ * visitor downloads. The tarball also carries declarations, unminified source,
+ * every icon and the CLI; none of those reach a browser, so they are reported
+ * by the generator's console output rather than exported here.
  */
 
 export interface SizeRow {
@@ -25,14 +25,14 @@ export interface SizeRow {
 export const browserItems: SizeRow[] = [
 	{
 		label: 'Every component, minified',
-		raw: 237604,
-		gzip: 51540,
+		raw: 246874,
+		gzip: 53626,
 		note: 'A real build of the whole library, carrying only the few icons the components draw. Import three components and you ship a fraction of this.'
 	},
 	{
 		label: 'Component structural CSS',
-		raw: 40706,
-		gzip: 5997,
+		raw: 41014,
+		gzip: 6090,
 		note: 'Layout and behavior only. No colors or other visual styling.'
 	},
 	{
@@ -43,8 +43,8 @@ export const browserItems: SizeRow[] = [
 	},
 	{
 		label: 'Reference theme',
-		raw: 145804,
-		gzip: 50143,
+		raw: 148290,
+		gzip: 51058,
 		note: 'One import for the shared base sheet plus a sheet per component. Import single component sheets instead and you pay less.'
 	},
 	{
@@ -64,12 +64,12 @@ export const browserItems: SizeRow[] = [
 /** Everything in the table above, taken together. */
 export const browserTotal: SizeRow = {
 	label: 'Everything, together',
-	raw: 445716,
-	gzip: 114007
+	raw: 457780,
+	gzip: 117101
 };
 
 /** Packages pulled in at runtime. */
-export const runtimeDependencies = 0;
+export const runtimeDependencies = 1;
 
 /** Peer dependencies, which a consumer already has. */
 export const peerDependencies = ['svelte'];

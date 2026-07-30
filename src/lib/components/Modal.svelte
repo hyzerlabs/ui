@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
+	import { DEV } from 'esm-env';
 	import { cx, uid } from '$lib/utils';
 	import Button from './Button.svelte';
 	import IconX from '$lib/icons/generated/x.svelte';
@@ -55,7 +56,7 @@
 	let scrollLockActive = false;
 
 	// dev warning for missing title.
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		if (untrack(() => !title)) {
 			console.warn(
 				'[hyzer-ui] <Modal>: `title` is required for accessibility (aria-labelledby). ' +

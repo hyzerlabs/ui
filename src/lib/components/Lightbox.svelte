@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
+	import { DEV } from 'esm-env';
 	import type { LightboxItem } from '$lib/types';
 	import { cx } from '$lib/utils';
 	import LightboxOverlay from './LightboxOverlay.svelte';
@@ -56,7 +57,7 @@
 		...rest
 	}: Props = $props();
 
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		if (untrack(() => !items?.length && !src)) {
 			console.warn('[hyzer-ui] <Lightbox>: provide `items` or the single-image `src`/`alt` props.');
 		}

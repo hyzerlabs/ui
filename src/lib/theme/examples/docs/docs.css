@@ -79,12 +79,16 @@
 /* A rule worth pausing on: the same muted note, set off by a border on the
  * inline-start edge. Three pages hand-rolled this and had already drifted
  * apart (one had lost its text color). */
+/* Doctrine notes are Blockquotes — the class retunes the component's
+ * documented font-size hook down to body scale (the accent line keeps the
+ * component's heavy default) and weights the quote part up a step. A worked
+ * example of styling through hooks and documented parts rather than reaching
+ * into component internals. */
 .doctrine-note {
-	margin: 0;
-	padding: 0.75rem 1rem;
-	border-inline-start: 3px solid var(--hz-color-border, #6b7280);
-	font-size: var(--hz-font-size-sm, 0.875rem);
-	color: var(--hz-color-text-muted, #6b7280);
+	--hz-blockquote-font-size: var(--hz-font-size-base, 1rem);
+}
+.doctrine-note .hz-blockquote-quote {
+	font-weight: var(--hz-font-weight-medium, 500);
 }
 
 /* The list counterpart to .tab-note — a muted supporting list (install

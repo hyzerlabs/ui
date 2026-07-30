@@ -69,6 +69,10 @@ describe('subpath exports', () => {
 		expect(mod.Loading).toBeDefined();
 		// Skeleton-R15: Skeleton exported from $lib.
 		expect(mod.Skeleton).toBeDefined();
+		// specs/54: Metatags exported from $lib.
+		expect(mod.Metatags).toBeDefined();
+		// Logo-R9: Logo exported from $lib.
+		expect(mod.Logo).toBeDefined();
 		// Form-R11: toFormErrors helper exported from $lib.
 		expect(mod.toFormErrors).toBeDefined();
 		// Lightbox-R16: lightboxGroup attachment factory exported from $lib.
@@ -108,6 +112,15 @@ describe('subpath exports', () => {
 		const mod = await import('$lib');
 		const { body } = render(mod.Skeleton, { props: {} });
 		expect(body).toContain('hz-skeleton');
+	});
+
+	// Logo-R9: smoke render — resolves from $lib and renders its root class.
+	// SSR only (this file runs in the node project, not the browser one),
+	// which doubles as a check that the component is SSR-safe.
+	it('$lib — Logo resolves and smoke-renders `.hz-logo`', async () => {
+		const mod = await import('$lib');
+		const { body } = render(mod.Logo, { props: { name: 'Acme' } });
+		expect(body).toContain('hz-logo');
 	});
 
 	// specs/50 R-PO: smoke render — resolves from $lib and renders its root

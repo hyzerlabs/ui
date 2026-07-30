@@ -663,8 +663,10 @@ describe('Form-R6 — jump to field', () => {
 describe('Form-R7 — decoupled targeting', () => {
 	it('targets a plain native <input name> with no hz primitive', () => {
 		const plainChild = createRawSnippet(() => ({
+			// One root element (createRawSnippet requires it) wrapping the plain
+			// input and its submit button, not an hz primitive.
 			render: () =>
-				`<input name="plain-field" id="plain-field-id" /><button type="submit">Go</button>`
+				`<div><input name="plain-field" id="plain-field-id" /><button type="submit">Go</button></div>`
 		}));
 		const { container } = render(Form, {
 			errors: [{ name: 'plain-field', message: 'Required' }],
@@ -677,8 +679,10 @@ describe('Form-R7 — decoupled targeting', () => {
 
 	it('clicking the link for a plain <input> focuses it', async () => {
 		const plainChild = createRawSnippet(() => ({
+			// One root element (createRawSnippet requires it) wrapping the plain
+			// input and its submit button, not an hz primitive.
 			render: () =>
-				`<input name="plain-field" id="plain-field-id" /><button type="submit">Go</button>`
+				`<div><input name="plain-field" id="plain-field-id" /><button type="submit">Go</button></div>`
 		}));
 		const { container } = render(Form, {
 			errors: [{ name: 'plain-field', message: 'Required' }],

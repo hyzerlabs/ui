@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Cluster, Stack } from '$lib';
+	import { Blockquote, Cluster, Stack } from '$lib';
 	import { space, width, density } from '$lib/tokens';
 	import Example from '../../../../docs/Example.svelte';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
@@ -123,12 +123,13 @@
 			<code>--hz-density</code> grid unit ({density.unit}), so overriding one custom property
 			retunes every distance on the page.
 		</p>
-		<p class="doctrine-note">
-			Adding <code>data-density-shift</code> to an ancestor tightens both distances one level, so nested
-			regions read denser without introducing new spacing values. Three levels is as tight as the scale
-			goes: a fourth nested shift keeps the third level's values. The near multipliers walk the 1-2-5-10
-			ladder, so a shifted region's away always equals its parent's near.
-		</p>
+		<Blockquote class="doctrine-note" intent="primary">
+			The body starts un-shifted — depth 0 in the table below. Each
+			<code>data-density-shift</code> on an ancestor moves everything inside it down one row, so nested
+			regions read denser without introducing new spacing values. Depth 3 is the floor: a fourth nested
+			shift keeps depth 3's values. The near multipliers walk the 1-2-5-10 ladder, so a shifted region's
+			away always equals its parent's near.
+		</Blockquote>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>

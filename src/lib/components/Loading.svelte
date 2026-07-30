@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { DEV } from 'esm-env';
 	import type { Intent, LoadingVariant } from '$lib/types';
 	import { cx } from '$lib/utils';
 	import IconLoader from '$lib/icons/generated/loader.svelte';
@@ -101,7 +102,7 @@
 	// R6/R5/Edge: dev-only warnings, evaluated once at creation (the Button
 	// icon-only precedent) — untrack() opts out of reactive tracking so only
 	// the initial prop values are read.
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		untrack(() => {
 			if (!ariaLabel && !restAriaLabeledby) {
 				console.warn(

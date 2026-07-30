@@ -62,14 +62,18 @@
 		file.
 	</p>
 	<p class="size-note">
-		The first row is the most JavaScript you could ship, not the most in total: you will always add
-		at least the token sheet to that. Your bundler keeps only the components you import, so three
-		components cost a fraction of the first row. The reference theme works the same way, and you can
-		import one component sheet at a time instead of the whole thing. The token, reset and utility
-		figures are exact, because you import each of those sheets whole.
+		The first row is the ceiling for JavaScript, not for the total: you will always add at least the
+		token sheet on top of it. Your bundler keeps only the components you import, so three components
+		cost a fraction of that row. The reference theme works the same way. You can import one
+		component sheet at a time instead of the whole thing. The token, reset and utility figures are
+		exact, because you import each of those sheets whole.
 	</p>
 	<p class="size-note">
-		<strong>{runtimeDependencies} runtime dependencies</strong>, with
+		<strong
+			>{runtimeDependencies === 1
+				? '1 dependency (build-time only)'
+				: `${runtimeDependencies} dependencies`}</strong
+		>, with
 		{peerDependencies.join(' and ')} as the only peer dependency.
 	</p>
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { browser } from '$app/environment';
+	import { DEV } from 'esm-env';
 	import type { ImageSource } from '$lib/types';
 	import { cx } from '$lib/utils';
 
@@ -50,7 +50,7 @@
 	}: Props = $props();
 
 	// blur without placeholderSrc → fall back to none + dev warn
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		if (untrack(() => placeholder === 'blur' && !placeholderSrc)) {
 			console.warn(
 				'[hyzer-ui] <Image>: placeholder="blur" requires a `placeholderSrc` prop. ' +
@@ -66,11 +66,6 @@
 
 	// load state machine
 	let loadState: LoadState = $state('loading');
-
-	// prefers-reduced-motion
-	const reducedMotion = $derived(
-		browser ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
-	);
 
 	// data-rounded: true → '' (present), string → verbatim, false → undefined
 	const dataRounded = $derived(rounded === false ? undefined : rounded === true ? '' : rounded);
@@ -128,7 +123,6 @@
 	data-rounded={dataRounded}
 	data-placeholder={effectivePlaceholder !== 'none' ? effectivePlaceholder : undefined}
 	data-picture={sources?.length ? '' : undefined}
-	data-reduced-motion={reducedMotion ? '' : undefined}
 	style={wrapperStyle}
 >
 	{#if effectivePlaceholder === 'blur' && placeholderSrc}
@@ -236,10 +230,12 @@
 	}
 
 	/* reduced-motion: zero transition duration */
-	.hz-image[data-reduced-motion][data-placeholder='blur'] .hz-image__img {
-		transition-duration: 0s;
-	}
-	.hz-image[data-reduced-motion][data-placeholder='blur'] .hz-image__placeholder {
-		transition-duration: 0s;
+	@media (prefers-reduced-motion: reduce) {
+		.hz-image[data-placeholder='blur'] .hz-image__img {
+			transition-duration: 0s;
+		}
+		.hz-image[data-placeholder='blur'] .hz-image__placeholder {
+			transition-duration: 0s;
+		}
 	}
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
+	import { DEV } from 'esm-env';
 	import { cx, uid } from '$lib/utils';
 	import IconChevronDown from '$lib/icons/generated/chevron-down.svelte';
 
@@ -49,7 +50,7 @@
 	// dev warning for duplicate ids (read once at creation time)
 	// ---------------------------------------------------------------------------
 
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		untrack(() => {
 			const ids = items.map((item) => item.id);
 			if (ids.length !== new Set(ids).size) {

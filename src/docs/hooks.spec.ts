@@ -24,6 +24,17 @@ const LIB = join(process.cwd(), 'src/lib');
 const COMPONENTS = join(LIB, 'components');
 const THEME = join(LIB, 'theme');
 
+/**
+ * Components with no styling contract at all (specs/54 R10) — the precedent
+ * is the Tooltip/Icons exceptions in componentSource() above, a named set
+ * with a comment, not a loosened assertion. Metatags renders only
+ * `<svelte:head>`: no element in `<body>`, so no root class, no `data-*`
+ * hook, and no custom property to promise. It has no hooks.ts entry at all
+ * (DocPage's Theme hooks section is already `{#if componentHooks}`-guarded),
+ * so it is excluded from the two tests below that assume every page has one.
+ */
+const NO_STYLING_CONTRACT = new Set(['Metatags']);
+
 /** Component pages, from the manifest's Components section. */
 const componentPages = (() => {
 	const section = manifest.find((e) => isSection(e) && e.label === 'Components');
@@ -98,7 +109,9 @@ function allRows(h: ComponentHooks) {
 
 describe('hooks.ts — coverage (spec 31 R9)', () => {
 	it('every component page has an entry with a root class', () => {
-		const missing = componentPages.filter((p) => !hooks[p.label]?.root);
+		const missing = componentPages
+			.filter((p) => !NO_STYLING_CONTRACT.has(p.label))
+			.filter((p) => !hooks[p.label]?.root);
 		expect(missing.map((p) => p.label)).toEqual([]);
 	});
 
@@ -108,11 +121,13 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		expect(orphans).toEqual([]);
 	});
 
-	it('the Components section covers all 41 pages across five groups', () => {
+	it('the Components section covers every page across seven groups', () => {
 		const section = manifest.find((e) => isSection(e) && e.label === 'Components');
 		if (!section || !isSection(section) || !isGrouped(section)) throw new Error('not grouped');
 		expect(section.groups.map((g) => g.label)).toEqual([
-			'Common',
+			'Content',
+			'Feedback & Status',
+			'Overlays',
 			'Layout',
 			'Navigation',
 			'Media',
@@ -121,8 +136,9 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		expect(section.groups.every((g) => g.pages.length > 0)).toBe(true);
 		// 38 + Header (spec 35) + Table (spec 37) + Toc (spec 38) + Banner (spec 41)
 		// + CodeBlock (spec 47) + Loading + Skeleton (spec 49) + Tooltip + Popover
-		// (spec 50) + Icons (moved in from Foundation, spec 53).
-		expect(componentPages).toHaveLength(48);
+		// (spec 50) + Icons (moved in from Foundation, spec 53) + Metatags (spec 54)
+		// + Logo (spec 55).
+		expect(componentPages).toHaveLength(50);
 	});
 });
 
@@ -136,6 +152,7 @@ describe('hooks.ts — the root class is real', () => {
 	it('every root class appears in its own component source', () => {
 		const violations: string[] = [];
 		for (const page of componentPages) {
+			if (NO_STYLING_CONTRACT.has(page.label)) continue;
 			const src = componentSource(page.label);
 			// A root may be compound ('hz-field hz-field--toggle') — each part
 			// has to show up on its own.
@@ -152,7 +169,7 @@ describe('hooks.ts — no fiction: documented hooks exist in source', () => {
 	it('every documented data-* is stamped by some component', () => {
 		const violations: string[] = [];
 		for (const page of componentPages) {
-			for (const row of hooks[page.label].attrs ?? []) {
+			for (const row of hooks[page.label]?.attrs ?? []) {
 				// Rows may name a scope for disambiguation ("data-state (root)")
 				// or an ARIA/pseudo hook — take the attribute itself.
 				const match = row.name.match(/^data-[a-z-]+/);
@@ -171,7 +188,7 @@ describe('hooks.ts — no fiction: documented hooks exist in source', () => {
 	it('every documented --hz-* appears in the theme or a component', () => {
 		const violations: string[] = [];
 		for (const page of componentPages) {
-			for (const row of hooks[page.label].props ?? []) {
+			for (const row of hooks[page.label]?.props ?? []) {
 				if (!row.name.startsWith('--hz-')) continue;
 				// Declaration OR var() read: --hz-breakout-shift and
 				// --hz-footer-col-min are only ever read, and are hooks precisely
@@ -187,7 +204,7 @@ describe('hooks.ts — no fiction: documented hooks exist in source', () => {
 	it('every documented part class exists in the theme or a component', () => {
 		const violations: string[] = [];
 		for (const page of componentPages) {
-			for (const row of hooks[page.label].parts ?? []) {
+			for (const row of hooks[page.label]?.parts ?? []) {
 				if (!row.name.startsWith('.hz-')) continue;
 				const cls = row.name.slice(1);
 				if (!themeCss.includes(cls) && !libSource.includes(cls)) {

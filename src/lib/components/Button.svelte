@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import type { Snippet } from 'svelte';
+	import { DEV } from 'esm-env';
 	import type { Intent, Variant } from '$lib/types';
 	import IconLoader from '$lib/icons/generated/loader.svelte';
 	import { cx } from '$lib/utils';
@@ -69,7 +70,7 @@
 	// Dev-only warning for icon-only usage without an accessible name.
 	// untrack() opts out of reactive tracking — we intentionally read only the
 	// initial prop values to warn once at component creation time.
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		if (untrack(() => !children && (iconStart || iconEnd) && !ariaLabel)) {
 			console.warn(
 				'[hyzer-ui] <Button>: icon-only usage detected without an `ariaLabel` prop. ' +

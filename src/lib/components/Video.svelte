@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
-	import { browser } from '$app/environment';
+	import { BROWSER, DEV } from 'esm-env';
 	import { cx } from '$lib/utils';
 
 	type AspectRatio = '16/9' | '4/3' | '1/1' | '9/16';
@@ -36,7 +36,7 @@
 	}: Props = $props();
 
 	// autoplay w/o muted → suppress + dev warn
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		if (untrack(() => autoplay && !muted)) {
 			console.warn(
 				'[hyzer-ui] <Video>: autoplay requires muted=true. ' +
@@ -47,7 +47,7 @@
 
 	// reduced-motion gating
 	const reducedMotion = $derived(
-		browser ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
+		BROWSER ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false
 	);
 
 	// autoplay is only permitted when autoplay+muted+!reducedMotion
@@ -131,7 +131,7 @@
 		if (isYouTubeHost(src)) {
 			if (youtubeId) return 'youtube';
 			// Host matched but no ID extractable
-			if (import.meta.env.DEV) {
+			if (DEV) {
 				console.warn(
 					'[hyzer-ui] <Video>: YouTube URL detected but no video ID could be extracted. ' +
 						'Falling back to native provider.'
@@ -141,7 +141,7 @@
 		}
 		if (isVimeoHost(src)) {
 			if (vimeoId) return 'vimeo';
-			if (import.meta.env.DEV) {
+			if (DEV) {
 				console.warn(
 					'[hyzer-ui] <Video>: Vimeo URL detected but no video ID could be extracted. ' +
 						'Falling back to native provider.'

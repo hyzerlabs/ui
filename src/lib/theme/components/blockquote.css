@@ -24,7 +24,10 @@
 		 * data-intent-scope="full" — unset otherwise, so this falls through
 		 * to inherit, i.e. today's look. */
 		color: var(--_tc, inherit);
-		font-size: var(--hz-font-size-xl, 1.65rem);
+		/* Quote-body size — a documented hook. Read, never declared, so it can
+		 * be set on the instance or inherited from any ancestor (declaring it
+		 * here would shadow a container-level override). */
+		font-size: var(--hz-blockquote-font-size, var(--hz-font-size-xl, 1.65rem));
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 

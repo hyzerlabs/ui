@@ -1,5 +1,5 @@
 /**
- * @hyzer-labs/ui reference theme — Image & Video
+ * @hyzer-labs/ui reference theme — Image, Video & Logo
  * data-rounded is a bare attribute for the boolean form (maps to md) and a
  * value for the explicit steps; the valued rules follow so they win by order.
  */
@@ -34,5 +34,35 @@
 		background-color: var(--hz-color-black, #000);
 		border-radius: var(--hz-radius-md, 0.5rem);
 		overflow: hidden;
+	}
+
+	/* Logo — the normalization base size is a documented hook declared at root
+	 * scope, so a wall container's own `--hz-logo-size` override shadows it for
+	 * everything inside (a value declared directly on .hz-logo could never be
+	 * beaten by an inherited one). --hz-logo-brightness and --hz-logo-color are
+	 * read (never declared) below, the Container --hz-breakout-shift precedent
+	 * for a hook that is only ever a var() read. */
+	:root {
+		/* documented hook */
+		--hz-logo-size: clamp(4rem, 8vw, 6rem);
+	}
+
+	.hz-logo {
+		filter: brightness(var(--hz-logo-brightness, 1));
+	}
+
+	/* monochrome={false} → no [data-monochrome] → no rule → the SVG's own
+	 * fills render as authored. A child that declares its own fill keeps it
+	 * (an inherited property cannot override a declared one). */
+	.hz-logo:where([data-monochrome]) svg {
+		fill: var(--hz-logo-color, currentColor);
+	}
+
+	/* The text fallback — a nameplate, not body copy. */
+	.hz-logo-text {
+		font-size: var(--hz-font-size-base, 1rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+		color: var(--hz-color-text, #000);
+		white-space: nowrap;
 	}
 }

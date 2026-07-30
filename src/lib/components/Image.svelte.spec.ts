@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
+import { cdp } from 'vitest/browser';
 import Image from './Image.svelte';
 
 // ---------------------------------------------------------------------------
@@ -12,6 +13,21 @@ const DATA_URI = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAA
 /** A tiny red pixel data URI (different src so we can distinguish placeholder). */
 const PLACEHOLDER_URI =
 	'data:image/gif;base64,R0lGODlhAQABAPAAAP8AAAAAAHAAAACBAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQABAAACAkQBADs=';
+
+// IMG-R12 forces prefers-reduced-motion via the real CDP media emulation and
+// resets it in afterEach, so the forced state never leaks into another test
+// (in this file or, since the browser session persists across files, any
+// other .svelte.spec.ts).
+afterEach(async () => {
+	await cdp().send('Emulation.setEmulatedMedia', { media: 'screen', features: [] });
+});
+
+async function forceReducedMotion(): Promise<void> {
+	await cdp().send('Emulation.setEmulatedMedia', {
+		media: 'screen',
+		features: [{ name: 'prefers-reduced-motion', value: 'reduce' }]
+	});
+}
 
 // ---------------------------------------------------------------------------
 // IMG-R1 — Structure
@@ -379,18 +395,7 @@ describe('IMG-R11 — placeholder=blur', () => {
 
 describe('IMG-R12 — reduced motion', () => {
 	it('with prefers-reduced-motion: reduce, transition-duration is 0s on loaded img', async () => {
-		// Mock matchMedia to return prefers-reduced-motion: reduce
-		const original = window.matchMedia;
-		window.matchMedia = vi.fn().mockImplementation((query: string) => ({
-			matches: query === '(prefers-reduced-motion: reduce)',
-			media: query,
-			onchange: null,
-			addListener: vi.fn(),
-			removeListener: vi.fn(),
-			addEventListener: vi.fn(),
-			removeEventListener: vi.fn(),
-			dispatchEvent: vi.fn()
-		}));
+		await forceReducedMotion();
 
 		const { container } = render(Image, {
 			src: DATA_URI,
@@ -403,8 +408,6 @@ describe('IMG-R12 — reduced motion', () => {
 		const img = container.querySelector('img.hz-image__img') as HTMLImageElement;
 		// With reduced motion the transition-duration should be 0s (instant swap)
 		expect(getComputedStyle(img).transitionDuration).toBe('0s');
-
-		window.matchMedia = original;
 	});
 });
 

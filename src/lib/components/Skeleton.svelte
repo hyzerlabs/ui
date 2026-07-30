@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { DEV } from 'esm-env';
 	import type { Rounded } from '$lib/types';
 	import { cx } from '$lib/utils';
 
@@ -101,7 +102,7 @@
 	}
 
 	// A non-positive `lines` dev-warns once at creation and clamps to 1.
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		untrack(() => {
 			if (variant === 'text' && lines <= 0) {
 				console.warn('[hyzer-ui] <Skeleton>: `lines` must be at least 1. Clamped to 1.');

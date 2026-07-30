@@ -32,6 +32,7 @@ import { tabsDoc } from './tabs.js';
 import { tableDoc } from './table.js';
 import { loadingDoc } from './loading.js';
 import { skeletonDoc } from './skeleton.js';
+import { metatagsDoc } from './metatags.js';
 
 import { containerDoc } from './container.js';
 import { stackDoc } from './stack.js';
@@ -49,6 +50,7 @@ import { tocDoc } from './toc.js';
 
 import { imageDoc } from './image.js';
 import { lightboxDoc } from './lightbox.js';
+import { logoDoc } from './logo.js';
 import { videoDoc } from './video.js';
 
 import { formDoc } from './form.js';
@@ -71,28 +73,33 @@ export type { ComponentDoc } from './types.js';
  * convention as hooks.ts.
  */
 export const componentDocs: Record<string, ComponentDoc> = {
-	// ---------------------------------------------------------------- Common
+	// --------------------------------------------------------------- Content
 	Accordion: accordionDoc,
+	Blockquote: blockquoteDoc,
+	Button: buttonDoc,
+	Card: cardDoc,
+	Carousel: carouselDoc,
+	CodeBlock: codeBlockDoc,
+	Divider: dividerDoc,
+	Hero: heroDoc,
+	Icons: iconsDoc,
+	Link: linkDoc,
+	Metatags: metatagsDoc,
+	Table: tableDoc,
+	Tabs: tabsDoc,
+
+	// ----------------------------------------------------- Feedback & Status
 	Alert: alertDoc,
 	Badge: badgeDoc,
 	Banner: bannerDoc,
-	Blockquote: blockquoteDoc,
-	Button: buttonDoc,
-	CodeBlock: codeBlockDoc,
-	Icons: iconsDoc,
-	Link: linkDoc,
-	Card: cardDoc,
-	Divider: dividerDoc,
-	Dropdown: dropdownDoc,
-	Carousel: carouselDoc,
-	Hero: heroDoc,
-	Modal: modalDoc,
-	Tooltip: tooltipDoc,
-	Popover: popoverDoc,
-	Tabs: tabsDoc,
-	Table: tableDoc,
 	Loading: loadingDoc,
 	Skeleton: skeletonDoc,
+
+	// -------------------------------------------------------------- Overlays
+	Dropdown: dropdownDoc,
+	Modal: modalDoc,
+	Popover: popoverDoc,
+	Tooltip: tooltipDoc,
 
 	// ---------------------------------------------------------------- Layout
 	Container: containerDoc,
@@ -113,6 +120,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
 	// ----------------------------------------------------------------- Media
 	Image: imageDoc,
 	Lightbox: lightboxDoc,
+	Logo: logoDoc,
 	Video: videoDoc,
 
 	// ----------------------------------------------------------------- Forms

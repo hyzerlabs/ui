@@ -190,9 +190,9 @@ const module = `/**
  *
  * Measured from the files this package publishes. \`browserItems\` is exact for
  * the stylesheets: they are imported whole, so the gzipped bytes are what a
- * visitor downloads. \`installParts\` is the tarball, which also carries
- * declarations, unminified source, every icon and the CLI. None of those reach
- * a browser.
+ * visitor downloads. The tarball also carries declarations, unminified source,
+ * every icon and the CLI; none of those reach a browser, so they are reported
+ * by the generator's console output rather than exported here.
  */
 
 export interface SizeRow {

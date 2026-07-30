@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { prefersReducedMotion } from 'svelte/motion';
+	import { DEV } from 'esm-env';
 	import type { TocEntry } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
 	import { mutate } from '$lib/observers';
@@ -99,13 +100,13 @@
 		if (container instanceof HTMLElement) return container;
 		const matches = document.querySelectorAll<HTMLElement>(container);
 		if (matches.length === 0) {
-			if (import.meta.env.DEV && !warnedMissing) {
+			if (DEV && !warnedMissing) {
 				console.warn(`[hz-toc] container "${container}" matched no element — Toc renders nothing.`);
 				warnedMissing = true;
 			}
 			return null;
 		}
-		if (matches.length > 1 && import.meta.env.DEV && !warnedMultiple) {
+		if (matches.length > 1 && DEV && !warnedMultiple) {
 			console.warn(
 				`[hz-toc] container "${container}" matched ${matches.length} elements — using the first.`
 			);

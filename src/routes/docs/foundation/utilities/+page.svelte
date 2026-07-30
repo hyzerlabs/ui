@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Stack, Card, Banner, CodeBlock } from '$lib';
+	import { Stack, Card, Banner, Blockquote, CodeBlock } from '$lib';
 	import { color, intent, space } from '$lib/tokens';
 	import Example from '../../../../docs/Example.svelte';
 	// ?raw keeps the docs in lockstep with the shipped, engine-generated sheet
@@ -239,7 +239,7 @@
 			resolved from a design token. That is the whole definition; it does not depend on where the
 			class is or is not used.
 		</p>
-		<p class="doctrine-note">
+		<Blockquote class="doctrine-note" intent="primary">
 			Utilities are for <strong>ad-hoc spots</strong> like nudging one element or tinting one line
 			of text. They are <strong>not an alternative layout system.</strong> Components already own
 			their spacing (gap/padding props, the <code>data-padding</code>/<code>data-gap</code> scales)
@@ -247,7 +247,7 @@
 			utility sheet deliberately does <strong>not</strong> reproduce that surface: it exposes the
 			<strong>fixed</strong> <code>--hz-space-*</code> scale for margins only, never the density near/away
 			distances, and no padding helpers at all (padding is owned by components).
-		</p>
+		</Blockquote>
 		<p>
 			<code>utilities.css</code> is generated output, exactly like <code>tokens.css</code>: rendered
 			from the same resolved token model by <code>hyzer generate --utilities</code>, never edited by
@@ -403,13 +403,13 @@
 		aria-labelledby="aa-heading"
 	>
 		<h2 id="aa-heading">Contrast: what is graded and what is not</h2>
-		<p class="doctrine-note">
+		<Blockquote class="doctrine-note" intent="primary">
 			Every <code>.hz-text-&lt;intent&gt;</code> class maps to a pairing already checked against
 			WCAG AA: intent text colors are
 			<strong>AA-verified on the two surface roles only</strong>
 			(<code>--hz-color-surface</code> and <code>--hz-color-surface-muted</code>, both light and
 			dark). On any other background, contrast is yours to check.
-		</p>
+		</Blockquote>
 		<p>
 			That includes a background utility. <code>.hz-bg-danger</code> is not one of those two
 			surfaces, so <code>.hz-text-danger</code> on <code>.hz-bg-danger</code> is a pairing nothing

@@ -320,12 +320,12 @@
 		{/snippet}
 	</DocIntro>
 
-	<p class="doc-note">
-		Building your own scroll, resize or mutation-driven behavior instead? The raw
-		<code>IntersectionObserver</code>/<code>ResizeObserver</code>/<code>MutationObserver</code>
-		attachments live on their own page:
+	<Alert intent="info" title="Building your own behavior instead?" headingLevel={2}>
+		{#snippet icon()}<IconInfo />{/snippet}
+		The raw <code>IntersectionObserver</code>, <code>ResizeObserver</code>, and
+		<code>MutationObserver</code> attachments live on their own page:
 		<a href="/docs/foundation/observers">Foundation &rarr; Observers</a>.
-	</p>
+	</Alert>
 
 	<Stack
 		as="section"

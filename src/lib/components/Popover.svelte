@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
+	import { DEV } from 'esm-env';
 	import type { PopoverProps, TriggerAttrs } from '$lib/types';
 	import { cx, uid } from '$lib/utils';
 	import { prefersReducedMotion } from 'svelte/motion';
@@ -32,7 +33,7 @@
 	// Dev-only warning — the default trigger (no `trigger` snippet)
 	// must have an accessible name from somewhere (`triggerLabel` or
 	// `triggerProps.ariaLabel`); the component never fabricates one.
-	if (import.meta.env.DEV) {
+	if (DEV) {
 		if (untrack(() => !trigger && !triggerLabel && !triggerProps.ariaLabel)) {
 			console.warn(
 				'[hyzer-ui] <Popover>: the default trigger has no accessible name — pass `triggerLabel` ' +

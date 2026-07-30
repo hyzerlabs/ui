@@ -79,10 +79,12 @@ export const INTERNAL_HOOKS: Record<string, string> = {
 //   overriding --hz-width-sm to retune when the split stacks. They belong to
 //   the token scale, so Foundation documents them, not a component table.
 // - `--hz-grid-cols*`, `--hz-grid-min`, `--hz-textarea-rows`, `--hz-slider-
-//   chars`, `--hz-slider-fill*`, `--hz-tick-pos` are JS→CSS channels written
-//   inline by their components, carrying values CSS cannot compute (a live
-//   fraction, a normalized tick list). They never appear in theme CSS, so the
-//   drift check never sees them; they are internal by construction.
+//   chars`, `--hz-slider-fill*`, `--hz-tick-pos`, `--hz-logo-ratio`,
+//   `--hz-logo-width-factor` are JS→CSS channels written inline by their
+//   components, carrying values CSS cannot compute (a live fraction, a
+//   normalized tick list, a per-instance measurement). They never appear in
+//   theme CSS, so the drift check never sees them; they are internal by
+//   construction.
 // - Loading's determinate ring writes its `.hz-loading-ring-fill` inline
 //   `stroke-dashoffset` (the live value/max fraction) directly as an SVG
 //   attribute style, not a `--hz-*` custom property — the same JS→CSS
@@ -674,6 +676,39 @@ export const hooks: Record<string, ComponentHooks> = {
 			}
 		]
 	},
+	Logo: {
+		root: 'hz-logo',
+		attrs: [
+			{
+				name: 'data-fallback',
+				values: 'present with no svg',
+				note: 'The text form — no injected SVG, .hz-logo-text renders the name instead.'
+			},
+			{
+				name: 'data-monochrome',
+				values: 'present by default',
+				note: 'Absent when monochrome={false}. Gates the fill rule below, so an unset SVG keeps its own colours.'
+			}
+		],
+		props: [
+			{
+				name: '--hz-logo-size',
+				values: '<length> — default clamp(4rem, 8vw, 6rem)',
+				note: 'The normalization base every logo scales against. Override it on a wall container (Cluster/Grid) to resize every logo inside at once.'
+			},
+			{
+				name: '--hz-logo-brightness',
+				values: '<number> — default 1',
+				note: 'Applied as filter: brightness(). Usually set through the brightness prop, which stamps it inline only when != 1 — the hook stays directly settable in CSS for container-wide muting.'
+			},
+			{
+				name: '--hz-logo-color',
+				values: '<color> — default currentColor',
+				note: 'Read, not declared, in the monochrome fill rule — a wall mutes itself with one override, the Container --hz-breakout-shift precedent for a read-only hook.'
+			}
+		],
+		parts: [{ name: '.hz-logo-text', values: 'child element', note: 'The text fallback.' }]
+	},
 	Video: {
 		root: 'hz-video',
 		attrs: [
@@ -1027,7 +1062,7 @@ export const hooks: Record<string, ComponentHooks> = {
 		]
 	},
 
-	// ---------------------------------------------------------------- Common
+	// ------------------- Content / Feedback & Status / Overlays (see manifest)
 	Alert: {
 		root: 'hz-alert',
 		attrs: [
@@ -1182,6 +1217,11 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: '--hz-blockquote-border-width',
 				values: '<length> — default var(--hz-border-width-heavy)',
 				note: 'Thickness of the inline-start accent line. Defaults to the heaviest border-width token; override with any length or a lighter token. The attribution row indent tracks it automatically.'
+			},
+			{
+				name: '--hz-blockquote-font-size',
+				values: '<length> — default var(--hz-font-size-xl)',
+				note: 'Font size of the quote body. Read, never declared, so it can be set per instance or inherited from any ancestor — the docs site tunes it down to body size for its doctrine notes.'
 			}
 		],
 		parts: [

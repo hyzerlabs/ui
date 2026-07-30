@@ -17,6 +17,7 @@
  * the attribute into markup yourself, but an inline-object section paints
  * unthemed for one frame.
  */
+import { DEV } from 'esm-env';
 import type { HyzerThemeOverride } from '../config/schema.js';
 
 /**
@@ -62,7 +63,7 @@ export function theme(source: string | HyzerThemeOverride): (node: Element) => (
 				for (const [name, value] of Object.entries(vars)) el.style.setProperty(name, value);
 			})
 			.catch((error) => {
-				if (import.meta.env.DEV) {
+				if (DEV) {
 					console.warn('[hyzer-ui] theme(): could not apply the inline override.', error);
 				}
 			});

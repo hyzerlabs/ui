@@ -2335,3 +2335,25 @@ test.describe('specs/51 — Positioning (foundation page)', () => {
 	// link) are covered by the sweeps at the top of this file — it runs over
 	// every manifest route, and /foundation/positioning is one.
 });
+
+// ---------------------------------------------------------------------------
+// specs/54 R9 — Metatags dogfooded on the landing page
+// ---------------------------------------------------------------------------
+
+test.describe('specs/54 R9 — Metatags on the landing page', () => {
+	test('emits real head tags: the title is unchanged, plus canonical, og:title, and twitter:card', async ({
+		page
+	}) => {
+		await page.goto('/');
+		await expect(page).toHaveTitle('@hyzer-labs/ui — Headless Svelte 5 component library');
+		await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+			'href',
+			'https://design.hyzer.sh/'
+		);
+		await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+			'content',
+			'@hyzer-labs/ui — Headless Svelte 5 component library'
+		);
+		await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary');
+	});
+});

@@ -2,5 +2,11 @@
 	"$schema": "https://unpkg.com/@arethetypeswrong/cli/schema.json",
 	"profile": "node16",
 	"ignoreRules": ["cjs-resolves-to-esm", "internal-resolution-error"],
-	"excludeEntrypoints": ["./tokens.css", "./theme", "./theme/*.css"]
+	"excludeEntrypoints": [
+		"./tokens.css",
+		"./reset.css",
+		"./utilities.css",
+		"./theme",
+		"./theme/*.css"
+	]
 }

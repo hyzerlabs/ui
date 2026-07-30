@@ -13,6 +13,7 @@
  * `document.body` — because it attaches to a consumer element
  * whose markup it does not own, unlike Popover's inline-authored panel.
  */
+import { DEV } from 'esm-env';
 import { prefersReducedMotion } from 'svelte/motion';
 import type { Placement, TooltipOptions } from '$lib/types';
 import { cx, uid } from '$lib/utils';
@@ -48,7 +49,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 		// Text only, non-interactive. TypeScript already prevents a
 		// snippet at the type level for TS consumers — this defends the
 		// runtime boundary for anyone bypassing it (a plain-JS consumer).
-		if (import.meta.env.DEV && typeof options.text !== 'string') {
+		if (DEV && typeof options.text !== 'string') {
 			console.warn(
 				'[hyzer-ui] tooltip(): `text` must be a plain string — interactive content belongs ' +
 					'in a <Popover>, not a tooltip.'
@@ -58,7 +59,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 		// Dev-only warning — the attachment never adds tabindex itself
 		// (contrast lightboxGroup, which enhances non-interactive media); it
 		// targets already-focusable controls.
-		if (import.meta.env.DEV && !isFocusable(trigger)) {
+		if (DEV && !isFocusable(trigger)) {
 			console.warn(
 				'[hyzer-ui] tooltip(): the trigger is not natively focusable and has no `tabindex` — ' +
 					'it will show on hover but is unreachable by keyboard.'

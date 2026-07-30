@@ -48,6 +48,11 @@
 	// wherever there's an entry and there's no per-page wiring to drift.
 	// hooks.spec.ts enforces that every component page has one.
 	const componentHooks = $derived(hooks[name]);
+
+	// A non-literal expression, so the mustache below survives
+	// svelte/no-useless-mustaches — the separator must stay an explicit
+	// expression regardless (see the comment at its use site).
+	const A11Y_LINK_SEPARATOR = ' · ';
 </script>
 
 <svelte:head>
@@ -139,9 +144,12 @@
 			{#if a11yLinks.length > 0}
 				<p class="a11y-refs">
 					References:
-					{#each a11yLinks as link, i (link.href)}{#if i > 0}
-							·
-						{/if}<a href={link.href}>{link.label}</a>{/each}
+					<!-- Svelte trims whitespace at block boundaries, so the separator's
+					     spaces must be an explicit expression or the links render as
+					     `pattern·MDN` with no gap (the Motion page hand-writes ` · `). -->
+					{#each a11yLinks as link, i (link.href)}{#if i > 0}{A11Y_LINK_SEPARATOR}{/if}<a
+							href={link.href}>{link.label}</a
+						>{/each}
 				</p>
 			{/if}
 		</Stack>

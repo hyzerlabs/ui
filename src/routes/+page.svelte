@@ -1,16 +1,28 @@
 <script lang="ts">
 	/**
-	 * The landing page — the most-viewed dogfood on the site, so it is built
+	 * The landing page, the most-viewed dogfood on the site, so it is built
 	 * from library components and nothing else. No docs shell: this page is
 	 * full-bleed, with its own header and skip link.
 	 */
-	import { Hero, Container, Stack, Grid, Card, Button, Badge, Image, CodeBlock, Split } from '$lib';
+	import {
+		Hero,
+		Container,
+		Stack,
+		Grid,
+		Card,
+		Button,
+		Badge,
+		Image,
+		CodeBlock,
+		Split,
+		Metatags
+	} from '$lib';
 	import SiteChrome from '../docs/SiteChrome.svelte';
 	import SizeTable from '../docs/SizeTable.svelte';
 	import WhereNext from '../docs/WhereNext.svelte';
 	import { gettingStartedStep, nextSteps } from '../docs/nextSteps';
 
-	// Demo avatar — a labeled SVG data-URI per the placeholder-asset
+	// Demo avatar: a labeled SVG data-URI, following the placeholder-asset
 	// convention. The fence shows the realistic `import avatar from …` form.
 	const AVATAR =
 		"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%232563eb'/%3E%3Ctext x='20' y='26' text-anchor='middle' font-family='sans-serif' font-size='16' fill='white'%3ESJ%3C/text%3E%3C/svg%3E";
@@ -53,28 +65,28 @@
 		'</' + 'style>'
 	].join('\n');
 
-	// The Philosophy commitments, as headlines only — /docs/philosophy
-	// carries the argument for each. Landing pages get scanned, not read.
+	// The Philosophy commitments, as headlines only. /docs/philosophy carries
+	// the argument for each. Landing pages get scanned, not read.
 	const commitments = [
 		{
 			title: 'Accessibility first',
-			body: 'Every component ships the ARIA roles, keyboard interactions, and focus management of its WAI-ARIA pattern by default. You cannot accidentally opt out by restyling.'
+			body: 'Every component ships its WAI-ARIA pattern in full: roles, keyboard, focus. Restyling cannot turn it off.'
 		},
 		{
 			title: 'Headless structure, overridable',
-			body: 'Documented hz-* classes and data-* hooks hand you the styling; snippets hand you the markup when styling is not enough. Both are API, not implementation detail.'
+			body: 'The hz-* classes and data-* hooks hand you the styling; snippets hand you the markup. Both are documented API.'
 		},
 		{
 			title: 'Theming is opt-in, one tier at a time',
-			body: 'Take the tokens, the reference theme, your own overrides, or a generated sheet of your own. Each tier is a superset of the last, and you can stop at any of them.'
+			body: 'Tokens, the reference theme, your own overrides, or a generated sheet. Each tier is a superset of the last. Stop at any of them.'
 		},
 		{
 			title: 'No bloat',
-			body: 'Zero runtime dependencies. Components carry structural CSS and nothing else, and the reset, tokens, theme and utilities are separate imports you opt into.'
+			body: 'Components carry structural CSS and nothing else. Svelte is the only peer dependency, and nothing else reaches your production bundle.'
 		},
 		{
 			title: 'Plain language, for you and your agents',
-			body: 'The words a component ships by default are as much a part of its design as the markup. Prose a person reads without decoding is prose an agent acts on without guessing.'
+			body: 'A component’s labels, error messages and empty states are part of its design. We write them short and skip the jargon.'
 		}
 	];
 
@@ -83,13 +95,17 @@
 	const sections = [gettingStartedStep, ...nextSteps];
 </script>
 
-<svelte:head>
-	<title>@hyzer-labs/ui — Headless Svelte 5 component library</title>
-	<meta
-		name="description"
-		content="A headless, accessible Svelte 5 component library. It ships behavior, structure, and accessibility, but no visual opinions."
-	/>
-</svelte:head>
+<!-- No image prop: the site ships no og image yet, so the summary card is
+     correct until it does. No siteName either. The title alone already carries
+     the site name ("@hyzer-labs/ui — …"), and title always composes before
+     siteName, so adding siteName here would append a second "@hyzer-labs/ui"
+     and change the <title> text this page has to keep unchanged. -->
+<Metatags
+	siteUrl="https://design.hyzer.sh"
+	url="/"
+	title="@hyzer-labs/ui — Headless Svelte 5 component library"
+	description="A headless, accessible Svelte 5 component library. It ships behavior, structure, and accessibility, but no visual opinions."
+/>
 
 <SiteChrome>
 	<main id="main-content" tabindex="-1">
@@ -146,8 +162,8 @@
 				</ul>
 
 				<p class="band-lead">
-					Then import a component and render it. This is the whole file, and the result beside it is
-					that file running with the reference theme.
+					Then import a component and render it. This is the whole file. Beside it is that same file
+					running with the reference theme.
 				</p>
 				<Split fraction="2/3" gap="md" stackBelow="md">
 					<CodeBlock code={usageSvelteCode} />
@@ -195,7 +211,7 @@
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
-	/* The live half of the install example — the code beside it, rendered with
+	/* The live half of the install example: the code beside it, rendered with
 	   the reference theme this site runs. Mirrors the fence's own rules. */
 	.proof-render {
 		border: 1px dashed var(--hz-color-border, #6b7280);

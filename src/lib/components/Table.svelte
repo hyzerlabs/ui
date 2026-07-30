@@ -1,6 +1,7 @@
 <script lang="ts" generics="T">
 	import type { Snippet } from 'svelte';
 	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
+	import { DEV } from 'esm-env';
 	import type { TableColumn, TableSort } from '$lib/types';
 	import { cx } from '$lib/utils';
 	import IconChevronUp from '$lib/icons/generated/chevron-up.svelte';
@@ -78,7 +79,7 @@
 	// ---------------------------------------------------------------------------
 
 	$effect(() => {
-		if (!import.meta.env.DEV) return;
+		if (!DEV) return;
 		if (caption === undefined && !ariaLabel) {
 			console.warn(
 				'[hyzer-ui] <Table>: neither `caption` nor `ariaLabel` was provided. ' +
@@ -119,7 +120,7 @@
 	const rowIds = $derived.by((): SvelteMap<T, string> => {
 		const map = new SvelteMap<T, string>();
 		items.forEach((row, i) => map.set(row, getRowId(row, i)));
-		if (import.meta.env.DEV && !dupWarned) {
+		if (DEV && !dupWarned) {
 			const ids = Array.from(map.values());
 			if (new Set(ids).size !== ids.length) {
 				dupWarned = true;

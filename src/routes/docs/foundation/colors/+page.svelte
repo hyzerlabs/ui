@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Stack, Grid, Cluster, Badge, Alert, Button, CodeBlock } from '$lib';
+	import { Stack, Grid, Cluster, Badge, Alert, Blockquote, Button, CodeBlock } from '$lib';
 	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 	import { palette, color, intent } from '$lib/tokens';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
@@ -261,7 +261,7 @@
 				</tbody>
 			</table>
 		</div>
-		<p class="role-note">
+		<p class="doc-note">
 			<code>--hz-color-black</code> and <code>--hz-color-white</code> are absolute anchors for
 			hover-darkening mixes (Button's solid/active states, Link's hover) and on-media controls
 			(Lightbox), so they deliberately do not flip in dark. They appear twice: in the palette
@@ -380,7 +380,7 @@
 			<code>text-muted</code> and <code>border</code> follow <code>gray</code>, and every intent
 			follows its hue:
 		</p>
-		<p class="doctrine-note">
+		<Blockquote class="doctrine-note" intent="primary">
 			A named theme <strong>may override any tier, including the palette</strong>, and the dark
 			theme already does, right here. The rule is not that the palette is mode-static; the rule is
 			that components and theme sheets resolve through role (<code>--hz-color-*</code>) and intent (<code
@@ -389,7 +389,7 @@
 			place: the token source, where roles and intents are
 			<em>defined</em> (<code>--hz-color-surface: var(--hz-palette-white)</code>). That indirection
 			is the whole point.
-		</p>
+		</Blockquote>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>
@@ -434,15 +434,6 @@
 
 	p {
 		margin: 0;
-	}
-
-	/* .doctrine-note now comes from the shipped docs sheet; .role-note is the
-	   same treatment under a different name, used on this page only. */
-	.role-note {
-		padding: 0.75rem 1rem;
-		border-inline-start: 3px solid var(--hz-color-border, #6b7280);
-		font-size: var(--hz-font-size-sm, 0.875rem);
-		color: var(--hz-color-text-muted, #6b7280);
 	}
 
 	.color-card {
