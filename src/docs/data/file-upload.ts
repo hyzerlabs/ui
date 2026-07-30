@@ -39,7 +39,7 @@ export const fileUploadDoc: ComponentDoc = {
 			name: 'maxFiles',
 			type: 'number',
 			default: '—',
-			note: 'Multiple mode only — ignored in single mode (cap is inherently 1).'
+			note: 'Multiple mode only — ignored in single mode (the cap is always 1).'
 		},
 		{
 			name: 'dropzone',
@@ -104,7 +104,7 @@ export const fileUploadDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"Drag-and-drop is a progressive enhancement, so the non-drag alternative is always present. In basic mode, the visible native input opens the platform picker directly. In dropzone mode, a real `<button>` (`buttonText`) opens the same picker. No function ever depends on a dragging movement (WCAG 2.5.7).\n\nThe native input is labeled by the field's `<label for>`. In dropzone mode it is `aria-hidden` and out of the tab order, since the button is the operable, accessible control instead. `description`/`error` chain into `aria-describedby` on the input (description first), `required` sets `aria-required`, and an `error` sets `aria-invalid`.\n\nEach selected file's remove button carries a unique `Remove` label naming that file. File additions, removals, and rejection counts are announced through a polite `aria-live` status region, separate from the file list, so screen-reader users hear dynamic changes the re-rendered list alone wouldn't surface.\n\nThe theme's dragover state is a background-and-border change, not color alone.",
+		"Drag-and-drop is a progressive enhancement, so the non-drag alternative is always present. In basic mode, the visible native input opens the platform picker directly. In dropzone mode, a real `<button>` (`buttonText`) opens the same picker. No function ever depends on a dragging movement (WCAG 2.5.7).\n\nThe native input is labeled by the field's `<label for>`. In dropzone mode the input is `aria-hidden` and out of the tab order, because the button is the control you operate. `description` and `error` chain into `aria-describedby` on the input, description first. `required` sets `aria-required`, and an `error` sets `aria-invalid`.\n\nEach selected file's remove button carries its own `Remove` label naming that file. Additions, removals, and rejection counts are announced through a polite `aria-live` status region. That region sits outside the file list, so screen reader users hear changes the re-rendered list alone would not surface.\n\nThe theme's dragover state changes the background and the border, not the color alone.",
 	a11yLinks: [
 		{
 			label: 'MDN: <input type="file">',

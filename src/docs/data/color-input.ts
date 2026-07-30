@@ -47,7 +47,7 @@ export const colorInputDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"The color input is the labeled (`id`/`for`), named, form-participating control. Activating it opens the platform picker, which owns the picking experience.\n\nThe hex field is an exact-entry affordance with its own accessible name (`inputLabel`) and no `name` — it never submits.\n\n`description` and `error` chain into `aria-describedby`, description first, and an `error` sets `aria-invalid`. `required` renders the label indicator only, since a color input always holds a value.\n\nDon't let color alone carry meaning — the visible hex value helps.",
+		'The color input is the labeled (`id`/`for`), named, form-participating control. Activating it opens the platform picker, which owns the picking experience.\n\nThe hex field is there for typing an exact value. It has its own accessible name (`inputLabel`) and no `name`, so it never submits.\n\n`description` and `error` chain into `aria-describedby`, description first, and an `error` sets `aria-invalid`. `required` renders the label indicator only, since a color input always holds a value.\n\nDo not let color alone carry meaning; the visible hex value helps.',
 	a11yLinks: [
 		{
 			label: 'MDN: <input type="color">',

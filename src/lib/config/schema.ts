@@ -85,12 +85,19 @@ export interface HyzerThemeOverride {
 export interface HyzerConfig {
 	/** Where `hyzer generate` writes the sheet, relative to the config file. */
 	output?: string;
+	/**
+	 * The default theme. Everything under `tokens` is authored into the
+	 * `:root` block, which is what a page gets with no `data-theme` attribute
+	 * set. It is not "the light theme": it is the default, and light is simply
+	 * what the shipped default looks like.
+	 */
 	tokens?: HyzerTokensOverride;
 	/**
 	 * Named themes, keyed by the `data-theme` attribute value that activates
 	 * them. `dark` is a theme like any other (it merges over the base dark
-	 * authoring); `light` is reserved, because the light theme IS the default
-	 * `:root` block authored via `tokens`.
+	 * authoring); `light` is reserved, because the default theme is the `:root`
+	 * block authored via `tokens`, and `[data-theme='light']` re-asserts that
+	 * default for a reader whose system prefers dark.
 	 *
 	 * One attribute holds one value, so themes are mutually exclusive: a dark
 	 * variant of a named theme is its own entry (`'ocean-dark'`), not a

@@ -6,7 +6,7 @@
 
 	// Bring-your-own-fonts recipe — a webfont import plus one token override.
 	const customFontCode = [
-		'/* app.css — after the library sheets */',
+		'/* app.css, after the library sheets */',
 		"@import '@fontsource-variable/inter';",
 		'',
 		':root {',
@@ -46,10 +46,10 @@
 	};
 
 	const familyNotes: Record<string, string> = {
-		sans: 'The default UI face — the reference theme sets it on the page, so every component inherits it. A system stack; no webfont ships.',
+		sans: 'The default UI face. The reference theme sets it on the page, so every component inherits it. A system stack; no webfont ships.',
 		serif:
-			'An editorial face for long-form prose and display moments. No component references it by default — opt in per element.',
-		mono: 'Code and tabular data — docs code blocks and readouts resolve through it.'
+			'An editorial face for long-form prose and display moments. No component references it by default, so opt in per element.',
+		mono: 'Code and tabular data. Docs code blocks and readouts resolve through it.'
 	};
 
 	const familyOptions = fontFamilies.map((f) => ({
@@ -135,7 +135,7 @@
 	>
 		<h2 id="families-heading">Font families</h2>
 		<p>
-			Each family is a system stack — nothing is downloaded. Pick a family and weight and the full
+			Each family is a system stack, so nothing is downloaded. Pick a family and weight and the full
 			type scale re-renders below in place.
 		</p>
 		<div class="token-table-wrapper">
@@ -166,12 +166,12 @@
 					{#snippet icon()}<IconInfo />{/snippet}
 					The <code>{familyLabels[family]}</code> stack resolves to system faces that carry only
 					<code>normal</code> and <code>bold</code> ({familyExampleFaces[family]}…), so
-					<code>medium</code> and <code>semibold</code> are disabled here — they would snap to the nearest
-					available weight and render as duplicates.
+					<code>medium</code> and <code>semibold</code> are disabled here: they would snap to the
+					nearest available weight and render as duplicates.
 				</Alert>
 			{/if}
 			<p class="type-family-note">
-				<code>--hz-font-family-{family}</code> — {familyNotes[family]}
+				<code>--hz-font-family-{family}</code>: {familyNotes[family]}
 			</p>
 			<div class="specimen-list">
 				{#each fontSizes as size (size.cssVar)}
@@ -295,12 +295,12 @@
 	>
 		<h2 id="custom-fonts-heading">Using your own fonts</h2>
 		<p>
-			Every family, size, weight, and line height is a plain CSS custom property — override one
+			Every family, size, weight, and line height is a plain CSS custom property. Override one
 			directly, or set <code>typography</code> in the <code>hyzer</code> config; see
 			<a href="/docs/theming/tokens">Theming &rarr; Tokens &amp; Overrides</a>.
 		</p>
 
-		<p>Load a webfont and point the family token at it, and every component follows:</p>
+		<p>Load a webfont, point the family token at it, and every component follows:</p>
 		<CodeBlock code={customFontCode} />
 	</Stack>
 </Stack>

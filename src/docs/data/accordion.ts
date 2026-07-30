@@ -45,7 +45,7 @@ export const accordionDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"Built on native `<details>`, so no ARIA is needed for disclosure semantics. Arrow keys navigate between summaries, and Home/End jump to the first/last.\n\nDisabled items have `aria-disabled='true'` and block interaction. Summaries wrap a real heading (`headingLevel`) so panels join the document outline.",
+		"Built on native `<details>`, so no ARIA is needed for disclosure semantics. Arrow keys move between summaries, and Home/End jump to the first and last.\n\nDisabled items have `aria-disabled='true'` and block interaction. Summaries wrap a real heading (`headingLevel`) so panels join the document outline.",
 	a11yLinks: [
 		{ label: 'APG Accordion pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/accordion/' }
 	]

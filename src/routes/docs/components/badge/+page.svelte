@@ -107,7 +107,7 @@
 					</Example>
 				{:else if item.id === 'sizes'}
 					<p class="tab-note">
-						<code>rounded</code> takes the shared token scale — the same values every
+						<code>rounded</code> takes the shared token scale, the same values every
 						<code>rounded</code> prop in the library speaks. <code>full</code> (the pill) is the default.
 					</p>
 					<Example code={sizesCode}>
@@ -127,10 +127,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>onDismiss</code> turns a badge into a chip — this is the pattern the upcoming
-						Combobox uses for selected options. Note the per-item
-						<code>dismissLabel</code>: screen readers hear "Remove Destroyer", not seven identical
-						"Remove" buttons.
+						<code>onDismiss</code> turns a badge into a chip. This is the pattern Combobox uses for
+						its selected options. Note the per-item <code>dismissLabel</code>: screen readers hear
+						"Remove Destroyer" instead of a row of identical "Remove" buttons.
 					</p>
 					<Example code={chipsCode}>
 						{#if bag.length > 0}

@@ -69,7 +69,7 @@ export const imageDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"Pass a descriptive alt text for informative images. Pass alt='' for decorative images — the component sets role='presentation' automatically.",
+		"Pass descriptive alt text for informative images. Pass `alt=''` for decorative images: the component then sets `role='presentation'` for you.",
 	a11yLinks: [
 		{ label: 'MDN: <img>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img' },
 		{

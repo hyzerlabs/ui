@@ -63,17 +63,17 @@
 	<div class="doc-intro">
 		<ul class="system-list">
 			<li>
-				<strong>Spacing scale</strong> — fixed steps (<code>--hz-space-xs</code> …
+				<strong>Spacing scale</strong>: fixed steps (<code>--hz-space-xs</code> …
 				<code>xl</code>) for explicit, context-independent distances; they back the component
 				defaults.
 			</li>
 			<li>
-				<strong>Density spacing</strong> — two context-aware distances (<code>near</code> /
+				<strong>Density spacing</strong>: two context-aware distances (<code>near</code> /
 				<code>away</code>) derived from one grid unit that automatically tighten as content nests.
 				Use these for page rhythm instead of picking steps by hand.
 			</li>
 			<li>
-				<strong>Breakpoint widths</strong> — the <code>--hz-width-sm…xl</code> tokens that cap
+				<strong>Breakpoint widths</strong>: the <code>--hz-width-sm…xl</code> tokens that cap
 				<code>Container</code> and drive the <code>Grid</code>/<code>Split</code> container-query thresholds.
 			</li>
 		</ul>
@@ -115,11 +115,9 @@
 		<h2 id="density-heading">Density spacing</h2>
 		<p>
 			An alternate spacing model, adapted from
-			<a
-				href="https://blog.damato.design/posts/complementary-space/"
-				target="_blank"
-				rel="noreferrer">Complementary Space</a
-			>: instead of picking from a scale, use two distances — <code>--hz-space-near</code> between
+			<a href="https://blog.damato.design/posts/complementary-space/" target="_blank" rel="noreferrer"
+				>Complementary Space</a
+			>. Instead of picking from a scale, use two distances: <code>--hz-space-near</code> between
 			related things and
 			<code>--hz-space-away</code> between unrelated things. Both derive from the
 			<code>--hz-density</code> grid unit ({density.unit}), so overriding one custom property
@@ -154,10 +152,10 @@
 
 		<h3 id="density-demo-heading">Live demo</h3>
 		<p>
-			A real composition built from Stack and Cluster — page, sections, cards, tag rows. The code is
-			what you'd write on a fresh top-level page: every distance is <code>gap="near"</code>,
-			<code>gap="away"</code>, or <code>padding="near"</code>; each nested region adds one
-			<code>data-density-shift</code> and the whole hierarchy tightens on its own.
+			A real composition built from Stack and Cluster: page, sections, cards, tag rows. The code is
+			what you'd write on a fresh top-level page. Every distance is <code>gap="near"</code>,
+			<code>gap="away"</code>, or <code>padding="near"</code>, and each nested region adds one
+			<code>data-density-shift</code> so the whole hierarchy tightens on its own.
 		</p>
 		<Example code={densityUsage}>
 			<Stack gap="away">
@@ -186,13 +184,13 @@
 			</Stack>
 		</Example>
 		<p class="tab-note">
-			The preview compensates for where it sits. This section is already two density levels deep —
-			the docs shell and this page section each add a shift — and one ambient level costs one rung
-			on the ladder. So the live version swaps each <code>near</code> for <code>away</code> (one rung
-			back up) and drops the shifts the shell already provides: every distance then renders at its fresh-page
-			value — heading and cards at 2rem, card rhythm at 0.8rem, tag gaps at 0.4rem — except the 8rem section
-			spacing, which the tightest level caps at 2rem here. Three levels is as tight as the scale goes:
-			a fourth nested shift keeps the third level's values.
+			The preview compensates for where it sits. This section is already two density levels deep,
+			since the docs shell and this page section each add a shift, and one ambient level costs one
+			rung on the ladder. So the live version swaps each <code>near</code> for <code>away</code> (one
+			rung back up) and drops the shifts the shell already provides. Every distance then renders at
+			its fresh-page value: heading and cards at 2rem, card rhythm at 0.8rem, tag gaps at 0.4rem. The
+			one exception is the 8rem section spacing, which the tightest level caps at 2rem here. Three
+			levels is as tight as the scale goes: a fourth nested shift keeps the third level's values.
 		</p>
 	</Stack>
 
@@ -207,7 +205,8 @@
 		<p>
 			Overriding these tokens retunes <code>Container</code> max-widths, <code>Split</code>'s
 			<code>stackBelow</code> threshold, and <code>Grid</code>'s fluid
-			<code>{'{ min }'}</code> mode — they all resolve via <code>var()</code>. The one exception is
+			<code>{'{ min }'}</code> mode, because they all resolve via <code>var()</code>. The one
+			exception is
 			<code>Grid</code>'s band breakpoints (base/sm/md/lg): they mirror these values but remain
 			literal system constants, because CSS cannot read custom properties inside media or container
 			queries.
@@ -247,16 +246,16 @@
 	>
 		<h2 id="axes-heading">Logical axes</h2>
 		<p>
-			Where a component takes spacing per axis — the layout primitives'
-			<code>paddingInline</code> and <code>paddingBlock</code> props — the names are the CSS logical
-			properties they set, not physical <code>x</code>/<code>y</code>. The inline axis runs along
-			the line of text; the block axis runs across it. That keeps the props correct in every writing
-			mode: in RTL layouts the inline axis flips with the text, and in vertical writing modes it
-			runs top-to-bottom, where a physical &ldquo;x&rdquo; would pad the wrong edges.
+			Where a component takes spacing per axis (the layout primitives'
+			<code>paddingInline</code> and <code>paddingBlock</code> props), the names are the CSS logical
+			properties they set, not physical <code>x</code>/<code>y</code>. The inline axis runs along the
+			line of text; the block axis runs across it. That keeps the props correct in every writing
+			mode: in RTL layouts the inline axis flips with the text, and in vertical writing modes it runs
+			top-to-bottom, where a physical &ldquo;x&rdquo; would pad the wrong edges.
 		</p>
 		<p class="tab-note">
-			The library's own CSS follows the same rule — centering is <code>margin-inline: auto</code>,
-			gutters are <code>padding-inline</code> — so each prop maps 1:1 onto the property it drives.
+			The library's own CSS follows the same rule (centering is <code>margin-inline: auto</code>,
+			gutters are <code>padding-inline</code>), so each prop maps 1:1 onto the property it drives.
 			<code>padding</code> remains the both-axes shorthand; the per-axis longhands win where set.
 		</p>
 		<p class="tab-note">

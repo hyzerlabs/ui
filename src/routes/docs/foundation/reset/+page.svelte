@@ -19,8 +19,8 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 			An optional adaptation of
 			<a href="https://www.joshwcomeau.com/css/custom-css-reset/" target="_blank" rel="noreferrer"
 				>Josh Comeau's custom CSS reset</a
-			>: box sizing, margins, media elements, and text wrapping — nothing about color or typefaces,
-			so it works the same with the reference theme or fully headless.
+			>: box sizing, margins, media elements, and text wrapping. It says nothing about color or
+			typefaces, so it works the same with the reference theme or fully headless.
 		{/snippet}
 	</DocIntro>
 
@@ -34,9 +34,9 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 		<h2 id="import-heading">Import order</h2>
 		<p>
 			Import the reset before other stylesheets. Every rule lives in the
-			<code>hz-reset</code> cascade layer, pinned below <code>hz-theme</code>, so the reference
-			theme always beats it. Your own unlayered CSS beats both, at any specificity, because an
-			unlayered rule outranks every layered one. The reset never fights you.
+			<code>hz-reset</code> cascade layer, pinned below <code>hz-theme</code>, so the reference theme
+			always beats it. Your own unlayered CSS beats both, at any specificity, because an unlayered
+			rule outranks every layered one. The reset never fights you.
 		</p>
 		<CodeBlock code={importOrder} />
 	</Stack>
@@ -51,7 +51,7 @@ import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
 		<h2 id="source-heading">What it does</h2>
 		<ul>
 			<li><code>box-sizing: border-box</code> everywhere.</li>
-			<li>All default margins removed — spacing becomes a layout decision.</li>
+			<li>All default margins removed, so spacing becomes a layout decision.</li>
 			<li>
 				<code>interpolate-size: allow-keywords</code> so <code>height: auto</code> transitions can
 				animate (guarded by <code>prefers-reduced-motion</code>).

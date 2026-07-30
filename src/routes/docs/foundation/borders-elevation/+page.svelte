@@ -8,7 +8,7 @@
 	// kept in the stack).
 	const darkElevationCode = [
 		'/* Dark mode: convey depth by lifting the surface and adding a',
-		'   soft halo — the token shadow stays as a secondary cue. */',
+		'   soft halo. The token shadow stays as a secondary cue. */',
 		"[data-theme='dark'] .card {",
 		'\tbackground: color-mix(in srgb, var(--hz-intent-neutral) 14%, var(--hz-color-surface));',
 		'\tborder: 1px solid color-mix(in srgb, var(--hz-intent-neutral) 30%, transparent);',
@@ -113,7 +113,7 @@
 			headingLevel={3}
 			class="shadow-alert"
 		>
-			"The elevated one is selected" is invisible to anyone who can't perceive the shadow — pair
+			"The elevated one is selected" is invisible to anyone who cannot perceive the shadow. Pair
 			elevation with a state the theme also announces (<code>aria-selected</code>, a border, an
 			icon).
 		</Alert>
@@ -152,7 +152,7 @@
 			</table>
 		</div>
 		<p class="tab-note">
-			Token values are identical in both modes — what changes under the dark toggle is the demo
+			Token values are identical in both modes. What changes under the dark toggle is the demo
 			treatment above: shadows lose contrast over dark surfaces, so the cards lift their surface and
 			gain a soft halo instead (see Accessibility below). The treatment as consumer CSS:
 		</p>
@@ -186,7 +186,7 @@
 			<a href="/docs/theming/tokens">Theming &rarr; Tokens &amp; Overrides</a>.
 		</p>
 		<p class="override-note">
-			A tooltip, popover, or dropdown menu mostly skips this scale — see
+			A tooltip, popover, or dropdown menu mostly skips this scale. See
 			<a href="/docs/foundation/positioning#toplayer-heading">Positioning</a> for why the top layer
 			makes
 			<code>--hz-z-*</code> matter only on the older fallback path.
@@ -202,31 +202,31 @@
 	>
 		<h2 id="a11y-heading">Accessibility</h2>
 		<p>
-			Elevation communicates stacking: what floats above what. Reach for it on genuinely layered
-			surfaces — dropdowns, dialogs, sticky headers, cards over a page — and keep the scale's order
+			Elevation communicates stacking: what floats above what. Reach for it where surfaces really do
+			layer (dropdowns, dialogs, sticky headers, cards over a page), and keep the scale's order
 			honest: a modal casts more than a card.
 		</p>
 		<ul>
 			<li>
 				A shadow is decoration, never a boundary. A soft shadow rarely reaches the 3:1 non-text
 				contrast minimum (WCAG 1.4.11) against the surface behind it, and none of the shadow tokens
-				here are drawn to, so anything interactive still needs a border, a background change, or
-				spacing to mark its edge — and forced-colors mode removes shadows entirely.
+				here are drawn to reach it. So anything interactive still needs a border, a background
+				change, or spacing to mark its edge. Forced-colors mode removes shadows entirely.
 			</li>
 			<li>
-				Over dark surfaces black shadows lose contrast — dark UIs convey depth by lightening the
+				Over dark surfaces black shadows lose contrast. Dark UIs convey depth by lightening the
 				elevated surface, optionally with a soft halo (the shadow cards above do both under the dark
-				toggle, keeping the token shadow as a secondary cue). A glow alone is a weak boundary — the
-				card interior matches the page — and a brand-tinted glow collides with the focus ring's
-				color language, so keep halos neutral and subordinate to the surface change. The tokens stay
-				identical in both modes; the treatment is the theme's call.
+				toggle, keeping the token shadow as a secondary cue). A glow alone is a weak boundary,
+				because the card interior matches the page. A brand-tinted glow collides with the focus
+				ring's color language, so keep halos neutral and subordinate to the surface change. The
+				tokens stay identical in both modes; the treatment is the theme's call.
 			</li>
 			<li>
-				Stacking is visual only — <code>z-index</code> never reorders the DOM, so reading and focus order
-				are untouched by elevation. The tiers still carry focus consequences: a bar pinned on the sticky
-				tier can cover a focused element that scrolls beneath it (WCAG 2.4.11 — keep pinned bars short),
-				and layers that appear on hover or focus (the dropdown and popover tiers) must be dismissible,
-				hoverable, and persistent per WCAG 1.4.13.
+				Stacking is visual only. <code>z-index</code> never reorders the DOM, so reading and focus
+				order are untouched by elevation. The tiers still carry focus consequences: a bar pinned on
+				the sticky tier can cover a focused element that scrolls beneath it (WCAG 2.4.11, so keep
+				pinned bars short), and layers that appear on hover or focus (the dropdown and popover tiers)
+				must be dismissible, hoverable, and persistent per WCAG 1.4.13.
 			</li>
 		</ul>
 		<p class="a11y-refs">

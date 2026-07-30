@@ -95,8 +95,8 @@
 
 <DocPage name="Accordion" {...accordionDoc}>
 	<p class="demo-note">
-		Panels ship no display/height/overflow of their own so you can animate the open/close yourself —
-		the reference theme's own summary-icon rotation honors <code>--hz-duration-*</code> /
+		Panels ship no display, height, or overflow of their own, so you can animate the open and close
+		yourself. The reference theme's summary-icon rotation honors <code>--hz-duration-*</code> /
 		<code>--hz-ease-*</code>. See <a href="/docs/foundation/motion">Motion</a> for the token values
 		and the <code>@hyzer-labs/ui/motion</code> script-side helpers built on them.
 	</p>
@@ -168,8 +168,8 @@
 					</Example>
 				{:else if item.id === 'collapsible'}
 					<p class="tab-note">
-						With <code>collapsible={'{false}'}</code> in single mode, the open panel can't be toggled
-						closed — one section is always expanded.
+						With <code>collapsible={'{false}'}</code> in single mode, you cannot close the open panel.
+						One section is always expanded.
 					</p>
 					<Example code={collapsibleCode}>
 						<Accordion {items} collapsible={false} defaultOpen="what">

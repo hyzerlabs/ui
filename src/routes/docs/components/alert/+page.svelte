@@ -103,9 +103,9 @@
 <DocPage name="Alert" {...alertDoc}>
 	<Alert intent="info" title="Alert vs Banner">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Reach for <code>Alert</code> when the message is soft, inline, and contextual — feedback that
-		sits next to the thing it describes. For a full-width, solid, page-level announcement you can
-		pin to the top or bottom, use <a href="/docs/components/banner">Banner</a> instead.
+		Use <code>Alert</code> for an inline message that sits next to the thing it describes. For a
+		solid, full-width announcement at page level, one you can pin to the top or bottom, use
+		<a href="/docs/components/banner">Banner</a> instead.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Alert demos" defaultTab="intents">
 		{#snippet panel(item)}
@@ -131,8 +131,9 @@
 					</Example>
 				{:else if item.id === 'icon'}
 					<p class="tab-note">
-						<code>icon</code> is a decorative leading slot — rendered <code>aria-hidden</code>, so
-						pair it with an intent-matched glyph the title/body already say in words.
+						The <code>icon</code> slot is a decorative leading slot, rendered
+						<code>aria-hidden</code>. Pair it with a glyph that matches the intent, and make sure the
+						title or body already says the same thing in words.
 					</p>
 					<Example code={iconCode}>
 						<Stack gap="sm">
@@ -148,8 +149,8 @@
 					</Example>
 				{:else if item.id === 'rounded'}
 					<p class="tab-note">
-						The shared <code>Rounded</code> scale — 1:1 with the <code>--hz-radius-*</code> tokens,
-						default <code>'md'</code>.
+						The shared <code>Rounded</code> scale maps 1:1 to the <code>--hz-radius-*</code> tokens.
+						The default is <code>'md'</code>.
 					</p>
 					<Example code={roundedCode}>
 						<div class="rounded-demo">
@@ -190,9 +191,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						Announcement is opt-in: an Alert rendered with the page is just content, but one
-						inserted after an action should carry <code>role="status"</code> so screen readers hear it.
-						Click the button — the alert appears and announces politely.
+						Announcement is opt-in. An Alert rendered with the page is just content, but one inserted
+						after an action should carry <code>role="status"</code> so screen readers hear it. Click
+						the button below: the alert appears and announces politely.
 					</p>
 					<Example code={announceCode}>
 						<Stack gap="sm">

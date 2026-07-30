@@ -20,6 +20,9 @@ export const intro = [
 ];
 
 export default defineConfig({
+	// Everything under `tokens` is the default theme: it is authored into the
+	// :root block, which is what a page gets with no data-theme attribute.
+	// Named variants (dark, and any of your own) go under `themes`.
 	tokens: {
 		palette: {
 			// Layer 1 — accent palette. Warning/success deepen slightly from

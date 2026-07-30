@@ -147,17 +147,17 @@
 	<DocIntro>
 		{#snippet lead()}
 			The full <a href="https://lucide.dev" target="_blank" rel="noreferrer">Lucide</a> set (ISC)
-			ships as generated per-icon Svelte components — <strong>{allNames.length} icons</strong>,
-			Lucide v{LUCIDE_VERSION} — decorative by default, labeled when you pass
+			ships as generated per-icon Svelte components: <strong>{allNames.length} icons</strong> from
+			Lucide v{LUCIDE_VERSION}. Each one is decorative by default, and labeled when you pass
 			<code>ariaLabel</code>.
 		{/snippet}
 	</DocIntro>
 
 	<div class="doc-intro">
 		<p class="doc-note">
-			Brand marks aren't included. Every icon-accepting component takes a snippet, so bring your own
-			as needed — an inline SVG, an icon font glyph, or a package like
-			<code>simple-icons</code> — the same way you'd pass any of these.
+			Brand marks are not included. Every icon-accepting component takes a snippet, so bring your
+			own: an inline SVG, an icon font glyph, or a package like <code>simple-icons</code>. You pass
+			one of those the same way you pass a Lucide icon.
 		</p>
 	</div>
 
@@ -170,14 +170,14 @@
 	>
 		<h2 id="import-heading">Import</h2>
 		<p>
-			Import from the barrel (<code>@hyzer-labs/ui/icons</code>) for zero config — bundler
-			tree-shaking keeps your app lean. Prefer a deep import (<code
+			Import from the barrel (<code>@hyzer-labs/ui/icons</code>) for zero config: your bundler
+			tree-shakes the rest away. Use a deep import (<code
 				>@hyzer-labs/ui/icons/&lt;name&gt;</code
-			>) to skip the barrel entirely, which keeps a dev server's module graph small. Declare an
+			>) to skip the barrel, which keeps a dev server's module graph small. Or declare an
 			<code>icons: [...]</code>
 			list in
-			<code>hyzer.config.ts</code> and run <code>hyzer generate</code> to get a curated,
-			project-local barrel — see
+			<code>hyzer.config.ts</code> and run <code>hyzer generate</code> for a curated, project-local
+			barrel. See
 			<a href="/docs/foundation/config#icons-config-heading">Config &amp; CLI</a>.
 		</p>
 		<CodeBlock code={importCode} />
@@ -230,8 +230,8 @@
 						<p class="tab-note">
 							<code>intent</code> colors the glyph from the shared vocabulary (<code
 								>color: var(--hz-intent-*)</code
-							>) — see
-							<a href="/docs/foundation/colors#intent">Foundation &rarr; Colors &amp; Intent</a>. A
+							>). See
+							<a href="/docs/foundation/colors#intent">Foundation &rarr; Colors &amp; Intent</a>.
 							<code>class</code> is a separate hook, yours to style.
 						</p>
 						<Example code={intentCode}>
@@ -250,8 +250,8 @@
 						</Example>
 					{:else}
 						<p class="tab-note">
-							Without <code>ariaLabel</code> an icon is decorative —
-							<code>aria-hidden="true"</code>, invisible to assistive tech. With it, the svg carries
+							Without <code>ariaLabel</code>, an icon is decorative: it gets
+							<code>aria-hidden="true"</code>, and assistive tech skips it. With one, the svg carries
 							an accessible name.
 						</p>
 						<Example code={a11yCode}>
@@ -281,7 +281,7 @@
 	>
 		<h2 id="props-heading">Props</h2>
 		<p>
-			Every icon in the library shares the same interface. Anything else you pass is forwarded to
+			Every icon in the library shares the same interface. Anything else you pass goes straight to
 			the
 			<code>svg</code> root.
 		</p>
@@ -297,12 +297,12 @@
 	>
 		<h2 id="core-heading">Core icons</h2>
 		<p>
-			These <strong>{CORE_ICONS.length}</strong> icons — marked
-			<Badge size="sm" intent="primary">core</Badge> — ship in every <code>hyzer generate</code>
-			barrel no matter what your <code>icons</code> config says, even <code>icons: []</code>.
-			They're the glyphs this library's own components render internally (the chevrons, close, menu,
-			search, and friends), so trimming your icon vocabulary can never accidentally break a
-			component you're already using.
+			These <strong>{CORE_ICONS.length}</strong> icons, marked
+			<Badge size="sm" intent="primary">core</Badge>, ship in every <code>hyzer generate</code>
+			barrel no matter what your <code>icons</code> config says, even <code>icons: []</code>. They
+			are the glyphs this library's own components render internally: the chevrons, close, menu,
+			search, and so on. Trimming your icon vocabulary can never break a component you are already
+			using.
 		</p>
 		<div class="core-grid">
 			{#each CORE_ICONS as name (name)}

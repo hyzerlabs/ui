@@ -84,9 +84,10 @@
 			<div class="tab-content">
 				{#if item.id === 'responsive'}
 					<p class="tab-note">
-						Column counts are <em>container queries</em> against the Grid's own width — a Grid in a
-						sidebar and one in a hero pick their own layouts independently of the window. Each key
-						names the band ending at its width token: <code>sm</code> below 640px, <code>md</code>
+						Column counts are <em>container queries</em> against the Grid's own width. A Grid in a
+						sidebar and one in a hero each pick their own layout, whatever the window is doing. Each
+						key names the band ending at its width token: <code>sm</code> below 640px,
+						<code>md</code>
 						to 968px, <code>lg</code> to 1200px, <code>xl</code> beyond. Use the slider to change the
 						grid's width.
 					</p>
@@ -104,10 +105,10 @@
 				{:else if item.id === 'fluid'}
 					<p class="tab-note">
 						<code>columns={'{{ min: … }}'}</code> fits as many equal tracks as have at least
-						<code>min</code> room — no breakpoints at all. Unlike the band thresholds (fixed
-						constants), <code>min</code> is any length <em>including</em> <code>var()</code>, so
-						this mode is fully token- and override-driven. Prefer it when the real requirement is
-						"cards at least this wide".
+						<code>min</code> room, with no breakpoints at all. The band thresholds are fixed
+						constants, but <code>min</code> takes any length, <code>var()</code>
+						<em>included</em>, so you can drive this mode from tokens and overrides. Reach for it when
+						the real requirement is "cards at least this wide".
 					</p>
 					<Container breakout padding="none">
 						<Example code={fluidCode}>
@@ -122,7 +123,7 @@
 					</Container>
 				{:else if item.id === 'fixed'}
 					<p class="tab-note">
-						A number gives the same column count at every width — no responsive behavior.
+						A number gives the same column count at every width, with no responsive behavior.
 					</p>
 					<Tabs
 						items={fixedValues.map((v) => ({ id: String(v), label: String(v) }))}
@@ -145,7 +146,7 @@
 				{:else if item.id === 'gap'}
 					<p class="tab-note">
 						<code>near</code> and <code>away</code> are the
-						<a href="/docs/foundation/spacing">density distances</a> — context-aware values that
+						<a href="/docs/foundation/spacing">density distances</a>: context-aware values that
 						tighten inside <code>data-density-shift</code> regions.
 					</p>
 					<Tabs
@@ -167,8 +168,8 @@
 					</Tabs>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
-						<code>align</code> maps to <code>align-items</code> — visible when cells in the same row
-						have different heights. The default <code>stretch</code> equalizes them.
+						<code>align</code> maps to <code>align-items</code>. You see it when cells in the same row
+						have different heights; the default <code>stretch</code> makes them equal.
 					</p>
 					<Tabs
 						items={alignValues.map((v) => ({ id: v, label: v }))}
@@ -197,8 +198,8 @@
 						The tinted zone is the Grid; the space between its edge and the cells is the padding. It
 						sits on the grid root, so the column breakpoints measure the padded-down width.
 						<code>padding</code> applies on both axes; <code>paddingInline</code> /
-						<code>paddingBlock</code> override one axis and win where set. The axis names are the
-						CSS logical properties, so they stay correct in RTL and vertical writing modes — see
+						<code>paddingBlock</code> override one axis and win where set. The axis names are the CSS
+						logical properties, so they stay correct in RTL and vertical writing modes. See
 						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs

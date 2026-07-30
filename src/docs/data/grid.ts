@@ -8,7 +8,7 @@ export const gridDoc: ComponentDoc = {
 			name: 'columns',
 			type: 'number | { sm?: number; md?: number; lg?: number; xl?: number } | { min: string }',
 			default: '{ sm: 1, md: 2, lg: 3 }',
-			note: 'Band keys name the band ending at their width token: sm below 640px, md to 968px, lg to 1200px, xl beyond — fixed system constants (queries can’t read tokens). { min } is the fluid, fully var-driven mode.'
+			note: 'Band keys name the band ending at their width token: sm below 640px, md to 968px, lg to 1200px, xl beyond — fixed system constants, because queries cannot read tokens. { min } is the fluid, fully var-driven mode.'
 		},
 		{
 			name: 'gap',

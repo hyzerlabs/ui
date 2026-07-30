@@ -46,7 +46,7 @@ export const breadcrumbsDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'Breadcrumbs renders a `<nav aria-label="Breadcrumb">` landmark wrapping an ordered list. The last item is the current page — `aria-current="page"` is applied automatically (as plain text when it has no `href`). Separators are decorative and `aria-hidden`.',
+		'Breadcrumbs renders a `<nav aria-label="Breadcrumb">` landmark wrapping an ordered list. The last item is the current page: it gets `aria-current="page"` automatically, and renders as plain text when it has no `href`. Separators are decorative and `aria-hidden`.',
 	a11yLinks: [
 		{
 			label: 'APG Breadcrumb pattern',

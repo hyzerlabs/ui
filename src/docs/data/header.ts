@@ -47,5 +47,5 @@ export const headerDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-header class.' }
 	],
 	a11yNote:
-		"The header is a `banner` landmark. Its bar and drawer each render a `Nav` landmark with distinct accessible names (`ariaLabel` and `ariaLabel (menu)`), so they don't collide.\n\nThe hamburger carries `aria-expanded`/`aria-controls`. The open drawer traps focus, and `Escape` closes it and returns focus to the toggle.\n\nEvery link stays reachable at narrow widths through the drawer."
+		'The header is a `banner` landmark. Its bar and drawer each render a `Nav` landmark with distinct accessible names (`ariaLabel` and `ariaLabel (menu)`), so they do not collide.\n\nThe hamburger carries `aria-expanded` and `aria-controls`. The open drawer traps focus. `Escape` closes it and returns focus to the toggle.\n\nAt narrow widths, the drawer keeps every link reachable.'
 };

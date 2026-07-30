@@ -124,7 +124,7 @@
 			<div class="tab-content">
 				{#if item.id === 'quote-only'}
 					<p class="tab-note">
-						With no <code>cite</code>, the figure wraps a bare quote — no
+						With no <code>cite</code>, the figure wraps a bare quote and no
 						<code>&lt;figcaption&gt;</code> renders.
 					</p>
 					<Example code={quoteOnlyCode}>
@@ -135,7 +135,7 @@
 				{:else if item.id === 'attributed'}
 					<p class="tab-note">
 						<code>cite</code> renders a visible attribution in a <code>&lt;figcaption&gt;</code>
-						after the quote — naming a person here is the widely-accepted convention.
+						after the quote. Naming a person here is the widely accepted convention.
 					</p>
 					<Example code={attributedCode}>
 						<Blockquote cite="Paige Pierce">
@@ -145,7 +145,7 @@
 				{:else if item.id === 'sourced'}
 					<p class="tab-note">
 						<code>citeUrl</code> sets the machine-readable <code>cite</code> attribute on the inner
-						<code>&lt;blockquote&gt;</code> — it's never rendered as visible text.
+						<code>&lt;blockquote&gt;</code>, and it's never rendered as visible text.
 					</p>
 					<Example code={sourcedCode}>
 						<Blockquote cite="PDGA Rules Committee" citeUrl="https://www.pdga.com/rules">
@@ -155,8 +155,8 @@
 					</Example>
 				{:else if item.id === 'aligned'}
 					<p class="tab-note">
-						<code>align</code> moves the attribution row — <code>start</code> (default),
-						<code>center</code>, or <code>end</code> — while the quote body stays put.
+						<code>align</code> moves the attribution row: <code>start</code> (default),
+						<code>center</code>, or <code>end</code>. The quote body stays put.
 					</p>
 					<Tabs
 						items={alignValues.map((v) => ({ id: v, label: v }))}
@@ -176,10 +176,10 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						<code>intent</code> colors the accent line (<code>border-inline-start</code>); the
-						<code>intentScope</code> control below opts the quote text into the same color too — the
-						attribution row stays muted either way. No intent renders exactly today's look. See the
-						<a href="/docs/foundation/colors#intent">intent vocabulary</a>.
+						<code>intent</code> colors the accent line (<code>border-inline-start</code>). The
+						<code>intentScope</code> control below opts the quote text into the same color, and the
+						attribution row stays muted either way. Leaving <code>intent</code> unset keeps the
+						default look. See the <a href="/docs/foundation/colors#intent">intent vocabulary</a>.
 					</p>
 					<Example code={intentDemoCode}>
 						<div class="intent-demo">

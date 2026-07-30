@@ -81,9 +81,9 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Pass <code>items</code> plus <code>brand</code> and <code>actions</code> snippets —
-						Header composes a <a href="/docs/components/nav">Nav</a> internally from the same items, horizontal
-						in the bar and vertical in the mobile drawer, so there is nothing to wrap.
+						Pass <code>items</code> plus the <code>brand</code> and <code>actions</code> snippets.
+						Header composes a <a href="/docs/components/nav">Nav</a> from those same items: horizontal
+						in the bar, vertical in the mobile drawer. There is nothing for you to wrap.
 					</p>
 					<Container breakout padding="none">
 						<Example code={basicCode}>
@@ -101,8 +101,8 @@
 				{:else if item.id === 'surface'}
 					<p class="tab-note">
 						<code>variant</code> sets the bar surface; <code>bordered</code> adds a bottom hairline
-						that composes with either. Each demo sits on a tinted backdrop (not part of Header) so
-						<code>transparent</code> visibly shows the surface underneath.
+						that composes with either. Each demo sits on a tinted backdrop that is not part of Header,
+						so <code>transparent</code> has something to show through.
 					</p>
 					<Tabs
 						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}
@@ -130,11 +130,11 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						Drag under 968px and the bar collapses to the hamburger; <code>actions</code> stays in
-						the collapsed bar too, pinned to the end next to the hamburger (override
-						<code>margin-inline-start</code> on <code>.hz-header-actions</code> to center it or place
-						it elsewhere). Open the drawer to see the vertical Nav + actions repeated below it, focus-trapped
-						and Esc-to-close.
+						Drag under 968px and the bar collapses to the hamburger. <code>actions</code> stays in the
+						collapsed bar, pinned to the end next to the hamburger; override
+						<code>margin-inline-start</code> on <code>.hz-header-actions</code> to move it somewhere
+						else. Open the drawer to see the vertical Nav with the actions repeated below it. The
+						drawer traps focus, and Esc closes it.
 					</p>
 					<Container breakout padding="none">
 						<Example code={mobileCode}>

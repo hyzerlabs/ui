@@ -101,7 +101,7 @@
 
 <DocPage name="Hero" {...heroDoc}>
 	<p class="demo-note">
-		Hero is headless — the dashed outline below is docs scaffolding so its bounds are visible.
+		Hero is headless. The dashed outline below is docs scaffolding, so you can see its bounds.
 	</p>
 	<Tabs items={demoTabs} ariaLabel="Hero demos" defaultTab="layout">
 		{#snippet panel(item)}
@@ -214,10 +214,10 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						Only affects the split layout, and only while it's stacked — media moves above the
-						content, with DOM and reading order unchanged. The split stacks below 968px (<code
+						This only affects the split layout, and only while it is stacked: media moves above the
+						content, and DOM and reading order stay the same. The split stacks below 968px (<code
 							>--hz-width-md</code
-						>) of its own width; use the slider to cross the threshold, and toggle
+						>) of its own width. Use the slider to cross that threshold, then toggle
 						<code>reverseOnMobile</code> to flip which element leads once it stacks.
 					</p>
 					<Container breakout padding="none">

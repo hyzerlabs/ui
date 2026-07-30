@@ -38,5 +38,5 @@ export const heroDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"Hero renders a `<section>` with `aria-labelledby` pointing at the title element, or `aria-label` when there's no title. Use `headingLevel` to keep your page's heading hierarchy correct — if the page already has an h1, hero titles inside it should typically be level 2."
+		"Hero renders a `<section>` with `aria-labelledby` pointing at the title element, or `aria-label` when there is no title. Use `headingLevel` to keep your page's heading hierarchy correct. If the page already has an h1, hero titles inside it are usually level 2."
 };

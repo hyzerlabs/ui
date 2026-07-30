@@ -86,8 +86,8 @@
 <DocPage name="Image" {...imageDoc}>
 	<Alert intent="info" title="Image + Lightbox">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Image renders media, Lightbox provides viewing. <code>Image</code> has no click-to-view of its
-		own — for that, pass an <code>Image</code> into a
+		Image renders media; Lightbox handles viewing. <code>Image</code> has no click-to-view of its
+		own. To add it, pass an <code>Image</code> into a
 		<a href="/docs/components/lightbox">Lightbox</a>
 		component's <code>trigger</code> snippet, or wire the <code>lightboxGroup</code> attachment over
 		an <code>Image</code> grid you already render.
@@ -118,8 +118,8 @@
 					</Tabs>
 				{:else if item.id === 'fit'}
 					<p class="tab-note">
-						<code>fit</code> maps to <code>object-fit</code> inside the aspect-ratio box — the demo source
-						is 21/9, letterboxed into a 4/3 frame so the modes differ visibly.
+						<code>fit</code> maps to <code>object-fit</code> inside the aspect-ratio box. The demo
+						source is 21/9, letterboxed into a 4/3 frame, so the modes differ visibly.
 					</p>
 					<Tabs
 						items={fits.map((f) => ({ id: f, label: f }))}
@@ -169,9 +169,9 @@
 					</Tabs>
 				{:else if item.id === 'placeholder'}
 					<p class="tab-note">
-						Placeholders fill the box while the image loads: <code>color</code> paints a flat
-						swatch, <code>blur</code> crossfades from a low-res <code>placeholderSrc</code>. The
-						demo SVGs load instantly, so the effect is brief here.
+						Placeholders fill the box while the image loads: <code>color</code> paints a flat swatch,
+						and <code>blur</code> crossfades from a low-res <code>placeholderSrc</code>. The demo SVGs
+						load instantly, so the effect is brief here.
 					</p>
 					<Tabs
 						items={placeholders.map((p) => ({ id: p, label: p }))}
@@ -205,10 +205,10 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						<code>sources</code> renders a <code>&lt;picture&gt;</code> — the browser takes the
-						first matching source, falling back to <code>src</code>. Source <code>media</code>
-						conditions are <em>viewport</em> queries per the platform, so resize the window across 968px
-						to watch the labeled candidates swap.
+						<code>sources</code> renders a <code>&lt;picture&gt;</code>: the browser takes the first
+						matching source, and falls back to <code>src</code>. Source <code>media</code>
+						conditions are <em>viewport</em> queries, the way the platform defines them, so resize the
+						window across 968px to watch the labeled candidates swap.
 					</p>
 					<Example code={pictureCode}>
 						<Image

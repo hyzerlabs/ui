@@ -104,9 +104,9 @@
 <DocPage name="Banner" {...bannerDoc}>
 	<Alert intent="info" title="Banner vs Alert">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Reach for <code>Banner</code> for a full-width, solid, page-level announcement — maintenance
-		notices, promos, outage bars — optionally pinned to an edge. When the message is a soft, inline,
-		contextual one, use <a href="/docs/components/alert">Alert</a> instead.
+		Use <code>Banner</code> for a solid, full-width announcement at page level: maintenance notices,
+		promos, outage bars. You can pin it to an edge. When the message is inline and sits next to the
+		thing it describes, use <a href="/docs/components/alert">Alert</a> instead.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Banner demos" defaultTab="intents">
 		{#snippet panel(item)}
@@ -129,7 +129,7 @@
 					</Container>
 				{:else if item.id === 'dismissible'}
 					<p class="tab-note">
-						Same contract as Alert/Badge: <code>onDismiss</code> renders the button, you own the
+						Same contract as Alert and Badge: <code>onDismiss</code> renders the button, you own the
 						visibility state. Give the button a specific <code>dismissLabel</code>.
 					</p>
 					<Container breakout padding="none">
@@ -155,8 +155,8 @@
 				{:else if item.id === 'actions'}
 					<p class="tab-note">
 						The <code>actions</code> snippet is a trailing slot for a <code>Link</code> or
-						<code>Button</code> — both are retargeted onto the bar's own fg/bg pair so they stay legible
-						against the intent fill.
+						<code>Button</code>. Both are retargeted onto the bar's own foreground/background pair, so
+						they stay legible against the intent fill.
 					</p>
 					<Container breakout padding="none">
 						<Example code={actionsCode}>
@@ -170,11 +170,11 @@
 					</Container>
 				{:else if item.id === 'rich'}
 					<p class="tab-note">
-						<code>children</code> is a plain snippet — any markup is allowed. For a heading-and-body
-						bar, put the opt-in <code>hz-banner-title</code> theme class on your own lead element
-						(the <code>hz-card-title</code> convention): it goes block-level, so the lead stacks over
-						the body copy with no wrapper markup, while the icon, actions, and dismiss cells keep their
-						places on the row.
+						<code>children</code> is a plain snippet, so any markup is allowed. For a
+						heading-and-body bar, put the opt-in <code>hz-banner-title</code> theme class on your own
+						lead element, the same convention as <code>hz-card-title</code>. The class goes
+						block-level, so the lead stacks over the body copy with no wrapper markup, while the
+						icon, actions, and dismiss cells keep their places on the row.
 					</p>
 					<Container breakout padding="none">
 						<Example code={richCode}>
@@ -189,17 +189,23 @@
 					</Container>
 				{:else if item.id === 'pinned'}
 					<p class="tab-note">
-						<code>pin="top"</code> / <code>pin="bottom"</code> stick the bar to that edge of its
-						scroll container, in flow — nothing beneath it is overlapped. Scroll the box below to
-						see it stay put. Keep pinned banners short: a bar that grows tall can cover a focused
-						element that scrolls under it (<a
+						<code>pin="top"</code> and <code>pin="bottom"</code> stick the bar to that edge of its
+						scroll container, in flow, so nothing beneath it is overlapped. Scroll the box below to
+						see it stay put.
+					</p>
+					<p class="tab-note">
+						Keep pinned banners short. A bar that grows tall can cover a focused element that scrolls
+						under it (<a
 							href="https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html"
 							>WCAG 2.4.11</a
-						>) — give in-page anchor targets <code>scroll-margin-block-start</code>/<code>-end</code
+						>). Give in-page anchor targets a <code>scroll-margin-block-start</code>/<code
+							>-end</code
 						>
-						equal to the banner height so they clear it. For viewport-fixed behaviour instead of in-flow
-						sticky, pass your own <code>class</code> with <code>position: fixed</code> — that's a CSS
-						override, not a prop.
+						equal to the banner height so they clear it.
+					</p>
+					<p class="tab-note">
+						For viewport-fixed behavior instead of in-flow sticky, pass your own <code>class</code>
+						with <code>position: fixed</code>. That is a CSS override rather than a prop.
 					</p>
 					<Container breakout padding="none">
 						<Example code={pinnedCode}>
@@ -217,8 +223,8 @@
 					</Container>
 				{:else}
 					<p class="tab-note">
-						Persisted dismissal is consumer logic — Banner only fires <code>onDismiss</code>; it
-						keeps no internal dismissed state and ships no localStorage handling. A typical pattern:
+						Persisting a dismissal is your logic. Banner only fires <code>onDismiss</code>: it keeps
+						no dismissed state of its own and ships no localStorage handling. A typical pattern:
 					</p>
 					<CodeBlock code={dontShowAgainCode} />
 				{/if}

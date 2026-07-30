@@ -15,7 +15,7 @@
 		'// Two separate things: whether the reader has made an EXPLICIT choice,',
 		'// and what their system prefers. null = no choice yet, so the attribute',
 		"// stays off and the sheet's prefers-color-scheme block picks the",
-		'// default — following the system needs no JS at all.',
+		'// default. Following the system needs no JS at all.',
 		"let choice = $state(null); // 'light' | 'dark' | null",
 		'let systemDark = $state(false);',
 		"const dark = $derived(choice ? choice === 'dark' : systemDark);",
@@ -165,18 +165,18 @@
 	>
 		<h2 id="palette-heading">Palette tokens</h2>
 		<p>
-			<code>--hz-palette-*</code> — these tokens ship fixed values. Override them to retheme the
-			entire palette at once. Components and the reference theme never read these directly (see the
-			doctrine note below) — this page and
-			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> are the exception, building
-			and grading the raw names for review.
+			The <code>--hz-palette-*</code> tokens ship fixed values. Override them to retheme the entire
+			palette at once. Components and the reference theme never read these directly (see the doctrine
+			note below). This page and
+			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> are the exception: they build
+			and grade the raw names for review.
 		</p>
 		<Grid columns={{ sm: 2, md: 3, lg: 4 }} gap="sm">
 			{#each paletteTokens as token (token.cssVar)}
 				<div class="color-card">
 					<!-- Painted from the live token (not the authored hex) so the swatch
 					     follows the site's mode toggle; the visible hex label switches
-					     with it via the mode-only spans below. Decorative — the labels
+					     with it via the mode-only spans below. Decorative: the labels
 					     carry the values. -->
 					<div
 						class="swatch"
@@ -206,7 +206,7 @@
 	>
 		<h2 id="roles-heading">Semantic roles & intent</h2>
 		<p>
-			Components never reference the palette directly — they resolve through role tokens, the single
+			Components never reference the palette directly. They resolve through role tokens, the single
 			indirection point a theme overrides. Roles come in two families: structural roles (<code
 				>--hz-color-*</code
 			>) name what a color <em>does</em> in the layout, and intent roles (<code>--hz-intent-*</code
@@ -215,7 +215,7 @@
 		<h3 id="structural-roles">Structural roles</h3>
 		<p>
 			There are seven. <code>surface</code>, <code>surfaceMuted</code>, and <code>text</code> are
-			re-authored for dark mode, so their value changes with the mode. <code>textMuted</code> and
+			re-authored by the dark theme, so their value changes with the mode. <code>textMuted</code> and
 			<code>border</code> are authored once and follow whatever the palette gives them.
 			<code>black</code> and <code>white</code> are alias roles, identical in both modes. The table shows
 			the value each one resolves to for the mode you are reading in.
@@ -234,9 +234,9 @@
 						<tr>
 							<td><code>{token.cssVar}</code></td>
 							<!-- Roles the dark theme re-authors (surface, surface-muted, text)
-							     show the value for the mode you're looking at; the rest — including
-							     the black/white anchors, which never re-author — are the same
-							     var() chain in both modes. -->
+							     show the value for the mode you're looking at. The rest,
+							     including the black/white anchors that never re-author, are the
+							     same var() chain in both modes. -->
 							<td>
 								{#if darkValueFor(token.key)}
 									<code class="mode-light">{token.value}</code>
@@ -248,7 +248,7 @@
 							<td>
 								<!-- The token itself, not its authored value: surface's value is
 								     var(--hz-palette-white), which stays white under the dark
-								     toggle — the dark theme overrides the ROLE, so paint it. -->
+								     toggle. The dark theme overrides the ROLE, so paint the role. -->
 								<div
 									class="swatch swatch-sm"
 									style="background-color: var({token.cssVar})"
@@ -263,33 +263,34 @@
 		<p class="role-note">
 			<code>--hz-color-black</code> and <code>--hz-color-white</code> are absolute anchors for
 			hover-darkening mixes (Button's solid/active states, Link's hover) and on-media controls
-			(Lightbox) — deliberately do not flip in dark. They appear in both the palette section above
-			(as the <code>black</code>/<code>white</code> palette source) and here (as anchor roles); that duality
-			is intentional — the role is what components actually read.
+			(Lightbox), so they deliberately do not flip in dark. They appear twice: in the palette section
+			above as the <code>black</code>/<code>white</code> palette source, and here as anchor roles. That
+			duality is intentional, because the role is what components actually read.
 		</p>
 		<h3 id="intent">Intent</h3>
 		<p>
 			Intent is the shared vocabulary components use when color carries meaning: the
-			<code>Intent</code> type in <code>@hyzer-labs/ui/types</code> —
+			<code>Intent</code> type in <code>@hyzer-labs/ui/types</code>, which is
 			<code>neutral</code> plus the six status hues. Every intent-bearing component takes the full
-			set, with <code>neutral</code> as the default when nothing is being signalled. Intent color is reinforcement,
-			never the only signal — the text carries the meaning.
+			set, with <code>neutral</code> as the default when nothing is being signalled. Intent color is
+			reinforcement, never the only signal. The text carries the meaning.
 		</p>
 		<p>
-			Each intent has its own role token, one indirection above the palette: override
-			<code>--hz-intent-*</code> to retarget status colors specifically — a danger red that isn't
-			your brand red — or override the palette and the intents follow. Every intent-bearing surface
+			Each intent has its own role token, one indirection above the palette. Override
+			<code>--hz-intent-*</code> to retarget status colors specifically (a danger red that is not
+			your brand red), or override the palette and the intents follow. Every intent-bearing surface
 			(<code>Button</code>, <code>Badge</code>, and <code>Alert</code> intents, plus field error states)
 			resolves through this layer.
 		</p>
-		<Alert intent="info" title="These seven are a starting set, not a ceiling" headingLevel={4}>
+		<Alert intent="info" title="Add your own intents" headingLevel={4}>
 			{#snippet icon()}<IconInfo />{/snippet}
-			A component only stamps <code>data-intent="&lt;name&gt;"</code> and lets the theme decide what
-			the name means, so the vocabulary is yours to grow. Define
+			These seven are a starting set. A component only stamps
+			<code>data-intent="&lt;name&gt;"</code> and lets the theme decide what the name means, so the
+			vocabulary is yours to grow. Define
 			<code>--hz-intent-&lt;name&gt;</code> in your config and it gets
-			<a href="/docs/foundation/contrast">contrast-graded</a> like any built-in; augment the
+			<a href="/docs/foundation/contrast">contrast-graded</a> like any built-in. Augment the
 			<code>IntentRegistry</code> interface and <code>intent="yours"</code> type-checks and
-			autocompletes on every component — while a typo still fails to compile. The
+			autocompletes on every component, while a typo still fails to compile. The
 			<a href="/docs/theming/examples#intents-heading">Terminal example theme</a> adds two,
 			<code>phosphor</code> and <code>amber</code>, and shows all three steps.
 		</Alert>
@@ -324,7 +325,7 @@
 				</tbody>
 			</table>
 		</div>
-		<p>One vocabulary, every component — <code>danger</code> shown across the family:</p>
+		<p>One vocabulary, every component. Here is <code>danger</code> across the family:</p>
 		<Stack gap="sm">
 			<Cluster gap="sm" align="center">
 				<Button intent="danger">Delete round</Button>
@@ -333,7 +334,7 @@
 			</Cluster>
 			<Alert intent="danger" title="Course closed" headingLevel={4}>
 				{#snippet icon()}<IconTriangleAlert />{/snippet}
-				Lightning in the area — clear the course now.
+				Lightning in the area. Clear the course now.
 			</Alert>
 		</Stack>
 	</Stack>
@@ -348,41 +349,45 @@
 		<h2 id="dark-heading">Dark mode</h2>
 		<p>
 			Dark mode is optional, with three equally supported postures. <strong>Do nothing</strong> and
-			the sheet follows the reader's system preference on its own — it ships a
-			<code>prefers-color-scheme</code> block that applies only while no choice has been made, so
-			obeying the system costs you no JavaScript. <strong>Pin one mode</strong> by setting
-			<code>data-theme="light"</code> or <code>data-theme="dark"</code> on
-			<code>&lt;html&gt;</code> once and stopping there. Or <strong>wire a toggle</strong> that writes
-			the attribute, like this docs site does. Components resolve the same role and intent tokens in every
-			posture, so nothing else in your markup or CSS changes between them.
+			the sheet follows the reader's system preference on its own. It ships a
+			<code>prefers-color-scheme</code> block that applies only while no
+			<code>data-theme</code> attribute is set, so obeying the system costs you no JavaScript.
+			<strong>Pin one look</strong>
+			by setting <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> once and stopping there,
+			or <code>data-theme="light"</code> to hold the default look even for a reader whose system
+			prefers dark. Or <strong>wire a toggle</strong> that writes the attribute, like this docs site
+			does. Components resolve the same role and intent tokens in every posture, so nothing else in
+			your markup or CSS changes between them.
 		</p>
 		<p>
-			The toggle in this site's sidebar is exactly this — an icon-only <code>Button</code> that
-			writes the reader's choice and remembers it. Note what it does <em>not</em> do: it never
-			signals light mode by removing the attribute. The system default is scoped to
+			The toggle in this site's sidebar is exactly this: an icon-only <code>Button</code> that writes
+			the reader's choice and remembers it. Note what it does <em>not</em> do: it never signals light
+			by removing the attribute. The system default is scoped to
 			<code>:root:not([data-theme])</code>, so a removed attribute hands a system-dark reader dark
 			mode and makes the light half of the toggle look broken.
 		</p>
 		<CodeBlock code={toggleCode} />
 		<h3 id="dark-overrides-heading">Overrides</h3>
 		<p>
-			Dark mode is a set of overrides in <code>[data-theme="dark"]</code>. Out of the box
-			<code>--hz-color-surface</code> and <code>--hz-color-text</code> flip,
+			The base tokens are the default theme: what a page renders with no <code>data-theme</code>
+			attribute set, and light is simply how that default looks. Dark is a named theme layered over it,
+			a set of overrides in <code>[data-theme="dark"]</code>. Out of the box
+			<code>--hz-color-surface</code> and <code>--hz-color-text</code> swap,
 			<code>--hz-color-surface-muted</code> strengthens its gray tint (6% is invisible over black),
-			and every hue in <code>--hz-palette-*</code> lightens to a companion that keeps WCAG AA as
-			text on dark surfaces. Almost nothing is re-authored beyond that at Layer 2 —
+			and every hue in <code>--hz-palette-*</code> lightens to a companion that keeps WCAG AA as text
+			on dark surfaces. Almost nothing is re-authored beyond that at Layer 2:
 			<code>text-muted</code> and <code>border</code> follow <code>gray</code>, and every intent
 			follows its hue:
 		</p>
 		<p class="doctrine-note">
-			Dark mode <strong>may override any tier, including the palette</strong> — and it already does,
-			right here. The rule is not that the palette is mode-static; the rule is that components and
-			theme sheets resolve through role (<code>--hz-color-*</code>) and intent (<code
+			A named theme <strong>may override any tier, including the palette</strong>, and the dark theme
+			already does, right here. The rule is not that the palette is mode-static; the rule is that
+			components and theme sheets resolve through role (<code>--hz-color-*</code>) and intent (<code
 				>--hz-intent-*</code
 			>) tokens, <strong>never the palette directly</strong>. Palette is referenced in exactly one
-			place — the token source, where roles and intents are
-			<em>defined</em> (<code>--hz-color-surface: var(--hz-palette-white)</code>) — the whole point
-			of the indirection.
+			place: the token source, where roles and intents are
+			<em>defined</em> (<code>--hz-color-surface: var(--hz-palette-white)</code>). That indirection is
+			the whole point.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -403,8 +408,8 @@
 			</table>
 		</div>
 		<p>
-			Any role can be overridden the same way — including intents. If your danger red reads too
-			harsh on a dark surface, set <code>--hz-intent-danger</code> inside
+			Any role can be overridden the same way, including intents. If your danger red reads too harsh
+			on a dark surface, set <code>--hz-intent-danger</code> inside
 			<code>[data-theme="dark"]</code> and every intent-bearing surface follows.
 		</p>
 		<p>

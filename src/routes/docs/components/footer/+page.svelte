@@ -98,7 +98,7 @@
 
 	const responsiveCode = [
 		'<!-- Columns auto-fit the footer’s own width: as many as have at least',
-		'     --hz-footer-col-min (12rem, consumer-tunable) of room -->',
+		'     --hz-footer-col-min (12rem, yours to retune) of room -->',
 		'<Footer {columns} headingLevel={3} />'
 	].join('\n');
 
@@ -142,12 +142,11 @@
 				{#if item.id === 'variants'}
 					<p class="tab-note">
 						<code>default</code> fills with the muted surface (<code>--hz-color-surface-muted</code
-						>),
-						<code>minimal</code> is transparent with tighter padding — the surface underneath shows
-						through. <code>bordered</code> is a separate boolean prop (a top hairline), so it
-						composes with either variant. Each demo sits on a tinted backdrop (not part of Footer)
-						so
-						<code>minimal</code> visibly shows the surface underneath. Each column's
+						>).
+						<code>minimal</code> is transparent with tighter padding, so whatever sits behind it shows
+						through. <code>bordered</code> is a separate boolean prop (a top hairline), so it composes
+						with either variant. Each demo sits on a tinted backdrop that is not part of Footer, so
+						<code>minimal</code> has something to show through. Each column's
 						<code>links</code> reuses
 						<a href="/docs/components/nav">Nav</a>'s <code>NavItem</code> shape (<code>label</code
 						>/<code>href</code>/<code>external</code>/<code>ariaCurrent</code>).
@@ -198,10 +197,10 @@
 					</Tabs>
 				{:else if item.id === 'slots'}
 					<p class="tab-note">
-						<code>social</code> is a plain snippet — any icon works, including brand marks. The
+						<code>social</code> is a plain snippet, so any icon works, including brand marks. The
 						library ships the full Lucide set (generic glyphs like <code>globe</code>,
-						<code>mail</code>, and <code>rss</code> below); real brand marks (GitHub, X, etc.) are
-						bring-your-own — drop an SVG, an icon-font glyph, or a package like
+						<code>mail</code>, and <code>rss</code> below). Brand marks such as GitHub or X are
+						bring-your-own: drop an SVG, an icon-font glyph, or a package like
 						<code>simple-icons</code> straight into the snippet.
 					</p>
 					<Example code={slotsCode}>
@@ -221,9 +220,9 @@
 					</Example>
 				{:else if item.id === 'columns'}
 					<p class="tab-note">
-						Columns auto-fit the footer's own width — as many as have at least
-						<code>--hz-footer-col-min</code> (12rem, consumer-tunable via that custom property) of room,
-						no breakpoints involved. Use the slider to watch them stack.
+						Columns auto-fit the footer's own width: you get as many as have at least
+						<code>--hz-footer-col-min</code> of room (12rem, and yours to retune through that custom
+						property). No breakpoints involved. Use the slider to watch them stack.
 					</p>
 					<Container breakout padding="none">
 						<Example code={responsiveCode}>
@@ -234,10 +233,10 @@
 					</Container>
 				{:else}
 					<p class="tab-note">
-						Footer has no dedicated background hook — <code>class</code> merges after
-						<code>hz-footer</code>, and this unlayered consumer CSS beats the theme without needing
-						<code>!important</code>. A low-percentage <code>color-mix</code> tint keeps the existing text
-						color's contrast intact.
+						Footer has no dedicated background hook. <code>class</code> merges after
+						<code>hz-footer</code>, and your unlayered CSS beats the theme without needing
+						<code>!important</code>. A low-percentage <code>color-mix</code> tint keeps the existing
+						text color's contrast intact.
 					</p>
 					<Example code={themedBgCode}>
 						<Footer columns={demoColumns} headingLevel={3} class="brand-footer" />

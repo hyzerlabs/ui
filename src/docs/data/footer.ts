@@ -64,5 +64,5 @@ export const footerDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"Each column is a `<nav>` landmark with `aria-label` set to its title — the visible heading repeats the same text but isn't what names the landmark. Set `headingLevel` to match your page hierarchy. Links use the Link component, and icon-only social links need an `ariaLabel`."
+		"Each column is a `<nav>` landmark whose `aria-label` is its title. The visible heading repeats that text, but the heading is not what names the landmark. Set `headingLevel` to match your page hierarchy. Links use the Link component, and icon-only social links need an `ariaLabel`."
 };

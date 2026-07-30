@@ -70,7 +70,7 @@
 
 <DocPage name="Card" {...cardDoc}>
 	<p class="demo-note">
-		Card is headless — the dashed outline below is docs scaffolding so its box is visible.
+		Card is headless. The dashed outline below is docs scaffolding, added so its box is visible.
 	</p>
 	<Tabs items={demoTabs} ariaLabel="Card demos" defaultTab="padding">
 		{#snippet panel(item)}

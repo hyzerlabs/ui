@@ -54,7 +54,7 @@ export const formDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'The error summary is the first child of the form and has `role="alert"`, so it\'s announced when it appears. It\'s focused when errors arrive after a submit — or the first invalid field is focused instead, with `focusTarget="firstField"`.\n\nEach summary item links to its field and focuses it on activation, scrolling smoothly unless `prefers-reduced-motion` is set.\n\nSet `summaryHeadingLevel` so the summary title fits your page\'s heading outline.',
+		'The error summary is the first child of the form and has `role="alert"`, so it is announced when it appears. It takes focus when errors arrive after a submit. With `focusTarget="firstField"`, the first invalid field takes focus instead.\n\nEach summary item links to its field and focuses it on activation, scrolling smoothly unless `prefers-reduced-motion` is set.\n\nSet `summaryHeadingLevel` so the summary title fits your page\'s heading outline.',
 	a11yLinks: [
 		{ label: 'MDN: <form>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/form' }
 	]

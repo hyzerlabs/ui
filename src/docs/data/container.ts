@@ -35,5 +35,5 @@ export const containerDoc: ComponentDoc = {
 		{ name: 'children', type: 'Snippet', default: '—' }
 	],
 	a11yNote:
-		"Container is a layout primitive with no ARIA semantics. Supply a meaningful landmark element via the `as` prop (e.g. as='main') when appropriate."
+		"Container is a layout primitive with no ARIA semantics. Use the `as` prop to render a meaningful landmark element (e.g. as='main') where that fits."
 };

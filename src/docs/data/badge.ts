@@ -35,5 +35,5 @@ export const badgeDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-badge class.' }
 	],
 	a11yNote:
-		'A badge is plain inline text with no role and no label — it announces as part of the surrounding content. Never let the intent color be the only signal; the text itself carries the meaning.\n\nThe dismiss button is a real `<button>` named by `dismissLabel`, with a decorative icon. When rendering several chips, give each a per-item label like `Remove Destroyer`.'
+		'A badge is plain inline text with no role and no label, so it announces as part of the surrounding content. Never let the intent color be the only signal; the text itself carries the meaning.\n\nThe dismiss button is a real `<button>` named by `dismissLabel`, with a decorative icon. When rendering several chips, give each a per-item label like `Remove Destroyer`.'
 };

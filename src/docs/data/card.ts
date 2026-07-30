@@ -21,5 +21,5 @@ export const cardDoc: ComponentDoc = {
 		{ name: 'actions', type: 'Snippet', default: '—' }
 	],
 	a11yNote:
-		'When `href` is set the entire card is wrapped in a link — supply `ariaLabel` with a descriptive name. Inner interactive elements remain clickable above the overlay via z-index.'
+		'When `href` is set, the entire card is wrapped in a link, so supply `ariaLabel` with a descriptive name. Inner interactive elements remain clickable above the overlay via z-index.'
 };

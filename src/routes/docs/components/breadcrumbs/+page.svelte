@@ -5,7 +5,7 @@
 	import { breadcrumbsDoc } from '../../../../docs/data/breadcrumbs.js';
 	import Example from '../../../../docs/Example.svelte';
 
-	// Demo links are '#' so readers can't accidentally navigate away.
+	// Demo links are '#' so readers cannot accidentally navigate away.
 	const trail: BreadcrumbItem[] = [
 		{ label: 'Home', href: '#' },
 		{ label: 'Components', href: '#' },
@@ -61,7 +61,7 @@
 				{:else if item.id === 'wrapping'}
 					<p class="tab-note">
 						The trail is a cluster-style wrapping row. Each separator rides with its crumb, so a
-						wrapped line never starts with one — shown here in a narrow container.
+						wrapped line never starts with one. The narrow container below shows it.
 					</p>
 					<Example code={wrapCode}>
 						<div class="narrow">

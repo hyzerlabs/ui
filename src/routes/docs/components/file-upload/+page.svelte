@@ -150,8 +150,9 @@
 					</Example>
 				{:else if item.id === 'multiple'}
 					<p class="tab-note">
-						<code>multiple</code> appends each accepted pick to the existing selection (de-duplicated
-						by name + size + modified date) and renders a removable list with human-readable sizes.
+						<code>multiple</code> appends each accepted pick to the existing selection, de-duplicated
+						by name, size, and modified date. The picks render as a removable list with readable file
+						sizes.
 					</p>
 					<Example code={basicMultipleCode}>
 						<div class="demo-col">
@@ -161,9 +162,9 @@
 				{:else if item.id === 'dropzone'}
 					<p class="tab-note">
 						The <code>dropzone</code> prop swaps the visible input for a drag-and-drop surface. The
-						native input is still the submission source of truth — dropped files reach it via a
-						rebuilt <code>DataTransfer</code>. The real <code>Browse files</code> button is always present
-						as the non-drag alternative.
+						native input is still what gets submitted: dropped files reach it through a rebuilt
+						<code>DataTransfer</code>. The real <code>Browse files</code> button is always there as the
+						alternative to dragging.
 					</p>
 					<Example code={dropzoneCode}>
 						<div class="demo-col">
@@ -178,9 +179,10 @@
 					</Example>
 				{:else if item.id === 'validation'}
 					<p class="tab-note">
-						<code>accept</code>, <code>maxSize</code>, and <code>maxFiles</code> filter and report —
-						they don't self-set the field <code>error</code>. This demo maps <code>onreject</code>
-						into the <code>error</code> string itself, and clears it on the next accepted change.
+						<code>accept</code>, <code>maxSize</code>, and <code>maxFiles</code> filter files and
+						report what they rejected. They do not set the field <code>error</code> themselves. This
+						demo maps <code>onreject</code> into the <code>error</code> string, then clears it on the
+						next accepted change.
 					</p>
 					<Example code={validationCode}>
 						<div class="demo-col">
@@ -200,7 +202,7 @@
 					</Example>
 				{:else if item.id === 'submission'}
 					<p class="tab-note">
-						The real named input carries the selected files into a plain form submission —
+						The real named input carries the selected files into a plain form submission:
 						<code>new FormData(form).getAll(name)</code> returns exactly the selected files, in order.
 					</p>
 					<Example code={submissionCode}>
@@ -227,12 +229,12 @@
 					<p class="tab-note">
 						<code>description</code> and <code>error</code> chain into
 						<code>aria-describedby</code>.
-						<code>required</code> sets <code>aria-required</code> and the visual asterisk only —
-						enforcing it is your code's job. <code>Form</code> renders the summary from the errors
-						you hand it, and validates nothing itself. The field never applies a native
+						<code>required</code> sets <code>aria-required</code> and the visual asterisk, so
+						enforcing it is your code's job. <code>Form</code> renders the summary from the errors you
+						hand it, and validates nothing itself. The field never applies a native
 						<code>required</code> attribute (a visually-hidden required input in dropzone mode would
-						be unfocusable). <code>disabled</code> applies native <code>disabled</code> to the input and
-						the activation button and drops remove buttons from the list.
+						be unfocusable). <code>disabled</code> applies native <code>disabled</code> to the input
+						and the activation button, and drops the remove buttons from the list.
 					</p>
 					<Example code={statesCode}>
 						<div class="demo-wide">
