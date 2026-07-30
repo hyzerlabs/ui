@@ -49,7 +49,10 @@ describe.each(examples)('example theme: $name', ({ name, config, intro, sheet, s
 		// `:root` drop-in example, so the docs page re-generates it scoped
 		// rather than importing the shipped sheet.
 		const committed = readFileSync(join(here, sheet), 'utf8');
-		expect(committed).toContain(`${selector} {`);
+		// The selector opens a rule, which it may share with its own
+		// [data-theme='light'] variant when the two blocks would be identical.
+		const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		expect(committed).toMatch(new RegExp(`^${escaped}\\s*[,{]`, 'm'));
 		if (name !== 'ocean') expect(committed).not.toMatch(/^:root\s*[,{]/m);
 	});
 });

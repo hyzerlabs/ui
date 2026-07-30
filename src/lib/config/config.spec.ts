@@ -270,7 +270,9 @@ describe('generateCss — overrides mode', () => {
 			resolveConfig({ tokens: { palette: { primary: '#0f766e', fairway: '#3f6212' } } }),
 			{ mode: 'overrides' }
 		);
-		expect(css).toContain(':root {');
+		// The rule opens at :root; it may share that rule with
+		// [data-theme='light'] when every restored token is one of these.
+		expect(css).toMatch(/^:root\s*[,{]/m);
 		expect(css).toContain('--hz-palette-primary: #0f766e;');
 		expect(css).toContain('--hz-palette-fairway: #3f6212;');
 		expect(css).not.toContain('--hz-palette-gray');

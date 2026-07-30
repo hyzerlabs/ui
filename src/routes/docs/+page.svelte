@@ -48,7 +48,7 @@
 		'}',
 		'',
 		"[data-theme='dark'] {",
-		'\t--hz-palette-primary: #2dd4bf; /* its dark companion */',
+		'\t--hz-palette-primary: #2dd4bf; /* the same token, for dark */',
 		'}'
 	].join('\n');
 
@@ -57,6 +57,8 @@
 		'',
 		'export default defineConfig({',
 		"\toutput: 'src/styles/tokens.css',",
+		'',
+		'\t// The default theme: the :root block a page gets with no data-theme set.',
 		'\ttokens: {',
 		'\t\tpalette: {',
 		"\t\t\tprimary: '#0f766e',",
@@ -64,6 +66,8 @@
 		'\t\t},',
 		"\t\tintent: { fairway: 'var(--hz-palette-brand-red-900)' } // new intents too",
 		'\t},',
+		'',
+		'\t// Named variants that override the default, keyed by data-theme.',
 		"\tthemes: { dark: { palette: { primary: '#2dd4bf' } } }",
 		'});'
 	].join('\n');
@@ -76,7 +80,7 @@
 		'/* import YOUR generated sheet instead of ours */',
 		"@import './styles/tokens.css';",
 		"@import '@hyzer-labs/ui/theme';",
-		"@import './styles/hyzer-utilities.css'; /* only if you opted in */"
+		"@import './styles/hyzer-utilities.css'; /* only if you generated it */"
 	].join('\n');
 </script>
 
@@ -98,7 +102,9 @@
 		<CodeBlock code={installCode} language="bash" />
 		<ul class="note-list">
 			<li><strong>Svelte</strong> 5.32 or newer.</li>
-			<li><strong>Node</strong> 22.18 or newer. Only the <code>hyzer</code> CLI needs it.</li>
+			<li>
+				<strong>Node</strong> 22.18 or newer. You need it for the <code>hyzer</code> CLI in step 3.
+			</li>
 			<li><strong>TypeScript</strong> is optional. Types ship with the package.</li>
 			<li><strong>SvelteKit</strong> is optional. The library imports nothing from Kit.</li>
 		</ul>
@@ -111,10 +117,11 @@
 		class="doc-section"
 		aria-labelledby="tier-one-heading"
 	>
-		<h2 id="tier-one-heading">1. Import and go</h2>
+		<h2 id="tier-one-heading">1. Import the styles and use a component</h2>
 		<p>
-			Import the token sheet that ships with the package, and the reference theme, once and
-			globally. Then use the components. Every page on this site runs exactly this setup.
+			Import the token sheet that ships with the package, and the reference theme. Do this once, in
+			your global stylesheet. Then use the components. Every page on this site runs this exact
+			setup.
 		</p>
 		<CodeBlock code={tierOneCss} title="app.css" language="css" />
 		<Split fraction="2/3" gap="md" stackBelow="md">
@@ -137,8 +144,8 @@
 			</div>
 		</Split>
 		<p class="doc-note">
-			The theme is optional. Skip it and the components stay headless: you keep the behavior and
-			accessibility, with no appearance opinions beyond native element defaults.
+			The theme is optional. Skip it and the components stay headless: you keep the behavior and the
+			accessibility, and the browser's own defaults decide how everything looks.
 		</p>
 	</Stack>
 
@@ -151,18 +158,20 @@
 	>
 		<h2 id="tier-two-heading">2. Override tokens in CSS</h2>
 		<p>
-			Every visual decision resolves through a <code>--hz-*</code> custom property, or design token. Redefine
-			any of them in your own stylesheet (palette, roles, intents, radius, density) with no build step.
+			Every visual decision resolves through a <code>--hz-*</code> custom property, also called a design
+			token. Redefine any of them in your own stylesheet: palette, roles, intents, radius, density. There
+			is no build step.
 		</p>
 		<p>
-			Dark mode runs on the same hook the library uses: <code>data-theme</code>. Dark is simply the
-			theme that ships with a name. The attribute works on any element, so one section can carry its
-			own theme. A page that sets no attribute at all follows the reader's system preference on its
-			own, with no script involved.
+			Dark mode runs on the same hook the library uses internally: the <code>data-theme</code>
+			attribute. The tokens you set in <code>:root</code> are the default, which is what a page gets
+			when nothing sets that attribute. A named theme like <code>dark</code> then overrides the default.
+			The attribute works on any element, so one section can carry its own theme. Set it nowhere at all
+			and the page follows the reader's system preference on its own, with no script involved.
 		</p>
 		<CodeBlock code={tierTwoCss} title="app.css" language="css" />
 		<p class="doc-note">
-			The full recipe collection lives in <a href="/docs/theming/tokens"
+			More override recipes live in <a href="/docs/theming/tokens"
 				>Theming → Tokens &amp; Overrides</a
 			>. <a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> shows how to check a new
 			palette.
@@ -178,22 +187,24 @@
 	>
 		<h2 id="tier-three-heading">3. Generate your own tokens (optional)</h2>
 		<p>
-			For build-layer control, describe your system in <code>hyzer.config.ts</code> and let the
-			<code>hyzer</code> CLI generate the sheet. It merges your settings over the base schema and
-			writes a WCAG contrast report on every run. Add <code>--strict</code> to fail the build on an AA
-			miss.
+			This step moves your choices into the build. Describe your system in
+			<code>hyzer.config.ts</code>
+			and let the <code>hyzer</code> CLI generate the sheet. The CLI merges your settings over the
+			base schema. Every run prints a WCAG contrast report to your console. Add
+			<code>--strict</code> and any AA miss fails the run.
 		</p>
 		<CodeBlock code={tierThreeConfig} title="hyzer.config.ts" language="ts" />
 		<CodeBlock code={tierThreeRun} title="package.json" language="json" />
 		<CodeBlock code={tierThreeImport} title="app.css" language="css" />
 		<p class="doc-note">
-			<code>hyzer generate --mode overrides</code> emits a patch sheet to import <em>after</em>
-			ours instead of replacing it. See <a href="/docs/foundation/config">Config &amp; CLI</a> for the
-			whole option surface and when to pick which mode.
+			<code>hyzer generate --mode overrides</code> writes a patch sheet to import <em>after</em>
+			ours instead of replacing it. See <a href="/docs/foundation/config">Config &amp; CLI</a> for every
+			option and how to choose a mode.
 		</p>
 		<p class="doc-note">
-			Add <code>utilities: true</code> to the config (or run with <code>--utilities</code>) to also
-			generate <code>hyzer-utilities.css</code>, the opt-in single-property helper classes. See
+			Add <code>utilities: true</code> to the config (or run with <code>--utilities</code>) and the
+			CLI also writes <code>hyzer-utilities.css</code>, the opt-in single-property helper classes.
+			See
 			<a href="/docs/foundation/utilities">Utilities</a>.
 		</p>
 	</Stack>

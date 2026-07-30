@@ -481,8 +481,30 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 
 	const parts: string[] = [header];
 	const hasRoot = rootEntries.length > 0 || resolved.density.unitFromConfig;
+
+	/**
+	 * The light block below re-restores the tokens this sheet overrides, and it
+	 * draws them from `rootEntries` — the same names with the same values. When
+	 * every restored token is one this sheet already declares at the root, the
+	 * two blocks would carry identical declarations, so they share one rule
+	 * instead. Any token the root declares and light does not is a token no
+	 * theme changes, which makes declaring it under light harmless.
+	 */
+	const restorableNames = new Set(
+		lightRestore(resolved, [
+			themeBlock(resolved, resolved.dark),
+			...resolved.themes.map((theme) => themeBlock(resolved, theme))
+		]).map((e) => e.cssName)
+	);
+	const mergeLight =
+		hasRoot &&
+		rootEntries.some((e) => restorableNames.has(e.cssName)) &&
+		!resolved.density.unitFromConfig;
+
 	if (hasRoot) {
-		parts.push(`${selector} {`);
+		parts.push(
+			mergeLight ? `${selector},\n${themeSelector(selector, 'light')} {` : `${selector} {`
+		);
 		parts.push(...declarations(rootEntries, '\t', false));
 		if (resolved.density.unitFromConfig) parts.push(`\t--hz-density: ${resolved.density.unit};`);
 		parts.push('}');
@@ -521,7 +543,7 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 			(e) => e.cssName
 		)
 	);
-	const restore = rootEntries.filter((e) => restorable.has(e.cssName));
+	const restore = mergeLight ? [] : rootEntries.filter((e) => restorable.has(e.cssName));
 	if (restore.length > 0) {
 		if (emitted) parts.push('');
 		parts.push(`${themeSelector(selector, 'light')} {`);

@@ -1,19 +1,19 @@
 /**
- * Ocean — example theme config.
- * `pnpm gen:tokens` renders this through the token engine (overrides mode)
- * into the committed ocean.css next to it — generated from this config,
- * regenerate rather than hand-editing ocean.css directly. The config doubles
- * as docs: /docs/theming/examples shows it verbatim.
+ * Ocean: an example theme built from nothing but token overrides.
+ *
+ * This is a working config, the kind you would write yourself. Running the
+ * `hyzer` CLI over it produces `ocean.css` beside it, so edit this file and
+ * regenerate rather than editing the sheet by hand.
  */
 import { defineConfig } from '../../config/index.js';
 
-/** Header prose woven into the generated sheet. */
+/** The comment header the generated sheet opens with. */
 export const intro = [
-	'Example theme — Ocean',
-	'Cool teal accents on slate neutrals. A token-override sheet: it restyles',
-	'the headless hooks AND the reference theme purely by redefining tokens.',
+	'Example theme: Ocean',
+	'Cool teal accents on slate neutrals. Every difference comes from',
+	'redefining tokens. No component is restyled by hand.',
 	'',
-	'Usage (order matters — overrides win by coming later in the cascade):',
+	'Import order matters: these overrides win by coming last.',
 	"  import '@hyzer-labs/ui/tokens.css';",
 	"  import '@hyzer-labs/ui/theme';            // optional",
 	"  import '@hyzer-labs/ui/theme/examples/ocean.css';"
@@ -25,8 +25,8 @@ export default defineConfig({
 	// Named variants (dark, and any of your own) go under `themes`.
 	tokens: {
 		palette: {
-			// Layer 1 — accent palette. Warning/success deepen slightly from
-			// the base hues so they hold AA on the slate-tinted muted surface.
+			// The accent hues. Warning and success are a little deeper than the
+			// stock ones so they still pass AA on this theme's tinted surface.
 			primary: '#0f766e',
 			secondary: '#155e75',
 			info: '#0369a1',
@@ -34,20 +34,20 @@ export default defineConfig({
 			success: '#166534'
 		},
 		color: {
-			// Layer 2 — semantic roles (light)
+			// The semantic roles: what a color does in the layout.
 			surface: '#f8fafc',
 			text: '#0f172a',
 			textMuted: '#475569',
 			border: '#64748b'
 		},
-		// Intent remap: neutral rides the muted-text slate instead of the base
-		// gray, which falls just short of AA on this theme's muted surface.
+		// One intent remapped: neutral takes the slate used for muted text,
+		// because the stock gray falls just short of AA on this theme's surface.
 		intent: { neutral: 'var(--hz-color-text-muted)' }
 	},
 	themes: {
 		dark: {
 			palette: {
-				// Brighten accents that sit on dark surfaces.
+				// The dark theme brightens the accents that sit on a dark surface.
 				primary: '#2dd4bf',
 				secondary: '#22d3ee',
 				danger: '#fca5a5'

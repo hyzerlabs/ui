@@ -1,14 +1,14 @@
 /**
- * Example theme — Terminal (tokens)
- * Phosphor-on-black palette for the standalone CRT sheet. Scoped to the
- * .hz-theme-terminal class rather than :root, so the theme travels with
+ * Example theme: Terminal (tokens)
+ * A phosphor-on-black palette for the standalone CRT sheet. It is scoped to
+ * the .hz-theme-terminal class rather than :root, so the theme travels with
  * the class and can share a page with anything else.
  *
- * Terminal declines to be a light theme: both modes are dark. Light is the
- * tube at rest, dark is lights-out — brighter phosphor on true black.
+ * Both looks here are dark. The default is a tube at rest, and the dark
+ * theme is lights-out: brighter phosphor on true black.
  *
- * This is only the palette — terminal.css imports it plus the component
- * sheets. See terminal.css for the usage contract.
+ * This file is only the palette. terminal.css imports it along with the
+ * component sheets, and documents how to use them.
  *
  * @hyzer-labs/ui token overrides
  *
@@ -20,7 +20,9 @@
  * Import this sheet AFTER @hyzer-labs/ui/tokens.css so the overrides
  * win by source order.
  */
-.hz-theme-terminal {
+.hz-theme-terminal,
+.hz-theme-terminal[data-theme='light'],
+[data-theme='light'] .hz-theme-terminal {
 	--hz-palette-secondary: #00e5ff;
 	--hz-palette-success: #00ff41;
 	--hz-palette-warning: #ffd166;
@@ -51,24 +53,4 @@
 	--hz-color-text: #4dff80;
 	--hz-color-text-muted: #00c853;
 	--hz-color-border: #33ff66;
-}
-
-.hz-theme-terminal[data-theme='light'],
-[data-theme='light'] .hz-theme-terminal {
-	--hz-palette-secondary: #00e5ff;
-	--hz-palette-success: #00ff41;
-	--hz-palette-warning: #ffd166;
-	--hz-palette-danger: #ff3b30;
-	--hz-palette-info: #00e5ff;
-	--hz-color-surface: #0b0f0b;
-	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 6%, var(--hz-color-surface));
-	--hz-color-text: #33ff66;
-	--hz-color-text-muted: #00a844;
-	--hz-color-border: #00ff41;
-	--hz-intent-neutral: var(--hz-color-text-muted);
-	--hz-intent-secondary: var(--hz-palette-secondary);
-	--hz-intent-danger: var(--hz-palette-danger);
-	--hz-intent-warning: var(--hz-palette-warning);
-	--hz-intent-success: var(--hz-palette-success);
-	--hz-intent-info: var(--hz-palette-info);
 }

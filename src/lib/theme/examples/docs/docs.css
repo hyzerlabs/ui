@@ -1,68 +1,52 @@
 /**
- * Example theme — Docs, display name "Docs — the look this site runs on",
- * id `docs`.
+ * Example theme: Docs.
  *
- * The MIDDLE TIER of the Ocean → Docs → Terminal freedom arc (see
- * /theming/examples, amended 2026-07-23 — the arc is how much of the
- * reference theme a tier keeps, and this one keeps all of it): it adds no
- * config and no palette — every declaration below resolves through the
- * reference theme's own role/intent tokens. What it ships instead is this
- * site's reading chrome: named scaffold classes for the page/demo rhythm,
- * one worked component-hook override (`.docs-table`), the in-prose code-chip
- * treatment, and a content focus-visible ring. This is the sheet
- * `design.hyzer.sh` itself imports — there is exactly one copy.
+ * The look this documentation site runs on, shipped so you can read it or take
+ * it. It adds no palette and no tokens of its own: every rule below resolves
+ * through the reference theme's roles and intents. What it adds is the reading
+ * chrome a docs site needs.
  *
- * Usage (order matters — this sheet layers OVER the reference theme):
- *   import '@hyzer-labs/ui/tokens.css';                    // required
- *   import '@hyzer-labs/ui/theme';                          // layers under it
- *   import '@hyzer-labs/ui/theme/examples/docs/docs.css';
+ * Import it after the reference theme, which it layers on top of:
  *
- * Ships UNSCOPED — no `.hz-theme-docs` root, no class to add anywhere. It
- * never restyles a bare component hook (`.hz-button` and friends keep
- * whatever the reference theme gives them); it only adds opt-in named
- * classes, an opt-in `.docs-table` wrapper, and two broad content-chrome
- * rules meant to apply globally. Without the reference theme imported, the
- * scaffold classes still lay out (they're structure, not paint), the
- * `.docs-table` override has no `.hz-table` to win against, and the
- * `*:focus-visible` ring still applies — it depends on no theme.
+ *   @import '@hyzer-labs/ui/tokens.css';
+ *   @import '@hyzer-labs/ui/theme';
+ *   @import '@hyzer-labs/ui/theme/examples/docs/docs.css';
  *
- * SCAFFOLD — the shared page-rhythm classes (`.doc-intro h1`,
- * `.doc-description`, `.doc-section h2`, `.a11y-refs`) and the demo
- * scaffolding around Example blocks (`.tab-content`, `.inner-tab`,
- * `.tab-note`, `.note-list`, `.demo-col`). Opt-in classes only.
+ * There is no class to add anywhere. The sheet is unscoped, and it never
+ * restyles a bare component hook, so `.hz-button` and friends keep exactly what
+ * the reference theme gives them.
  *
- * .docs-table — the worked layered-cascade lesson (taught in full on
- * /theming/components, the Case study section; this file's excerpt is
- * sliced straight from the block below): the reference theme paints
- * `.hz-table` from `@layer hz-theme`; these unlayered rules win on every
- * property they set, no `!important`, no specificity games. A table with no
- * `.docs-table` wrapper is left exactly as the reference theme paints it.
+ * WHAT YOU GET
  *
- * CODE CHIPS — `p code` / `li code` get a subtle tinted-pill treatment,
- * scoped to paragraph/list context so `<pre>` blocks and table cells
- * (props/hooks tables render code plain) stay plain. The
- * `[data-theme='dark']` pair strengthens the tint 14% → 28% — 14% gray is
- * nearly invisible over a dark surface, the same reason surface-muted's own
- * tint jumps 6% → 25% in the dark palette.
- * AA: the only new graded pairing this sheet introduces is body text over
- * the chip tint — bounded and subtle, and it holds contrast on the
- * surface / surface-muted roles this site paints behind prose. That is the
- * extent of the boundary: a consumer painting the chip over some other
- * background is responsible for checking it, same posture as the opt-in
- * utilities sheet.
+ * Page-rhythm classes you opt into by using them: `.doc-intro h1`,
+ * `.doc-description`, `.doc-section h2`, `.doc-note`, `.doctrine-note`,
+ * `.a11y-refs`, and the scaffolding around demo blocks (`.tab-content`,
+ * `.inner-tab`, `.tab-note`, `.note-list`, `.demo-col`).
  *
- * FOCUS RING — broad and INTENTIONAL: every `:focus-visible` element gets a
- * `2px solid currentColor` outline at a `2px` offset, EXCEPT `.hz-field`
- * inputs/selects/textareas and `.hz-button`, which keep the reference
- * theme's own soft (box-shadow) focus ring instead. That exclusion list is
- * part of the shipped look, not an afterthought — a library example is the
- * right place for a rule that knows the library's own class names. Drop the
- * exclusion and the broad ring would draw an offset outline box straight
- * across every field/button border, on top of the theme's own ring.
+ * `.docs-table`, an opt-in wrapper that flattens a Table. It is also a worked
+ * lesson in the cascade: the reference theme paints `.hz-table` from
+ * `@layer hz-theme`, and these rules are unlayered, so they win on every
+ * property they set with no `!important` and no matching of the theme's
+ * selectors. A table without the wrapper is left exactly as the theme paints it.
  *
- * NOT HERE — `.sr-only` ships in `theme/base.css`; app-level resets
- * (box-sizing, body margin, the `prefers-reduced-motion` collapse) are the
- * consuming app's job, not an example theme's. Neither is duplicated here.
+ * Code chips: `code` inside a paragraph or list item becomes a tinted pill,
+ * scoped to prose so `<pre>` blocks and table cells stay plain. The dark tint is
+ * stronger than the light one, because a faint gray disappears on a dark
+ * surface. The one contrast pairing this introduces is body text on that tint,
+ * which holds on the surface roles this sheet expects behind prose. Paint the
+ * chip over something else and checking it is yours.
+ *
+ * A focus ring: every `:focus-visible` element gets a 2px outline in the current
+ * text color, except `.hz-field` inputs, selects, textareas and `.hz-button`,
+ * which keep the reference theme's own softer ring. That exclusion is
+ * deliberate. Without it the outline would draw a box straight across every
+ * field and button border, on top of the ring already there.
+ *
+ * WHAT IS NOT HERE
+ *
+ * `.sr-only` ships in the reference theme, not here. App-level concerns
+ * (box-sizing, body margin, the reduced-motion collapse) belong to your app, so
+ * this sheet does not duplicate them.
  */
 
 /* ------------------------------------------------------------------ */
