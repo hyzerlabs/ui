@@ -257,7 +257,6 @@
 </DocPage>
 
 <style>
-	.demo-note,
 	.demo-note {
 		margin-bottom: 0.5rem;
 	}

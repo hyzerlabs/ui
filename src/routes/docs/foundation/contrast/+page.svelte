@@ -25,7 +25,7 @@
 	// WCAG 2.x math over the static token metadata — the same contrast
 	// utilities the library exports ($lib/utils/contrast). SSR-safe:
 	// role/intent indirections are resolved here to concrete hexes per mode —
-	// light values on light surfaces, dark companions on dark — including
+	// default values on light surfaces, dark companions on dark — including
 	// surface-muted's color-mix(). Panels are painted from these resolved
 	// hexes (not live tokens) so each panel stays pinned to its mode
 	// regardless of the site theme toggle. Raw hues come from the `palette`
@@ -43,7 +43,7 @@
 		'gradeContrast(brand, palette.white).aaNormal; // text on surface',
 		'gradeContrast(palette.white, brand).aaNormal; // solid button text',
 		'',
-		'// On surface-muted — the same 6% color-mix the theme derives',
+		'// On surface-muted: the same 6% color-mix the theme derives',
 		'contrastRatio(brand, mixSrgb(palette.gray, palette.white, 0.06));'
 	].join('\n');
 
@@ -274,7 +274,7 @@
 		{#snippet lead()}
 			Every ratio on this page is computed live from the
 			<a href="/docs/foundation/colors">token metadata</a>, per mode, with the same
-			<a href="#api-heading">functions the library ships</a> — so if your theme overrides the palette,
+			<a href="#api-heading">functions the library ships</a>. If your theme overrides the palette,
 			you can run the identical WCAG check on it.
 		{/snippet}
 	</DocIntro>
@@ -288,7 +288,7 @@
 	>
 		<h2 id="requirements-heading">Requirements</h2>
 		<p>
-			WCAG 2.1 grades text contrast by ratio and text size — large text is at least 24px, or 18.66px
+			WCAG 2.1 grades text contrast by ratio and text size: large text is at least 24px, or 18.66px
 			bold. Section 508 incorporates WCAG 2.0 AA, so an AA pass at a given size is also a 508 pass.
 		</p>
 		<div class="token-table-wrapper">
@@ -322,7 +322,7 @@
 	>
 		<h2 id="checker-heading">Pairing checker</h2>
 		<p>
-			Pick any two tokens — palette or intent roles in either mode, or resolved surface roles — and
+			Pick any two tokens (palette or intent roles in either mode, or resolved surface roles) and
 			read the ratio and pass/fail grades live.
 		</p>
 		<div class="checker">
@@ -331,8 +331,8 @@
 				<Select name="contrast-bg" label="Background" options={swatchOptions} bind:value={bg} />
 			</Cluster>
 			<div class="checker-preview" style="background-color: {bgHex}; color: {fgHex};">
-				<p class="sample-normal">Normal text — a birdie putt from the circle's edge. (16px)</p>
-				<p class="sample-large">Large text — par saves win rounds. (24px)</p>
+				<p class="sample-normal">Normal text: a birdie putt from the circle's edge. (16px)</p>
+				<p class="sample-large">Large text: par saves win rounds. (24px)</p>
 			</div>
 			<p class="ratio-readout">
 				Contrast ratio <strong>{grade.ratio.toFixed(2)}:1</strong>
@@ -371,8 +371,8 @@
 				<div class="legend-item">
 					<dt>Relative luminance</dt>
 					<dd>
-						Perceived brightness on a 0 (black) to 1 (white) scale — the two values the contrast
-						ratio is computed from.
+						Perceived brightness on a 0 (black) to 1 (white) scale. The contrast ratio is computed
+						from these two values.
 					</dd>
 				</div>
 				<div class="legend-item">
@@ -396,7 +396,7 @@
 						In the sections below, a badge names the <em>highest</em> grade a pairing reaches, one
 						per text size (16px and 24px):
 						<strong>AAA</strong> (at least 7:1 normal, 4.5:1 large), <strong>AA</strong> (4.5:1
-						normal, 3:1 large), or <strong>AA Large</strong> (clears 3:1 — large text only). A ratio
+						normal, 3:1 large), or <strong>AA Large</strong> (clears 3:1, large text only). A ratio
 						under 3:1 reaches no grade and shows a red <strong>Fail</strong>.
 					</dd>
 				</div>
@@ -413,11 +413,10 @@
 	>
 		<h2 id="text-surfaces-heading">Text on surfaces</h2>
 		<p>
-			Every token the theme paints text with — the semantic text roles and all seven intents — on
-			both surface roles, in both modes, at normal (16px) and large (24px) sizes. Each panel uses
-			the values that mode actually resolves: the palette on light surfaces, the dark companions (<code
-				>[data-theme="dark"]</code
-			>) on dark ones.
+			Every token the theme paints text with (the semantic text roles and all seven intents) on both
+			surface roles, in both modes, at normal (16px) and large (24px) sizes. Each panel uses the
+			values that mode actually resolves: the default palette on light surfaces, the dark theme's
+			companions (<code>[data-theme="dark"]</code>) on dark ones.
 		</p>
 		<Tabs
 			items={surfaceTabs}
@@ -507,8 +506,8 @@
 		<p>
 			The solid <code>Button</code> and <code>Badge</code> case. The reference theme paints solid
 			text with
-			<code>--hz-color-surface</code> — white in light mode, black in dark — because the dark companions
-			are lighter than the surfaces they sit on.
+			<code>--hz-color-surface</code> (white by default, black under the dark theme) because the dark
+			companions are lighter than the surfaces they sit on.
 		</p>
 		<Grid columns={{ sm: 1, md: 2, lg: 2 }} gap="sm">
 			{#each intents as row (row.key)}
@@ -552,12 +551,12 @@
 			The reference theme derives these surfaces with <code>color-mix()</code>: backgrounds mix
 			{pct(softTints.light.alertBg)}–{pct(softTints.light.badgeBg)}% of the intent color into the
 			surface in light mode and {pct(softTints.dark.alertBg)}–{pct(softTints.dark.badgeBg)}% in dark
-			(weak tints barely read as color on a dark surface); text mixes
+			(weak tints barely read as color on a dark surface). Text mixes
 			{pct(softTints.badgeText)}–{pct(softTints.alertTitle)}% toward the text role in both modes.
 			Tune the background strength with the <code>--hz-alert-tint</code> and
 			<code>--hz-badge-tint</code>
 			<a href="/docs/theming/components#hook-props-heading">hooks</a>. Everything below is that
-			derivation over the mode's resolved values — proof the tints hold contrast, not only the raw
+			derivation over the mode's resolved values: proof the tints hold contrast, not only the raw
 			hues.
 		</p>
 		<Tabs
@@ -625,7 +624,7 @@
 	>
 		<h2 id="api-heading">Check your own palette</h2>
 		<p>
-			The math behind this page is part of the library — <code>hexToRgb</code>,
+			The math behind this page is part of the library: <code>hexToRgb</code>,
 			<code>rgbToHex</code>, <code>mixSrgb</code>, <code>relativeLuminance</code>,
 			<code>contrastRatio</code>, <code>gradeContrast</code>, <code>bestLevel</code>, and
 			<code>bestLevelLarge</code>, exported from the package root and
@@ -635,9 +634,9 @@
 		</p>
 		<CodeBlock code={apiCode} />
 		<p>
-			For the full override workflow — plain-CSS recipes and the <code>hyzer</code> CLI, whose
-			generate step runs this same report over your config — see
-			<a href="/docs/theming/tokens">Theming → Tokens &amp; Overrides</a>.
+			For the full override workflow, see
+			<a href="/docs/theming/tokens">Theming → Tokens &amp; Overrides</a>: plain-CSS recipes and the
+			<code>hyzer</code> CLI, whose generate step runs this same report over your config.
 		</p>
 	</Stack>
 

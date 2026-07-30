@@ -131,9 +131,9 @@
 					</Example>
 				{:else if item.id === 'icon'}
 					<p class="tab-note">
-						The <code>icon</code> slot is a decorative leading slot, rendered
-						<code>aria-hidden</code>. Pair it with a glyph that matches the intent, and make sure the
-						title or body already says the same thing in words.
+						The leading <code>icon</code> slot is decorative, rendered <code>aria-hidden</code>.
+						Pair it with a glyph that matches the intent, and make sure the title or body already
+						says the same thing in words.
 					</p>
 					<Example code={iconCode}>
 						<Stack gap="sm">
@@ -191,9 +191,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						Announcement is opt-in. An Alert rendered with the page is just content, but one inserted
-						after an action should carry <code>role="status"</code> so screen readers hear it. Click
-						the button below: the alert appears and announces politely.
+						Announcement is opt-in. An Alert rendered with the page is just content, but one
+						inserted after an action should carry <code>role="status"</code> so screen readers hear it.
+						Click the button below: the alert appears and announces politely.
 					</p>
 					<Example code={announceCode}>
 						<Stack gap="sm">

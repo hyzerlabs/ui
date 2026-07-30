@@ -124,9 +124,10 @@
 <DocPage name="Combobox" {...comboboxDoc}>
 	<Alert intent="info" title="Select vs Combobox">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Reach for <code>Combobox</code> when there are many options — where filtering or virtualization
-		helps — or when you need search / type-to-filter. For a small, static option set, prefer the
-		simpler native <a href="/docs/components/select">Select</a>, including its own native
+		Use <code>Combobox</code> when there are many options, where filtering or virtualization helps,
+		or when you need type-to-filter search. For a small, static option set, prefer the simpler
+		native
+		<a href="/docs/components/select">Select</a>, including its own native
 		<code>multiple</code>.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Combobox demos" defaultTab="basic">
@@ -134,11 +135,11 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Type to filter, or open with the toggle/<kbd>ArrowDown</kbd>. Clicking (or pressing
-						<kbd>Enter</kbd> on) an option toggles its membership — the popup stays open so you can
+						Type to filter, or open with the toggle/<kbd>ArrowDown</kbd>. Clicking an option (or
+						pressing <kbd>Enter</kbd> on it) toggles its membership. The popup stays open so you can
 						keep picking, and each pick becomes a dismissible chip. <kbd>Backspace</kbd> on an empty
 						query removes the last chip. A disabled option (<code>Zone</code>) stays visible but
-						can't be toggled — its chip is pre-selected here to show that an existing selection
+						cannot be toggled. Its chip is pre-selected here to show that an existing selection
 						stays removable even when the option itself is inert.
 					</p>
 					<Example code={basicCode}>
@@ -148,11 +149,11 @@
 					</Example>
 				{:else if item.id === 'filter'}
 					<p class="tab-note">
-						<strong>The default filter matches a substring anywhere in the label</strong> —
-						case-insensitive, not anchored to the start (typing a fragment from the middle or end of
-						a label still matches it; see the Large list tab). Passing your own <code>filter</code> prop
-						overrides that default wholesale. This demo deliberately swaps in a narrower one — start-of-label
-						only — to show what overriding looks like; it is not what Combobox does by default.
+						<strong>The default filter matches a substring anywhere in the label</strong>. It is
+						case-insensitive and not anchored to the start, so typing a fragment from the middle or
+						end of a label still matches it (see the Large list tab). Your own <code>filter</code>
+						prop overrides that default wholesale. This demo deliberately swaps in a narrower one, start-of-label
+						only, to show what overriding looks like. It is not what Combobox does by default.
 					</p>
 					<Example code={filterCode}>
 						<div class="demo-col">
@@ -162,11 +163,11 @@
 				{:else if item.id === 'large'}
 					<p class="tab-note">
 						{manyCourses.length} real disc golf courses, filtered by the same substring-anywhere default
-						as every other tab — try typing a fragment from the <em>middle</em> of a course or city
-						name (e.g. <code>ridge</code> or <code>ville</code>) and it still matches, because the
-						match isn't anchored to the start of the label.
+						as every other tab. Try typing a fragment from the <em>middle</em> of a course or city
+						name, such as <code>ridge</code> or <code>ville</code>: it still matches, because the
+						match is not anchored to the start of the label.
 					</p>
-					<Alert intent="warning" title="Combobox doesn't window its listbox">
+					<Alert intent="warning" title="Combobox does not window its listbox">
 						{#snippet icon()}<IconTriangleAlert />{/snippet}
 						Filtering is a plain in-memory scan, and every matching option gets a real
 						<code>&lt;li&gt;</code>. A list this size is comfortable even on the unfiltered open,
@@ -188,12 +189,13 @@
 					</Example>
 				{:else if item.id === 'chips'}
 					<p class="tab-note">
-						<code>chipProps</code> restyles every chip without importing <code>Badge</code> yourself
-						— <code>intent</code>/<code>variant</code>/<code>size</code>/<code>rounded</code>/<code
+						<code>chipProps</code> restyles every chip without importing <code>Badge</code>
+						yourself.
+						<code>intent</code>/<code>variant</code>/<code>size</code>/<code>rounded</code>/<code
 							>class</code
 						>
-						pass straight through to the underlying <code>Badge</code>. It applies uniformly to
-						every chip (no per-option styling).
+						pass straight through to the underlying <code>Badge</code>. The styling applies to every
+						chip; there is no per-option styling.
 					</p>
 					<Example code={chipsCode}>
 						<div class="demo-col">
@@ -207,12 +209,11 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the field — both
-						chain into <code>aria-describedby</code>, even though they're visually hidden while the
-						popup is open (the popup overlays that region). Error and disabled are also field
-						states: the wrapper's <code>data-state</code> reflects them, with error winning (the
-						input and toggle still get native <code>disabled</code>, and chips lose their dismiss
-						buttons).
+						<code>description</code> and <code>error</code> are announced with the field: both chain
+						into <code>aria-describedby</code>, even while the popup visually covers that region.
+						Error and disabled are also field states, and the wrapper's <code>data-state</code>
+						reflects them, with error winning. Even then, a disabled field still puts native
+						<code>disabled</code> on the input and toggle, and its chips lose their dismiss buttons.
 					</p>
 					<Example code={statesCode}>
 						<div class="demo-col">

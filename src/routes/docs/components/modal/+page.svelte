@@ -73,11 +73,12 @@
 </script>
 
 <DocPage name="Modal" {...modalDoc}>
-	<p class="demo-note">No dialog is open on page load — click a trigger to open one.</p>
+	<p class="demo-note">No dialog is open on page load. Click a trigger to open one.</p>
 	<p class="demo-note">
-		The open/close animation honors <code>--hz-duration-*</code> / <code>--hz-ease-*</code> — see
-		<a href="/docs/foundation/motion">Motion</a> for the token values and the
-		<code>@hyzer-labs/ui/motion</code> script-side helpers built on them.
+		The open and close animation honors <code>--hz-duration-*</code> and
+		<code>--hz-ease-*</code>. See
+		<a href="/docs/foundation/motion">Motion</a> for the token values, and for the script-side
+		<code>@hyzer-labs/ui/motion</code> helpers built on them.
 	</p>
 	<Tabs items={demoTabs} ariaLabel="Modal demos" defaultTab="sizes">
 		{#snippet panel(item)}
@@ -121,9 +122,9 @@
 					</Tabs>
 				{:else if item.id === 'dismissal'}
 					<p class="tab-note">
-						<code>closeOnOverlay={'{false}'}</code> ignores backdrop clicks — useful when a stray click
-						would discard work. There is deliberately no Esc opt-out: the WAI-ARIA dialog pattern requires
-						Escape to dismiss.
+						<code>closeOnOverlay={'{false}'}</code> ignores backdrop clicks, which helps when a stray
+						click would discard work. There is deliberately no Esc opt-out: the WAI-ARIA dialog pattern
+						requires Escape to dismiss.
 					</p>
 					<Example code={dismissalCode}>
 						<Button onclick={() => (dismissOpen = true)}>Open sticky modal</Button>
@@ -171,7 +172,6 @@
 </DocPage>
 
 <style>
-	.demo-note,
 	.demo-note {
 		margin-bottom: 0.5rem;
 	}

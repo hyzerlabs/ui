@@ -50,7 +50,7 @@
 				{:else if item.id === 'labeled'}
 					<p class="tab-note">
 						With <code>children</code>, Divider renders a labeled
-						<code>role="separator"</code> row — the classic "OR" pattern between two sign-in options.
+						<code>role="separator"</code> row: the classic "OR" pattern between two sign-in options.
 					</p>
 					<Example code={labeledCode}>
 						<div class="demo-col">
@@ -77,8 +77,8 @@
 					</Tabs>
 				{:else if item.id === 'spacing'}
 					<p class="tab-note">
-						<code>spacing</code> drives the block margin around the divider — the shared layout
-						scale, including the <code>near</code>/<code>away</code> density distances, which
+						<code>spacing</code> drives the block margin around the divider. It takes the shared
+						layout scale, including the <code>near</code>/<code>away</code> density distances, which
 						tighten inside <code>data-density-shift</code> regions.
 					</p>
 					<Tabs
@@ -100,7 +100,7 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						<code>lineWidth</code> maps straight onto the library's border-width tokens —
+						<code>lineWidth</code> maps straight onto the library's border-width tokens:
 						<code>thin</code> (1px) and <code>thick</code> (2px).
 					</p>
 					<Tabs

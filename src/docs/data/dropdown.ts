@@ -8,7 +8,7 @@ export const dropdownDoc: ComponentDoc = {
 			name: 'items',
 			type: 'DropdownEntry[]',
 			default: '—',
-			note: 'Required. Actionable items and separators — see DropdownItem below.'
+			note: 'Required. A DropdownEntry is either a DropdownItem or a DropdownSeparator, both below.'
 		},
 		{
 			name: 'label',

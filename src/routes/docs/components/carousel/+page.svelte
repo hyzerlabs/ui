@@ -130,8 +130,8 @@
 
 <DocPage name="Carousel" {...carouselDoc}>
 	<p class="demo-note">
-		The slide-track settle animation honors <code>--hz-duration-*</code> / <code>--hz-ease-*</code>
-		— see <a href="/docs/foundation/motion">Motion</a> for the token values and the
+		The slide-track settle animation honors <code>--hz-duration-*</code> / <code>--hz-ease-*</code>.
+		See <a href="/docs/foundation/motion">Motion</a> for the token values and the
 		<code>@hyzer-labs/ui/motion</code> script-side helpers built on them.
 	</p>
 	<Tabs items={demoTabs} ariaLabel="Carousel demos" defaultTab="basic">
@@ -147,10 +147,10 @@
 					</Example>
 				{:else if item.id === 'dots'}
 					<p class="tab-note">
-						<code>indicator="dots"</code> swaps the counter for clickable slide pickers — each dot
-						is a labeled button (<code>aria-current</code> marks the active slide), and position changes
-						still announce through the live region, so screen readers keep the "n of total" information
-						either way.
+						<code>indicator="dots"</code> swaps the counter for clickable slide pickers. Each dot is
+						a labeled button, and <code>aria-current</code> marks the active slide. Position changes still
+						announce through the live region, so screen readers keep the "n of total" information either
+						way.
 					</p>
 					<Example code={dotsCode}>
 						<Carousel items={quotes} indicator="dots" ariaLabel="Customer quotes (dots)">
@@ -161,8 +161,8 @@
 					</Example>
 				{:else if item.id === 'loop'}
 					<p class="tab-note">
-						Without <code>loop</code> the controls disable at the ends; with it, navigation wraps both
-						ways — including a drag flicked past the first or last slide.
+						Without <code>loop</code> the controls disable at the ends. With it, navigation wraps both
+						ways, including a drag flicked past the first or last slide.
 					</p>
 					<Example code={loopCode}>
 						<Carousel items={quotes} loop ariaLabel="Customer quotes (looping)">
@@ -174,17 +174,17 @@
 				{:else if item.id === 'drag'}
 					<p class="tab-note">
 						<code>controls="focus"</code> keeps the prev/next buttons and indicator in the DOM and
-						fully operable — hidden only visually until <code>:hover</code>/<code
-							>:focus-within</code
-						>
+						fully operable. They are hidden only visually, until <code>:hover</code> or
+						<code>:focus-within</code>
 						reveals the whole row together (Tab into the carousel, or hover it with a mouse). This is
-						the WCAG 2.5.7 non-dragging alternative to the drag gesture: never
-						<code>display</code>,
-						<code>visibility</code>, <code>aria-hidden</code>, or <code>inert</code>, so it stays
-						reachable by keyboard and screen readers regardless of the visual reveal.
-						<code>seamless</code> makes every wrap — a drag flicked past the last slide, the buttons,
-						the dots, or the arrow keys — settle forward through a hidden clone instead of sweeping backward
-						through the row.
+						the WCAG 2.5.7 non-dragging alternative to the drag gesture: never <code>display</code>,
+						<code>visibility</code>, <code>aria-hidden</code>, or <code>inert</code>, so the row
+						stays reachable by keyboard and screen readers whatever the visual reveal does.
+					</p>
+					<p class="tab-note">
+						<code>seamless</code> makes every wrap settle forward through a hidden clone instead of sweeping
+						backward through the row. That covers a drag flicked past the last slide, the buttons, the
+						dots, and the arrow keys.
 					</p>
 					<Example code={dragCode}>
 						<Carousel
@@ -202,14 +202,18 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						A theme example, not a new prop: a plain consumer class restyles the dots into flat
-						segments of a thin progress trackline (the current slide's segment colored
-						<code>--hz-intent-primary</code>) and hides the chevrons until they receive keyboard
-						focus. The chevrons stay in the DOM, in the tab order, and Enter/Space-operable
-						throughout — never <code>display</code>, <code>visibility</code>,
-						<code>aria-hidden</code>, or <code>inert</code> — the same a11y posture
+						This is a theme example done with CSS alone, not a new prop. A plain consumer class
+						restyles the dots into flat segments of a thin progress trackline, with the current
+						slide's segment colored <code>--hz-intent-primary</code>, and hides the chevrons until
+						they receive keyboard focus.
+					</p>
+					<p class="tab-note">
+						The chevrons stay in the DOM, in the tab order, and Enter/Space-operable throughout:
+						never
+						<code>display</code>, <code>visibility</code>, <code>aria-hidden</code>, or
+						<code>inert</code>. That is the same accessibility treatment
 						<code>controls="focus"</code> ships (see the Drag tab), applied here to the two controls
-						individually so the trackline itself stays always visible. Every color comes from
+						individually so the trackline itself stays visible. Every color comes from
 						<code>--hz-color-*</code>/<code>--hz-intent-*</code> tokens.
 					</p>
 					<Example code={minimalCode}>

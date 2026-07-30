@@ -155,8 +155,8 @@
 				{:else if item.id === 'actions'}
 					<p class="tab-note">
 						The <code>actions</code> snippet is a trailing slot for a <code>Link</code> or
-						<code>Button</code>. Both are retargeted onto the bar's own foreground/background pair, so
-						they stay legible against the intent fill.
+						<code>Button</code>. Both are retargeted onto the bar's own foreground/background pair,
+						so they stay legible against the intent fill.
 					</p>
 					<Container breakout padding="none">
 						<Example code={actionsCode}>
@@ -171,8 +171,8 @@
 				{:else if item.id === 'rich'}
 					<p class="tab-note">
 						<code>children</code> is a plain snippet, so any markup is allowed. For a
-						heading-and-body bar, put the opt-in <code>hz-banner-title</code> theme class on your own
-						lead element, the same convention as <code>hz-card-title</code>. The class goes
+						heading-and-body bar, put the opt-in <code>hz-banner-title</code> theme class on your
+						own lead element, the same convention as <code>hz-card-title</code>. The class goes
 						block-level, so the lead stacks over the body copy with no wrapper markup, while the
 						icon, actions, and dismiss cells keep their places on the row.
 					</p>
@@ -189,13 +189,13 @@
 					</Container>
 				{:else if item.id === 'pinned'}
 					<p class="tab-note">
-						<code>pin="top"</code> and <code>pin="bottom"</code> stick the bar to that edge of its
-						scroll container, in flow, so nothing beneath it is overlapped. Scroll the box below to
-						see it stay put.
+						<code>pin="top"</code> and <code>pin="bottom"</code> stick the bar to that edge of its scroll
+						container, in flow, so nothing beneath it is overlapped. Scroll the box below to see it stay
+						put.
 					</p>
 					<p class="tab-note">
-						Keep pinned banners short. A bar that grows tall can cover a focused element that scrolls
-						under it (<a
+						Keep pinned banners short. A bar that grows tall can cover a focused element that
+						scrolls under it (<a
 							href="https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html"
 							>WCAG 2.4.11</a
 						>). Give in-page anchor targets a <code>scroll-margin-block-start</code>/<code

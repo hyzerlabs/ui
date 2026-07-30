@@ -12,7 +12,7 @@
 
 	const attributedCode = [
 		'<Blockquote cite="Paige Pierce">',
-		'\tPractice putting from 15 feet more than anything else. That’s where',
+		"\tPractice putting from 15 feet more than anything else. That's where",
 		'\trounds are won.',
 		'</Blockquote>'
 	].join('\n');

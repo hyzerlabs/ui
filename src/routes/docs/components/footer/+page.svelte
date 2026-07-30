@@ -143,9 +143,10 @@
 					<p class="tab-note">
 						<code>default</code> fills with the muted surface (<code>--hz-color-surface-muted</code
 						>).
-						<code>minimal</code> is transparent with tighter padding, so whatever sits behind it shows
-						through. <code>bordered</code> is a separate boolean prop (a top hairline), so it composes
-						with either variant. Each demo sits on a tinted backdrop that is not part of Footer, so
+						<code>minimal</code> is transparent with tighter padding, so whatever sits behind it
+						shows through. <code>bordered</code> is a separate boolean prop (a top hairline), so it
+						composes with either variant. Each demo sits on a tinted backdrop that is not part of
+						Footer, so
 						<code>minimal</code> has something to show through. Each column's
 						<code>links</code> reuses
 						<a href="/docs/components/nav">Nav</a>'s <code>NavItem</code> shape (<code>label</code
@@ -221,8 +222,8 @@
 				{:else if item.id === 'columns'}
 					<p class="tab-note">
 						Columns auto-fit the footer's own width: you get as many as have at least
-						<code>--hz-footer-col-min</code> of room (12rem, and yours to retune through that custom
-						property). No breakpoints involved. Use the slider to watch them stack.
+						<code>--hz-footer-col-min</code> of room (12rem, and yours to retune through that custom property).
+						No breakpoints involved. Use the slider to watch them stack.
 					</p>
 					<Container breakout padding="none">
 						<Example code={responsiveCode}>
@@ -235,8 +236,8 @@
 					<p class="tab-note">
 						Footer has no dedicated background hook. <code>class</code> merges after
 						<code>hz-footer</code>, and your unlayered CSS beats the theme without needing
-						<code>!important</code>. A low-percentage <code>color-mix</code> tint keeps the existing
-						text color's contrast intact.
+						<code>!important</code>. A low-percentage <code>color-mix</code> tint keeps the existing text
+						color's contrast intact.
 					</p>
 					<Example code={themedBgCode}>
 						<Footer columns={demoColumns} headingLevel={3} class="brand-footer" />

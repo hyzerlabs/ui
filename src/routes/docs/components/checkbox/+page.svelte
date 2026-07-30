@@ -64,9 +64,10 @@
 <DocPage name="Checkbox" {...checkboxDoc}>
 	<Alert intent="info" title="Checkbox vs Toggle">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Reach for <code>Checkbox</code> when selecting from a list, building multi-select membership, or
+		Use <code>Checkbox</code> when selecting from a list, building multi-select membership, or
 		driving the indeterminate select-all pattern. For a single on/off setting that reads like a
-		switch, use <a href="/docs/components/toggle">Toggle</a> instead.
+		switch, use
+		<a href="/docs/components/toggle">Toggle</a> instead.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Checkbox demos" defaultTab="basic">
 		{#snippet panel(item)}
@@ -77,9 +78,9 @@
 					</Example>
 				{:else if item.id === 'indeterminate'}
 					<p class="tab-note">
-						<code>indeterminate</code> is visual and announced state only — <code>checked</code> is unaffected.
-						In the select-all pattern the parent is never bound: its state is derived from the children,
-						and toggling it rewrites them. Try it live.
+						<code>indeterminate</code> is visual and announced state only, so <code>checked</code> is
+						unaffected. In the select-all pattern the parent is never bound: its state is derived from
+						the children, and toggling it rewrites them. Try it live.
 					</p>
 					<Example code={indeterminateCode}>
 						<Stack gap="sm">
@@ -113,8 +114,8 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the field — both
-						chain into <code>aria-describedby</code>. Error and disabled are also field states: the
+						<code>description</code> and <code>error</code> are announced with the field: both chain
+						into <code>aria-describedby</code>. Error and disabled are also field states, and the
 						wrapper's <code>data-state</code> reflects them, with error winning.
 					</p>
 					<Example code={statesCode}>

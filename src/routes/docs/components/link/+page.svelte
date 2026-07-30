@@ -109,8 +109,8 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>class</code> merges after <code>hz-link</code> — bring your own class and it wins:
-						this unlayered consumer CSS beats the theme without needing <code>!important</code>.
+						<code>class</code> merges after <code>hz-link</code>, so bring your own class and it
+						wins. Unlayered CSS like this beats the theme without needing <code>!important</code>.
 					</p>
 					<Example code={fancyLinkCode}>
 						<Link href="#" class="fancy-link">Hover me</Link>

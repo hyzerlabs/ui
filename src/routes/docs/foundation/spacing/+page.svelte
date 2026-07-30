@@ -115,8 +115,10 @@
 		<h2 id="density-heading">Density spacing</h2>
 		<p>
 			An alternate spacing model, adapted from
-			<a href="https://blog.damato.design/posts/complementary-space/" target="_blank" rel="noreferrer"
-				>Complementary Space</a
+			<a
+				href="https://blog.damato.design/posts/complementary-space/"
+				target="_blank"
+				rel="noreferrer">Complementary Space</a
 			>. Instead of picking from a scale, use two distances: <code>--hz-space-near</code> between
 			related things and
 			<code>--hz-space-away</code> between unrelated things. Both derive from the
@@ -187,10 +189,10 @@
 			The preview compensates for where it sits. This section is already two density levels deep,
 			since the docs shell and this page section each add a shift, and one ambient level costs one
 			rung on the ladder. So the live version swaps each <code>near</code> for <code>away</code> (one
-			rung back up) and drops the shifts the shell already provides. Every distance then renders at
-			its fresh-page value: heading and cards at 2rem, card rhythm at 0.8rem, tag gaps at 0.4rem. The
-			one exception is the 8rem section spacing, which the tightest level caps at 2rem here. Three
-			levels is as tight as the scale goes: a fourth nested shift keeps the third level's values.
+			rung back up) and drops the shifts the shell already provides. Every distance then renders at its
+			fresh-page value: heading and cards at 2rem, card rhythm at 0.8rem, tag gaps at 0.4rem. The one
+			exception is the 8rem section spacing, which the tightest level caps at 2rem here. Three levels
+			is as tight as the scale goes: a fourth nested shift keeps the third level's values.
 		</p>
 	</Stack>
 
@@ -248,10 +250,10 @@
 		<p>
 			Where a component takes spacing per axis (the layout primitives'
 			<code>paddingInline</code> and <code>paddingBlock</code> props), the names are the CSS logical
-			properties they set, not physical <code>x</code>/<code>y</code>. The inline axis runs along the
-			line of text; the block axis runs across it. That keeps the props correct in every writing
-			mode: in RTL layouts the inline axis flips with the text, and in vertical writing modes it runs
-			top-to-bottom, where a physical &ldquo;x&rdquo; would pad the wrong edges.
+			properties they set, not physical <code>x</code>/<code>y</code>. The inline axis runs along
+			the line of text; the block axis runs across it. That keeps the props correct in every writing
+			mode: in RTL layouts the inline axis flips with the text, and in vertical writing modes it
+			runs top-to-bottom, where a physical &ldquo;x&rdquo; would pad the wrong edges.
 		</p>
 		<p class="tab-note">
 			The library's own CSS follows the same rule (centering is <code>margin-inline: auto</code>,

@@ -118,8 +118,8 @@
 					</Tabs>
 				{:else if item.id === 'fit'}
 					<p class="tab-note">
-						<code>fit</code> maps to <code>object-fit</code> inside the aspect-ratio box. The demo
-						source is 21/9, letterboxed into a 4/3 frame, so the modes differ visibly.
+						<code>fit</code> maps to <code>object-fit</code> inside the aspect-ratio box. The demo source
+						is 21/9, letterboxed into a 4/3 frame, so the modes differ visibly.
 					</p>
 					<Tabs
 						items={fits.map((f) => ({ id: f, label: f }))}
@@ -169,9 +169,9 @@
 					</Tabs>
 				{:else if item.id === 'placeholder'}
 					<p class="tab-note">
-						Placeholders fill the box while the image loads: <code>color</code> paints a flat swatch,
-						and <code>blur</code> crossfades from a low-res <code>placeholderSrc</code>. The demo SVGs
-						load instantly, so the effect is brief here.
+						Placeholders fill the box while the image loads: <code>color</code> paints a flat
+						swatch, and <code>blur</code> crossfades from a low-res <code>placeholderSrc</code>. The
+						demo SVGs load instantly, so the effect is brief here.
 					</p>
 					<Tabs
 						items={placeholders.map((p) => ({ id: p, label: p }))}

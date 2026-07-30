@@ -99,7 +99,7 @@
 			`\t<div transition:${id}>Content</div>`,
 			`{/if}`,
 			'',
-			'<!-- Same params/semantics as the original — duration/easing now',
+			'<!-- Same params/semantics as the original. Duration and easing now',
 			'     default to the --hz-duration-* / --hz-ease-* tokens, and',
 			'     collapse to duration: 0 under prefers-reduced-motion unless',
 			'     you pass { essential: true }. -->'
@@ -109,7 +109,7 @@
 	const essentialCode = [
 		"import { fly } from '@hyzer-labs/ui/motion';",
 		'',
-		'<!-- A focus-guiding movement carries meaning — opt it out of the',
+		'<!-- A focus-guiding movement carries meaning, so opt it out of the',
 		'     reduced-motion collapse rather than losing the cue entirely. -->',
 		'<div transition:fly={{ y: -24, essential: true }}>Jumped to top</div>'
 	].join('\n');
@@ -215,7 +215,7 @@
 			'</Hero>',
 			'',
 			'<' + 'style>',
-			'\t/* transform needs a block box — reveal is a no-op on inline spans */',
+			'\t/* transform needs a block box: reveal is a no-op on inline spans */',
 			'\tspan { display: block; }',
 			'<' + '/style>'
 		].join('\n')
@@ -258,8 +258,8 @@
 		'\t});',
 		'}',
 		'',
-		'<!-- Unsupported browsers and reduced motion run the update directly',
-		'     — an instant swap, no error, no branch needed at the call site. -->'
+		'<!-- Unsupported browsers and reduced motion run the update directly:',
+		'     an instant swap, no error, no branch needed at the call site. -->'
 	].join('\n');
 
 	const onNavigateCode = [
@@ -314,7 +314,8 @@
 	<DocIntro>
 		{#snippet lead()}
 			Duration and easing tokens, plus <code>@hyzer-labs/ui/motion</code>: token-bridged
-			transitions, easing evaluators, a scroll-reveal attachment, and a view-transition helper — all
+			transitions, easing evaluators, a scroll-reveal attachment, and a view-transition helper. All
+			of it is
 			<a href="#reduced-motion-heading">reduced-motion-aware</a> by default.
 		{/snippet}
 	</DocIntro>
@@ -404,11 +405,10 @@
 		<h2 id="easing-comparison-heading">Easing comparison</h2>
 		<p>
 			The same {EASING_DEMO_DURATION}ms duration, three curves. <code>standard</code> is the house
-			default for everything else in the theme (hover/focus state changes);
+			default for everything else in the theme (hover/focus state changes).
 			<code>out</code>
-			decelerates into place — the default this module picks for directional entrances (<code
-				>fly</code
-			>, <code>scale</code>); <code>in</code> accelerates away, the mirror for exits.
+			decelerates into place, and this module picks it for directional entrances (<code>fly</code>,
+			<code>scale</code>). <code>in</code> accelerates away, the mirror for exits.
 		</p>
 		<button
 			type="button"
@@ -458,8 +458,8 @@
 		<h2 id="transitions-heading">Transitions</h2>
 		<p class="tab-note">
 			Drop-in replacements for <code>svelte/transition</code>'s <code>fade</code>/<code>fly</code
-			>/<code>slide</code>/<code>scale</code> — same params, same return shape. The only change is the
-			import line; duration and easing now default to the tokens above.
+			>/<code>slide</code>/<code>scale</code>: same params, same return shape. The only change is
+			the import line; duration and easing now default to the tokens above.
 		</p>
 		<Tabs items={transitionTabs} ariaLabel="Transition demos" defaultTab="fade">
 			{#snippet panel(item)}
@@ -511,7 +511,7 @@
 			content.
 		</p>
 		<p class="tab-note">
-			Which one you want is a question of what should move together — one thing arriving, or several
+			Which one you want depends on what should move together: one thing arriving, or several
 			arriving in sequence.
 		</p>
 
@@ -525,7 +525,7 @@
 						{@render revealControls(item.id, false)}
 						<p class="tab-note">
 							One element, animating on its own the first time it intersects the viewport. This is
-							the common case — a card, an image, a pull-quote — and it takes the same
+							the common case (a card, an image, a pull-quote) and it takes the same
 							<code>effect</code> / <code>y</code> / <code>threshold</code> options the group form does.
 						</p>
 						<Example code={revealSingleCode}>
@@ -541,11 +541,11 @@
 						{@render revealControls(item.id, true)}
 						<p class="tab-note">
 							<code>effect</code> picks the animation style for the whole group and mirrors the
-							transition family above 1:1 — <code>fade</code>, <code>fly</code> (the default),
-							<code>slide</code>, <code>scale</code> — while <code>stagger</code> offsets each child
-							by DOM order. <code>fly</code> steers by its <code>x</code>/<code>y</code> offsets:
-							positive <code>y</code> rises from below (the default, <code>y: 16</code>), negative
-							<code>y</code> drops from above, <code>x</code> travels in from the side.
+							transition family above 1:1: <code>fade</code>, <code>fly</code> (the default),
+							<code>slide</code>, <code>scale</code>. <code>stagger</code> offsets each child by DOM
+							order. <code>fly</code> steers by its <code>x</code>/<code>y</code> offsets: positive
+							<code>y</code> rises from below (the default, <code>y: 16</code>), negative
+							<code>y</code> drops from above, and <code>x</code> travels in from the side.
 							<code>slide</code> expands from the center line of <code>axis</code> without moving
 							the box, and <code>scale</code> grows from <code>start</code>.
 						</p>
@@ -562,8 +562,8 @@
 					{:else}
 						{@render revealControls(item.id, true)}
 						<p class="tab-note">
-							A real <code>Hero</code> in <code>overlay</code> layout, with only the content revealed
-							— the background artwork is already there when the copy arrives. Each part animates separately,
+							A real <code>Hero</code> in <code>overlay</code> layout, with only the content revealed:
+							the background artwork is already there when the copy arrives. Each part animates separately,
 							so Stagger drives the delay between them rather than a group option.
 						</p>
 						<Example code={revealHeroCode}>
@@ -597,7 +597,7 @@
 						<Alert intent="info" title="Why reveal and not revealGroup here">
 							{#snippet icon()}<IconInfo />{/snippet}
 							<code>revealGroup</code> staggers a container's direct children, and the parts you
-							want sequenced are children of Hero's internal <code>.hz-hero-content</code> — which
+							want sequenced are children of Hero's internal <code>.hz-hero-content</code>, which
 							the component does not expose, since <code>{'{...rest}'}</code> spreads onto its root.
 							Hero's snippet props are the way in: the markup inside them is yours, so
 							<code>reveal</code> attaches to it and <code>delay</code> supplies the sequence. Attaching
@@ -618,9 +618,9 @@
 	>
 		<h2 id="view-transition-heading">View transitions</h2>
 		<p class="tab-note">
-			<code>viewTransition(update)</code> wraps <code>document.startViewTransition</code> —
-			unsupported browsers and reduced motion run <code>update()</code> directly instead, an instant swap
-			with the exact same return shape either way. This demo swaps a local layout state (not a page navigation),
+			<code>viewTransition(update)</code> wraps <code>document.startViewTransition</code>.
+			Unsupported browsers and reduced motion run <code>update()</code> directly instead, an instant swap
+			with the same return shape either way. This demo swaps a local layout state (not a page navigation),
 			so it works the same regardless of routing.
 		</p>
 		<Example code={viewTransitionCode}>
@@ -635,13 +635,13 @@
 		</Example>
 		<Alert intent="info" title="Cross-fading real page navigations">
 			{#snippet icon()}<IconInfo />{/snippet}
-			For page-to-page transitions, SvelteKit's <code>onNavigate</code> is the integration point — a few
-			lines, and it doesn't even need this helper, since the DOM update it wraps is the navigation itself:
+			For page-to-page transitions, SvelteKit's <code>onNavigate</code> is the integration point. It takes
+			a few lines and does not need this helper, since the DOM update it wraps is the navigation itself:
 		</Alert>
 		<CodeBlock code={onNavigateCode} />
 		<p class="doc-note">
-			The reference theme adds no default <code>::view-transition-*</code> styling — the browser's own
-			root cross-fade is already a sensible default. Customizing it is consumer CSS, on the same tokens
+			The reference theme adds no default <code>::view-transition-*</code> styling, because the browser's
+			own root cross-fade is already a sensible default. Customizing it is consumer CSS, on the same tokens
 			as everything else:
 		</p>
 		<CodeBlock
@@ -665,20 +665,20 @@
 		<h2 id="reduced-motion-heading">Reduced motion</h2>
 		<p>
 			Every helper in <code>@hyzer-labs/ui/motion</code> collapses automatically under
-			<code>prefers-reduced-motion: reduce</code>
-			— transitions run at <code>duration: 0</code>, <code>reveal</code>/<code>revealGroup</code>
+			<code>prefers-reduced-motion: reduce</code>. Transitions run at <code>duration: 0</code>,
+			<code>reveal</code>/<code>revealGroup</code>
 			show their content immediately with no hidden state ever applied, and
 			<code>viewTransition</code> runs its update directly instead of starting a real transition.
-			Pass <code>{'{ essential: true }'}</code> on any of them to play the full animation anyway — reserve
-			it for motion that carries meaning (a focus-guiding movement, for example), not decoration. The
-			state is read fresh on every call, so a preference change mid-session is honored on the very next
-			transition/reveal/view-transition — no reload needed.
+			Pass <code>{'{ essential: true }'}</code> on any of them to play the full animation anyway. Reserve
+			that for motion which carries meaning, such as a focus-guiding movement, and not for decoration.
+			The state is read fresh on every call, so a preference change mid-session is honored on the very
+			next transition, reveal, or view transition, with no reload needed.
 		</p>
 		<Alert intent="info">
 			{#snippet icon()}<IconInfo />{/snippet}
 			This is the script-side counterpart to the reference theme's own
-			<code>@media (prefers-reduced-motion: reduce)</code> collapse on its CSS transitions — that stays
-			exactly as-is; this module doesn't replace it, it extends the same default to script-driven motion.
+			<code>@media (prefers-reduced-motion: reduce)</code> collapse on its CSS transitions. That CSS collapse
+			stays exactly as it is; this module extends the same default to script-driven motion.
 		</Alert>
 		<p>
 			Override <code>--hz-duration-*</code> or <code>--hz-ease-*</code> with a plain CSS custom

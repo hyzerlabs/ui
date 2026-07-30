@@ -171,9 +171,8 @@
 		<h2 id="import-heading">Import</h2>
 		<p>
 			Import from the barrel (<code>@hyzer-labs/ui/icons</code>) for zero config: your bundler
-			tree-shakes the rest away. Use a deep import (<code
-				>@hyzer-labs/ui/icons/&lt;name&gt;</code
-			>) to skip the barrel, which keeps a dev server's module graph small. Or declare an
+			tree-shakes the rest away. Use a deep import (<code>@hyzer-labs/ui/icons/&lt;name&gt;</code>)
+			to skip the barrel, which keeps a dev server's module graph small. Or declare an
 			<code>icons: [...]</code>
 			list in
 			<code>hyzer.config.ts</code> and run <code>hyzer generate</code> for a curated, project-local
@@ -251,8 +250,8 @@
 					{:else}
 						<p class="tab-note">
 							Without <code>ariaLabel</code>, an icon is decorative: it gets
-							<code>aria-hidden="true"</code>, and assistive tech skips it. With one, the svg carries
-							an accessible name.
+							<code>aria-hidden="true"</code>, and assistive tech skips it. With one, the svg
+							carries an accessible name.
 						</p>
 						<Example code={a11yCode}>
 							<div class="demo-row">
@@ -354,9 +353,6 @@
 	p {
 		margin: 0;
 	}
-
-	/* Nested inside .doc-intro (a plain div, not a section Stack) — keeps its
-	 * original margin (unaffected by the section-Stack conversion below). */
 
 	code {
 		font-family: var(--hz-font-family-mono, monospace);

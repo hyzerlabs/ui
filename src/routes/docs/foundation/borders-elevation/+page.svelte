@@ -222,11 +222,11 @@
 				tokens stay identical in both modes; the treatment is the theme's call.
 			</li>
 			<li>
-				Stacking is visual only. <code>z-index</code> never reorders the DOM, so reading and focus
-				order are untouched by elevation. The tiers still carry focus consequences: a bar pinned on
-				the sticky tier can cover a focused element that scrolls beneath it (WCAG 2.4.11, so keep
-				pinned bars short), and layers that appear on hover or focus (the dropdown and popover tiers)
-				must be dismissible, hoverable, and persistent per WCAG 1.4.13.
+				Stacking is visual only. <code>z-index</code> never reorders the DOM, so reading and focus order
+				are untouched by elevation. The tiers still carry focus consequences: a bar pinned on the sticky
+				tier can cover a focused element that scrolls beneath it (WCAG 2.4.11, so keep pinned bars short),
+				and layers that appear on hover or focus (the dropdown and popover tiers) must be dismissible,
+				hoverable, and persistent per WCAG 1.4.13.
 			</li>
 		</ul>
 		<p class="a11y-refs">

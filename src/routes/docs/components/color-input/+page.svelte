@@ -43,17 +43,17 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						The swatch is the native picker; the hex field commits on blur/Enter — type
-						<code>f60</code> and it normalizes to <code>#ff6600</code>, garbage restores the current
-						value. Picks and typed values stay in sync.
+						The swatch is the native picker. The hex field commits on blur or Enter: type
+						<code>f60</code> and it normalizes to <code>#ff6600</code>, while an entry it cannot
+						read restores the current value. Picks and typed values stay in sync.
 					</p>
 					<Example code={basicCode}>
 						<ColorInput name="disc-color-demo" label="Disc color" bind:value={discColor} />
 					</Example>
 				{:else if item.id === 'no-value'}
 					<p class="tab-note">
-						<code>showInput={'{false}'}</code> swaps the hex field for a read-only readout — the value
-						stays visible without inviting edits, same as the slider's.
+						<code>showInput={'{false}'}</code> swaps the hex field for a read-only readout. The value
+						stays visible without inviting edits, the same as the slider's.
 					</p>
 					<Example code={noValueCode}>
 						<ColorInput
@@ -65,8 +65,8 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the field — both
-						chain into <code>aria-describedby</code>. Error and disabled are also field states: the
+						<code>description</code> and <code>error</code> are announced with the field: both chain
+						into <code>aria-describedby</code>. Error and disabled are also field states, and the
 						wrapper's <code>data-state</code> reflects them, with error winning.
 					</p>
 					<Example code={statesCode}>

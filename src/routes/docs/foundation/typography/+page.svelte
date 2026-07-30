@@ -166,8 +166,8 @@
 					{#snippet icon()}<IconInfo />{/snippet}
 					The <code>{familyLabels[family]}</code> stack resolves to system faces that carry only
 					<code>normal</code> and <code>bold</code> ({familyExampleFaces[family]}…), so
-					<code>medium</code> and <code>semibold</code> are disabled here: they would snap to the
-					nearest available weight and render as duplicates.
+					<code>medium</code> and <code>semibold</code> are disabled here: they would snap to the nearest
+					available weight and render as duplicates.
 				</Alert>
 			{/if}
 			<p class="type-family-note">

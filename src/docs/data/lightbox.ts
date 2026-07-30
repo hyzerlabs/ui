@@ -101,7 +101,7 @@ export const lightboxDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		'Each thumbnail is a real `<button>` with `aria-haspopup="dialog"`, named by its item.\n\nThe viewer is a native `<dialog>` opened with `showModal()`. Focus is trapped, Escape always closes it, the backdrop also closes it, and focus returns to the thumbnail that opened it.\n\nMulti-item viewers embed the Carousel (labeled slides, live announcements), and ArrowLeft/ArrowRight page through it from anywhere in the dialog. Body scroll is locked while open.',
+		'Each thumbnail is a real `<button>` with `aria-haspopup="dialog"`, named by its item.\n\nThe viewer is a native `<dialog>` opened with `showModal()`. Focus is trapped. Escape and the backdrop both close it, and focus returns to the thumbnail that opened it.\n\nMulti-item viewers embed the Carousel (labeled slides, live announcements), and ArrowLeft/ArrowRight page through it from anywhere in the dialog. Body scroll is locked while open.',
 	a11yLinks: [
 		{
 			label: 'APG Dialog (Modal) pattern',

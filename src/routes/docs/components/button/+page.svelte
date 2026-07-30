@@ -104,7 +104,8 @@
 			<div class="tab-content">
 				{#if item.id === 'variants'}
 					<p class="tab-note">
-						Four looks for one control. <code>solid</code> (the default) fills with the intent color,
+						Four looks for one control. <code>solid</code> (the default) fills with the intent
+						color,
 						<code>outline</code> and <code>ghost</code> lighten the footprint, and <code>soft</code>
 						tints the intent into the surface. Each row shows one variant across a few intents.
 					</p>
@@ -124,9 +125,9 @@
 					</Example>
 				{:else if item.id === 'intents'}
 					<p class="tab-note">
-						Button spans the full <a href="/docs/foundation/colors#intent">intent vocabulary</a>, not
-						a hand-picked subset. <code>primary</code> is the default, because a button is a call to
-						action.
+						Button spans the full <a href="/docs/foundation/colors#intent">intent vocabulary</a>,
+						not a hand-picked subset. <code>primary</code> is the default, because a button is a call
+						to action.
 					</p>
 					<Example code={intentsCode}>
 						<div class="row-demo">
@@ -174,8 +175,8 @@
 					<p class="tab-note">
 						While <code>loading</code>, the button sets <code>aria-busy="true"</code> and renders a
 						visually hidden <code>loadingLabel</code> (default <code>"Loading"</code>) for screen
-						readers. The two loading buttons below look identical but announce differently. Customize
-						the label to describe the in-flight action, e.g.
+						readers. The two loading buttons below look identical but announce differently.
+						Customize the label to describe the in-flight action, e.g.
 						<code>loadingLabel="Saving changes…"</code>.
 					</p>
 					<Example code={statesCode}>

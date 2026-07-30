@@ -192,12 +192,11 @@
 					<p class="tab-note">
 						The default path: omit <code>onSubmit</code> and the Form never touches the submit.
 						SvelteKit's <code>use:enhance</code> does the work (attached with
-						<code>fromAction</code>, Svelte 5.32+), and <code>toFormErrors</code> maps the action's
-						zod-flattened errors straight into the summary. The demo is live on the real enhance
-						wiring; only the server hop is simulated, since this docs site is prerendered. It runs the
-						same schema as the action below, with about 400ms of latency. Submit it empty: the errors
-						arrive asynchronously, and the summary takes focus. On success the form resets, which is
-						enhance's default.
+						<code>fromAction</code>, Svelte 5.32+), and <code>toFormErrors</code> maps the action's zod-flattened
+						errors straight into the summary. The demo is live on the real enhance wiring; only the server
+						hop is simulated, since this docs site is prerendered. It runs the same schema as the action
+						below, with about 400ms of latency. Submit it empty: the errors arrive asynchronously, and
+						the summary takes focus. On success the form resets, which is enhance's default.
 					</p>
 					<Example code={kitPageCode}>
 						<div class="demo-col">
@@ -265,9 +264,10 @@
 				{:else if item.id === 'anatomy'}
 					<p class="tab-note">
 						Summary items are sorted by the fields' DOM order, not the array order. Here the email
-						error comes first in the array, but the name field comes first in the form. An error whose
-						<code>name</code> is empty, or does not match a field, becomes a form-level error: plain
-						text, listed last.
+						error comes first in the array, but the name field comes first in the form. An error
+						whose
+						<code>name</code> is empty, or does not match a field, becomes a form-level error: plain text,
+						listed last.
 					</p>
 					<Example code={anatomyCode}>
 						<div class="demo-col">
@@ -287,9 +287,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>focusTarget="firstField"</code> skips the summary and puts focus straight on the
-						first invalid field. That suits short forms, where navigating a summary is more work than
-						it saves. Submit the empty form and watch where focus lands.
+						<code>focusTarget="firstField"</code> skips the summary and puts focus straight on the first
+						invalid field. That suits short forms, where navigating a summary is more work than it saves.
+						Submit the empty form and watch where focus lands.
 					</p>
 					<Example code={focusCode}>
 						<div class="demo-col">

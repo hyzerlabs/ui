@@ -26,7 +26,7 @@ export const dividerDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-divider class.' }
 	],
 	a11yNote:
-		'The bare form is a native `<hr>`: implicit `role="separator"`, horizontal, non-focusable, and needing no ARIA.\n\nThe labeled form keeps `role="separator"` on the wrapping `<div>`, so the thematic break survives the switch away from `<hr>`. The label text is the separator\'s accessible name and stays in the tree, so screen readers announce \'separator, OR\'.\n\nThe flanking rules are decorative `::before`/`::after` pseudo-elements, never part of the accessibility tree.',
+		'The bare form is a native `<hr>`: implicit `role="separator"`, horizontal, non-focusable, and needing no ARIA.\n\nThe labeled form keeps `role="separator"` on the wrapping `<div>`, so the thematic break survives the switch away from `<hr>`. The label text is the separator\'s accessible name and stays in the tree, so screen readers announce a separator followed by its label, though the exact wording varies by reader.\n\nThe flanking rules are decorative `::before`/`::after` pseudo-elements, never part of the accessibility tree.',
 	a11yLinks: [
 		{ label: 'MDN: <hr>', href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element/hr' },
 		{

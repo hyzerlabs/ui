@@ -166,8 +166,8 @@
 		<h2 id="palette-heading">Palette tokens</h2>
 		<p>
 			The <code>--hz-palette-*</code> tokens ship fixed values. Override them to retheme the entire
-			palette at once. Components and the reference theme never read these directly (see the doctrine
-			note below). This page and
+			palette at once. Components and the reference theme never read these directly (see the
+			doctrine note below). This page and
 			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> are the exception: they build
 			and grade the raw names for review.
 		</p>
@@ -215,7 +215,8 @@
 		<h3 id="structural-roles">Structural roles</h3>
 		<p>
 			There are seven. <code>surface</code>, <code>surfaceMuted</code>, and <code>text</code> are
-			re-authored by the dark theme, so their value changes with the mode. <code>textMuted</code> and
+			re-authored by the dark theme, so their value changes with the mode. <code>textMuted</code>
+			and
 			<code>border</code> are authored once and follow whatever the palette gives them.
 			<code>black</code> and <code>white</code> are alias roles, identical in both modes. The table shows
 			the value each one resolves to for the mode you are reading in.
@@ -263,17 +264,17 @@
 		<p class="role-note">
 			<code>--hz-color-black</code> and <code>--hz-color-white</code> are absolute anchors for
 			hover-darkening mixes (Button's solid/active states, Link's hover) and on-media controls
-			(Lightbox), so they deliberately do not flip in dark. They appear twice: in the palette section
-			above as the <code>black</code>/<code>white</code> palette source, and here as anchor roles. That
-			duality is intentional, because the role is what components actually read.
+			(Lightbox), so they deliberately do not flip in dark. They appear twice: in the palette
+			section above as the <code>black</code>/<code>white</code> palette source, and here as anchor roles.
+			That duality is intentional, because the role is what components actually read.
 		</p>
 		<h3 id="intent">Intent</h3>
 		<p>
 			Intent is the shared vocabulary components use when color carries meaning: the
 			<code>Intent</code> type in <code>@hyzer-labs/ui/types</code>, which is
 			<code>neutral</code> plus the six status hues. Every intent-bearing component takes the full
-			set, with <code>neutral</code> as the default when nothing is being signalled. Intent color is
-			reinforcement, never the only signal. The text carries the meaning.
+			set, with <code>neutral</code> as the default when nothing is being signalled. Intent color is reinforcement,
+			never the only signal. The text carries the meaning.
 		</p>
 		<p>
 			Each intent has its own role token, one indirection above the palette. Override
@@ -353,16 +354,16 @@
 			<code>prefers-color-scheme</code> block that applies only while no
 			<code>data-theme</code> attribute is set, so obeying the system costs you no JavaScript.
 			<strong>Pin one look</strong>
-			by setting <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> once and stopping there,
-			or <code>data-theme="light"</code> to hold the default look even for a reader whose system
-			prefers dark. Or <strong>wire a toggle</strong> that writes the attribute, like this docs site
-			does. Components resolve the same role and intent tokens in every posture, so nothing else in
-			your markup or CSS changes between them.
+			by setting <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> once and stopping
+			there, or <code>data-theme="light"</code> to hold the default look even for a reader whose
+			system prefers dark. Or <strong>wire a toggle</strong> that writes the attribute, like this docs
+			site does. Components resolve the same role and intent tokens in every posture, so nothing else
+			in your markup or CSS changes between them.
 		</p>
 		<p>
-			The toggle in this site's sidebar is exactly this: an icon-only <code>Button</code> that writes
-			the reader's choice and remembers it. Note what it does <em>not</em> do: it never signals light
-			by removing the attribute. The system default is scoped to
+			The toggle in this site's sidebar is exactly this: an icon-only <code>Button</code> that
+			writes the reader's choice and remembers it. Note what it does <em>not</em> do: it never
+			signals light by removing the attribute. The system default is scoped to
 			<code>:root:not([data-theme])</code>, so a removed attribute hands a system-dark reader dark
 			mode and makes the light half of the toggle look broken.
 		</p>
@@ -374,20 +375,20 @@
 			a set of overrides in <code>[data-theme="dark"]</code>. Out of the box
 			<code>--hz-color-surface</code> and <code>--hz-color-text</code> swap,
 			<code>--hz-color-surface-muted</code> strengthens its gray tint (6% is invisible over black),
-			and every hue in <code>--hz-palette-*</code> lightens to a companion that keeps WCAG AA as text
-			on dark surfaces. Almost nothing is re-authored beyond that at Layer 2:
+			and every hue in <code>--hz-palette-*</code> lightens to a companion that keeps WCAG AA as
+			text on dark surfaces. Almost nothing is re-authored beyond that at Layer 2:
 			<code>text-muted</code> and <code>border</code> follow <code>gray</code>, and every intent
 			follows its hue:
 		</p>
 		<p class="doctrine-note">
-			A named theme <strong>may override any tier, including the palette</strong>, and the dark theme
-			already does, right here. The rule is not that the palette is mode-static; the rule is that
-			components and theme sheets resolve through role (<code>--hz-color-*</code>) and intent (<code
+			A named theme <strong>may override any tier, including the palette</strong>, and the dark
+			theme already does, right here. The rule is not that the palette is mode-static; the rule is
+			that components and theme sheets resolve through role (<code>--hz-color-*</code>) and intent (<code
 				>--hz-intent-*</code
 			>) tokens, <strong>never the palette directly</strong>. Palette is referenced in exactly one
 			place: the token source, where roles and intents are
-			<em>defined</em> (<code>--hz-color-surface: var(--hz-palette-white)</code>). That indirection is
-			the whole point.
+			<em>defined</em> (<code>--hz-color-surface: var(--hz-palette-white)</code>). That indirection
+			is the whole point.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">

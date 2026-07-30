@@ -114,11 +114,11 @@
 <DocPage name="Dropdown" {...dropdownDoc}>
 	<Alert intent="info" title="Dropdown vs Nav">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Reach for <code>Dropdown</code> when the entries are <strong>actions</strong> — an action menu
-		or kebab menu that does something (edit, duplicate, delete). For <strong>navigation</strong> —
-		links a reader clicks through to another page or section — use
-		<a href="/docs/components/nav">Nav</a>'s built-in dropdown instead; its menu items are real
-		navigable links, not action buttons.
+		Use <code>Dropdown</code> when the entries are <strong>actions</strong>: an action menu or kebab
+		menu that does something (edit, duplicate, delete). For <strong>navigation</strong>, meaning
+		links a reader clicks through to another page or section, use
+		<a href="/docs/components/nav">Nav</a>'s built-in dropdown instead. Its menu items are real
+		navigable links rather than action buttons.
 	</Alert>
 
 	<Tabs items={demoTabs} ariaLabel="Dropdown demos" defaultTab="basic">
@@ -126,8 +126,8 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Every item carries its own <code>onselect</code> — click one (or focus it and press
-						<kbd>Enter</kbd>/<kbd>Space</kbd>) to fire its action, close the menu, and return focus
+						Every item carries its own <code>onselect</code>. Click one, or focus it and press
+						<kbd>Enter</kbd>/<kbd>Space</kbd>, to fire its action, close the menu, and return focus
 						to the trigger.
 					</p>
 					<Example code={basicCode}>
@@ -140,10 +140,10 @@
 					</Example>
 				{:else if item.id === 'danger'}
 					<p class="tab-note">
-						<code>Check in</code> is <code>disabled</code> — it stays focusable (Arrow/Home/End/
-						typeahead all reach it) but is inert on activation, so screen-reader users can still
-						discover it. <code>Delete round</code> is <code>danger</code> — styled destructively, never
-						by color alone, since its label already says "Delete."
+						<code>Check in</code> is <code>disabled</code>. It stays focusable, so Arrow, Home, End,
+						and typeahead all reach it and screen-reader users can still discover it, but activating
+						it does nothing. <code>Delete round</code> is <code>danger</code>: styled destructively,
+						never by color alone, since its label already says "Delete."
 					</p>
 					<Example code={dangerCode}>
 						<div class="demo-col">
@@ -154,7 +154,7 @@
 					<p class="tab-note">
 						An item's <code>icon</code> snippet renders before the label and is purely decorative (<code
 							>aria-hidden</code
-						>) — the label text alone is the accessible name. A
+						>), so the label text alone is the accessible name. A
 						<code>{'{ separator: true }'}</code> entry renders a non-interactive divider, skipped by every
 						navigation path.
 					</p>
@@ -174,10 +174,10 @@
 					</Example>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
-						<code>align</code> picks which trigger edge the menu hangs from: <code>start</code>
-						(the default) lines up the leading edges, <code>end</code> the trailing edges — the
-						right-aligned kebab-menu form, useful near the edge of a container — and
-						<code>center</code> centers the menu under the trigger. Start and end follow reading direction.
+						<code>align</code> picks which trigger edge the menu hangs from. <code>start</code> (the
+						default) lines up the leading edges. <code>end</code> lines up the trailing edges, the
+						right-aligned kebab-menu form, useful near the edge of a container. <code>center</code>
+						centers the menu under the trigger. Start and end follow reading direction.
 					</p>
 					<Example code={alignCode}>
 						<Cluster gap="lg" align="center">
@@ -189,10 +189,9 @@
 				{:else}
 					<p class="tab-note">
 						With no <code>label</code>, the trigger renders as an icon-only <code>Button</code>
-						circle — <code>triggerLabel</code> becomes its accessible name (required; omitting it
-						triggers
-						<code>Button</code>'s own dev warning). <code>triggerIcon</code> replaces the default chevron
-						glyph.
+						circle, and <code>triggerLabel</code> becomes its accessible name. It is required: leave
+						it out and <code>Button</code> logs its own dev warning. <code>triggerIcon</code> replaces
+						the default chevron glyph.
 					</p>
 					<Example code={iconOnlyCode}>
 						<Cluster gap="sm" align="center">

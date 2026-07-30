@@ -230,7 +230,7 @@ test.describe('specs/36 R8 — icons catalog page', () => {
 
 	test('a bring-your-own brand marks note is present (no brand-icon section)', async ({ page }) => {
 		await page.goto('/docs/components/icons');
-		await expect(page.getByText(/brand marks aren't included/i)).toBeVisible();
+		await expect(page.getByText(/brand marks are not included/i)).toBeVisible();
 	});
 });
 

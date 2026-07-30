@@ -56,7 +56,7 @@
 			src: 'about:blank',
 			label: 'Demo flight video',
 			thumbSrc: demoSvg('Video ▶', '0e7490', 600, 400),
-			caption: 'Videos play inline via the Video component (placeholder clip)'
+			caption: 'Videos play inline via the Video component (this demo attaches no clip)'
 		}
 	];
 
@@ -150,9 +150,9 @@
 <DocPage name="Lightbox" {...lightboxDoc}>
 	<Alert intent="info" title="Image + Lightbox">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Image renders media, Lightbox provides viewing. Compose an
+		Image renders media; Lightbox handles viewing. Compose an
 		<a href="/docs/components/image">Image</a>
-		as a trigger face — see the "Image triggers" tab — or reach for the <code>lightboxGroup</code>
+		as a trigger face (see the "Image triggers" tab), or reach for the <code>lightboxGroup</code>
 		attachment on the "Group attachment" tab to add click-to-view over an <code>Image</code> grid you
 		already render.
 	</Alert>
@@ -161,8 +161,8 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Click the thumbnail (note the zoom cursor) — Esc, the backdrop, or the close button
-						dismiss the viewer.
+						Click the thumbnail and note the zoom cursor. Esc, the backdrop, and the close button
+						all dismiss the viewer.
 					</p>
 					<Example code={basicCode}>
 						<div class="thumb-box">
@@ -176,21 +176,22 @@
 					</Example>
 				{:else if item.id === 'gallery'}
 					<p class="tab-note">
-						With <code>items</code>, one component renders the whole strip; each thumbnail opens the
-						viewer at its item, ArrowLeft/ArrowRight (or the controls) page through with
-						wrap-around, and videos play via the <a href="/docs/components/video">Video</a> component.
-						Focus returns to the thumbnail that opened the viewer.
+						With <code>items</code>, one component renders the whole strip. Each thumbnail opens the
+						viewer at its own item. ArrowLeft and ArrowRight, or the controls, page through with
+						wrap-around, and videos play through the <a href="/docs/components/video">Video</a>
+						component. Focus returns to the thumbnail that opened the viewer.
 					</p>
 					<Example code={galleryCode}>
 						<Lightbox items={galleryItems} class="gallery-strip" />
 					</Example>
 				{:else if item.id === 'triggers'}
 					<p class="tab-note">
-						The <code>trigger</code> snippet swaps each strip button's face — <code>Lightbox</code>
-						still owns the <code>&lt;button&gt;</code>, its <code>aria-haspopup="dialog"</code>
-						name, and the click wiring, so a face like this <code>Image</code> should pass
-						<code>alt=""</code> — the button is already named, and an empty alt drops the decorative face
-						out of the accessibility tree instead of announcing it twice.
+						The <code>trigger</code> snippet swaps each strip button's face.
+						<code>Lightbox</code> still owns the <code>&lt;button&gt;</code>, its
+						<code>aria-haspopup="dialog"</code>, its accessible name, and the click wiring. So a
+						face like this <code>Image</code> should pass <code>alt=""</code>: the button is already
+						named, and an empty alt keeps the decorative face out of the accessibility tree rather
+						than announcing it twice.
 					</p>
 					<Example code={triggerCode}>
 						<Lightbox items={galleryItems} class="trigger-strip">
@@ -207,20 +208,21 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>lightboxGroup()</code> enhances a container's own media in place — there's no
-						thumbnail strip here, no <code>Lightbox</code> component at all. Click any photo below
-						(or Tab to one and press Enter/Space) — every qualifying image in the grid opens
-						together in one shared viewer, starting at the photo you activated. Two escape hatches:
+						<code>lightboxGroup()</code> enhances a container's own media in place: no thumbnail
+						strip, and no <code>Lightbox</code> component at all. Click any photo below, or Tab to
+						one and press Enter or Space, and every qualifying image in the grid opens in one shared
+						viewer, starting at the photo you activated. Two escape hatches:
 						<code>data-lightbox-ignore</code>
-						opts an element out (the grey chart below gets no zoom cursor and never joins the group),
-						and <code>data-lightbox-src</code>
-						opens a full-resolution source instead of the rendered — often scaled-down —
-						<code>src</code> (open the second photo and note the override). Reach for the attachment
-						to enhance existing page media in place; reach for <code>Lightbox</code> when you
-						control the markup and want the strongest accessibility guarantees. See it composed with
-						<a href="/docs/components/carousel">Carousel</a> — the active slide as the trigger,
-						paging across every item once open — in the
-						<a href="/docs/patterns/product-detail">product detail</a> pattern.
+						opts an element out, so the grey chart below gets no zoom cursor and never joins the group;
+						<code>data-lightbox-src</code>
+						opens a full-resolution source instead of the rendered (often scaled-down)
+						<code>src</code>, which is what the second photo does. Reach for the attachment to
+						enhance media you already render, and for <code>Lightbox</code> when you control the
+						markup and want the strongest accessibility guarantees. The
+						<a href="/docs/patterns/product-detail">product detail</a> pattern shows it composed
+						with
+						<a href="/docs/components/carousel">Carousel</a>: the active slide is the trigger, and
+						the viewer pages across every item once open.
 					</p>
 					<Example code={attachmentCode}>
 						<div class="gallery-grid" {@attach lightboxGroup()}>

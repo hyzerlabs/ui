@@ -148,7 +148,8 @@
 		{#snippet lead()}
 			Three families of utility class, from least to most opt-in: the always-on
 			<code>.sr-only</code>, component conventions the theme already ships, and a generated sheet of
-			token-derived helpers you import separately — plus the JavaScript helpers the package exports.
+			token-derived helpers you import separately. It also covers the JavaScript helpers the package
+			exports.
 		{/snippet}
 	</DocIntro>
 
@@ -161,14 +162,13 @@
 	>
 		<h2 id="sr-only-heading">Always available: <code>.sr-only</code></h2>
 		<p>
-			You already have this — nothing to opt into beyond the theme itself. A
-			visually-hidden-but-screen-reader-available utility — content stays in the accessibility tree
-			and reachable by assistive tech, but is clipped to a 1px box and removed from the visual flow. <code
-				>.sr-only</code
-			>
-			ships in the reference theme's <code>base.css</code>, unlayered, whenever
+			You already have this: there is nothing to opt into beyond the theme itself.
+			<code>.sr-only</code>
+			hides content visually while keeping it available to screen readers. The content stays in the accessibility
+			tree and reachable by assistive tech, but is clipped to a 1px box and removed from the visual flow.
+			It ships in the reference theme's <code>base.css</code>, unlayered, whenever
 			<code>@hyzer-labs/ui/theme</code>
-			is imported —
+			is imported.
 			<a href="/docs/components/button">Button</a> (loading label),
 			<a href="/docs/components/link">Link</a>
 			(external-link hint), <a href="/docs/components/checkbox">Checkbox</a>,
@@ -180,8 +180,8 @@
 		</p>
 		<CodeBlock code={srOnlyCode} />
 		<p>
-			No component ships the rule itself — components only ever emit the class name — so the theme
-			is what makes it visually hidden. Source, from <code>theme/base.css</code>:
+			No component ships the rule itself; components only ever emit the class name. The theme is
+			what makes it visually hidden. Source, from <code>theme/base.css</code>:
 		</p>
 		<CodeBlock
 			code={srOnlySource.slice(srOnlySource.indexOf('.sr-only {')).split('\n\n')[0].trim()}
@@ -200,9 +200,9 @@
 			One step up: apply a class the theme already ships, no new import required. Conventions like
 			<code>.hz-card-title</code> and <code>.hz-banner-title</code> ship inside their own component
 			theme sheets (<code>theme/components/card.css</code>,
-			<code>theme/components/banner.css</code>) rather than the generated utility sheet — they style
+			<code>theme/components/banner.css</code>) rather than the generated utility sheet. They style
 			whatever heading or lead element you bring, at whatever level the page needs, because headings
-			aren't load-bearing for Card or Banner the way they are for Modal or Accordion. The full
+			are not load-bearing for Card or Banner the way they are for Modal or Accordion. The full
 			catalog, alongside every component's
 			<code>data-*</code>/<code>hz-*</code> hooks, lives on
 			<a href="/docs/theming/components">Theming &rarr; Styling Components</a>.
@@ -235,46 +235,45 @@
 		<h2 id="sheet-heading">The opt-in sheet</h2>
 		<p>
 			The biggest commitment of the three: an additional sheet, imported explicitly. A utility class
-			is a <strong>token-derived, single-property helper</strong> — one class, one declaration, resolved
-			from a design token. That is the whole definition; it does not depend on where the class is or is
-			not used.
+			is a <strong>token-derived, single-property helper</strong>: one class, one declaration,
+			resolved from a design token. That is the whole definition; it does not depend on where the
+			class is or is not used.
 		</p>
 		<p class="doctrine-note">
-			Utilities are for <strong>ad-hoc spots</strong> — nudging one element, tinting one line of
-			text — <strong>not an alternative layout system.</strong> Components already own their spacing
-			(gap/padding props, the <code>data-padding</code>/<code>data-gap</code> scales) and the
-			density system (<code>--hz-space-near</code>/<code>--hz-space-away</code>). The utility sheet
-			deliberately does <strong>not</strong> reproduce that surface: it exposes the
+			Utilities are for <strong>ad-hoc spots</strong> like nudging one element or tinting one line
+			of text. They are <strong>not an alternative layout system.</strong> Components already own
+			their spacing (gap/padding props, the <code>data-padding</code>/<code>data-gap</code> scales)
+			and the density system (<code>--hz-space-near</code>/<code>--hz-space-away</code>). The
+			utility sheet deliberately does <strong>not</strong> reproduce that surface: it exposes the
 			<strong>fixed</strong> <code>--hz-space-*</code> scale for margins only, never the density near/away
 			distances, and no padding helpers at all (padding is owned by components).
 		</p>
 		<p>
-			<code>utilities.css</code> is generated output, exactly like <code>tokens.css</code> —
-			rendered from the same resolved token model by <code>hyzer generate --utilities</code>, never
-			edited by hand. It is opt-in: import it explicitly, like a theme sheet — if you never import
-			it, you ship none of these bytes. If your config extends the intent vocabulary or the space
-			scale, the matching classes are generated automatically — nothing to hand-maintain.
+			<code>utilities.css</code> is generated output, exactly like <code>tokens.css</code>: rendered
+			from the same resolved token model by <code>hyzer generate --utilities</code>, never edited by
+			hand. It is opt-in. Import it explicitly, like a theme sheet, and if you never import it you
+			ship none of these bytes. If your config extends the intent vocabulary or the space scale, the
+			matching classes are generated automatically, with nothing to hand-maintain.
 		</p>
 		<CodeBlock code={generateUtilitiesTranscript} />
 		<p>
 			The flag opts in for a single run; set <code>utilities: true</code> (or
-			<code>{"{ output: '...' }"}</code>) in <code>hyzer.config.ts</code> to opt in every run — full
-			config surface on
+			<code>{"{ output: '...' }"}</code>) in <code>hyzer.config.ts</code> to opt in every run. The
+			full config surface is on
 			<a href="/docs/foundation/config#full-reference-heading">Config &amp; CLI</a>.
 		</p>
 		<CodeBlock code={importLine} />
 		<p>
 			Every rule is unlayered, single-class specificity (<code>0,1,0</code>), with no
-			<code>!important</code> — the same posture as <code>.sr-only</code> above. A deliberately-applied
-			utility beats the layered reference theme, while your own unlayered class of equal specificity still
-			wins on source order, so import your stylesheet after the utility sheet if you mean to override
-			one.
+			<code>!important</code>: the same posture as <code>.sr-only</code> above. A deliberately applied
+			utility beats the layered reference theme. Your own unlayered class of equal specificity still wins
+			on source order, so import your stylesheet after the utility sheet if you mean to override one.
 		</p>
 
 		<h3 id="text-utilities-heading">Color utilities</h3>
 		<p>
-			Four families — <code>.hz-text-*</code>, <code>.hz-bg-*</code>, <code>.hz-border-*</code> and
-			<code>.hz-fill-*</code> — each with its role helpers plus one class per resolved intent. One
+			Four families (<code>.hz-text-*</code>, <code>.hz-bg-*</code>, <code>.hz-border-*</code> and
+			<code>.hz-fill-*</code>), each with its role helpers plus one class per resolved intent. One
 			property each, so <code>.hz-border-danger</code> sets <code>border-color</code> and nothing
 			else: bring your own width and style. <code>.hz-fill-*</code> is for SVG.
 		</p>
@@ -283,7 +282,7 @@
 				href="/docs/components/badge">Badge</a
 			>, <a href="/docs/components/alert">Alert</a>, <a href="/docs/components/banner">Banner</a>)
 			keep doing that themselves, and reaching for a background utility to restyle one is the wrong
-			tool — use their <code>intent</code> prop or their theme hooks.
+			tool. Use their <code>intent</code> prop or their theme hooks.
 		</p>
 		<Example code={nudgeCode}>
 			<p>
@@ -349,10 +348,11 @@
 
 		<h3 id="margin-utilities-heading">Margin utilities</h3>
 		<p>
-			Logical properties only — no <code>mt</code>/<code>mb</code>/<code>ml</code>/<code>mr</code> —
-			so a single-direction nudge (<code>block-start</code>, <code>block-end</code>,
+			Logical properties only, with no <code>mt</code>/<code>mb</code>/<code>ml</code>/<code
+				>mr</code
+			>, so a single-direction nudge (<code>block-start</code>, <code>block-end</code>,
 			<code>inline-start</code>, <code>inline-end</code>) stays correct under RTL and vertical
-			writing modes. Seven families per <code>--hz-space-*</code> rung — every cell below references the
+			writing modes. Seven families per <code>--hz-space-*</code> rung. Every cell below references the
 			token var, so your space override flows straight through with no regeneration needed.
 		</p>
 		<div class="token-table-wrapper">
@@ -380,7 +380,7 @@
 			</table>
 		</div>
 		<p class="tab-note">
-			A visual scale — each chip's leading gap is a real
+			A visual scale. Each chip's leading gap is a real
 			<code>margin-inline-start</code> utility, walking the space scale from <code>none</code> to
 			<code>xl</code>:
 		</p>
@@ -402,13 +402,13 @@
 		class="doc-section"
 		aria-labelledby="aa-heading"
 	>
-		<h2 id="aa-heading">Contrast: what's graded and what isn't</h2>
+		<h2 id="aa-heading">Contrast: what is graded and what is not</h2>
 		<p class="doctrine-note">
 			Every <code>.hz-text-&lt;intent&gt;</code> class maps to a pairing already checked against
 			WCAG AA: intent text colors are
 			<strong>AA-verified on the two surface roles only</strong>
 			(<code>--hz-color-surface</code> and <code>--hz-color-surface-muted</code>, both light and
-			dark) — on any other background, contrast is yours to check.
+			dark). On any other background, contrast is yours to check.
 		</p>
 		<p>
 			That includes a background utility. <code>.hz-bg-danger</code> is not one of those two
@@ -416,8 +416,8 @@
 			has graded, and several of the intents fail it outright. The combination the report does cover
 			is the one Banner ships: text in the <em>surface</em> role on a solid intent fill, which flips
 			with the mode and stays legible in both. Reach for <code>.hz-bg</code> or
-			<code>.hz-bg-muted</code> under intent-colored text, and for a solid intent fill, set the text to
-			the surface role rather than an intent.
+			<code>.hz-bg-muted</code> under intent-colored text. For a solid intent fill, set the text to the
+			surface role rather than an intent.
 		</p>
 		<p>
 			<code>.hz-border-*</code> is exempt either way: a border is non-text, so it answers to
@@ -425,7 +425,7 @@
 			(3:1 against what it sits on) rather than to the 4.5:1 text rule.
 		</p>
 		<p>
-			Beyond that the sheet introduces no new pairings — see
+			Beyond that the sheet introduces no new pairings. See
 			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> for the full report, and
 			<a href="/docs/foundation/colors#intent">Colors &amp; Intent</a> for the intent vocabulary itself.
 		</p>
@@ -440,28 +440,28 @@
 	>
 		<h2 id="js-utilities-heading">JavaScript utilities</h2>
 		<p>
-			Not every utility is a class. The package also exports plain functions — pure, SSR-safe, no
-			DOM:
+			Not every utility is a class. The package also exports plain functions that are pure and
+			SSR-safe, and touch no DOM:
 		</p>
 		<ul class="js-utils-list">
 			<li>
-				<strong>Contrast math</strong> — <code>contrastRatio</code>, <code>gradeContrast</code>,
+				<strong>Contrast math</strong>: <code>contrastRatio</code>, <code>gradeContrast</code>,
 				<code>bestLevel</code>, <code>bestLevelLarge</code>, <code>relativeLuminance</code>,
 				<code>mixSrgb</code>, <code>hexToRgb</code>, and <code>rgbToHex</code>, from the package
-				root or <code>@hyzer-labs/ui/utils</code>. Grade any two hex colors against WCAG — the same
-				functions behind the
+				root or <code>@hyzer-labs/ui/utils</code>. Grade any two hex colors against WCAG with the
+				same functions behind the
 				<a href="/docs/foundation/contrast#checker-heading">pairing checker</a>. See
 				<a href="/docs/theming/tokens#verify-heading">Verify your palette</a> for using them in a unit
 				test.
 			</li>
 			<li>
-				<strong><code>toFormErrors</code></strong> — reshapes a plain field-name &rarr; message
+				<strong><code>toFormErrors</code></strong>: reshapes a plain field-name &rarr; message
 				record into the error array <a href="/docs/components/form">Form</a> renders as its linked summary.
 			</li>
 			<li>
-				<strong><code>announce</code></strong> — sends a message to a reused, visually-hidden live
-				region for screen readers, from <code>@hyzer-labs/ui/observers</code> — a natural pairing
-				for an <a href="/docs/foundation/observers">observer</a> callback that just loaded more content
+				<strong><code>announce</code></strong>: sends a message to a reused, visually hidden live
+				region for screen readers, from <code>@hyzer-labs/ui/observers</code>. It pairs naturally
+				with an <a href="/docs/foundation/observers">observer</a> callback that just loaded more content
 				or noticed a change.
 			</li>
 		</ul>

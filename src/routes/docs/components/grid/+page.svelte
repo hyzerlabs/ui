@@ -107,8 +107,8 @@
 						<code>columns={'{{ min: … }}'}</code> fits as many equal tracks as have at least
 						<code>min</code> room, with no breakpoints at all. The band thresholds are fixed
 						constants, but <code>min</code> takes any length, <code>var()</code>
-						<em>included</em>, so you can drive this mode from tokens and overrides. Reach for it when
-						the real requirement is "cards at least this wide".
+						<em>included</em>, so you can drive this mode from tokens and overrides. Reach for it
+						when the real requirement is "cards at least this wide".
 					</p>
 					<Container breakout padding="none">
 						<Example code={fluidCode}>
@@ -168,8 +168,8 @@
 					</Tabs>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
-						<code>align</code> maps to <code>align-items</code>. You see it when cells in the same row
-						have different heights; the default <code>stretch</code> makes them equal.
+						<code>align</code> maps to <code>align-items</code>. You see it when cells in the same
+						row have different heights; the default <code>stretch</code> makes them equal.
 					</p>
 					<Tabs
 						items={alignValues.map((v) => ({ id: v, label: v }))}
@@ -198,8 +198,8 @@
 						The tinted zone is the Grid; the space between its edge and the cells is the padding. It
 						sits on the grid root, so the column breakpoints measure the padded-down width.
 						<code>padding</code> applies on both axes; <code>paddingInline</code> /
-						<code>paddingBlock</code> override one axis and win where set. The axis names are the CSS
-						logical properties, so they stay correct in RTL and vertical writing modes. See
+						<code>paddingBlock</code> override one axis and win where set. The axis names are the
+						CSS logical properties, so they stay correct in RTL and vertical writing modes. See
 						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs

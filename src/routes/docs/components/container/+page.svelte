@@ -67,11 +67,11 @@
 					</Container>
 				{:else if item.id === 'padding'}
 					<p class="tab-note">
-						The tinted zone is the Container; the solid box is its content. <code>padding</code>
-						applies on both axes; <code>paddingInline</code> / <code>paddingBlock</code> override
-						one axis and win where set — e.g. <code>paddingBlock="none"</code> keeps the inline
-						gutters when a Stack owns the vertical rhythm. The axis names are the CSS logical
-						properties, so they stay correct in RTL and vertical writing modes — see
+						The tinted zone is the Container and the solid box is its content. <code>padding</code>
+						applies on both axes. <code>paddingInline</code> and <code>paddingBlock</code> override
+						one axis and win where set: <code>paddingBlock="none"</code> keeps the inline gutters
+						when a Stack owns the vertical rhythm. The axis names are the CSS logical properties, so
+						they stay correct in RTL and vertical writing modes. See
 						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs
@@ -102,7 +102,7 @@
 					</Tabs>
 				{:else if item.id === 'center'}
 					<p class="tab-note">
-						<code>center</code> only matters when the container is narrower than its parent — the
+						<code>center</code> only matters when the container is narrower than its parent. The
 						default centers it with <code>margin-inline: auto</code>;
 						<code>center={'{false}'}</code>
 						leaves it flush with the start edge.
@@ -126,7 +126,7 @@
 						<code>breakout</code> escapes the prose column and spans the nearest ancestor with
 						<code>container-type: inline-size</code> (this docs page sets one on its main content
 						area; with no ancestor container it falls back to the viewport). <code>max</code> is
-						ignored. By default the margin math assumes a centered column; start-aligned layouts
+						ignored. By default the margin math assumes a centered column. Start-aligned layouts
 						like this one set <code>--hz-breakout-shift: 0</code> so the breakout grows toward the end
 						edge only.
 					</p>

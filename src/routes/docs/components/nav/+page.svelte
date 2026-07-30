@@ -85,7 +85,7 @@
 						label stays a navigable link and a separate chevron opens the menu; without one, the
 						whole label is the trigger. Keyboard: Enter/Space toggle, ArrowDown opens and focuses
 						the menu, Escape closes. <a href="/docs/components/header">Header</a> composes this Nav
-						for you — hand it the same <code>items</code> for a full top bar with branding, actions, and
+						for you: hand it the same <code>items</code> for a full top bar with branding, actions, and
 						a mobile drawer built in.
 					</p>
 					<Example code={dropdownCode}>
@@ -95,9 +95,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>orientation="vertical"</code> renders a sidebar column: submenus become inline disclosure
-						sections that collapse independently and nest — open several at once. This is what the docs
-						sidebar you're reading uses.
+						<code>orientation="vertical"</code> renders a sidebar column. Submenus become inline disclosure
+						sections that nest and collapse independently, so you can have several open at once. The docs
+						sidebar you are reading is this Nav.
 					</p>
 					<Example code={verticalCode}>
 						<div class="nav-demo-wrap sidebar-demo">

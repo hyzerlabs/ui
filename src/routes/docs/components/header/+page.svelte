@@ -101,8 +101,8 @@
 				{:else if item.id === 'surface'}
 					<p class="tab-note">
 						<code>variant</code> sets the bar surface; <code>bordered</code> adds a bottom hairline
-						that composes with either. Each demo sits on a tinted backdrop that is not part of Header,
-						so <code>transparent</code> has something to show through.
+						that composes with either. Each demo sits on a tinted backdrop that is not part of
+						Header, so <code>transparent</code> has something to show through.
 					</p>
 					<Tabs
 						items={surfaceCombos.map((c) => ({ id: c.id, label: c.label }))}
@@ -130,11 +130,11 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						Drag under 968px and the bar collapses to the hamburger. <code>actions</code> stays in the
-						collapsed bar, pinned to the end next to the hamburger; override
-						<code>margin-inline-start</code> on <code>.hz-header-actions</code> to move it somewhere
-						else. Open the drawer to see the vertical Nav with the actions repeated below it. The
-						drawer traps focus, and Esc closes it.
+						Drag under 968px and the bar collapses to the hamburger. <code>actions</code> stays in
+						the collapsed bar, pinned to the end next to the hamburger; override
+						<code>margin-inline-start</code> on <code>.hz-header-actions</code> to move it somewhere else.
+						Open the drawer to see the vertical Nav with the actions repeated below it. The drawer traps
+						focus, and Esc closes it.
 					</p>
 					<Container breakout padding="none">
 						<Example code={mobileCode}>
