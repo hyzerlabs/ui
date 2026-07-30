@@ -6,6 +6,7 @@
 	 */
 	import { Hero, Container, Stack, Grid, Card, Button, Badge, Image, CodeBlock, Split } from '$lib';
 	import SiteChrome from '../docs/SiteChrome.svelte';
+	import SizeTable from '../docs/SizeTable.svelte';
 	import WhereNext from '../docs/WhereNext.svelte';
 	import { gettingStartedStep, nextSteps } from '../docs/nextSteps';
 
@@ -119,6 +120,17 @@
 					{/each}
 				</Grid>
 				<p><a href="/docs/philosophy">Read the philosophy &rarr;</a></p>
+			</Stack>
+		</Container>
+
+		<Container max="lg" padding="lg">
+			<Stack as="section" gap="md" aria-labelledby="weight-heading">
+				<h2 id="weight-heading">What it weighs</h2>
+				<!-- Card gives the table the same padded frame the commitment cards
+				     above it use, so the numbers do not sit flush against the page. -->
+				<Card class="hz-card--outlined" padding="md" rounded="md">
+					<SizeTable />
+				</Card>
 			</Stack>
 		</Container>
 

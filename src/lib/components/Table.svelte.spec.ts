@@ -620,4 +620,12 @@ describe('edge case — RTL align attrs', () => {
 		expect(headers[0].getAttribute('data-align')).toBe('start');
 		expect(headers[1].getAttribute('data-align')).toBe('end');
 	});
+
+	it('bordered: present by default, absent when false (the theme keys borders off it)', () => {
+		const { container } = render(T, { items: discs, columns, ariaLabel: 'Discs' });
+		expect(parts(container).wrap.hasAttribute('data-bordered')).toBe(true);
+
+		const bare = render(T, { items: discs, columns, ariaLabel: 'Discs', bordered: false });
+		expect(parts(bare.container).wrap.hasAttribute('data-bordered')).toBe(false);
+	});
 });

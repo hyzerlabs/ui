@@ -15,7 +15,7 @@
 .hz-theme-terminal .hz-button {
 	/* Per-intent hooks, same contract as the reference theme: override these
 	 * two to restyle every variant. */
-	--hz-button-accent: var(--hz-intent-primary, #00ff41);
+	--hz-button-accent: var(--hz-intent-primary, #39ff6a);
 	--hz-button-on-accent: var(--hz-color-surface, #0b0f0b);
 	--hz-button-glow: 0 0 12px color-mix(in srgb, var(--hz-button-accent) 55%, transparent);
 
@@ -63,7 +63,7 @@
 }
 
 .hz-theme-terminal .hz-button[data-intent='warning'] {
-	--hz-button-accent: var(--hz-intent-warning, #ffb000);
+	--hz-button-accent: var(--hz-intent-warning, #ffd166);
 }
 
 .hz-theme-terminal .hz-button[data-intent='success'] {
@@ -76,7 +76,7 @@
 
 /* The two extension intents. */
 .hz-theme-terminal .hz-button[data-intent='phosphor'] {
-	--hz-button-accent: var(--hz-intent-phosphor, #00ff41);
+	--hz-button-accent: var(--hz-intent-phosphor, #39ff6a);
 }
 
 .hz-theme-terminal .hz-button[data-intent='amber'] {

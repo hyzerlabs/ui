@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Stack } from '$lib';
 	import DocIntro from '../../../docs/DocIntro.svelte';
+	import SizeTable from '../../../docs/SizeTable.svelte';
 </script>
 
 <svelte:head>
@@ -98,8 +99,10 @@
 		</p>
 		<p>
 			Shipping less is what makes the headless API and the theming tiers possible: there is no
-			visual opinion for you to undo, and no layer you are forced to carry.
+			visual opinion for you to undo, and no layer you are forced to carry. Here is what each layer
+			actually costs, measured from the published package rather than estimated:
 		</p>
+		<SizeTable variant="full" />
 		<p>
 			It also explains the choice of Svelte. Markup, script and styles sit in one file, so there is
 			one place to look and one file to change. That suits a person reading the source and an agent

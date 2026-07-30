@@ -55,6 +55,12 @@ export const tableDoc: ComponentDoc = {
 			note: "Accessible name for a row's checkbox; falls back to the first column's cell text."
 		},
 		{ name: 'stickyHeader', type: 'boolean', default: 'false' },
+		{
+			name: 'bordered',
+			type: 'boolean',
+			default: 'true',
+			note: 'Frame and row rules. Set false inside a card or panel that already draws the edges.'
+		},
 		{ name: 'loading', type: 'boolean', default: 'false' },
 		{ name: 'loadingRows', type: 'number', default: '3' },
 		{

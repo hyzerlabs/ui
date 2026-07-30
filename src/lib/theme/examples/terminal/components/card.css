@@ -33,23 +33,23 @@
 }
 
 .hz-theme-terminal .hz-card.hz-card--elevated {
-	border: 1px solid var(--hz-intent-primary, #00ff41);
-	box-shadow: 0 0 20px -6px color-mix(in srgb, var(--hz-intent-primary, #00ff41) 60%, transparent);
+	border: 1px solid var(--hz-intent-primary, #39ff6a);
+	box-shadow: 0 0 20px -6px color-mix(in srgb, var(--hz-intent-primary, #39ff6a) 60%, transparent);
 }
 
 /* Clickable affordance — the beam comes up. */
 .hz-theme-terminal .hz-card.hz-card--outlined[data-clickable]:hover {
-	border-color: var(--hz-intent-primary, #00ff41);
-	box-shadow: 0 0 20px -6px color-mix(in srgb, var(--hz-intent-primary, #00ff41) 60%, transparent);
+	border-color: var(--hz-intent-primary, #39ff6a);
+	box-shadow: 0 0 20px -6px color-mix(in srgb, var(--hz-intent-primary, #39ff6a) 60%, transparent);
 }
 
 .hz-theme-terminal .hz-card.hz-card--elevated[data-clickable]:hover {
-	box-shadow: 0 0 28px -2px color-mix(in srgb, var(--hz-intent-primary, #00ff41) 75%, transparent);
+	box-shadow: 0 0 28px -2px color-mix(in srgb, var(--hz-intent-primary, #39ff6a) 75%, transparent);
 	translate: 0 0;
 }
 
 .hz-theme-terminal .hz-card.hz-card--elevated[data-clickable]:active {
-	box-shadow: 0 0 10px -4px color-mix(in srgb, var(--hz-intent-primary, #00ff41) 90%, transparent);
+	box-shadow: 0 0 10px -4px color-mix(in srgb, var(--hz-intent-primary, #39ff6a) 90%, transparent);
 	translate: 0 1px;
 }
 

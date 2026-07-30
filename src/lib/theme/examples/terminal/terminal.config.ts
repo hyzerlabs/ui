@@ -40,12 +40,20 @@ export default defineConfig({
 		palette: {
 			// Layer 1 — palette. Saturated phosphor and signal colors, all
 			// bright enough to burn through a black surface.
-			primary: '#00ff41',
 			secondary: '#00e5ff',
 			danger: '#ff3b30',
-			warning: '#ffb000',
+			warning: '#ffd166',
 			success: '#00ff41',
-			info: '#00e5ff'
+			info: '#00e5ff',
+
+			// The two phosphor tubes a real terminal shipped with: P1 green and
+			// the P3 amber of a later monitor. These are new hues, not remaps,
+			// and phosphor is the canonical green here. There is deliberately no
+			// separate palette primary: the intent below points at phosphor, so
+			// the theme has one green with one name rather than two that look
+			// alike.
+			phosphor: '#39ff6a',
+			amber: '#ffb000'
 		},
 		color: {
 			// Layer 2 — semantic roles. There is no light mode: this IS the
@@ -61,11 +69,18 @@ export default defineConfig({
 			neutral: 'var(--hz-color-text-muted)',
 
 			// NEW CATEGORY INTENTS — the extension surface.
-			// The library ships six; nothing stops a theme adding more. These
-			// two are graded by the contrast report and typed via
-			// ./intents.d.ts, so they behave like first-class intents.
-			phosphor: 'var(--hz-palette-primary)',
-			amber: '#ffb000'
+			// The library ships six; nothing stops a theme adding more. Each
+			// points at a hue added above, so this is a new category all the way
+			// down rather than a second name for an existing color. Both are
+			// graded by the contrast report and typed via ./intents.d.ts, so
+			// they behave like first-class intents.
+			// The stock intent, remapped onto this theme's own hue. A consumer
+			// writing <Button intent="primary"> gets the tube green, with no
+			// second near-identical color in the palette to wonder about.
+			primary: 'var(--hz-palette-phosphor)',
+
+			phosphor: 'var(--hz-palette-phosphor)',
+			amber: 'var(--hz-palette-amber)'
 		}
 	},
 	themes: {

@@ -31,7 +31,7 @@
 }
 
 .hz-theme-terminal .hz-alert[data-intent='primary'] {
-	--_c: var(--hz-intent-primary, #00ff41);
+	--_c: var(--hz-intent-primary, #39ff6a);
 }
 .hz-theme-terminal .hz-alert[data-intent='secondary'] {
 	--_c: var(--hz-intent-secondary, #00e5ff);
@@ -40,7 +40,7 @@
 	--_c: var(--hz-intent-danger, #ff3b30);
 }
 .hz-theme-terminal .hz-alert[data-intent='warning'] {
-	--_c: var(--hz-intent-warning, #ffb000);
+	--_c: var(--hz-intent-warning, #ffd166);
 }
 .hz-theme-terminal .hz-alert[data-intent='success'] {
 	--_c: var(--hz-intent-success, #00ff41);

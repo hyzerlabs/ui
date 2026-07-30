@@ -41,3 +41,6 @@ playwright-report
 # Agent worktrees and local session state — each worktree carries its own
 # node_modules, so this must never be committed.
 .claude/
+
+# Scratch dir for scripts/gen-sizes.ts (bundle measurement)
+.size-tmp/

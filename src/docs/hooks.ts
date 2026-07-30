@@ -1823,6 +1823,11 @@ export const hooks: Record<string, ComponentHooks> = {
 		root: 'hz-table hz-table-wrap',
 		attrs: [
 			{
+				name: 'data-bordered',
+				values: 'present unless bordered={false}',
+				note: 'On .hz-table-wrap. The reference theme keys the frame, the row rules and the heavier header rule off it, so `bordered={false}` leaves an edgeless table for a card or panel that draws its own edges.'
+			},
+			{
 				name: 'data-sticky',
 				values: 'present when stickyHeader',
 				note: 'On .hz-table-wrap. Pins thead against the wrap’s own scroll — cap the wrap’s max-height (e.g. via your own class through Table’s `class` prop, which lands on the wrap) to see it scroll.'

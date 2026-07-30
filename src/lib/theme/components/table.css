@@ -8,7 +8,9 @@
  * the component comment).
  */
 @layer hz-theme {
-	.hz-table-wrap {
+	/* bordered (the default) paints the frame; bordered={false} leaves the table
+	   edgeless for a card or panel that already provides the edges. */
+	.hz-table-wrap[data-bordered] {
 		border: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
 		border-radius: var(--hz-radius-md, 0.5rem);
@@ -40,8 +42,17 @@
 		padding-inline: calc(var(--hz-space-away, 8rem) / 8);
 		text-align: start;
 		vertical-align: middle;
+	}
+
+	[data-bordered] .hz-table :where(th, td),
+	.hz-table[data-bordered] :where(th, td) {
 		border-bottom: var(--hz-border-width-thin, 1px) solid
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
+	}
+
+	[data-bordered] .hz-table thead th,
+	.hz-table[data-bordered] thead th {
+		border-bottom-width: var(--hz-border-width-thick, 2px);
 	}
 
 	.hz-table thead th {
@@ -50,7 +61,6 @@
 			color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 6%, var(--hz-color-surface, #fff))
 		);
 		font-weight: var(--hz-font-weight-semibold, 600);
-		border-bottom-width: var(--hz-border-width-thick, 2px);
 	}
 
 	.hz-table tbody th[scope='row'] {

@@ -93,7 +93,8 @@
 		"test:e2e": "playwright install chromium --with-deps && playwright test",
 		"test": "pnpm run test:unit && pnpm run test:e2e",
 		"gen:tokens": "tsx scripts/gen-tokens.ts",
-		"gen:icons": "tsx scripts/gen-icons.ts"
+		"gen:icons": "tsx scripts/gen-icons.ts",
+		"gen:sizes": "tsx scripts/gen-sizes.ts"
 	},
 	"peerDependencies": {
 		"svelte": "^5.32.0"

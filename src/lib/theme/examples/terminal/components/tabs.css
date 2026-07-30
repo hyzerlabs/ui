@@ -41,7 +41,7 @@
 }
 
 .hz-theme-terminal .hz-tabs-trigger[data-state='active'] {
-	background: var(--hz-intent-primary, #00ff41);
+	background: var(--hz-intent-primary, #39ff6a);
 	color: var(--hz-color-surface, #0b0f0b);
 	box-shadow: none;
 }

@@ -35,9 +35,9 @@
 }
 
 .hz-theme-terminal .hz-field--toggle input.hz-toggle[data-state='on'] {
-	border-color: var(--hz-intent-primary, #00ff41);
-	background-color: var(--hz-intent-primary, #00ff41);
-	box-shadow: 0 0 12px -2px color-mix(in srgb, var(--hz-intent-primary, #00ff41) 60%, transparent);
+	border-color: var(--hz-intent-primary, #39ff6a);
+	background-color: var(--hz-intent-primary, #39ff6a);
+	box-shadow: 0 0 12px -2px color-mix(in srgb, var(--hz-intent-primary, #39ff6a) 60%, transparent);
 }
 
 .hz-theme-terminal .hz-field--toggle input.hz-toggle:disabled {
@@ -47,9 +47,9 @@
 }
 
 .hz-theme-terminal .hz-field--toggle input.hz-toggle:focus-visible {
-	outline: 1px solid var(--hz-intent-primary, #00ff41);
+	outline: 1px solid var(--hz-intent-primary, #39ff6a);
 	outline-offset: 2px;
-	box-shadow: 0 0 12px -2px color-mix(in srgb, var(--hz-intent-primary, #00ff41) 60%, transparent);
+	box-shadow: 0 0 12px -2px color-mix(in srgb, var(--hz-intent-primary, #39ff6a) 60%, transparent);
 }
 
 /*

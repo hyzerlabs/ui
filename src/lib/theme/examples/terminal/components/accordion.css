@@ -52,7 +52,7 @@
 
 /* The open row inverts — the whole block, not just the header. */
 .hz-theme-terminal .hz-accordion-item[data-state='open'] .hz-accordion-trigger {
-	background-color: var(--hz-intent-primary, #00ff41);
+	background-color: var(--hz-intent-primary, #39ff6a);
 	color: var(--hz-color-surface, #0b0f0b);
 }
 

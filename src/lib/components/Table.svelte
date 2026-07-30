@@ -34,6 +34,9 @@
 		getRowId?: (row: T, index: number) => string;
 		/** Accessible name for a row's checkbox; falls back to the first column's cell text. */
 		rowLabel?: (row: T) => string;
+		/** Frame and row rules. `false` drops both, for a table that sits inside
+		 *  a card or panel that already provides the edges. */
+		bordered?: boolean;
 		stickyHeader?: boolean;
 		loading?: boolean;
 		loadingRows?: number;
@@ -58,6 +61,7 @@
 		selected = $bindable(new SvelteSet<string>()),
 		getRowId = (_row: T, index: number) => String(index),
 		rowLabel,
+		bordered = true,
 		stickyHeader = false,
 		loading = false,
 		loadingRows = 3,
@@ -240,6 +244,7 @@
 <div
 	{...rest}
 	class={cx('hz-table-wrap', className)}
+	data-bordered={bordered ? '' : undefined}
 	data-sticky={stickyHeader ? '' : undefined}
 	data-stack={stack}
 >

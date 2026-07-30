@@ -21,26 +21,27 @@
  * win by source order.
  */
 .hz-theme-terminal {
-	--hz-palette-primary: #00ff41;
 	--hz-palette-secondary: #00e5ff;
 	--hz-palette-success: #00ff41;
-	--hz-palette-warning: #ffb000;
+	--hz-palette-warning: #ffd166;
 	--hz-palette-danger: #ff3b30;
 	--hz-palette-info: #00e5ff;
+	--hz-palette-phosphor: #39ff6a;
+	--hz-palette-amber: #ffb000;
 	--hz-color-surface: #0b0f0b;
 	--hz-color-surface-muted: color-mix(in srgb, var(--hz-palette-gray) 6%, var(--hz-color-surface));
 	--hz-color-text: #33ff66;
 	--hz-color-text-muted: #00a844;
 	--hz-color-border: #00ff41;
 	--hz-intent-neutral: var(--hz-color-text-muted);
-	--hz-intent-primary: var(--hz-palette-primary);
+	--hz-intent-primary: var(--hz-palette-phosphor);
 	--hz-intent-secondary: var(--hz-palette-secondary);
 	--hz-intent-danger: var(--hz-palette-danger);
 	--hz-intent-warning: var(--hz-palette-warning);
 	--hz-intent-success: var(--hz-palette-success);
 	--hz-intent-info: var(--hz-palette-info);
-	--hz-intent-phosphor: var(--hz-palette-primary);
-	--hz-intent-amber: #ffb000;
+	--hz-intent-phosphor: var(--hz-palette-phosphor);
+	--hz-intent-amber: var(--hz-palette-amber);
 }
 
 .hz-theme-terminal[data-theme='dark'],
@@ -54,10 +55,9 @@
 
 .hz-theme-terminal[data-theme='light'],
 [data-theme='light'] .hz-theme-terminal {
-	--hz-palette-primary: #00ff41;
 	--hz-palette-secondary: #00e5ff;
 	--hz-palette-success: #00ff41;
-	--hz-palette-warning: #ffb000;
+	--hz-palette-warning: #ffd166;
 	--hz-palette-danger: #ff3b30;
 	--hz-palette-info: #00e5ff;
 	--hz-color-surface: #0b0f0b;
@@ -66,11 +66,9 @@
 	--hz-color-text-muted: #00a844;
 	--hz-color-border: #00ff41;
 	--hz-intent-neutral: var(--hz-color-text-muted);
-	--hz-intent-primary: var(--hz-palette-primary);
 	--hz-intent-secondary: var(--hz-palette-secondary);
 	--hz-intent-danger: var(--hz-palette-danger);
 	--hz-intent-warning: var(--hz-palette-warning);
 	--hz-intent-success: var(--hz-palette-success);
 	--hz-intent-info: var(--hz-palette-info);
-	--hz-intent-phosphor: var(--hz-palette-primary);
 }
