@@ -95,7 +95,7 @@
 				{:else if item.id === 'types'}
 					<p class="tab-note">
 						One component for every single-line type. Pair <code>type</code> with
-						<code>autocomplete</code> and <code>inputmode</code> where it helps — autofill and the right
+						<code>autocomplete</code> and <code>inputmode</code> where it helps. Autofill and the right
 						virtual keyboard are most of the mobile form experience.
 					</p>
 					<Tabs
@@ -158,9 +158,9 @@
 					</Tabs>
 				{:else if item.id === 'prefix-suffix'}
 					<p class="tab-note">
-						The slots are decorative (<code>aria-hidden</code>) — an icon for a search box, a unit
-						for a measurement. The search demo also uses <code>hideLabel</code>: the label stays for
-						screen readers while the icon and placeholder carry the visual weight.
+						The slots are decorative (<code>aria-hidden</code>): an icon for a search box, a unit
+						for a measurement. The search demo also uses <code>hideLabel</code>, so the label stays
+						for screen readers while the icon and placeholder carry the visual weight.
 					</p>
 					<Example code={prefixSuffixCode}>
 						<div class="demo-col">
@@ -187,9 +187,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the field — both
-						chain into <code>aria-describedby</code>. Error and disabled are also field states: the
-						wrapper's <code>data-state</code> reflects them, with error winning.
+						<code>description</code> and <code>error</code> are announced with the field: both chain
+						into <code>aria-describedby</code>. Error and disabled are also field states. The
+						wrapper's <code>data-state</code> reflects them, and error wins.
 					</p>
 					<Example code={statesCode}>
 						<div class="demo-col">

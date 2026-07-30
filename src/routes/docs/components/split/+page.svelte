@@ -91,9 +91,9 @@
 					</Tabs>
 				{:else if item.id === 'reverse'}
 					<p class="tab-note">
-						<code>reverse</code> swaps the columns with CSS <code>order</code> — the DOM is untouched,
-						so screen readers and Tab order still follow source order. Useful for alternating media/text
-						rows.
+						<code>reverse</code> swaps the columns with CSS <code>order</code>. The DOM is
+						untouched, so screen readers and Tab order still follow source order. This is useful for
+						alternating media and text rows.
 					</p>
 					<Example code={reverseCode}>
 						<Split fraction="1/3" gap="md" reverse>
@@ -105,8 +105,8 @@
 					<p class="tab-note">
 						The Split stacks when its own width drops under the chosen width token (sm 640px, md
 						968px, lg 1200px). The threshold resolves through
-						<code>var(--hz-width-*)</code>, so overriding those tokens — globally or on any ancestor
-						— retunes when it stacks. Use the slider to cross the threshold.
+						<code>var(--hz-width-*)</code>, so overriding those tokens (globally or on any ancestor)
+						retunes when it stacks. Use the slider to cross the threshold.
 					</p>
 					<Tabs
 						items={stackValues.map((v) => ({ id: v, label: v }))}
@@ -138,7 +138,7 @@
 						It sits on the split root, so <code>stackBelow</code> measures the padded-down width.
 						<code>padding</code> applies on both axes; <code>paddingInline</code> /
 						<code>paddingBlock</code> override one axis and win where set. The axis names are the
-						CSS logical properties, so they stay correct in RTL and vertical writing modes — see
+						CSS logical properties, so they stay correct in RTL and vertical writing modes. See
 						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs

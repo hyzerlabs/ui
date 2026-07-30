@@ -123,18 +123,18 @@
 <DocPage name="Select" {...selectDoc}>
 	<Alert intent="info" title="Select vs Combobox">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Reach for <code>Select</code> when your option set is small and static — single-select, or
-		multi-select via the native <code>multiple</code> attribute. When there are many options (where
-		filtering or virtualization helps) or you need search / type-to-filter, use
-		<a href="/docs/components/combobox">Combobox</a> instead — it's the multi-select, filterable member
-		of the field family.
+		Reach for <code>Select</code> when your option set is small and static: single-select, or
+		multi-select via the native <code>multiple</code> attribute. Use
+		<a href="/docs/components/combobox">Combobox</a> when there are many options (where filtering or virtualization
+		helps), or when you need search and type-to-filter. It is the multi-select, filterable member of the
+		field family.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Select demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						The placeholder is a disabled leading option — it can't be re-selected once a real
+						The placeholder is a disabled leading option, so it cannot be re-selected once a real
 						choice is made. Disabled options stay visible but inert.
 					</p>
 					<Example code={basicCode}>
@@ -161,9 +161,9 @@
 				{:else if item.id === 'multiple'}
 					<p class="tab-note">
 						The <code>multiple</code> prop renders the native <code>multiple</code> attribute and
-						switches <code>value</code> to a <code>string[]</code> — there is no placeholder option
+						switches <code>value</code> to a <code>string[]</code>. There is no placeholder option
 						in this mode. The single <code>&lt;select multiple&gt;</code> element submits repeated
-						<code>name</code> values; <code>new FormData(form).getAll(name)</code> returns each selected
+						<code>name</code> values, and <code>new FormData(form).getAll(name)</code> returns each selected
 						value in option order.
 					</p>
 					<Example code={multipleCode}>
@@ -190,9 +190,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the field — both
-						chain into <code>aria-describedby</code>. Error and disabled are also field states: the
-						wrapper's <code>data-state</code> reflects them, with error winning.
+						<code>description</code> and <code>error</code> are announced with the field: both chain
+						into <code>aria-describedby</code>. Error and disabled are also field states. The
+						wrapper's <code>data-state</code> reflects them, and error wins.
 					</p>
 					<Example code={statesCode}>
 						<div class="demo-col">

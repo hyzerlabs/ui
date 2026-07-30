@@ -75,7 +75,7 @@
 					</Example>
 				{:else if item.id === 'orientation'}
 					<p class="tab-note">
-						<code>orientation="horizontal"</code> lays the options out in a wrapping row — best for two
+						<code>orientation="horizontal"</code> lays the options out in a wrapping row. It suits two
 						or three short labels.
 					</p>
 					<Example code={orientationCode}>
@@ -88,9 +88,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the group — both
-						chain into <code>aria-describedby</code> on the radiogroup container. Error and disabled
-						are also field states: the fieldset's <code>data-state</code> reflects them, with error winning.
+						<code>description</code> and <code>error</code> are announced with the group: both chain
+						into <code>aria-describedby</code> on the radiogroup container. Error and disabled are
+						also field states. The fieldset's <code>data-state</code> reflects them, and error wins.
 					</p>
 					<Example code={statesCode}>
 						<Stack gap="md">

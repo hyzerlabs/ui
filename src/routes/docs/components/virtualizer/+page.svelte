@@ -88,21 +88,22 @@
 <DocPage name="Virtualizer" {...virtualizerDoc}>
 	<Alert intent="info" title="Tabular data">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Windowing a real <code>&lt;table&gt;</code> doesn't work — a
+		Windowing a real <code>&lt;table&gt;</code> does not work: a
 		<code>&lt;tr&gt;</code> outside a <code>&lt;table&gt;</code> loses its row semantics. For
 		tabular data, prefer the real <a href="/docs/components/table">Table</a> component up to some
-		thousands of rows; past that, see the
+		thousands of rows. Past that, see the
 		<a href="/docs/patterns/virtualized-table">Virtualized table</a>
-		pattern, which builds ARIA table semantics — <code>role="table"</code>, <code>"row"</code>,
-		<code>"columnheader"</code>, <code>"cell"</code> — around this component instead.
+		pattern, which builds ARIA table semantics (<code>role="table"</code>, <code>"row"</code>,
+		<code>"columnheader"</code>, <code>"cell"</code>) around this component instead.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Virtualizer demos" defaultTab="uniform">
 		{#snippet panel(item)}
 			<div class="tab-content">
 				{#if item.id === 'uniform'}
 					<p class="tab-note">
-						10,000 rows, but the DOM only ever holds the visible slice plus overscan — inspect the
-						element to see only a handful of <code>.hz-virtualizer-row</code> nodes at any time.
+						10,000 rows, but the DOM only ever holds the visible slice plus overscan. Inspect the
+						element and you will find only a handful of <code>.hz-virtualizer-row</code> nodes at any
+						time.
 					</p>
 					<Example code={uniformCode}>
 						<Virtualizer items={bigList} itemHeight={32} height={320} class="demo-viewport">
@@ -113,8 +114,8 @@
 					</Example>
 				{:else if item.id === 'variable'}
 					<p class="tab-note">
-						<code>itemHeight</code> as a function resolves a different height per row — offsets are a
-						prefix-sum, windowed with a binary search.
+						<code>itemHeight</code> as a function resolves a different height per row. Offsets are a prefix
+						sum, windowed with a binary search.
 					</p>
 					<Example code={variableCode}>
 						<Virtualizer
@@ -132,11 +133,10 @@
 					</Example>
 				{:else if item.id === 'measured'}
 					<p class="tab-note">
-						<code>measure</code> runtime-measures each rendered row via <code>ResizeObserver</code>
-						—
-						<code>itemHeight</code> is only the seed estimate. This narrow column wraps some rows onto
-						multiple lines, so their real height isn't known ahead of time; it's corrected right after
-						mount.
+						<code>measure</code> measures each rendered row at runtime with a
+						<code>ResizeObserver</code>, so <code>itemHeight</code> is only the seed estimate. This narrow
+						column wraps some rows onto multiple lines, so their real height is not known ahead of time.
+						Each one is corrected right after mount.
 					</p>
 					<Example code={measuredCode}>
 						<div class="demo-narrow">
@@ -149,7 +149,7 @@
 					</Example>
 				{:else if item.id === 'semantics'}
 					<p class="tab-note">
-						Windowing elides off-screen rows, so a screen reader can't count them natively. Setting
+						Windowing elides off-screen rows, so a screen reader cannot count them natively. Setting
 						<code>role="list"</code> on the viewport (via <code>...rest</code>) plus
 						<code>role="listitem"</code>, <code>aria-setsize</code>, and <code>aria-posinset</code>
 						on each row (using the snippet's absolute <code>index</code>) restores an accurate "item
@@ -180,11 +180,11 @@
 					<p class="tab-note">
 						Omitting <code>height</code> puts the Virtualizer in fluid mode: it measures its own box
 						with a <code>ResizeObserver</code> and windows against that instead of a fixed prop. A
-						fluid viewport <strong>must</strong> be height-constrained by CSS — a sized parent plus
-						<code>height: 100%</code>, a flex track, or <code>max-height</code> — because an
-						unconstrained <code>overflow: auto</code> box grows to fit its content and windowing degenerates
-						to rendering nearly everything. Drag the container's resize handle (bottom-right corner) to
-						see it re-window with no scroll event.
+						fluid viewport <strong>must</strong> be height-constrained by CSS, whether that is a
+						sized parent plus <code>height: 100%</code>, a flex track, or <code>max-height</code>.
+						An unconstrained <code>overflow: auto</code> box grows to fit its content, and then windowing
+						renders nearly everything. Drag the container's resize handle (bottom-right corner) to see
+						it re-window with no scroll event.
 					</p>
 					<Example code={fluidCode}>
 						<div class="fluid-container">

@@ -1825,7 +1825,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-bordered',
 				values: 'present unless bordered={false}',
-				note: 'On .hz-table-wrap. The reference theme keys the frame, the row rules and the heavier header rule off it, so `bordered={false}` leaves an edgeless table for a card or panel that draws its own edges.'
+				note: 'On .hz-table-wrap. The reference theme keys the frame and the row rules off it, so `bordered={false}` leaves an edgeless table for a card or panel that draws its own edges. The heavier divider under the header stays either way, since a borderless table still needs its header separated from its body.'
 			},
 			{
 				name: 'data-sticky',

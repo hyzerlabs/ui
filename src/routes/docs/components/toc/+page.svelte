@@ -104,9 +104,9 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Default <code>levels</code> is <code>[2]</code> — only h2s. Scroll the article or click a
-						link; the active entry tracks the reading position (last heading at or above the top quarter
-						of the viewport, pinned to the last entry at the bottom).
+						Default <code>levels</code> is <code>[2]</code>, so only h2s. Scroll the article or
+						click a link: the active entry tracks the reading position. That is the last heading at
+						or above the top quarter of the viewport, pinned to the last entry at the bottom.
 					</p>
 					<Example code={basicCode}>
 						<div class="toc-demo-row">
@@ -171,8 +171,8 @@
 					</Example>
 				{:else if item.id === 'nested'}
 					<p class="tab-note">
-						<code>levels=&#123;[2, 3]&#125;</code> collects both — h3s nest under the nearest preceding
-						h2. A stray h3 before any h2 would attach at the top level instead of nesting nowhere.
+						<code>levels=&#123;[2, 3]&#125;</code> collects both, and h3s nest under the nearest preceding
+						h2. A stray h3 that comes before any h2 attaches at the top level instead.
 					</p>
 					<Example code={nestedCode}>
 						<div class="toc-demo-row">
@@ -290,10 +290,10 @@
 					</Example>
 				{:else if item.id === 'collapse'}
 					<p class="tab-note">
-						<code>breakpoint="md"</code> collapses the rail into a disclosure below 968px — a real
-						viewport <code>@media</code> query, since the rail's own box is narrow regardless of page
-						width and so isn't a usable "mobile" signal by itself. Resize your browser to see the title
-						swap for a trigger button.
+						<code>breakpoint="md"</code> collapses the rail into a disclosure below 968px. It is a
+						real viewport <code>@media</code> query, because the rail's own box is narrow whatever the
+						page width, so it is not a usable "mobile" signal by itself. Resize your browser to see the
+						title swap for a trigger button.
 					</p>
 					<Example code={collapseCode}>
 						<div class="toc-demo-row">
@@ -348,7 +348,7 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>bind:active</code> and <code>onActive</code> both track the scroll-spy — bind it for
+						<code>bind:active</code> and <code>onActive</code> both track the scroll-spy. Bind it for
 						a live readout, or use the callback to react to changes without owning the state.
 					</p>
 					<Example code={activeCode}>

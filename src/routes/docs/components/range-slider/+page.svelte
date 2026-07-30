@@ -104,7 +104,7 @@
 				{#if item.id === 'basic'}
 					<p class="tab-note">
 						Two thumbs, one track, and the fill spans the selected interval. Drag a thumb past its
-						partner: it clamps — the pair can meet but never cross. The number fields commit with
+						partner and it clamps: the pair can meet but never cross. The number fields commit with
 						the partner as the effective bound.
 					</p>
 					<Example code={basicCode}>
@@ -122,7 +122,8 @@
 					</Example>
 				{:else if item.id === 'ticks'}
 					<p class="tab-note">
-						Same ticks API as <a href="/docs/components/slider">Slider</a> — visual marks, not detents.
+						Same ticks API as <a href="/docs/components/slider">Slider</a>: visual marks, not
+						detents.
 					</p>
 					<Example code={ticksCode}>
 						<div class="demo-col">
@@ -162,12 +163,12 @@
 				{:else if item.id === 'vertical'}
 					<p class="tab-note">
 						<code>orientation="vertical"</code> switches both ranges to a native
-						<code>writing-mode: vertical-lr</code> track — bottom-up, so Up/Right arrows still
-						increase toward <code>max</code> on either thumb. The min–max exact-entry pair stays one
-						inline <code>min – max</code> cluster placed above or below the track (per
+						<code>writing-mode: vertical-lr</code> track. It grows bottom-up, so Up and Right arrows
+						still increase toward <code>max</code> on either thumb. The min–max exact-entry pair
+						stays one inline <code>min – max</code> cluster placed above or below the track (per
 						<code>inputPosition</code>) rather than stacking to mirror the thumbs. The track's block
 						length comes from <code>--hz-slider-length</code> (default <code>12rem</code>), so it
-						never grows the page unbounded — this demo wraps two side by side in
+						never grows the page unbounded. This demo wraps two side by side in
 						<a href="/docs/components/cluster">Cluster</a>.
 					</p>
 					<Example code={verticalCode}>
@@ -200,9 +201,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with each thumb — both
+						<code>description</code> and <code>error</code> are announced with each thumb: both
 						chain into <code>aria-describedby</code> on both ranges. Error and disabled are also
-						field states: the fieldset's <code>data-state</code> reflects them, with error winning.
+						field states. The fieldset's <code>data-state</code> reflects them, and error wins.
 					</p>
 					<Example code={statesCode}>
 						<div class="demo-col">

@@ -15,7 +15,12 @@ export interface ComponentDoc {
 	props?: PropRow[];
 	/** Supporting item/option types rendered as sub-tables in the Props section. */
 	types?: TypeTable[];
-	/** Backtick-wrapped segments render as inline <code>, e.g. "sets `aria-busy`". */
+	/**
+	 * Backtick-wrapped segments render as inline <code>, e.g. "sets `aria-busy`",
+	 * and a blank line starts a new paragraph. That is the whole vocabulary:
+	 * anything else, `**bold**` included, reaches the page as literal
+	 * punctuation. Use a short sentence instead of emphasis.
+	 */
 	a11yNote?: string;
 	/** APG pattern / MDN reference links rendered after the a11y note. */
 	a11yLinks?: A11yLink[];

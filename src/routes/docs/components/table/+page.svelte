@@ -254,9 +254,9 @@
 <DocPage name="Table" {...tableDoc}>
 	<Alert intent="info" title="Large datasets">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Real <code>&lt;table&gt;</code> semantics here give you native screen-reader table navigation
-		for free — reach for it up to some thousands of rows. Past the point where rendering every
-		<code>&lt;tr&gt;</code> becomes the bottleneck, see the
+		Real <code>&lt;table&gt;</code> semantics give you native screen-reader table navigation for
+		free, so reach for this component up to some thousands of rows. Past the point where rendering
+		every <code>&lt;tr&gt;</code> becomes the bottleneck, see the
 		<a href="/docs/patterns/virtualized-table">Virtualized table</a> pattern, which windows an ARIA
 		table with <a href="/docs/components/virtualizer">Virtualizer</a> instead.
 	</Alert>
@@ -285,8 +285,8 @@
 									</Example>
 								{:else if sortItem.id === 'external'}
 									<p class="tab-note">
-										With <code>clientSort={'{false}'}</code>, Table only reports/marks the sort
-										state — this demo reorders its own local array in response.
+										With <code>clientSort={'{false}'}</code>, Table only reports and marks the sort
+										state. This demo reorders its own local array in response.
 									</p>
 									<Example code={externalSortCode}>
 										<Table
@@ -299,9 +299,9 @@
 									</Example>
 								{:else}
 									<p class="tab-note">
-										Columns are sortable only when their own <code>sortable</code> flag says so —
-										the plain columns config below (like the docs' own <code>PropsTable</code>)
-										omits it, so no column renders a sort button and none carries
+										Columns are sortable only when their own <code>sortable</code> flag says so. The
+										plain columns config below (like the docs' own <code>PropsTable</code>) omits
+										it, so no column renders a sort button and none carries
 										<code>aria-sort</code>.
 									</p>
 									<Example code={plainCode}>
@@ -327,7 +327,7 @@
 					</Example>
 				{:else if item.id === 'sticky'}
 					<p class="tab-note">
-						<code>stickyHeader</code> pins <code>thead</code> against the wrap's own scroll — cap
+						<code>stickyHeader</code> pins <code>thead</code> against the wrap's own scroll. Cap
 						<code>.hz-table-wrap</code>'s height (here, from a wrapping <code>div</code>) to see it
 						scroll.
 					</p>
@@ -338,10 +338,11 @@
 					</Example>
 				{:else if item.id === 'stacked'}
 					<p class="tab-note">
-						Below <code>--hz-width-sm</code> (640px) each row becomes a label/value block instead of
-						scrolling horizontally — <code>sm</code> is the recommended default so tables only stack
-						on genuinely narrow viewports; <code>md</code>/<code>lg</code> are still available for tables
-						with many or wide columns. Drag the slider across the threshold to see it engage.
+						Stacking is off until you set <code>stack</code>. With <code>stack="sm"</code>, each row
+						becomes a label/value block below <code>--hz-width-sm</code> (640px) instead of
+						scrolling horizontally. <code>sm</code> suits most tables, since they then stack only on
+						genuinely narrow viewports; <code>md</code> and <code>lg</code> are there for tables with
+						many or wide columns. Drag the slider across the threshold to see it engage.
 					</p>
 					<Container breakout padding="none">
 						<Example code={stackedCode}>
@@ -371,8 +372,8 @@
 					</Stack>
 				{:else}
 					<p class="tab-note">
-						Built-in pagination isn't in scope — compose <code>Pagination</code>
-						alongside Table instead, as this demo does over a 22-item catalog.
+						Table has no built-in pagination. Compose <code>Pagination</code>
+						alongside it instead, as this demo does over a 22-item catalog.
 					</p>
 					<Example code={paginationCode}>
 						<Stack gap="sm">

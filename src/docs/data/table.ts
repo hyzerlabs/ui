@@ -59,7 +59,7 @@ export const tableDoc: ComponentDoc = {
 			name: 'bordered',
 			type: 'boolean',
 			default: 'true',
-			note: 'Frame and row rules. Set false inside a card or panel that already draws the edges.'
+			note: 'Frame and row rules. Set false inside a card or panel that already draws the edges; the divider under the header stays either way.'
 		},
 		{ name: 'loading', type: 'boolean', default: 'false' },
 		{ name: 'loadingRows', type: 'number', default: '3' },
@@ -67,7 +67,7 @@ export const tableDoc: ComponentDoc = {
 			name: 'stack',
 			type: "'sm' | 'md' | 'lg'",
 			default: '—',
-			note: "Stacks below the named width. Off by default (scroll wrap only); 'sm' (640px) is recommended for most tables — reserve md/lg for wide or many-column tables that need to shed the table layout earlier."
+			note: "Stacks below the named width. Off by default (scroll wrap only); 'sm' (640px) suits most tables — reserve md/lg for wide or many-column tables that need to shed the table layout earlier."
 		},
 		{
 			name: 'cell',
@@ -119,7 +119,7 @@ export const tableDoc: ComponentDoc = {
 		}
 	],
 	a11yNote:
-		"This is a static data table, not an APG grid pattern. Sort buttons and checkboxes are ordinary native controls in the natural tab order — there's no roving grid navigation.\n\n`aria-sort` (`ascending`/`descending`) sits only on the sorted column's `th`, never on the others. Select-all announces the partial state through the native `indeterminate` property, not an ARIA attribute.\n\nLoading skeleton rows carry `aria-hidden`, so they never reach assistive tech.\n\nReal `role`/`scope` semantics are stamped explicitly (`table`/`row`/`columnheader`/`cell`, plus `scope`), so they survive the stacked mode's CSS display overrides.",
+		"This is a static data table, not an APG grid pattern. Sort buttons and checkboxes are ordinary native controls in the natural tab order, so there is no roving grid navigation.\n\n`aria-sort` (`ascending`/`descending`) sits only on the sorted column's `th`, never on the others. Select-all announces the partial state through the native `indeterminate` property, not an ARIA attribute.\n\nLoading skeleton rows carry `aria-hidden`, so they never reach assistive tech.\n\nReal `role`/`scope` semantics are stamped explicitly (`table`/`row`/`columnheader`/`cell`, plus `scope`), so they survive the stacked mode's CSS display overrides.",
 	a11yLinks: [
 		{
 			label: 'APG sortable table example',

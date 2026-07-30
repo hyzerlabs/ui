@@ -50,9 +50,11 @@
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
 	}
 
-	[data-bordered] .hz-table thead th,
-	.hz-table[data-bordered] thead th {
-		border-bottom-width: var(--hz-border-width-thick, 2px);
+	/* The header divider stays whichever way `bordered` goes: it separates the
+	   header from the body, which a borderless table still needs. */
+	.hz-table thead th {
+		border-bottom: var(--hz-border-width-thick, 2px) solid
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 30%, transparent);
 	}
 
 	.hz-table thead th {

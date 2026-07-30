@@ -64,8 +64,8 @@
 					<p class="tab-note">
 						Gap values map to the <code>--hz-space-*</code> tokens (<code>xs</code> 0.5rem →
 						<code>xl</code> 8rem). <code>near</code> and <code>away</code> are the
-						<a href="/docs/foundation/spacing">density distances</a> — context-aware values that
-						tighten inside <code>data-density-shift</code> regions (see the Density tab). Dashed outline
+						<a href="/docs/foundation/spacing">density distances</a>: context-aware values that
+						tighten inside <code>data-density-shift</code> regions (see the Density tab). The dashed outline
 						marks the Stack itself.
 					</p>
 					<Tabs
@@ -87,7 +87,7 @@
 					</Tabs>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
-						<code>align</code> maps to <code>align-items</code> — visible when children have
+						<code>align</code> maps to <code>align-items</code>. The effect shows when children have
 						different natural widths. The default <code>stretch</code> makes every child fill the Stack's
 						width.
 					</p>
@@ -112,7 +112,7 @@
 						The tinted zone is the Stack; the space between its edge and the items is the padding.
 						<code>padding</code> applies on both axes; <code>paddingInline</code> /
 						<code>paddingBlock</code> override one axis and win where set. The axis names are the
-						CSS logical properties, so they stay correct in RTL and vertical writing modes — see
+						CSS logical properties, so they stay correct in RTL and vertical writing modes. See
 						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs
@@ -141,7 +141,7 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						With <code>gap="near"</code> every Stack below uses the <em>same</em> prop — the spacing
+						With <code>gap="near"</code> every Stack below uses the <em>same</em> prop; the spacing
 						tightens purely from nesting. <code>data-density-shift</code> goes directly on the Stack
 						(extra attributes forward to the root element), and the shift applies to that Stack's
 						own gap and everything inside it. See

@@ -35,8 +35,8 @@
 <DocPage name="Toggle" {...toggleDoc}>
 	<Alert intent="info" title="Toggle vs Checkbox">
 		{#snippet icon()}<IconInfo />{/snippet}
-		Reach for <code>Toggle</code> when a setting reads as on/off, like a preference — it renders
-		<code>role="switch"</code> and communicates state immediately. Use
+		Reach for <code>Toggle</code> when a setting reads as on or off, like a preference. It renders
+		<code>role="switch"</code>, which screen readers announce as on or off. Use
 		<a href="/docs/components/checkbox">Checkbox</a> for selections from a list, multi-select membership,
 		or the indeterminate select-all pattern.
 	</Alert>
@@ -53,10 +53,10 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the switch — both
-						chain into <code>aria-describedby</code>, breaking onto their own row below the
-						switch-and-label pair. Error and disabled are also field states: the wrapper's
-						<code>data-state</code> reflects them, with error winning.
+						<code>description</code> and <code>error</code> are announced with the switch: both
+						chain into <code>aria-describedby</code>, on their own row below the switch-and-label
+						pair. Error and disabled are also field states. The wrapper's <code>data-state</code> reflects
+						them, and error wins.
 					</p>
 					<Example code={statesCode}>
 						<Stack gap="md">

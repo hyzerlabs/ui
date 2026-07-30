@@ -25,7 +25,7 @@
 	);
 
 	const linkCode = [
-		'<!-- Real anchors — works without JS, middle-click, copy link. -->',
+		'<!-- Real anchors: they work without JS, middle-click, and copy link. -->',
 		'<Pagination',
 		'\tcount={8}',
 		'\tpage={pageFromUrl}',
@@ -49,17 +49,18 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Button mode: <code>page</code> is bindable, <code>onchange</code> fires on every move, and
-						the ends disable natively. Clicking the current page is a no-op.
+						In button mode, <code>page</code> is bindable and <code>onchange</code> fires on every move.
+						The previous and next controls disable natively at the ends, and clicking the current page
+						does nothing.
 					</p>
 					<Example code={basicCode}>
 						<Pagination count={10} bind:page />
 					</Example>
 				{:else if item.id === 'truncation'}
 					<p class="tab-note">
-						<code>boundaries</code> pages stay pinned at the ends and <code>siblings</code> flank the
-						current page; a gap is elided only when it spans two or more pages, and the item count stays
-						constant while paging — drag the knobs and page around.
+						<code>boundaries</code> pages stay pinned at the ends, and <code>siblings</code> pages flank
+						the current page. A gap collapses to an ellipsis only when it spans two or more pages, so
+						the item count stays constant while you page. Drag the knobs and page around.
 					</p>
 					<Example code={truncCode}>
 						<Stack gap="md">
@@ -85,8 +86,8 @@
 				{:else}
 					<p class="tab-note">
 						With <code>href</code>, every item is a real anchor and the component navigates nothing
-						— drive <code>page</code> from the URL. Demo links are inert <code>#</code> hrefs so
-						this page stays put; real apps return <code>?page=n</code> URLs like the sample.
+						itself: drive <code>page</code> from the URL. The demo links are inert <code>#</code>
+						hrefs so this page stays put. A real app returns <code>?page=n</code> URLs like the sample.
 					</p>
 					<Example code={linkCode}>
 						<Pagination

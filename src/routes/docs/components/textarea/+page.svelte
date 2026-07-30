@@ -52,11 +52,11 @@
 					</Example>
 				{:else if item.id === 'resize'}
 					<p class="tab-note">
-						The default <code>vertical</code> grows with content as you type <em>and</em> keeps the
-						native drag handle as a manual override; <code>auto</code> grows without a handle.
-						Growth uses CSS <code>field-sizing: content</code> where supported, with a JS
-						height-sync fallback elsewhere, and <code>rows</code> acts as the minimum height.
-						<code>none</code> and <code>both</code> are fixed-height with the matching handle.
+						The default <code>vertical</code> grows with content as you type, and keeps the native
+						drag handle as a manual override. <code>auto</code> grows without a handle. Growth uses
+						CSS <code>field-sizing: content</code> where supported, with a JavaScript height-sync
+						fallback elsewhere, and <code>rows</code> sets the minimum height. <code>none</code> and
+						<code>both</code> are fixed height with the matching handle.
 					</p>
 					<Tabs
 						items={resizeValues.map((v) => ({ id: v, label: v }))}
@@ -83,9 +83,9 @@
 					</Tabs>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the field — both
-						chain into <code>aria-describedby</code>. Error and disabled are also field states: the
-						wrapper's <code>data-state</code> reflects them, with error winning.
+						<code>description</code> and <code>error</code> are announced with the field: both chain
+						into <code>aria-describedby</code>. Error and disabled are also field states. The
+						wrapper's <code>data-state</code> reflects them, and error wins.
 					</p>
 					<Example code={statesCode}>
 						<div class="demo-col">

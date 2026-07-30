@@ -107,7 +107,7 @@
 				{:else if item.id === 'activation'}
 					<p class="tab-note">
 						With <code>auto</code> (default), arrow keys activate tabs as focus moves. With
-						<code>manual</code>, arrows only move focus — <kbd>Enter</kbd>/<kbd>Space</kbd>
+						<code>manual</code>, arrows only move focus, and <kbd>Enter</kbd> or <kbd>Space</kbd>
 						activates. Try arrowing through both with the keyboard.
 					</p>
 					<Tabs

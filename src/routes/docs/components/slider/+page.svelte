@@ -104,8 +104,8 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Drag for coarse control, type for precision: the number field commits on blur/Enter,
-						clamped to the range — try typing <code>900</code>.
+						Drag for coarse control, type for precision. The number field commits on blur or Enter,
+						clamped to the range. Try typing <code>900</code>.
 					</p>
 					<Example code={basicCode}>
 						<div class="demo-col">
@@ -140,10 +140,10 @@
 					</Example>
 				{:else if item.id === 'ticks'}
 					<p class="tab-note">
-						Ticks are visual marks, not detents — stepping stays on the <code>step</code> grid. Bare
-						numbers make unlabeled marks; <code>{'{ value, label }'}</code> adds the caption. For a
-						min–max interval instead of a single value, see
-						<a href="/docs/components/range-slider">RangeSlider</a> — it shares this ticks API.
+						Ticks are visual marks, not detents: stepping stays on the <code>step</code> grid. Bare
+						numbers make unlabeled marks, and <code>{'{ value, label }'}</code> adds the caption.
+						For a min–max interval instead of a single value, see
+						<a href="/docs/components/range-slider">RangeSlider</a>, which shares this ticks API.
 					</p>
 					<Example code={ticksCode}>
 						<div class="demo-col">
@@ -163,7 +163,7 @@
 					</Example>
 				{:else if item.id === 'no-input'}
 					<p class="tab-note">
-						<code>showInput={'{false}'}</code> swaps the number field for a read-only readout — the value
+						<code>showInput={'{false}'}</code> swaps the number field for a read-only readout. The value
 						stays visible for coarse-only settings, and the range itself keeps full keyboard support.
 					</p>
 					<Example code={noInputCode}>
@@ -181,13 +181,13 @@
 				{:else if item.id === 'vertical'}
 					<p class="tab-note">
 						<code>orientation="vertical"</code> switches the track to a native
-						<code>writing-mode: vertical-lr</code> range — bottom-up, so Up/Right arrows still
-						increase toward <code>max</code>. Ticks and labels sit beside the track. The track's
-						block length comes from <code>--hz-slider-length</code> (default <code>12rem</code>), so
-						a vertical slider never grows the page unbounded.
+						<code>writing-mode: vertical-lr</code> range. It grows bottom-up, so Up and Right arrows
+						still increase toward <code>max</code>. Ticks and labels sit beside the track. The
+						track's block length comes from <code>--hz-slider-length</code> (default
+						<code>12rem</code>), so a vertical slider never grows the page unbounded.
 						<code>inputPosition</code> is logical on both axes: <code>"end"</code> (default) puts
 						the number field below the track, <code>"start"</code> puts it above. Placing several
-						vertical sliders side by side is up to you — this demo wraps them in
+						vertical sliders side by side is up to you. This demo wraps them in
 						<a href="/docs/components/cluster">Cluster</a>.
 					</p>
 					<Example code={verticalCode}>
@@ -220,9 +220,9 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>description</code> and <code>error</code> are announced with the range — both
-						chain into <code>aria-describedby</code>. Error and disabled are also field states: the
-						wrapper's <code>data-state</code> reflects them, with error winning.
+						<code>description</code> and <code>error</code> are announced with the range: both chain
+						into <code>aria-describedby</code>. Error and disabled are also field states. The
+						wrapper's <code>data-state</code> reflects them, and error wins.
 					</p>
 					<Example code={statesCode}>
 						<div class="demo-col">

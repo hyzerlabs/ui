@@ -79,11 +79,11 @@
 					<p class="tab-note">
 						One prop, three players. A YouTube URL becomes a <code>youtube-nocookie.com</code> embed
 						and a Vimeo URL carries <code>dnt=1</code>, so neither provider sets tracking cookies on
-						a visitor who never presses play. Both iframes carry the correct allow/referrer
-						policies; anything else renders a native
-						<code>&lt;video&gt;</code>. The demo below is the native player (embed demos land with
-						the real assets). <a href="/docs/components/lightbox">Lightbox</a> plays every video item
-						it shows through this component.
+						a visitor who never presses play. Both iframes carry the right allow and referrer
+						policies. Any other URL renders a native <code>&lt;video&gt;</code>. The demo below is
+						the native player, since the embed demos need real hosted media.
+						<a href="/docs/components/lightbox">Lightbox</a> plays every video item it shows through this
+						component.
 					</p>
 					<Example code={providersCode}>
 						<div class="demo-box">
@@ -96,8 +96,8 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						<code>poster</code> shows before playback starts (native provider only — embeds bring their
-						own thumbnails).
+						<code>poster</code> shows before playback starts. Native provider only: embeds bring their
+						own thumbnails.
 					</p>
 					<Example code={posterCode}>
 						<div class="demo-box">
