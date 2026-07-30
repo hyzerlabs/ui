@@ -61,7 +61,7 @@ export const rangeSliderDoc: ComponentDoc = {
 			name: 'inputPosition',
 			type: "'start' | 'end'",
 			default: "'end'",
-			note: 'Logical on both axes; the min–max pair stays one inline cluster, placed above/below the track in vertical rather than stacked to mirror the thumbs.'
+			note: 'Logical on both axes. The two exact-entry fields stay one inline cluster, placed above or below the track in vertical rather than stacked to mirror the thumbs.'
 		},
 		{ name: 'description', type: 'string', default: '—', note: 'Help text below the legend.' },
 		{

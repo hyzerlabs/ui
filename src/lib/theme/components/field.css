@@ -62,6 +62,34 @@
 		padding: 0.5rem 0.75rem;
 	}
 
+	/*
+	 * The chevron. A browser draws the native one hard against the inline-end
+	 * edge and ignores padding there, so the only way to give it room is to
+	 * turn it off and paint our own, which we can place. Scoped away from
+	 * `multiple`, which renders as a list box with no chevron at all.
+	 *
+	 * The glyph is a background image rather than a pseudo-element, because a
+	 * select is a replaced element and cannot host one. That means it cannot
+	 * read `currentColor`, hence the dark-mode pair below.
+	 */
+	.hz-field select:not([multiple]) {
+		appearance: none;
+		padding-inline-end: 2rem;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%236b7280' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 0.75rem center;
+		background-size: 0.875rem;
+	}
+
+	[data-theme='dark'] .hz-field select:not([multiple]) {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%239ca3af' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+	}
+
+	/* background-position takes physical keywords, so RTL needs its own rule. */
+	[dir='rtl'] .hz-field select:not([multiple]) {
+		background-position: left 0.75rem center;
+	}
+
 	/* Growing textareas (vertical/auto): field-sizing ignores `rows`, so the
 	 * component's --hz-textarea-rows var restores it as the minimum height
 	 * (padding + borders added here, where they're known). */

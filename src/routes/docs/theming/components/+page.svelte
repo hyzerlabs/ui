@@ -34,7 +34,7 @@
 
 	const hooksCode = [
 		'/* Every component exposes a stable root class and data-* hooks for its',
-		'   variants and states — style them from your own (unlayered) CSS: */',
+		'   variants and states. Style them from your own (unlayered) CSS: */',
 		'.hz-button {',
 		'\ttext-transform: uppercase;',
 		'\tletter-spacing: 0.02em;',
@@ -56,9 +56,9 @@
 		'<Button class="cta">Book a tee time</Button>',
 		'',
 		'<' + 'style>',
-		'\t/* Rendered as class="hz-button cta" — your class comes after the',
-		'\t   root class and, being unlayered, beats the theme without any',
-		'\t   specificity games. Svelte scoping needs :global for children. */',
+		'\t/* Rendered as class="hz-button cta". Your class is unlayered, so it',
+		'\t   beats the theme with no specificity games. Svelte scoping needs',
+		'\t   :global for children. */',
 		'\t:global(.cta) {',
 		'\t\tbox-shadow: var(--hz-shadow-md);',
 		'\t}',
@@ -140,10 +140,10 @@
 	<DocIntro>
 		{#snippet lead()}
 			Components expose a stable styling contract: an <code>hz-*</code> root class, a
-			<code>data-*</code> attribute per variant/state, and a <code>class</code> prop merged after
-			the root class. The reference theme styles exactly these hooks — from
-			<code>@layer hz-theme</code>, wrapped in <code>:where()</code> so everything stays at single-class
-			specificity — which means your unlayered CSS wins by default.
+			<code>data-*</code> attribute per variant and state, and a <code>class</code> prop merged
+			after the root class. The reference theme styles exactly these hooks. It paints them from
+			<code>@layer hz-theme</code>, wrapped in <code>:where()</code>, so everything stays at
+			single-class specificity and your unlayered CSS wins by default.
 		{/snippet}
 	</DocIntro>
 
@@ -157,13 +157,17 @@
 		<h2 id="hooks-heading">Classes and data hooks</h2>
 		<p>
 			The hooks are part of each component's contract, and every component page lists its own under
-			<strong>Theme hooks</strong> — root class, <code>data-*</code> vocabulary, custom properties,
+			<strong>Theme hooks</strong>: root class, <code>data-*</code> vocabulary, custom properties,
 			and the part classes for its children. Variants land as
 			<code>data-variant</code>/<code>data-intent</code>/<code>data-size</code>; interactive state
-			as <code>data-state</code> and friends. A prop with a default stamps its attribute on every
-			render, so <code>[data-variant='solid'][data-size='md']</code> always matches. A prop with no
-			default (an unset <code>intent</code>, say) leaves the attribute off entirely, which is what
-			lets <code>:not([data-intent])</code> style the plain case.
+			as
+			<code>data-state</code> and friends.
+		</p>
+		<p>
+			A prop with a default stamps its attribute on every render, so
+			<code>[data-variant='solid'][data-size='md']</code> always matches. A prop with no default (an
+			unset <code>intent</code>, say) leaves the attribute off entirely, which is what lets
+			<code>:not([data-intent])</code> style the plain case.
 		</p>
 		<CodeBlock code={hooksCode} />
 	</Stack>
@@ -179,9 +183,9 @@
 		<CodeBlock code={classPropCode} />
 		<p class="doc-note">
 			One caveat in the other direction: styles inside a component's own
-			<code>&lt;style&gt;</code> block are unlayered too — so if you build wrapper components,
-			prefer styling the <code>hz-*</code> hooks from stylesheets you control rather than re-declaring
-			resets a theme would need to fight.
+			<code>&lt;style&gt;</code> block are unlayered too. So if you build wrapper components, prefer
+			styling the <code>hz-*</code> hooks from stylesheets you control rather than re-declaring resets
+			a theme would need to fight.
 		</p>
 	</Stack>
 
@@ -194,7 +198,7 @@
 	>
 		<h2 id="cascade-heading">Case study: <code>.docs-table</code></h2>
 		<p>
-			The contract above isn't theoretical — the reference theme paints <code>.hz-table</code> from
+			The reference theme paints <code>.hz-table</code> from
 			<code>@layer hz-theme</code>, wrapped in <code>:where()</code>, so unlayered CSS beats it at
 			any specificity: no <code>!important</code>, no mirroring the theme's selectors. The shipped
 			Docs example theme (the middle tier on <a href="/docs/theming/examples">Example Themes</a>) is
@@ -233,10 +237,10 @@
 		</Tabs>
 		<p class="doc-note">
 			Wrap any table in <code>.docs-table</code> and its borders, padding, and header background
-			follow this sheet instead, on every property it sets and nothing else — a table with no
+			follow this sheet instead, on every property the sheet sets and nothing else. A table with no
 			wrapper is left exactly as the reference theme paints it. The excerpt above is sliced from the
-			real shipped <code>@hyzer-labs/ui/theme/examples/docs/docs.css</code>; the full sheet — and
-			this override in context alongside Ocean and Terminal — is on
+			real shipped <code>@hyzer-labs/ui/theme/examples/docs/docs.css</code>. The full sheet, with
+			this override in context alongside Ocean and Terminal, is on
 			<a href="/docs/theming/examples">Example Themes</a>.
 		</p>
 	</Stack>
@@ -250,8 +254,8 @@
 	>
 		<h2 id="hook-props-heading">Custom-property hooks</h2>
 		<p>
-			Beyond the tokens, some components expose their own knob as a custom property — override it on
-			any selector, per mode if you scope it under <code>[data-theme="dark"]</code>. Every one the
+			Beyond the tokens, some components expose their own knob as a custom property. Override it on
+			any selector, or per theme by scoping it under <code>[data-theme="dark"]</code>. Every one the
 			library ships is below; each component's page carries the same rows alongside its
 			<code>data-*</code> and part classes.
 		</p>
@@ -282,8 +286,8 @@
 		<CodeBlock code={hookPropsCode} />
 		<p class="doc-note">
 			The tint defaults are graded on
-			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> — if you retune them, re-check
-			the soft pairings there.
+			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a>. If you retune them,
+			re-check the soft pairings there.
 		</p>
 	</Stack>
 
@@ -296,10 +300,10 @@
 	>
 		<h2 id="treatments-heading">Theme conventions: Card treatments &amp; titles</h2>
 		<p>
-			Some looks are deliberately theme classes rather than component props — Card's surface
+			Some looks are deliberately theme classes rather than component props. Card's surface
 			treatments (<code>hz-card--outlined</code>, <code>hz-card--elevated</code>) live only in the
 			reference theme, and <code>hz-card-title</code> is an opt-in convention: bring your own heading
-			element at whatever level the page needs, the class only styles it. Headings aren't load-bearing
+			element at whatever level the page needs, and the class only styles it. Headings are not load-bearing
 			for Card the way they are for Modal or Accordion, so they never became API.
 		</p>
 		<Example code={treatmentsCode}>
@@ -315,8 +319,8 @@
 			</Cluster>
 		</Example>
 		<p>
-			The generated utility sheet and the full catalog of opt-in classes — including
-			<code>.hz-card-title</code> and <code>.hz-banner-title</code> — are documented on
+			The generated utility sheet and the full catalog of opt-in classes (including
+			<code>.hz-card-title</code> and <code>.hz-banner-title</code>) are documented on
 			<a href="/docs/foundation/utilities">Foundation &rarr; Utilities</a>.
 		</p>
 	</Stack>
@@ -330,7 +334,7 @@
 	>
 		<h2 id="headless-heading">Going fully headless</h2>
 		<p>
-			Skip the reference theme and the same hooks are your blank canvas — components render as
+			Skip the reference theme and the same hooks are your blank canvas: components render as
 			functional native elements with no appearance opinions. Keep <code>tokens.css</code> for the
 			custom properties (component fallbacks match the token values exactly, so adding it later
 			changes nothing), and cherry-pick any reference sheet you do want:
@@ -339,7 +343,7 @@
 		<p>
 			For complete restyles, start from an example:
 			<a href="/docs/theming/examples">Example Themes</a> shows three of them, and the configs behind
-			the configs that generate them.
+			the two that are generated.
 		</p>
 	</Stack>
 </Stack>

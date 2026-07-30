@@ -164,8 +164,8 @@
 					<p class="tab-note">
 						<code>orientation="vertical"</code> switches both ranges to a native
 						<code>writing-mode: vertical-lr</code> track. It grows bottom-up, so Up and Right arrows
-						still increase toward <code>max</code> on either thumb. The min–max exact-entry pair
-						stays one inline <code>min – max</code> cluster placed above or below the track (per
+						still increase toward <code>max</code> on either thumb. The two exact-entry fields stay
+						a single inline cluster, separated by a dash and placed above or below the track (per
 						<code>inputPosition</code>) rather than stacking to mirror the thumbs. The track's block
 						length comes from <code>--hz-slider-length</code> (default <code>12rem</code>), so it
 						never grows the page unbounded. This demo wraps two side by side in

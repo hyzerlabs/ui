@@ -16,18 +16,18 @@
 		'',
 		'/* utilities is last, so a Tailwind utility class overrides the reference',
 		'   theme. hz-theme sits before it, and both lose to any UNLAYERED CSS you',
-		'   write — your own overrides still win outright. */'
+		'   write: your own overrides still win outright. */'
 	].join('\n');
 
 	const resetCode = [
-		'/* Pick ONE reset — running both is redundant and they fight. */',
+		'/* Pick ONE reset. Running both is redundant and they fight. */',
 		'',
-		'/* Option A — keep the library reset; turn Tailwind Preflight OFF.',
+		'/* Option A: keep the library reset; turn Tailwind Preflight OFF.',
 		"   v4: import Tailwind's parts and leave out preflight.",
 		'   v3: corePlugins: { preflight: false } in tailwind.config. */',
 		"@import '@hyzer-labs/ui/reset.css';",
 		'',
-		"/* Option B — keep Tailwind Preflight; just don't import the library reset. */",
+		'/* Option B: keep Tailwind Preflight; just do not import the library reset. */',
 		'/* (the reference theme never needs it) */'
 	].join('\n');
 
@@ -43,7 +43,7 @@
 
 	const tokenBridgeCode = [
 		'/* The tokens are plain custom properties, so Tailwind can read them',
-		'   directly — map them into @theme (v4) to get generated utilities: */',
+		'   directly. Map them into @theme (v4) to get generated utilities: */',
 		'@theme {',
 		'\t--color-brand: var(--hz-intent-primary);',
 		'}',
@@ -62,8 +62,8 @@
 		{#snippet lead()}
 			The library and Tailwind coexist cleanly: settle on one reset, order the cascade layers so
 			Tailwind utilities win when you want them to, and pass utility classes to components through
-			their <code>class</code> prop. Nothing here is Tailwind-specific plumbing — it's the same layer
-			model the rest of the theme uses.
+			their <code>class</code> prop. None of it is Tailwind-specific plumbing: it is the same layer model
+			the rest of the theme uses.
 		{/snippet}
 	</DocIntro>
 
@@ -77,13 +77,13 @@
 		<h2 id="reset-heading">Pick one reset</h2>
 		<p>
 			The library ships an optional structural reset and Tailwind ships Preflight. They do the same
-			job, so run <strong>one</strong> of them — importing both is redundant and their rules overlap.
+			job, so run <strong>one</strong> of them. Importing both is redundant, and their rules overlap.
 		</p>
 		<CodeBlock code={resetCode} />
 		<p>
-			Either choice is fine. The reference theme doesn't depend on the library reset — it only sets
-			structure (box-sizing, media defaults), no colors or fonts — so dropping it for Preflight
-			changes nothing about how the components look.
+			Either choice is fine. The reference theme does not depend on the library reset. The reset
+			only sets structure (box-sizing, media defaults), with no colors or fonts, so dropping it for
+			Preflight changes nothing about how the components look.
 		</p>
 	</Stack>
 
@@ -105,12 +105,12 @@
 			{#snippet icon()}<IconInfo />{/snippet}
 			A layered rule always loses to an unlayered one, so a Tailwind utility (layered) overrides the reference
 			theme but <strong>not</strong> a bare class or ID you write yourself. Your own unlayered CSS
-			stays the final word — see
+			stays the final word. See
 			<a href="/docs/theming/overview">Theming Overview</a> for the tier model.
 		</Alert>
 		<p>
 			On Tailwind v3 the utilities are emitted unlayered, so they already beat the theme without
-			this declaration — but pinning the order is harmless and keeps a later Tailwind upgrade from
+			this declaration. Pinning the order is harmless, and it keeps a later Tailwind upgrade from
 			shifting the cascade under you.
 		</p>
 	</Stack>
@@ -132,7 +132,7 @@
 			For structure, reach for the layout components (<a href="/docs/components/stack">Stack</a>,
 			<a href="/docs/components/grid">Grid</a>, <a href="/docs/components/cluster">Cluster</a>) or
 			the
-			<a href="/docs/foundation/utilities">utility sheet</a> where they fit — then use Tailwind utilities
+			<a href="/docs/foundation/utilities">utility sheet</a> where they fit, then use Tailwind utilities
 			for the one-off nudges on top.
 		</p>
 	</Stack>

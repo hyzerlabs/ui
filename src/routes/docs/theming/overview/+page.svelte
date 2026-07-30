@@ -7,7 +7,7 @@
 		"@import '@hyzer-labs/ui/reset.css';     /* structural reset (@layer hz-reset) */",
 		"@import '@hyzer-labs/ui/tokens.css';    /* the --hz-* custom properties */",
 		"@import '@hyzer-labs/ui/theme';         /* the reference theme (@layer hz-theme) */",
-		"@import '@hyzer-labs/ui/utilities.css'; /* optional: opt-in utility classes (unlayered) */",
+		"@import '@hyzer-labs/ui/utilities.css'; /* opt-in utility classes (unlayered) */",
 		"@import './your-overrides.css';         /* unlayered: always wins */"
 	].join('\n');
 
@@ -16,8 +16,8 @@
 		'@layer hz-reset, hz-theme;',
 		'',
 		'/* Your stylesheet is UNLAYERED. Unlayered CSS beats every @layer rule.',
-		'   So any selector you write overrides the theme without specificity',
-		'   fights, even a bare class: */',
+		'   So any selector you write overrides the theme with no specificity',
+		'   fight, even a bare class: */',
 		'.my-quiet-button {',
 		'\tbackground: transparent;',
 		'}'
@@ -116,15 +116,14 @@
 		<p>
 			Every reference-theme rule lives in the <code>hz-theme</code> cascade layer. Each rule is
 			wrapped in <code>:where()</code>, so it stays at single-class specificity. Your stylesheet is
-			unlayered, and unlayered CSS always beats layered CSS. Overriding the theme never needs
-			<code>!important</code>, a selector that matches the theme's, or specificity math.
+			unlayered, and unlayered CSS always beats layered CSS. You will never need
+			<code>!important</code>, a copy of the theme's selector, or specificity math to override it.
 		</p>
 		<CodeBlock code={layerCode} />
 		<p>
 			Every component also takes a <code>class</code> prop, merged onto the same element as its
-			<code>hz-*</code> root class. What makes your rule win is not that ordering: class order in the
-			attribute has no effect on the cascade. Your rule wins because your stylesheet is unlayered and
-			the theme is not.
+			<code>hz-*</code> root class. Class order in the attribute has no effect on the cascade. Your rule
+			wins because your stylesheet is unlayered and the theme is not.
 		</p>
 	</Stack>
 
@@ -150,8 +149,8 @@
 			</li>
 			<li>
 				A bare <code>&lt;a&gt;</code> takes <code>primary</code>, and <code>:visited</code> takes
-				<code>secondary</code>. Browser blue and purple fail on a dark surface, which is why this
-				lives in the theme rather than the reset.
+				<code>secondary</code>. Browser blue and purple fail on a dark surface. That is why this
+				rule lives in the theme rather than the reset.
 			</li>
 			<li>
 				<code>&lt;kbd&gt;</code> renders as a key: mono font, muted text on the muted surface, a
@@ -164,9 +163,9 @@
 		</ul>
 		<p>
 			Each of these except <code>.sr-only</code> is wrapped in <code>:where()</code>, so it sits at
-			zero specificity: any class of yours wins without effort, and any element you style yourself
-			is untouched. <code>.sr-only</code> is unlayered on purpose, so a consumer layer reordering the
-			cascade cannot accidentally reveal hidden text.
+			zero specificity. Any class of yours wins, and any element you style yourself is untouched.
+			<code>.sr-only</code> is unlayered on purpose, so a consumer layer that reorders the cascade cannot
+			accidentally reveal hidden text.
 		</p>
 	</Stack>
 
@@ -198,8 +197,8 @@
 						<td>Dark mode, or any named theme</td>
 						<td
 							>Use the <code>data-theme</code> hook. Override hues at the palette layer and
-							everything chains through. Dark is one named theme among as many as you define, and
-							the attribute works on any element, not just <code>&lt;html&gt;</code>. See
+							everything chains through. Dark is one named theme, and you can define as many as you
+							like. The attribute works on any element, not just <code>&lt;html&gt;</code>. See
 							<a href="/docs/theming/sections">Section themes</a>.</td
 						>
 					</tr>

@@ -6,8 +6,8 @@
  *
  * Two things get measured, because they answer different questions:
  *
- *   1. What a browser downloads. The stylesheets are the honest, exact figure:
- *      a consumer imports whole sheets, so the gzipped bytes are the cost.
+ *   1. What a browser downloads. The stylesheet figures are exact: a consumer
+ *      imports whole sheets, so the gzipped bytes are the cost.
  *   2. What npm installs. The tarball also carries TypeScript declarations,
  *      unminified component source, every icon, and the CLI. None of those
  *      reach a browser, and a bundler ships only the components you import.
@@ -18,7 +18,6 @@ import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync }
 import { execFileSync } from 'node:child_process';
 import { join, relative } from 'node:path';
 import { gzipSync } from 'node:zlib';
-import { CORE_ICONS } from '../src/lib/icons/core.js';
 
 const ROOT = new URL('..', import.meta.url).pathname;
 const DIST = join(ROOT, 'dist');
@@ -113,32 +112,32 @@ const bundle = bundleEverything();
  */
 const browserItems = [
 	{
-		label: 'Component JavaScript',
+		label: 'Every component, minified',
 		raw: bundle.js,
 		gzip: bundle.jsGzip,
-		note: 'Every component, bundled and minified. Import fewer and ship less.'
+		note: 'A real build of the whole library, carrying only the few icons the components draw. Import three components and you ship a fraction of this.'
 	},
 	{
 		label: 'Component structural CSS',
 		raw: bundle.css,
 		gzip: bundle.cssGzip,
-		note: 'Layout and behavior only, no visual opinions.'
+		note: 'Layout and behavior only. No colors or other visual styling.'
 	},
 	{
-		label: 'Tokens',
+		label: 'Design tokens',
 		...measure(sheet('tokens/tokens.css')),
-		note: 'The --hz-* custom properties.'
+		note: 'The --hz-* custom properties, also called CSS variables.'
 	},
 	{
 		label: 'Reference theme',
 		...measure(themeSheets),
-		note: 'The full styled look, one sheet per component.'
+		note: 'One import for the shared base sheet plus a sheet per component. Import single component sheets instead and you pay less.'
 	},
-	{ label: 'Reset', ...measure(sheet('theme/reset.css')), note: 'Optional, structural only.' },
+	{ label: 'Reset', ...measure(sheet('theme/reset.css')), note: 'Optional. Structural only.' },
 	{
 		label: 'Utilities',
 		...measure(sheet('theme/utilities.css')),
-		note: 'Opt-in helper classes.'
+		note: 'Helper classes you import only if you want them.'
 	}
 ];
 
@@ -158,28 +157,28 @@ const installParts = [
 	{
 		label: 'Component source',
 		paths: componentSource,
-		note: 'Unminified. Bundlers tree-shake it.'
+		note: 'Only the components you import, minified by your bundler. It ships unminified so your bundler can drop the rest.'
 	},
 	{
 		label: 'Type declarations',
 		paths: declarations,
-		note: 'Never reaches a browser.'
+		note: 'No. TypeScript reads them; a browser never sees them.'
 	},
 	{
 		label: 'Stylesheets',
 		paths: files.filter((f) => f.endsWith('.css')),
-		note: 'Import what you need.'
+		note: 'Only the sheets you import.'
 	},
 	{
 		label: 'Icon set',
 		paths: iconFiles,
-		note: `${iconFiles.filter((f) => f.endsWith('.svelte')).length} components, one glyph each.`
+		note: `Only the glyphs you use. ${iconFiles.filter((f) => f.endsWith('.svelte')).length} components, one glyph each.`
 	},
-	{ label: 'hyzer CLI', paths: tooling, note: 'Build-time only.' },
+	{ label: 'hyzer CLI', paths: tooling, note: 'No. It runs at build time.' },
 	{
 		label: 'Example themes',
 		paths: exampleSheets,
-		note: 'Ocean, Docs and Terminal, for reading or copying.'
+		note: 'Only if you import one. Ocean, Docs and Terminal, for reading or copying.'
 	}
 ];
 
@@ -189,10 +188,11 @@ const module = `/**
  * GENERATED FILE — do not edit by hand. Regenerate with:
  *   pnpm run package && pnpm run gen:sizes
  *
- * Measured from the files this package publishes. \`browserTiers\` is exact:
- * stylesheets are imported whole, so the gzipped bytes are what a visitor
- * downloads. \`installParts\` is the tarball, which also carries declarations,
- * unminified source, every icon and the CLI — none of which reach a browser.
+ * Measured from the files this package publishes. \`browserItems\` is exact for
+ * the stylesheets: they are imported whole, so the gzipped bytes are what a
+ * visitor downloads. \`installParts\` is the tarball, which also carries
+ * declarations, unminified source, every icon and the CLI. None of those reach
+ * a browser.
  */
 
 export interface SizeRow {
@@ -221,20 +221,7 @@ export const browserTotal: SizeRow = ${JSON.stringify(
 	'\t'
 )};
 
-/** What npm unpacks, by part. */
-export const installParts: SizeRow[] = ${JSON.stringify(
-	installParts.map((p) => ({
-		label: p.label,
-		raw: rawOf(p.paths),
-		gzip: gzipOf(p.paths),
-		note: p.note
-	})),
-	null,
-	'\t'
-)};
 
-/** Total unpacked install. */
-export const installTotal = ${rawOf(files)};
 
 /** Packages pulled in at runtime. */
 export const runtimeDependencies = ${Object.keys(pkg.dependencies ?? {}).length};
@@ -242,8 +229,6 @@ export const runtimeDependencies = ${Object.keys(pkg.dependencies ?? {}).length}
 /** Peer dependencies, which a consumer already has. */
 export const peerDependencies = ${JSON.stringify(Object.keys(pkg.peerDependencies ?? {}))};
 
-/** The core glyph count the components render internally. */
-export const coreIconCount = ${CORE_ICONS.length};
 
 export function formatBytes(bytes: number): string {
 	if (bytes < 1024) return \`\${bytes} B\`;

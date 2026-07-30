@@ -49,7 +49,7 @@ export const selectDoc: ComponentDoc = {
 	],
 	types: [
 		{
-			name: 'FormOption',
+			name: 'SelectOption (flat arm: FormOption)',
 			props: [
 				{ name: 'value', type: 'string', default: '—', note: 'Required.' },
 				{ name: 'label', type: 'string', default: '—', note: 'Required.' },

@@ -264,6 +264,11 @@
 		{#snippet panel(item)}
 			<div class="tab-content">
 				{#if item.id === 'basic'}
+					<p class="tab-note">
+						A framed table with rules between the rows. Inside a card or panel that already draws
+						its own edges, <code>bordered={false}</code> drops the frame and those rules. The divider
+						under the header stays either way.
+					</p>
 					<Example code={basicCode}>
 						<Table items={discs} {columns} caption="Discs" />
 					</Example>

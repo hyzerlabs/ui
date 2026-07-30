@@ -19,8 +19,8 @@
 	].join('\n');
 
 	const intentCode = [
-		'/* The intent layer is a remap surface: point an intent at a different',
-		'   palette hue than its default, or add brand-new category tokens. */',
+		'/* The intent layer is where you rewire: point an intent at a different',
+		'   palette hue than its default, or add an intent of your own. */',
 		':root {',
 		'\t--hz-intent-danger: var(--hz-palette-secondary); /* remap */',
 		'\t--hz-intent-fairway: #3f6212;                     /* extend */',
@@ -28,16 +28,16 @@
 	].join('\n');
 
 	const darkCode = [
-		'/* Dark mode may override any tier, including the palette — the same',
-		'   hook the base sheet uses. Override a hue here and its intents,',
-		'   borders, and muted tints follow in dark only; your components keep',
-		'   resolving through roles/intents either way. */',
+		'/* Dark may override any tier, including the palette: the same hook the',
+		'   base sheet uses. Override a hue here and its intents, borders, and',
+		'   muted tints follow in dark only. Your components keep resolving',
+		'   through roles and intents either way. */',
 		"[data-theme='dark'] {",
 		'\t--hz-palette-primary: #2dd4bf;',
 		'}',
 		'',
-		'/* Intents can be re-authored per mode too, if you want a mapping that',
-		'   only applies in the dark: */',
+		'/* Intents can be re-authored inside a theme too, if you want a mapping',
+		'   that applies in dark only: */',
 		"[data-theme='dark'] {",
 		'\t--hz-intent-fairway: #a3e635;',
 		'}',
@@ -45,9 +45,9 @@
 		'/* Two things you get without writing them:',
 		'   - the sheet already follows the system preference, so you only need',
 		'     a script to OVERRIDE it, never to obey it;',
-		'   - data-theme works on ANY element, not just <html> \u2014 so one section',
-		'     can be dark inside a light page, and data-theme="light" switches',
-		'     a section back. See Section themes. */'
+		'   - data-theme works on ANY element, not just <html>. One section can',
+		'     be dark inside a light page, and data-theme="light" puts a section',
+		'     back to the default. See Section themes. */'
 	].join('\n');
 
 	const verifyCode = [
@@ -60,7 +60,7 @@
 		'gradeContrast(brand, palette.white).aaNormal; // text on surface',
 		'gradeContrast(palette.white, brand).aaNormal; // solid button text',
 		'',
-		'// On surface-muted — the same 6% color-mix the theme derives',
+		'// On surface-muted: the same 6% color-mix the theme derives',
 		'contrastRatio(brand, mixSrgb(palette.gray, palette.white, 0.06));'
 	].join('\n');
 
@@ -80,10 +80,10 @@
 <Stack gap="away">
 	<DocIntro>
 		{#snippet lead()}
-			Two layers, one rule: Layer 1 is the palette (<code>--hz-palette-*</code>) — single-value
-			hues, authored per mode. Layer 2 (semantic roles, <code>--hz-color-*</code>, and intents,
-			<code>--hz-intent-*</code>) is pure <code>var()</code> indirection that chains through it, so overriding
-			a hue cascades everywhere it's used.
+			Theme tokens come in two layers. Layer 1 is the palette (<code>--hz-palette-*</code>):
+			single-value hues, authored per theme. Layer 2 is the semantic roles (<code>--hz-color-*</code
+			>) and intents (<code>--hz-intent-*</code>), pure <code>var()</code> indirection that chains through
+			Layer 1. Override one hue and the change follows everywhere it is used.
 		{/snippet}
 	</DocIntro>
 
@@ -95,15 +95,14 @@
 				>--hz-duration-*</code
 			>
 			/ <code>--hz-ease-*</code>) follow the same override rules and are documented on
-			<a href="/docs/foundation/motion">Motion</a>
-			— the same page introduces
-			<code>@hyzer-labs/ui/motion</code>, script-side helpers (transitions, a scroll-reveal
-			attachment, a view-transition wrapper) built on those tokens.
+			<a href="/docs/foundation/motion">Motion</a>. That page also introduces
+			<code>@hyzer-labs/ui/motion</code>: script-side helpers built on those tokens, including
+			transitions, a scroll-reveal attachment, and a view-transition wrapper.
 		</p>
 		<p class="doctrine-note">
-			Dark mode may override any tier in <code>[data-theme='dark']</code>, including the palette —
-			your components and the reference theme never read <code>--hz-palette-*</code> directly, so they
-			keep resolving through roles and intents either way.
+			Dark may override any tier in <code>[data-theme='dark']</code>, including the palette. Your
+			components and the reference theme never read <code>--hz-palette-*</code> directly, so they keep
+			resolving through roles and intents either way.
 		</p>
 		<p class="doctrine-note">
 			Dark is not a special case in the config, either: it is one entry in a
@@ -120,7 +119,7 @@
 		class="doc-section"
 		aria-labelledby="css-heading"
 	>
-		<h2 id="css-heading">In plain CSS — no build step</h2>
+		<h2 id="css-heading">In plain CSS, with no build step</h2>
 		<p>
 			Import your stylesheet after <code>tokens.css</code> and redefine what you need. These are the four
 			recipes that cover nearly everything:
@@ -152,11 +151,11 @@
 		<h2 id="config-heading">Or describe it once, in a config</h2>
 		<p>
 			Everything above is hand-written CSS, which is the whole point of this tier: no build step, no
-			tooling. If you would rather keep your system in one typed file and have the sheet generated
-			for you — with every pairing contrast-graded on each run —
+			tooling. You can instead keep your system in one typed file and have the sheet generated for
+			you, with every pairing contrast-graded on each run.
 			<a href="/docs/foundation/config">Config &amp; CLI</a> covers
 			<code>hyzer.config.ts</code> end to end: the option surface, the
-			<code>hyzer generate</code> modes, the trimmed icon barrel and the utilities sheet.
+			<code>hyzer generate</code> modes, the trimmed icon barrel, and the utilities sheet.
 		</p>
 		<p>
 			The two routes reach the same place. A config resolves to the same two-layer model this page
@@ -173,16 +172,19 @@
 	>
 		<h2 id="verify-heading">Verify your palette</h2>
 		<p>
-			The contrast math behind the generate report is public API: <code>contrastRatio</code> gives
-			the raw WCAG ratio for two hex colors, <code>gradeContrast</code> turns a
-			foreground/background pair into pass/fail grades per level and text size,
+			The contrast math behind the generate report is public API. <code>contrastRatio</code> gives
+			the raw WCAG ratio for two hex colors. <code>gradeContrast</code> turns a
+			foreground/background pair into pass/fail grades per level and text size.
 			<code>bestLevel</code>
-			/
-			<code>bestLevelLarge</code> name the best level a ratio reaches, and
-			<code>mixSrgb</code>, <code>relativeLuminance</code>, <code>hexToRgb</code>, and
-			<code>rgbToHex</code> are the conversion pieces. All are pure functions over hex strings — no
-			DOM, SSR-safe — exported from the package root and <code>@hyzer-labs/ui/utils</code>, with the
-			resolved palette importable from <code>@hyzer-labs/ui/tokens</code>.
+			and
+			<code>bestLevelLarge</code> name the best level a ratio reaches. <code>mixSrgb</code>,
+			<code>relativeLuminance</code>, <code>hexToRgb</code>, and
+			<code>rgbToHex</code> are the conversion pieces.
+		</p>
+		<p>
+			All of them are pure functions over hex strings, with no DOM access, so they are safe to run
+			on the server. They are exported from the package root and <code>@hyzer-labs/ui/utils</code>,
+			and the resolved palette is importable from <code>@hyzer-labs/ui/tokens</code>.
 		</p>
 		<p>Assert the pairings your override touches in a unit test:</p>
 		<CodeBlock code={verifyCode} />

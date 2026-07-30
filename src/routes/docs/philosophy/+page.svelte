@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Stack } from '$lib';
+	import { Stack, Alert } from '$lib';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 	import DocIntro from '../../../docs/DocIntro.svelte';
 	import SizeTable from '../../../docs/SizeTable.svelte';
 </script>
@@ -102,13 +103,13 @@
 			visual opinion for you to undo, and no layer you are forced to carry. Here is what each layer
 			actually costs, measured from the published package rather than estimated:
 		</p>
-		<SizeTable variant="full" />
-		<p>
-			It also explains the choice of Svelte. Markup, script and styles sit in one file, so there is
-			one place to look and one file to change. That suits a person reading the source and an agent
-			editing it. Svelte also reports accessibility problems at compile time, so mistakes surface
-			before review does.
-		</p>
+		<SizeTable />
+		<Alert intent="info" title="It also explains the choice of Svelte" headingLevel={3}>
+			{#snippet icon()}<IconInfo />{/snippet}
+			Markup, script and styles sit in one file, so there is one place to look and one file to change.
+			That suits a person reading the source and an agent editing it. Svelte also reports accessibility
+			problems at compile time, so mistakes surface before review does.
+		</Alert>
 	</Stack>
 
 	<Stack
