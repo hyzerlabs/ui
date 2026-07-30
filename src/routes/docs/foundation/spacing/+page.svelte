@@ -125,11 +125,11 @@
 			<code>--hz-density</code> grid unit ({density.unit}), so overriding one custom property
 			retunes every distance on the page.
 		</p>
-		<p class="tab-note">
+		<p class="doctrine-note">
 			Adding <code>data-density-shift</code> to an ancestor tightens both distances one level, so nested
-			regions read denser without introducing new spacing values. Three levels of shift is the floor.
-			The near multipliers walk the 1-2-5-10 ladder, so a shifted region's away always equals its parent's
-			near.
+			regions read denser without introducing new spacing values. Three levels is as tight as the scale
+			goes: a fourth nested shift keeps the third level's values. The near multipliers walk the 1-2-5-10
+			ladder, so a shifted region's away always equals its parent's near.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
