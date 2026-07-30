@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { Slider } from '$lib';
+	import { Slider, Stack, Cluster } from '$lib';
 
 	/**
-	 * A width-adjustable demo frame for width-responsive components, driven
-	 * by the library's own Slider (dogfooding the slider + exact-entry
-	 * pattern this component pioneered). The box is borderless and unpadded
+	 * A width-adjustable demo frame for width-responsive components, built from
+	 * the library: `Stack` owns the vertical rhythm, `Cluster` lays out the
+	 * control row, and `Slider` drives the width. The box is borderless and unpadded
 	 * so its width IS the component's width — demos must not put padded or
 	 * bordered wrappers between the box and the component, or the readout
 	 * drifts from what the component measures.
@@ -29,15 +29,15 @@
 	let measured = $state(0);
 </script>
 
-<div class="rd">
-	<div class="rd-controls">
+<Stack gap="sm">
+	<Cluster gap="md" align="end">
 		<div class="rd-slider">
 			<Slider name="demo-width" label="Demo width" {min} {max} unit="px" bind:value={width} />
 		</div>
 		{#if describe}
 			<p class="rd-readout" aria-live="polite">{describe(measured || width)}</p>
 		{/if}
-	</div>
+	</Cluster>
 	<div class="rd-scroll">
 		<div
 			class="rd-box"
@@ -47,29 +47,22 @@
 			{@render children()}
 		</div>
 	</div>
-</div>
+</Stack>
 
 <style>
-	.rd-controls {
-		display: flex;
-		align-items: end;
-		gap: 1rem;
-		flex-wrap: wrap;
-		margin-bottom: 0.75rem;
-	}
-
 	.rd-slider {
 		flex: 0 1 22rem;
 		min-width: 16rem;
 	}
 
+	/* Cluster's align="end" lines this up with the slider's own baseline. */
 	.rd-readout {
-		margin: 0 0 0.25rem;
+		margin: 0;
 		font-family: var(--hz-font-family-mono, monospace);
 		font-size: var(--hz-font-size-sm, 0.875rem);
 	}
 
-	/* Widths beyond the available column stay reachable — scroll, not clip. */
+	/* Widths beyond the available column stay reachable: scroll, not clip. */
 	.rd-scroll {
 		overflow-x: auto;
 		padding-bottom: 0.25rem;

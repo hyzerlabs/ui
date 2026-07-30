@@ -252,61 +252,58 @@
 		{/snippet}
 	</DocIntro>
 
-	<div class="doc-intro">
-		<div class="token-table-wrapper intro-table">
-			<table class="token-table">
-				<thead>
-					<tr>
-						<th scope="col"></th>
-						<th scope="col">Ocean</th>
-						<th scope="col">Docs</th>
-						<th scope="col">Terminal</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<th scope="row">Palette via config</th>
-						<td>yes</td>
-						<td>none — rides the reference theme</td>
-						<td>yes</td>
-					</tr>
-					<tr>
-						<th scope="row">Class-hook overrides</th>
-						<td>none</td>
-						<td>one (<code>.docs-table</code>)</td>
-						<td>yes</td>
-					</tr>
-					<tr>
-						<th scope="row">Reference theme</th>
-						<td>required</td>
-						<td>layers over it</td>
-						<td><strong>not imported</strong></td>
-					</tr>
-					<tr>
-						<th scope="row">Adds new intents</th>
-						<td>no</td>
-						<td>no</td>
-						<td><strong>phosphor, amber</strong></td>
-					</tr>
-					<tr>
-						<th scope="row">Scoped to a class</th>
-						<td>runtime-scoped demo only</td>
-						<td><strong>unscoped</strong> — no class to add anywhere</td>
-						<td><code>.hz-theme-terminal</code></td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-		<p class="intro-follow">
-			Ocean is one end: it shows how far tokens alone get you. Terminal is the other. It never
-			imports the reference theme, so every rule in it is its own, and it grows the system rather
-			than only recoloring it: two intents the library has never heard of, type-checked and
-			contrast-graded like any built-in. Docs sits between them, and the same class-hook contract
-			every component ships is enough to extend the reference theme without forking it. If you only
-			read one file, read Terminal's <code>button.css</code>: that is what "headless" actually buys
-			you.
-		</p>
+	<div class="token-table-wrapper intro-table">
+		<table class="token-table">
+			<thead>
+				<tr>
+					<th scope="col"></th>
+					<th scope="col">Ocean</th>
+					<th scope="col">Docs</th>
+					<th scope="col">Terminal</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th scope="row">Palette via config</th>
+					<td>yes</td>
+					<td>none — rides the reference theme</td>
+					<td>yes</td>
+				</tr>
+				<tr>
+					<th scope="row">Class-hook overrides</th>
+					<td>none</td>
+					<td>one (<code>.docs-table</code>)</td>
+					<td>yes</td>
+				</tr>
+				<tr>
+					<th scope="row">Reference theme</th>
+					<td>required</td>
+					<td>layers over it</td>
+					<td><strong>not imported</strong></td>
+				</tr>
+				<tr>
+					<th scope="row">Adds new intents</th>
+					<td>no</td>
+					<td>no</td>
+					<td><strong>phosphor, amber</strong></td>
+				</tr>
+				<tr>
+					<th scope="row">Scoped to a class</th>
+					<td>runtime-scoped demo only</td>
+					<td><strong>unscoped</strong> — no class to add anywhere</td>
+					<td><code>.hz-theme-terminal</code></td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
+	<p class="intro-follow">
+		Ocean is one end: it shows how far tokens alone get you. Terminal is the other. It never imports
+		the reference theme, so every rule in it is its own, and it grows the system rather than only
+		recoloring it: two intents the library has never heard of, type-checked and contrast-graded like
+		any built-in. Docs sits between them, and the same class-hook contract every component ships is
+		enough to extend the reference theme without forking it. If you only read one file, read
+		Terminal's <code>button.css</code>: that is what "headless" actually buys you.
+	</p>
 
 	{#each examples as example (example.id)}
 		<Stack

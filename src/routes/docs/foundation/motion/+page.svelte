@@ -320,14 +320,12 @@
 		{/snippet}
 	</DocIntro>
 
-	<div class="doc-intro">
-		<p class="doc-description">
-			Building your own scroll/resize/mutation-driven behavior instead? The raw
-			<code>IntersectionObserver</code>/<code>ResizeObserver</code>/<code>MutationObserver</code>
-			attachments live on their own page:
-			<a href="/docs/foundation/observers">Foundation &rarr; Observers</a>.
-		</p>
-	</div>
+	<p class="doc-note">
+		Building your own scroll, resize or mutation-driven behavior instead? The raw
+		<code>IntersectionObserver</code>/<code>ResizeObserver</code>/<code>MutationObserver</code>
+		attachments live on their own page:
+		<a href="/docs/foundation/observers">Foundation &rarr; Observers</a>.
+	</p>
 
 	<Stack
 		as="section"

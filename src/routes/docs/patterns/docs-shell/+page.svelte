@@ -21,15 +21,13 @@
 <Stack gap="away">
 	<DocIntro />
 
-	<div class="doc-intro">
-		<p class="composed">
-			Composes
-			{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1
-						? ', and '
-						: ', '}{/if}<a href={c.href}>{c.label}</a>{/each}
-			(plus the layout primitives).
-		</p>
-	</div>
+	<p class="composed">
+		Composes
+		{#each composed as c, i (c.href)}{#if i > 0}{i === composed.length - 1 ? ', and ' : ', '}{/if}<a
+				href={c.href}>{c.label}</a
+			>{/each}
+		(plus the layout primitives).
+	</p>
 
 	<Alert intent="info" title="You are inside this pattern right now">
 		{#snippet icon()}<IconInfo />{/snippet}

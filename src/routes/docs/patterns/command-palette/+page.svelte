@@ -14,12 +14,10 @@
 <Stack gap="away">
 	<DocIntro />
 
-	<div class="doc-intro">
-		<p class="composed">
-			Composes <a href="/docs/components/modal">Modal</a>, the shared
-			<a href="/docs/components/icons">icons</a>, and the design tokens.
-		</p>
-	</div>
+	<p class="composed">
+		Composes <a href="/docs/components/modal">Modal</a>, the shared
+		<a href="/docs/components/icons">icons</a>, and the design tokens.
+	</p>
 
 	<Stack
 		as="section"

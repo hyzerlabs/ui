@@ -60,24 +60,22 @@
 <Stack gap="away">
 	<DocIntro />
 
-	<div class="doc-intro">
-		<ul class="system-list">
-			<li>
-				<strong>Spacing scale</strong>: fixed steps (<code>--hz-space-xs</code> …
-				<code>xl</code>) for explicit, context-independent distances; they back the component
-				defaults.
-			</li>
-			<li>
-				<strong>Density spacing</strong>: two context-aware distances (<code>near</code> /
-				<code>away</code>) derived from one grid unit that automatically tighten as content nests.
-				Use these for page rhythm instead of picking steps by hand.
-			</li>
-			<li>
-				<strong>Breakpoint widths</strong>: the <code>--hz-width-sm…xl</code> tokens that cap
-				<code>Container</code> and drive the <code>Grid</code>/<code>Split</code> container-query thresholds.
-			</li>
-		</ul>
-	</div>
+	<ul class="system-list">
+		<li>
+			<strong>Spacing scale</strong>: fixed steps (<code>--hz-space-xs</code> …
+			<code>xl</code>) for explicit, context-independent distances; they back the component
+			defaults.
+		</li>
+		<li>
+			<strong>Density spacing</strong>: two context-aware distances (<code>near</code> /
+			<code>away</code>) derived from one grid unit that automatically tighten as content nests. Use
+			these for page rhythm instead of picking steps by hand.
+		</li>
+		<li>
+			<strong>Breakpoint widths</strong>: the <code>--hz-width-sm…xl</code> tokens that cap
+			<code>Container</code> and drive the <code>Grid</code>/<code>Split</code> container-query thresholds.
+		</li>
+	</ul>
 
 	<Stack
 		as="section"

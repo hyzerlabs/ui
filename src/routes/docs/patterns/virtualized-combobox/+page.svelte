@@ -23,14 +23,12 @@
 		{/snippet}
 	</DocIntro>
 
-	<div class="doc-intro">
-		<p class="composed">
-			Composes
-			{#each composed as c, i (c.href)}{#if i > 0},
-				{/if}<a href={c.href}>{c.label}</a>{/each}
-			(plus the design tokens).
-		</p>
-	</div>
+	<p class="composed">
+		Composes
+		{#each composed as c, i (c.href)}{#if i > 0},
+			{/if}<a href={c.href}>{c.label}</a>{/each}
+		(plus the design tokens).
+	</p>
 
 	<!-- Both alerts as one tight callout cluster: gap="near" on a
 	     density-shifted Stack reads them as a single grouped warning instead

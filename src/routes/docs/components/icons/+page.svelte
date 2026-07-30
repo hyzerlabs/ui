@@ -153,13 +153,11 @@
 		{/snippet}
 	</DocIntro>
 
-	<div class="doc-intro">
-		<p class="doc-note">
-			Brand marks are not included. Every icon-accepting component takes a snippet, so bring your
-			own: an inline SVG, an icon font glyph, or a package like <code>simple-icons</code>. You pass
-			one of those the same way you pass a Lucide icon.
-		</p>
-	</div>
+	<p class="doc-note">
+		Brand marks are not included. Every icon-accepting component takes a snippet, so bring your own:
+		an inline SVG, an icon font glyph, or a package like <code>simple-icons</code>. You pass one of
+		those the same way you pass a Lucide icon.
+	</p>
 
 	<Stack
 		as="section"

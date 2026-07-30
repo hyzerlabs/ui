@@ -87,30 +87,28 @@
 		{/snippet}
 	</DocIntro>
 
-	<div class="doc-intro">
-		<p class="detail-note">
-			Remap or extend Layer 2 directly when you want different wiring instead of a palette override.
-			Token names and defaults live on
-			<a href="/docs/foundation/colors">Colors &amp; Intent</a>. Duration and easing tokens (<code
-				>--hz-duration-*</code
-			>
-			/ <code>--hz-ease-*</code>) follow the same override rules and are documented on
-			<a href="/docs/foundation/motion">Motion</a>. That page also introduces
-			<code>@hyzer-labs/ui/motion</code>: script-side helpers built on those tokens, including
-			transitions, a scroll-reveal attachment, and a view-transition wrapper.
-		</p>
-		<p class="doctrine-note">
-			Dark may override any tier in <code>[data-theme='dark']</code>, including the palette. Your
-			components and the reference theme never read <code>--hz-palette-*</code> directly, so they keep
-			resolving through roles and intents either way.
-		</p>
-		<p class="doctrine-note">
-			Dark is not a special case in the config, either: it is one entry in a
-			<code>themes</code> map, and you can add as many more as you like.
-			<a href="/docs/theming/sections">Section themes</a> covers naming them and scoping one to part of
-			a page.
-		</p>
-	</div>
+	<p class="detail-note">
+		Remap or extend Layer 2 directly when you want different wiring instead of a palette override.
+		Token names and defaults live on
+		<a href="/docs/foundation/colors">Colors &amp; Intent</a>. Duration and easing tokens (<code
+			>--hz-duration-*</code
+		>
+		/ <code>--hz-ease-*</code>) follow the same override rules and are documented on
+		<a href="/docs/foundation/motion">Motion</a>. That page also introduces
+		<code>@hyzer-labs/ui/motion</code>: script-side helpers built on those tokens, including
+		transitions, a scroll-reveal attachment, and a view-transition wrapper.
+	</p>
+	<p class="doctrine-note">
+		Dark may override any tier in <code>[data-theme='dark']</code>, including the palette. Your
+		components and the reference theme never read <code>--hz-palette-*</code> directly, so they keep resolving
+		through roles and intents either way.
+	</p>
+	<p class="doctrine-note">
+		Dark is not a special case in the config, either: it is one entry in a
+		<code>themes</code> map, and you can add as many more as you like.
+		<a href="/docs/theming/sections">Section themes</a> covers naming them and scoping one to part of
+		a page.
+	</p>
 
 	<Stack
 		as="section"
