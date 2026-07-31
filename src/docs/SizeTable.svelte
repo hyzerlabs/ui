@@ -80,6 +80,21 @@
 </div>
 
 <style>
+	/* Below the stack threshold, .docs-table's flat-cell overrides (unlayered,
+	   so they beat the theme) would keep per-cell borders and padding that the
+	   stacked layout is designed without. Re-yield inside the wrap's own
+	   container so the theme's stacked design renders as intended. */
+	@container (max-width: 639px) {
+		.size-tables :global(.docs-table [data-stack] tbody :is(th, td)) {
+			border-bottom: none;
+			padding: 0;
+		}
+
+		.size-tables :global(.docs-table [data-stack] tbody tr) {
+			padding-inline: 0;
+		}
+	}
+
 	.size-tables {
 		display: flex;
 		flex-direction: column;

@@ -258,6 +258,19 @@
 		background: var(--hz-color-surface, #fff);
 	}
 
+	/* On narrow screens the band gutter, card padding, and table padding
+	   compound until the stacked rows have no room. Tighten the outer two;
+	   the stacked table keeps the space that matters. */
+	@media (max-width: 640px) {
+		.band-striped :global(.hz-container) {
+			padding-inline: 0.75rem;
+		}
+
+		.band-striped :global(.weight-card) {
+			padding: 0.75rem;
+		}
+	}
+
 	/* Solid intent bands, no softening. On-fill text is the surface role,
 	   not white, so it flips with the mode and stays readable on the fill in
 	   both: the solid Banner's own pairing. Cards inside keep an opaque
