@@ -49,9 +49,10 @@ export default defineConfig({
 					// compiles every component through the SvelteKit SSR transform
 					// (~0.6s alone). Run together with the browser project, Playwright
 					// saturates the CPU and starves that transform past the 5s default,
-					// so those imports flake. This is headroom for the cold compile
-					// under load — a genuine hang still fails, just later.
-					testTimeout: 20000,
+					// so those imports flake. 20s wasn't enough headroom on CI's actual
+					// (lower-core) runner — the icon barrel alone cold-compiles ~1750
+					// generated components. A genuine hang still fails, just later.
+					testTimeout: 45000,
 					include: ['src/**/*.{test,spec}.{js,ts}'],
 					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
 				}
