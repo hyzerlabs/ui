@@ -44,3 +44,8 @@ playwright-report
 
 # Scratch dir for scripts/gen-sizes.ts (bundle measurement)
 .size-tmp/
+
+# Accidental local caches (Docker/tsx runs)
+.pnpm-store/
+tsx-0/
+node-compile-cache/

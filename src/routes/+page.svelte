@@ -141,7 +141,7 @@
 								ariaLabel={c.title}
 								padding="md"
 							>
-								<h3 class="card-title">{c.title}</h3>
+								<h3 class="hz-card-title">{c.title}</h3>
 								<p class="card-body">{c.body}</p>
 							</Card>
 						{/each}
@@ -217,15 +217,6 @@
 		margin: 0;
 		font-size: var(--hz-font-size-xl, 1.65rem);
 		font-weight: var(--hz-font-weight-semibold, 600);
-	}
-
-	.card-title {
-		margin: 0 0 0.35rem;
-		font-size: var(--hz-font-size-lg, 1.4rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
-		display: flex;
-		align-items: baseline;
-		gap: 0.5rem;
 	}
 
 	.card-body,

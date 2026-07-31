@@ -14,7 +14,7 @@ for _consuming_ it in another project, that is a different file — see
 - `src/routes/` — the docs site itself. `/` is a marketing landing page with no
   docs shell; everything else lives under `/docs`.
 - `specs/` — numbered builder contracts. `specs/40-findings.md` is the running
-  audit log. Ignore `original-specs/`.
+  audit log.
 
 ## Generated files — never hand-edit
 

@@ -39,7 +39,7 @@
 				ariaLabel={step.label}
 				padding="md"
 			>
-				<h3 class="next-title">{step.label}</h3>
+				<h3 class="hz-card-title next-title">{step.label}</h3>
 				<p class="next-blurb">{step.blurb}</p>
 			</Card>
 		{/each}
@@ -50,10 +50,12 @@
 	/* The loud expressive-card frame lives in src/docs/chrome.css, shared
 	   with the homepage commitment cards. */
 
+	/* The theme's card-title convention provides the treatment; this one
+	   unlayered override sizes it down for the compact next-cards. Consumer
+	   CSS beating @layer hz-theme is the documented cascade, demonstrated. */
 	.next-title {
-		margin: 0 0 0.25rem;
 		font-size: var(--hz-font-size-base, 1rem);
-		font-weight: var(--hz-font-weight-semibold, 600);
+		margin-bottom: 0.25rem;
 	}
 
 	.next-blurb {

@@ -61,9 +61,22 @@ function tick(): Promise<void> {
 	return new Promise((r) => setTimeout(r, 0));
 }
 
-/** Submit the form by clicking its submit button. */
+/**
+ * Submit the form by clicking its submit button.
+ *
+ * Guards every call site with a `submit` listener that prevents the native
+ * default. Without `onSubmit`, Form's native mode deliberately lets the
+ * submit proceed (a real GET to the current URL) — in the browser test
+ * page that navigates the shared iframe out from under whichever test file
+ * the runner schedules next, so this is load-bearing, not decorative. A
+ * caller that already added its own preventDefault-ing listener (to
+ * observe `defaultPrevented`, say) is unaffected — a second preventDefault
+ * on an already-prevented event is a no-op.
+ */
 function submitForm(container: Element): void {
-	(container.querySelector('button[type="submit"]') as HTMLButtonElement).click();
+	const form = container.querySelector('form') as HTMLFormElement;
+	form.addEventListener('submit', (e) => e.preventDefault());
+	(form.querySelector('button[type="submit"]') as HTMLButtonElement).click();
 }
 
 // ---------------------------------------------------------------------------
