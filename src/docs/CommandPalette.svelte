@@ -1,19 +1,15 @@
-<script lang="ts" module>
-	/** One searchable destination. `context` is the breadcrumb, e.g. "Components · Forms". */
-	export interface CommandItem {
-		label: string;
-		href: string;
-		context: string;
-	}
-</script>
-
 <script lang="ts">
 	import IconSearch from '$lib/icons/generated/search.svelte';
 	import { uid } from '$lib/utils';
+	import { searchDocs, type SearchRecord } from './searchIndex';
 
 	interface Props {
-		/** The full destination index (built from the manifest by the shell). */
-		items: CommandItem[];
+		/**
+		 * Loads the full search index. Called once, the first time the palette
+		 * opens (the modal trigger, or ⌘K / focus in inline mode) — never on
+		 * mount, so nothing is fetched until a reader actually opens search.
+		 */
+		load: () => Promise<SearchRecord[]>;
 		/** Called with the chosen href — the shell owns navigation (goto). */
 		onSelect: (href: string) => void;
 		/**
@@ -32,11 +28,11 @@
 	}
 
 	let {
-		items,
+		load,
 		onSelect,
 		mode = 'inline',
 		placeholder = 'Search docs…',
-		limit = 50,
+		limit = 20,
 		shortcut = true
 	}: Props = $props();
 
@@ -50,22 +46,58 @@
 	// from the input box's rect when the list opens.
 	let rect = $state({ top: 0, left: 0, width: 0 });
 
+	// The index loads once, on first open — never on mount, so no fetch and no
+	// data-module import reaches the docs shell bundle before a reader
+	// actually opens search. `loadStarted` guards the single call even though
+	// more than one trigger (a click, the global shortcut) can reach
+	// ensureLoaded().
+	let loadStarted = false;
+	let index = $state<SearchRecord[]>();
+	let loadFailed = $state(false);
+
+	function ensureLoaded() {
+		if (loadStarted) return;
+		loadStarted = true;
+		load()
+			.then((records) => {
+				// A non-array response (e.g. an error body a caller's loader forgot
+				// to guard against) is not the index — treat it as a failed load
+				// rather than handing searchDocs something it can't iterate.
+				if (!Array.isArray(records)) throw new Error('search index response was not an array');
+				index = records;
+			})
+			.catch(() => {
+				// One attempt per page load — no retry loop, no console noise, no
+				// thrown error. The results slot below shows the unavailable line
+				// instead.
+				loadFailed = true;
+			});
+	}
+
 	const listId = uid('cmd-list');
 	const optionId = (i: number) => `${listId}-opt-${i}`;
 
+	const trimmedQuery = $derived(query.trim());
+	// A query typed while the index is still in flight (or never resolved).
+	const isLoading = $derived(trimmedQuery.length > 0 && !index && !loadFailed);
+	const isUnavailable = $derived(trimmedQuery.length > 0 && loadFailed);
+
 	const results = $derived.by(() => {
-		const q = query.trim().toLowerCase();
-		if (!q) return [];
-		return items
-			.filter((it) => `${it.context} ${it.label}`.toLowerCase().includes(q))
-			.slice(0, limit);
+		if (!index || !trimmedQuery) return [];
+		return searchDocs(index, trimmedQuery, limit);
 	});
 
 	// Results show while there's a query and the palette is active (focused
 	// inline, or opened as a modal).
 	const showResults = $derived(
-		query.trim().length > 0 && (mode === 'modal' ? modalOpen : inlineFocused)
+		trimmedQuery.length > 0 && (mode === 'modal' ? modalOpen : inlineFocused)
 	);
+
+	// The listbox itself only renders when there are results to put in it —
+	// the loading/unavailable/empty states render a <p> instead (resultsPanel
+	// below). aria-expanded and aria-controls must track that, not showResults,
+	// or they'd point at a listbox id that isn't in the DOM.
+	const listboxOpen = $derived(showResults && results.length > 0);
 
 	// Keep the active option in range as the result set shrinks.
 	$effect(() => {
@@ -90,6 +122,11 @@
 		modalOpen = false;
 		inlineFocused = false;
 		query = '';
+	}
+
+	function openModal() {
+		modalOpen = true;
+		ensureLoaded();
 	}
 
 	function choose(i: number) {
@@ -125,10 +162,11 @@
 		function onGlobal(e: KeyboardEvent) {
 			if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
 				e.preventDefault();
-				if (mode === 'modal') modalOpen = true;
+				if (mode === 'modal') openModal();
 				else {
 					inputEl?.focus();
 					inputEl?.select();
+					ensureLoaded();
 				}
 			}
 		}
@@ -144,16 +182,19 @@
 		class="cmd-input"
 		type="text"
 		role="combobox"
-		aria-expanded={showResults}
-		aria-controls={listId}
-		aria-activedescendant={showResults && results.length ? optionId(activeIndex) : undefined}
+		aria-expanded={listboxOpen}
+		aria-controls={listboxOpen ? listId : undefined}
+		aria-activedescendant={listboxOpen ? optionId(activeIndex) : undefined}
 		aria-label="Search documentation"
 		autocomplete="off"
 		spellcheck="false"
 		{placeholder}
 		bind:value={query}
 		onfocus={() => {
-			if (!inModal) inlineFocused = true;
+			if (!inModal) {
+				inlineFocused = true;
+				ensureLoaded();
+			}
 		}}
 		onblur={() => {
 			if (!inModal) inlineFocused = false;
@@ -164,28 +205,33 @@
 {/snippet}
 
 {#snippet resultsPanel()}
-	<ul id={listId} role="listbox" aria-label="Search results">
-		{#each results as item, i (item.href)}
-			<li
-				id={optionId(i)}
-				role="option"
-				aria-selected={i === activeIndex}
-				class="cmd-option"
-				data-active={i === activeIndex ? '' : undefined}
-				onmousedown={(e) => {
-					// Select before the input blurs.
-					e.preventDefault();
-					choose(i);
-				}}
-				onmousemove={() => (activeIndex = i)}
-			>
-				<span class="cmd-option-label">{item.label}</span>
-				{#if item.context}<span class="cmd-option-context">{item.context}</span>{/if}
-			</li>
-		{/each}
-	</ul>
-	{#if results.length === 0}
-		<p class="cmd-empty">No matches for "{query.trim()}"</p>
+	{#if results.length > 0}
+		<ul id={listId} role="listbox" aria-label="Search results">
+			{#each results as item, i (i)}
+				<li
+					id={optionId(i)}
+					role="option"
+					aria-selected={i === activeIndex}
+					class="cmd-option"
+					data-active={i === activeIndex ? '' : undefined}
+					onmousedown={(e) => {
+						// Select before the input blurs.
+						e.preventDefault();
+						choose(i);
+					}}
+					onmousemove={() => (activeIndex = i)}
+				>
+					<span class="cmd-option-label">{item.label}</span>
+					{#if item.context}<span class="cmd-option-context">{item.context}</span>{/if}
+				</li>
+			{/each}
+		</ul>
+	{:else if isLoading}
+		<p class="cmd-empty">Loading search…</p>
+	{:else if isUnavailable}
+		<p class="cmd-empty">Search is unavailable right now. Use the navigation to browse.</p>
+	{:else}
+		<p class="cmd-empty">No matches for "{trimmedQuery}"</p>
 	{/if}
 {/snippet}
 
@@ -195,7 +241,7 @@
 		class="cmd cmd-trigger"
 		aria-haspopup="dialog"
 		aria-expanded={modalOpen}
-		onclick={() => (modalOpen = true)}
+		onclick={openModal}
 	>
 		<span class="cmd-icon" aria-hidden="true"><IconSearch /></span>
 		<span class="cmd-trigger-label">{placeholder}</span>
@@ -233,8 +279,14 @@
 
 {#if showResults}
 	<div class="sr-only" aria-live="polite">
-		{results.length}
-		{results.length === 1 ? 'result' : 'results'}
+		{#if isLoading}
+			Loading search…
+		{:else if isUnavailable}
+			Search is unavailable right now. Use the navigation to browse.
+		{:else}
+			{results.length}
+			{results.length === 1 ? 'result' : 'results'}
+		{/if}
 	</div>
 {/if}
 

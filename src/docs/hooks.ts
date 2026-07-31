@@ -395,7 +395,7 @@ export const hooks: Record<string, ComponentHooks> = {
 				values: 'child element',
 				note: 'The flex bar; owns its padding.'
 			},
-			{ name: '.hz-header-brand', values: 'child element', note: 'Wrapper for the brand snippet.' },
+			{ name: '.hz-header-logo', values: 'child element', note: 'Wrapper for the logo snippet.' },
 			{
 				name: '.hz-header-actions',
 				values: 'child element',

@@ -107,7 +107,7 @@
 	siteUrl="https://design.hyzer.sh"
 	url="/"
 	title="@hyzer-labs/ui — Headless Svelte 5 component library"
-	description="A headless, accessible Svelte 5 component library. It ships behavior, structure, and accessibility, but no visual opinions."
+	description="A headless, accessible Svelte 5 component library. It ships structure, behavior, and flexibility."
 />
 
 <SiteChrome>
@@ -117,8 +117,9 @@
 			align="center"
 			height="half"
 			class="home-hero"
+			eyebrow="@hyzer-labs/ui"
 			title="Components that ship behavior, not opinions"
-			subtitle="Accessible, headless components for Svelte 5. Style them yourself, or take the reference theme."
+			subtitle="Accessible, headless components for Svelte 5. Style them yourself, or keep the reference theme."
 		>
 			{#snippet actions()}
 				<Button href="/docs">Get started</Button>
@@ -131,7 +132,7 @@
 		<div class="band band-warning">
 			<Container max="lg" padding="lg">
 				<Stack as="section" gap="md" aria-labelledby="commitments-heading">
-					<h2 id="commitments-heading">What it commits to</h2>
+					<h2 id="commitments-heading">What this library commits to</h2>
 					<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
 						{#each commitments as c (c.title)}
 							<Card
@@ -203,7 +204,7 @@
 			</Stack>
 		</Container>
 
-		<div class="band band-bold">
+		<div class="band band-bold band-triangles">
 			<Container max="lg" padding="lg">
 				<WhereNext items={sections} title="Browse the docs" id="sections-heading" />
 			</Container>
@@ -249,7 +250,7 @@
 		   anchor the same way the card frames do. */
 		background-color: color-mix(
 			in srgb,
-			var(--hz-intent-info, #0891b2) 90%,
+			var(--hz-intent-secondary, #7c3aed) 90%,
 			var(--hz-color-black, #000)
 		);
 		background-image: repeating-linear-gradient(
@@ -258,7 +259,7 @@
 			color-mix(in srgb, var(--hz-color-black, #000) 22%, transparent) 12px 14px
 		);
 		border-block: 1px solid
-			color-mix(in srgb, var(--hz-intent-info, #0891b2) 65%, var(--hz-color-black, #000));
+			color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 65%, var(--hz-color-black, #000));
 	}
 
 	/* An opaque surface so the size table reads over the stripes. */
@@ -271,10 +272,10 @@
 	   both: the solid Banner's own pairing. Cards inside keep an opaque
 	   muted surface so their text roles hold. */
 	.band-bold {
-		background: var(--hz-intent-secondary, #7c3aed);
+		background-color: var(--hz-intent-info, #0891b2);
 		--card-frame: color-mix(
 			in srgb,
-			var(--hz-intent-secondary, #7c3aed) 65%,
+			var(--hz-intent-info, #0891b2) 65%,
 			var(--hz-color-black, #000)
 		);
 	}
@@ -284,12 +285,12 @@
 	   secondary against the dark surface to keep them apart; both dark
 	   entries (explicit choice, system default) get the same rule. */
 	:global([data-theme='dark']) .band-bold {
-		background: color-mix(
+		background-color: color-mix(
 			in srgb,
-			var(--hz-intent-secondary, #7c3aed) 55%,
+			var(--hz-intent-info, #0891b2) 55%,
 			var(--hz-color-surface, #000)
 		);
-		--card-frame: var(--hz-intent-secondary, #7c3aed);
+		--card-frame: var(--hz-intent-info, #0891b2);
 	}
 
 	/* The deepened dark band is too dark for the surface-role (black) on-fill
@@ -300,12 +301,12 @@
 
 	@media (prefers-color-scheme: dark) {
 		:global(:root:not([data-theme])) .band-bold {
-			background: color-mix(
+			background-color: color-mix(
 				in srgb,
-				var(--hz-intent-secondary, #7c3aed) 55%,
+				var(--hz-intent-info, #0891b2) 55%,
 				var(--hz-color-surface, #000)
 			);
-			--card-frame: var(--hz-intent-secondary, #7c3aed);
+			--card-frame: var(--hz-intent-info, #0891b2);
 		}
 
 		:global(:root:not([data-theme])) .band-bold :global(h2) {
@@ -313,8 +314,25 @@
 		}
 	}
 
+	/* A light triangle tessellation (the classic four-gradient zigzag) off
+	   the border role, faint enough that normal text roles keep working.
+	   Flips with the mode through the border role itself. */
+	.band-triangles {
+		/* A right-triangle lattice: square grid plus one diagonal, with every
+		   line running edge to edge so tiles connect into one continuous
+		   geometric pattern instead of repeated stamps. Same SVG technique and
+		   transparent-black ink as the wave band. */
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M0 0 H32 M0 0 V32 M32 0 L0 32' fill='none' stroke='rgba(0,0,0,0.22)' stroke-width='1.5'/%3E%3C/svg%3E");
+		background-size: 32px 32px;
+	}
+
 	.band-warning {
-		background: var(--hz-intent-warning, #d97706);
+		background-color: var(--hz-intent-warning, #d97706);
+		/* Sine-wave texture, inked in transparent black so it reads as a
+		   shade darker than the fill in both modes. Inline SVG because CSS
+		   gradients cannot draw a true sine curve. */
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='28' viewBox='0 0 48 28'%3E%3Cpath d='M0 14 Q12 4 24 14 T48 14' fill='none' stroke='rgba(0,0,0,0.12)' stroke-width='2'/%3E%3C/svg%3E");
+		background-size: 48px 28px;
 		/* The card frames borrow the intent they sit on, pulled toward the
 		   black anchor so the frame separates from the band instead of
 		   melting into it. Pages with no band fall back to the text role. */
@@ -347,6 +365,7 @@
 		border: 1px dashed var(--hz-color-border, #6b7280);
 		border-radius: var(--hz-radius-md, 0.5rem);
 		padding: 1.5rem;
+		background: var(--hz-color-surface, #fff);
 	}
 
 	.muted {

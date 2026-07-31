@@ -6,7 +6,7 @@
  * Rendered once at module scope; every test reads the same string.
  */
 import { describe, it, expect } from 'vitest';
-import { renderLlmsFull, renderLlmsIndex, SITE } from './llms';
+import { buildLlmsFullJson, renderLlmsFull, renderLlmsIndex, SITE } from './llms';
 import { componentDocs } from './data/index.js';
 import { isSection, isGrouped, manifest } from './manifest';
 
@@ -155,5 +155,75 @@ describe('renderLlmsIndex — unchanged apart from the new discovery line (Full-
 		expect(index).toContain('](https://design.hyzer.sh/docs)');
 		expect(index).toContain('## Components');
 		expect(index).toContain(`${SITE}/llms-full.txt`);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// buildLlmsFullJson — the /llms-full.json companion
+// ---------------------------------------------------------------------------
+
+describe('buildLlmsFullJson', () => {
+	const json = buildLlmsFullJson();
+	// Round-tripped through JSON, the way the /llms-full.json route serves it —
+	// proves the value is actually serializable (no undefined-swallowed shape
+	// surprises) and gives every assertion below the same object a consumer
+	// fetching the route would parse.
+	const parsed = JSON.parse(JSON.stringify(json)) as typeof json;
+
+	it('parses back to an object carrying site, imports, and a components array', () => {
+		expect(typeof parsed.site).toBe('string');
+		expect(typeof parsed.imports).toBe('string');
+		expect(Array.isArray(parsed.components)).toBe(true);
+	});
+
+	it('has one component record per manifest component page, in order — the same count as the markdown file', () => {
+		expect(parsed.components.map((c) => c.name)).toEqual(pageLabels);
+		expect(parsed.components.length).toBe(pageLabels.length);
+	});
+
+	it("spot-checks Button's variant prop, its hooks, and Accordion's AccordionItem type", () => {
+		const button = parsed.components.find((c) => c.name === 'Button')!;
+		expect(button).toBeDefined();
+		expect(button.props.some((p) => p.name === 'variant')).toBe(true);
+		expect(button.hooks?.root).toBe('hz-button');
+		expect(button.hooks?.attrs?.some((h) => h.name === 'data-variant')).toBe(true);
+		expect(button.hooks?.props?.some((h) => h.name === '--hz-button-accent')).toBe(true);
+
+		const accordion = parsed.components.find((c) => c.name === 'Accordion')!;
+		expect(accordion).toBeDefined();
+		const itemType = accordion.types.find((t) => t.name === 'AccordionItem');
+		expect(itemType).toBeDefined();
+		expect(itemType?.props.some((p) => p.name === 'id')).toBe(true);
+	});
+
+	it('a component with no styling contract (Metatags) round-trips with no hooks key at all', () => {
+		const metatags = parsed.components.find((c) => c.name === 'Metatags')!;
+		expect(metatags).toBeDefined();
+		expect(metatags.hooks).toBeUndefined();
+		// JSON.stringify drops an undefined-valued key outright rather than
+		// serializing it — this is the assertion that actually catches a
+		// component whose hooks entry was accidentally forced present.
+		expect(Object.prototype.hasOwnProperty.call(metatags, 'hooks')).toBe(false);
+	});
+
+	it('carries the same importLine and site-relative route the markdown file resolves to an absolute URL', () => {
+		const button = parsed.components.find((c) => c.name === 'Button')!;
+		expect(button.importLine).toBe(componentDocs['Button'].importLine);
+		expect(`${parsed.site}${button.route}`).toBe(`${SITE}/docs/components/button`);
+	});
+
+	it('every object serializes with a stable key order', () => {
+		expect(Object.keys(json)).toEqual(['site', 'imports', 'components']);
+		expect(Object.keys(json.components[0])).toEqual([
+			'name',
+			'group',
+			'route',
+			'description',
+			'importLine',
+			'props',
+			'types',
+			'hooks',
+			'a11yNote'
+		]);
 	});
 });

@@ -97,6 +97,7 @@ export function renderAgentsMd(): string {
 		`Full documentation: ${SITE}/docs`,
 		`Machine-readable index of every page: ${SITE}/llms.txt`,
 		`Every component's props and styling hooks in one file: ${SITE}/llms-full.txt`,
+		`The same reference as JSON, for keyed lookup: ${SITE}/llms-full.json`,
 		'',
 		'## Imports',
 		'',

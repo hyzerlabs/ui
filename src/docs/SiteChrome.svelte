@@ -23,7 +23,7 @@
 
 <div class="site-shell">
 	<Header items={navItems} ariaLabel="Site navigation" sticky bordered mobileBreakpoint="sm">
-		{#snippet brand()}
+		{#snippet logo()}
 			<a class="site-logo" href="/">@hyzer-labs/ui</a>
 		{/snippet}
 		{#snippet actions()}

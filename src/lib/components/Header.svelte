@@ -11,8 +11,8 @@
 	interface Props {
 		/** Navigation items — rendered horizontally in the bar, vertically in the drawer. */
 		items: NavItem[];
-		/** Brand / logo region at the start of the bar. */
-		brand?: Snippet;
+		/** Logo region at the start of the bar. */
+		logo?: Snippet;
 		/** Actions region at the end of the bar (and repeated in the drawer). */
 		actions?: Snippet;
 		sticky?: boolean;
@@ -32,7 +32,7 @@
 
 	let {
 		items,
-		brand,
+		logo,
 		actions,
 		sticky = false,
 		variant = 'default',
@@ -106,8 +106,8 @@
 	data-mobile-breakpoint={mobileBreakpoint}
 >
 	<div class="hz-header-inner">
-		{#if brand}
-			<div class="hz-header-brand">{@render brand()}</div>
+		{#if logo}
+			<div class="hz-header-logo">{@render logo()}</div>
 		{/if}
 
 		<Nav {items} orientation="horizontal" {ariaLabel} {chevronIcon} />
@@ -171,7 +171,7 @@
 		gap: var(--hz-space-md, 2rem);
 	}
 
-	.hz-header-brand {
+	.hz-header-logo {
 		flex-shrink: 0;
 	}
 
@@ -226,7 +226,7 @@
 	 * Collapsed bar: with the bar Nav display:none, it no longer soaks up
 	 * the row's free space (its flex: 1 stops applying once removed from
 	 * flow), so justify-content: space-between floats .hz-header-actions in
-	 * the middle of the row between the brand and the hamburger. An auto
+	 * the middle of the row between the logo and the hamburger. An auto
 	 * inline-start margin claims that free space instead, pinning actions
 	 * to the end, next to the toggle — the standard mobile-header pattern
 	 * (user decision 2026-07-23). Above the breakpoint the visible Nav's

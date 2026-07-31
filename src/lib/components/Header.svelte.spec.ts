@@ -5,8 +5,8 @@ import { createRawSnippet } from 'svelte';
 import Header from './Header.svelte';
 import type { NavItem } from '$lib/types';
 
-const brand = createRawSnippet(() => ({
-	render: () => `<strong data-testid="brand">Brand</strong>`
+const logoSnippet = createRawSnippet(() => ({
+	render: () => `<strong data-testid="logo">Logo</strong>`
 }));
 const actions = createRawSnippet(() => ({
 	render: () => `<button data-testid="actions-btn">Sign up</button>`
@@ -45,9 +45,9 @@ describe('Header — bar chrome', () => {
 		expect(navs[1].getAttribute('data-orientation')).toBe('vertical');
 	});
 
-	it('brand renders in the bar; actions render in both the bar and the drawer', () => {
-		const { container } = render(Header, { items, brand, actions });
-		expect(container.querySelector('[data-testid="brand"]')).not.toBeNull();
+	it('logo renders in the bar; actions render in both the bar and the drawer', () => {
+		const { container } = render(Header, { items, logo: logoSnippet, actions });
+		expect(container.querySelector('[data-testid="logo"]')).not.toBeNull();
 		expect(container.querySelectorAll('[data-testid="actions-btn"]').length).toBe(2);
 		const { inner, drawer } = parts(container);
 		expect(inner.querySelector('.hz-header-actions [data-testid="actions-btn"]')).not.toBeNull();

@@ -118,7 +118,7 @@
      640px instead of collapsing to a menu button while there is room to
      spare. -->
 <Header items={navItems} ariaLabel="Sample site navigation" bordered mobileBreakpoint="sm">
-	{#snippet brand()}
+	{#snippet logo()}
 		<strong>Hyzer</strong>
 	{/snippet}
 	{#snippet actions()}

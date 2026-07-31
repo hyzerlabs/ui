@@ -123,7 +123,7 @@
 
 	const headerFooterCode = [
 		'<Header>',
-		'\t{#snippet brand()}',
+		'\t{#snippet logo()}',
 		'\t\t<a href="/" aria-label="Acme home">',
 		'\t\t\t<Logo name="Acme" svg={acmeSvg} />',
 		'\t\t</a>',
@@ -344,9 +344,9 @@
 						</Cluster>
 					</Example>
 					<p class="tab-note">
-						<code>Header</code>'s <code>brand</code> snippet and <code>Footer</code>'s
-						<code>logo</code> snippet are both plain snippets, so a <code>Logo</code> drops in unchanged.
-						The link, not the logo, owns the click target and the focus ring:
+						<code>Header</code>'s and <code>Footer</code>'s <code>logo</code> snippets are both
+						plain snippets, so a <code>Logo</code> drops in unchanged. The link, not the logo, owns the
+						click target and the focus ring:
 					</p>
 					<CodeBlock code={headerFooterCode} language="svelte" />
 				{:else if item.id === 'appearance'}

@@ -56,7 +56,7 @@
 		'];',
 		'',
 		'<Header items={navItems} bordered>',
-		'\t{#snippet brand()}<Logo />{/snippet}',
+		'\t{#snippet logo()}<Logo />{/snippet}',
 		'\t{#snippet actions()}<Button size="sm">Sign in</Button>{/snippet}',
 		'</Header>'
 	].join('\n');
@@ -69,7 +69,7 @@
 		'     (a container query on the header width). The drawer holds a',
 		'     vertical Nav + the actions, and traps focus while open. -->',
 		'<Header items={navItems} mobileBreakpoint="md">',
-		'\t{#snippet brand()}<Logo />{/snippet}',
+		'\t{#snippet logo()}<Logo />{/snippet}',
 		'\t{#snippet actions()}<Button size="sm">Sign in</Button>{/snippet}',
 		'</Header>'
 	].join('\n');
@@ -81,14 +81,14 @@
 			<div class="tab-content">
 				{#if item.id === 'basic'}
 					<p class="tab-note">
-						Pass <code>items</code> plus the <code>brand</code> and <code>actions</code> snippets.
+						Pass <code>items</code> plus the <code>logo</code> and <code>actions</code> snippets.
 						Header composes a <a href="/docs/components/nav">Nav</a> from those same items: horizontal
 						in the bar, vertical in the mobile drawer. There is nothing for you to wrap.
 					</p>
 					<Container breakout padding="none">
 						<Example code={basicCode}>
 							<Header items={demoItems} bordered mobileBreakpoint="sm" ariaLabel="Demo header">
-								{#snippet brand()}
+								{#snippet logo()}
 									<!-- svelte-ignore a11y_invalid_attribute -->
 									<a href="#" class="demo-logo">Hyzer Labs</a>
 								{/snippet}
@@ -143,7 +143,7 @@
 								describe={(w) => (w >= 968 ? 'full bar' : 'collapsed, try the hamburger')}
 							>
 								<Header items={demoItems} bordered ariaLabel="Demo header (mobile)">
-									{#snippet brand()}
+									{#snippet logo()}
 										<!-- svelte-ignore a11y_invalid_attribute -->
 										<a href="#" class="demo-logo">Hyzer Labs</a>
 									{/snippet}

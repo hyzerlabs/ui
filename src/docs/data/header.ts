@@ -10,7 +10,7 @@ export const headerDoc: ComponentDoc = {
 			default: '—',
 			note: 'Navigation — rendered horizontally in the bar and vertically in the drawer. See Nav.'
 		},
-		{ name: 'brand', type: 'Snippet', default: '—', note: 'Logo / brand region at the start.' },
+		{ name: 'logo', type: 'Snippet', default: '—', note: 'Logo region at the start.' },
 		{
 			name: 'actions',
 			type: 'Snippet',

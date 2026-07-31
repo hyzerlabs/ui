@@ -14,10 +14,11 @@
 		"@import '@hyzer-labs/ui/utilities.css'; /* optional, see Utilities */"
 	].join('\n');
 
-	// Placeholder art, inline so the example has no asset dependency. A real
+	// Placeholder art, inline so the example has no asset dependency: the same
+	// generated disc the Product listing pattern draws for its cards. A real
 	// page would `import cover from './cover.jpg'`.
 	const COVER =
-		"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 200'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232563eb'/%3E%3Cstop offset='1' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='320' height='200' fill='url(%23g)'/%3E%3C/svg%3E";
+		"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 200'%3E%3Crect width='320' height='200' fill='%232563eb'/%3E%3Ccircle cx='160' cy='100' r='64' fill='%23fbbf24'/%3E%3Ccircle cx='160' cy='100' r='44' fill='none' stroke='%23ffffff' stroke-opacity='0.4' stroke-width='4'/%3E%3C/svg%3E";
 
 	// The script close tag is split so Svelte's parser doesn't end this block.
 	const tierOneSvelte = [

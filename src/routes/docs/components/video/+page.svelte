@@ -19,15 +19,15 @@
 
 	function aspectCode(ratio: string): string {
 		return ratio === '16/9'
-			? '<Video src="/media/round-recap.mp4" title="Round recap" />'
-			: `<Video src="/media/round-recap.mp4" title="Round recap" aspectRatio="${ratio}" />`;
+			? '<Video src="/hero.mp4" title="A card composed from the library" />'
+			: `<Video src="/hero.mp4" title="A card composed from the library" aspectRatio="${ratio}" />`;
 	}
 
 	const providersCode = [
 		'<!-- Provider is detected from the URL -->',
-		'<Video src="https://www.youtube.com/watch?v=VIDEO_ID" title="Course flyover" />',
-		'<Video src="https://vimeo.com/123456789" title="Form check" />',
-		'<Video src="/media/round-recap.mp4" poster="/media/recap-poster.jpg" title="Round recap" />'
+		'<Video src="https://www.youtube.com/watch?v=XtMoGuqdFeE" title="Course flyover" />',
+		'<Video src="https://vimeo.com/102751770" title="Form check" />',
+		'<Video src="/hero.mp4" title="A card composed from the library" />'
 	].join('\n');
 
 	const posterCode = [
@@ -51,8 +51,8 @@
 			<div class="tab-content">
 				{#if item.id === 'aspect'}
 					<p class="tab-note">
-						These demos use a blank native source with an SVG poster, so the page carries no video
-						files. The aspect box is the component's; posters and embeds fill it.
+						Every ratio below plays the same source file. The aspect box is the component's own: the
+						footage letterboxes or pillarboxes inside whatever ratio the prop declares.
 					</p>
 					<Tabs
 						items={aspectRatios.map((r) => ({ id: r.replace('/', '-'), label: r }))}
@@ -64,12 +64,7 @@
 							<div class="inner-tab">
 								<Example code={aspectCode(ratio)}>
 									<div class={ratio === '9/16' ? 'demo-box demo-box--tall' : 'demo-box'}>
-										<Video
-											src={blankSrc}
-											title="Aspect ratio {ratio} demo"
-											aspectRatio={ratio}
-											poster={posterSvg(`aspectRatio="${ratio}"`)}
-										/>
+										<Video src="/hero.mp4" title="Aspect ratio {ratio} demo" aspectRatio={ratio} />
 									</div>
 								</Example>
 							</div>
@@ -80,18 +75,20 @@
 						One prop, three players. A YouTube URL becomes a <code>youtube-nocookie.com</code> embed
 						and a Vimeo URL carries <code>dnt=1</code>, so neither provider sets tracking cookies on
 						a visitor who never presses play. Both iframes carry the right allow and referrer
-						policies. Any other URL renders a native <code>&lt;video&gt;</code>. The demo below is
-						the native player, since the embed demos need real hosted media.
+						policies. Any other URL renders a native <code>&lt;video&gt;</code>. All three render
+						below: the same component, three players.
 						<a href="/docs/components/lightbox">Lightbox</a> plays every video item it shows through this
 						component.
 					</p>
 					<Example code={providersCode}>
 						<div class="demo-box">
-							<Video
-								src={blankSrc}
-								title="Native provider demo"
-								poster={posterSvg('native <video>, controls on')}
-							/>
+							<Video src="https://www.youtube.com/watch?v=XtMoGuqdFeE" title="Course flyover" />
+						</div>
+						<div class="demo-box">
+							<Video src="https://vimeo.com/102751770" title="Form check" />
+						</div>
+						<div class="demo-box">
+							<Video src="/hero.mp4" title="A card composed from the library" />
 						</div>
 					</Example>
 				{:else}

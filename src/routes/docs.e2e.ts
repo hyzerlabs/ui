@@ -661,7 +661,9 @@ test.describe('specs/34 — command palette (modal)', () => {
 		const input = dialog.getByRole('combobox', { name: 'Search documentation' });
 		await expect(input).toBeFocused();
 		await input.fill('toggle');
-		await expect(page.getByRole('option', { name: /Toggle/ })).toBeVisible();
+		// The fielded index (specs/57) also surfaces Accordion's `onToggle` prop
+		// for this query — Toggle's exact label match still ranks first.
+		await expect(page.getByRole('option', { name: /Toggle/ }).first()).toBeVisible();
 		await input.press('Enter');
 		await expect(page).toHaveURL('/docs/components/toggle');
 		await expect(dialog).toBeHidden();
@@ -701,6 +703,104 @@ test.describe('specs/34 — command palette (modal)', () => {
 			() => document.documentElement.scrollWidth > document.documentElement.clientWidth
 		);
 		expect(overflow).toBe(false);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/57 — fielded search index
+// ---------------------------------------------------------------------------
+
+test.describe('specs/57 — search index', () => {
+	test('ranking: "color" surfaces the two page hits first, then Color utilities above --hz-logo-color (Search-R5)', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/docs');
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		const input = page.getByRole('combobox', { name: 'Search documentation' });
+		await input.fill('color');
+		const options = page.getByRole('option');
+		await expect(options.first()).toContainText('Colors & Intent');
+		await expect(options.nth(1)).toContainText('ColorInput');
+		const labels = await options.allTextContents();
+		const utilitiesIndex = labels.findIndex((l) => l.includes('Color utilities'));
+		const logoIndex = labels.findIndex((l) => l.includes('--hz-logo-color'));
+		expect(utilitiesIndex).toBeGreaterThan(-1);
+		expect(logoIndex).toBeGreaterThan(-1);
+		expect(utilitiesIndex).toBeLessThan(logoIndex);
+	});
+
+	test('a field hit navigates to the right anchor (Search-R6)', async ({ page }) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/docs');
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		const input = page.getByRole('combobox', { name: 'Search documentation' });
+		await input.fill('data-variant');
+		await expect(page.getByRole('option').first()).toBeVisible();
+		await input.press('Enter');
+		await expect(page).toHaveURL(/#hooks-heading$/);
+		await expect(page.locator('#hooks-heading')).toBeInViewport();
+	});
+
+	test('no request for the index before the palette opens, exactly one after, still one after close/reopen (Search-R10)', async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		const requests: string[] = [];
+		page.on('request', (req) => {
+			if (req.url().includes('search-index.json')) requests.push(req.url());
+		});
+		await page.goto('/docs/components/button');
+		expect(requests).toHaveLength(0);
+
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		await expect.poll(() => requests.length).toBe(1);
+
+		await page.keyboard.press('Escape'); // empty query — closes the modal
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		await expect(page.getByRole('dialog', { name: 'Search documentation' })).toBeVisible();
+		await page.waitForTimeout(300);
+		expect(requests).toHaveLength(1);
+	});
+
+	test('typing a breadcrumb-word query keystroke-by-keystroke does not crash the panel (Search-R6)', async ({
+		page
+	}) => {
+		const errors: string[] = [];
+		page.on('pageerror', (e) => errors.push(e.message));
+
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/docs');
+		await page.getByRole('button', { name: /Search docs/ }).click();
+		const input = page.getByRole('combobox', { name: 'Search documentation' });
+
+		for (const char of 'them') {
+			await input.pressSequentially(char);
+		}
+
+		expect(errors).toEqual([]);
+		await expect(page.getByRole('listbox')).toBeVisible();
+		await expect(page.getByRole('option').first()).toBeVisible();
+	});
+
+	test('no fiction: every indexed heading resolves to a real, matching anchor on its page (Search-R11)', async ({
+		page,
+		request
+	}) => {
+		const res = await request.get('/search-index.json');
+		const index = (await res.json()) as { kind: string; label: string; href: string }[];
+
+		for (const route of allRoutes) {
+			const headings = index.filter((r) => r.kind === 'heading' && r.href.split('#')[0] === route);
+			if (headings.length === 0) continue;
+			await page.goto(route);
+			for (const h of headings) {
+				const id = h.href.split('#')[1];
+				const el = page.locator(`#${id}`);
+				await expect(el).toHaveCount(1);
+				await expect(el).toHaveText(h.label);
+			}
+		}
 	});
 });
 

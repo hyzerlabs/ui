@@ -146,6 +146,11 @@
 			so a coding agent can follow them literally. Prose that a person can read without decoding is prose
 			an agent can act on without guessing.
 		</p>
+		<Alert intent="info" title="The practice-level version of these commitments" headingLevel={3}>
+			{#snippet icon()}<IconInfo />{/snippet}
+			The <a href="/docs/agents#rules-heading">House rules</a> turn these commitments into working conventions:
+			one set, for you and your agents alike.
+		</Alert>
 	</Stack>
 
 	<WhereNext items={sections} />

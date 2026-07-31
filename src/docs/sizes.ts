@@ -25,14 +25,14 @@ export interface SizeRow {
 export const browserItems: SizeRow[] = [
 	{
 		label: 'Every component, minified',
-		raw: 247087,
+		raw: 247083,
 		gzip: 53676,
 		note: 'A real build of the whole library, carrying only the few icons the components draw. Import three components and you ship a fraction of this.'
 	},
 	{
 		label: 'Component structural CSS',
-		raw: 41014,
-		gzip: 6090,
+		raw: 41013,
+		gzip: 6088,
 		note: 'Layout and behavior only. No colors or other visual styling.'
 	},
 	{
@@ -64,8 +64,8 @@ export const browserItems: SizeRow[] = [
 /** Everything in the table above, taken together. */
 export const browserTotal: SizeRow = {
 	label: 'Everything, together',
-	raw: 458857,
-	gzip: 117505
+	raw: 458852,
+	gzip: 117503
 };
 
 /** Packages pulled in at runtime. */

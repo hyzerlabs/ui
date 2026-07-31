@@ -8,6 +8,7 @@
 
 	const llmsCode = 'https://design.hyzer.sh/llms.txt';
 	const llmsFullCode = 'https://design.hyzer.sh/llms-full.txt';
+	const llmsFullJsonCode = 'https://design.hyzer.sh/llms-full.json';
 
 	// The file served at /agents.md, shown verbatim. What you copy here is
 	// byte-identical to what the route returns.
@@ -62,7 +63,13 @@
 		</p>
 		<CodeBlock code={llmsFullCode} />
 		<p>
-			<a href="/llms-full.txt" target="_blank" rel="noreferrer">Read llms-full.txt here</a>.
+			<a href="/llms-full.txt" target="_blank" rel="noreferrer">Read llms-full.txt here</a>. The
+			same reference is also available as JSON, built from the same walk, for an agent that wants to
+			look a single component up by name rather than read the whole file.
+		</p>
+		<CodeBlock code={llmsFullJsonCode} />
+		<p>
+			<a href="/llms-full.json" target="_blank" rel="noreferrer">Read llms-full.json here</a>.
 		</p>
 	</Stack>
 

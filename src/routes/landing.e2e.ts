@@ -110,6 +110,42 @@ test.describe('llms-full.txt', () => {
 	});
 });
 
+/** The full component reference's JSON companion: the same walk, keyed for lookup. */
+test.describe('llms-full.json', () => {
+	test('serves the full component reference as JSON, carrying real prop and hook data', async ({
+		request
+	}) => {
+		const res = await request.get('/llms-full.json');
+		expect(res.status()).toBe(200);
+		expect(res.headers()['content-type']).toContain('application/json');
+		const body = await res.json();
+		expect(Array.isArray(body.components)).toBe(true);
+		const button = body.components.find((c: { name: string }) => c.name === 'Button');
+		expect(button).toBeDefined();
+		expect(button.props.some((p: { name: string }) => p.name === 'variant')).toBe(true);
+		expect(button.hooks.root).toBe('hz-button');
+	});
+});
+
+/** The fielded search index behind the docs command palette. */
+test.describe('search-index.json', () => {
+	test('serves the index as JSON, carrying real field data for a real component page', async ({
+		request
+	}) => {
+		const res = await request.get('/search-index.json');
+		expect(res.status()).toBe(200);
+		expect(res.headers()['content-type']).toContain('application/json');
+		const index = await res.json();
+		expect(Array.isArray(index)).toBe(true);
+		const button = index.find(
+			(record: { href: string }) => record.href === '/docs/components/button'
+		);
+		expect(button).toBeDefined();
+		expect(button.props).toContain('variant');
+		expect(button.hooks).toContain('hz-button');
+	});
+});
+
 /** The five commitment cards deep-link into the Philosophy page; a renamed
  *  heading id there would silently strand them, so pin both halves. */
 test.describe('commitment cards', () => {

@@ -101,7 +101,7 @@ export const manifest: ManifestEntry[] = [
 				label: 'Contrast & Accessibility',
 				href: '/docs/foundation/contrast',
 				description:
-					'WCAG contrast ratios for every graded token pairing, computed live per mode from the token metadata. The library ships the same functions, so you can run the identical check against a theme of your own.'
+					'WCAG contrast ratios for every graded color pairing, computed live per mode from the token metadata. The library ships the same functions, so you can run the identical check against a theme of your own.'
 			},
 			{
 				label: 'Typography',

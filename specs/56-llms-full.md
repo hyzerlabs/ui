@@ -414,3 +414,57 @@ current `llms.txt` e2e assertions.
   and any change to `componentDocs`, `hooks.ts`, or the manifest. Gaps this file
   exposes in that data are fixed in the data, under the audit, not here.
 - **Byte snapshots of the output** (Full-R9).
+
+### Amendment — `llms-full.json` (owner-approved)
+
+Ships a second artifact at `/llms-full.json`: the same component surface as
+`llms-full.txt`, structured for a consumer that wants to look one component up
+by name instead of reading the whole file straight through. The split is
+deliberate — markdown for a model loading context, JSON for a program doing a
+keyed lookup — and both are built from **one walk**, not two independent ones,
+so the set of components (and the data for each) can never drift between the
+two files.
+
+`src/docs/llms.ts` gains `componentGroups()`, the manifest walk factored out of
+`renderLlmsFull()`'s body: the `Components` section, group by group, page by
+page, in manifest order, with each page's `componentDocs` entry attached (a
+page with no entry is dropped, same as before — `data.spec.ts` fails first).
+`renderLlmsFull()` reads it instead of re-deriving the walk inline, and the new
+`buildLlmsFullJson()` reads the same function. Both exports live beside each
+other in `llms.ts`; the write scope this amendment adds is `buildLlmsFullJson()`
+and its two exported types, `LlmsFullJson` and `LlmsFullJsonComponent`, plus a
+new thin route, `src/routes/llms-full.json/+server.ts`, mirroring
+`llms-full.txt/+server.ts`'s shape (`prerender = true`, a `GET` returning
+`JSON.stringify(buildLlmsFullJson())`) with an `application/json` content type
+and no pretty-printing — the same posture `search-index.json` already ships.
+
+The JSON shape reuses the existing doc types directly rather than inventing
+parallel ones: a component's `props` are `PropRow[]`, its `types` are
+`TypeTable[]`, and its `hooks` is a `ComponentHooks | undefined` — the same
+three types `componentDocs` and `hooks.ts` already export, so there is nothing
+new to keep in sync. `route` is site-relative (join with the top-level `site`
+field for an absolute URL, mirroring how `llms-full.txt` prints
+`Docs: <SITE><href>`); `imports` is `importSurface`, the same constant the
+markdown file's `## Imports` fence carries verbatim. A component with no
+styling contract (Metatags) simply has no `hooks` key in its JSON record —
+`JSON.stringify` drops an `undefined`-valued key on its own, so this needs no
+special-casing, the same "omitted, not emitted empty" rule the markdown file
+follows for its `#### Styling` block.
+
+Discovery follows the four-places pattern the original spec set: one line in
+`llms.txt`'s intro, one line in `agents.md` (`renderAgentsMd()`, reaching both
+the route and the Agents page's verbatim fence), one paragraph and code fence
+of their own on the Agents page's existing llms-full.txt section, and one
+README bullet beside the existing `llms-full.txt` entry. No response header, no
+footer link — same reasoning as the original spec's Decision 7.
+
+Tests hold the JSON to the same bar as the markdown file: `llms.spec.ts` builds
+`buildLlmsFullJson()` once, round-trips it through `JSON.parse(JSON.stringify(…))`
+the way a real fetch would, and asserts it parses to the expected shape, carries
+one record per manifest component page in manifest order, spot-checks a known
+prop, hook and supporting type, confirms a component missing its styling
+contract has no `hooks` key at all, and pins each object's key order (an
+object literal's keys serialize in the order they're written, so this is a
+straightforward `Object.keys()` equality check, not a snapshot). One Playwright
+assertion in `landing.e2e.ts`, beside the existing `llms-full.txt` block, proves
+the route ships in the built output with real prop and hook data on it.

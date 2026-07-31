@@ -5,7 +5,7 @@
 	import { Nav, Toc } from '$lib';
 	import type { NavChild } from '$lib/types';
 	import { isGrouped, isSection, manifest, sectionPages } from '../../docs/manifest';
-	import CommandPalette, { type CommandItem } from '../../docs/CommandPalette.svelte';
+	import CommandPalette from '../../docs/CommandPalette.svelte';
 	import ThemeToggle from '../../docs/ThemeToggle.svelte';
 
 	interface Props {
@@ -60,21 +60,6 @@
 					}
 		)
 	);
-
-	// Search index for the command palette — every routable page with its
-	// section/group breadcrumb, straight from the manifest so it can't drift.
-	const searchItems: CommandItem[] = manifest.flatMap((entry) => {
-		if (!isSection(entry)) return [{ label: entry.label, href: entry.href, context: '' }];
-		if (isGrouped(entry))
-			return entry.groups.flatMap((g) =>
-				g.pages.map((p) => ({
-					label: p.label,
-					href: p.href,
-					context: `${entry.label} · ${g.label}`
-				}))
-			);
-		return entry.children.map((p) => ({ label: p.label, href: p.href, context: entry.label }));
-	});
 
 	function onSearchSelect(href: string) {
 		// hrefs come from the manifest — already app-absolute, valid routes; the
@@ -154,7 +139,14 @@
 				<!-- The /patterns/command-palette page ships its own ⌘K demo; yield the
 				     shortcut there so the two don't both fire. -->
 				<CommandPalette
-					items={searchItems}
+					load={() =>
+						fetch('/search-index.json').then((r) => {
+							// A non-OK response can still carry a JSON body (a 503 error
+							// page, say) — without this check that body would resolve
+							// as if it were the index instead of rejecting the load.
+							if (!r.ok) throw new Error(`search index fetch failed: ${r.status}`);
+							return r.json();
+						})}
 					onSelect={onSearchSelect}
 					mode="modal"
 					shortcut={page.url.pathname !== '/docs/patterns/command-palette'}

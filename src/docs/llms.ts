@@ -5,15 +5,20 @@
  * node process that is not SvelteKit (a headless reader of the same
  * registries), because nothing here touches `fs`, `$app/*`, or `Response`.
  *
- * `renderLlmsFull()` walks the manifest's `Components` section and reads
- * `componentDocs` / `hooks` for each page — it contains no component name,
- * prop, type, default, note, hook, class, description, or URL literally.
- * Everything it prints is derived, so it cannot drift from the pages a human
- * reads; `llms.spec.ts` holds it against the same data it is built from.
+ * `renderLlmsFull()` and `buildLlmsFullJson()` both walk the manifest's
+ * `Components` section and read `componentDocs` / `hooks` for each page —
+ * neither contains a component name, prop, type, default, note, hook, class,
+ * description, or URL literally. Everything they produce is derived, so
+ * neither can drift from the pages a human reads; `llms.spec.ts` holds both
+ * against the same data they are built from. The two share one walk
+ * (`componentGroups()` below) rather than each re-deriving the component
+ * list, so the markdown file and the JSON file can never index a different
+ * set of components from one another.
  */
 import { componentDocs, type ComponentDoc } from './data/index.js';
 import type { PropRow } from './PropsTable.svelte';
-import { hooks, type HookRow } from './hooks';
+import type { TypeTable } from './DocPage.svelte';
+import { hooks, type ComponentHooks, type HookRow } from './hooks';
 import { importSurface } from './agentRules';
 import {
 	isSection,
@@ -40,6 +45,7 @@ const INDEX_INTRO = [
 	'code correct.',
 	'',
 	`Every component's props and styling hooks in one file: ${SITE}/llms-full.txt`,
+	`The same reference as JSON, for keyed lookup rather than reading straight through: ${SITE}/llms-full.json`,
 	''
 ].join('\n');
 
@@ -150,6 +156,33 @@ function componentSection(page: ManifestPage, doc: ComponentDoc): string[] {
 	return out;
 }
 
+/** One documented component page inside one manifest group — the pairing both renderers walk. */
+interface ComponentGroup {
+	label: string;
+	pages: { page: ManifestPage; doc: ComponentDoc }[];
+}
+
+/**
+ * The manifest's `Components` section, group by group, page by page, in
+ * manifest order, with each page's `componentDocs` entry attached. A page
+ * with no entry is dropped rather than throwing — data.spec.ts fails first,
+ * so a red test is the failure mode, not a build crash. `renderLlmsFull()`
+ * and `buildLlmsFullJson()` both read this instead of each re-deriving the
+ * component list, so they cannot index different components from each other.
+ */
+function componentGroups(): ComponentGroup[] {
+	const componentsSection = manifest.find(
+		(e): e is ManifestGroupedSection => isSection(e) && isGrouped(e) && e.label === 'Components'
+	);
+	if (!componentsSection) return [];
+	return componentsSection.groups.map((group) => ({
+		label: group.label,
+		pages: group.pages
+			.map((page) => ({ page, doc: componentDocs[page.label] }))
+			.filter((entry): entry is { page: ManifestPage; doc: ComponentDoc } => Boolean(entry.doc))
+	}));
+}
+
 /**
  * The llms-full.txt companion: every component's props, styling hooks, and
  * accessibility notes, walked in manifest order (group by group, page by
@@ -174,22 +207,63 @@ export function renderLlmsFull(): string {
 		''
 	];
 
-	const componentsSection = manifest.find(
-		(e): e is ManifestGroupedSection => isSection(e) && isGrouped(e) && e.label === 'Components'
-	);
-	if (!componentsSection) return parts.join('\n');
-
-	for (const group of componentsSection.groups) {
+	for (const group of componentGroups()) {
 		parts.push(`## ${group.label}`, '');
-		for (const page of group.pages) {
-			// A manifest page with no componentDocs entry cannot happen —
-			// data.spec.ts fails first. Skip rather than throw, so a red test is
-			// the failure mode, not a build crash.
-			const doc = componentDocs[page.label];
-			if (!doc) continue;
+		for (const { page, doc } of group.pages) {
 			parts.push(...componentSection(page, doc));
 		}
 	}
 
 	return parts.join('\n');
+}
+
+/** The JSON companion's per-component record — one entry in `LlmsFullJson['components']`. */
+export interface LlmsFullJsonComponent {
+	name: string;
+	group: string;
+	/** Site-relative — join with `LlmsFullJson.site` for the absolute docs URL. */
+	route: string;
+	description: string;
+	importLine: string;
+	props: PropRow[];
+	/** Supporting item/option types (empty when the component has none). */
+	types: TypeTable[];
+	/** Absent for a component with no styling contract (e.g. Metatags). */
+	hooks?: ComponentHooks;
+	a11yNote?: string;
+}
+
+/** The shape `/llms-full.json` serves. */
+export interface LlmsFullJson {
+	site: string;
+	/** The same import surface `## Imports` carries in llms-full.txt, verbatim. */
+	imports: string;
+	components: LlmsFullJsonComponent[];
+}
+
+/**
+ * The `llms-full.json` companion: the same component walk as
+ * `renderLlmsFull()`, structured for keyed lookup (`components.find(c =>
+ * c.name === 'Button')`) rather than reading straight through. Both read
+ * `componentGroups()`, so a component that appears in one appears in the
+ * other, with the same data.
+ */
+export function buildLlmsFullJson(): LlmsFullJson {
+	const components: LlmsFullJsonComponent[] = [];
+	for (const group of componentGroups()) {
+		for (const { page, doc } of group.pages) {
+			components.push({
+				name: page.label,
+				group: group.label,
+				route: page.href,
+				description: page.description,
+				importLine: doc.importLine,
+				props: doc.props ?? [],
+				types: doc.types ?? [],
+				hooks: hooks[page.label],
+				a11yNote: doc.a11yNote
+			});
+		}
+	}
+	return { site: SITE, imports: importSurface, components };
 }
