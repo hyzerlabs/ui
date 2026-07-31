@@ -51,6 +51,7 @@
 		<!-- bordered={false}: the card or page section around these tables draws
 		     the edges already. -->
 		<Table
+			stack="sm"
 			items={browserRows}
 			columns={browserColumns}
 			bordered={false}
