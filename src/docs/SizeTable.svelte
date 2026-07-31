@@ -86,6 +86,14 @@
 </div>
 
 <style>
+	/* The caption is this table's real heading on the page, so it reads a
+	   step up from the theme's caption default and aligns flush with the
+	   table edge (no inline padding). */
+	.size-tables :global(.hz-table caption) {
+		font-size: var(--hz-font-size-base, 1rem);
+		padding-inline: 0;
+	}
+
 	/* Below the stack threshold, .docs-table's flat-cell overrides (unlayered,
 	   so they beat the theme) would keep per-cell borders and padding that the
 	   stacked layout is designed without. Re-yield inside the wrap's own
