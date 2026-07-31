@@ -469,6 +469,18 @@ describe('IMG-R14 — rest forwarding', () => {
 		expect(img.classList.contains('hz-image__img')).toBe(true);
 		expect(img.classList.contains('hijack')).toBe(false);
 	});
+
+	it('a consumer style prop merges onto the wrapper alongside the managed style', async () => {
+		const { container } = render(Image, {
+			src: DATA_URI,
+			alt: 'test',
+			aspectRatio: '1/1',
+			style: '--hz-logo-size: 5rem'
+		} as Record<string, unknown>);
+		const wrapper = container.querySelector('div.hz-image') as HTMLElement;
+		expect(wrapper.style.aspectRatio.replace(/\s/g, '')).toBe('1/1');
+		expect(wrapper.style.getPropertyValue('--hz-logo-size')).toBe('5rem');
+	});
 });
 
 // ---------------------------------------------------------------------------

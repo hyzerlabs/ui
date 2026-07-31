@@ -29,10 +29,14 @@
 	// Black Mesa Research Facility — the circular mesa emblem with "BLACK
 	// MESA" beneath it (a single line — "RESEARCH FACILITY" didn't stay
 	// legible at wall size, so it stays out of this demo mark). The tall
-	// mark, ~1:1.4. `textLength` locks the wordmark to a fixed width so it
-	// can never clip regardless of the rendering font's metrics.
+	// mark, ~1:1.27. `textLength` locks the wordmark to a fixed width so it
+	// can never clip regardless of the rendering font's metrics. viewBox is
+	// trimmed to the mark's real bounding box (measured, not eyeballed): the
+	// original 350 height left ~25 units of dead space below the wordmark's
+	// descender, so the visible mark sat higher than its box implied and
+	// threw off row-centering next to the other marks.
 	const blackMesaSvg =
-		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 350"><path transform="translate(803.844, -692.062)" d="M -675.85042,692.06247 C -746.50698,692.06247 -803.84374,749.41269 -803.8437,820.06922 C -803.8437,890.72575 -746.50698,948.0625 -675.85042,948.0625 C -605.1939,948.0625 -547.8437,890.72577 -547.8437,820.06922 C -547.8437,749.41268 -605.1939,692.06249 -675.85042,692.06247 z M -677.07545,715.10881 C -618.79275,715.10881 -571.48234,762.41923 -571.48234,820.70192 C -571.48234,837.62198 -574.37752,852.46735 -581.44395,866.48496 C -590.68528,851.14069 -602.72856,832.08702 -612.12301,815.81534 C -638.63521,815.62572 -696.19994,815.10187 -719.27768,815.10187 C -719.27768,841.73112 -718.90075,870.81307 -718.90075,892.00823 C -728.32704,891.86994 -744.87839,892.21966 -754.29142,892.14284 C -772.16909,873.22612 -781.74197,847.4042 -781.59163,819.34229 C -781.2891,762.57227 -735.35815,715.10881 -677.07545,715.10881 z"/><text x="128" y="315" text-anchor="middle" font-family="system-ui, sans-serif" font-size="46" font-weight="800" textLength="236" lengthAdjust="spacingAndGlyphs">BLACK MESA</text></svg>';
+		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 325"><path transform="translate(803.844, -692.062)" d="M -675.85042,692.06247 C -746.50698,692.06247 -803.84374,749.41269 -803.8437,820.06922 C -803.8437,890.72575 -746.50698,948.0625 -675.85042,948.0625 C -605.1939,948.0625 -547.8437,890.72577 -547.8437,820.06922 C -547.8437,749.41268 -605.1939,692.06249 -675.85042,692.06247 z M -677.07545,715.10881 C -618.79275,715.10881 -571.48234,762.41923 -571.48234,820.70192 C -571.48234,837.62198 -574.37752,852.46735 -581.44395,866.48496 C -590.68528,851.14069 -602.72856,832.08702 -612.12301,815.81534 C -638.63521,815.62572 -696.19994,815.10187 -719.27768,815.10187 C -719.27768,841.73112 -718.90075,870.81307 -718.90075,892.00823 C -728.32704,891.86994 -744.87839,892.21966 -754.29142,892.14284 C -772.16909,873.22612 -781.74197,847.4042 -781.59163,819.34229 C -781.2891,762.57227 -735.35815,715.10881 -677.07545,715.10881 z"/><text x="128" y="315" text-anchor="middle" font-family="system-ui, sans-serif" font-size="46" font-weight="800" textLength="236" lengthAdjust="spacingAndGlyphs">BLACK MESA</text></svg>';
 	// Lumon Industries — the globe-in-ellipse mark with the wordmark inline,
 	// wide-ish ~2.2:1.
 	const lumonSvg =
@@ -135,19 +139,28 @@
 		'</Footer>'
 	].join('\n');
 
-	// Grid renders its own `style` (it carries --hz-grid-cols), so a
-	// consumer-supplied `style` never reaches the DOM the way it does on
-	// Cluster/Stack — the --hz-logo-size hook needs a plain ancestor div
-	// instead. Verified empirically: sampling the rendered wall's computed
-	// style showed the prop silently dropped before this wrapper was added.
+	// One --hz-logo-size override on Grid itself normalizes every logo in
+	// the wall to a shared base size.
 	const wallCode = [
-		'<div style="--hz-logo-size: 5rem">',
-		'\t<Grid columns={3} gap="away" padding="sm" align="center">',
-		'\t\t{#each logos as logo (logo.name)}',
-		'\t\t\t<Logo name={logo.name} svg={logo.svg} scale={logo.scale} brightness={logo.brightness} />',
-		'\t\t{/each}',
-		'\t</Grid>',
-		'</div>'
+		'<Grid columns={3} gap="away" padding="sm" align="center" style="--hz-logo-size: 5rem">',
+		'\t{#each logos as logo (logo.name)}',
+		'\t\t<Logo',
+		'\t\t\tclass="wall-logo"',
+		'\t\t\tname={logo.name}',
+		'\t\t\tsvg={logo.svg}',
+		'\t\t\tscale={logo.scale}',
+		'\t\t\tbrightness={logo.brightness}',
+		'\t\t/>',
+		'\t{/each}',
+		'</Grid>',
+		'',
+		'<style>',
+		'\t/* Grid items default to justify-items: start; center each mark so the',
+		'\t   wall reads as balanced instead of left-hugging its column. */',
+		'\t:global(.wall-logo) {',
+		'\t\tjustify-self: center;',
+		'\t}',
+		'</style>'
 	].join('\n');
 
 	// The featured before/after: Delos is the flagship thin-letterform mark
@@ -176,18 +189,25 @@
 		"\t{ name: 'Delos', svg: delosSvg, scale: 1.2, brightness: 1 }",
 		'];',
 		'',
-		'<div style="--hz-logo-size: 5rem">',
-		'\t<Grid columns={3} gap="away" padding="sm" align="center">',
-		'\t\t{#each logos as logo (logo.name)}',
-		'\t\t\t<Logo',
-		'\t\t\t\tname={logo.name}',
-		'\t\t\t\tsvg={logo.svg}',
-		'\t\t\t\tscale={logo.scale}',
-		'\t\t\t\tbrightness={logo.brightness}',
-		'\t\t\t/>',
-		'\t\t{/each}',
-		'\t</Grid>',
-		'</div>'
+		'<Grid columns={3} gap="away" padding="sm" align="center" style="--hz-logo-size: 5rem">',
+		'\t{#each logos as logo (logo.name)}',
+		'\t\t<Logo',
+		'\t\t\tclass="wall-logo"',
+		'\t\t\tname={logo.name}',
+		'\t\t\tsvg={logo.svg}',
+		'\t\t\tscale={logo.scale}',
+		'\t\t\tbrightness={logo.brightness}',
+		'\t\t/>',
+		'\t{/each}',
+		'</Grid>',
+		'',
+		'<style>',
+		'\t/* Grid items default to justify-items: start; center each mark so the',
+		'\t   wall reads as balanced instead of left-hugging its column. */',
+		'\t:global(.wall-logo) {',
+		'\t\tjustify-self: center;',
+		'\t}',
+		'</style>'
 	].join('\n');
 
 	// The same wall, with --hz-logo-color forced to the theme's primary
@@ -199,13 +219,31 @@
 	// sampling each mark's rendered fill before/after the override, not just
 	// read off the CSS.
 	const monochromeWallCode = [
-		'<div style="--hz-logo-size: 5rem; --hz-logo-color: var(--hz-intent-primary, #2563eb)">',
-		'\t<Grid columns={3} gap="away" padding="sm" align="center">',
-		'\t\t{#each logos as logo (logo.name)}',
-		'\t\t\t<Logo name={logo.name} svg={logo.svg} scale={logo.scale} brightness={logo.brightness} />',
-		'\t\t{/each}',
-		'\t</Grid>',
-		'</div>'
+		'<Grid',
+		'\tcolumns={3}',
+		'\tgap="away"',
+		'\tpadding="sm"',
+		'\talign="center"',
+		'\tstyle="--hz-logo-size: 5rem; --hz-logo-color: var(--hz-intent-primary, #2563eb)"',
+		'>',
+		'\t{#each logos as logo (logo.name)}',
+		'\t\t<Logo',
+		'\t\t\tclass="wall-logo"',
+		'\t\t\tname={logo.name}',
+		'\t\t\tsvg={logo.svg}',
+		'\t\t\tscale={logo.scale}',
+		'\t\t\tbrightness={logo.brightness}',
+		'\t\t/>',
+		'\t{/each}',
+		'</Grid>',
+		'',
+		'<style>',
+		'\t/* Grid items default to justify-items: start; center each mark so the',
+		'\t   wall reads as balanced instead of left-hugging its column. */',
+		'\t:global(.wall-logo) {',
+		'\t\tjustify-self: center;',
+		'\t}',
+		'</style>'
 	].join('\n');
 
 	const fallbackCode = '<Logo name="Soylent" />';
@@ -337,18 +375,17 @@
 						<code>brightness</code> comes from one config array:
 					</p>
 					<Example code={scaleBrightnessCode}>
-						<div style="--hz-logo-size: 5rem">
-							<Grid columns={3} gap="away" padding="sm" align="center">
-								{#each logos as logo (logo.name)}
-									<Logo
-										name={logo.name}
-										svg={logo.svg}
-										scale={logo.scale}
-										brightness={logo.brightness}
-									/>
-								{/each}
-							</Grid>
-						</div>
+						<Grid columns={3} gap="away" padding="sm" align="center" style="--hz-logo-size: 5rem">
+							{#each logos as logo (logo.name)}
+								<Logo
+									class="wall-logo"
+									name={logo.name}
+									svg={logo.svg}
+									scale={logo.scale}
+									brightness={logo.brightness}
+								/>
+							{/each}
+						</Grid>
 					</Example>
 					<p class="tab-note">
 						<code>monochrome</code> (the default) recolors a mark that declares no <code>fill</code>
@@ -362,18 +399,23 @@
 						of markup:
 					</p>
 					<Example code={monochromeWallCode}>
-						<div style="--hz-logo-size: 5rem; --hz-logo-color: var(--hz-intent-primary, #2563eb)">
-							<Grid columns={3} gap="away" padding="sm" align="center">
-								{#each logos as logo (logo.name)}
-									<Logo
-										name={logo.name}
-										svg={logo.svg}
-										scale={logo.scale}
-										brightness={logo.brightness}
-									/>
-								{/each}
-							</Grid>
-						</div>
+						<Grid
+							columns={3}
+							gap="away"
+							padding="sm"
+							align="center"
+							style="--hz-logo-size: 5rem; --hz-logo-color: var(--hz-intent-primary, #2563eb)"
+						>
+							{#each logos as logo (logo.name)}
+								<Logo
+									class="wall-logo"
+									name={logo.name}
+									svg={logo.svg}
+									scale={logo.scale}
+									brightness={logo.brightness}
+								/>
+							{/each}
+						</Grid>
 					</Example>
 					<Alert intent="info" title="Editing someone else's brand mark" headingLevel={4}>
 						{#snippet icon()}<IconInfo />{/snippet}
@@ -387,24 +429,24 @@
 				{:else if item.id === 'wall'}
 					<p class="tab-note">
 						Build a logo wall by composition: <code>Grid</code> (or <code>Cluster</code>,
-						<code>Carousel</code>, and so on) plus one <code>--hz-logo-size</code> override on a
-						plain wrapper around it. The override sits on a wrapper rather than on <code>Grid</code>
-						itself because Grid manages its own <code>style</code> attribute, and a custom property inherits
-						from any ancestor just as well.
+						<code>Carousel</code>, and so on) plus one <code>--hz-logo-size</code> override. It can
+						go on the <code>Grid</code> itself or on any ancestor, since custom properties inherit
+						either way. A wall only reads as balanced if every mark sits mid-column rather than
+						hugging one edge, so each <code>Logo</code> gets <code>justify-self: center</code> — Grid's
+						items sit at their column's start edge by default.
 					</p>
 					<Example code={wallCode}>
-						<div style="--hz-logo-size: 5rem">
-							<Grid columns={3} gap="away" padding="sm" align="center">
-								{#each logos as logo (logo.name)}
-									<Logo
-										name={logo.name}
-										svg={logo.svg}
-										scale={logo.scale}
-										brightness={logo.brightness}
-									/>
-								{/each}
-							</Grid>
-						</div>
+						<Grid columns={3} gap="away" padding="sm" align="center" style="--hz-logo-size: 5rem">
+							{#each logos as logo (logo.name)}
+								<Logo
+									class="wall-logo"
+									name={logo.name}
+									svg={logo.svg}
+									scale={logo.scale}
+									brightness={logo.brightness}
+								/>
+							{/each}
+						</Grid>
 					</Example>
 				{:else if item.id === 'fallbacks'}
 					<p class="tab-note">
@@ -482,5 +524,12 @@
 		display: block;
 		height: 4rem;
 		width: auto;
+	}
+
+	/* A wall reads as balanced only when every mark sits mid-track — Grid's
+	   items default to justify-items: start, which left-hugs each column and
+	   defeats the point of normalizing every mark to the same optical size. */
+	:global(.wall-logo) {
+		justify-self: center;
 	}
 </style>

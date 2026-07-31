@@ -33,3 +33,74 @@
 .site-logo:hover {
 	text-decoration: underline;
 }
+
+/**
+ * Loud, expressive card frames — heavy text-role border, rounded on the
+ * leading diagonal (top-left and bottom-right) and square on the other.
+ * Shared by any card that is itself a link: the homepage commitment cards
+ * and the "Where to go next" cards. --card-frame is the color hook a band
+ * or themed section sets; falls back to the text role. Hover and keyboard
+ * focus share a hard offset shadow and a lift.
+ */
+.expressive-card.hz-card {
+	border: var(--hz-border-width-heavy, 6px) solid var(--card-frame, var(--hz-color-text, #000));
+	border-radius: var(--hz-radius-lg, 1rem) 0 var(--hz-radius-lg, 1rem) 0;
+	transition:
+		box-shadow var(--hz-duration-fast, 250ms) var(--hz-ease-out, ease-out),
+		translate var(--hz-duration-fast, 250ms) var(--hz-ease-out, ease-out);
+}
+
+.expressive-card.hz-card:hover,
+.expressive-card.hz-card:focus-within {
+	box-shadow: 0 0.5rem 0
+		color-mix(in srgb, var(--card-frame, var(--hz-color-text, #000)) 85%, transparent);
+	translate: 0 -0.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.expressive-card.hz-card {
+		transition: none;
+	}
+
+	.expressive-card.hz-card:hover,
+	.expressive-card.hz-card:focus-within {
+		translate: none;
+	}
+}
+
+/* Dark mode flips the interaction: the card rests raised on its hard
+   shadow and hover pushes it down onto it, instead of lifting away. */
+[data-theme='dark'] .expressive-card.hz-card {
+	box-shadow: 0 0.5rem 0
+		color-mix(in srgb, var(--card-frame, var(--hz-color-text, #000)) 85%, transparent);
+}
+
+[data-theme='dark'] .expressive-card.hz-card:hover,
+[data-theme='dark'] .expressive-card.hz-card:focus-within {
+	box-shadow: 0 0 0
+		color-mix(in srgb, var(--card-frame, var(--hz-color-text, #000)) 85%, transparent);
+	translate: 0 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme]) .expressive-card.hz-card {
+		box-shadow: 0 0.5rem 0
+			color-mix(in srgb, var(--card-frame, var(--hz-color-text, #000)) 85%, transparent);
+	}
+
+	:root:not([data-theme]) .expressive-card.hz-card:hover,
+	:root:not([data-theme]) .expressive-card.hz-card:focus-within {
+		box-shadow: 0 0 0
+			color-mix(in srgb, var(--card-frame, var(--hz-color-text, #000)) 85%, transparent);
+		translate: 0 0.5rem;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-theme='dark'] .expressive-card.hz-card:hover,
+	[data-theme='dark'] .expressive-card.hz-card:focus-within,
+	:root:not([data-theme]) .expressive-card.hz-card:hover,
+	:root:not([data-theme]) .expressive-card.hz-card:focus-within {
+		translate: none;
+	}
+}

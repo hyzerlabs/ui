@@ -118,7 +118,7 @@
 		{ id: 'themed-bg', label: 'Themed background' }
 	];
 
-	// Themed background demo (item 9): Footer has no --hz-footer-bg hook —
+	// Themed background demo: Footer has no --hz-footer-bg hook —
 	// its only background surface is `.hz-footer`'s own background-color
 	// declaration. Theming it is a bring-your-own-class override (the Link
 	// fancy-underline precedent), not a new prop. A soft tint keeps the

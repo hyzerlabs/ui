@@ -140,10 +140,11 @@
 					</Example>
 				{:else if item.id === 'ticks'}
 					<p class="tab-note">
-						Ticks are visual marks, not detents: stepping stays on the <code>step</code> grid. Bare
-						numbers make unlabeled marks, and <code>{'{ value, label }'}</code> adds the caption.
-						For a min–max interval instead of a single value, see
-						<a href="/docs/components/range-slider">RangeSlider</a>, which shares this ticks API.
+						Ticks are visual marks only. The thumb does not snap to them: stepping stays on the
+						<code>step</code> grid. Bare numbers make unlabeled marks, and
+						<code>{'{ value, label }'}</code> adds the caption. For a min–max interval instead of a
+						single value, see <a href="/docs/components/range-slider">RangeSlider</a>, which shares
+						this ticks API.
 					</p>
 					<Example code={ticksCode}>
 						<div class="demo-col">
@@ -185,6 +186,8 @@
 						still increase toward <code>max</code>. Ticks and labels sit beside the track. The
 						track's block length comes from <code>--hz-slider-length</code> (default
 						<code>12rem</code>), so a vertical slider never grows the page unbounded.
+					</p>
+					<p class="tab-note">
 						<code>inputPosition</code> is logical on both axes: <code>"end"</code> (default) puts
 						the number field below the track, <code>"start"</code> puts it above. Placing several
 						vertical sliders side by side is up to you. This demo wraps them in
@@ -283,7 +286,7 @@
 		max-width: 28rem;
 	}
 
-	/* The field scaffold gives every field a full-width block root — expected, since a
+	/* The field scaffold gives every field a full-width block root, expected since a
 	 * vertical Slider is still a block Field. Side-by-side layout
 	 * is the author's job, so this demo shrinks the roots to their content. */
 	.vertical-demo :global(.hz-field--slider) {

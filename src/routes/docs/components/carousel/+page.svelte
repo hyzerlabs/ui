@@ -176,10 +176,11 @@
 						<code>controls="focus"</code> keeps the prev/next buttons and indicator in the DOM and
 						fully operable. They are hidden only visually, until <code>:hover</code> or
 						<code>:focus-within</code>
-						reveals the whole row together (Tab into the carousel, or hover it with a mouse). This is
-						the WCAG 2.5.7 non-dragging alternative to the drag gesture: never <code>display</code>,
-						<code>visibility</code>, <code>aria-hidden</code>, or <code>inert</code>, so the row
-						stays reachable by keyboard and screen readers whatever the visual reveal does.
+						reveals the whole row together (Tab into the carousel, or hover it with a mouse). That is
+						the WCAG 2.5.7 non-dragging alternative to the drag gesture. The row never uses
+						<code>display</code>, <code>visibility</code>, <code>aria-hidden</code>, or
+						<code>inert</code>, so it stays reachable by keyboard and screen readers whatever the
+						visual reveal does.
 					</p>
 					<p class="tab-note">
 						<code>seamless</code> makes every wrap settle forward through a hidden clone instead of sweeping
@@ -241,10 +242,10 @@
 		color: var(--hz-color-text-muted, #6b7280);
 	}
 
-	/* Minimal-controls restyle ( tweak batch): every class here
-	 * targets DOM rendered by the child Carousel, not this page's own
-	 * template, so both the outer class and the theme's part classes need
-	 * :global() (Lightbox's .gallery-strip/.hz-lightbox-trigger precedent). */
+	/* Minimal-controls restyle: every class here targets DOM rendered by the
+	 * child Carousel, not this page's own template, so both the outer class
+	 * and the theme's part classes need :global() (Lightbox's
+	 * .gallery-strip/.hz-lightbox-trigger precedent). */
 	:global(.minimal-carousel) :global(.hz-carousel-controls) {
 		gap: 0.5rem;
 	}

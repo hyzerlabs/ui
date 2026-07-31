@@ -34,6 +34,8 @@
 	{@render children()}
 
 	<Footer
+		class="site-footer"
+		bordered
 		columns={[
 			{
 				title: 'Docs',
@@ -78,5 +80,22 @@
 
 	.site-shell > :global(main) {
 		flex: 1;
+	}
+
+	/* Styled through Footer's class prop — the documented override channel.
+	   The class prop merges onto the component root, so site-footer and
+	   hz-footer are the same element: a compound selector, not a descendant.
+	   On-fill text is the surface role (the solid Banner's pairing), so it
+	   flips with the mode; the muted link/heading roles are lifted to inherit
+	   for the same reason. */
+	:global(.site-footer.hz-footer) {
+		background-color: var(--hz-intent-primary, #2563eb);
+		color: var(--hz-color-surface, #fff);
+	}
+
+	:global(.site-footer.hz-footer) :global(a),
+	:global(.site-footer.hz-footer) :global(.hz-footer-heading),
+	:global(.site-footer.hz-footer) :global(.hz-footer-bottom) {
+		color: inherit;
 	}
 </style>

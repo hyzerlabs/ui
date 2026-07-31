@@ -125,7 +125,7 @@
 		<h2 id="class-heading">Pass utilities through <code>class</code></h2>
 		<p>
 			Every component forwards its <code>class</code> prop onto the root element, so Tailwind utility
-			classes land right where you'd expect and compose with the component's own styling:
+			classes compose with the component's own styling:
 		</p>
 		<CodeBlock code={classPropCode} />
 		<p>

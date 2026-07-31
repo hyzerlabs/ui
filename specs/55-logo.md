@@ -650,3 +650,18 @@ hook exists for can never work. Adjudication:
 No spec numbers, `Rn`/`Logo-Rn`, or `Decision n` citations in `src/lib`
 component source or docs route pages (the repo stripped these deliberately;
 keep the reasoning, drop the identifiers). Test files may cite specs.
+
+### A5 — Consumer `style` merges instead of being replaced
+
+The Props table (§Props), the API sketch (§API sketch), and the edge-case
+table row "`...rest` collides with `class` / `role` / `aria-label` /
+`style`" (§Edge Cases & Error States) describe `style` as forwarded through
+`...rest` and replaced outright by the managed style when both are present.
+That is superseded: `style` is now a first-class prop, merged after the
+managed `--hz-logo-*` custom properties, so a consumer's declaration wins on
+any collision rather than being dropped. Every other `...rest` collision
+(`class`, `role`, `aria-*`, `data-*`) is unchanged — the managed value still
+wins. This fixes a library-wide defect (discovered via `<Grid>`, where a
+consumer `style` prop was silently dropped because rest was spread ahead of
+the component's own managed `style` attribute) that also affected Logo,
+Image, and Skeleton; all four now merge consumer `style` the same way.

@@ -59,9 +59,9 @@
 		'</Button>'
 	].join('\n');
 
-	// Derive palette and role tokens from metadata; never hardcoded
-	// ( — classification is by which export a token lives in, not
-	// by value shape: `palette` is Layer 1, `color` is Layer 2 roles.)
+	// Derive palette and role tokens from metadata; never hardcoded.
+	// Classification is by which export a token lives in, not by value
+	// shape: `palette` is Layer 1, `color` is Layer 2 roles.
 
 	type ColorEntry = { key: string; cssVar: string; value: string };
 
@@ -266,7 +266,7 @@
 			hover-darkening mixes (Button's solid/active states, Link's hover) and on-media controls
 			(Lightbox), so they deliberately do not flip in dark. They appear twice: in the palette
 			section above as the <code>black</code>/<code>white</code> palette source, and here as anchor roles.
-			That duality is intentional, because the role is what components actually read.
+			The repetition is deliberate: the role is what components actually read.
 		</p>
 		<h3 id="intent">Intent</h3>
 		<p>
@@ -371,12 +371,12 @@
 		<h3 id="dark-overrides-heading">Overrides</h3>
 		<p>
 			The base tokens are the default theme: what a page renders with no <code>data-theme</code>
-			attribute set, and light is simply how that default looks. Dark is a named theme layered over it,
-			a set of overrides in <code>[data-theme="dark"]</code>. Out of the box
+			attribute set, and light is how that default looks. Dark is a named theme layered over it, a set
+			of overrides in <code>[data-theme="dark"]</code>. Out of the box
 			<code>--hz-color-surface</code> and <code>--hz-color-text</code> swap,
 			<code>--hz-color-surface-muted</code> strengthens its gray tint (6% is invisible over black),
 			and every hue in <code>--hz-palette-*</code> lightens to a companion that keeps WCAG AA as
-			text on dark surfaces. Almost nothing is re-authored beyond that at Layer 2:
+			text on dark surfaces. Almost nothing else in the semantic layer is re-authored.
 			<code>text-muted</code> and <code>border</code> follow <code>gray</code>, and every intent
 			follows its hue:
 		</p>

@@ -14,7 +14,7 @@ export const skeletonDoc: ComponentDoc = {
 			name: 'width',
 			type: 'string | number',
 			default: 'variant default',
-			note: 'A number is emitted as px; a string is used as written (any CSS length or percentage). This is a per-instance style rather than a theme hook, like Grid’s --hz-grid-cols*.'
+			note: "A number is emitted as px; a string is used as written (any CSS length or percentage). This is a per-instance style rather than a theme hook, like Grid's --hz-grid-cols*."
 		},
 		{ name: 'height', type: 'string | number', default: 'variant default', note: 'See width.' },
 		{

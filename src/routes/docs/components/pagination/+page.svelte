@@ -7,11 +7,7 @@
 	let page = $state(1);
 
 	const basicCode = $derived(
-		[
-			`let page = $state(${page});`,
-			'',
-			'<Pagination count={10} bind:page onchange={loadPage} />'
-		].join('\n')
+		[`let page = $state(${page});`, '', '<Pagination count={10} bind:page />'].join('\n')
 	);
 
 	let truncPage = $state(21);

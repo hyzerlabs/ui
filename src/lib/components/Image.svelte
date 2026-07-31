@@ -29,6 +29,7 @@
 		placeholderSrc?: string;
 		placeholderColor?: string;
 		class?: string;
+		style?: string;
 		[key: string]: unknown;
 	}
 
@@ -46,6 +47,7 @@
 		placeholderSrc,
 		placeholderColor = 'var(--hz-color-border)',
 		class: className,
+		style: styleProp,
 		...rest
 	}: Props = $props();
 
@@ -82,9 +84,10 @@
 			: undefined
 	);
 
-	// Combined wrapper inline style
+	// Combined wrapper inline style. Consumer `style` is appended last, so a
+	// consumer declaration wins on any collision.
 	const wrapperStyle = $derived(
-		[aspectRatioStyle, bgColorStyle].filter(Boolean).join('; ') || undefined
+		[aspectRatioStyle, bgColorStyle, styleProp].filter(Boolean).join('; ') || undefined
 	);
 
 	let imgEl: HTMLImageElement | undefined = $state(undefined);

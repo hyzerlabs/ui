@@ -1,4 +1,4 @@
-/** Popover's DocPage inputs R-DOCS. */
+/** Popover's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const popoverDoc: ComponentDoc = {

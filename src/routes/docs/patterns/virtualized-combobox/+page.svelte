@@ -41,8 +41,7 @@
 			<a href="/docs/components/combobox">Combobox</a> on the smaller result. Server-side search, filtering
 			by category or region before a picker ever opens, and a shortlist of recent or favorite items all
 			work. The plain Combobox is the more accessible pattern: a real option per row, simpler keyboard
-			behavior, and nothing for assistive tech to lose track of. Reach for this pattern only once narrowing
-			the data is not an option.
+			behavior, and nothing for assistive tech to lose track of.
 		</Alert>
 
 		<Alert intent="info" title="Why a pattern, not a component">
@@ -51,10 +50,10 @@
 			rather than windowing the list. Its own "Large list" demo names the ceiling: every matching
 			option gets a real <code>&lt;li&gt;</code>, which is fine into the low thousands but not at
 			real scale. This pattern is what filling that gap looks like today. It keeps the same
-			chip-based multi-select identity as Combobox (dismissible chips, toggle-to-select without
-			closing the popup, and the same focus management when a chip is dismissed) over a windowed
-			listbox instead of a plain array, for the datasets where rendering every option would visibly
-			lag.
+			chip-based multi-select behavior as Combobox: dismissible chips, toggle-to-select without
+			closing the popup, and the same focus management when a chip is dismissed. What changes is the
+			list underneath, a windowed listbox instead of a plain array, for the datasets where rendering
+			every option would visibly lag.
 		</Alert>
 	</Stack>
 
@@ -90,10 +89,11 @@
 			position, so most of a list this size is never in the DOM. Every keyboard move (<kbd
 				>ArrowUp</kbd
 			>/<kbd>ArrowDown</kbd>/<kbd>Home</kbd>/<kbd>End</kbd>) therefore goes through a two-phase
-			commit rather than a direct index assignment. It first nudges the Virtualizer viewport's
+			commit rather than a direct index assignment. First it nudges the Virtualizer viewport's
 			<code>scrollTop</code> toward the target row, using the same "nearest" math
-			<code>Element.scrollIntoView()</code> does, computed by hand since the target usually is not
-			mounted yet to call the real thing on. It writes the active index, and therefore
+			<code>Element.scrollIntoView()</code> does. That math is done by hand, because the target row
+			usually is not mounted yet to call the real method on. It writes the active index, and
+			therefore
 			<code>aria-activedescendant</code>, only once that row is confirmed present. Each row reports
 			its own mount and unmount through a small <code>&#123;@attach&#125;</code>, which is what
 			makes that confirmation possible.

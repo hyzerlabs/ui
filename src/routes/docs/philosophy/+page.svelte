@@ -28,7 +28,7 @@
 		</p>
 		<p>
 			The same applies to color. The token engine grades every text-on-surface and text-on-intent
-			pairing against WCAG AA every time it generates a sheet. It warns by default; pass
+			pairing against WCAG AA each time it generates a sheet. It warns by default; pass
 			<code>--strict</code> and a failure stops the build.
 			<a href="/docs/foundation/contrast">Contrast &amp; Accessibility</a> shows the live ratios.
 		</p>

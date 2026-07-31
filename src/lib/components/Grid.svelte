@@ -20,6 +20,7 @@
 		paddingBlock?: LayoutPadding;
 		as?: string;
 		class?: string;
+		style?: string;
 		children?: Snippet;
 		[key: string]: unknown;
 	}
@@ -33,6 +34,7 @@
 		paddingBlock,
 		as = 'div',
 		class: className,
+		style: styleProp,
 		children,
 		...rest
 	}: Props = $props();
@@ -63,12 +65,18 @@
 						].filter(Boolean) as string[]
 					).join('; ')
 	);
+
+	// Consumer `style` is appended after the managed grid custom properties,
+	// so a consumer declaration wins on any collision.
+	const rootStyle = $derived([gridStyle, styleProp].filter(Boolean).join('; ') || undefined);
 </script>
 
 <!--
 	{...rest} is spread first so that every subsequently-listed attribute
 	(class, data-gap, data-align, data-padding*, style) wins over any
-	conflicting key a consumer accidentally passes through rest.
+	conflicting key a consumer accidentally passes through rest. `style` is a
+	named prop (not part of rest) so a consumer's declaration merges into
+	rootStyle instead of being dropped.
 -->
 <svelte:element
 	this={as}
@@ -80,7 +88,7 @@
 	data-padding-inline={paddingInline}
 	data-padding-block={paddingBlock}
 	data-fluid={fluid ? '' : undefined}
-	style={gridStyle || undefined}
+	style={rootStyle}
 >
 	<div class="hz-grid-layout">
 		{@render children?.()}

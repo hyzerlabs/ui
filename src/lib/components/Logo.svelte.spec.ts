@@ -460,14 +460,14 @@ describe('Logo — class / rest', () => {
 		expect(getLogo(container).getAttribute('role')).toBe('img');
 	});
 
-	it('a colliding rest style is replaced by the managed style', () => {
+	it('a consumer style merges with the managed style, consumer appended so consumer wins', () => {
 		const { container } = render(Logo, {
 			name: 'Acme',
 			svg: wideSvg,
 			style: 'color: red'
 		} as Record<string, unknown>);
 		const el = getLogo(container);
-		expect(el.style.color).not.toBe('red');
+		expect(el.style.color).toBe('red');
 		expect(el.style.getPropertyValue('--hz-logo-ratio')).not.toBe('');
 	});
 });

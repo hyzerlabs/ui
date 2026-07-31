@@ -17,7 +17,7 @@
 
 	// ------------------------------------------------------------------
 	// Demo 1 — variants: the base indeterminate presentations, plus ring's
-	// determinate arc (R17, amended 2026-07-27 — the spinner/ring split).
+	// determinate arc.
 	// ------------------------------------------------------------------
 
 	const variantsCode = [
@@ -30,7 +30,7 @@
 
 	// ------------------------------------------------------------------
 	// Demo 2 — progressive enhancement: a `value` turns the bar AND the
-	// ring determinate, side by side (R3/R17, amended).
+	// ring determinate, side by side.
 	// ------------------------------------------------------------------
 
 	let uploadValue = $state(62);
@@ -46,7 +46,7 @@
 
 	// ------------------------------------------------------------------
 	// Demo 3 — non-percentage units via a custom `format`, linear and
-	// circular (R17, amended).
+	// circular.
 	// ------------------------------------------------------------------
 
 	const formatCode = [
@@ -73,20 +73,20 @@
 	// ------------------------------------------------------------------
 	// Demo 4 — timing: the --hz-loading-speed (duration) + --hz-loading-pulse-width
 	// (the bar highlight's width) hooks, live. Both the bar sweep and the spinner
-	// rotation stay linear regardless (Decisions 7/8) — only the duration and the
-	// bar's pulse width are tunable here. Pulse width affects the bar only.
+	// rotation stay linear regardless — only the duration and the bar's pulse
+	// width are tunable here. Pulse width affects the bar only.
 	// ------------------------------------------------------------------
 
 	let speedMs = $state(2400);
 	let pulseWidth = $state(150);
 
 	// Written per-instance (not on a wrapping ancestor): loading.css declares
-	// --hz-loading-speed/-pulse-width directly on .hz-loading itself (the R8
-	// default), and a directly-matching declaration always wins over a value
-	// that would otherwise inherit down from an ancestor — so a style set on a
-	// wrapping <div> around several <Loading>s is silently shadowed by their own
-	// default. Passing `style` straight to each <Loading> lands it on the
-	// component's own root (via ...rest), where it is real inline style and
+	// --hz-loading-speed/-pulse-width directly on .hz-loading itself (the
+	// shipped default), and a directly-matching declaration always wins over a
+	// value that would otherwise inherit down from an ancestor — so a style set
+	// on a wrapping <div> around several <Loading>s is silently shadowed by
+	// their own default. Passing `style` straight to each <Loading> lands it on
+	// the component's own root (via ...rest), where it is real inline style and
 	// wins outright.
 	const timingStyle = $derived(
 		`--hz-loading-speed: ${speedMs}ms; --hz-loading-pulse-width: ${pulseWidth}%;`
@@ -237,7 +237,7 @@
 				{:else if item.id === 'intents'}
 					<p class="tab-note">
 						Every intent, each on its own row of <code>spinner</code>, <code>ring</code>,
-						<code>bar</code>, and <code>dots</code>. <code>--hz-loading-fill</code> changes colour
+						<code>bar</code>, and <code>dots</code>. <code>--hz-loading-fill</code> changes color
 						and nothing else, and it reaches every variant alike. <code>intent</code> defaults to
 						<code>primary</code> rather than <code>neutral</code>, since a fill reads as an accent.
 					</p>

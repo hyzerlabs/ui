@@ -26,7 +26,7 @@
 
 	// The class-override theme is imported as the REAL shipped sheet — every
 	// rule in it is rooted at .hz-theme-<id>, so nothing reaches :root and the
-	// docs app's own theme is untouched ('s invariant). Ocean can't
+	// docs app's own theme is untouched, which is the invariant. Ocean can't
 	// do this: it's a :root sheet by design, so it gets re-generated scoped
 	// below instead. Docs needs no such gymnastics: it is UNSCOPED and already
 	// loaded globally by the root layout, so its tier below runs on the real,
@@ -64,8 +64,7 @@
 	// beside it: Ocean keeps all of the reference theme and only redefines
 	// tokens; Docs keeps all of it too and layers one class-hook override on
 	// top, adding no palette; Terminal keeps none of it. Docs sits in the
-	// middle — the slot Sunset held before its retirement — as a peer tier
-	// (amended 2026-07-23).
+	// middle — the slot Sunset held before its retirement — as a peer tier.
 	const examples: Example[] = [
 		{
 			id: 'ocean',
@@ -298,9 +297,9 @@
 	</div>
 	<p class="intro-follow">
 		Ocean is one end: it shows how far tokens alone get you. Terminal is the other. It never imports
-		the reference theme, so every rule in it is its own, and it grows the system rather than only
+		the reference theme, so every rule in it is its own. It also grows the system rather than only
 		recoloring it: two intents the library has never heard of, type-checked and contrast-graded like
-		any built-in. Docs sits between them, and the same class-hook contract every component ships is
+		any built-in. Docs sits between them: the same class-hook contract every component ships is
 		enough to extend the reference theme without forking it. If you only read one file, read
 		Terminal's <code>button.css</code>: that is what "headless" actually buys you.
 	</p>
@@ -456,7 +455,7 @@
 			Tabs, and Accordion. It imports no theme, so anything else falls back to bare headless
 			structure. Docs takes the opposite approach: it restyles no <em>bare</em> component hook, so a
 			Table with no <code>.docs-table</code> wrapper is left exactly as the reference theme paints it.
-			It only adds scaffold classes, content chrome, and that one opt-in wrapper over the reference theme.
+			Over that theme it adds only scaffold classes, content chrome, and that one opt-in wrapper.
 		</p>
 	</Stack>
 </Stack>

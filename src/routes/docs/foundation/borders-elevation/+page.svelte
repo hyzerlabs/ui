@@ -123,7 +123,7 @@
 				     below can compose with it. --_lift/--_glow-* drive the dark
 				     treatment: surface lightening per level plus a soft halo, with
 				     the token shadow kept as a secondary cue — the hybrid the user
-				     picked over pure-glow (2026-07-22). -->
+				     picked over pure-glow. -->
 				<div
 					class="shadow-card"
 					style="--_shadow: {token.value}; --_lift: {8 + i * 6}; --_glow-r: {16 +

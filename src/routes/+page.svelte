@@ -12,7 +12,6 @@
 		Card,
 		Button,
 		Badge,
-		Image,
 		CodeBlock,
 		Split,
 		Metatags
@@ -22,73 +21,76 @@
 	import WhereNext from '../docs/WhereNext.svelte';
 	import { gettingStartedStep, nextSteps } from '../docs/nextSteps';
 
-	// Demo avatar: a labeled SVG data-URI, following the placeholder-asset
-	// convention. The fence shows the realistic `import avatar from …` form.
-	const AVATAR =
-		"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%232563eb'/%3E%3Ctext x='20' y='26' text-anchor='middle' font-family='sans-serif' font-size='16' fill='white'%3ESJ%3C/text%3E%3C/svg%3E";
-
 	const usageSvelteCode = [
 		'<script>',
-		"\timport { Card, Badge, Image } from '@hyzer-labs/ui';",
-		"\timport avatar from './avatar.jpg';",
+		"\timport { Card, Badge, Button } from '@hyzer-labs/ui';",
 		'</' + 'script>',
 		'',
-		'<Card horizontal padding="sm" class="player">',
-		'\t{#snippet media()}',
-		'\t\t<Image src={avatar} alt="" rounded="full" class="avatar" />',
+		'<Card padding="sm" class="conditions">',
+		'\t<strong>Maple Hill</strong>',
+		'\t<span class="muted">18 holes · open at dawn</span>',
+		'\t<Badge intent="success">Greens fast</Badge>',
+		'\t<Badge intent="warning">Wind picking up</Badge>',
+		'\t{#snippet actions()}',
+		'\t\t<Button variant="soft" size="sm">Book a tee time</Button>',
 		'\t{/snippet}',
-		'\t<strong>Sam Jensen</strong>',
-		'\t<span class="muted">Leicester, MA</span>',
-		'\t{#snippet actions()}<Badge intent="success">1024 rated</Badge>{/snippet}',
 		'</Card>',
 		'',
 		'<' + 'style>',
 		'\t/* The class prop lands on the component root, so one instance',
 		'\t   restyles without a wrapper element. */',
-		'\t.player {',
+		'\t.conditions {',
 		'\t\tbackground: var(--hz-color-surface-muted);',
-		'\t\talign-items: center;',
-		'\t\t/* Card stacks below 640px by default. Keep this one a row at',
-		'\t\t   every width, with a small avatar track. */',
-		'\t\tflex-direction: row;',
-		'\t\t--hz-card-media-size: 3.5rem;',
-		'\t}',
-		'',
-		'\t.avatar {',
-		'\t\twidth: 3.5rem;',
+		'\t\tmax-inline-size: 24rem;',
 		'\t}',
 		'',
 		'\t.muted {',
 		'\t\tdisplay: block;',
 		'\t\tcolor: var(--hz-color-text-muted);',
+		'\t\tmargin-block-end: 0.75rem;',
 		'\t}',
 		'</' + 'style>'
 	].join('\n');
 
 	// The Philosophy commitments, as headlines only. /docs/philosophy carries
 	// the argument for each. Landing pages get scanned, not read.
+	// Each card links to its own section of the Philosophy page, which is
+	// what earns the cards their hover treatment: they are real links.
 	const commitments = [
 		{
 			title: 'Accessibility first',
+			href: '/docs/philosophy#a11y-heading',
 			body: 'Every component ships its WAI-ARIA pattern in full: roles, keyboard, focus. Restyling cannot turn it off.'
 		},
 		{
 			title: 'Headless structure, overridable',
+			href: '/docs/philosophy#headless-heading',
 			body: 'The hz-* classes and data-* hooks hand you the styling; snippets hand you the markup. Both are documented API.'
 		},
 		{
 			title: 'Theming is opt-in, one tier at a time',
-			body: 'Tokens, the reference theme, your own overrides, or a generated sheet. Each tier is a superset of the last. Stop at any of them.'
+			href: '/docs/philosophy#theming-heading',
+			body: 'Tokens, the reference theme, your own overrides, or a generated sheet. Stop at any tier.'
 		},
 		{
 			title: 'No bloat',
+			href: '/docs/philosophy#bloat-heading',
 			body: 'Components carry structural CSS and nothing else. Svelte is the only peer dependency, and nothing else reaches your production bundle.'
 		},
 		{
 			title: 'Plain language, for you and your agents',
+			href: '/docs/philosophy#plain-heading',
 			body: 'A component’s labels, error messages and empty states are part of its design. We write them short and skip the jargon.'
 		}
 	];
+
+	// The styles the package deliberately does not bundle. Same tier-one
+	// snippet Getting Started opens with, marked optional in both places.
+	const themeImportCode = [
+		"@import '@hyzer-labs/ui/tokens.css';",
+		"@import '@hyzer-labs/ui/theme';",
+		"@import '@hyzer-labs/ui/utilities.css'; /* optional */"
+	].join('\n');
 
 	// The same onward links Getting Started and the error page offer, so the
 	// three entry points into the docs stay in step.
@@ -112,9 +114,10 @@
 		<Hero
 			layout="center"
 			align="center"
-			eyebrow="Svelte 5"
+			height="half"
+			class="home-hero"
 			title="Components that ship behavior, not opinions"
-			subtitle="Accessible, headless Svelte 5 components with a token engine that grades its own contrast. Style them however you like, or skip the styling and take the reference theme."
+			subtitle="Accessible, headless components for Svelte 5. Style them yourself, or take the reference theme."
 		>
 			{#snippet actions()}
 				<Button href="/docs">Get started</Button>
@@ -124,36 +127,52 @@
 			{/snippet}
 		</Hero>
 
-		<Container max="lg" padding="lg">
-			<Stack as="section" gap="md" aria-labelledby="commitments-heading">
-				<h2 id="commitments-heading">What it commits to</h2>
-				<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
-					{#each commitments as c (c.title)}
-						<Card class="hz-card--outlined" padding="md" rounded="md">
-							<h3 class="card-title">{c.title}</h3>
-							<p class="card-body">{c.body}</p>
-						</Card>
-					{/each}
-				</Grid>
-				<p><a href="/docs/philosophy">Read the philosophy &rarr;</a></p>
-			</Stack>
-		</Container>
+		<div class="band band-warning">
+			<Container max="lg" padding="lg">
+				<Stack as="section" gap="md" aria-labelledby="commitments-heading">
+					<h2 id="commitments-heading">What it commits to</h2>
+					<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
+						{#each commitments as c (c.title)}
+							<Card
+								class="hz-card--outlined expressive-card"
+								href={c.href}
+								ariaLabel={c.title}
+								padding="md"
+							>
+								<h3 class="card-title">{c.title}</h3>
+								<p class="card-body">{c.body}</p>
+							</Card>
+						{/each}
+					</Grid>
+				</Stack>
+			</Container>
+		</div>
 
-		<Container max="lg" padding="lg">
-			<Stack as="section" gap="md" aria-labelledby="weight-heading">
-				<h2 id="weight-heading">What it weighs</h2>
-				<!-- Card gives the table the same padded frame the commitment cards
-				     above it use, so the numbers do not sit flush against the page. -->
-				<Card class="hz-card--outlined" padding="md" rounded="md">
-					<SizeTable />
-				</Card>
-			</Stack>
-		</Container>
+		<div class="band band-striped">
+			<Container max="lg" padding="lg">
+				<Stack as="section" gap="md" aria-labelledby="weight-heading">
+					<h2 id="weight-heading">What it weighs</h2>
+					<!-- Card gives the table the same padded frame the commitment cards
+					     above it use, so the numbers do not sit flush against the page.
+					     Its opaque surface also keeps the table legible over the band's
+					     stripes. -->
+					<Card class="hz-card--outlined weight-card" padding="md" rounded="md">
+						<SizeTable />
+					</Card>
+				</Stack>
+			</Container>
+		</div>
 
 		<Container max="lg" padding="lg">
 			<Stack as="section" gap="md" aria-labelledby="install-heading">
 				<h2 id="install-heading">Install</h2>
-				<CodeBlock code="pnpm add @hyzer-labs/ui" />
+				<!-- Two titled halves: the package, then the styles it deliberately
+				     does not bundle. Same tier-one CSS snippet Getting Started opens
+				     with, so the two entry points stay in step. -->
+				<Grid columns={{ sm: 1, md: 2 }} gap="md">
+					<CodeBlock title="Terminal" code="pnpm add @hyzer-labs/ui" />
+					<CodeBlock title="src/app.css" language="css" code={themeImportCode} />
+				</Grid>
 				<ul class="note-list">
 					<li><strong>Svelte</strong> 5.32 or newer.</li>
 					<li><strong>Node</strong> 22.18 or newer. Only the <code>hyzer</code> CLI needs it.</li>
@@ -162,29 +181,32 @@
 				</ul>
 
 				<p class="band-lead">
-					Then import a component and render it. This is the whole file. Beside it is that same file
-					running with the reference theme.
+					Then import a component and render it. The code below is a whole file. Beside it is that
+					same file, rendered with the reference theme.
 				</p>
 				<Split fraction="2/3" gap="md" stackBelow="md">
 					<CodeBlock code={usageSvelteCode} />
 					<!-- The rendered result of exactly the code beside it. -->
 					<div class="proof-render">
-						<Card horizontal padding="sm" class="player">
-							{#snippet media()}
-								<Image src={AVATAR} alt="" rounded="full" class="avatar" />
+						<Card padding="sm" class="conditions">
+							<strong>Maple Hill</strong>
+							<span class="muted">18 holes · open at dawn</span>
+							<Badge intent="success">Greens fast</Badge>
+							<Badge intent="warning">Wind picking up</Badge>
+							{#snippet actions()}
+								<Button variant="soft" size="sm">Book a tee time</Button>
 							{/snippet}
-							<strong>Sam Jensen</strong>
-							<span class="muted">Leicester, MA</span>
-							{#snippet actions()}<Badge intent="success">1024 rated</Badge>{/snippet}
 						</Card>
 					</div>
 				</Split>
 			</Stack>
 		</Container>
 
-		<Container max="lg" padding="lg">
-			<WhereNext items={sections} title="Browse the docs" id="sections-heading" />
-		</Container>
+		<div class="band band-bold">
+			<Container max="lg" padding="lg">
+				<WhereNext items={sections} title="Browse the docs" id="sections-heading" />
+			</Container>
+		</div>
 	</main>
 </SiteChrome>
 
@@ -211,6 +233,97 @@
 		line-height: var(--hz-line-height-base, 1.5);
 	}
 
+	/* Muted opening surface so the hero, the plain install section, and the
+	   striped band each read as their own field. Styled through Hero's class
+	   prop. */
+	:global(.home-hero.hz-hero) {
+		background: var(--hz-color-surface-muted, #f3f4f6);
+	}
+
+	/* Full-bleed section bands. The wrapper carries the background; the
+	   Container inside keeps centering the content as before. */
+	.band-striped {
+		/* Diagonal stripes off the border role over a muted base, so the band
+		   reads as a field of its own rather than stripes on the plain page. */
+		background-color: var(--hz-color-surface-muted, #f3f4f6);
+		background-image: repeating-linear-gradient(
+			-45deg,
+			transparent 0 12px,
+			color-mix(in srgb, var(--hz-color-border, #6b7280) 28%, transparent) 12px 14px
+		);
+		border-block: 1px solid var(--hz-color-border, #6b7280);
+	}
+
+	/* An opaque surface so the size table reads over the stripes. */
+	.band-striped :global(.weight-card) {
+		background: var(--hz-color-surface, #fff);
+	}
+
+	/* Solid intent bands, no softening. On-fill text is the surface role,
+	   not white, so it flips with the mode and stays readable on the fill in
+	   both: the solid Banner's own pairing. Cards inside keep an opaque
+	   muted surface so their text roles hold. */
+	.band-bold {
+		background: var(--hz-intent-secondary, #7c3aed);
+		--card-frame: color-mix(
+			in srgb,
+			var(--hz-intent-secondary, #7c3aed) 65%,
+			var(--hz-color-black, #000)
+		);
+	}
+
+	/* The dark palette lightens primary and secondary toward each other, so
+	   the band and the primary footer blur together. Deepen the band's
+	   secondary against the dark surface to keep them apart; both dark
+	   entries (explicit choice, system default) get the same rule. */
+	:global([data-theme='dark']) .band-bold {
+		background: color-mix(
+			in srgb,
+			var(--hz-intent-secondary, #7c3aed) 55%,
+			var(--hz-color-surface, #000)
+		);
+		--card-frame: var(--hz-intent-secondary, #7c3aed);
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:global(:root:not([data-theme])) .band-bold {
+			background: color-mix(
+				in srgb,
+				var(--hz-intent-secondary, #7c3aed) 55%,
+				var(--hz-color-surface, #000)
+			);
+			--card-frame: var(--hz-intent-secondary, #7c3aed);
+		}
+	}
+
+	.band-warning {
+		background: var(--hz-intent-warning, #d97706);
+		/* The card frames borrow the intent they sit on, pulled toward the
+		   black anchor so the frame separates from the band instead of
+		   melting into it. Pages with no band fall back to the text role. */
+		--card-frame: color-mix(
+			in srgb,
+			var(--hz-intent-warning, #d97706) 65%,
+			var(--hz-color-black, #000)
+		);
+	}
+
+	.band-bold :global(h2),
+	.band-warning :global(h2),
+	.band-warning :global(p > a) {
+		color: var(--hz-color-surface, #fff);
+	}
+
+	.band-bold :global(.hz-card),
+	.band-warning :global(.hz-card) {
+		background: var(--hz-color-surface-muted, #f3f4f6);
+	}
+
+	/* The loud expressive-card frame lives in src/docs/chrome.css, shared
+	   with the "Where to go next" cards. Styled through Card's class prop;
+	   the radius deliberately replaces the rounded prop, which has no
+	   per-corner form. */
+
 	/* The live half of the install example: the code beside it, rendered with
 	   the reference theme this site runs. Mirrors the fence's own rules. */
 	.proof-render {
@@ -222,17 +335,12 @@
 	.muted {
 		display: block;
 		color: var(--hz-color-text-muted, #6b7280);
+		margin-block-end: 0.75rem;
 	}
 
 	/* Mirrors the fence's own rules, so the two halves stay in step. */
-	.proof-render :global(.hz-card.player) {
+	.proof-render :global(.hz-card.conditions) {
 		background: var(--hz-color-surface-muted, #f3f4f6);
-		align-items: center;
-		flex-direction: row;
-		--hz-card-media-size: 3.5rem;
-	}
-
-	.proof-render :global(.avatar) {
-		width: 3.5rem;
+		max-inline-size: 24rem;
 	}
 </style>

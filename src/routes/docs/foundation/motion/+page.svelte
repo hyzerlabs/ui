@@ -69,7 +69,7 @@
 	}
 
 	// -------------------------------------------------------------------------
-	// Transition demos — toggle-driven fade/fly/slide/scale using the R3
+	// Transition demos — toggle-driven fade/fly/slide/scale using the motion
 	// helpers. One sub-tab per transition; each toggles its own demo box.
 	// -------------------------------------------------------------------------
 	const transitionTabs = [

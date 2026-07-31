@@ -84,8 +84,8 @@
 		'<Lightbox {items} />'
 	].join('\n');
 
-	// the `trigger` snippet swaps each strip button's face
-	// for an Image-composed one — Lightbox still owns the button, the
+	// The `trigger` snippet swaps each strip button's face for an
+	// Image-composed one. Lightbox still owns the button, the
 	// aria-haspopup="dialog" name, and the click wiring.
 	const triggerCode = [
 		'<Lightbox items={items} class="trigger-strip">',
@@ -95,9 +95,9 @@
 		'</Lightbox>'
 	].join('\n');
 
-	// a plain figure grid — no thumbnail strip, no Lightbox
-	// component at all. The attachment enhances the grid's own <img> media
-	// directly (its normal rendered size IS the trigger surface).
+	// A plain figure grid: no thumbnail strip, and no Lightbox component at
+	// all. The attachment enhances the grid's own <img> media directly (its
+	// normal rendered size IS the trigger surface).
 	// The second photo demonstrates data-lightbox-src: its rendered src is the
 	// scaled-down version, the viewer opens the full-resolution override. The
 	// last figure demonstrates data-lightbox-ignore: skipped entirely (no zoom
@@ -209,16 +209,21 @@
 				{:else}
 					<p class="tab-note">
 						<code>lightboxGroup()</code> enhances a container's own media in place: no thumbnail
-						strip, and no <code>Lightbox</code> component at all. Click any photo below, or Tab to
-						one and press Enter or Space, and every qualifying image in the grid opens in one shared
-						viewer, starting at the photo you activated. Two escape hatches:
-						<code>data-lightbox-ignore</code>
+						strip, and no <code>Lightbox</code> component at all. Click any photo below, or Tab to one
+						and press Enter or Space, and every qualifying image in the grid opens in one shared viewer,
+						starting at the photo you activated.
+					</p>
+					<p class="tab-note">
+						Two escape hatches: <code>data-lightbox-ignore</code>
 						opts an element out, so the grey chart below gets no zoom cursor and never joins the group;
 						<code>data-lightbox-src</code>
 						opens a full-resolution source instead of the rendered (often scaled-down)
-						<code>src</code>, which is what the second photo does. Reach for the attachment to
-						enhance media you already render, and for <code>Lightbox</code> when you control the
-						markup and want the strongest accessibility guarantees. The
+						<code>src</code>, which is what the second photo does.
+					</p>
+					<p class="tab-note">
+						Reach for the attachment to enhance media you already render, and for
+						<code>Lightbox</code> when you control the markup and want the strongest accessibility
+						guarantees. The
 						<a href="/docs/patterns/product-detail">product detail</a> pattern shows it composed
 						with
 						<a href="/docs/components/carousel">Carousel</a>: the active slide is the trigger, and

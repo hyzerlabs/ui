@@ -121,8 +121,9 @@
 					<p class="tab-note">
 						<code>language</code> on its own renders a non-interactive tag in the header. It also
 						stamps
-						<code>class="language-css"</code> on the default code, the hook a highlighter that runs
-						in the browser (Prism, highlight.js) decorates after mount. Set both <code>title</code>
+						<code>class="language-css"</code> on the default code. That class is the hook a
+						highlighter running in the browser (Prism, highlight.js) decorates after mount. Set both
+						<code>title</code>
 						and
 						<code>language</code> to show them together.
 					</p>
@@ -198,10 +199,10 @@
 						<code>codeToHtml</code> and returns the highlighted string. The page passes that string
 						through the <code>children</code> escape hatch. Shiki's palette comes from its own
 						inline
-						<code>.shiki</code> styles, so the reference theme clears CodeBlock's own surface fill
-						whenever <code>data-highlighted</code> is present and lets the highlighter's palette show
-						through. The block still supplies the frame: border, radius, header, copy button and collapse.
-						No highlighter JavaScript reaches the browser.
+						<code>.shiki</code> styles. Wherever <code>data-highlighted</code> is present, the reference
+						theme clears CodeBlock's own surface fill and lets that palette show through. The block still
+						supplies the frame: border, radius, header, copy button, and collapse. No highlighter JavaScript
+						reaches the browser.
 					</p>
 					<Container breakout padding="none">
 						<Example code={shikiUsage}>

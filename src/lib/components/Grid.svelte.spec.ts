@@ -492,6 +492,16 @@ describe('R20 — rest forwarding', () => {
 		expect(el.style.getPropertyValue('--hz-grid-cols-md')).toBe('3');
 		expect(el.style.getPropertyValue('--hz-grid-cols-lg')).toBe('4');
 	});
+
+	it('a consumer style prop merges alongside the managed grid custom properties', () => {
+		const { container } = render(Grid, {
+			columns: 3,
+			style: '--hz-logo-size: 5rem'
+		} as Record<string, unknown>);
+		const el = container.querySelector('.hz-grid') as HTMLElement;
+		expect(el.style.getPropertyValue('--hz-grid-cols')).toBe('3');
+		expect(el.style.getPropertyValue('--hz-logo-size')).toBe('5rem');
+	});
 });
 
 // ---------------------------------------------------------------------------

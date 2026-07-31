@@ -14,8 +14,8 @@
 	const answers: Record<string, string> = {
 		what: 'It is a Svelte component library that prioritizes behavior, structure, and accessibility.',
 		a11y: 'Every component ships its WAI-ARIA pattern, and the token engine grades each color pairing against WCAG AA.',
-		react: 'No — it is Svelte 5 only.',
-		install: 'pnpm add @hyzer-labs/ui — Svelte 5 is the only peer dependency.',
+		react: 'No. It is Svelte 5 only.',
+		install: 'pnpm add @hyzer-labs/ui. Svelte 5 is the only peer dependency.',
 		tokens: "Import '@hyzer-labs/ui/tokens.css' once at your app's root layout.",
 		theme: "Optionally add '@hyzer-labs/ui/theme' for the styled starting point."
 	};

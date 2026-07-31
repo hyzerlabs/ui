@@ -6,7 +6,7 @@
 
 	const llmsCode = 'https://design.hyzer.sh/llms.txt';
 
-	// The file served at /agents.md, shown verbatim — what you copy here is
+	// The file served at /agents.md, shown verbatim. What you copy here is
 	// byte-identical to what the route returns.
 	const agentsMd = renderAgentsMd();
 

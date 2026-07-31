@@ -151,8 +151,8 @@
 		fallback, used where anchor positioning is not supported, also nudges the element back inside
 		the window when a flip alone still leaves it hanging over an edge. So the fallback is slightly
 		more forgiving at an extreme edge, and the modern path is the one that stays correct without
-		script. Progressive enhancement, in the honest direction: the shared behavior is what the docs
-		promise, and neither path ever leaves a floating element unusable.
+		script. The shared behavior is what these docs promise, and neither path ever leaves a floating
+		element unusable.
 	</p>
 	<p>
 		The button below asks for <code>placement: 'top'</code>. Click it or <kbd>Tab</kbd> to it, since focus
@@ -166,7 +166,7 @@
 		     open for the scroll-to-flip walkthrough. -->
 		<Button
 			onclick={(e: MouseEvent) => (e.currentTarget as HTMLElement).focus()}
-			{@attach tooltip({ text: 'Above until there’s no room', placement: 'top' })}
+			{@attach tooltip({ text: "Above until there's no room", placement: 'top' })}
 		>
 			Focus me, then scroll
 		</Button>
@@ -176,10 +176,10 @@
 <section class="doc-section" aria-labelledby="caret-heading">
 	<h2 id="caret-heading">Draw your own caret</h2>
 	<p>
-		Nothing here ships an arrow. A caret is a visual decision every design system draws differently,
-		so it is yours to add. Key it off the resolved <code>[data-side]</code>, and push it past the
-		edge with a negative inset. The floating element is <code>position: fixed</code> in the top
-		layer, so a protruding caret can never grow the document's own scrollbar. On
+		Nothing here ships a caret. It is a visual decision every design system draws differently, so it
+		is yours to add. Key it off the resolved <code>[data-side]</code>, and push it past the edge
+		with a negative inset. The floating element is <code>position: fixed</code> in the top layer, so
+		a protruding caret can never grow the document's own scrollbar. On
 		<a href="/docs/components/popover">Popover</a>, draw the caret on
 		<code>.hz-popover-panel</code> itself. That is where <code>data-side</code> lives, and the panel
 		is kept <code>overflow: visible</code> so a caret protruding past its edge is never clipped.

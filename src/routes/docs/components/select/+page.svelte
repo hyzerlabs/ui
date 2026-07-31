@@ -126,8 +126,7 @@
 		Reach for <code>Select</code> when your option set is small and static: single-select, or
 		multi-select via the native <code>multiple</code> attribute. Use
 		<a href="/docs/components/combobox">Combobox</a> when there are many options (where filtering or virtualization
-		helps), or when you need search and type-to-filter. It is the multi-select, filterable member of the
-		field family.
+		helps), or when you need search and type-to-filter.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Select demos" defaultTab="basic">
 		{#snippet panel(item)}
@@ -163,7 +162,7 @@
 						The <code>multiple</code> prop renders the native <code>multiple</code> attribute and
 						switches <code>value</code> to a <code>string[]</code>. There is no placeholder option
 						in this mode. The single <code>&lt;select multiple&gt;</code> element submits repeated
-						<code>name</code> values, and <code>new FormData(form).getAll(name)</code> returns each selected
+						<code>name</code> values, so <code>new FormData(form).getAll(name)</code> returns each selected
 						value in option order.
 					</p>
 					<Example code={multipleCode}>

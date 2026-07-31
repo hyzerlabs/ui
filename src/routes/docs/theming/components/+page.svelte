@@ -19,9 +19,9 @@
 			.map((p) => [p.label, p.href])
 	);
 
-	// spec 31 R10: the roll-up is derived from the same module the component
-	// pages read, so this table can't drift from them. Each page owns the
-	// detail; this page shows the whole surface at once.
+	// The roll-up is derived from the same module the component pages read, so
+	// this table can't drift from them. Each page owns the detail; this page
+	// shows the whole surface at once.
 	const customProps = Object.entries(hooks)
 		.flatMap(([component, h]) =>
 			(h.props ?? []).map((row) => ({
@@ -302,9 +302,9 @@
 		<p>
 			Some looks are deliberately theme classes rather than component props. Card's surface
 			treatments (<code>hz-card--outlined</code>, <code>hz-card--elevated</code>) live only in the
-			reference theme, and <code>hz-card-title</code> is an opt-in convention: bring your own heading
-			element at whatever level the page needs, and the class only styles it. Headings are not load-bearing
-			for Card the way they are for Modal or Accordion, so they never became API.
+			reference theme. <code>hz-card-title</code> is an opt-in convention: bring your own heading element
+			at whatever level the page needs, and the class only styles it. Headings are not load-bearing for
+			Card the way they are for Modal or Accordion, so they never became API.
 		</p>
 		<Example code={treatmentsCode}>
 			<Cluster gap="md" align="stretch">

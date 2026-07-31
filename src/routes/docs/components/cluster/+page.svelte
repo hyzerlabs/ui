@@ -85,7 +85,7 @@
 				{#if item.id === 'gap'}
 					<p class="tab-note">
 						<code>near</code> and <code>away</code> are the
-						<a href="/docs/foundation/spacing">density distances</a> — context-aware values that
+						<a href="/docs/foundation/spacing">density distances</a>: context-aware values that
 						tighten inside <code>data-density-shift</code> regions.
 					</p>
 					<Tabs
@@ -107,7 +107,7 @@
 					</Tabs>
 				{:else if item.id === 'justify'}
 					<p class="tab-note">
-						<code>justify</code> distributes the row's leftover inline space —
+						<code>justify</code> distributes the row's leftover inline space.
 						<code>between</code> pushes the first and last children to the edges.
 					</p>
 					<Tabs
@@ -129,7 +129,7 @@
 					</Tabs>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
-						<code>align</code> positions children of different heights on the cross axis —
+						<code>align</code> positions children of different heights on the cross axis.
 						<code>baseline</code> lines up their text baselines regardless of box size.
 					</p>
 					<Tabs
@@ -154,7 +154,7 @@
 						The tinted zone is the Cluster; the space between its edge and the chips is the padding.
 						<code>padding</code> applies on both axes; <code>paddingInline</code> /
 						<code>paddingBlock</code> override one axis and win where set. The axis names are the
-						CSS logical properties, so they stay correct in RTL and vertical writing modes — see
+						CSS logical properties, so they stay correct in RTL and vertical writing modes. See
 						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
 					<Tabs
@@ -190,7 +190,7 @@
 				{:else}
 					<p class="tab-note">
 						The default wraps onto new lines as space runs out. <code>wrap={'{false}'}</code> keeps a
-						single line — the second demo sits in a scrollable wrapper so the overflow is reachable.
+						single line. The second demo sits in a scrollable wrapper, so the overflow is reachable.
 					</p>
 					<Example code={wrapCode}>
 						<p class="wrap-label">wrap (default)</p>

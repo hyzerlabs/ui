@@ -288,7 +288,7 @@
 	>
 		<h2 id="requirements-heading">Requirements</h2>
 		<p>
-			WCAG 2.1 grades text contrast by ratio and text size: large text is at least 24px, or 18.66px
+			WCAG 2.2 grades text contrast by ratio and text size: large text is at least 24px, or 18.66px
 			bold. Section 508 incorporates WCAG 2.0 AA, so an AA pass at a given size is also a 508 pass.
 		</p>
 		<div class="token-table-wrapper">
@@ -322,8 +322,8 @@
 	>
 		<h2 id="checker-heading">Pairing checker</h2>
 		<p>
-			Pick any two tokens (palette or intent roles in either mode, or resolved surface roles) and
-			read the ratio and pass/fail grades live.
+			Pick any two colors (palette hues, intent roles in either mode, or resolved text and surface
+			roles) and read the ratio and pass/fail grades live.
 		</p>
 		<div class="checker">
 			<Cluster gap="sm">

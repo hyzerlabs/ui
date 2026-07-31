@@ -22,7 +22,7 @@ export const nextSteps: NextStep[] = [
 	{
 		label: 'Patterns',
 		href: '/docs/patterns/homepage',
-		blurb: 'Example patterns to help you get started.'
+		blurb: 'Full pages built from the library: homepage, product listing, checkout form, and more.'
 	},
 	{
 		label: 'Philosophy',

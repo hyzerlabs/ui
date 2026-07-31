@@ -16,7 +16,7 @@ export const splitDoc: ComponentDoc = {
 			name: 'stackBelow',
 			type: "'sm' | 'md' | 'lg'",
 			default: "'sm'",
-			note: 'Stacks under the --hz-width-sm/md/lg token (640/968/1200px) of the Split’s own width. Resolves via var() — overriding the token retunes the threshold.'
+			note: "Stacks under the --hz-width-sm/md/lg token (640/968/1200px) of the Split's own width. Resolves via var() — overriding the token retunes the threshold."
 		},
 		{
 			name: 'padding',

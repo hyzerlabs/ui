@@ -13,9 +13,9 @@
 
 	const discContent: Record<string, string> = {
 		overview:
-			'A stable distance driver for windy rounds — predictable fade without fighting you on hyzer lines.',
+			'A stable distance driver for windy rounds: predictable fade, without fighting you on hyzer lines.',
 		flight: 'Speed 12 · Glide 5 · Turn −1 · Fade 3. Best for arm speeds above 350 ft.',
-		reviews: '"Handles headwinds beautifully — my new go-to off the tee." · 4.8/5 from 212 rounds',
+		reviews: '"Handles headwinds beautifully. My new go-to off the tee." · 4.8/5 from 212 rounds',
 		compare: 'Comparison view is coming soon.'
 	};
 

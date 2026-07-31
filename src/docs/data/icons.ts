@@ -1,4 +1,4 @@
-/** Icons' DocPage inputs. Moved into Components ( IA). */
+/** Icons' DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const iconsDoc: ComponentDoc = {

@@ -76,8 +76,7 @@
 	];
 
 	// Demo: a real, curated dataset (src/docs/data/courses.ts) — actual disc
-	// golf courses, not generated filler. Combobox has no windowing
-	// ('s Out of Scope defers that integration), so
+	// golf courses, not generated filler. Combobox has no windowing, so
 	// this is the honest ceiling: a static dataset filtered client-side. A
 	// few dozen real courses is comfortably inside that ceiling — see the
 	// Virtualized combobox pattern for what tens of thousands of rows needs.

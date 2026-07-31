@@ -9,7 +9,7 @@
 	// -------------------------------------------------------------------------
 	// Every demo below renders its OWN scrollable article and points `container`
 	// at it — never at the docs page itself, which already has a live Toc rail
-	// (the dogfooded shell, R9) that would otherwise pick a fight with these.
+	// (the dogfooded shell) that would otherwise pick a fight with these.
 	// -------------------------------------------------------------------------
 
 	const basicCode = [
@@ -81,11 +81,11 @@
 
 	// Toc instances bound per demo, keyed by tab id — refreshed on tab change
 	// since inactive Tabs panels stay mounted but hidden (the native
-	// [hidden]), and R1 skips hidden headings (offsetParent === null) at
-	// collection time. `onChange` fires synchronously, right after the
-	// `activeTab` state write and before Svelte flushes it to the DOM's
-	// `hidden` attribute — tick() waits for that flush so the just-revealed
-	// panel's headings actually measure visible before refresh() re-collects.
+	// [hidden]), and collection skips hidden headings (offsetParent === null).
+	// `onChange` fires synchronously, right after the `activeTab` state write
+	// and before Svelte flushes it to the DOM's `hidden` attribute — tick()
+	// waits for that flush so the just-revealed panel's headings actually
+	// measure visible before refresh() re-collects.
 	const tocInstances: Record<string, { refresh: () => void } | undefined> = {};
 
 	async function onTabChange() {
@@ -93,7 +93,7 @@
 		for (const toc of Object.values(tocInstances)) toc?.refresh();
 	}
 
-	// R3/R4 demo state
+	// State for the active-callback demo.
 	let demoActive = $state('');
 	let lastFired = $state('');
 </script>
@@ -118,11 +118,11 @@
 									midrange doing the actual work.
 								</p>
 								<p>
-									Plastic matters less than flight numbers early on — speed, glide, turn, fade.
-									Learn one disc in each class before buying a bag full of near-duplicates.
+									Plastic matters less than flight numbers early on: speed, glide, turn, fade. Learn
+									one disc in each class before buying a bag full of near-duplicates.
 								</p>
 								<p>
-									A new disc flies overstable and settles in as the plastic wears — the "beat-in"
+									A new disc flies overstable and settles in as the plastic wears. The "beat-in"
 									version of a mold often flies nothing like the fresh one on the shelf.
 								</p>
 								<p>
@@ -132,11 +132,11 @@
 								<h2>Grip and stance</h2>
 								<p>
 									A fan grip trades power for control; a power grip does the opposite. Neither is
-									wrong — the disc doesn't know which fingers are on the rim, only how fast it's
+									wrong. The disc does not know which fingers are on the rim, only how fast it is
 									spinning when it leaves them.
 								</p>
 								<p>
-									Stagger your feet, load the hips, and let the arm follow — a rushed pull is the
+									Stagger your feet, load the hips, and let the arm follow. A rushed pull is the
 									single most common source of early, weak turnover.
 								</p>
 								<p>
@@ -144,13 +144,13 @@
 									there's no room left to accelerate through the release.
 								</p>
 								<p>
-									A relaxed grip through the whole pull beats a white-knuckle one at the start —
-									tension in the wrist bleeds spin, and spin is what keeps the disc stable.
+									A relaxed grip through the whole pull beats a white-knuckle one at the start.
+									Tension in the wrist bleeds spin, and spin is what keeps the disc stable.
 								</p>
 								<h2>Reading the wind</h2>
 								<p>
 									A headwind exaggerates turn and fade alike, so understable discs flip over faster
-									than expected. A tailwind flattens everything out — what looked overstable on a
+									than expected. A tailwind flattens everything out, and what looked overstable on a
 									calm day suddenly holds its line.
 								</p>
 								<p>
@@ -158,7 +158,7 @@
 									you, immediately, whether it's actually as stable as the flight numbers claim.
 								</p>
 								<p>
-									Tree lines break up gusts unevenly — the wind at chest height rarely matches the
+									Tree lines break up gusts unevenly. The wind at chest height rarely matches the
 									wind the flag at the tee box is reading.
 								</p>
 							</article>
@@ -182,10 +182,10 @@
 								<h3>Installation</h3>
 								<p>
 									Pull the driver from the bag, check the rim for chips, and confirm the flight
-									plate still reads clean — a worn stamp is cosmetic, a worn rim is not.
+									plate still reads clean. A worn stamp is cosmetic, a worn rim is not.
 								</p>
 								<p>
-									A fresh disc is stiffer than it will ever fly again — the first dozen throws knock
+									A fresh disc is stiffer than it will ever fly again. The first dozen throws knock
 									the edge off a rim that otherwise reads more overstable than intended.
 								</p>
 								<p>
@@ -194,12 +194,12 @@
 								</p>
 								<h3>Configuration</h3>
 								<p>
-									Dial the grip to the disc's dome height, not the other way around — a flatter top
+									Dial the grip to the disc's dome height, not the other way around. A flatter top
 									wants a shallower fan grip than a domey putter does.
 								</p>
 								<p>
-									Rim width changes what a "power grip" even means — a thin-rim driver and a
-									chunky-rim midrange don't sit the same way in a fan grip either.
+									Rim width changes what a "power grip" even means. A thin-rim driver and a
+									chunky-rim midrange do not sit the same way in a fan grip either.
 								</p>
 								<p>
 									Retest the grip after a plastic change. Star and DX wear at different rates, and a
@@ -209,7 +209,7 @@
 								<p>Once the fundamentals hold up under pressure, a few things start to matter.</p>
 								<h3>Custom themes</h3>
 								<p>
-									Overstable in the wind, understable in the calm — carrying two versions of the
+									Overstable in the wind, understable in the calm: carrying two versions of the
 									"same" disc in different plastics is less redundant than it sounds.
 								</p>
 								<p>
@@ -217,7 +217,7 @@
 									separate discs worth two separate slots in the bag.
 								</p>
 								<p>
-									The scorecard doesn't care which version threw the shot — only that the flight
+									The scorecard does not care which version threw the shot, only that the flight
 									matched the shot shape the hole actually asked for.
 								</p>
 							</article>
@@ -232,7 +232,7 @@
 				{:else if item.id === 'exclude'}
 					<p class="tab-note">
 						<code>exclude</code> takes one selector or an array of them. A heading inside any match is
-						skipped — here both the callout and the figure carry their own h2, and neither reaches the
+						skipped. Here both the callout and the figure carry their own h2, and neither reaches the
 						rail.
 					</p>
 					<Example code={excludeCode}>
@@ -241,7 +241,7 @@
 								<h2>Course overview</h2>
 								<p>
 									An 18-hole wooded course with tight fairways and a back nine that opens onto the
-									lakeside. Bring a stable midrange — the gaps reward control over raw distance.
+									lakeside. Bring a stable midrange: the gaps reward control over raw distance.
 								</p>
 								<p>
 									Elevation swings on the front nine make several holes play a full club longer than
@@ -250,7 +250,7 @@
 								<aside class="toc-demo-callout">
 									<h2>Sidebar note</h2>
 									<p>
-										This heading lives inside a <code>.toc-demo-callout</code> aside — it is excluded,
+										This heading lives inside a <code>.toc-demo-callout</code> aside. It is excluded,
 										so you won't find it in the rail even though it's a real h2.
 									</p>
 								</aside>
@@ -266,7 +266,7 @@
 								<figure class="toc-demo-figure">
 									<h2>Figure: elevation map</h2>
 									<p>
-										A second excluded region — this time a <code>.toc-demo-figure</code>. The array
+										A second excluded region, this time a <code>.toc-demo-figure</code>. The array
 										form skips both in one pass.
 									</p>
 								</figure>
@@ -276,7 +276,7 @@
 									Weekend mornings fill early, so a tee time is worth reserving.
 								</p>
 								<p>
-									The course shares a trailhead with the county park — follow the disc-golf signage,
+									The course shares a trailhead with the county park. Follow the disc-golf signage,
 									not the hiking markers, at the first fork.
 								</p>
 							</article>
@@ -300,12 +300,12 @@
 							<article class="toc-demo-article toc-demo-article--collapse">
 								<h2>Warm-up</h2>
 								<p>
-									A handful of short putts and a couple of midrange throws — the point is loosening
+									A handful of short putts and a couple of midrange throws. The point is loosening
 									up, not maxing out distance before the round starts.
 								</p>
 								<p>
-									Stretch the shoulder before the wrist — a cold rotator cuff on the first tee is
-									how a driver ends up thrown flat and low, twenty feet short of the fairway.
+									Stretch the shoulder before the wrist. A cold rotator cuff on the first tee is how
+									a driver ends up thrown flat and low, twenty feet short of the fairway.
 								</p>
 								<p>
 									Walk the first hole before throwing it if the course is unfamiliar. A blind dogleg
@@ -317,8 +317,8 @@
 									rewards consistency long before it rewards a hero shot through the gap.
 								</p>
 								<p>
-									A bogey from a safe layup beats a double from a gap that was never really there —
-									the scorecard doesn't record how close it looked.
+									A bogey from a safe layup beats a double from a gap that was never really there.
+									The scorecard does not record how close it looked.
 								</p>
 								<p>
 									Track misses, not only makes. A putter that consistently misses low is telling you
@@ -326,15 +326,15 @@
 								</p>
 								<h2>Back nine</h2>
 								<p>
-									Fatigue changes form more than it changes intent — the grip loosens first, then
-									the follow-through shortens. Both are worth watching for on the closing holes.
+									Fatigue changes form more than it changes intent. The grip loosens first, then the
+									follow-through shortens. Both are worth watching for on the closing holes.
 								</p>
 								<p>
-									The last three holes are where a round is actually won or lost — not because
+									The last three holes are where a round is actually won or lost, not because
 									they're harder, but because that's where the fundamentals start to slip first.
 								</p>
 								<p>
-									A finished round is worth reviewing before the scorecard is forgotten — the same
+									A finished round is worth reviewing before the scorecard is forgotten. The same
 									three misses tend to repeat until someone actually looks for the pattern.
 								</p>
 							</article>
@@ -356,12 +356,13 @@
 							<article class="toc-demo-article toc-demo-article--active">
 								<h2>Overview</h2>
 								<p>
-									The active id updates as you scroll or click — both the bound value below and the
+									The active id updates as you scroll or click. Both the bound value below and the
 									console (via <code>onActive</code>) see every change, and only on change.
 								</p>
 								<p>
-									Scroll position is read live, on every animation frame while scrolling — not
-									cached at collection time — so late layout shifts can't leave the readout stale.
+									Scroll position is read live, on every animation frame while scrolling, rather
+									than cached at collection time, so late layout shifts cannot leave the readout
+									stale.
 								</p>
 								<p>
 									Nothing here is Toc-specific plumbing: <code>bind:active</code> and
@@ -370,13 +371,13 @@
 								</p>
 								<h2>Details</h2>
 								<p>
-									Clicking a link sets the active id immediately, ahead of the scroll landing —
+									Clicking a link sets the active id immediately, ahead of the scroll landing, so
 									there's no flash of the previous section while the smooth scroll is still in
 									flight.
 								</p>
 								<p>
-									A keyboard user tabbing to a link and pressing Enter gets the identical behavior —
-									activation isn't gated on a pointer event.
+									A keyboard user tabbing to a link and pressing Enter gets the identical behavior.
+									Activation is not gated on a pointer event.
 								</p>
 								<p>
 									Reduced motion swaps the smooth scroll for an instant jump, but the active-id
@@ -385,8 +386,8 @@
 								<h2>Summary</h2>
 								<p>
 									At the bottom of the article the last entry stays active even once its heading has
-									scrolled well past the threshold line — the same bottom-pin rule the docs shell's
-									own rail uses.
+									scrolled well past the threshold line. That is the same bottom-pin rule the docs
+									shell's own rail uses.
 								</p>
 								<p>
 									That rule exists because a short final section would otherwise never cross the
@@ -394,7 +395,7 @@
 									is squarely inside it.
 								</p>
 								<p>
-									Scroll back up and the active id keeps tracking normally — the bottom-pin only
+									Scroll back up and the active id keeps tracking normally. The bottom-pin only
 									applies exactly at the bottom of the scrollable range.
 								</p>
 							</article>

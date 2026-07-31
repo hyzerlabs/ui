@@ -3,7 +3,7 @@
 	import { color, intent, space } from '$lib/tokens';
 	import Example from '../../../../docs/Example.svelte';
 	// ?raw keeps the docs in lockstep with the shipped, engine-generated sheet
-	// — no hand copy (/R8, the reset page's `?raw` precedent).
+	// — no hand copy, the same approach the reset page uses for its sheet.
 	import utilitiesSource from '$lib/theme/utilities.css?raw';
 	import srOnlySource from '$lib/theme/base.css?raw';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
@@ -165,8 +165,8 @@
 			You already have this: there is nothing to opt into beyond the theme itself.
 			<code>.sr-only</code>
 			hides content visually while keeping it available to screen readers. The content stays in the accessibility
-			tree and reachable by assistive tech, but is clipped to a 1px box and removed from the visual flow.
-			It ships in the reference theme's <code>base.css</code>, unlayered, whenever
+			tree, clipped to a 1px box and taken out of the visual flow. It ships in the reference theme's
+			<code>base.css</code>, unlayered, whenever
 			<code>@hyzer-labs/ui/theme</code>
 			is imported.
 			<a href="/docs/components/button">Button</a> (loading label),

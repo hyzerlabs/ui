@@ -161,6 +161,20 @@ describe('Skeleton-R13 — decorative by default', () => {
 	});
 });
 
+describe('Skeleton — consumer style merge', () => {
+	it('a consumer style prop merges alongside the managed width/height', () => {
+		const { container } = render(Skeleton, {
+			width: 100,
+			height: 20,
+			style: '--hz-logo-size: 5rem'
+		} as Record<string, unknown>);
+		const root = getSkeleton(container);
+		expect(root.style.width).toBe('100px');
+		expect(root.style.height).toBe('20px');
+		expect(root.style.getPropertyValue('--hz-logo-size')).toBe('5rem');
+	});
+});
+
 // ---------------------------------------------------------------------------
 // Skeleton-R15 — Barrel export
 // ---------------------------------------------------------------------------

@@ -48,8 +48,8 @@
 			{#snippet icon()}<IconInfo />{/snippet}
 			Real <code>&lt;table&gt;</code> semantics (the <a href="/docs/components/table">Table</a>
 			component) give you native screen-reader table navigation for free, with no ARIA to keep in sync.
-			Reach for it up to some thousands of rows. Only past that point, where rendering every
-			<code>&lt;tr&gt;</code> becomes the bottleneck, does the windowed ARIA table below earn its keep.
+			Reach for it up to a few thousand rows. Past that point, where rendering every
+			<code>&lt;tr&gt;</code> becomes the bottleneck, the windowed ARIA table below earns its keep.
 		</Alert>
 	</Stack>
 

@@ -1,4 +1,4 @@
-/** tooltip's DocPage inputs R-DOCS. */
+/** Tooltip's DocPage inputs. */
 import type { ComponentDoc } from './types.js';
 
 export const tooltipDoc: ComponentDoc = {

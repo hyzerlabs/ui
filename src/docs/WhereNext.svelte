@@ -1,8 +1,8 @@
 <script lang="ts">
 	/**
 	 * The "Where to go next" block, as one component so every page that ends
-	 * with onward links looks the same. Renders the whole section — heading
-	 * included — because the heading id is what the Toc rail anchors to, and
+	 * with onward links looks the same. Renders the whole section, heading
+	 * included, because the heading id is what the Toc rail anchors to, and
 	 * duplicating it per page is how it drifts.
 	 *
 	 * Whole cards are clickable (Card's `href`), so the card is the link
@@ -34,11 +34,10 @@
 			<!-- The card's link is a bare overlay anchor, so it needs its own
 			     name: without ariaLabel it reaches the a11y tree unlabeled. -->
 			<Card
-				class="hz-card--outlined"
+				class="hz-card--outlined expressive-card"
 				href={step.href}
 				ariaLabel={step.label}
 				padding="md"
-				rounded="md"
 			>
 				<h3 class="next-title">{step.label}</h3>
 				<p class="next-blurb">{step.blurb}</p>
@@ -48,6 +47,9 @@
 </Stack>
 
 <style>
+	/* The loud expressive-card frame lives in src/docs/chrome.css, shared
+	   with the homepage commitment cards. */
+
 	.next-title {
 		margin: 0 0 0.25rem;
 		font-size: var(--hz-font-size-base, 1rem);

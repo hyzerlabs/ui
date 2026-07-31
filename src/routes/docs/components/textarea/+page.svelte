@@ -73,7 +73,7 @@
 											label="Course review"
 											resize={value}
 											placeholder={value === 'auto'
-												? 'Type a few lines — the field grows with you…'
+												? 'Type a few lines. The field grows with you…'
 												: undefined}
 										/>
 									</div>

@@ -26,6 +26,7 @@
 		lastLineWidth?: string | number;
 		animation?: SkeletonAnimation;
 		class?: string;
+		style?: string;
 		[key: string]: unknown;
 	}
 
@@ -38,6 +39,7 @@
 		lastLineWidth = '60%',
 		animation = 'shimmer',
 		class: className,
+		style: styleProp,
 		...rest
 	}: Props = $props();
 
@@ -92,8 +94,12 @@
 
 	// The root is the single painted block unless it holds multiple
 	// text lines, in which case the lines carry the dimensions instead.
+	// Consumer `style` is appended after the managed dimensions, so a
+	// consumer declaration wins on any collision.
 	const rootStyle = $derived(
-		isMultiline ? undefined : `width: ${resolvedWidth}; height: ${resolvedHeight};`
+		[isMultiline ? undefined : `width: ${resolvedWidth}; height: ${resolvedHeight};`, styleProp]
+			.filter(Boolean)
+			.join(' ') || undefined
 	);
 
 	function lineStyle(index: number): string {
@@ -117,6 +123,8 @@
 	one exception to the library's usual "rest first" convention) so a
 	consumer can override it via rest for the rare case they want it exposed.
 	class/data-*/style still come after rest, so those stay component-managed.
+	`style` is a named prop (not part of rest); a consumer's declaration is
+	merged into rootStyle above rather than dropped.
 -->
 <div
 	aria-hidden="true"

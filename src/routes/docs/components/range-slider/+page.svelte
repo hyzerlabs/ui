@@ -104,8 +104,8 @@
 				{#if item.id === 'basic'}
 					<p class="tab-note">
 						Two thumbs, one track, and the fill spans the selected interval. Drag a thumb past its
-						partner and it clamps: the pair can meet but never cross. The number fields commit with
-						the partner as the effective bound.
+						partner and it clamps: the pair can meet but never cross. Typing in a number field
+						clamps the same way, against the partner's value.
 					</p>
 					<Example code={basicCode}>
 						<div class="demo-col">
@@ -122,8 +122,8 @@
 					</Example>
 				{:else if item.id === 'ticks'}
 					<p class="tab-note">
-						Same ticks API as <a href="/docs/components/slider">Slider</a>: visual marks, not
-						detents.
+						Same ticks API as <a href="/docs/components/slider">Slider</a>: visual marks only, with
+						no snapping.
 					</p>
 					<Example code={ticksCode}>
 						<div class="demo-col">
@@ -164,11 +164,14 @@
 					<p class="tab-note">
 						<code>orientation="vertical"</code> switches both ranges to a native
 						<code>writing-mode: vertical-lr</code> track. It grows bottom-up, so Up and Right arrows
-						still increase toward <code>max</code> on either thumb. The two exact-entry fields stay
-						a single inline cluster, separated by a dash and placed above or below the track (per
-						<code>inputPosition</code>) rather than stacking to mirror the thumbs. The track's block
-						length comes from <code>--hz-slider-length</code> (default <code>12rem</code>), so it
-						never grows the page unbounded. This demo wraps two side by side in
+						still increase toward <code>max</code> on either thumb. The track's block length comes
+						from <code>--hz-slider-length</code> (default <code>12rem</code>), so it never grows the
+						page unbounded.
+					</p>
+					<p class="tab-note">
+						The two exact-entry fields stay one inline cluster, separated by a dash. They sit above
+						or below the track (per <code>inputPosition</code>) rather than stacking to mirror the
+						thumbs. This demo wraps two sliders side by side in
 						<a href="/docs/components/cluster">Cluster</a>.
 					</p>
 					<Example code={verticalCode}>
@@ -265,7 +268,7 @@
 		max-width: 30rem;
 	}
 
-	/* The field scaffold gives every field a full-width block root — expected, since a
+	/* The field scaffold gives every field a full-width block root, expected since a
 	 * vertical RangeSlider is still a block Field. Side-by-side
 	 * layout is the author's job, so this demo shrinks the roots to content. */
 	.vertical-demo :global(.hz-field--slider) {

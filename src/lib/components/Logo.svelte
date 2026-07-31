@@ -38,6 +38,7 @@
 		/** Recolor the mark to one color via `fill: var(--hz-logo-color, currentColor)`. */
 		monochrome?: boolean;
 		class?: string;
+		style?: string;
 		[key: string]: unknown;
 	}
 
@@ -50,6 +51,7 @@
 		decorative = false,
 		monochrome = true,
 		class: className,
+		style: styleProp,
 		...rest
 	}: Props = $props();
 
@@ -215,6 +217,8 @@
 		ratio !== undefined ? Math.round(ratio ** EXPONENT * scale * 10000) / 10000 : undefined
 	);
 
+	// Consumer `style` is appended after the managed custom properties, so a
+	// consumer declaration wins on any collision.
 	const rootStyle = $derived.by(() => {
 		const parts: string[] = [];
 		if (ratio !== undefined && widthFactor !== undefined) {
@@ -223,6 +227,9 @@
 		}
 		if (brightness !== 1) {
 			parts.push(`--hz-logo-brightness: ${brightness}`);
+		}
+		if (styleProp) {
+			parts.push(styleProp);
 		}
 		return parts.length ? parts.join('; ') : undefined;
 	});
@@ -270,10 +277,11 @@
 
 <!--
 	{...rest} spreads first so every subsequently-listed attribute (class,
-	data-fallback, data-monochrome, style, role, aria-hidden, aria-label) wins
-	over anything a consumer accidentally passes through rest — including a
-	rest aria-labelledby, which the documented `decorative` + adjacent-text
-	pattern replaces.
+	data-fallback, data-monochrome, role, aria-hidden, aria-label) wins over
+	anything a consumer accidentally passes through rest — including a rest
+	aria-labelledby, which the documented `decorative` + adjacent-text pattern
+	replaces. `style` is a named prop (not part of rest), merged into
+	rootStyle above so a consumer's declaration is appended, not dropped.
 -->
 <span
 	{...rest}

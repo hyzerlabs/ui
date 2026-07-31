@@ -171,7 +171,7 @@
 	// ------------------------------------------------------------------
 
 	// sm (640px) is the recommended default threshold — tables only stack on
-	// genuinely narrow viewports (user decision 2026-07-23); md/lg stay
+	// genuinely narrow viewports; md/lg stay
 	// available for tables with many/wide columns that need to shed the
 	// table layout earlier.
 	const stackedCode = [

@@ -335,13 +335,21 @@ test.describe('R9 — theme toggle', () => {
 // ---------------------------------------------------------------------------
 
 test.describe('specs/31 + 34 — grouped, collapsible sidebar', () => {
-	test('Components shows five collapsible group toggles in order', async ({ page }) => {
+	test('Components shows seven collapsible group toggles in order', async ({ page }) => {
 		await page.goto('/docs/components/button');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
 
 		// The active section auto-expands, so its group toggles are visible.
 		const groupToggles = sidebar.locator('.hz-nav-panel .hz-nav-trigger');
-		await expect(groupToggles).toHaveText([/Common/, /Layout/, /Navigation/, /Media/, /Forms/]);
+		await expect(groupToggles).toHaveText([
+			/Content/,
+			/Feedback & Status/,
+			/Overlays/,
+			/Layout/,
+			/Navigation/,
+			/Media/,
+			/Forms/
+		]);
 	});
 
 	test('the active group auto-expands; a collapsed group toggles open (spec 34)', async ({
@@ -349,11 +357,11 @@ test.describe('specs/31 + 34 — grouped, collapsible sidebar', () => {
 	}) => {
 		await page.goto('/docs/components/button');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
-		const common = sidebar.getByRole('button', { name: /Common/ });
+		const content = sidebar.getByRole('button', { name: /Content/ });
 		const layout = sidebar.getByRole('button', { name: /Layout/ });
 
-		// Common holds Button → expanded; its link is visible. Layout is collapsed.
-		await expect(common).toHaveAttribute('aria-expanded', 'true');
+		// Content holds Button → expanded; its link is visible. Layout is collapsed.
+		await expect(content).toHaveAttribute('aria-expanded', 'true');
 		await expect(sidebar.getByRole('link', { name: 'Button', exact: true })).toBeVisible();
 		await expect(layout).toHaveAttribute('aria-expanded', 'false');
 		await expect(sidebar.getByRole('link', { name: 'Container', exact: true })).toBeHidden();
@@ -372,7 +380,7 @@ test.describe('specs/31 + 34 — grouped, collapsible sidebar', () => {
 	test('navigates to a moved page at its flat URL and marks it current', async ({ page }) => {
 		await page.goto('/docs/components/button');
 		const sidebar = page.getByRole('navigation', { name: 'Docs navigation' });
-		// Select is in Forms, collapsed on a Common page — expand it first (spec 34).
+		// Select is in Forms, collapsed on a Content page — expand it first (spec 34).
 		await sidebar.getByRole('button', { name: /Forms/ }).click();
 		// Select moved from /forms/select — the sidebar link must be the flat one.
 		await sidebar.getByRole('link', { name: 'Select', exact: true }).click();

@@ -145,7 +145,7 @@
 		</Split>
 		<p class="doc-note">
 			The theme is optional. Skip it and the components stay headless: you keep the behavior and the
-			accessibility, and the browser's own defaults decide how everything looks.
+			accessibility. The browser's own defaults decide how everything looks.
 		</p>
 	</Stack>
 
@@ -166,8 +166,8 @@
 			Dark mode runs on the same hook the library uses internally: the <code>data-theme</code>
 			attribute. The tokens you set in <code>:root</code> are the default, which is what a page gets
 			when nothing sets that attribute. A named theme like <code>dark</code> then overrides the default.
-			The attribute works on any element, so one section can carry its own theme. Set it nowhere at all
-			and the page follows the reader's system preference on its own, with no script involved.
+			The attribute works on any element, so one section can carry its own theme. Set it nowhere and the
+			page follows the reader's system preference, with no script involved.
 		</p>
 		<CodeBlock code={tierTwoCss} title="app.css" language="css" />
 		<p class="doc-note">
@@ -212,7 +212,7 @@
 </Stack>
 
 <style>
-	/* Margins zeroed below — every <p> and CodeBlock is a direct child of
+	/* Margins zeroed below. Every <p> and CodeBlock is a direct child of
 	 * either .doc-intro or a .doc-section Stack (gap="away", data-density-
 	 * shift), which owns the space between them. */
 	p {
@@ -224,7 +224,7 @@
 		font-size: 0.875em;
 	}
 
-	/* The live half of step one — the same components the fence declares,
+	/* The live half of step one: the same components the fence declares,
 	   rendered by the reference theme this site runs on. */
 	.live-demo {
 		border: 1px dashed var(--hz-color-border, #6b7280);

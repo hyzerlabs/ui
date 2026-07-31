@@ -68,8 +68,8 @@
 		</li>
 		<li>
 			<strong>Density spacing</strong>: two context-aware distances (<code>near</code> /
-			<code>away</code>) derived from one grid unit that automatically tighten as content nests. Use
-			these for page rhythm instead of picking steps by hand.
+			<code>away</code>), derived from one grid unit, that tighten automatically as content nests.
+			Use these for page rhythm instead of picking steps by hand.
 		</li>
 		<li>
 			<strong>Breakpoint widths</strong>: the <code>--hz-width-sm…xl</code> tokens that cap
@@ -185,13 +185,13 @@
 			</Stack>
 		</Example>
 		<p class="tab-note">
-			The preview compensates for where it sits. This section is already two density levels deep,
-			since the docs shell and this page section each add a shift, and one ambient level costs one
-			rung on the ladder. So the live version swaps each <code>near</code> for <code>away</code> (one
-			rung back up) and drops the shifts the shell already provides. Every distance then renders at its
-			fresh-page value: heading and cards at 2rem, card rhythm at 0.8rem, tag gaps at 0.4rem. The one
-			exception is the 8rem section spacing, which the tightest level caps at 2rem here. Three levels
-			is as tight as the scale goes: a fourth nested shift keeps the third level's values.
+			The preview compensates for where it sits. This section is already two density levels deep:
+			the docs shell and this page section each add a shift. Each ambient level costs one rung on
+			the ladder, so the live version swaps each <code>near</code> for <code>away</code> (one rung back
+			up) and drops the shifts the shell already provides. Every distance then renders at its fresh-page
+			value: heading and cards at 2rem, card rhythm at 0.8rem, tag gaps at 0.4rem. The one exception is
+			the 8rem section spacing, which the tightest level caps at 2rem here. Three levels is as tight as
+			the scale goes: a fourth nested shift keeps the third level's values.
 		</p>
 	</Stack>
 
