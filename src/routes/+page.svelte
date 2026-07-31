@@ -269,6 +269,13 @@
 		.band-striped :global(.weight-card) {
 			padding: 0.5rem;
 		}
+
+		/* The tightened band gutter pulls this heading out of line with the
+		   other sections' titles; restore the shared alignment. Only needed
+		   while the mobile gutter override above is active. */
+		.band-striped h2 {
+			margin-inline-start: var(--hz-space-lg, 4rem);
+		}
 	}
 
 	/* Solid intent bands, no softening. On-fill text is the surface role,
