@@ -58,7 +58,7 @@
 
 	const pictureSources = [
 		{
-			srcset: demoSvg('wide source — viewport ≥ 968px', '2563eb', 800, 300),
+			srcset: demoSvg('wide source, viewport ≥ 968px', '2563eb', 800, 300),
 			media: '(min-width: 968px)'
 		}
 	];
@@ -213,7 +213,7 @@
 					<Example code={pictureCode}>
 						<Image
 							sources={pictureSources}
-							src={demoSvg('fallback source — viewport < 968px', '7c3aed', 800, 300)}
+							src={demoSvg('fallback source, viewport < 968px', '7c3aed', 800, 300)}
 							alt="Art direction demo: the active source names itself"
 							aspectRatio="8/3"
 						/>

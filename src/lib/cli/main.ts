@@ -46,7 +46,7 @@ Options:
                     sheet (default: ./${DEFAULT_UTILITIES_OUTPUT}, or
                     config.utilities.output). Overrides config.utilities when
                     present; absent both, no utilities file is written.
-  --check           Validate and report only — write nothing
+  --check           Validate and report only, write nothing
   --strict          Exit 1 when any pairing fails WCAG AA (default: warn)
   --help            Show this help
 
@@ -106,7 +106,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 			existsSync(path)
 		);
 		if (!configPath) {
-			log(`No config found (looked for ${CONFIG_FILENAMES.join(', ')}) — using the base schema.`);
+			log(`No config found (looked for ${CONFIG_FILENAMES.join(', ')}), using the base schema.`);
 		}
 	}
 
@@ -115,7 +115,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 		try {
 			const mod = (await import(pathToFileURL(configPath).href)) as { default?: unknown };
 			if (mod.default === undefined) {
-				error(`${configPath} has no default export — export default defineConfig({ … }).`);
+				error(`${configPath} has no default export. Use: export default defineConfig({ … }).`);
 				return 1;
 			}
 			config = mod.default as HyzerConfig;
@@ -191,13 +191,13 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 
 	// --- contrast report -------------------------------------------------------
 	for (const row of failures) {
-		error(`  ✗ ${row.mode} ${row.id} — ${row.ratio.toFixed(2)}:1 (${row.level})`);
+		error(`  ✗ ${row.mode} ${row.id}: ${row.ratio.toFixed(2)}:1 (${row.level})`);
 	}
 	for (const name of report.unresolved) {
-		log(`  ? ${name} could not be statically resolved — pairing skipped`);
+		log(`  ? ${name} could not be statically resolved, pairing skipped`);
 	}
 	if (failures.length === 0) {
-		log(`contrast: ${report.rows.length} pairings checked — all pass WCAG AA`);
+		log(`contrast: ${report.rows.length} pairings checked, all pass WCAG AA`);
 	} else {
 		const suffix = parsed.strict ? '' : ' (warnings; use --strict to fail the build)';
 		error(`contrast: ${failures.length} of ${report.rows.length} pairings fail WCAG AA${suffix}`);
@@ -207,7 +207,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 	let iconsFailed = false;
 	if (iconsResult) {
 		for (const name of iconsResult.unknown) {
-			error(`  ? icons: "${name}" is not a valid Lucide icon name — omitted from the barrel`);
+			error(`  ? icons: "${name}" is not a valid Lucide icon name, omitted from the barrel`);
 		}
 		if (iconsResult.unknown.length > 0) {
 			iconsFailed = true;

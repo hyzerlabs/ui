@@ -58,7 +58,7 @@
 		'<' + 'style>',
 		'\t/* Rendered as class="hz-button cta". Your class is unlayered, so it',
 		'\t   beats the theme with no specificity games. Svelte scoping needs',
-		'\t   :global for children. */',
+		'\t   :global for a class you pass to a component. */',
 		'\t:global(.cta) {',
 		'\t\tbox-shadow: var(--hz-shadow-md);',
 		'\t}',
@@ -85,7 +85,7 @@
 		'',
 		'<Card class="hz-card--elevated">',
 		'\t<h3 class="hz-card-title">Next tee time</h3>',
-		'\tSaturday, 8:40 — Maple Hill.',
+		'\tSaturday, 8:40, Maple Hill.',
 		'</Card>'
 	].join('\n');
 
@@ -123,10 +123,10 @@
 	// of the file).
 	const cascadeCssExcerpt = docsCss
 		.slice(
-			docsCss.indexOf('/*\n * .docs-table — the worked cascade example'),
+			docsCss.indexOf('/*\n * .docs-table: the worked cascade example'),
 			docsCss.indexOf(
 				'/* ------',
-				docsCss.indexOf('/*\n * .docs-table — the worked cascade example')
+				docsCss.indexOf('/*\n * .docs-table: the worked cascade example')
 			)
 		)
 		.trim();
@@ -181,8 +181,33 @@
 	>
 		<h2 id="class-heading">The <code>class</code> prop</h2>
 		<CodeBlock code={classPropCode} />
+		<p>
+			Whether a selector for that class needs <code>:global()</code> depends on where the rule lives,
+			not on this library. Styling one component instance has three channels, and only one of them needs
+			the wrapper:
+		</p>
+		<ul class="note-list">
+			<li>
+				<strong>A stylesheet you import</strong> (your <code>app.css</code>, a theme sheet): plain
+				selectors work. Svelte only scopes styles inside a component's
+				<code>&lt;style&gt;</code> block, so an imported sheet never needs <code>:global()</code>.
+			</li>
+			<li>
+				<strong>Your own component's <code>&lt;style&gt;</code> block:</strong> wrap the selector in
+				<code>:global()</code>
+				when the class was passed to a library component. That class lands on markup the component renders.
+				Svelte scopes your styles to your own template, so an unwrapped selector is silently pruned as
+				unused. This is Svelte's scoping model, common to every Svelte component library. A class on an
+				element in your own markup needs no wrapper.
+			</li>
+			<li>
+				<strong>Custom-property hooks</strong> (<code>--hz-*</code>): no selector reaches into the
+				component at all. Set them inline, on a wrapper, or on any ancestor, and they inherit
+				through the component boundary.
+			</li>
+		</ul>
 		<p class="doc-note">
-			One caveat in the other direction: styles inside a component's own
+			One caveat about layering: styles inside a component's own
 			<code>&lt;style&gt;</code> block are unlayered too. So if you build wrapper components, prefer
 			styling the <code>hz-*</code> hooks from stylesheets you control rather than re-declaring resets
 			a theme would need to fight.
@@ -314,7 +339,7 @@
 				</Card>
 				<Card class="hz-card--elevated">
 					<h3 class="hz-card-title">Next tee time</h3>
-					Saturday, 8:40 — Maple Hill.
+					Saturday, 8:40, Maple Hill.
 				</Card>
 			</Cluster>
 		</Example>

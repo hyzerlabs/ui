@@ -98,20 +98,20 @@
 		'$ hyzer generate',
 		'config: hyzer.config.ts',
 		'wrote src/styles/tokens.css (full, 89 tokens)',
-		'contrast: 104 pairings checked — all pass WCAG AA'
+		'contrast: 104 pairings checked, all pass WCAG AA'
 	].join('\n');
 
 	const modesCode = [
-		'# A complete sheet — import it INSTEAD of tokens.css:',
+		'# A complete sheet: import it INSTEAD of tokens.css:',
 		'hyzer generate',
 		'',
-		'# A patch sheet with only your overrides — import it AFTER tokens.css:',
+		'# A patch sheet with only your overrides: import it AFTER tokens.css:',
 		'hyzer generate --mode overrides',
 		'',
 		'# Also write the opt-in utilities sheet, next to the tokens sheet:',
 		'hyzer generate --utilities',
 		'',
-		'# Flags compose — a patch sheet AND the utilities sheet, one run:',
+		'# Flags compose: a patch sheet AND the utilities sheet, one run:',
 		'hyzer generate --mode overrides --utilities',
 		'',
 		'# Validate without writing; fail CI on any AA miss (and any unknown icon):',
@@ -122,7 +122,7 @@
 		"import { defineConfig } from '@hyzer-labs/ui/config';",
 		'',
 		'export default defineConfig({',
-		"\t// kebab-case Lucide names — 'plus' is already core (deduped, no warning)",
+		"\t// kebab-case Lucide names: 'plus' is already core (deduped, no warning)",
 		"\ticons: ['plus', 'trash-2', 'settings', 'serch']",
 		'});'
 	].join('\n');
@@ -131,8 +131,8 @@
 		'$ hyzer generate',
 		'wrote hyzer-tokens.css (full, 84 tokens)',
 		'wrote icons.ts (16 icons)',
-		'contrast: 92 pairings checked — all pass WCAG AA',
-		'  ? icons: "serch" is not a valid Lucide icon name — omitted from the barrel',
+		'contrast: 92 pairings checked, all pass WCAG AA',
+		'  ? icons: "serch" is not a valid Lucide icon name, omitted from the barrel',
 		'icons: 1 unknown name(s) (warnings; use --strict to fail the build)',
 		'icons: 16 included (14 core, 2 configured)'
 	].join('\n');
@@ -151,7 +151,7 @@
 		'config: hyzer.config.ts',
 		'wrote hyzer-tokens.css (full, 84 tokens)',
 		'wrote hyzer-utilities.css',
-		'contrast: 92 pairings checked — all pass WCAG AA'
+		'contrast: 92 pairings checked, all pass WCAG AA'
 	].join('\n');
 
 	// The complete option surface (src/lib/config/schema.ts) — every group is

@@ -25,8 +25,8 @@ export interface SizeRow {
 export const browserItems: SizeRow[] = [
 	{
 		label: 'Every component, minified',
-		raw: 246874,
-		gzip: 53626,
+		raw: 247087,
+		gzip: 53676,
 		note: 'A real build of the whole library, carrying only the few icons the components draw. Import three components and you ship a fraction of this.'
 	},
 	{
@@ -43,8 +43,8 @@ export const browserItems: SizeRow[] = [
 	},
 	{
 		label: 'Reference theme',
-		raw: 148290,
-		gzip: 51058,
+		raw: 149154,
+		gzip: 51412,
 		note: 'One import for the shared base sheet plus a sheet per component. Import single component sheets instead and you pay less.'
 	},
 	{
@@ -64,8 +64,8 @@ export const browserItems: SizeRow[] = [
 /** Everything in the table above, taken together. */
 export const browserTotal: SizeRow = {
 	label: 'Everything, together',
-	raw: 457780,
-	gzip: 117101
+	raw: 458857,
+	gzip: 117505
 };
 
 /** Packages pulled in at runtime. */

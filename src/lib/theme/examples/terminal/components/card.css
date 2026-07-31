@@ -27,6 +27,20 @@
 	overflow: visible;
 }
 
+/* Focus ring for the clickable overlay — drawn on the card root, matching
+ * the reference theme's rule (card.css). Terminal never clips its card
+ * (overflow stays visible above), so the ring's home doesn't matter for
+ * visibility here, but the root is still the single source of truth: the
+ * anchor's own outline is suppressed below so exactly one ring paints. */
+.hz-theme-terminal .hz-card:has(.hz-card-link:focus-visible) {
+	outline: 2px solid var(--hz-color-text, #33ff66);
+	outline-offset: 2px;
+}
+
+.hz-theme-terminal .hz-card-link:focus-visible {
+	outline: none;
+}
+
 /* Treatments */
 .hz-theme-terminal .hz-card.hz-card--outlined {
 	border: 1px solid var(--hz-color-text-muted, #00a844);

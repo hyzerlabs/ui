@@ -15,10 +15,10 @@
 	// config.utilities key form).
 	const generateUtilitiesTranscript = [
 		'$ hyzer generate --utilities',
-		'No config found (looked for hyzer.config.ts, hyzer.config.js, hyzer.config.mjs) — using the base schema.',
+		'No config found (looked for hyzer.config.ts, hyzer.config.js, hyzer.config.mjs), using the base schema.',
 		'wrote hyzer-tokens.css (full, 84 tokens)',
 		'wrote hyzer-utilities.css',
-		'contrast: 92 pairings checked — all pass WCAG AA'
+		'contrast: 92 pairings checked, all pass WCAG AA'
 	].join('\n');
 
 	// The four color families, in the order the sheet emits them. The role
@@ -134,7 +134,7 @@
 	const bannerTitleCode = [
 		'<Banner intent="info">',
 		'\t<strong class="hz-banner-title">Tee times open Monday</strong>',
-		'\tBook early — weekends fill fast.',
+		'\tBook early. Weekends fill fast.',
 		'</Banner>'
 	].join('\n');
 </script>
@@ -216,7 +216,7 @@
 		<Example code={bannerTitleCode}>
 			<Banner intent="info">
 				<strong class="hz-banner-title">Tee times open Monday</strong>
-				Book early — weekends fill fast.
+				Book early. Weekends fill fast.
 			</Banner>
 		</Example>
 		<p>

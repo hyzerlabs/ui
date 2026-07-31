@@ -91,7 +91,7 @@
 		'\t\t<Link href="/rss.xml" ariaLabel="RSS feed"><IconRss /></Link>',
 		'\t{/snippet}',
 		'\t{#snippet bottom()}',
-		'\t\t<p>© 2026 Hyzer Labs — MIT License</p>',
+		'\t\t<p>© 2026 Hyzer Labs, MIT License</p>',
 		'\t{/snippet}',
 		'</Footer>'
 	].join('\n');
@@ -128,7 +128,7 @@
 		'<Footer {columns} headingLevel={3} class="brand-footer" />',
 		'',
 		'<' + 'style>',
-		'\t.brand-footer {',
+		'\t:global(.brand-footer) {',
 		'\t\tbackground: color-mix(in srgb, var(--hz-intent-primary) 10%, var(--hz-color-surface));',
 		'\t}',
 		'</' + 'style>'
@@ -215,7 +215,7 @@
 								<Link href="#" ariaLabel="RSS feed"><IconRss /></Link>
 							{/snippet}
 							{#snippet bottom()}
-								<p class="copy">© 2026 Hyzer Labs — MIT License</p>
+								<p class="copy">© 2026 Hyzer Labs, MIT License</p>
 							{/snippet}
 						</Footer>
 					</Example>

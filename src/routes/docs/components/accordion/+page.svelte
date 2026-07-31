@@ -52,7 +52,7 @@
 			].join('\n');
 		}
 		return [
-			'<!-- The panel snippet receives the item — render per-item content -->',
+			'<!-- The panel snippet receives the item: render per-item content -->',
 			'<Accordion items={faqs}>',
 			'\t{#snippet panel(item)}',
 			'\t\t<p>{answers[item.id]}</p>',
@@ -62,7 +62,7 @@
 	}
 
 	const richTitlesCode = [
-		'<!-- title accepts string | Snippet — use a snippet for inner markup -->',
+		'<!-- title accepts string | Snippet: use a snippet for inner markup -->',
 		'{#snippet proTitle()}',
 		'\tPro plan <span class="badge">new</span>',
 		'{/snippet}',

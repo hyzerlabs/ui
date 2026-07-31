@@ -57,7 +57,7 @@
 		'\t// …',
 		'];',
 		'',
-		"// Each column's `key` names a Disc property — Table renders `row[key]`",
+		"// Each column's `key` names a Disc property: Table renders `row[key]`",
 		'// by default (String(row.name), String(row.price), …).',
 		'const columns: TableColumn<Disc>[] = [',
 		"\t{ key: 'name', header: 'Name', sortable: true },",
@@ -76,7 +76,7 @@
 	let clientSortState: TableSort | null = $state(null);
 
 	const clientSortCode = [
-		'<!-- clientSort defaults to true — Table reorders `items` itself. -->',
+		'<!-- clientSort defaults to true: Table reorders `items` itself. -->',
 		'<Table {items} {columns} caption="Discs sorted client-side" bind:sort />'
 	].join('\n');
 
@@ -99,7 +99,7 @@
 		'let items = $state(discs);',
 		'let sort = $state(null);',
 		'',
-		'// clientSort={false}: Table leaves `items` alone — YOU reorder it.',
+		'// clientSort={false}: Table leaves `items` alone, YOU reorder it.',
 		'$effect(() => {',
 		'\tif (sort) items = reorder(discs, sort);',
 		'});',

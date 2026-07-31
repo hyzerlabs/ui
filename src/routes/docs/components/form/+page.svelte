@@ -55,7 +55,7 @@
 		'\t\tconst data = Object.fromEntries(await request.formData());',
 		'\t\tconst result = schema.safeParse(data);',
 		'\t\tif (!result.success) return fail(400, { errors: z.flattenError(result.error) });',
-		'\t\t// save result.data — fully typed',
+		'\t\t// save result.data, fully typed',
 		'\t\treturn { success: true };',
 		'\t}',
 		'};'
@@ -144,14 +144,14 @@
 	const anatomyErrors: FormError[] = [
 		{ name: 'anatomy-email', message: 'Enter a valid email address.' },
 		{ name: 'anatomy-player', message: 'Enter your name.' },
-		{ name: '', message: 'Signups close at midnight — unsaved entries are dropped.' }
+		{ name: '', message: 'Signups close at midnight. Unsaved entries are dropped.' }
 	];
 
 	const anatomyCode = [
 		'const errors: FormError[] = [',
 		"\t{ name: 'email', message: 'Enter a valid email address.' },",
 		"\t{ name: 'player', message: 'Enter your name.' },",
-		"\t{ name: '', message: 'Signups close at midnight — unsaved entries are dropped.' }",
+		"\t{ name: '', message: 'Signups close at midnight. Unsaved entries are dropped.' }",
 		'];',
 		'',
 		'<Form {errors} summaryHeadingLevel={3} ariaLabel="Summary anatomy">',
@@ -232,7 +232,7 @@
 					<Example code={zodCode}>
 						<div class="demo-col">
 							{#if zodSaved}
-								<p class="success" role="status">Review posted — thanks!</p>
+								<p class="success" role="status">Review posted. Thanks!</p>
 							{/if}
 							<Form
 								errors={zodErrors}

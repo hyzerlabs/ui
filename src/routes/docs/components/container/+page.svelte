@@ -131,8 +131,7 @@
 						edge only.
 					</p>
 					<Container breakout padding="none" class="breakout-demo">
-						<span class="breakout-label"
-							>breakout — the full content area, escaping this column</span
+						<span class="breakout-label">breakout: the full content area, escaping this column</span
 						>
 					</Container>
 					<div class="breakout-reference">the normal prose column</div>

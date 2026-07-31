@@ -7,7 +7,7 @@
 	// import order. `@layer name, name;` statements are allowed before @import,
 	// like @charset — so this can sit at the very top of your stylesheet.
 	const layerOrderCode = [
-		'/* app.css — declare the whole cascade order once, at the top. */',
+		'/* app.css: declare the whole cascade order once, at the top. */',
 		'@layer hz-reset, hz-theme, theme, base, components, utilities;',
 		'',
 		"@import '@hyzer-labs/ui/tokens.css'; /* the --hz-* custom properties */",

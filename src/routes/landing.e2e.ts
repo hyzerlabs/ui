@@ -88,4 +88,42 @@ test.describe('llms.txt', () => {
 		expect(body).toContain('](https://design.hyzer.sh/docs)');
 		expect(body).toContain('## Components');
 	});
+
+	test('links to the full component reference', async ({ request }) => {
+		const res = await request.get('/llms.txt');
+		const body = await res.text();
+		expect(body).toContain('https://design.hyzer.sh/llms-full.txt');
+	});
+});
+
+/** The full component reference: every prop and styling hook in one file. */
+test.describe('llms-full.txt', () => {
+	test('serves the full component reference as plain text', async ({ request }) => {
+		const res = await request.get('/llms-full.txt');
+		expect(res.status()).toBe(200);
+		expect(res.headers()['content-type']).toContain('text/plain');
+		const body = await res.text();
+		expect(body).toContain('# @hyzer-labs/ui');
+		expect(body).toContain('### Button');
+		expect(body).toContain('hz-button');
+		expect(body).toContain('--hz-button-accent');
+	});
+});
+
+/** The five commitment cards deep-link into the Philosophy page; a renamed
+ *  heading id there would silently strand them, so pin both halves. */
+test.describe('commitment cards', () => {
+	test('every card href resolves to a live Philosophy anchor', async ({ page, request }) => {
+		await page.goto('/');
+		const hrefs = await page
+			.locator('a[href^="/docs/philosophy#"]')
+			.evaluateAll((links) => links.map((a) => a.getAttribute('href')));
+		expect(hrefs).toHaveLength(5);
+
+		const philosophy = await (await request.get('/docs/philosophy')).text();
+		for (const href of hrefs) {
+			const id = href!.split('#')[1];
+			expect(philosophy, `missing anchor #${id}`).toContain(`id="${id}"`);
+		}
+	});
 });

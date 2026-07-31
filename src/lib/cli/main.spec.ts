@@ -189,7 +189,7 @@ describe('hyzer generate — icons config', () => {
 		writeFileSync(join(first.cwd, 'hyzer.config.mjs'), `export default { icons: ['serch'] };`);
 		expect(await run(['generate'], first.io)).toBe(0);
 		expect(first.errors.join('\n')).toContain(
-			'icons: "serch" is not a valid Lucide icon name — omitted from the barrel'
+			'icons: "serch" is not a valid Lucide icon name, omitted from the barrel'
 		);
 		expect(first.errors.join('\n')).toContain('icons: 1 unknown name(s)');
 		expect(first.errors.join('\n')).toContain('use --strict');

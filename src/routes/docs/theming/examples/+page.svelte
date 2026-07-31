@@ -207,7 +207,7 @@
 
 		<Card class="hz-card--elevated" padding="md">
 			<h3 class="hz-card-title">Next tee time</h3>
-			Saturday, 8:40 — Maple Hill.
+			Saturday, 8:40, Maple Hill.
 			{#snippet actions()}
 				<Button size="sm">Confirm</Button>
 				<Button size="sm" variant="ghost" intent="neutral">Reschedule</Button>

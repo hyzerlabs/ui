@@ -1048,7 +1048,7 @@ test.describe('specs/39 — Motion', () => {
 		await page.goto('/docs/foundation/motion');
 		await page
 			.getByLabel('Scroll reveal demos')
-			.getByRole('tab', { name: 'revealGroup — a list' })
+			.getByRole('tab', { name: 'revealGroup: a list' })
 			.click();
 	}
 

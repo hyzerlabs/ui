@@ -21,7 +21,7 @@
 		neutral: { title: 'Course note', body: 'Hole 7 tee pads were resurfaced this week.' },
 		primary: { title: 'League night', body: 'Tags round starts at 5:30pm on Thursday.' },
 		secondary: { title: 'Doubles signup', body: 'Random-draw doubles opens 30 minutes early.' },
-		danger: { title: 'Course closed', body: 'Lightning in the area — clear the course now.' },
+		danger: { title: 'Course closed', body: 'Lightning in the area. Clear the course now.' },
 		warning: { title: 'High winds', body: 'Gusts over 30mph expected after 2pm.' },
 		success: { title: 'Round saved', body: 'Your scorecard was synced to the league.' },
 		info: { title: 'Cart friendly', body: 'The back nine is paved end to end.' }
@@ -29,7 +29,7 @@
 
 	const intentsCode = [
 		'<Alert title="Course note">Hole 7 tee pads were resurfaced this week.</Alert>',
-		'<Alert intent="danger" title="Course closed">Lightning in the area — clear the course now.</Alert>',
+		'<Alert intent="danger" title="Course closed">Lightning in the area. Clear the course now.</Alert>',
 		'<Alert intent="warning" title="High winds">Gusts over 30mph expected after 2pm.</Alert>',
 		'<Alert intent="success" title="Round saved">Your scorecard was synced to the league.</Alert>'
 	].join('\n');
@@ -48,7 +48,7 @@
 			'\t\tdismissLabel="Dismiss weather notice"',
 			'\t\tonDismiss={() => (weatherVisible = false)}',
 			'\t>',
-			'\t\tGusts over 30mph expected after 2pm — expect flippy discs to flip more.',
+			'\t\tGusts over 30mph expected after 2pm. Expect flippy discs to flip more.',
 			'\t</Alert>',
 			'{/if}'
 		].join('\n')
@@ -77,7 +77,7 @@
 		'</Alert>',
 		'<Alert intent="danger" title="Course closed">',
 		'\t{#snippet icon()}<IconTriangleAlert />{/snippet}',
-		'\tLightning in the area — clear the course now.',
+		'\tLightning in the area. Clear the course now.',
 		'</Alert>'
 	].join('\n');
 
@@ -143,7 +143,7 @@
 							</Alert>
 							<Alert intent="danger" title="Course closed" headingLevel={3}>
 								{#snippet icon()}<IconTriangleAlert />{/snippet}
-								Lightning in the area — clear the course now.
+								Lightning in the area. Clear the course now.
 							</Alert>
 						</Stack>
 					</Example>
@@ -178,7 +178,7 @@
 								dismissLabel="Dismiss weather notice"
 								onDismiss={() => (weatherVisible = false)}
 							>
-								Gusts over 30mph expected after 2pm — expect flippy discs to flip more.
+								Gusts over 30mph expected after 2pm. Expect flippy discs to flip more.
 							</Alert>
 						{:else}
 							<p class="dismissed-note">

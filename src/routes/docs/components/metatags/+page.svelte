@@ -23,7 +23,7 @@
 	// ------------------------------------------------------------------
 
 	const wrapperCode = [
-		'<!-- src/lib/Seo.svelte — in YOUR app, not this library -->',
+		'<!-- src/lib/Seo.svelte: in YOUR app, not this library -->',
 		'<script lang="ts">',
 		"\timport { page } from '$app/state';",
 		"\timport { Metatags } from '@hyzer-labs/ui';",

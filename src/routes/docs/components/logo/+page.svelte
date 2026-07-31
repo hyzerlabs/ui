@@ -95,7 +95,7 @@
 		'',
 		'<style>',
 		'\t.naive-row { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }',
-		'\t/* :global — the svg comes from {@html}, invisible to Svelte statically. */',
+		'\t/* :global: the svg comes from {@html}, invisible to Svelte statically. */',
 		'\t.naive-logo :global(svg) { display: block; height: 4rem; width: auto; }',
 		'</style>'
 	].join('\n');
@@ -432,8 +432,8 @@
 						<code>Carousel</code>, and so on) plus one <code>--hz-logo-size</code> override. It can
 						go on the <code>Grid</code> itself or on any ancestor, since custom properties inherit
 						either way. A wall only reads as balanced if every mark sits mid-column rather than
-						hugging one edge, so each <code>Logo</code> gets <code>justify-self: center</code> — Grid's
-						items sit at their column's start edge by default.
+						hugging one edge, so each <code>Logo</code> gets <code>justify-self: center</code>.
+						Grid's items sit at their column's start edge by default.
 					</p>
 					<Example code={wallCode}>
 						<Grid columns={3} gap="away" padding="sm" align="center" style="--hz-logo-size: 5rem">

@@ -3,6 +3,11 @@
 	import IconInfo from '$lib/icons/generated/info.svelte';
 	import DocIntro from '../../../docs/DocIntro.svelte';
 	import SizeTable from '../../../docs/SizeTable.svelte';
+	import WhereNext from '../../../docs/WhereNext.svelte';
+	import { gettingStartedStep, nextSteps } from '../../../docs/nextSteps';
+
+	// The shared onward links, minus this page itself.
+	const sections = [gettingStartedStep, ...nextSteps].filter((s) => s.href !== '/docs/philosophy');
 </script>
 
 <svelte:head>
@@ -142,6 +147,8 @@
 			an agent can act on without guessing.
 		</p>
 	</Stack>
+
+	<WhereNext items={sections} />
 </Stack>
 
 <style>

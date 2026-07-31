@@ -34,7 +34,7 @@
 		'',
 		'<Virtualizer items={paragraphs} {itemHeight} height={320}>',
 		'\t{#snippet row(item, index)}',
-		'\t\t<div class="demo-row" style="height: 100%">Row {index} — {item.lines} line(s)</div>',
+		'\t\t<div class="demo-row" style="height: 100%">Row {index}: {item.lines} line(s)</div>',
 		'\t{/snippet}',
 		'</Virtualizer>'
 	].join('\n');
@@ -126,7 +126,7 @@
 						>
 							{#snippet row(item, index)}
 								<div class="demo-row" style="height: 100%">
-									Row {index} — {item.lines} line(s)
+									Row {index}: {item.lines} line(s)
 								</div>
 							{/snippet}
 						</Virtualizer>

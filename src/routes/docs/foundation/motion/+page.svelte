@@ -157,9 +157,9 @@
 	);
 
 	const revealTabs = [
-		{ id: 'single', label: 'reveal — one element' },
-		{ id: 'group', label: 'revealGroup — a list' },
-		{ id: 'hero', label: 'reveal — a hero' }
+		{ id: 'single', label: 'reveal: one element' },
+		{ id: 'group', label: 'revealGroup: a list' },
+		{ id: 'hero', label: 'reveal: a hero' }
 	];
 
 	// `reveal` takes the same effect options minus the group-only stagger.

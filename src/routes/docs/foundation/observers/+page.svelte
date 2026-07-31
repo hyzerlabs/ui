@@ -99,7 +99,7 @@
 	const mutateCode = [
 		"import { mutate } from '@hyzer-labs/ui/observers';",
 		'',
-		'<!-- The browser mutates this DOM directly on user input — there is no',
+		'<!-- The browser mutates this DOM directly on user input. There is no',
 		'     $state bound to it, so mutate is what notices the change. -->',
 		'<div',
 		'\tcontenteditable="true"',
@@ -122,7 +122,7 @@
 	}
 
 	function announceAlert() {
-		const message = 'Connection lost — retrying…';
+		const message = 'Connection lost. Retrying…';
 		announceLog = [...announceLog, message];
 		announce(message, { assertive: true });
 	}
@@ -131,7 +131,7 @@
 		"import { announce } from '@hyzer-labs/ui/observers';",
 		'',
 		"announce('Loaded 20 more results');",
-		"announce('Connection lost — retrying…', { assertive: true });"
+		"announce('Connection lost. Retrying…', { assertive: true });"
 	].join('\n');
 
 	// -------------------------------------------------------------------------
@@ -258,7 +258,7 @@
 			role="textbox"
 			aria-multiline="true"
 			aria-label="Editable notes"
-			data-placeholder="Type or paste here — I'll count your words."
+			data-placeholder="Type or paste here. I'll count your words."
 			bind:this={editorEl}
 			{@attach mutate(onEditorMutate, {
 				childList: true,

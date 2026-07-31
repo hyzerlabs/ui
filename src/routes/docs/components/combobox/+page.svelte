@@ -82,7 +82,7 @@
 	// Virtualized combobox pattern for what tens of thousands of rows needs.
 	const manyCourses: FormOption[] = COURSES.map((course) => ({
 		value: courseSlug(course),
-		label: `${course.name} — ${course.location}`
+		label: `${course.name} · ${course.location}`
 	}));
 
 	let manyValue = $state<string[]>([]);
@@ -92,7 +92,7 @@
 		'',
 		'const manyCourses: FormOption[] = COURSES.map((course) => ({',
 		'\tvalue: courseSlug(course),',
-		'\tlabel: `${course.name} — ${course.location}`',
+		'\tlabel: `${course.name} · ${course.location}`',
 		'}));',
 		'',
 		'<Combobox name="courses" label="Course" options={manyCourses} />'

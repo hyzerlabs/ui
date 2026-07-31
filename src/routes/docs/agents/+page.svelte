@@ -3,8 +3,11 @@
 	import DocIntro from '../../../docs/DocIntro.svelte';
 	import { agentRules, importSurface, renderAgentsMd } from '../../../docs/agentRules';
 	import IconInfo from '$lib/icons/generated/info.svelte';
+	import WhereNext from '../../../docs/WhereNext.svelte';
+	import { gettingStartedStep, nextSteps } from '../../../docs/nextSteps';
 
 	const llmsCode = 'https://design.hyzer.sh/llms.txt';
+	const llmsFullCode = 'https://design.hyzer.sh/llms-full.txt';
 
 	// The file served at /agents.md, shown verbatim. What you copy here is
 	// byte-identical to what the route returns.
@@ -21,6 +24,9 @@
 					: { text: part, code: false }
 			);
 	}
+
+	// The shared onward links, minus this page itself.
+	const sections = [gettingStartedStep, ...nextSteps].filter((s) => s.href !== '/docs/agents');
 </script>
 
 <svelte:head>
@@ -48,6 +54,15 @@
 			<a href="/llms.txt" target="_blank" rel="noreferrer">Read it here</a>. It is generated from
 			the same manifest that builds this site's navigation, so it cannot fall out of date with the
 			docs it points at.
+		</p>
+		<p>
+			The index is one line per page. For an agent that would rather fetch once than crawl, there is
+			a companion file with the whole component reference in it: every component's props, styling
+			hooks, and accessibility notes, in one document.
+		</p>
+		<CodeBlock code={llmsFullCode} />
+		<p>
+			<a href="/llms-full.txt" target="_blank" rel="noreferrer">Read llms-full.txt here</a>.
 		</p>
 	</Stack>
 
@@ -114,6 +129,8 @@
 			<a href="/agents.md" target="_blank" rel="noreferrer">/agents.md</a>.
 		</p>
 	</Stack>
+
+	<WhereNext items={sections} />
 </Stack>
 
 <style>

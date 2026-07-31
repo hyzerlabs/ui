@@ -107,7 +107,7 @@
 }
 
 /*
- * .docs-table — the worked cascade example: the reference theme paints
+ * .docs-table: the worked cascade example. The reference theme paints
  * .hz-table from @layer hz-theme, so these unlayered rules win on every
  * property they set — no specificity games, no !important.
  */
@@ -171,7 +171,9 @@
 /* why the exclusion list is load-bearing.                              */
 /* ------------------------------------------------------------------ */
 
-*:focus-visible:not(:is(.hz-field input, .hz-field select, .hz-field textarea, .hz-button)) {
+*:focus-visible:not(
+		:is(.hz-field input, .hz-field select, .hz-field textarea, .hz-button, .hz-card-link)
+	) {
 	outline: 2px solid currentColor;
 	outline-offset: 2px;
 }

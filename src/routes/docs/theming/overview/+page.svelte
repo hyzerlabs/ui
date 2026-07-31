@@ -228,6 +228,16 @@
 				</tbody>
 			</table>
 		</div>
+		<p>
+			Where a rule lives decides whether it needs <code>:global()</code>. A stylesheet you import
+			never does, because Svelte only scopes styles inside a component's
+			<code>&lt;style&gt;</code> block. A rule in your own component's
+			<code>&lt;style&gt;</code> block does need it for a class you passed to a library component.
+			That class lands on markup the component renders, so an unwrapped selector is pruned as
+			unused. Custom-property hooks need no selector at all: set them on any ancestor and they
+			inherit through the boundary. <a href="/docs/theming/components">Styling Components</a> walks through
+			all three.
+		</p>
 	</Stack>
 </Stack>
 

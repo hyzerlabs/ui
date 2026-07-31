@@ -90,7 +90,7 @@
 							<Video
 								src={blankSrc}
 								title="Native provider demo"
-								poster={posterSvg('native <video> — controls on')}
+								poster={posterSvg('native <video>, controls on')}
 							/>
 						</div>
 					</Example>

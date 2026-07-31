@@ -80,7 +80,7 @@ export const manifest: ManifestEntry[] = [
 		label: 'Philosophy',
 		href: '/docs/philosophy',
 		description:
-			'The commitments that underpin this library: accessibility first, headless structure you can override through snippets and documented hooks, theming that is opt-in one tier at a time, no bloat, and plain language for you and your agents.'
+			'The commitments that underpin this library: accessibility first, headless structure with documented hooks and opt-in theming tiers, all in plain language.'
 	},
 	{
 		label: 'Agents',

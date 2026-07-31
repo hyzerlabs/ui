@@ -138,6 +138,7 @@ Live at [design.hyzer.sh](https://design.hyzer.sh).
 - [Theming](https://design.hyzer.sh/docs/theming/overview) — tokens, named themes, styling components
 - [Agents](https://design.hyzer.sh/docs/agents) — wiring this up to a coding agent
 - [llms.txt](https://design.hyzer.sh/llms.txt) — the whole site, indexed for machines
+- [llms-full.txt](https://design.hyzer.sh/llms-full.txt) — every component's props, styling hooks, and accessibility notes in one file
 
 ## License
 

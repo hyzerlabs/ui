@@ -6,7 +6,7 @@
 
 	const quoteOnlyCode = [
 		'<Blockquote>',
-		'\tThrow flat, trust the fade — the disc does the work on a hyzer line.',
+		'\tThrow flat, trust the fade: the disc does the work on a hyzer line.',
 		'</Blockquote>'
 	].join('\n');
 
@@ -46,7 +46,7 @@
 			cite: 'Valerie Mandujano'
 		},
 		danger: {
-			text: 'Out-of-bounds lines are part of the hole — plan your line around them, not through them.',
+			text: 'Out-of-bounds lines are part of the hole: plan your line around them, not through them.',
 			cite: 'PDGA Rules Committee'
 		},
 		warning: {
@@ -58,7 +58,7 @@
 			cite: 'Paul McBeth'
 		},
 		info: {
-			text: 'Most courses post their layout at the first tee — read it before you throw one disc.',
+			text: 'Most courses post their layout at the first tee. Read it before you throw one disc.',
 			cite: 'Course signage'
 		},
 		neutral: {
@@ -91,7 +91,7 @@
 	});
 
 	const longQuote =
-		'The course doesn’t care how far you throw — it cares where the disc stops. ' +
+		'The course doesn’t care how far you throw. It cares where the disc stops. ' +
 		'After twelve titles I can tell you the short game decides more rounds than ' +
 		'any 500-foot drive ever will: the upshots you place under the basket and ' +
 		'the putts you grind in practice are the strokes that hold up on Sunday.';
@@ -100,7 +100,7 @@
 		const alignAttr = align === 'start' ? '' : ` align="${align}"`;
 		return [
 			`<Blockquote cite="Ken Climo"${alignAttr}>`,
-			'\tThe course doesn’t care how far you throw — it cares where the disc',
+			'\tThe course doesn’t care how far you throw. It cares where the disc',
 			'\tstops. After twelve titles I can tell you the short game decides more',
 			'\trounds than any 500-foot drive ever will: the upshots you place under',
 			'\tthe basket and the putts you grind in practice are the strokes that',
@@ -129,7 +129,7 @@
 					</p>
 					<Example code={quoteOnlyCode}>
 						<Blockquote>
-							Throw flat, trust the fade — the disc does the work on a hyzer line.
+							Throw flat, trust the fade: the disc does the work on a hyzer line.
 						</Blockquote>
 					</Example>
 				{:else if item.id === 'attributed'}

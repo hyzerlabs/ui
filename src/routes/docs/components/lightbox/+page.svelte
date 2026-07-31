@@ -39,7 +39,7 @@
 
 	const galleryItems: LightboxItem[] = [
 		{
-			src: demoSvg('Photo 1 of 3 — arrows page the viewer', '2563eb'),
+			src: demoSvg('Photo 1 of 3: arrows page the viewer', '2563eb'),
 			thumbSrc: demoSvg('Photo 1', '2563eb', 600, 400),
 			alt: 'First demo photo',
 			caption: 'Arrow keys work anywhere in the viewer'
@@ -107,11 +107,11 @@
 		{
 			alt: 'Second demo photo (opens the full-res override)',
 			color: '7c3aed',
-			full: demoSvg('Full-resolution override — via data-lightbox-src', '7c3aed', 1200, 800)
+			full: demoSvg('Full-resolution override, via data-lightbox-src', '7c3aed', 1200, 800)
 		},
 		{ alt: 'Third demo photo', color: '0e7490' },
 		{ alt: 'Fourth demo photo', color: 'ea580c' },
-		{ alt: 'Static chart — excluded from the group', color: '6b7280', ignored: true }
+		{ alt: 'Static chart, excluded from the group', color: '6b7280', ignored: true }
 	];
 	const attachmentPhotos = attachmentBase.map((p) => ({
 		...p,
@@ -123,7 +123,7 @@
 		'',
 		'<div class="gallery-grid" {@attach lightboxGroup()}>',
 		'\t<!-- Image spreads ...rest onto its inner img, so data-lightbox-src / -ignore -->',
-		'\t<!-- pass through — the attachment sees the real <img> it enhances. -->',
+		'\t<!-- pass through: the attachment sees the real <img> it enhances. -->',
 		'\t<Image',
 		'\t\tsrc={photo.thumb}',
 		'\t\talt={photo.alt}',
@@ -167,8 +167,8 @@
 					<Example code={basicCode}>
 						<div class="thumb-box">
 							<Lightbox
-								src={demoSvg('Full-size image — Esc or backdrop closes', '2563eb')}
-								thumbSrc={demoSvg('Thumbnail — click to enlarge', '2563eb', 600, 400)}
+								src={demoSvg('Full-size image: Esc or backdrop closes', '2563eb')}
+								thumbSrc={demoSvg('Thumbnail: click to enlarge', '2563eb', 600, 400)}
 								alt="Demo image"
 								caption="Hole 7, sunset round"
 							/>
@@ -243,7 +243,7 @@
 									/>
 									{#if photo.ignored}
 										<figcaption class="ignored-caption">
-											<code>data-lightbox-ignore</code> — not part of the group
+											<code>data-lightbox-ignore</code>: not part of the group
 										</figcaption>
 									{/if}
 								</figure>

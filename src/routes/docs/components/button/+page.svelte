@@ -70,7 +70,7 @@
 		...sizes.map(
 			(size) => `<!-- size="${size}"${size === 'md' ? ' (default)' : ''} -->\n${sizeRowCode(size)}`
 		),
-		'<!-- size="full" — fills its container at the md height/padding -->\n<Button size="full">full</Button>'
+		'<!-- size="full": fills its container at the md height/padding -->\n<Button size="full">full</Button>'
 	].join('\n\n');
 
 	const statesCode = [

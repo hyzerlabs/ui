@@ -1301,7 +1301,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-highlighted',
 				values: 'present when the children escape hatch is used',
-				note: "Marks a block whose code node is consumer-supplied pre-highlighted markup (R19). Target it to drop the default code-surface fill and let a build-time highlighter's own background sit cleanly."
+				note: "Marks a block whose code node is consumer-supplied pre-highlighted markup. Target it to drop the default code-surface fill and let a build-time highlighter's own background sit cleanly."
 			},
 			{
 				name: 'data-collapsible',
@@ -1466,7 +1466,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: '.hz-card-link',
 				values: 'child element',
-				note: 'The overlay anchor, present only when clickable.'
+				note: 'The overlay anchor, present only when clickable. Its own focus ring would be clipped on rounded cards, so the theme draws the ring on .hz-card itself while this anchor holds focus.'
 			}
 		]
 	},

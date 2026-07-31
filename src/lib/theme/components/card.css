@@ -34,6 +34,24 @@
 		overflow: hidden;
 	}
 
+	/* Focus ring for the clickable overlay — drawn on the card root, not the
+	 * overlay <a> itself. The overlay sits inset:0 inside .hz-card, which
+	 * clips to the radius via `overflow: hidden` above; a ring painted on the
+	 * anchor would land in that clipped region and never be visible. A root's
+	 * own outline is not subject to the root's own overflow clipping, so it
+	 * paints uncropped regardless of rounding. */
+	.hz-card:has(.hz-card-link:focus-visible) {
+		outline: var(--hz-border-width-thick, 2px) solid var(--hz-intent-primary, #2563eb);
+		outline-offset: 2px;
+	}
+
+	/* The anchor's own default focus ring is suppressed — it would double the
+	 * root's ring on unrounded cards (nothing clips it there) and is invisible
+	 * dead weight on rounded ones. The root rule above is the single ring. */
+	.hz-card-link:focus-visible {
+		outline: none;
+	}
+
 	/* Treatments — opt-in modifier classes */
 	.hz-card:where(.hz-card--outlined) {
 		border: var(--hz-border-width-thin, 1px) solid

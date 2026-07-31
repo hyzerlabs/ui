@@ -67,7 +67,7 @@
 
 	const oncloseCode = [
 		'<Modal bind:open onclose={() => (closedCount += 1)} title="Track dismissals">',
-		'\t<p>onclose fires once per dismissal — any path: ✕, Esc, overlay, or actions.</p>',
+		'\t<p>onclose fires once per dismissal, any path: ✕, Esc, overlay, or actions.</p>',
 		'</Modal>'
 	].join('\n');
 </script>
@@ -162,7 +162,7 @@
 							onclose={() => (closedCount += 1)}
 							title="Track dismissals"
 						>
-							<p>onclose fires once per dismissal — any path: ✕, Esc, overlay, or actions.</p>
+							<p>onclose fires once per dismissal, any path: ✕, Esc, overlay, or actions.</p>
 						</Modal>
 					</Example>
 				{/if}

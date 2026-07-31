@@ -113,7 +113,7 @@
 		'<FileUpload name="cert-required" label="Certificate" required />',
 		'<FileUpload name="cert-disabled" label="Certificate" disabled />',
 		'',
-		'<!-- dropzone — same states, side by side -->',
+		'<!-- dropzone: same states, side by side -->',
 		'<FileUpload',
 		'\tname="cert-dz"',
 		'\tlabel="Certificate"',

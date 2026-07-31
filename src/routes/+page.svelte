@@ -32,14 +32,15 @@
 		'\t<Badge intent="success">Greens fast</Badge>',
 		'\t<Badge intent="warning">Wind picking up</Badge>',
 		'\t{#snippet actions()}',
-		'\t\t<Button variant="soft" size="sm">Book a tee time</Button>',
+		'\t\t<Button size="sm">Book a tee time</Button>',
 		'\t{/snippet}',
 		'</Card>',
 		'',
 		'<' + 'style>',
-		'\t/* The class prop lands on the component root, so one instance',
-		'\t   restyles without a wrapper element. */',
-		'\t.conditions {',
+		'\t/* The class prop lands on the component root, but Svelte scopes',
+		'\t   selectors to elements in your own markup, so target it with',
+		'\t   :global. */',
+		'\t:global(.conditions) {',
 		'\t\tbackground: var(--hz-color-surface-muted);',
 		'\t\tmax-inline-size: 24rem;',
 		'\t}',
@@ -75,12 +76,12 @@
 		{
 			title: 'No bloat',
 			href: '/docs/philosophy#bloat-heading',
-			body: 'Components carry structural CSS and nothing else. Svelte is the only peer dependency, and nothing else reaches your production bundle.'
+			body: 'Components carry structural CSS and nothing else. Svelte is the only peer dependency, and nothing extra reaches your production bundle.'
 		},
 		{
 			title: 'Plain language, for you and your agents',
 			href: '/docs/philosophy#plain-heading',
-			body: 'A component’s labels, error messages and empty states are part of its design. We write them short and skip the jargon.'
+			body: "A component's labels, error messages and empty states are part of its design. We write them short and skip the jargon."
 		}
 	];
 
@@ -194,7 +195,7 @@
 							<Badge intent="success">Greens fast</Badge>
 							<Badge intent="warning">Wind picking up</Badge>
 							{#snippet actions()}
-								<Button variant="soft" size="sm">Book a tee time</Button>
+								<Button size="sm">Book a tee time</Button>
 							{/snippet}
 						</Card>
 					</div>
@@ -243,15 +244,21 @@
 	/* Full-bleed section bands. The wrapper carries the background; the
 	   Container inside keeps centering the content as before. */
 	.band-striped {
-		/* Diagonal stripes off the border role over a muted base, so the band
-		   reads as a field of its own rather than stripes on the plain page. */
-		background-color: var(--hz-color-surface-muted, #f3f4f6);
+		/* Solid info intent under the diagonal stripes, matching the page's
+		   other intent bands; the stripes and borders pull toward the black
+		   anchor the same way the card frames do. */
+		background-color: color-mix(
+			in srgb,
+			var(--hz-intent-info, #0891b2) 90%,
+			var(--hz-color-black, #000)
+		);
 		background-image: repeating-linear-gradient(
 			-45deg,
 			transparent 0 12px,
-			color-mix(in srgb, var(--hz-color-border, #6b7280) 28%, transparent) 12px 14px
+			color-mix(in srgb, var(--hz-color-black, #000) 22%, transparent) 12px 14px
 		);
-		border-block: 1px solid var(--hz-color-border, #6b7280);
+		border-block: 1px solid
+			color-mix(in srgb, var(--hz-intent-info, #0891b2) 65%, var(--hz-color-black, #000));
 	}
 
 	/* An opaque surface so the size table reads over the stripes. */
@@ -285,6 +292,12 @@
 		--card-frame: var(--hz-intent-secondary, #7c3aed);
 	}
 
+	/* The deepened dark band is too dark for the surface-role (black) on-fill
+	   text; the text role (near-white) clears AA against it in dark. */
+	:global([data-theme='dark']) .band-bold :global(h2) {
+		color: var(--hz-color-text, #fff);
+	}
+
 	@media (prefers-color-scheme: dark) {
 		:global(:root:not([data-theme])) .band-bold {
 			background: color-mix(
@@ -293,6 +306,10 @@
 				var(--hz-color-surface, #000)
 			);
 			--card-frame: var(--hz-intent-secondary, #7c3aed);
+		}
+
+		:global(:root:not([data-theme])) .band-bold :global(h2) {
+			color: var(--hz-color-text, #fff);
 		}
 	}
 
@@ -309,8 +326,8 @@
 	}
 
 	.band-bold :global(h2),
-	.band-warning :global(h2),
-	.band-warning :global(p > a) {
+	.band-striped :global(h2),
+	.band-warning :global(h2) {
 		color: var(--hz-color-surface, #fff);
 	}
 

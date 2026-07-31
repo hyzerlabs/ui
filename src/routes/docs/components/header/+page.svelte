@@ -140,7 +140,7 @@
 						<Example code={mobileCode}>
 							<ResizableDemo
 								initial={600}
-								describe={(w) => (w >= 968 ? 'full bar' : 'collapsed — try the hamburger')}
+								describe={(w) => (w >= 968 ? 'full bar' : 'collapsed, try the hamburger')}
 							>
 								<Header items={demoItems} bordered ariaLabel="Demo header (mobile)">
 									{#snippet brand()}

@@ -19,9 +19,9 @@
 		neutral: 'Course note: hole 7 tee pads were resurfaced this week.',
 		primary: 'League night: tags round starts at 5:30pm on Thursday.',
 		secondary: 'Doubles signup: random-draw doubles opens 30 minutes early.',
-		danger: 'Course closed — lightning in the area, clear the course now.',
+		danger: 'Course closed: lightning in the area. Clear the course now.',
 		warning: 'High winds: gusts over 30mph expected after 2pm.',
-		success: 'Round saved — your scorecard was synced to the league.',
+		success: 'Round saved: your scorecard was synced to the league.',
 		info: 'Cart friendly: the back nine is paved end to end.'
 	};
 
@@ -61,14 +61,14 @@
 	const richCode = [
 		'<Banner intent="info">',
 		'\t<strong class="hz-banner-title">Winter league registration is open</strong>',
-		'\tSign up by November 1 — rounds move to 10am starts after the time change.',
+		'\tSign up by November 1. Rounds move to 10am starts after the time change.',
 		"\t{#snippet actions()}<Link href='#'>Register</Link>{/snippet}",
 		'</Banner>'
 	].join('\n');
 
 	const pinnedCode = [
 		'<div class="scroll-wrap">',
-		'\t<Banner pin="top" intent="danger">Course closed — lightning in the area.</Banner>',
+		'\t<Banner pin="top" intent="danger">Course closed: lightning in the area.</Banner>',
 		'\t<!-- …scrollable page content… -->',
 		'</div>',
 		'',
@@ -180,7 +180,7 @@
 						<Example code={richCode}>
 							<Banner intent="info">
 								<strong class="hz-banner-title">Winter league registration is open</strong>
-								Sign up by November 1 — rounds move to 10am starts after the time change.
+								Sign up by November 1. Rounds move to 10am starts after the time change.
 								{#snippet actions()}
 									<Link href="#">Register</Link>
 								{/snippet}
@@ -210,10 +210,10 @@
 					<Container breakout padding="none">
 						<Example code={pinnedCode}>
 							<div class="scroll-wrap">
-								<Banner pin="top" intent="danger">Course closed — lightning in the area.</Banner>
+								<Banner pin="top" intent="danger">Course closed: lightning in the area.</Banner>
 								<div class="scroll-filler">
 									<p>Scroll to see the banner stay pinned to the top of this box…</p>
-									<p>It never overlaps this text — sticky keeps it in flow.</p>
+									<p>It never overlaps this text: sticky keeps it in flow.</p>
 									<p>Keep scrolling.</p>
 									<p>Still here.</p>
 									<p>The bottom of the scrollable region.</p>

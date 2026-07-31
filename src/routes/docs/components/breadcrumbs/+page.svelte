@@ -25,14 +25,14 @@
 		'const items: BreadcrumbItem[] = [',
 		"\t{ label: 'Home', href: '/docs' },",
 		"\t{ label: 'Components', href: '/docs/components/button' },",
-		"\t{ label: 'Button' } // current page — no href, renders as text",
+		"\t{ label: 'Button' } // current page, no href, renders as text",
 		'];',
 		'',
 		'<Breadcrumbs {items} />'
 	].join('\n');
 
 	const wrapCode = [
-		'<!-- The trail is a wrapping flex row — long paths',
+		'<!-- The trail is a wrapping flex row: long paths',
 		'     break onto new lines; separators stay attached to their crumb -->',
 		'<Breadcrumbs {items} />'
 	].join('\n');

@@ -14,7 +14,7 @@
 	// Basic action menu — a round's kebab menu, each item logging its action.
 	// ------------------------------------------------------------------
 
-	let lastAction = $state('—');
+	let lastAction = $state('–');
 
 	const roundItems: DropdownEntry[] = [
 		{ id: 'view', label: 'View scorecard', onselect: () => (lastAction = 'View scorecard') },
@@ -23,7 +23,7 @@
 	];
 
 	const basicCode = [
-		'let lastAction = $state("—");',
+		'let lastAction = $state("–");',
 		'',
 		'const roundItems: DropdownEntry[] = [',
 		"\t{ id: 'view', label: 'View scorecard', onselect: () => (lastAction = 'View scorecard') },",

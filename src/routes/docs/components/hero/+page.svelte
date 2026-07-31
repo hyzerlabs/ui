@@ -22,7 +22,7 @@
 	function layoutCode(layout: string): string {
 		if (layout === 'split') {
 			return [
-				'<!-- Text slots take strings — or snippets when you need inner markup -->',
+				'<!-- Text slots take strings, or snippets when you need inner markup -->',
 				'<Hero layout="split" subtitle="Content on one side, media on the other." headingLevel={2}>',
 				'\t{#snippet title()}Split hero with <em>styled</em> media{/snippet}',
 				'\t{#snippet actions()}<Button>Get started</Button>{/snippet}',
@@ -47,7 +47,7 @@
 			'<Hero',
 			'\teyebrow="What\'s new"',
 			'\ttitle="Headless components for Svelte 5"',
-			'\tsubtitle="Ships behavior, structure, and accessibility — not visual opinions."',
+			'\tsubtitle="Ships behavior, structure, and accessibility, not visual opinions."',
 			'\theadingLevel={2}',
 			'>',
 			'\t{#snippet actions()}',
@@ -121,7 +121,7 @@
 												<Hero
 													eyebrow="What's new"
 													title="Headless components for Svelte 5"
-													subtitle="Ships behavior, structure, and accessibility — not visual opinions."
+													subtitle="Ships behavior, structure, and accessibility, not visual opinions."
 													headingLevel={2}
 												>
 													{#snippet actions()}

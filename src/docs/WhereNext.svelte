@@ -29,7 +29,7 @@
 
 <Stack as="section" gap="away" data-density-shift class="doc-section" aria-labelledby={id}>
 	<h2 {id}>{title}</h2>
-	<Grid columns={{ sm: 1, md: 2, lg: 3 }} gap="md">
+	<Grid columns={{ sm: 1, md: 3 }} gap="md">
 		{#each items as step (step.href)}
 			<!-- The card's link is a bare overlay anchor, so it needs its own
 			     name: without ariaLabel it reaches the a11y tree unlabeled. -->
