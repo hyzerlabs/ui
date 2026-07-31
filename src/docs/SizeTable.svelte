@@ -56,7 +56,13 @@
 			columns={browserColumns}
 			bordered={false}
 			caption="What a visitor downloads, piece by piece"
-		/>
+		>
+			{#snippet cell(row, column)}
+				{@const value = row[column.key as keyof Row]}
+				{#if column.key === 'label'}<span class="import-name">{row.label}</span
+					>{:else if value != null}{value}{/if}
+			{/snippet}
+		</Table>
 	</div>
 	<p class="size-note">
 		Gzipped is what crosses the network. Uncompressed is what the browser holds once it unzips the
@@ -88,10 +94,34 @@
 		.size-tables :global(.docs-table [data-stack] tbody :is(th, td)) {
 			border-bottom: none;
 			padding: 0;
+			/* Inherited into the value's anonymous box, so wrapped value lines
+			   align to the right edge; the label keeps its own start alignment. */
+			text-align: end;
+		}
+
+		.size-tables :global(.docs-table [data-stack] tbody [data-label]::before) {
+			text-align: start;
 		}
 
 		.size-tables :global(.docs-table [data-stack] tbody tr) {
 			padding-inline: 0;
+		}
+
+		/* A cell whose row has no value for the column (the total row's note)
+		   renders empty; hide the whole labeled pair rather than a dangling
+		   label. The ::before label does not count against :empty. */
+		.size-tables :global(.docs-table [data-stack] tbody td:empty) {
+			display: none;
+		}
+
+		/* The tier name reads as a badge in stacked mode; at table widths it
+		   stays plain text. */
+		.size-tables :global(.import-name) {
+			background-color: color-mix(in srgb, var(--hz-intent-neutral, #6b7280) 14%, transparent);
+			padding: 0.125em 0.5em;
+			border-radius: var(--hz-radius-full, 9999px);
+			font-size: var(--hz-font-size-sm, 0.875rem);
+			font-weight: var(--hz-font-weight-semibold, 600);
 		}
 	}
 

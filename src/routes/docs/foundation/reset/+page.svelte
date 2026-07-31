@@ -4,9 +4,15 @@
 	import resetSource from '$lib/theme/reset.css?raw';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
-	const importOrder = `import '@hyzer-labs/ui/reset.css'; // 1. reset (optional)
-import '@hyzer-labs/ui/tokens.css'; // 2. tokens
-import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)`;
+	// An array joined with '\n', not a multi-line template literal — a raw
+	// `import '@hyzer-labs/ui/...'` sitting at the start of a source line trips
+	// Vite's TS-import-extraction regex (it scans raw text, not real syntax),
+	// which then tries to resolve these display-only strings as real deps.
+	const importOrder = [
+		"import '@hyzer-labs/ui/reset.css'; // 1. reset (optional)",
+		"import '@hyzer-labs/ui/tokens.css'; // 2. tokens",
+		"import '@hyzer-labs/ui/theme'; // 3. reference theme (optional)"
+	].join('\n');
 </script>
 
 <svelte:head>

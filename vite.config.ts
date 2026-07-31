@@ -4,6 +4,15 @@ import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
+	/* Pre-bundle esm-env up front: without this, vite discovers it mid-test-run
+	   ("new dependencies optimized: esm-env") and reloads live tests, which
+	   vitest itself warns causes failures and flaky behavior. CI hits this
+	   because its dependency scan aborts (docs pages self-import package
+	   subpaths that resolve only once dist/ exists) and pre-bundling is
+	   skipped entirely. */
+	optimizeDeps: {
+		include: ['esm-env']
+	},
 	plugins: [
 		sveltekit({
 			compilerOptions: {
