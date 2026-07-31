@@ -206,7 +206,7 @@
 
 		<div class="band band-bold band-triangles">
 			<Container max="lg" padding="lg">
-				<WhereNext items={sections} title="Browse the docs" id="sections-heading" />
+				<WhereNext items={sections} title="Browse the docs" id="sections-heading" filler />
 			</Container>
 		</div>
 	</main>
@@ -360,8 +360,10 @@
 		color: var(--hz-color-surface, #fff);
 	}
 
-	.band-bold :global(.hz-card),
-	.band-warning :global(.hz-card) {
+	/* The decorative filler keeps its frame-colored fill — it must not be
+	   repainted to the band's card surface or it reads as an empty card. */
+	.band-bold :global(.hz-card:not(.next-filler)),
+	.band-warning :global(.hz-card:not(.next-filler)) {
 		background: var(--hz-color-surface-muted, #f3f4f6);
 	}
 

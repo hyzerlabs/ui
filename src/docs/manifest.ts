@@ -341,6 +341,12 @@ export const manifest: ManifestEntry[] = [
 							'Two-column layout with configurable proportions that stacks to a single column when its own width gets narrow.'
 					},
 					{
+						label: 'Parallax',
+						href: '/docs/components/parallax',
+						description:
+							'A page-scroll-driven band whose layers drift as it passes through the viewport, in CSS alone. Motion stops entirely for visitors who ask for less, and browsers without scroll-driven animation show the same still composition.'
+					},
+					{
 						label: 'Virtualizer',
 						href: '/docs/components/virtualizer',
 						description:

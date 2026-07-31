@@ -15,6 +15,11 @@ export const nextSteps: NextStep[] = [
 		blurb: 'Every component, with its props, theme hooks and accessibility notes.'
 	},
 	{
+		label: 'Foundation',
+		href: '/docs/foundation/colors',
+		blurb: 'Colors, type, spacing, motion — the tokens every component resolves through.'
+	},
+	{
 		label: 'Theming',
 		href: '/docs/theming/overview',
 		blurb: 'The layer model, and how far you can push it without forking the library.'

@@ -9,6 +9,8 @@ export { default as Stack } from './Stack.svelte';
 export { default as Cluster } from './Cluster.svelte';
 export { default as Grid } from './Grid.svelte';
 export { default as Split } from './Split.svelte';
+export { default as Parallax } from './Parallax.svelte';
+export { default as ParallaxLayer } from './ParallaxLayer.svelte';
 export { default as Virtualizer } from './Virtualizer.svelte';
 export { default as Nav } from './Nav.svelte';
 export { default as Header } from './Header.svelte';

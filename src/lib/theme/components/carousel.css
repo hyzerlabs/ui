@@ -172,4 +172,22 @@
 		background-color: var(--hz-intent-primary, #2563eb);
 		scale: 1.25;
 	}
+
+	/* Rail: the scrollbar stays visible — slim and themed — rather than
+	 * hidden. It is a free affordance that more content exists and a free
+	 * mouse-drag path; no edge fade/mask competes with it. Scoped to the rail
+	 * layout only — single mode's viewport clips content and never scrolls. */
+	.hz-carousel[data-layout='rail'] :where(.hz-carousel-viewport) {
+		scrollbar-width: thin;
+		scrollbar-color: var(--hz-color-border, #6b7280) transparent;
+	}
+
+	/* Amended 2026-07-31 (user decision): a looping rail hides its scrollbar
+	 * instead. The thumb's position and size describe where you are in a
+	 * fixed range — meaningless on content that wraps, and it would jump a
+	 * full copy-width at every teleport. Buttons, keyboard, touch, and wheel
+	 * still work; only this decorative-but-misleading affordance goes. */
+	.hz-carousel[data-layout='rail'][data-loop] :where(.hz-carousel-viewport) {
+		scrollbar-width: none;
+	}
 }

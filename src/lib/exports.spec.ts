@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render } from 'svelte/server';
 
 /**
@@ -16,6 +16,9 @@ describe('subpath exports', () => {
 		expect(mod.Cluster).toBeDefined();
 		expect(mod.Grid).toBeDefined();
 		expect(mod.Split).toBeDefined();
+		// specs/59 R1: Parallax + ParallaxLayer exported from $lib.
+		expect(mod.Parallax).toBeDefined();
+		expect(mod.ParallaxLayer).toBeDefined();
 		// Virtualizer-R11: Virtualizer exported from $lib.
 		expect(mod.Virtualizer).toBeDefined();
 		expect(mod.Nav).toBeDefined();
@@ -112,6 +115,26 @@ describe('subpath exports', () => {
 		const mod = await import('$lib');
 		const { body } = render(mod.Skeleton, { props: {} });
 		expect(body).toContain('hz-skeleton');
+	});
+
+	// specs/59 R1/R9: smoke render — resolves from $lib and renders its root
+	// class with no throw, proving both components are SSR-safe (no window/
+	// document access at module scope or during initialization).
+	it('$lib — Parallax resolves and smoke-renders `.hz-parallax`', async () => {
+		const mod = await import('$lib');
+		const { body } = render(mod.Parallax, { props: {} });
+		expect(body).toContain('hz-parallax');
+	});
+
+	it('$lib — ParallaxLayer resolves and smoke-renders `.hz-parallax-layer`', async () => {
+		const mod = await import('$lib');
+		// Silenced: a bare ParallaxLayer with no Parallax ancestor dev-warns
+		// (R10) — expected and harmless here, this test only proves the SSR
+		// render itself doesn't throw.
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { body } = render(mod.ParallaxLayer, { props: { x: 40 } });
+		warnSpy.mockRestore();
+		expect(body).toContain('hz-parallax-layer');
 	});
 
 	// Logo-R9: smoke render — resolves from $lib and renders its root class.

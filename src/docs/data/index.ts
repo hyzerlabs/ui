@@ -39,6 +39,7 @@ import { stackDoc } from './stack.js';
 import { clusterDoc } from './cluster.js';
 import { gridDoc } from './grid.js';
 import { splitDoc } from './split.js';
+import { parallaxDoc } from './parallax.js';
 import { virtualizerDoc } from './virtualizer.js';
 
 import { headerDoc } from './header.js';
@@ -107,6 +108,7 @@ export const componentDocs: Record<string, ComponentDoc> = {
 	Cluster: clusterDoc,
 	Grid: gridDoc,
 	Split: splitDoc,
+	Parallax: parallaxDoc,
 	Virtualizer: virtualizerDoc,
 
 	// ------------------------------------------------------------ Navigation

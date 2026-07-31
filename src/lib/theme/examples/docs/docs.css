@@ -67,6 +67,14 @@
 	color: var(--hz-color-text-muted, #6b7280);
 }
 
+/* Tabs that stack several Example blocks: an example owns no margin of its
+ * own, so give anything that follows one breathing room. The 1rem matches
+ * .tab-note's own bottom margin, and collapses with it where both apply. */
+.doc-example + .tab-note,
+.doc-example + .doc-example {
+	margin-top: 1rem;
+}
+
 /* A supporting note that owns no space of its own: the same muted, small
  * treatment as .tab-note, with the margin left to the Stack it sits in.
  * Pages used to hand-roll this one per file. */
