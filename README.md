@@ -6,7 +6,6 @@ behavior, and accessibility, and leaves the look to you.
 ## Requirements
 
 - Svelte ^5.32
-- For developing this repo: Node.js ≥ 22 (see `.nvmrc`) and pnpm ≥ 10
 
 ## Installation
 
@@ -113,21 +112,23 @@ element and that subtree follows, whether that element is `<html>` or one
 The sheet also carries a `prefers-color-scheme` default, so following the system
 setting needs no JavaScript. Only overriding it does.
 
-## Development
+## Config & CLI (optional)
+
+The same engine that generates this library's own token sheet ships in the
+package. Describe your design system once in `hyzer.config.ts`, and the
+`hyzer` CLI turns it into a token sheet, a trimmed icon barrel, and an
+optional utility sheet — with a WCAG contrast report on every run.
 
 ```sh
-pnpm install          # install dependencies — do this first
-
-pnpm dev              # start docs site dev server
-pnpm build            # build docs site (static)
-pnpm package          # build library → dist/
-pnpm check            # svelte-check
-pnpm lint             # prettier + eslint
-pnpm format           # auto-format
-pnpm test:unit        # vitest unit tests
-pnpm test:e2e         # playwright e2e tests
-pnpm test             # all tests
+hyzer generate                   # write a complete token sheet
+hyzer generate --mode overrides  # or a patch sheet with only your changes
+hyzer generate --check --strict  # validate without writing; fail CI on any AA miss
 ```
+
+You need neither the file nor the CLI to theme the library — plain CSS
+overrides work on their own. See
+[Config & CLI](https://design.hyzer.sh/docs/foundation/config) for the full
+option surface.
 
 ## Docs
 
@@ -140,6 +141,11 @@ Live at [design.hyzer.sh](https://design.hyzer.sh).
 - [llms.txt](https://design.hyzer.sh/llms.txt) — the whole site, indexed for machines
 - [llms-full.txt](https://design.hyzer.sh/llms-full.txt) — every component's props, styling hooks, and accessibility notes in one file
 - [llms-full.json](https://design.hyzer.sh/llms-full.json) — the same reference as JSON, for keyed lookup
+
+## Contributing
+
+Developing the library itself — commands, workflow, releases — lives in
+[CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 
