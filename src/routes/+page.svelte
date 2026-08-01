@@ -19,7 +19,7 @@
 	import SiteChrome from '../docs/SiteChrome.svelte';
 	import SizeTable from '../docs/SizeTable.svelte';
 	import WhereNext from '../docs/WhereNext.svelte';
-	import { gettingStartedStep, nextSteps } from '../docs/nextSteps';
+	import { nextSteps } from '../docs/nextSteps';
 
 	const usageSvelteCode = [
 		'<script>',
@@ -93,9 +93,9 @@
 		"@import '@hyzer-labs/ui/utilities.css'; /* optional */"
 	].join('\n');
 
-	// The same onward links Getting Started and the error page offer, so the
-	// three entry points into the docs stay in step.
-	const sections = [gettingStartedStep, ...nextSteps];
+	// The shared onward links, without the Getting Started card — the hero's
+	// "Get started" button above is this page's install entry point already.
+	const sections = nextSteps;
 </script>
 
 <!-- No image prop: the site ships no og image yet, so the summary card is

@@ -68,12 +68,12 @@ for (const vp of viewports) {
 
 /** The error page — landing-page layout, not the docs shell. */
 test.describe('404 page', () => {
-	test('says the page was not found and offers the six onward links', async ({ page }) => {
+	test('says the page was not found and offers the seven onward links', async ({ page }) => {
 		await page.goto('/no-such-page');
 		await expect(page.getByRole('heading', { level: 1 })).toContainText('Page not found');
 		await expect(page.locator('.docs-sidebar')).toHaveCount(0);
 		const next = page.getByRole('region', { name: 'Where to go next' });
-		await expect(next.getByRole('link')).toHaveCount(6);
+		await expect(next.getByRole('link')).toHaveCount(7);
 		await expect(next.getByRole('link', { name: /Getting Started/ })).toHaveCount(1);
 	});
 });

@@ -295,6 +295,82 @@ export const hooks: Record<string, ComponentHooks> = {
 			}
 		]
 	},
+	Parallax: {
+		root: 'hz-parallax',
+		attrs: [
+			{
+				name: 'data-axis',
+				values: "'y' | 'x'",
+				note: "Which axis of the nearest scroller drives the drift. Stamped for both values. Default y — the page's vertical scroll. x tracks the band's horizontal crossing, for a band used as a panel inside a HorizontalScroll."
+			}
+		],
+		props: [
+			{
+				name: '--hz-parallax-x',
+				values: '<length> — default 0',
+				note: "Total horizontal travel of one layer across the band's pass through the viewport. Set it in your own CSS (and omit the x prop) to change travel per breakpoint. Negative drifts the other way."
+			},
+			{
+				name: '--hz-parallax-y',
+				values: '<length> — default 0',
+				note: 'Total vertical travel. Same rules as --hz-parallax-x.'
+			},
+			{
+				name: '--hz-parallax-z',
+				values: '<number> — default -1',
+				note: "The layer's z-index inside the band. The default sits it behind the band's content; 1 puts it in front."
+			},
+			{
+				name: '--hz-parallax-range',
+				values: '<animation-range> — default cover',
+				note: "Which part of the band's pass through the viewport the drift is spread over. cover is the whole pass; entry, exit, and contain narrow it."
+			}
+		],
+		parts: [
+			{
+				name: '.hz-parallax-layer',
+				values: 'child element',
+				note: 'One drifting layer: absolutely positioned, sized to the band plus its own travel so the edges stay covered, decorative (aria-hidden) and click-through by default.'
+			}
+		]
+	},
+	HorizontalScroll: {
+		root: 'hz-horizontal-scroll',
+		attrs: [
+			{
+				name: 'data-snap',
+				values: 'present when snapping is on',
+				note: 'Drives scroll-snap-type: x mandatory on the root. Absent by default — free continuous scrolling.'
+			},
+			{
+				name: 'data-wheel',
+				values: 'present once the wheel remap is actually listening (client-side only)',
+				note: 'Reflects the attached listener, not the wheel prop — absent server-side and pre-hydration, and absent whenever wheel is false.'
+			},
+			{
+				name: 'data-wheeling',
+				values: 'present while a remapped wheel burst is in flight',
+				note: 'Suppresses scroll-snap-type for the duration so a mandatory snap does not fight a live scrollLeft assignment; clears ~150ms after the last consumed event, and the browser settles to the nearest panel on its own. Never present when wheel is false.'
+			}
+		],
+		props: [
+			{
+				name: '--hz-horizontal-scroll-height',
+				values: '<length> — default 100dvh',
+				note: 'The shell block-size. dvh survives a mobile URL bar collapsing; override for an embedded (non-full-viewport) shell.'
+			},
+			{
+				name: '--hz-horizontal-scroll-panel-width',
+				values: '<length | percentage> — default 100%',
+				note: 'One knob for how much of the shell a panel fills. auto sizes each panel to its content.'
+			},
+			{
+				name: '--hz-horizontal-scroll-gap',
+				values: '<length> — default 0',
+				note: 'Gap between panels.'
+			}
+		]
+	},
 	Virtualizer: {
 		root: 'hz-virtualizer',
 		parts: [
@@ -1553,12 +1629,12 @@ export const hooks: Record<string, ComponentHooks> = {
 			{
 				name: 'data-active',
 				values: 'present on the active slide and dot',
-				note: 'On .hz-carousel-slide and .hz-carousel-dot. Off-screen slides carry inert instead — they are clipped by the viewport, not hidden — so target :not([inert]) for the visible one.'
+				note: 'On .hz-carousel-slide and .hz-carousel-dot, layout="single" only. Off-screen slides carry inert instead — they are clipped by the viewport, not hidden — so target :not([inert]) for the visible one. Rail has no single active slide, so no slide or dot ever carries it there.'
 			},
 			{
 				name: 'data-dragging',
 				values: 'present while a drag is underway',
-				note: 'On .hz-carousel-track. The settle transition is suppressed while it is present so the track follows the pointer 1:1; a grab/grabbing cursor pairs with it.'
+				note: 'On .hz-carousel-track. The settle transition is suppressed while it is present so the track follows the pointer 1:1; a grab/grabbing cursor pairs with it. In rail, the same hook also suppresses scroll-snap on the viewport for the duration (:has()) so mandatory snap does not fight the live drag.'
 			},
 			{
 				name: 'data-controls',
@@ -1566,14 +1642,29 @@ export const hooks: Record<string, ComponentHooks> = {
 				note: "On the root, always stamped, both values. Presentation only: the controls markup is identical either way. focus visually hides the whole control row until :hover/:focus-within reveals it together — the row stays in the DOM, in the a11y tree, and fully operable throughout (the WCAG 2.5.7 non-dragging alternative to drag). Default 'visible'."
 			},
 			{
+				name: 'data-layout',
+				values: "'single' | 'rail'",
+				note: "On the root, always stamped, both values. 'single' (default) is the sliding-track, one-slide-per-view layout; 'rail' is a native horizontal-scroll row with several slides visible at once — a different mechanism, not a variant."
+			},
+			{
+				name: 'data-snap',
+				values: 'present when layout="rail" and snap is not false',
+				note: "On the root, rail only — never stamped in single mode. Drives the viewport's scroll-snap-type: x mandatory. Absent with snap={false} for free continuous momentum scrolling."
+			},
+			{
+				name: 'data-loop',
+				values: 'present when the rail loop is effectively active',
+				note: "On the root, rail only. Stamped once loop is genuinely wrapping — content overflows and the clone buffer has mounted — never before that first measurement and never when loop is inert because the content does not overflow. The hook reflects effective behavior, the data-seamless doctrine: hides the themed scrollbar while present, since a scrollbar's position and size describe a fixed range that a looping rail does not have."
+			},
+			{
 				name: 'data-seamless',
-				values: 'present only when seamless && loop',
-				note: 'On the root. Absent when seamless is set without loop — an inert no-op — so the hook reflects effective behavior, never advertising a wrap that cannot happen.'
+				values: 'present only when seamless && loop, layout="single"',
+				note: 'On the root. Absent when seamless is set without loop — an inert no-op — so the hook reflects effective behavior, never advertising a wrap that cannot happen. Also absent in layout="rail": rail\'s loop is inherently continuous, so seamless has nothing to opt into there.'
 			},
 			{
 				name: 'data-clone',
-				values: 'present on a wrap-settle clone slide',
-				note: 'On .hz-carousel-slide. Rendered only mid-wrap, seamless loop, a distance-1 boundary crossing (drag, buttons, an adjacent-wrap dot, or arrow keys) — an inert, aria-hidden copy of the opposite-end slide the track settles into before silently resetting to the real target. Never counted in count, "{n} of {total}", or the dot rail; never focusable.'
+				values: 'present on a buffer slide',
+				note: 'On .hz-carousel-slide. Two producers: (1) single mode — mid-wrap, seamless loop, a distance-1 boundary crossing (drag, buttons, an adjacent-wrap dot, or arrow keys) — an inert, aria-hidden copy of the opposite-end slide the track settles into before silently resetting to the real target; (2) rail — under loop, once content overflows, a full leading and a full trailing copy of every item, mounted after hydration, that the scroll position teleports across invisibly at the ends. Both are inert, aria-hidden, and never counted in count, "{n} of {total}", or the dot rail; never focusable.'
 			}
 		],
 		props: [
@@ -1586,13 +1677,28 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: '--hz-carousel-focus-min-height',
 				values: '<length> — default 12rem',
 				note: "Minimum height of .hz-carousel-viewport, data-controls='focus' only. The revealed control row is an absolutely positioned overlay with no reserved layout space, so on a short carousel it can cover most of the slide — this keeps slide content clear of the row regardless of the slide's own height. data-controls='visible' needs no reserved space (its row sits in normal flow below the viewport) and is unaffected."
+			},
+			{
+				name: '--hz-carousel-item-width',
+				values: "<length> — default clamp(9rem, 20%, 18rem), layout='rail' only",
+				note: "Each slide's flex-basis. The percentage resolves against the viewport, so the visible count falls out of container width; the 9rem floor keeps a phone at roughly 2.5 items with a peeking edge. Set an exact count with a calc(), e.g. calc((100% - 2 * 1rem) / 3) for exactly three."
+			},
+			{
+				name: '--hz-carousel-gap',
+				values: "<length> — default var(--hz-space-sm, 1rem), layout='rail' only",
+				note: 'Gap between rail slides. Single mode never applies a gap — it would break the 100%-per-slide transform math.'
+			},
+			{
+				name: '--hz-carousel-rail-inset',
+				values: "<length> — default 0.25rem, layout='rail' only",
+				note: "Block padding on .hz-carousel-viewport. Rail forces overflow-y: hidden (the single-axis-auto rule), which would otherwise clip a focused item's ring or shadow — this keeps a small buffer clear above and below."
 			}
 		],
 		parts: [
 			{
 				name: '.hz-carousel-viewport',
 				values: 'child element',
-				note: 'The clip window and live region.'
+				note: 'The clip window in single mode (and its aria-live="polite" region); the native scroll container in rail — overflow-x: auto, and a tab stop (tabindex="0") so keyboard scrolling works with zero JS. No aria-live in rail: nothing appears or disappears, the position is continuous, and it would announce every hydrated clone.'
 			},
 			{
 				name: '.hz-carousel-track',
