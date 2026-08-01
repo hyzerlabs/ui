@@ -1,19 +1,16 @@
 # @hyzer-labs/ui
 
-A headless, accessible Svelte 5 component library. Ships behavior, structure,
-and accessibility — not visual opinions.
+A headless, accessible Svelte 5 component library. It ships structure,
+behavior, and accessibility, and leaves the look to you.
 
 ## Requirements
 
-- Node.js ≥ 22 (see `.nvmrc`)
-- pnpm ≥ 10
+- Svelte ^5.32
+- For developing this repo: Node.js ≥ 22 (see `.nvmrc`) and pnpm ≥ 10
 
 ## Installation
 
 ```sh
-# Run pnpm install before any other command
-pnpm install
-
 pnpm add @hyzer-labs/ui
 ```
 
@@ -41,36 +38,39 @@ pnpm add @hyzer-labs/ui
 | `@hyzer-labs/ui/utils`                        | Utility functions                          |
 | `@hyzer-labs/ui/types`                        | Shared TypeScript types                    |
 | `@hyzer-labs/ui/theme`                        | Reference theme (full CSS)                 |
-| `@hyzer-labs/ui/theme/button.css`             | Individual per-component styles            |
+| `@hyzer-labs/ui/theme/button.css`             | One component's styles                     |
 | `@hyzer-labs/ui/theme/examples/ocean.css`     | Theme variant (token overrides)            |
 | `@hyzer-labs/ui/theme/examples/docs/docs.css` | The docs site's own look (content starter) |
 
 ## Styling
 
-The library ships in opt-in tiers — take as much or as little as you want:
+The library ships in opt-in tiers. Take as much or as little as you want:
 
 1. **Headless (default).** Components ship structure, behavior, and a11y only.
    Style them yourself via the stable `hz-*` classes and `data-*` attributes
    (`data-variant`, `data-intent`, `data-size`, `data-state`).
-2. **Reset.** `@hyzer-labs/ui/reset.css` is a structural adaptation of
-   [Josh Comeau's reset](https://www.joshwcomeau.com/css/custom-css-reset/) —
-   no colors or typefaces. Lives in the `hz-reset` cascade layer, below
-   `hz-theme`, so everything else wins ties. Import it first.
+2. **Reset.** `@hyzer-labs/ui/reset.css` adapts
+   [Josh Comeau's reset](https://www.joshwcomeau.com/css/custom-css-reset/) for
+   structure only, with no colors or typefaces. It lives in the `hz-reset`
+   cascade layer, below `hz-theme`, so everything else wins ties. Import it
+   first.
 3. **Tokens.** `@hyzer-labs/ui/tokens.css` defines the `--hz-*` custom
-   properties (palette, semantic roles, type, spacing, radius, elevation,
-   motion). Includes the `[data-theme="dark"]` role hook and the density
-   spacing model (`--hz-density` grid unit → `--hz-space-near` /
-   `--hz-space-away`, tightened per `data-density-shift` ancestor — adapted
-   from [Complementary Space](https://blog.damato.design/posts/complementary-space/)).
+   properties: palette, semantic roles, type, spacing, radius, elevation, and
+   motion. It also carries the `[data-theme="dark"]` role hook and the density
+   spacing model, where a `--hz-density` grid unit drives `--hz-space-near` and
+   `--hz-space-away`, tightened by each `data-density-shift` ancestor. That
+   model is adapted from
+   [Complementary Space](https://blog.damato.design/posts/complementary-space/).
 4. **Reference theme.** `@hyzer-labs/ui/theme` is a complete, token-driven
-   visual layer — or cherry-pick per-component files
-   (`@hyzer-labs/ui/theme/button.css`).
-5. **Example themes.** `theme/examples/ocean.css` restyles purely by
-   overriding tokens; `theme/examples/terminal/terminal.css` is a standalone
-   look that skips the reference theme entirely;
-   `theme/examples/docs/docs.css` is a different kind of example — the docs
-   site's own reading chrome, layered over the reference theme, adding no
-   palette of its own. See `/theming/examples` for the full arc.
+   visual layer. Or cherry-pick per-component files, like
+   `@hyzer-labs/ui/theme/button.css`.
+5. **Example themes.** `theme/examples/ocean.css` restyles by overriding tokens
+   alone. `theme/examples/terminal/terminal.css` is a standalone look that skips
+   the reference theme entirely. `theme/examples/docs/docs.css` works
+   differently again: it is the docs site's own reading chrome, layered over the
+   reference theme, adding no palette of its own. See
+   [Theme examples](https://design.hyzer.sh/docs/theming/examples) for how the
+   three compare.
 
 ```svelte
 <script>
@@ -84,9 +84,9 @@ The library ships in opt-in tiers — take as much or as little as you want:
 ### Overriding styles
 
 Every component accepts a `class` prop, merged after its `hz-*` class. The
-reference theme lives in the `hz-theme` cascade layer, so **any unlayered
-consumer CSS wins** — a plain single-class selector is enough, no specificity
-fights or `!important`:
+reference theme lives in the `hz-theme` cascade layer, so **any unlayered CSS of
+your own wins**. A plain single-class selector is enough: no specificity fights,
+no `!important`:
 
 ```svelte
 <Button class="cta">Ship it</Button>
@@ -98,20 +98,20 @@ fights or `!important`:
 </style>
 ```
 
-For theme-wide tweaks, override tokens instead — set `--hz-color-primary` on
-`:root` (or any subtree) and every component follows.
+For theme-wide tweaks, override tokens instead. Set `--hz-color-primary` on
+`:root`, or on any subtree, and every component follows.
 
-Themes are named, and `dark` is just one of them: set `data-theme="dark"` on
-any element and that subtree follows, whether it is `<html>` or one `<section>`
-in the middle of a page. Define your own in `hyzer.config.ts` under `themes`,
-and apply them by hand or with the `theme` attachment:
+Themes are named, and `dark` is one of them. Set `data-theme="dark"` on any
+element and that subtree follows, whether that element is `<html>` or one
+`<section>` in the middle of a page. Define your own under `themes` in
+`hyzer.config.ts`, then apply them by hand or with the `theme` attachment:
 
 ```svelte
 <section {@attach theme('ocean')}>…</section>
 ```
 
-The sheet also carries a `prefers-color-scheme` default, so following the
-system needs no JavaScript — only overriding it does.
+The sheet also carries a `prefers-color-scheme` default, so following the system
+setting needs no JavaScript. Only overriding it does.
 
 ## Development
 
