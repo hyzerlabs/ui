@@ -218,13 +218,13 @@
 						vertically. Scroll the box below sideways with the scrollbar, a trackpad, touch, or the
 						keyboard to see two effects. In panel one the circles start far apart, near the top and
 						bottom, and opposing <code>y</code> (cross-axis) travel brings them together as you
-						scroll. In panel two the shapes start staggered, and <code>x</code> travel at different distances
-						drifts them at different speeds, the classic depth look.
+						scroll. In panel two the shapes start staggered, and giving each layer a different
+						<code>x</code> travel drifts them at different speeds, the classic depth look.
 					</p>
 					<Alert intent="info">
 						{#snippet icon()}<IconInfo />{/snippet}
-						The scroller itself lives on the
-						<a href="/docs/components/horizontal-scroll">HorizontalScroll</a> page.
+						The scrolling shell has its own page:
+						<a href="/docs/components/horizontal-scroll">HorizontalScroll</a>.
 					</Alert>
 					<Example code={horizontalScrollingCode}>
 						<HorizontalScroll

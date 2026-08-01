@@ -248,10 +248,10 @@
 						<code>axis="x"</code>, because the shell never scrolls vertically and a band left on the
 						default <code>axis="y"</code> would sit still. In panel one the circles start far apart,
 						near the top and bottom, and opposing <code>y</code> (cross-axis) travel brings them
-						together as you scroll. In panel two the shapes start staggered, and <code>x</code>
-						travel at different distances drifts them at different speeds. The motion rules are the same
-						here: layers stop drifting for visitors who ask for less motion, while scrolling the shell
-						itself always works.
+						together as you scroll. In panel two the shapes start staggered, and giving each layer a
+						different <code>x</code> travel drifts them at different speeds. The motion rules are the
+						same here: layers stop drifting for visitors who ask for less motion, while scrolling the
+						shell itself always works.
 					</p>
 					<Alert intent="info">
 						{#snippet icon()}<IconInfo />{/snippet}

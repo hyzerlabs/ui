@@ -1,0 +1,45 @@
+name: Publish
+
+# Publishes to npm via trusted publishing (OIDC) when a version tag is
+# pushed. No tokens, no OTP: npm trusts this repo+workflow directly, and
+# generates provenance for the release. Requires the trusted publisher to
+# be configured on npmjs.com for @hyzer-labs/ui (repo hyzerlabs/ui,
+# workflow publish.yml).
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  id-token: write # the OIDC token npm exchanges for publish access
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      # Trusted publishing needs npm >= 11.5.1; Node's bundled npm is older.
+      - name: Update npm for OIDC support
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # prepublishOnly runs the package build + publint as the final gate.
+      - name: Publish
+        run: npm publish

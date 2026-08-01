@@ -357,8 +357,8 @@
 					</Example>
 					<p class="tab-note">
 						Control how many cards show at once with <code>--hz-carousel-item-width</code>. Set a
-						plain length, or a <code>calc()</code> for an exact count whatever the container's
-						width.
+						plain length, or a <code>calc()</code> for an exact count no matter how wide the
+						container is.
 						<code>--hz-carousel-gap</code> sets the space between cards.
 					</p>
 					<Example code={railSizingCode}>
@@ -373,6 +373,10 @@
 							{/snippet}
 						</Carousel>
 					</Example>
+					<p class="tab-note">
+						The same property takes a <code>calc()</code> for an exact count instead of a fixed width
+						— this row always shows three:
+					</p>
 					<Example code={railExactThreeCode}>
 						<Carousel
 							items={railProducts}
