@@ -22,15 +22,9 @@
 		title?: string;
 		/** Anchor target for the Toc rail and aria-labelledby. */
 		id?: string;
-		/**
-		 * Append one solid-fill decorative card to soften a ragged last row.
-		 * Pure decoration: no link, no copy, hidden from assistive tech, and
-		 * hidden entirely when the grid drops to a single column.
-		 */
-		filler?: boolean;
 	}
 
-	let { items, title = 'Where to go next', id = 'next-heading', filler = false }: Props = $props();
+	let { items, title = 'Where to go next', id = 'next-heading' }: Props = $props();
 </script>
 
 <Stack as="section" gap="away" data-density-shift class="doc-section" aria-labelledby={id}>
@@ -49,9 +43,6 @@
 				<p class="next-blurb">{step.blurb}</p>
 			</Card>
 		{/each}
-		{#if filler}
-			<Card class="expressive-card next-filler" padding="md" aria-hidden="true" />
-		{/if}
 	</Grid>
 </Stack>
 
@@ -72,24 +63,5 @@
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		color: var(--hz-color-text-muted, #6b7280);
 		line-height: var(--hz-line-height-base, 1.5);
-	}
-
-	/* The decorative filler: an easter egg, not an obviously empty card. It
-	   wears the shared expressive-card class, so frame, corner shape, and
-	   the hover lift (light) / press (dark) come from chrome.css like every
-	   sibling; the only difference is a solid fill of the frame color. The
-	   grid's stretch alignment gives it the row's height. Hidden once the
-	   grid drops to one column (same 640px threshold Grid's own column
-	   switch uses; literal because container queries cannot read tokens). */
-	:global(.next-filler.hz-card) {
-		/* The same softened mix the press/lift shadow uses, not full-strength
-		   --card-frame — solid frame color read too heavy next to the copy. */
-		background: color-mix(in srgb, var(--card-frame, var(--hz-color-text, #000)) 85%, transparent);
-	}
-
-	@container (width < 640px) {
-		:global(.next-filler.hz-card) {
-			display: none;
-		}
 	}
 </style>

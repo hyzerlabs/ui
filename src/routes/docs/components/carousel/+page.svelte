@@ -1,21 +1,37 @@
 <script lang="ts">
-	import { Carousel, Card, Blockquote, Tabs } from '$lib';
+	import { Carousel, Card, Blockquote, Image, Tabs } from '$lib';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { carouselDoc } from '../../../../docs/data/carousel.js';
 	import Example from '../../../../docs/Example.svelte';
 
-	const products = [
-		'Alpine',
-		'Cascade',
-		'Delta',
-		'Ember',
-		'Fjord',
-		'Grove',
-		'Harbor',
-		'Ivy',
-		'Juniper',
-		'Kestrel'
+	// Every rail demo mirrors the Product listing pattern's card in
+	// miniature: a media area, a name, a price. Generated art, so the demo
+	// ships no binary assets (the ProductListing sample's discArt precedent).
+	interface RailProduct {
+		name: string;
+		price: number;
+		bg: string;
+		fg: string;
+	}
+	const railProducts: RailProduct[] = [
+		{ name: 'Alpine', price: 18, bg: '1e3a8a', fg: '60a5fa' },
+		{ name: 'Cascade', price: 22, bg: '14532d', fg: '4ade80' },
+		{ name: 'Delta', price: 15, bg: '7c2d12', fg: 'fb923c' },
+		{ name: 'Ember', price: 26, bg: '581c87', fg: 'c084fc' },
+		{ name: 'Fjord', price: 19, bg: '164e63', fg: '22d3ee' },
+		{ name: 'Grove', price: 24, bg: '713f12', fg: 'facc15' },
+		{ name: 'Harbor', price: 17, bg: '7f1d1d', fg: 'f87171' },
+		{ name: 'Ivy', price: 21, bg: '134e4a', fg: '2dd4bf' },
+		{ name: 'Juniper', price: 23, bg: '4c1d95', fg: 'a78bfa' },
+		{ name: 'Kestrel', price: 20, bg: '831843', fg: 'f472b6' }
 	];
+	function railProductArt(p: RailProduct): string {
+		return (
+			`data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='240' viewBox='0 0 320 240'%3E` +
+			`%3Crect width='320' height='240' fill='%23${p.bg}'/%3E` +
+			`%3Ccircle cx='160' cy='120' r='70' fill='%23${p.fg}'/%3E%3C/svg%3E`
+		);
+	}
 
 	const quotes = [
 		{
@@ -132,25 +148,33 @@
 		'</' + 'style>'
 	].join('\n');
 
-	const railBasicCode = [
-		'<Carousel items={products} layout="rail" ariaLabel="Featured products">',
+	const railCardSnippet = [
 		'\t{#snippet slide(product)}',
-		'\t\t<Card>{product}</Card>',
-		'\t{/snippet}',
+		'\t\t<Card class="hz-card--outlined" padding="md" rounded="md">',
+		'\t\t\t{#snippet media()}',
+		'\t\t\t\t<Image src={productArt(product)} alt="" aspectRatio="4/3" fit="cover" />',
+		'\t\t\t{/snippet}',
+		'\t\t\t<p class="rail-product-name">{product.name}</p>',
+		'\t\t\t<p class="rail-product-price">${product.price}</p>',
+		'\t\t</Card>',
+		'\t{/snippet}'
+	];
+
+	const railBasicCode = [
+		'<Carousel items={railProducts} layout="rail" ariaLabel="Featured products">',
+		...railCardSnippet,
 		'</Carousel>'
 	].join('\n');
 
 	const railSizingCode = [
 		'<!-- A plain value: every card is 12rem wide, with a wider gap. -->',
 		'<Carousel',
-		'\titems={products}',
+		'\titems={railProducts}',
 		'\tlayout="rail"',
 		'\tariaLabel="Featured products"',
 		'\tclass="rail-fixed-width"',
 		'>',
-		'\t{#snippet slide(product)}',
-		'\t\t<Card>{product}</Card>',
-		'\t{/snippet}',
+		...railCardSnippet,
 		'</Carousel>',
 		'',
 		'<' + 'style>',
@@ -164,14 +188,12 @@
 	const railExactThreeCode = [
 		'<!-- Exactly three visible, whatever the container width. -->',
 		'<Carousel',
-		'\titems={products}',
+		'\titems={railProducts}',
 		'\tlayout="rail"',
 		'\tariaLabel="Featured products"',
 		'\tclass="rail-exactly-three"',
 		'>',
-		'\t{#snippet slide(product)}',
-		'\t\t<Card>{product}</Card>',
-		'\t{/snippet}',
+		...railCardSnippet,
 		'</Carousel>',
 		'',
 		'<' + 'style>',
@@ -182,18 +204,14 @@
 	].join('\n');
 
 	const railFreeScrollCode = [
-		'<Carousel items={products} layout="rail" snap={false} ariaLabel="Featured products">',
-		'\t{#snippet slide(product)}',
-		'\t\t<Card>{product}</Card>',
-		'\t{/snippet}',
+		'<Carousel items={railProducts} layout="rail" snap={false} ariaLabel="Featured products">',
+		...railCardSnippet,
 		'</Carousel>'
 	].join('\n');
 
 	const railLoopCode = [
-		'<Carousel items={products} layout="rail" loop snap={false} ariaLabel="Featured products">',
-		'\t{#snippet slide(product)}',
-		'\t\t<Card>{product}</Card>',
-		'\t{/snippet}',
+		'<Carousel items={railProducts} layout="rail" loop snap={false} ariaLabel="Featured products">',
+		...railCardSnippet,
 		'</Carousel>'
 	].join('\n');
 
@@ -311,44 +329,59 @@
 				{:else}
 					<p class="tab-note">
 						<code>layout="rail"</code> swaps the sliding track for a real horizontally-scrolling row with
-						several cards visible at once — a storefront shelf rather than a single slide. The browser
-						drives it: touch, trackpad, wheel, the scrollbar, and the arrow keys all scroll it natively,
-						and a mouse can drag it too. The prev/next buttons page it by one screenful. There is no dots/counter
-						indicator in this layout, since several items are visible at the same time.
+						several cards visible at once, like a storefront shelf. The browser drives it: touch, trackpad,
+						wheel, the scrollbar, and the arrow keys all scroll it natively, and a mouse can drag it too.
+						The prev/next buttons move it one screenful at a time. There is no dots or counter indicator
+						in this layout, since several items are visible at once.
 					</p>
+					{#snippet railProductCard(product: RailProduct)}
+						<Card class="hz-card--outlined" padding="md" rounded="md">
+							{#snippet media()}
+								<Image src={railProductArt(product)} alt="" aspectRatio="4/3" fit="cover" />
+							{/snippet}
+							<p class="rail-product-name">{product.name}</p>
+							<p class="rail-product-price">${product.price}</p>
+						</Card>
+					{/snippet}
 					<Example code={railBasicCode}>
-						<Carousel items={products} layout="rail" ariaLabel="Featured products (rail)">
+						<Carousel
+							items={railProducts}
+							layout="rail"
+							ariaLabel="Featured products (rail)"
+							class="rail-product-carousel"
+						>
 							{#snippet slide(product)}
-								<Card>{product}</Card>
+								{@render railProductCard(product)}
 							{/snippet}
 						</Carousel>
 					</Example>
 					<p class="tab-note">
-						Control how many cards show at once with <code>--hz-carousel-item-width</code> — set a
-						plain length, or a <code>calc()</code> for an exact count regardless of the container's
-						width. <code>--hz-carousel-gap</code> sets the space between cards.
+						Control how many cards show at once with <code>--hz-carousel-item-width</code>. Set a
+						plain length, or a <code>calc()</code> for an exact count whatever the container's
+						width.
+						<code>--hz-carousel-gap</code> sets the space between cards.
 					</p>
 					<Example code={railSizingCode}>
 						<Carousel
-							items={products}
+							items={railProducts}
 							layout="rail"
 							ariaLabel="Featured products (fixed card width)"
 							class="rail-fixed-width"
 						>
 							{#snippet slide(product)}
-								<Card>{product}</Card>
+								{@render railProductCard(product)}
 							{/snippet}
 						</Carousel>
 					</Example>
 					<Example code={railExactThreeCode}>
 						<Carousel
-							items={products}
+							items={railProducts}
 							layout="rail"
 							ariaLabel="Featured products (exactly three)"
 							class="rail-exactly-three"
 						>
 							{#snippet slide(product)}
-								<Card>{product}</Card>
+								{@render railProductCard(product)}
 							{/snippet}
 						</Carousel>
 					</Example>
@@ -358,34 +391,35 @@
 					</p>
 					<Example code={railFreeScrollCode}>
 						<Carousel
-							items={products}
+							items={railProducts}
 							layout="rail"
 							snap={false}
 							ariaLabel="Featured products (free scrolling)"
+							class="rail-product-carousel"
 						>
 							{#snippet slide(product)}
-								<Card>{product}</Card>
+								{@render railProductCard(product)}
 							{/snippet}
 						</Carousel>
 					</Example>
 					<p class="tab-note">
-						<code>loop</code> in a rail wraps the row continuously in either direction — scroll or drag
-						past either end and it carries on rather than stopping. A looping row also hides its scrollbar,
-						since there's no real start or end for it to point to — the row still scrolls with touch,
-						trackpad, wheel, the keyboard, and a mouse drag exactly as before. The cards that briefly
-						appear wrapped around at either edge become clickable again as soon as the row finishes scrolling
-						onto them.
+						<code>loop</code> in a rail wraps the row in either direction: scroll or drag past either
+						end and it carries on rather than stopping. A looping row also hides its scrollbar, since
+						there's no real start or end for it to point to. The row still scrolls with touch, trackpad,
+						wheel, the keyboard, and a mouse drag, exactly as before. The cards that briefly appear wrapped
+						around at either edge become clickable again as soon as the row finishes scrolling onto them.
 					</p>
 					<Example code={railLoopCode}>
 						<Carousel
-							items={products}
+							items={railProducts}
 							layout="rail"
 							loop
 							snap={false}
 							ariaLabel="Featured products (looping)"
+							class="rail-product-carousel"
 						>
 							{#snippet slide(product)}
-								<Card>{product}</Card>
+								{@render railProductCard(product)}
 							{/snippet}
 						</Carousel>
 					</Example>
@@ -449,5 +483,23 @@
 
 	:global(.rail-exactly-three) {
 		--hz-carousel-item-width: calc((100% - 2 * 1rem) / 3);
+	}
+
+	/* A touch wider than the default floor so the card's media area, name,
+	 * and price all have room to breathe. */
+	:global(.rail-product-carousel) {
+		--hz-carousel-item-width: 11rem;
+	}
+
+	.rail-product-name {
+		margin: 0.5rem 0 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+
+	.rail-product-price {
+		margin: 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
 	}
 </style>

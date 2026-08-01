@@ -19,6 +19,8 @@ describe('subpath exports', () => {
 		// specs/59 R1: Parallax + ParallaxLayer exported from $lib.
 		expect(mod.Parallax).toBeDefined();
 		expect(mod.ParallaxLayer).toBeDefined();
+		// specs/60 R1: HorizontalScroll exported from $lib.
+		expect(mod.HorizontalScroll).toBeDefined();
 		// Virtualizer-R11: Virtualizer exported from $lib.
 		expect(mod.Virtualizer).toBeDefined();
 		expect(mod.Nav).toBeDefined();
@@ -135,6 +137,15 @@ describe('subpath exports', () => {
 		const { body } = render(mod.ParallaxLayer, { props: { x: 40 } });
 		warnSpy.mockRestore();
 		expect(body).toContain('hz-parallax-layer');
+	});
+
+	// specs/60 R1: smoke render — resolves from $lib and renders its root
+	// class with no throw (SSR-safe: no window/document access at module
+	// scope or during initialization).
+	it('$lib — HorizontalScroll resolves and smoke-renders `.hz-horizontal-scroll`', async () => {
+		const mod = await import('$lib');
+		const { body } = render(mod.HorizontalScroll, { props: {} });
+		expect(body).toContain('hz-horizontal-scroll');
 	});
 
 	// Logo-R9: smoke render — resolves from $lib and renders its root class.

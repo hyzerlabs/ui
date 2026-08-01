@@ -50,21 +50,17 @@
 
 	// R10 — DEV-only warnings, evaluated once at creation (the Loading.svelte /
 	// Skeleton.svelte `untrack()` precedent). None of these change behavior.
+	// Zero-travel lives in the post-mount effect below (2026-07-31 amendment
+	// to R10.2) — it has to read the resolved custom property, not the raw
+	// prop, so a stylesheet-set `--hz-parallax-x`/`-y` (the R4-documented
+	// omit-the-prop-and-set-it-in-CSS pattern) counts as real travel instead
+	// of tripping a false "never moves" warning.
 	if (DEV) {
 		untrack(() => {
 			if (!hasParent) {
 				console.warn(
 					'[hyzer-ui] <ParallaxLayer>: rendered outside a <Parallax> band. It will position ' +
 						'against whatever ancestor is positioned, unclipped, and will leak.'
-				);
-			}
-
-			const xIsZero = x === undefined || x === 0;
-			const yIsZero = y === undefined || y === 0;
-			if (xIsZero && yIsZero) {
-				console.warn(
-					'[hyzer-ui] <ParallaxLayer>: `x` and `y` are both zero — the layer never moves. ' +
-						'Use a plain child instead.'
 				);
 			}
 
@@ -83,19 +79,89 @@
 		});
 	}
 
-	// R10.4 — focusable content in a decorative layer, checked post-mount
-	// since the layer's subtree is consumer-supplied. DEV-only, client-only
-	// (an effect never runs during SSR) — no window/document access outside it.
+	/** Trimmed-empty or a length that resolves to 0 — a real length like "40px"/"-6rem" is not. */
+	function isZeroTravel(raw: string): boolean {
+		const value = raw.trim();
+		if (!value) return true;
+		const n = parseFloat(value);
+		return !Number.isNaN(n) && n === 0;
+	}
+
+	function isScrollContainerOverflow(overflow: string): boolean {
+		return overflow === 'auto' || overflow === 'scroll' || overflow === 'hidden';
+	}
+
+	/**
+	 * specs/60 R9 — the band's nearest ancestor scroll container: a node whose
+	 * computed overflow-x or overflow-y is auto/scroll/hidden (`clip` and
+	 * `visible` are not scroll containers, so the band's own `overflow: clip`
+	 * is correctly skipped), falling back to the document scrolling element.
+	 */
+	function nearestScrollContainer(from: Element): Element {
+		let node: Element | null = from.parentElement;
+		while (node) {
+			const cs = getComputedStyle(node);
+			if (isScrollContainerOverflow(cs.overflowX) || isScrollContainerOverflow(cs.overflowY)) {
+				return node;
+			}
+			node = node.parentElement;
+		}
+		return document.scrollingElement ?? document.documentElement;
+	}
+
+	// R10.4/R9 — checked post-mount, since the layer's subtree is
+	// consumer-supplied and the travel/scroller measurements need the real
+	// layout. DEV-only, client-only (an effect never runs during SSR) — no
+	// window/document access outside it.
 	$effect(() => {
 		if (!DEV || !layerEl) return;
+
+		const cs = getComputedStyle(layerEl);
+		if (
+			isZeroTravel(cs.getPropertyValue('--hz-parallax-x')) &&
+			isZeroTravel(cs.getPropertyValue('--hz-parallax-y'))
+		) {
+			console.warn(
+				'[hyzer-ui] <ParallaxLayer>: `x` and `y` both resolve to zero travel — the layer never ' +
+					'moves. Use a plain child instead.'
+			);
+		}
+
 		const ariaHidden = (rest['aria-hidden'] as string | undefined) ?? 'true';
-		if (ariaHidden !== 'true') return;
-		if (layerEl.querySelector(FOCUSABLE_SELECTOR)) {
+		if (ariaHidden === 'true' && layerEl.querySelector(FOCUSABLE_SELECTOR)) {
 			console.warn(
 				'[hyzer-ui] <ParallaxLayer>: contains focusable content while aria-hidden="true" — it ' +
 					'will be unreachable to keyboard/assistive tech and unclickable (pointer-events: none). ' +
 					'Move interactive content to a plain child of the Parallax band instead.'
 			);
+		}
+
+		// specs/60 R9 — one check catches both new misuses: an axis="x" band
+		// on a page with no horizontal scroller, and (more likely) a default
+		// axis="y" band used as a panel inside a HorizontalScroll, whose
+		// block axis never scrolls. Only meaningful when a band was found
+		// (the "outside a Parallax band" warning above already covers the
+		// no-band case).
+		if (hasParent) {
+			const band = layerEl.closest('.hz-parallax');
+			if (band) {
+				const axis = band.getAttribute('data-axis') === 'x' ? 'x' : 'y';
+				const scroller = nearestScrollContainer(band);
+				const hasRange =
+					axis === 'x'
+						? scroller.scrollWidth > scroller.clientWidth
+						: scroller.scrollHeight > scroller.clientHeight;
+				if (!hasRange) {
+					console.warn(
+						`[hyzer-ui] <ParallaxLayer>: the band's nearest scroller has no range on the '${axis}' ` +
+							`axis, so the drift will not move. ` +
+							(axis === 'x'
+								? 'Confirm the band sits inside a horizontally scrolling container.'
+								: 'If this band is a panel inside a <HorizontalScroll>, set axis="x" on it — ' +
+									"the shell's own block axis never scrolls.")
+					);
+				}
+			}
 		}
 	});
 </script>
@@ -190,6 +256,19 @@
 				 * the band travels from first entering the viewport to fully
 				 * leaving it. Documented hook for entry/exit/contain. */
 				animation-range: var(--hz-parallax-range, cover);
+			}
+
+			/*
+			 * specs/60 R8 — axis="x" on the band. `view(inline)` (not
+			 * `view(x)`): the default view() is view(block), so keeping the
+			 * pair logical keeps both modes in one coordinate system and
+			 * composes with the layer's own logical inset-* bleed. Reached
+			 * through the cascade via the band's data-axis attribute — no
+			 * JS, no context plumbing, no prop on the layer — so it stays
+			 * live/reactive and applies to layers at any depth.
+			 */
+			:global(.hz-parallax[data-axis='x']) .hz-parallax-layer {
+				animation-timeline: view(inline);
 			}
 		}
 	}

@@ -2604,4 +2604,130 @@ test.describe('specs/59 — Parallax', () => {
 	// No-overflow at 375/768/1280 and the manifest-route smoke (h1, skip link)
 	// are covered by the sweeps at the top of this file — it runs over every
 	// manifest route, and /docs/components/parallax is now one of them.
+
+	// specs/60 should-fix: every other demo above sits inside its own
+	// ScrollStage — this proves normal page scroll (not a nested scroller)
+	// drives the drift too, on the page-scroll band that sits in plain page
+	// flow above the tabs (no ScrollStage, no wrapper).
+	test("scrolling the actual page advances the page-scroll band's layer currentTime", async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/docs/components/parallax');
+		const layer = page.locator('.demo-band--page-scroll .hz-parallax-layer');
+		await expect(layer).toBeAttached();
+
+		const before = await layer.evaluate(readCurrentTime);
+		expect(before).not.toBeNull();
+
+		// Scroll the window itself (not a mouse wheel over a specific point) —
+		// the point of this test is that the PAGE's own scroll drives the
+		// drift, with no bounded stage and no nested scroller involved.
+		await page.evaluate(() => window.scrollBy(0, 400));
+		await page.waitForTimeout(100);
+		const after = await layer.evaluate(readCurrentTime);
+		expect(after).not.toBeNull();
+		expect(after).not.toBe(before);
+	});
+
+	// specs/60 R8/test plan — the "Horizontal scrolling" tab's band tracks the
+	// HORIZONTAL crossing of its own scroller (axis="x"), not the page.
+	test("on the Horizontal scrolling tab, scrolling the stage horizontally advances a layer's animation currentTime; reduced motion reports zero animations", async ({
+		page
+	}) => {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/docs/components/parallax');
+		await page.getByRole('tab', { name: 'Horizontal scrolling' }).click();
+		const stage = page.locator('.demo-hscroll');
+		const layer = stage.locator('.hz-parallax-layer').first();
+		await expect(layer).toBeAttached();
+
+		const before = await layer.evaluate(readCurrentTime);
+		expect(before).not.toBeNull();
+		await stage.evaluate((el) => {
+			el.scrollLeft = el.scrollWidth;
+		});
+		await page.waitForTimeout(100);
+		const after = await layer.evaluate(readCurrentTime);
+		expect(after).not.toBeNull();
+		expect(after).not.toBe(before);
+
+		await page.emulateMedia({ reducedMotion: 'reduce' });
+		await page.reload();
+		await page.getByRole('tab', { name: 'Horizontal scrolling' }).click();
+		const reducedLayer = page.locator('.demo-hscroll .hz-parallax-layer').first();
+		await expect(reducedLayer).toBeAttached();
+		expect(await reducedLayer.evaluate((el) => el.getAnimations().length)).toBe(0);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/60 — HorizontalScroll
+// ---------------------------------------------------------------------------
+
+test.describe('specs/60 — HorizontalScroll', () => {
+	async function gotoHorizontalScroll(page: Page) {
+		await page.setViewportSize({ width: 1280, height: 800 });
+		await page.goto('/docs/components/horizontal-scroll');
+	}
+
+	test('hovering the wheel demo and wheeling scrolls the stage horizontally, not the page', async ({
+		page
+	}) => {
+		await gotoHorizontalScroll(page);
+		await page.getByRole('tab', { name: 'Scroll it' }).click();
+		const stage = page.locator('.hz-horizontal-scroll[data-wheel]').first();
+		await expect(stage).toBeVisible();
+		const before = await stage.evaluate((el) => el.scrollLeft);
+
+		// hover() scrolls the PAGE to bring the stage into view — capture the
+		// page-scroll baseline AFTER that settles, not before, so only the
+		// wheel gesture itself is under test.
+		await stage.hover();
+		const pageScrollBefore = await page.evaluate(() => window.scrollY);
+		await page.mouse.wheel(0, 400);
+		await page.waitForTimeout(100);
+
+		const after = await stage.evaluate((el) => el.scrollLeft);
+		expect(after).toBeGreaterThan(before);
+		expect(await page.evaluate(() => window.scrollY)).toBe(pageScrollBefore);
+	});
+
+	test('wheeling past the last panel falls through to the page', async ({ page }) => {
+		await gotoHorizontalScroll(page);
+		await page.getByRole('tab', { name: 'Scroll it' }).click();
+		const stage = page.locator('.hz-horizontal-scroll[data-wheel]').first();
+		await expect(stage).toBeVisible();
+		await stage.hover();
+
+		const max = await stage.evaluate((el) => el.scrollWidth - el.clientWidth);
+		// Wheel enough notches to reach the end, then one more to prove the
+		// fall-through: the stage stays pinned at max and the page scrolls.
+		for (let i = 0; i < 20; i++) {
+			await page.mouse.wheel(0, 400);
+			await page.waitForTimeout(20);
+			const pos = await stage.evaluate((el) => el.scrollLeft);
+			if (pos >= max - 1) break;
+		}
+		const pageScrollBefore = await page.evaluate(() => window.scrollY);
+		await page.mouse.wheel(0, 400);
+		await page.waitForTimeout(100);
+
+		const scrollLeftAfter = await stage.evaluate((el) => el.scrollLeft);
+		expect(scrollLeftAfter).toBeLessThanOrEqual(max);
+		expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(pageScrollBefore);
+	});
+
+	test('focusing the shell and pressing End scrolls to the max', async ({ page }) => {
+		await gotoHorizontalScroll(page);
+		const stage = page.locator('.hz-horizontal-scroll').first();
+		await stage.focus();
+		await expect(stage).toBeFocused();
+		await page.keyboard.press('End');
+		const max = await stage.evaluate((el) => el.scrollWidth - el.clientWidth);
+		await expect.poll(() => stage.evaluate((el) => el.scrollLeft)).toBeGreaterThanOrEqual(max - 1);
+	});
+
+	// No-overflow at 375/768/1280 and the manifest-route smoke (h1, skip link)
+	// are covered by the sweeps at the top of this file.
 });

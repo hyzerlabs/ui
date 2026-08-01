@@ -34,18 +34,7 @@
 		</Hero>
 
 		<Container max="lg" padding="lg">
-			<WhereNext {items} filler />
+			<WhereNext {items} />
 		</Container>
 	</main>
 </SiteChrome>
-
-<style>
-	/* No band sets --card-frame here, so the filler would fall back to the
-	   text color and read as a black block. Point its frame hook at the
-	   primary intent instead: border, softened fill, and press shadow all
-	   resolve through --card-frame, so the whole treatment tints together.
-	   The link cards around it keep the default text-color frame. */
-	main :global(.next-filler.hz-card) {
-		--card-frame: var(--hz-intent-primary, #2563eb);
-	}
-</style>

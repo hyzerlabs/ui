@@ -19,9 +19,10 @@ Two deliverables, one shipment:
    identically by reduced motion and `@supports`.
 2. **`HorizontalScroll`** — a new Layout-family component: a full-viewport
    horizontally scrolling shell whose children flow inline as panels. Native
-   scroll container; optional CSS scroll-snap (**default off**); an **opt-in**
-   wheel remap that turns vertical wheel input into horizontal travel and hands
-   the wheel back to the page at either end.
+   scroll container; optional CSS scroll-snap (**default off**); a wheel remap,
+   **on by default** (`wheel={false}` opts out; amended 2026-07-31), that turns
+   vertical wheel input into horizontal travel and hands the wheel back to the
+   page at either end.
 
 Together they are the "made you look" page shell: full-height panels sliding
 sideways, each panel a `Parallax` band whose layers drift at different speeds.
@@ -29,9 +30,10 @@ sideways, each panel a `Parallax` band whose layers drift at different speeds.
 ### Context & Conventions
 
 - Decisions locked with the user (2026-07-31): band-level axis; a new scroller
-  component owning the page shell; wheel remap **opt-in**, never trapping, never
-  disabling a native input path; snap **default off** (deliberately unlike the
-  carousel rail's snap-on default).
+  component owning the page shell; wheel remap **on by default** (originally
+  opt-in; flipped by user decision later the same day — `wheel={false}` opts
+  out), never trapping, never disabling a native input path; snap **default
+  off** (deliberately unlike the carousel rail's snap-on default).
 - **Layout family posture (specs/03).** Structural CSS only — flow, overflow,
   sizing, scroll behavior. No colors, borders, shadows, fonts. **No theme sheet
   ships** (Container/Stack/Cluster/Grid/Split/Parallax have none); every hook is
@@ -39,7 +41,7 @@ sideways, each panel a `Parallax` band whose layers drift at different speeds.
 - **Native first (58).** Touch panning, fling momentum, trackpad two-finger pan,
   shift+wheel, the scrollbar, arrow keys, focus scroll-into-view and snapping are
   the browser's. The component adds exactly two things the platform has no
-  equivalent for: the opt-in wheel remap and a Home/End jump on the inline axis.
+  equivalent for: the default-on wheel remap and a Home/End jump on the inline axis.
 - Svelte 5 runes mode, TypeScript. `$props()` destructuring, `class: className`
   via `cx`, `...rest` spread **first** so managed attributes win.
 - **Component naming.** `HorizontalScroll` over `Pan`/`Strip`/`Reel`: the Layout
@@ -71,7 +73,7 @@ rest, the custom properties, the bleed math and the keyframes are all untouched
 | --- | --- | --- | --- |
 | `as` | `string` | `'div'` | Rendered via `<svelte:element>`, the layout-family convention (specs/03 R18). `section` and `main` are common. |
 | `snap` | `boolean` | **`false`** | CSS scroll-snap at panel starts. Off by default — see R3. |
-| `wheel` | `boolean` | **`false`** | Opt-in: translate vertical wheel input into horizontal travel (R5/R6/R7). |
+| `wheel` | `boolean` | **`true`** (amended 2026-07-31, user decision) | Translate vertical wheel input into horizontal travel (R5/R6/R7). On by default — it is what sells the shell under a mouse; set `wheel={false}` for native-only scrolling. |
 | `children` | `Snippet` | — | The panels, as direct children. |
 | `class` | `string` | — | Merged after `hz-horizontal-scroll` via `cx`. |
 
@@ -176,12 +178,14 @@ zero JS. No `role` and no name are added by the component (R10).
 - Tabbing into a panel that is off-screen scrolls it into view natively; nothing
   in this component interferes with that.
 
-**R5 — Wheel remap: opt-in, and only what it can use.** `wheel?: boolean`,
-default `false`. When `false` **nothing is attached and nothing is remapped** —
-no listener exists, and the wheel behaves exactly as it does on any scroll
-container.
+**R5 — Wheel remap: on by default, and only what it can use.** `wheel?: boolean`,
+default **`true`** (amended 2026-07-31, user decision: the wheel remap is what
+sells the whole shell under a mouse, so it ships on rather than opt-in — every
+safety behavior below is unchanged by the flip). When `false` **nothing is
+attached and nothing is remapped** — no listener exists, and the wheel behaves
+exactly as it does on any scroll container.
 
-When `true`, an `$effect` attaches
+When not `false` (the default, or explicit `true`), an `$effect` attaches
 `rootEl.addEventListener('wheel', onWheel, { passive: false })` and its cleanup
 removes it (so flipping the prop off mid-session detaches). `addEventListener`
 rather than an `onwheel` attribute for two reasons: the listener must **not
@@ -354,12 +358,13 @@ non-overflowing shell is self-healing per R6).
   exposed as a landmark anyway. A consumer whose shell *is* the page's main
   content passes `role="region" aria-label="…"` (or uses `as="main"`) through
   rest; the docs say so once.
-- **Scroll-jack ethics.** The wheel remap is opt-in (`wheel` is `false` by
-  default), consumes only vertical-dominant, unmodified wheel events the scroller
-  can actually use, defers to a nested vertical scroller, and returns the wheel to
-  the page at either end (R5/R6). Touch panning, trackpad pan, shift+wheel,
-  keyboard, the scrollbar and browser find-in-page scrolling are never
-  intercepted, in any configuration. There is no configuration of this component
+- **Scroll-jack ethics.** The wheel remap is on by default (amended 2026-07-31;
+  `wheel={false}` opts out) and consumes only vertical-dominant, unmodified
+  wheel events the scroller can actually use, defers to a nested vertical
+  scroller, and returns the wheel to the page at either end (R5/R6). Touch
+  panning, trackpad pan, shift+wheel, keyboard, the scrollbar and browser
+  find-in-page scrolling are never intercepted, in any configuration. There is
+  no configuration of this component
   that leaves a user unable to leave the page.
 - **2.3.3 Animation from Interactions.** Composition with 59 is unchanged: layer
   drift is removed entirely under `prefers-reduced-motion: reduce` by 59 R6's
@@ -443,7 +448,7 @@ the complete list:
   at a time sets `--hz-horizontal-scroll-panel-width` per breakpoint in their own
   class — the component ships no breakpoints of its own.
 - **Desktop (>1024px).** Same structure, plus the two desktop-only inputs: the
-  scrollbar and (when opted in) the wheel remap.
+  scrollbar and (unless opted out) the wheel remap.
 - **Parallax inside the shell** ships no breakpoints either; 59's advice stands —
   tune travel per breakpoint via `--hz-parallax-x`/`-y` in a consumer class.
 
@@ -458,10 +463,11 @@ page away.
 
 | Case | Expected |
 | --- | --- |
-| `wheel` unset (default) | No listener attached, no `data-wheel`, no `preventDefault` anywhere. The wheel behaves as on any scroll container. |
-| `wheel` on, wheel at the inline end, scrolling further | Not consumed, not `preventDefault`ed: the page scrolls vertically (R6). |
-| `wheel` on, at the end, scrolling back | Consumed normally — the end test is direction-aware. |
-| `wheel` on, content does not overflow | Every event falls through (`max === 0`); the shell behaves like a plain block. No warning. |
+| `wheel` unset (default, amended 2026-07-31) | Listener attached, `data-wheel` present — the remap is on out of the box. |
+| `wheel` unset/`true`, wheel at the inline end, scrolling further | Not consumed, not `preventDefault`ed: the page scrolls vertically (R6). |
+| `wheel` unset/`true`, at the end, scrolling back | Consumed normally — the end test is direction-aware. |
+| `wheel` unset/`true`, content does not overflow | Every event falls through (`max === 0`); the shell behaves like a plain block. No warning. |
+| `wheel={false}` | No listener attached, no `data-wheel`, no `preventDefault` anywhere. The wheel behaves as on any scroll container. |
 | Shift+wheel / trackpad horizontal pan | Never remapped; the browser's own horizontal scrolling handles it (no double speed). |
 | Ctrl+wheel / pinch zoom | Never consumed; zoom works (1.4.4). |
 | Wheel over a nested vertical scroller with room | The inner scroller scrolls; the remap stays out of it. When the inner scroller is exhausted in that direction, the remap takes over (R6). |
@@ -534,10 +540,12 @@ convention), and poll with `vi.waitFor` for anything smooth.
 - **Snap default (the locked decision):** `data-snap` **absent** by default and
   computed `scroll-snap-type` is `none`; with `snap`, `data-snap` present and
   `x mandatory`.
-- **Wheel off:** dispatch `new WheelEvent('wheel', { deltaY: 120, cancelable: true, bubbles: true })`
-  → `scrollLeft` unchanged, `defaultPrevented === false`, no `data-wheel`.
-- **Wheel on:** `data-wheel` present; the same event moves `scrollLeft` by 120 and
-  is `defaultPrevented`.
+- **Wheel on by default (amended 2026-07-31):** with no `wheel` prop at all,
+  `data-wheel` is present and `new WheelEvent('wheel', { deltaY: 120,
+  cancelable: true, bubbles: true })` moves `scrollLeft` by 120 and is
+  `defaultPrevented`.
+- **`wheel={false}` opts out:** dispatching the same event → `scrollLeft`
+  unchanged, `defaultPrevented === false`, no `data-wheel`.
 - **`deltaMode`:** `deltaMode: 1, deltaY: 3` → +48; `deltaMode: 2, deltaY: 1` →
   +`clientWidth`.
 - **Guards:** `shiftKey`, `ctrlKey`, and `deltaX: 200, deltaY: 10` are each not
@@ -623,9 +631,16 @@ place; no new docs-chrome component is needed (unlike the vertical `ScrollStage`
 this component is its own stage). Consumer-facing framing only — no spec numbers,
 no R-numbers, no test-gate or process language. Tabs:
 
-1. **Panels** — three or four full-width panels with big art; note that a panel is
-   just a direct child and that touch, trackpad, the scrollbar and the arrow keys
-   all move it with nothing switched on.
+1. **Scroll it** (opening tab, amended 2026-07-31 — the wheel remap is on by
+   default, so the opening demo IS the wheel demo) — three or four full-width
+   panels with big art; note that a panel is just a direct child, and that
+   the scrollbar, a trackpad pan, a touch swipe, tabbing in and pressing an
+   arrow key, and — with nothing switched on — a plain mouse wheel all move
+   it. Give the honest explanation of the remap here: it only takes plain
+   vertical wheel input while the pointer is over the shell, it stays out of
+   the way of a nested scroller, and **at either end it hands the wheel
+   straight back to the page** — which the reader can feel by wheeling past
+   the last panel of this very demo and watching the docs page continue.
 2. **Panel width & gap** — `--hz-horizontal-scroll-panel-width` at `100%`, `70%`
    (peeking edge), and `auto` (content-sized), plus
    `--hz-horizontal-scroll-gap`. One knob each, tunable per breakpoint in your
@@ -634,13 +649,10 @@ no R-numbers, no test-gate or process language. Tabs:
    why it is off by default here (viewport-sized panels are read while they move)
    and a one-line aside that `scroll-snap-stop: always` in your own CSS forces
    one panel per gesture.
-4. **Wheel** — `wheel` on, with the honest explanation: it only takes plain
-   vertical wheel input while the pointer is over the shell, it stays out of the
-   way of a nested scroller, and **at either end it hands the wheel straight back
-   to the page** — which the reader can feel by wheeling past the last panel of
-   this very demo and watching the docs page continue. Say plainly that it is off
-   by default and that pinch-zoom, shift+wheel, trackpad panning, touch and the
-   keyboard are never touched.
+4. **Native-only** — `wheel={false}`, a brief counter-example: the mouse wheel
+   goes back to scrolling the page like any other block, while pinch-zoom,
+   shift+wheel, trackpad panning, touch and the keyboard are never touched
+   either way, wheel on or off.
 5. **With Parallax** — bands as panels: `<HorizontalScroll>` containing two or
    three `<Parallax axis="x">` bands with layers at different `x` travel, which is
    the whole point of the pair. Links across to the Parallax page for the layer

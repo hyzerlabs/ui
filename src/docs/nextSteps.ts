@@ -10,14 +10,14 @@ export interface NextStep {
 
 export const nextSteps: NextStep[] = [
 	{
-		label: 'Components',
-		href: '/docs/components/button',
-		blurb: 'Every component, with its props, theme hooks and accessibility notes.'
-	},
-	{
 		label: 'Foundation',
 		href: '/docs/foundation/colors',
 		blurb: 'Colors, type, spacing, motion — the tokens every component resolves through.'
+	},
+	{
+		label: 'Components',
+		href: '/docs/components/button',
+		blurb: 'Every component, with its props, theme hooks and accessibility notes.'
 	},
 	{
 		label: 'Theming',
@@ -25,14 +25,14 @@ export const nextSteps: NextStep[] = [
 		blurb: 'The layer model, and how far you can push it without forking the library.'
 	},
 	{
-		label: 'Patterns',
-		href: '/docs/patterns/homepage',
-		blurb: 'Full pages built from the library: homepage, product listing, checkout form, and more.'
-	},
-	{
 		label: 'Philosophy',
 		href: '/docs/philosophy',
 		blurb: 'What every component commits to, and why.'
+	},
+	{
+		label: 'Patterns',
+		href: '/docs/patterns/homepage',
+		blurb: 'Full pages built from the library: homepage, product listing, checkout form, and more.'
 	},
 	{
 		label: 'Agents',

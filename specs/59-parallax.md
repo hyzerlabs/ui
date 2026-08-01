@@ -86,7 +86,7 @@ class={cx('hz-parallax', className)} {...rest}>` with `children` inside and no
   which would become the nearest scrollport for `view()` and kill the timeline;
   `clip` clips without one, so the page stays the timeline source. This is also
   what guarantees a horizontally drifting layer can never produce a page-level
-  horizontal scrollbar (R14).
+  horizontal scrollbar (verified by the e2e no-horizontal-overflow sweep, R13).
 - `isolation: isolate` — a stacking context, so a `z: -1` layer stays behind the
   band's own content and never escapes behind ancestors or the page background.
 - `min-width: 0` — the guard Split/Grid already ship, so a wide layer never props
@@ -230,8 +230,15 @@ behavior:
 1. **Layer outside a band.** `Parallax` sets a context key on creation;
    `ParallaxLayer` reads it and warns when absent — an unparented layer is
    absolutely positioned against some unknown ancestor, unclipped, and will leak.
-2. **Zero travel.** Both `x` and `y` resolve to `0`/unset → the layer never moves;
-   use a plain child instead.
+2. **Zero travel** (amended 2026-07-31 — moved to the post-mount DEV `$effect`,
+   alongside R10.4 below, rather than the creation-time `untrack()` block).
+   Both `x` and `y` resolve to `0`/unset **on the layer's resolved
+   `--hz-parallax-x`/`--hz-parallax-y` custom property**, read via
+   `getComputedStyle(layerEl)` — not the raw prop — so the R4-documented
+   omit-the-prop-and-set-it-in-a-stylesheet pattern counts as real travel and
+   never trips a false "never moves" warning. Only when the resolved value is
+   genuinely empty or a zero length does the layer warn; use a plain child
+   instead.
 3. **Percentage travel.** `x` or `y` is a string containing `%` → the R4 coverage
    math does not hold; use a length.
 4. **Focusable content in a decorative layer** (DEV effect, post-mount): the

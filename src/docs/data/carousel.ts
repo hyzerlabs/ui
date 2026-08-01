@@ -26,19 +26,19 @@ export const carouselDoc: ComponentDoc = {
 			name: 'layout',
 			type: "'single' | 'rail'",
 			default: "'single'",
-			note: 'single is the sliding track, one slide per view. rail is a native horizontally-scrolling row with several items visible at once.'
+			note: 'single is the sliding track, one slide per view. rail is a horizontally-scrolling row, scrolled by the browser itself, with several items visible at once.'
 		},
 		{
 			name: 'snap',
 			type: 'boolean',
 			default: 'true',
-			note: 'Rail only. true snaps the row to item starts as you scroll; false is free, continuous scrolling. No effect outside the rail layout.'
+			note: 'Rail only. true snaps the row to item starts as you scroll; false is free, continuous scrolling.'
 		},
 		{
 			name: 'loop',
 			type: 'boolean',
 			default: 'false',
-			note: 'Wrap from the last slide to the first and back. In the rail layout this renders a hidden buffer of cloned items so scrolling past either end continues seamlessly instead of stopping.'
+			note: 'Wrap from the last slide to the first and back. In the rail layout this renders a hidden buffer of cloned items so scrolling past either end continues without stopping.'
 		},
 		{
 			name: 'draggable',
@@ -88,7 +88,7 @@ export const carouselDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-carousel class.' }
 	],
 	a11yNote:
-		'Built on the APG carousel pattern. The region and each slide carry `aria-roledescription`, and slides are named (\'2 of 5\'-style by default, or set your own with `slideLabel`).\n\nThere is no auto-rotation, so the viewport is an `aria-live="polite"` region and slide changes announce themselves. Arrow keys, Home, and End move between slides while focus is inside the carousel.\n\n`controls="focus"` hides the control row visually only. It never uses `display`, `visibility`, `aria-hidden`, or `inert`, so the row stays reachable by Tab and appears on hover. That is the WCAG 2.5.7 alternative to the drag gesture.\n\nThe rail layout is a real scroll container, so it works differently: every item stays visible and reachable — nothing is hidden or inert — and the container itself is a single tab stop. Once focused, the native Arrow, Home, End, Page Up/Down, and Space keys scroll it with no extra handling, and tabbing into a partly visible card scrolls it fully into view.',
+		'Built on the APG carousel pattern. The region and each slide carry `aria-roledescription`, and slides are named (\'2 of 5\'-style by default, or set your own with `slideLabel`).\n\nThere is no auto-rotation, so the viewport is an `aria-live="polite"` region and slide changes announce themselves. Arrow keys, Home, and End move between slides while focus is inside the carousel.\n\n`controls="focus"` hides the control row visually only. It never uses `display`, `visibility`, `aria-hidden`, or `inert`, so the row stays reachable by Tab and appears on hover. That is the WCAG 2.5.7 alternative to the drag gesture.\n\nThe rail layout is a real scroll container, so it works differently. Every item stays visible and reachable, with nothing hidden or inert, and the container itself is a single tab stop. Once it has focus, the native Arrow, Home, End, Page Up/Down, and Space keys scroll it with no extra handling, and tabbing into a partly visible card scrolls it fully into view.',
 	a11yLinks: [
 		{ label: 'APG Carousel pattern', href: 'https://www.w3.org/WAI/ARIA/apg/patterns/carousel/' },
 		{

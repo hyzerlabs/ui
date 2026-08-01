@@ -27,23 +27,31 @@
 
 	interface Props {
 		as?: string;
+		/**
+		 * Which axis of the band's nearest scroller drives the drift. `'y'`
+		 * (default) is the page-scroll behavior of spec 59. `'x'` tracks the
+		 * band's horizontal crossing — for a band inside a `HorizontalScroll`.
+		 */
+		axis?: 'y' | 'x';
 		/** Layers and foreground content. */
 		children?: Snippet;
 		class?: string;
 		[key: string]: unknown;
 	}
 
-	let { as = 'div', children, class: className, ...rest }: Props = $props();
+	let { as = 'div', axis = 'y', children, class: className, ...rest }: Props = $props();
 
 	setContext(PARALLAX_CONTEXT, true);
 </script>
 
 <!--
-	{...rest} spreads first so a colliding managed attribute (class) loses to
-	the component-managed value — the library's rest-first convention. No
-	data-* of its own (R2): there is no variant or state to reflect.
+	{...rest} spreads first so a colliding managed attribute (class,
+	data-axis) loses to the component-managed value — the library's
+	rest-first convention. data-axis is the component's first data-* (60
+	R8) — stamped for both values so themes and tests can target either
+	(58 R1's posture).
 -->
-<svelte:element this={as} {...rest} class={cx('hz-parallax', className)}>
+<svelte:element this={as} {...rest} class={cx('hz-parallax', className)} data-axis={axis}>
 	{@render children?.()}
 </svelte:element>
 

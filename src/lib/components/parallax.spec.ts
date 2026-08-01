@@ -138,6 +138,18 @@ describe('Parallax-R6 — both motion gates, nested, in this order', () => {
 			SUPPORTS_VIEW_TIMELINE
 		);
 	});
+
+	// specs/60 R8 — the axis="x" rule sits inside both gates too, so under
+	// `reduce` or without `animation-timeline` support a horizontal band
+	// renders exactly like a vertical one: static, neutral, correct.
+	it('the axis="x" animation-timeline: view(inline) rule is gated the same way', () => {
+		expectNestedGated(
+			layerCss,
+			'animation-timeline: view(inline)',
+			NO_PREFERENCE,
+			SUPPORTS_VIEW_TIMELINE
+		);
+	});
 });
 
 describe('Parallax-R3 — structural declarations sit outside both gates', () => {

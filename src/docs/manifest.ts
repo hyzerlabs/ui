@@ -347,6 +347,12 @@ export const manifest: ManifestEntry[] = [
 							'A page-scroll-driven band whose layers drift as it passes through the viewport, in CSS alone. Motion stops entirely for visitors who ask for less, and browsers without scroll-driven animation show the same still composition.'
 					},
 					{
+						label: 'HorizontalScroll',
+						href: '/docs/components/horizontal-scroll',
+						description:
+							'A full-viewport horizontally scrolling shell whose children flow as panels. The mouse wheel scrolls it sideways by default, and hands control back to the page at either end. Pair it with Parallax bands set to axis="x" for layers that drift sideways as the shell scrolls.'
+					},
+					{
 						label: 'Virtualizer',
 						href: '/docs/components/virtualizer',
 						description:

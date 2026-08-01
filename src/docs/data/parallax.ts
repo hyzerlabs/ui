@@ -11,6 +11,12 @@ export const parallaxDoc: ComponentDoc = {
 			note: "Rendered via <svelte:element>. 'section' is the common choice for a decorative band."
 		},
 		{
+			name: 'axis',
+			type: "'y' | 'x'",
+			default: "'y'",
+			note: "Which scroller axis drives the drift. 'y' (default) is the page's vertical scroll. 'x' tracks the band's horizontal crossing. Set it when the band is a panel inside a HorizontalScroll, or its layers will sit still."
+		},
+		{
 			name: 'children',
 			type: 'Snippet',
 			default: '—',
@@ -44,12 +50,12 @@ export const parallaxDoc: ComponentDoc = {
 					name: 'children',
 					type: 'Snippet',
 					default: '—',
-					note: "The layer's art. Non-interactive by contract — see Accessibility."
+					note: "The layer's art. Always non-interactive; see Accessibility."
 				},
 				{ name: 'class', type: 'string', default: '—', note: 'Merged after hz-parallax-layer.' }
 			]
 		}
 	],
 	a11yNote:
-		'Every layer is `aria-hidden` and `pointer-events: none` by default: layers are decorative, so put buttons and links in a plain, non-layer child of the band instead. `prefers-reduced-motion: reduce` removes the drift entirely, with no opt-out — scroll-triggered parallax is exactly the motion WCAG 2.3.3 asks to be disableable, and this component treats none of it as essential. A browser without scroll-driven animation support shows the same still composition, with no polyfill and no console noise. Nothing moves until the visitor scrolls, so there is no auto-motion to satisfy 2.2.2 either.\n\nThe component reorders nothing and adds no role, tabindex, or live region — reading and focus order come from `as` and your own content. It also contributes no color, so text sitting over a moving layer still has to meet contrast on its own.'
+		'Every layer is `aria-hidden` and `pointer-events: none` by default. Layers are decorative, so put buttons and links in a plain, non-layer child of the band instead.\n\n`prefers-reduced-motion: reduce` removes the drift entirely, with no opt-out. Scroll-triggered parallax is exactly the motion WCAG 2.3.3 asks you to let people turn off, and this component treats none of it as essential. A browser without scroll-driven animation support shows the same still composition, with no polyfill and no console noise. Nothing moves until the visitor scrolls, so there is no automatic motion to satisfy 2.2.2 either. `axis="x"` follows the same reduced-motion rule: a horizontal band goes just as still.\n\nThe component reorders nothing and adds no role, tabindex, or live region. Reading and focus order come from `as` and your own content. It also contributes no color, so text sitting over a moving layer still has to meet contrast on its own.'
 };

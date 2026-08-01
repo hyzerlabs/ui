@@ -137,8 +137,8 @@ describe('hooks.ts — coverage (spec 31 R9)', () => {
 		// 38 + Header (spec 35) + Table (spec 37) + Toc (spec 38) + Banner (spec 41)
 		// + CodeBlock (spec 47) + Loading + Skeleton (spec 49) + Tooltip + Popover
 		// (spec 50) + Icons (moved in from Foundation, spec 53) + Metatags (spec 54)
-		// + Logo (spec 55) + Parallax (spec 59).
-		expect(componentPages).toHaveLength(51);
+		// + Logo (spec 55) + Parallax (spec 59) + HorizontalScroll (spec 60).
+		expect(componentPages).toHaveLength(52);
 	});
 });
 

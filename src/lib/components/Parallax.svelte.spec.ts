@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet, mount, unmount } from 'svelte';
 import type { Snippet } from 'svelte';
@@ -64,12 +64,32 @@ async function forceReducedMotion(): Promise<void> {
 	});
 }
 
+// specs/60 R9 — the new dev warning falls back to the document scrolling
+// element when no ancestor is a scroll container, and checks it for range on
+// the timeline's axis. A test page with only a small mounted component has no
+// natural vertical overflow, which would make every plain axis="y" band (the
+// common case, most tests below) spuriously warn under R9 with no fault of
+// its own — a narrow, tall spacer appended for the duration of each test
+// gives the document real vertical range without ever giving it horizontal
+// range, so it never interferes with the axis="x"/no-scroller cases R9 is
+// actually testing for.
+let pageSpacer: HTMLDivElement;
+beforeEach(() => {
+	pageSpacer = document.createElement('div');
+	pageSpacer.setAttribute('data-testid', 'page-scroll-spacer');
+	pageSpacer.style.cssText = 'width: 1px; height: 3000px;';
+	document.body.appendChild(pageSpacer);
+});
+afterEach(() => {
+	pageSpacer.remove();
+});
+
 // ---------------------------------------------------------------------------
 // R2 — Parallax band structure
 // ---------------------------------------------------------------------------
 
 describe('Parallax-R2 — band structure', () => {
-	it('computed position: relative, overflow: clip (both axes), isolation: isolate', () => {
+	it('computed position: relative, overflow: clip (both axes), isolation: isolate, min-width: 0', () => {
 		const { container } = render(Parallax);
 		const el = container.querySelector('.hz-parallax') as HTMLElement;
 		const cs = getComputedStyle(el);
@@ -77,6 +97,7 @@ describe('Parallax-R2 — band structure', () => {
 		expect(cs.overflowX).toBe('clip');
 		expect(cs.overflowY).toBe('clip');
 		expect(cs.isolation).toBe('isolate');
+		expect(cs.minWidth).toBe('0px');
 	});
 
 	it('as="section" renders a <section>', () => {
@@ -356,6 +377,52 @@ describe('ParallaxLayer-R5/R6 — animation binding', () => {
 });
 
 // ---------------------------------------------------------------------------
+// R8 (specs/60) — axis on Parallax
+// ---------------------------------------------------------------------------
+
+describe('Parallax-R8 — axis (specs/60)', () => {
+	it('data-axis is "y" by default and "x" when set — stamped for both values', () => {
+		const { container: yContainer } = render(Parallax);
+		expect(
+			(yContainer.querySelector('.hz-parallax') as HTMLElement).getAttribute('data-axis')
+		).toBe('y');
+		const { container: xContainer } = render(Parallax, { axis: 'x' });
+		expect(
+			(xContainer.querySelector('.hz-parallax') as HTMLElement).getAttribute('data-axis')
+		).toBe('x');
+	});
+
+	it('axis="x" inside a real horizontal scroller binds a ViewTimeline with axis "inline"; the default binds "block"', () => {
+		if (typeof ViewTimeline === 'undefined') return;
+		const wrapper = document.createElement('div');
+		wrapper.style.cssText = 'overflow-x: auto; width: 300px;';
+		document.body.appendChild(wrapper);
+		const warnSpy = silenceWarn();
+		render(Parallax, { target: wrapper, props: { axis: 'x', children: oneLayer({ x: 40 }) } });
+		const xLayer = wrapper.querySelector('.hz-parallax-layer') as HTMLElement;
+		const xTimeline = xLayer.getAnimations()[0].timeline as ViewTimeline;
+		expect(xTimeline.axis).toBe('inline');
+		wrapper.remove();
+
+		const { container } = render(Parallax, { children: oneLayer({ x: 40 }) });
+		const yLayer = container.querySelector('.hz-parallax-layer') as HTMLElement;
+		const yTimeline = yLayer.getAnimations()[0].timeline as ViewTimeline;
+		expect(yTimeline.axis).toBe('block');
+		warnSpy.mockRestore();
+	});
+
+	it('under prefers-reduced-motion: reduce, an axis="x" layer reports zero animations and neutral translate', async () => {
+		await forceReducedMotion();
+		const warnSpy = silenceWarn();
+		const { container } = render(Parallax, { axis: 'x', children: oneLayer({ x: 40 }) });
+		const layer = container.querySelector('.hz-parallax-layer') as HTMLElement;
+		expect(layer.getAnimations()).toHaveLength(0);
+		expect(getComputedStyle(layer).translate).toBe('none');
+		warnSpy.mockRestore();
+	});
+});
+
+// ---------------------------------------------------------------------------
 // R10 — Dev warnings
 // ---------------------------------------------------------------------------
 
@@ -369,13 +436,33 @@ describe('ParallaxLayer-R10 — dev warnings', () => {
 		warnSpy.mockRestore();
 	});
 
-	it('a zero-travel layer warns', () => {
+	it('a zero-travel layer warns (2026-07-31: checked post-mount via computed style)', async () => {
 		const warnSpy = silenceWarn();
 		render(Parallax, { children: oneLayer({}) });
+		await tick();
 		expect(warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes('never moves'))).toBe(
 			true
 		);
 		warnSpy.mockRestore();
+	});
+
+	// 2026-07-31 fix — the zero-travel check reads the LAYER'S RESOLVED custom
+	// property (getComputedStyle), not the raw x/y prop, so the R4-documented
+	// "omit the prop, set --hz-parallax-x/-y in a stylesheet" pattern (used by
+	// the docs Tuning tab) counts as real travel and never trips a false
+	// "never moves" warning.
+	it('omitted x/y with a stylesheet-set --hz-parallax-x does NOT warn — stylesheet travel counts', async () => {
+		const style = document.createElement('style');
+		style.textContent = '.stylesheet-travel-test { --hz-parallax-x: 40px; }';
+		document.head.appendChild(style);
+		const warnSpy = silenceWarn();
+		render(Parallax, { children: oneLayer({ class: 'stylesheet-travel-test' }) });
+		await tick();
+		expect(warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes('never moves'))).toBe(
+			false
+		);
+		warnSpy.mockRestore();
+		style.remove();
 	});
 
 	it('x="10%" warns (percentage travel)', () => {
@@ -397,12 +484,62 @@ describe('ParallaxLayer-R10 — dev warnings', () => {
 		warnSpy.mockRestore();
 	});
 
-	it('a well-formed layer (parented, non-zero length travel, no focusable content) warns not at all', async () => {
+	it('a well-formed layer (parented, non-zero length travel, no focusable content) warns not at all — no new R9 noise either', async () => {
 		const warnSpy = silenceWarn();
 		render(Parallax, { children: oneLayer({ x: 40 }) });
 		await tick();
 		expect(warnSpy).not.toHaveBeenCalled();
 		warnSpy.mockRestore();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// R9 (specs/60) — the axis has no scroller
+// ---------------------------------------------------------------------------
+
+describe('ParallaxLayer-R9 — axis has no scroller (specs/60)', () => {
+	it('a band with axis="x" in a non-scrolling wrapper warns', async () => {
+		const wrapper = document.createElement('div');
+		document.body.appendChild(wrapper);
+		const warnSpy = silenceWarn();
+		render(Parallax, { target: wrapper, props: { axis: 'x', children: oneLayer({ x: 40 }) } });
+		await tick();
+		expect(
+			warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes("no range on the 'x' axis"))
+		).toBe(true);
+		warnSpy.mockRestore();
+		wrapper.remove();
+	});
+
+	it('the same band inside a horizontally overflowing scroller does not warn', async () => {
+		const wrapper = document.createElement('div');
+		wrapper.style.cssText = 'overflow-x: auto; width: 100px;';
+		document.body.appendChild(wrapper);
+		const wide = document.createElement('div');
+		wide.style.cssText = 'width: 300px; height: 1px;';
+		wrapper.appendChild(wide);
+		const warnSpy = silenceWarn();
+		render(Parallax, { target: wrapper, props: { axis: 'x', children: oneLayer({ x: 40 }) } });
+		await tick();
+		expect(
+			warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes("no range on the 'x' axis"))
+		).toBe(false);
+		warnSpy.mockRestore();
+		wrapper.remove();
+	});
+
+	it('a default axis="y" band inside a horizontal-only scroller warns', async () => {
+		const wrapper = document.createElement('div');
+		wrapper.style.cssText = 'overflow-x: auto; height: 50px;';
+		document.body.appendChild(wrapper);
+		const warnSpy = silenceWarn();
+		render(Parallax, { target: wrapper, props: { children: oneLayer({ y: 40 }) } });
+		await tick();
+		expect(
+			warnSpy.mock.calls.some((c: unknown[]) => String(c[0]).includes("no range on the 'y' axis"))
+		).toBe(true);
+		warnSpy.mockRestore();
+		wrapper.remove();
 	});
 });
 

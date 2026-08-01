@@ -297,6 +297,13 @@ export const hooks: Record<string, ComponentHooks> = {
 	},
 	Parallax: {
 		root: 'hz-parallax',
+		attrs: [
+			{
+				name: 'data-axis',
+				values: "'y' | 'x'",
+				note: "Which axis of the nearest scroller drives the drift. Stamped for both values. Default y — the page's vertical scroll. x tracks the band's horizontal crossing, for a band used as a panel inside a HorizontalScroll."
+			}
+		],
 		props: [
 			{
 				name: '--hz-parallax-x',
@@ -324,6 +331,43 @@ export const hooks: Record<string, ComponentHooks> = {
 				name: '.hz-parallax-layer',
 				values: 'child element',
 				note: 'One drifting layer: absolutely positioned, sized to the band plus its own travel so the edges stay covered, decorative (aria-hidden) and click-through by default.'
+			}
+		]
+	},
+	HorizontalScroll: {
+		root: 'hz-horizontal-scroll',
+		attrs: [
+			{
+				name: 'data-snap',
+				values: 'present when snapping is on',
+				note: 'Drives scroll-snap-type: x mandatory on the root. Absent by default — free continuous scrolling.'
+			},
+			{
+				name: 'data-wheel',
+				values: 'present once the wheel remap is actually listening (client-side only)',
+				note: 'Reflects the attached listener, not the wheel prop — absent server-side and pre-hydration, and absent whenever wheel is false.'
+			},
+			{
+				name: 'data-wheeling',
+				values: 'present while a remapped wheel burst is in flight',
+				note: 'Suppresses scroll-snap-type for the duration so a mandatory snap does not fight a live scrollLeft assignment; clears ~150ms after the last consumed event, and the browser settles to the nearest panel on its own. Never present when wheel is false.'
+			}
+		],
+		props: [
+			{
+				name: '--hz-horizontal-scroll-height',
+				values: '<length> — default 100dvh',
+				note: 'The shell block-size. dvh survives a mobile URL bar collapsing; override for an embedded (non-full-viewport) shell.'
+			},
+			{
+				name: '--hz-horizontal-scroll-panel-width',
+				values: '<length | percentage> — default 100%',
+				note: 'One knob for how much of the shell a panel fills. auto sizes each panel to its content.'
+			},
+			{
+				name: '--hz-horizontal-scroll-gap',
+				values: '<length> — default 0',
+				note: 'Gap between panels.'
 			}
 		]
 	},

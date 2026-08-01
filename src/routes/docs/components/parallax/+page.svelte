@@ -1,5 +1,16 @@
 <script lang="ts">
-	import { Container, Image, Parallax, ParallaxLayer, RadioGroup, Tabs } from '$lib';
+	import {
+		Alert,
+		CodeBlock,
+		Container,
+		HorizontalScroll,
+		Image,
+		Parallax,
+		ParallaxLayer,
+		RadioGroup,
+		Tabs
+	} from '$lib';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { parallaxDoc } from '../../../../docs/data/parallax.js';
 	import Example from '../../../../docs/Example.svelte';
@@ -34,6 +45,33 @@
 		'<Parallax style="min-height: 60vh">',
 		'\t<ParallaxLayer x="-6rem">…</ParallaxLayer>',
 		'\t<ParallaxLayer x="6rem">…</ParallaxLayer>',
+		'</Parallax>'
+	].join('\n');
+
+	const horizontalScrollingCode = [
+		'<HorizontalScroll style="--hz-horizontal-scroll-height: 20rem">',
+		'\t<!-- panel one: two circles start far apart, near the top and bottom,',
+		'\t     and opposing y (cross-axis) travel brings them together as you',
+		'\t     scroll right -->',
+		'\t<Parallax axis="x" style="min-height: 100%">',
+		'\t\t<ParallaxLayer y="16rem">…top, drifts down…</ParallaxLayer>',
+		'\t\t<ParallaxLayer y="-16rem">…bottom, drifts up…</ParallaxLayer>',
+		'\t</Parallax>',
+		'\t<!-- panel two: classic speed-difference drift — staggered layers,',
+		'\t     same-axis x travel at different magnitudes -->',
+		'\t<Parallax axis="x" style="min-height: 100%">',
+		'\t\t<ParallaxLayer x="4rem">…</ParallaxLayer>',
+		'\t\t<ParallaxLayer x="9rem">…</ParallaxLayer>',
+		'\t\t<ParallaxLayer x="16rem">…</ParallaxLayer>',
+		'\t\t<ParallaxLayer x="22rem">…</ParallaxLayer>',
+		'\t</Parallax>',
+		'</HorizontalScroll>'
+	].join('\n');
+
+	const pageScrollCode = [
+		'<!-- no ScrollStage, no wrapper — this band sits in normal page flow -->',
+		'<Parallax as="section" style="min-height: 16rem">',
+		'\t<ParallaxLayer y="6rem">…</ParallaxLayer>',
 		'</Parallax>'
 	].join('\n');
 
@@ -94,6 +132,7 @@
 	const demoTabs = [
 		{ id: 'hero', label: 'Hero' },
 		{ id: 'horizontal', label: 'Horizontal drift' },
+		{ id: 'horizontal-scrolling', label: 'Horizontal scrolling' },
 		{ id: 'depth', label: 'Depth' },
 		{ id: 'sticky', label: 'Sticky sections' },
 		{ id: 'tuning', label: 'Tuning' }
@@ -102,25 +141,44 @@
 
 <DocPage name="Parallax" {...parallaxDoc}>
 	<p class="tab-note">
-		A band with no in-flow content has no height — give it one with <code>style</code>, a
+		A band with no in-flow content has no height. Give it one with <code>style</code>, a
 		<code>class</code>, or real content, the way every demo below does with
-		<code>min-height</code>. Every stage below is a bounded, scrollable demo box — scroll inside the
-		frame to see the layers move; on a real page, the page's own scroll drives this the same way.
+		<code>min-height</code>. Most of the demos below sit in a bounded, scrollable box so they fit on
+		this page. Scroll inside that box to see the layers move.
 	</p>
+	<p class="tab-note">
+		That box is part of these docs, not part of how the component works. On an ordinary page, the
+		page's own scroll drives the same thing, with no box around it. The band below shows it: it sits
+		in normal page flow with nothing wrapping it, so keep scrolling this page and its layer drifts
+		right along with it. It has no <code>Example</code> frame either, because that bordered box would
+		become a scroll container of its own. That is the mistake the console warning on this page describes,
+		a wrapper that quietly becomes the scroll container.
+	</p>
+	<CodeBlock code={pageScrollCode} />
+	<Parallax as="section" class="demo-band demo-band--page-scroll">
+		<ParallaxLayer y="6rem" class="demo-layer">
+			<div class="demo-depth demo-depth--mid"></div>
+		</ParallaxLayer>
+		<Container class="demo-copy">
+			<p>This band lives in the page's own scroll, with no bounded box and no wrapper around it.</p>
+		</Container>
+	</Parallax>
 	<Tabs items={demoTabs} ariaLabel="Parallax demos" defaultTab="hero">
 		{#snippet panel(item)}
 			<div class="tab-content">
 				{#if item.id === 'hero'}
 					<p class="tab-note">
 						A slow background layer behind foreground copy. The layer is a plain
-						<code>ParallaxLayer</code> holding an <code>Image</code>; the copy is an ordinary
-						<code>Container</code> child, so it determines the band's height and sits above the
-						layer by default (layers default to <code>z-index: -1</code>).
+						<code>ParallaxLayer</code> holding an <code>Image</code>. The copy is an ordinary
+						<code>Container</code> child, so it sets the band's height and sits above the layer by
+						default (layers default to <code>z-index: -1</code>). Make the art itself taller than
+						the band, the way a real hero background is. The layer's own bleed already covers its
+						travel, so a generously tall source image keeps every edge out of sight while it drifts.
 					</p>
 					<Example code={heroCode}>
-						<ScrollStage>
+						<ScrollStage ariaLabel="Hero parallax demo" topRunway={false}>
 							<Parallax as="section" class="demo-band demo-band--hero">
-								<ParallaxLayer y="16rem" class="demo-layer">
+								<ParallaxLayer y="20rem" class="demo-layer">
 									<Image src={heroArt} alt="" fit="cover" style="width: 100%; height: 100%;" />
 								</ParallaxLayer>
 								<Container class="demo-copy">
@@ -132,12 +190,14 @@
 					</Example>
 				{:else if item.id === 'horizontal'}
 					<p class="tab-note">
-						Two layers with opposite <code>x</code> travel drift sideways as the page scrolls vertically
-						— the effect people usually mean by "horizontal parallax". Travel is a distance, not a speed:
-						it's how far a layer moves over the band's whole pass through the viewport, not how fast.
+						Two layers with opposite <code>x</code> travel drift sideways as the page scrolls
+						vertically. This is the effect people usually mean by "horizontal parallax". Travel is a
+						distance, not a speed: it sets how far a layer moves over the band's whole pass through
+						the viewport. So this is drift <strong>on a vertical scroll</strong>, unlike the next
+						tab, where the band's own scroller runs sideways.
 					</p>
 					<Example code={horizontalCode}>
-						<ScrollStage>
+						<ScrollStage ariaLabel="Horizontal drift demo">
 							<Parallax class="demo-band">
 								<ParallaxLayer x="-12rem" class="demo-layer">
 									<div class="demo-blob demo-blob--a"></div>
@@ -148,14 +208,69 @@
 							</Parallax>
 						</ScrollStage>
 					</Example>
+				{:else if item.id === 'horizontal-scrolling'}
+					<p class="tab-note">
+						<code>axis</code> picks which axis of the nearest scroller drives the drift:
+						<code>axis="x"</code> tracks the band's own horizontal crossing instead of the page's
+						vertical scroll. A band used as a panel inside a
+						<a href="/docs/components/horizontal-scroll">HorizontalScroll</a> needs
+						<code>axis="x"</code>, or its layers sit still, because the shell never scrolls
+						vertically. Scroll the box below sideways with the scrollbar, a trackpad, touch, or the
+						keyboard to see two effects. In panel one the circles start far apart, near the top and
+						bottom, and opposing <code>y</code> (cross-axis) travel brings them together as you
+						scroll. In panel two the shapes start staggered, and <code>x</code> travel at different distances
+						drifts them at different speeds, the classic depth look.
+					</p>
+					<Alert intent="info">
+						{#snippet icon()}<IconInfo />{/snippet}
+						The scroller itself lives on the
+						<a href="/docs/components/horizontal-scroll">HorizontalScroll</a> page.
+					</Alert>
+					<Example code={horizontalScrollingCode}>
+						<HorizontalScroll
+							class="demo-hscroll"
+							style="--hz-horizontal-scroll-height: 20rem"
+							aria-label="Horizontal scrolling with Parallax demo"
+							role="group"
+						>
+							<Parallax axis="x" class="demo-band--hscroll">
+								<ParallaxLayer y="16rem" class="demo-layer">
+									<div class="demo-blob demo-blob--a demo-spread demo-spread--top"></div>
+								</ParallaxLayer>
+								<ParallaxLayer y="-16rem" class="demo-layer">
+									<div class="demo-blob demo-blob--b demo-spread demo-spread--bottom"></div>
+								</ParallaxLayer>
+								<Container class="demo-copy">
+									<h3>Panel one</h3>
+								</Container>
+							</Parallax>
+							<Parallax axis="x" class="demo-band--hscroll">
+								<ParallaxLayer x="4rem" class="demo-layer">
+									<div class="demo-depth demo-depth--back"></div>
+								</ParallaxLayer>
+								<ParallaxLayer x="9rem" class="demo-layer">
+									<div class="demo-depth demo-depth--mid"></div>
+								</ParallaxLayer>
+								<ParallaxLayer x="16rem" class="demo-layer">
+									<div class="demo-depth demo-depth--front"></div>
+								</ParallaxLayer>
+								<ParallaxLayer x="22rem" class="demo-layer">
+									<div class="demo-depth demo-depth--overlay"></div>
+								</ParallaxLayer>
+								<Container class="demo-copy">
+									<h3>Panel two</h3>
+								</Container>
+							</Parallax>
+						</HorizontalScroll>
+					</Example>
 				{:else if item.id === 'depth'}
 					<p class="tab-note">
-						Three layers with increasing travel read as depth — the farthest-feeling layer moves
-						least. A fourth layer sets <code>z</code> to <code>1</code> to drift in front of the copy
-						instead of behind it, showing how the stacking order works.
+						Three layers with increasing travel read as depth: the layer that feels farthest away
+						moves least. A fourth layer sets <code>z</code> to <code>1</code> so it drifts in front of
+						the copy instead of behind it, which shows how the stacking order works.
 					</p>
 					<Example code={depthCode}>
-						<ScrollStage>
+						<ScrollStage ariaLabel="Depth parallax demo">
 							<Parallax class="demo-band">
 								<ParallaxLayer y="4rem" class="demo-layer">
 									<div class="demo-depth demo-depth--back"></div>
@@ -177,11 +292,11 @@
 					</Example>
 				{:else if item.id === 'sticky'}
 					<p class="tab-note">
-						Stacked full-screen sections are composition, not a feature: your own
-						<code>position: sticky</code> wrapper goes <strong>outside</strong> each
-						<code>Parallax</code> band, because the band clips — a sticky element placed inside it would
-						only stick within its own bounds. This stage is already its own scroll container, which also
-						proves the timeline tracks whichever scroller is nearest, not only the page.
+						Stacked full-screen sections come from composing, with no extra prop. Put your own
+						<code>position: sticky</code> wrapper <strong>outside</strong> each
+						<code>Parallax</code> band. The band clips, so a sticky element placed inside it would only
+						stick within its own bounds. The box below is already its own scroll container, which also
+						shows that the drift tracks whichever scroller is nearest, not only the page.
 					</p>
 					<Example code={stickyCode}>
 						<div class="sticky-demo">
@@ -219,25 +334,8 @@
 					</Example>
 				{:else}
 					<p class="tab-note">
-						Travel is meant to be tuned per breakpoint, not hardcoded. Set
-						<code>--hz-parallax-x</code>/<code>--hz-parallax-y</code> in your own class and leave
-						the <code>x</code>/<code>y</code> props unset — an inline style always wins over a
-						stylesheet rule, so the two forms are mutually exclusive. On a short viewport a large
-						travel reads as jitter and costs battery, so a smaller (or zero) travel below your
-						<code>md</code> breakpoint is worth doing.
-					</p>
-					<Example code={tuningBreakpointCode}>
-						<ScrollStage>
-							<Parallax class="demo-band">
-								<ParallaxLayer class="demo-layer tuning-art">
-									<div class="demo-depth demo-depth--mid"></div>
-								</ParallaxLayer>
-							</Parallax>
-						</ScrollStage>
-					</Example>
-					<p class="tab-note">
 						<code>--hz-parallax-range</code> narrows which part of the band's pass through the viewport
-						the drift is spread over. Pick a range, then rescroll the stage to feel the difference.
+						the drift is spread over. Pick a range, then scroll the box again to see the difference.
 					</p>
 					<Example code={rangeDemoCode}>
 						<div class="range-demo">
@@ -248,7 +346,7 @@
 								options={rangeOptions}
 								bind:value={demoRange}
 							/>
-							<ScrollStage>
+							<ScrollStage ariaLabel="Animation range demo">
 								<Parallax class="demo-band demo-band--range">
 									<ParallaxLayer
 										y="12rem"
@@ -260,6 +358,24 @@
 								</Parallax>
 							</ScrollStage>
 						</div>
+					</Example>
+					<p class="tab-note">
+						Travel can be tuned as well, set per breakpoint instead of hardcoded. Set
+						<code>--hz-parallax-x</code>/<code>--hz-parallax-y</code> in your own class and leave
+						the
+						<code>x</code>/<code>y</code> props unset. The props write an inline style, which always
+						wins over a stylesheet rule, so use one form or the other. On a short viewport a large
+						travel reads as jitter and costs battery, so a smaller travel (or none) below your
+						<code>md</code> breakpoint is worth doing.
+					</p>
+					<Example code={tuningBreakpointCode}>
+						<ScrollStage ariaLabel="Breakpoint tuning demo">
+							<Parallax class="demo-band">
+								<ParallaxLayer class="demo-layer tuning-art">
+									<div class="demo-depth demo-depth--mid"></div>
+								</ParallaxLayer>
+							</Parallax>
+						</ScrollStage>
 					</Example>
 				{/if}
 			</div>
@@ -283,6 +399,9 @@
 	}
 
 	:global(.demo-band--hero) {
+		/* Fills the stage's default height so the hero reads as the top of a
+		 * real page, not a section poking out of the muted runway below. */
+		min-height: 26rem;
 		align-items: flex-end;
 	}
 
@@ -292,6 +411,24 @@
 
 	:global(.demo-band--range) {
 		min-height: 20rem;
+	}
+
+	/* A panel inside HorizontalScroll gets its height from flex stretch — no
+	 * min-height needed, unlike every other .demo-band above, which sits in
+	 * normal flow and must supply its own. */
+	:global(.demo-band--hscroll) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	:global(.demo-hscroll) {
+		border: 1px solid var(--hz-color-border, #6b7280);
+		border-radius: var(--hz-radius-md, 0.5rem);
+	}
+
+	:global(.demo-band--page-scroll) {
+		margin-block: 1rem;
 	}
 
 	:global(.demo-layer) {
@@ -377,6 +514,25 @@
 		width: 4rem;
 		height: 4rem;
 		background: color-mix(in srgb, var(--hz-intent-warning, #d97706) 95%, transparent);
+	}
+
+	/* Panel one: both circles start apart, near the top and bottom (overriding
+	 * .demo-blob--a/--b's left/right above — same single-class specificity,
+	 * source order here decides), offset toward the far side of the panel
+	 * rather than dead-center. Their opposing y travel brings them together
+	 * as the panel scrolls by. */
+	.demo-spread {
+		left: 65%;
+		right: auto;
+		translate: -50% -50%;
+	}
+
+	.demo-spread--top {
+		top: 20%;
+	}
+
+	.demo-spread--bottom {
+		top: 80%;
 	}
 
 	.sticky-demo {
