@@ -114,10 +114,10 @@ setting needs no JavaScript. Only overriding it does.
 
 ## Config & CLI (optional)
 
-The same engine that generates this library's own token sheet ships in the
-package. Describe your design system once in `hyzer.config.ts`, and the
-`hyzer` CLI turns it into a token sheet, a trimmed icon barrel, and an
-optional utility sheet — with a WCAG contrast report on every run.
+The package ships the same generator that builds this library's own token
+sheet. Describe your design system once in `hyzer.config.ts`, and the `hyzer`
+CLI turns it into a token sheet, a trimmed icon barrel, and an optional utility
+sheet. Every run also prints a WCAG contrast report.
 
 ```sh
 hyzer generate                   # write a complete token sheet
@@ -125,10 +125,12 @@ hyzer generate --mode overrides  # or a patch sheet with only your changes
 hyzer generate --check --strict  # validate without writing; fail CI on any AA miss
 ```
 
-You need neither the file nor the CLI to theme the library — plain CSS
-overrides work on their own. See
-[Config & CLI](https://design.hyzer.sh/docs/foundation/config) for the full
-option surface.
+TypeScript configs need Node 22.18 or newer; on older runtimes, name the file
+`hyzer.config.mjs` instead.
+
+You need neither the file nor the CLI to theme the library. Plain CSS overrides
+work on their own. See
+[Config & CLI](https://design.hyzer.sh/docs/foundation/config) for every option.
 
 ## Docs
 
@@ -144,7 +146,7 @@ Live at [design.hyzer.sh](https://design.hyzer.sh).
 
 ## Contributing
 
-Developing the library itself — commands, workflow, releases — lives in
+Working on the library itself? Commands, workflow, and releases are in
 [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
