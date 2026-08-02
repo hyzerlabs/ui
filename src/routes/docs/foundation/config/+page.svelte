@@ -4,6 +4,7 @@
 	import WhereNext from '../../../../docs/WhereNext.svelte';
 	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 	import IconInfo from '$lib/icons/generated/info.svelte';
+	import { CONFIG_TEMPLATE } from '$lib/cli/config-template.js';
 
 	const nextSteps = [
 		{
@@ -154,57 +155,9 @@
 		'contrast: 92 pairings checked, all pass WCAG AA'
 	].join('\n');
 
-	// The complete option surface (src/lib/config/schema.ts) — every group is
-	// commented out, so this exact object is a valid, empty config as written
-	// (`defineConfig({})`); uncommenting any one line, or all of them, stays
-	// valid too (verified against resolveConfig).
-	const fullReferenceConfigCode = [
-		"import { defineConfig } from '@hyzer-labs/ui/config';",
-		'',
-		'export default defineConfig({',
-		"\t// output: 'src/styles/tokens.css', // where `hyzer generate` writes the sheet",
-		'',
-		'\t// tokens: {                            // the DEFAULT theme (the :root block)',
-		'\t// \tpalette: {                          // raw hues (--hz-palette-*); ramps welcome',
-		"\t// \t\tprimary: '#0f766e',",
-		"\t// \t\tbrandRed: { 500: '#ef4444', 900: '#7f1d1d' }",
-		'\t// \t},',
-		"\t// \tcolor: { border: '#94a3b8' },       // structural role tokens (--hz-color-*)",
-		"\t// \tintent: { fairway: 'var(--hz-palette-primary)' }, // remap or add intents (--hz-intent-*)",
-		"\t// \tspace: { xs: '0.375rem' },          // the fixed margin/gap scale (--hz-space-*)",
-		"\t// \twidth: { md: '960px' },             // layout max-widths (--hz-width-*)",
-		'\t// \ttypography: {',
-		"\t// \t\tfontSize: { base: '1.05rem' },    // --hz-font-size-*",
-		'\t// \t\tfontFamily: { sans: "\'Inter\', system-ui, sans-serif" }, // --hz-font-family-*',
-		"\t// \t\tfontWeight: { semibold: '650' },  // --hz-font-weight-*",
-		"\t// \t\tlineHeight: { base: '1.6' }       // --hz-line-height-*",
-		'\t// \t},',
-		"\t// \tradius: { md: '0.625rem' },         // corner radii (--hz-radius-*)",
-		"\t// \tborder: { width: { thin: '1.5px' } }, // border widths (--hz-border-width-*)",
-		"\t// \tshadow: { md: '0 10px 15px -3px rgb(0 0 0 / 0.15)' }, // elevation (--hz-shadow-*)",
-		"\t// \tzIndex: { modal: '1200' },          // stacking order (--hz-z-*)",
-		'\t// \tmotion: {',
-		"\t// \t\tduration: { base: '350ms' },      // --hz-duration-*",
-		"\t// \t\tease: { standard: 'ease-out' }    // --hz-ease-*",
-		'\t// \t},',
-		"\t// \tdensity: { unit: '0.5rem' }         // the --hz-density grid unit (near/away cascade)",
-		'\t// },',
-		'',
-		'\t// themes: {                            // variants that override the default,',
-		'\t//                                     // one block per data-theme="<name>"',
-		'\t// \tdark: {                            // [data-theme="dark"]',
-		"\t// \t\tpalette: { primary: '#2dd4bf' },  // hue overrides for dark",
-		"\t// \t\tcolor: { surface: '#020617' },    // role overrides for dark",
-		"\t// \t\tintent: { fairway: '#a3e635' }    // intent remaps for dark only",
-		'\t// \t},',
-		"\t// \tocean: { palette: { primary: '#0ea5e9' } } // any name you like",
-		'\t// },',
-		'',
-		"\t// icons: ['plus', 'trash-2', 'settings'], // trims the generated icons.ts barrel",
-		'',
-		"\t// utilities: true // opt in to hyzer-utilities.css (or { output: 'styles/hyzer-utilities.css' })",
-		'});'
-	].join('\n');
+	// The full-reference config (every option commented out, valid as written)
+	// is shared with `hyzer init` — one source of truth in $lib/cli/config-template.
+	const fullReferenceConfigCode = CONFIG_TEMPLATE.trimEnd();
 </script>
 
 <svelte:head>
@@ -373,8 +326,9 @@
 	>
 		<h2 id="full-reference-heading">Full config reference</h2>
 		<p>
-			Every group <code>hyzer.config.ts</code> accepts, in one file and commented out. Uncomment what
-			you need and delete the rest. Each line's comment names the tokens it drives.
+			Every group <code>hyzer.config.ts</code> accepts, in one file and commented out. Uncomment
+			what you need and delete the rest. Each line's comment names the tokens it drives.
+			<code>npx hyzer init</code> writes this file into your project to start from.
 		</p>
 		<CodeBlock code={fullReferenceConfigCode} title="hyzer.config.ts" language="ts" />
 	</Stack>

@@ -1,6 +1,9 @@
 /**
  * @hyzer-labs/ui — `hyzer` CLI implementation.
  *
+ * `hyzer init` — scaffold a starter hyzer.config.ts (the commented
+ * full-reference template; refuses to overwrite an existing config).
+ *
  * `hyzer generate [--config <path>] [--out <path>] [--mode full|overrides]
  *                 [--utilities] [--check] [--strict]`
  *
@@ -27,6 +30,7 @@ import {
 	type HyzerConfig,
 	type ResolvedConfig
 } from '../config/index.js';
+import { CONFIG_TEMPLATE } from './config-template.js';
 
 const CONFIG_FILENAMES = ['hyzer.config.ts', 'hyzer.config.js', 'hyzer.config.mjs'];
 const DEFAULT_OUTPUT = 'hyzer-tokens.css';
@@ -35,9 +39,11 @@ const DEFAULT_UTILITIES_OUTPUT = 'hyzer-utilities.css';
 const USAGE = `hyzer — @hyzer-labs/ui token generator
 
 Usage:
+  hyzer init                Scaffold a starter hyzer.config.ts (every option,
+                            commented out — valid as written)
   hyzer generate [options]
 
-Options:
+Options (generate):
   --config <path>   Config file (default: hyzer.config.{ts,js,mjs} in cwd)
   --out <path>      Output path (default: config "output", else ./${DEFAULT_OUTPUT})
   --mode <mode>     "full" (complete sheet, replaces tokens.css) or
@@ -52,6 +58,14 @@ Options:
 
 TypeScript configs need Node ≥ 22.18 (native type stripping); on older
 runtimes use hyzer.config.mjs.`;
+
+const INIT_HEADER = `// hyzer.config.ts — every option shown, commented out; valid exactly as written.
+// Uncomment what you need, then:
+//   hyzer generate                   write the token sheet
+//   hyzer generate --check --strict  validate without writing (for CI)
+// Docs: https://design.hyzer.sh/docs/foundation/config
+
+`;
 
 /** Injectable environment so tests run the CLI without spawning processes. */
 export interface RunOptions {
@@ -81,6 +95,20 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 	if (parsed.command === undefined) {
 		error(USAGE);
 		return 1;
+	}
+	if (parsed.command === 'init') {
+		const existing = CONFIG_FILENAMES.map((name) => resolve(cwd, name)).find((path) =>
+			existsSync(path)
+		);
+		if (existing) {
+			error(`Config already exists: ${existing}`);
+			return 1;
+		}
+		const initPath = resolve(cwd, 'hyzer.config.ts');
+		writeFileSync(initPath, INIT_HEADER + CONFIG_TEMPLATE);
+		log(`wrote ${initPath}`);
+		log('Uncomment what you need, then run "hyzer generate".');
+		return 0;
 	}
 	if (parsed.command !== 'generate') {
 		error(`Unknown command "${parsed.command}".`);

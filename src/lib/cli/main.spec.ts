@@ -291,3 +291,22 @@ describe('hyzer generate — utilities opt-in', () => {
 		expect(errors.join('\n')).toContain('config.utilities');
 	});
 });
+
+describe('hyzer init', () => {
+	it('writes the commented full-reference hyzer.config.ts', async () => {
+		const { cwd, logs, io } = sandbox();
+		expect(await run(['init'], io)).toBe(0);
+		expect(logs.join('\n')).toContain('wrote');
+		const scaffold = readFileSync(join(cwd, 'hyzer.config.ts'), 'utf8');
+		expect(scaffold).toContain('defineConfig({');
+		expect(scaffold).toContain('// Docs: https://design.hyzer.sh/docs/foundation/config');
+	});
+
+	it('refuses to overwrite an existing config, whatever its extension', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), 'export default {};');
+		expect(await run(['init'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('already exists');
+		expect(existsSync(join(cwd, 'hyzer.config.ts'))).toBe(false);
+	});
+});
