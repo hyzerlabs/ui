@@ -1924,6 +1924,11 @@ export const hooks: Record<string, ComponentHooks> = {
 				values: 'child element',
 				note: 'The heading inside the summary, at your headingLevel.'
 			},
+			{
+				name: '.hz-accordion-meta',
+				values: 'child element',
+				note: 'The optional meta slot between the heading and the icon (renders only when the meta snippet is passed). Ships no visual layout of its own — use this class to place the slot (right-align a price, stack a teaser) and style the contents with your own classes inside the snippet.'
+			},
 			{ name: '.hz-accordion-icon', values: 'child element', note: 'The disclosure chevron.' },
 			{
 				name: '.hz-accordion-panel',

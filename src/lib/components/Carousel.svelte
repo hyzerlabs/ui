@@ -48,6 +48,15 @@
 		 * Inert without `loop`.
 		 */
 		seamless?: boolean;
+		/**
+		 * Rail + `loop` only. Drops `inert` from the loop's clone slides so
+		 * hover-driven UI (tooltips, hover styles) still fires on the clones
+		 * visible near the wrap seam. Clones stay `aria-hidden`; setting this
+		 * asserts the slide content has no focusable elements (links, buttons,
+		 * inputs) — those would otherwise be Tab-reachable while hidden from
+		 * assistive tech. Dev builds warn if one is found inside a clone.
+		 */
+		interactiveClones?: boolean;
 		/** Position display: the "1 / 3" counter, or clickable slide-picker dots. */
 		indicator?: 'counter' | 'dots';
 		prevLabel?: string;
@@ -73,6 +82,7 @@
 		draggable = true,
 		controls = 'visible',
 		seamless = false,
+		interactiveClones = false,
 		indicator = 'counter',
 		prevLabel = 'Previous slide',
 		nextLabel = 'Next slide',
@@ -740,8 +750,30 @@
 			if (layout !== 'rail' && snap === false) {
 				console.warn('[hyzer-ui] <Carousel>: `snap={false}` has no effect outside layout="rail".');
 			}
+			if (interactiveClones && (layout !== 'rail' || !loop)) {
+				console.warn(
+					'[hyzer-ui] <Carousel>: `interactiveClones` has no effect outside layout="rail" with `loop` — there are no clone slides.'
+				);
+			}
 		});
 	}
+
+	// interactiveClones is the consumer's assertion that slide content has no
+	// focusable elements — a focusable descendant of an aria-hidden clone
+	// (without inert) is Tab-reachable while invisible to assistive tech, a
+	// WCAG 4.1.2 failure. Verify the assertion in dev once clones mount.
+	$effect(() => {
+		if (!DEV || !interactiveClones || !showRailClones || !trackEl) return;
+		const focusable = trackEl.querySelector(
+			'[data-clone] :is(a[href], button, input, select, textarea, iframe, [tabindex], [contenteditable])'
+		);
+		if (focusable) {
+			console.warn(
+				'[hyzer-ui] <Carousel>: `interactiveClones` asserts the slide content has no focusable elements, but a loop clone contains one — it is keyboard-reachable while hidden from assistive tech. Remove `interactiveClones` or the focusable content:',
+				focusable
+			);
+		}
+	});
 </script>
 
 <!--
@@ -824,7 +856,7 @@
 					<div
 						class="hz-carousel-slide"
 						data-clone
-						inert
+						inert={!interactiveClones}
 						aria-hidden="true"
 						bind:this={leadCloneEls[i]}
 					>
@@ -848,7 +880,7 @@
 			{#if showRailClones}
 				<!-- R7: a full trailing copy, mirroring the leading one above. -->
 				{#each items as item, i (`hz-carousel-trail-${i}`)}
-					<div class="hz-carousel-slide" data-clone inert aria-hidden="true">
+					<div class="hz-carousel-slide" data-clone inert={!interactiveClones} aria-hidden="true">
 						{@render slide(item, i)}
 					</div>
 				{/each}

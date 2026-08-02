@@ -1224,6 +1224,53 @@ describe('rail loop — clone buffer and teleport (R7)', () => {
 	});
 });
 
+describe('interactiveClones (R7, amended 2026-08-01)', () => {
+	it('drops inert from the loop clones, keeps aria-hidden, and emits no warning for non-focusable content', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		try {
+			const { container } = await renderOverflowingLoop(undefined, { interactiveClones: true });
+			const clones = Array.from(container.querySelectorAll<HTMLElement>('[data-clone]'));
+			expect(clones).toHaveLength(12);
+			clones.forEach((c) => {
+				expect(c.hasAttribute('inert')).toBe(false);
+				expect(c.getAttribute('aria-hidden')).toBe('true');
+			});
+			await tick();
+			expect(warn).not.toHaveBeenCalled();
+		} finally {
+			warn.mockRestore();
+		}
+	});
+
+	it('warns in dev when a clone contains a focusable element', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		try {
+			const linkSlide = createRawSnippet<[unknown, number]>((getItem) => ({
+				render: () => `<p><a href="/x">${getItem()}</a></p>`
+			}));
+			await renderOverflowingLoop(undefined, { interactiveClones: true, slide: linkSlide });
+			await vi.waitFor(() =>
+				expect(warn).toHaveBeenCalledWith(
+					expect.stringContaining('interactiveClones'),
+					expect.anything()
+				)
+			);
+		} finally {
+			warn.mockRestore();
+		}
+	});
+
+	it('warns outside rail + loop, where no clones exist', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		try {
+			render(Carousel, { ...base, interactiveClones: true });
+			expect(warn).toHaveBeenCalledWith(expect.stringContaining('interactiveClones'));
+		} finally {
+			warn.mockRestore();
+		}
+	});
+});
+
 describe('data-loop (R1/R12, amended 2026-07-31) — effective-loop root hook', () => {
 	it('is present once the loop is effectively active (overflowing rail, clones mounted)', async () => {
 		const { container } = await renderOverflowingLoop();

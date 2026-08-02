@@ -11,7 +11,7 @@ import Accordion from './Accordion.svelte';
 
 interface AccordionItem {
 	id: string;
-	title: string | Snippet;
+	title: string | Snippet<[AccordionItem]>;
 	disabled?: boolean;
 }
 
@@ -156,6 +156,21 @@ describe('Accordion-R3 — heading element', () => {
 		const heading = container.querySelector('.hz-accordion-heading') as HTMLElement;
 		expect(heading.querySelector('[data-testid="rich-title"]')).not.toBeNull();
 		expect(heading.querySelector('em')).not.toBeNull();
+	});
+
+	it('a title Snippet receives its item, so one shared snippet renders per-item content', () => {
+		const sharedTitle = createRawSnippet<[AccordionItem]>((getItem) => ({
+			render: () => `<span data-testid="title-${getItem().id}">${getItem().id.toUpperCase()}</span>`
+		}));
+		const { container } = render(Accordion, {
+			items: [
+				{ id: 'one', title: sharedTitle },
+				{ id: 'two', title: sharedTitle }
+			],
+			panel: panelSnippet
+		});
+		expect(container.querySelector('[data-testid="title-one"]')?.textContent).toBe('ONE');
+		expect(container.querySelector('[data-testid="title-two"]')?.textContent).toBe('TWO');
 	});
 
 	it('icon span is a sibling of the heading, not a child', () => {
@@ -937,6 +952,129 @@ describe('Accordion structural CSS — summary flex row', () => {
 		const { container } = render(Accordion, { items: [itemA], panel: panelSnippet });
 		const summary = container.querySelector('summary.hz-accordion-trigger') as HTMLElement;
 		expect(getComputedStyle(summary).alignItems).toBe('flex-start');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Accordion-61 — meta snippet
+// ---------------------------------------------------------------------------
+
+describe('Accordion-61 — meta snippet', () => {
+	/** meta snippet that renders item data into a data-testid span. */
+	const metaSnippet = createRawSnippet<[AccordionItem]>((getItem) => ({
+		render: () => `<span data-testid="meta-${getItem().id}">meta for ${getItem().id}</span>`
+	}));
+
+	it('R6(a): meta renders per item with item data, as a sibling after the heading and before the icon', () => {
+		const { container } = render(Accordion, {
+			items: threeItems,
+			panel: panelSnippet,
+			meta: metaSnippet
+		});
+		const summary = container.querySelector('summary.hz-accordion-trigger') as HTMLElement;
+		const children = Array.from(summary.children);
+		const headingIndex = children.findIndex((el) => el.classList.contains('hz-accordion-heading'));
+		const metaIndex = children.findIndex((el) => el.classList.contains('hz-accordion-meta'));
+		const iconIndex = children.findIndex((el) => el.classList.contains('hz-accordion-icon'));
+		expect(headingIndex).toBeGreaterThanOrEqual(0);
+		expect(metaIndex).toBeGreaterThan(headingIndex);
+		expect(iconIndex).toBeGreaterThan(metaIndex);
+
+		expect(container.querySelector('[data-testid="meta-a"]')?.textContent).toBe('meta for a');
+		expect(container.querySelector('[data-testid="meta-b"]')?.textContent).toBe('meta for b');
+		expect(container.querySelector('[data-testid="meta-c"]')?.textContent).toBe('meta for c');
+	});
+
+	it('R6(b): with meta, aria-labelledby on the summary resolves to the heading id', () => {
+		const { container } = render(Accordion, {
+			items: [itemA],
+			panel: panelSnippet,
+			meta: metaSnippet
+		});
+		const summary = container.querySelector('summary.hz-accordion-trigger') as HTMLElement;
+		const heading = container.querySelector('.hz-accordion-heading') as HTMLElement;
+		const labelledby = summary.getAttribute('aria-labelledby');
+		expect(labelledby).not.toBeNull();
+		expect(heading.id).toBe(labelledby);
+		expect(heading.id).not.toBe('');
+	});
+
+	it('R6(b): without meta, neither aria-labelledby nor a heading id is present', () => {
+		const { container } = render(Accordion, { items: [itemA], panel: panelSnippet });
+		const summary = container.querySelector('summary.hz-accordion-trigger') as HTMLElement;
+		const heading = container.querySelector('.hz-accordion-heading') as HTMLElement;
+		expect(summary.hasAttribute('aria-labelledby')).toBe(false);
+		expect(heading.hasAttribute('id')).toBe(false);
+	});
+
+	it('R6(c): without meta, no .hz-accordion-meta wrapper renders (DOM stays as before)', () => {
+		const { container } = render(Accordion, { items: threeItems, panel: panelSnippet });
+		expect(container.querySelector('.hz-accordion-meta')).toBeNull();
+	});
+
+	it('R6(c): without meta, heading and icon remain direct children of the summary', () => {
+		const { container } = render(Accordion, { items: [itemA], panel: panelSnippet });
+		const summary = container.querySelector('summary.hz-accordion-trigger') as HTMLElement;
+		const heading = summary.querySelector('h3.hz-accordion-heading') as HTMLElement;
+		const icon = summary.querySelector('span.hz-accordion-icon') as HTMLElement;
+		expect(heading.parentElement).toBe(summary);
+		expect(icon.parentElement).toBe(summary);
+	});
+
+	it('R6(d): clicking inside meta toggles the item (native summary activation)', async () => {
+		const { container } = render(Accordion, {
+			items: threeItems,
+			type: 'multiple',
+			panel: panelSnippet,
+			meta: metaSnippet
+		});
+		const details = container.querySelectorAll('details');
+		const metaEl = container.querySelector('[data-testid="meta-a"]') as HTMLElement;
+		expect(details[0].getAttribute('data-state')).toBe('closed');
+		metaEl.click();
+		await tick();
+		expect(details[0].getAttribute('data-state')).toBe('open');
+	});
+
+	it('a string title still works alongside meta', () => {
+		const { container } = render(Accordion, {
+			items: [itemA],
+			panel: panelSnippet,
+			meta: metaSnippet
+		});
+		const heading = container.querySelector('.hz-accordion-heading') as HTMLElement;
+		expect(heading.textContent?.trim()).toBe('Item A');
+		expect(container.querySelector('[data-testid="meta-a"]')).not.toBeNull();
+	});
+
+	it('an item whose meta snippet renders nothing leaves an empty .hz-accordion-meta wrapper', () => {
+		const emptyMeta = createRawSnippet<[AccordionItem]>(() => ({
+			render: () => `<span></span>`
+		}));
+		const { container } = render(Accordion, {
+			items: [itemA],
+			panel: panelSnippet,
+			meta: emptyMeta
+		});
+		const metaWrapper = container.querySelector('.hz-accordion-meta');
+		expect(metaWrapper).not.toBeNull();
+		expect(metaWrapper?.textContent?.trim()).toBe('');
+	});
+
+	it('disabled item: meta renders and the summary still blocks toggle', async () => {
+		const { container } = render(Accordion, {
+			items: [disabledItem],
+			type: 'multiple',
+			panel: panelSnippet,
+			meta: metaSnippet
+		});
+		const details = container.querySelectorAll('details');
+		const summary = container.querySelector('summary') as HTMLElement;
+		expect(container.querySelector('[data-testid="meta-d"]')).not.toBeNull();
+		expect(summary.getAttribute('aria-disabled')).toBe('true');
+		summary.click();
+		await tick();
+		expect(details[0].getAttribute('data-state')).toBe('closed');
 	});
 });
 

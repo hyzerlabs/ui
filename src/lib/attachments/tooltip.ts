@@ -136,6 +136,7 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 			// truth); the theme's own @media strip is the belt-and-braces backup.
 			el.style.animation = prefersReducedMotion.current ? 'none' : '';
 			el.style.display = '';
+			el.style.pointerEvents = 'auto';
 
 			// Promote to the top layer when the platform supports it —
 			// this was previously missing, leaving the tooltip invisible even
@@ -166,6 +167,14 @@ export function tooltip(arg: string | TooltipOptions): (node: Element) => () => 
 			if (!shown) return;
 			shown = false;
 			el.setAttribute('data-state', 'closed');
+			// A theme's exit transition (display/overlay with allow-discrete —
+			// tooltip.css) defers the visual effect of the display flip and
+			// top-layer removal below until the fade has painted; without one
+			// the hide stays synchronous, as before. The JS reduced-motion gate
+			// zeroes the transition (the `animation` precedent in show());
+			// pointer-events must not linger on a fading tooltip.
+			el.style.transitionDuration = prefersReducedMotion.current ? '0s' : '';
+			el.style.pointerEvents = 'none';
 			if (typeof el.hidePopover === 'function') {
 				try {
 					el.hidePopover();

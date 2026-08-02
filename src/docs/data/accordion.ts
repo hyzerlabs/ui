@@ -25,6 +25,12 @@ export const accordionDoc: ComponentDoc = {
 			default: '—',
 			note: 'Required. Renders each panel.'
 		},
+		{
+			name: 'meta',
+			type: 'Snippet<[AccordionItem]>',
+			default: '—',
+			note: 'Renders once per item inside the summary, after the heading and before the icon — a price, a teaser, or other supplementary detail. It receives the item, so one shared snippet renders every row. Meta content is never part of the trigger’s accessible name: see the note in the Meta example.'
+		},
 		{ name: 'icon', type: 'Snippet', default: '—', note: 'Replaces the default chevron.' },
 		{ name: 'onToggle', type: '(openIds: string[]) => void', default: '—' },
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-accordion class.' }
@@ -36,9 +42,9 @@ export const accordionDoc: ComponentDoc = {
 				{ name: 'id', type: 'string', default: '—', note: 'Required. Must be unique.' },
 				{
 					name: 'title',
-					type: 'string | Snippet',
+					type: 'string | Snippet<[AccordionItem]>',
 					default: '—',
-					note: 'Required. String for plain text; snippet for inner markup.'
+					note: 'Required. Use a string for plain text, or a snippet for inner markup — the snippet receives the item, so one shared snippet can render every row. The title becomes the row’s accessible name: see the note in the Rich titles example.'
 				},
 				{ name: 'disabled', type: 'boolean', default: 'false' }
 			]

@@ -390,3 +390,35 @@ describe('tooltip() — teardown safety', () => {
 		expect(document.querySelector('.hz-tooltip')).toBeNull();
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Exit-transition guards — the theme may defer the visual hide via
+// display/overlay allow-discrete transitions (tooltip.css); the attachment
+// must keep a fading tooltip from intercepting the pointer.
+// ---------------------------------------------------------------------------
+
+describe('tooltip() — exit-transition guards', () => {
+	it('hide sets inline pointer-events: none; a reopen restores auto', () => {
+		const trigger = makeTrigger();
+		const cleanup = tooltip('Hi')(trigger);
+
+		trigger.dispatchEvent(new FocusEvent('focus'));
+		const node = activeTooltip() as HTMLElement;
+		expect(node.style.pointerEvents).toBe('auto');
+
+		trigger.dispatchEvent(new FocusEvent('blur'));
+		expect(node.style.pointerEvents).toBe('none');
+		expect(node.getAttribute('data-state')).toBe('closed');
+		// The positioning teardown pins the rendered coordinates (px, not
+		// anchor()/UA inset: 0) so a theme exit fade happens in place instead
+		// of flashing at the viewport's top-left.
+		expect(node.style.top).toMatch(/px$/);
+		expect(node.style.left).toMatch(/px$/);
+
+		trigger.dispatchEvent(new FocusEvent('focus'));
+		expect(node.style.pointerEvents).toBe('auto');
+		expect(node.getAttribute('data-state')).toBe('open');
+
+		cleanup();
+	});
+});

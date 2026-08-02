@@ -80,12 +80,14 @@
 		.hz-dropdown-trigger .hz-icon {
 			transition: none;
 		}
+
+		.hz-dropdown-menu {
+			transition: none;
+		}
 	}
 
 	/* Menu entrance — fade + 4px rise on the motion tokens, the theme-CSS
-	 * counterpart of the motion module's fly-in. Entry only: no exit
-	 * animation, so a closed menu's display: none (component-owned) takes
-	 * effect immediately and its items leave the accessibility tree at once.
+	 * counterpart of the motion module's fly-in.
 	 * direction mirrors the RESOLVED data-side — a
 	 * bottom-placed menu rises up into place (starts above, the historic
 	 * direction); a top-flipped menu falls down into place instead (starts
@@ -106,5 +108,29 @@
 			opacity: 0;
 			translate: 0 var(--_dropdown-menu-in-y);
 		}
+	}
+
+	/* Menu exit — reverse of the entrance, toward the trigger. `display`/
+	 * `overlay` with allow-discrete defer the closed menu's structural
+	 * display: none (Dropdown.svelte) and the top-layer removal until the
+	 * fade has painted (the platform's popover exit-animation pattern); a
+	 * browser without allow-discrete hides instantly, the prior behavior.
+	 * Entry never transitions (the menu comes from display: none) — the
+	 * keyframe above owns that direction. pointer-events: none so a fading
+	 * menu never swallows a click; focus has already returned to the
+	 * trigger, and the sub-250ms window in which the closing menu is still
+	 * technically in the tree is an accepted platform-pattern tradeoff. */
+	.hz-dropdown-menu {
+		transition:
+			opacity var(--hz-duration-fast, 250ms) var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1)),
+			translate var(--hz-duration-fast, 250ms) var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1)),
+			display var(--hz-duration-fast, 250ms) allow-discrete,
+			overlay var(--hz-duration-fast, 250ms) allow-discrete;
+	}
+
+	.hz-dropdown:not([data-open]) .hz-dropdown-menu {
+		opacity: 0;
+		translate: 0 var(--_dropdown-menu-in-y);
+		pointer-events: none;
 	}
 }

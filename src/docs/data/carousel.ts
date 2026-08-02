@@ -59,6 +59,12 @@ export const carouselDoc: ComponentDoc = {
 			note: 'Opt-in continuous boundary wrap: every ±1 loop step — drag, buttons, dots, arrow keys — settles through a hidden clone instead of sweeping back through the row. Only meaningful with loop; an inert no-op without it. Ignored in the rail layout, since loop is already continuous there.'
 		},
 		{
+			name: 'interactiveClones',
+			type: 'boolean',
+			default: 'false',
+			note: 'Rail + loop only. Lets tooltips and hover styles fire on the cloned cards near the wrap seam. Set it only when your slide content has no focusable elements: see the note in the Rail examples.'
+		},
+		{
 			name: 'indicator',
 			type: "'counter' | 'dots'",
 			default: "'counter'",

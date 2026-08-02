@@ -2642,8 +2642,10 @@ test.describe('specs/59 — Parallax', () => {
 		const layer = stage.locator('.hz-parallax-layer').first();
 		await expect(layer).toBeAttached();
 
+		// The scroll-driven animation is created asynchronously after the tab
+		// reveals the stage — under full-suite load the immediate read raced it.
+		await expect.poll(() => layer.evaluate(readCurrentTime)).not.toBeNull();
 		const before = await layer.evaluate(readCurrentTime);
-		expect(before).not.toBeNull();
 		await stage.evaluate((el) => {
 			el.scrollLeft = el.scrollWidth;
 		});

@@ -11,8 +11,10 @@
 
 	interface AccordionItem {
 		id: string;
-		/** Plain string for the common case; a Snippet when inner markup is needed. */
-		title: string | Snippet;
+		/** Plain string for the common case; a Snippet when inner markup is
+		 * needed. The snippet receives the item, so one shared snippet can
+		 * render per-item content in data-driven accordions. */
+		title: string | Snippet<[AccordionItem]>;
 		disabled?: boolean;
 	}
 
@@ -23,6 +25,15 @@
 		collapsible?: boolean;
 		headingLevel?: 2 | 3 | 4 | 5 | 6;
 		panel: Snippet<[AccordionItem]>;
+		/** Rendered once per item inside its `<summary>`, between the heading
+		 * and the icon span. Receives the item, so one shared snippet serves a
+		 * data-driven accordion. Component-level, not a per-item field: branch
+		 * inside the snippet with `{#if}` on item fields for per-item variation.
+		 * When provided, the heading gains a generated `id` and the summary
+		 * gains `aria-labelledby` pointing at it, so the trigger's accessible
+		 * name stays the heading text alone (meta content is not part of the
+		 * name). Without `meta`, neither attribute is rendered. */
+		meta?: Snippet<[AccordionItem]>;
 		icon?: Snippet;
 		onToggle?: ((openIds: string[]) => void) | undefined;
 		class?: string;
@@ -40,6 +51,7 @@
 		collapsible = true,
 		headingLevel = 3,
 		panel,
+		meta,
 		icon,
 		onToggle,
 		class: className,
@@ -254,20 +266,33 @@
 			<!--
 				<summary class="hz-accordion-trigger">
 				aria-disabled="true" on disabled summaries.
+				aria-labelledby (only with `meta`) points at the heading id so the
+				accessible name stays the heading text, not the whole summary.
 			-->
 			<summary
 				bind:this={summaryEls[i]}
 				class="hz-accordion-trigger"
 				aria-disabled={item.disabled ? 'true' : undefined}
+				aria-labelledby={meta ? `${groupName}-heading-${i}` : undefined}
 				onclick={(e) => handleSummaryClick(e, i)}
 				onkeydown={(e) => handleSummaryKeydown(e, i)}
 			>
 				<!--
-					heading element via svelte:element; icon is a sibling.
+					heading element via svelte:element; meta (if provided) and icon
+					are siblings after it. id set (only with `meta`) so the summary's
+					aria-labelledby above can resolve to it.
 				-->
-				<svelte:element this={'h' + headingLevel} class="hz-accordion-heading">
-					{#if typeof item.title === 'string'}{item.title}{:else}{@render item.title()}{/if}
+				<svelte:element
+					this={'h' + headingLevel}
+					class="hz-accordion-heading"
+					id={meta ? `${groupName}-heading-${i}` : undefined}
+				>
+					{#if typeof item.title === 'string'}{item.title}{:else}{@render item.title(item)}{/if}
 				</svelte:element>
+
+				{#if meta}
+					<div class="hz-accordion-meta">{@render meta(item)}</div>
+				{/if}
 
 				<!--
 					icon span is aria-hidden; renders custom icon or default chevron.
@@ -336,6 +361,19 @@
 		flex-shrink: 0;
 		display: flex;
 		align-items: center;
+	}
+
+	/*
+	 * Meta sits between the heading and icon as a normal flex item — no
+	 * flex-basis/width forced. min-width: 0 overrides the flex-item default
+	 * (min-content), so long meta content shrinks and wraps within the row
+	 * instead of forcing the row wider. white-space is left at its default
+	 * (normal); nothing here forces a single line (Theming Hooks — visual
+	 * layout like right-aligned price or teaser-under-title is theme/consumer
+	 * CSS).
+	 */
+	.hz-accordion-meta {
+		min-width: 0;
 	}
 
 	/*
