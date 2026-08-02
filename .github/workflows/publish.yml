@@ -34,8 +34,10 @@ jobs:
           run_install: false
 
       # Trusted publishing needs npm >= 11.5.1; Node's bundled npm is older.
+      # Pinned to 11, not latest: npm 12 raised its node floor past .nvmrc's
+      # 22.18 and broke the v0.3.0 run with EBADENGINE.
       - name: Update npm for OIDC support
-        run: npm install -g npm@latest
+        run: npm install -g npm@11
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
