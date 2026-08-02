@@ -25,6 +25,12 @@ export const accordionDoc: ComponentDoc = {
 			default: '—',
 			note: 'Required. Renders each panel.'
 		},
+		{
+			name: 'meta',
+			type: 'Snippet<[AccordionItem]>',
+			default: '—',
+			note: 'Renders once per item inside the summary, after the heading and before the icon — a price, a teaser, or other supplementary detail. It receives the item, so one shared snippet renders every row. Meta content is never part of the trigger’s accessible name: see the note in the Meta example.'
+		},
 		{ name: 'icon', type: 'Snippet', default: '—', note: 'Replaces the default chevron.' },
 		{ name: 'onToggle', type: '(openIds: string[]) => void', default: '—' },
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-accordion class.' }

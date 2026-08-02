@@ -3,8 +3,10 @@
 > Builder contract. Implement against this document. Reviewer verifies each
 > requirement (`Rn`) and edge case as pass/fail. **Builds on the existing
 > `Accordion.svelte` (native `<details>`/`<summary>`, heading-in-summary,
-> single/multiple modes) and does not restate it.** The no-`meta` DOM must stay
-> byte-identical to today's.
+> single/multiple modes) and does not restate it.** Without `meta`, the rendered
+> DOM must gain no element, wrapper, or attribute (amended 2026-08-01: Svelte's
+> `{#if}` anchor comment node is accepted — it is unavoidable and unobservable
+> to CSS, AT, and tests).
 
 ### Goal
 
@@ -40,13 +42,14 @@ works: branch inside the snippet with `{#if}` on item fields.
 element and `.hz-accordion-icon`. Structural CSS only: the wrapper participates
 in the existing summary flex row. All visual layout (right-aligned price, teaser
 under the title, wrapping) is theme or consumer CSS on `.hz-accordion-meta`.
-Without `meta`, no wrapper renders: the DOM is byte-identical to today's.
+Without `meta`, no wrapper element and no new attributes render (the `{#if}`
+anchor comment is accepted — see the contract note above).
 
 **R2 — Accessible name stays the heading.** With `meta` provided, the summary's
 accessible name must be the heading's text alone, not everything in the summary
 concatenated. Give the heading element a stable generated `id` and set
 `aria-labelledby` on the `<summary>` pointing at it. Both attributes appear
-**only when `meta` is provided** (R1's byte-identical rule).
+**only when `meta` is provided** (R1's no-new-attributes rule).
 
 Rationale: name from contents over a summary would fold the price and teaser
 into every announcement of the trigger, which is verbose and a WCAG 2.4.6

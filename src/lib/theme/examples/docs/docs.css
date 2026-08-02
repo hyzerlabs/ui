@@ -80,7 +80,9 @@
  * one. Direct children only — an Alert rendered INSIDE a demo (the Alert
  * page's own examples) must keep its in-demo layout untouched. */
 .tab-content > .hz-alert + *,
-.tab-content > * + .hz-alert {
+.tab-content > * + .hz-alert,
+.inner-tab > .hz-alert + *,
+.inner-tab > * + .hz-alert {
 	margin-top: 1rem;
 }
 

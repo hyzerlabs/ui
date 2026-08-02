@@ -38,6 +38,13 @@
 		{ id: 'ontoggle', label: 'onToggle' }
 	];
 
+	// Rich titles sub-tabs: the title snippet and the meta slot are the two
+	// halves of the same story — per-item content in the summary row.
+	const richTabs = [
+		{ id: 'title', label: 'Title snippet' },
+		{ id: 'meta', label: 'Meta' }
+	];
+
 	// Example-code builders — derived from the selected sub-tab so the code
 	// pane updates live with the demo.
 	function modeCode(mode: string): string {
@@ -72,6 +79,42 @@
 		'',
 		"<Accordion items={[{ id: 'free', title: planTitle }, { id: 'pro', title: planTitle }]}>",
 		'\t{#snippet panel(item)}…{/snippet}',
+		'</Accordion>'
+	].join('\n');
+
+	const services = [
+		{ id: 'brand', title: 'Brand identity' },
+		{ id: 'web', title: 'Website design' }
+	];
+
+	const serviceInfo: Record<string, { price: string; teaser: string; description: string }> = {
+		brand: {
+			price: '$2,400',
+			teaser: 'Logo, type, and a color system that holds up across every channel.',
+			description:
+				'Logo suite, typography system, color palette, and a usage guide your team can hand to any vendor. $2,400.'
+		},
+		web: {
+			price: '$4,800',
+			teaser: 'A responsive site built from your brand system, ready for launch.',
+			description:
+				'Wireframes through a responsive, accessible build on your existing brand system. $4,800.'
+		}
+	};
+
+	const metaCode = [
+		'<!-- meta is set on the Accordion, so one shared snippet renders every row -->',
+		'{#snippet serviceMeta(item)}',
+		'\t<div class="service-meta">',
+		'\t\t<span class="service-price">{serviceInfo[item.id].price}</span>',
+		'\t\t<p class="service-teaser">{serviceInfo[item.id].teaser}</p>',
+		'\t</div>',
+		'{/snippet}',
+		'',
+		'<Accordion items={services} meta={serviceMeta}>',
+		'\t{#snippet panel(item)}',
+		'\t\t<p>{serviceInfo[item.id].description}</p>',
+		'\t{/snippet}',
 		'</Accordion>'
 	].join('\n');
 
@@ -145,26 +188,58 @@
 						{planNames[aItem.id]}
 						{#if aItem.id === 'pro'}<span class="badge">new</span>{/if}
 					{/snippet}
+					{#snippet serviceMeta(sItem: { id: string })}
+						<div class="service-meta">
+							<span class="service-price">{serviceInfo[sItem.id].price}</span>
+							<p class="service-teaser">{serviceInfo[sItem.id].teaser}</p>
+						</div>
+					{/snippet}
 					<Alert intent="info" title="Titles become the accessible name">
 						Everything a title renders sits inside the summary's heading. That heading is the row's
 						accessible name, so it is what a screen reader announces. Keep titles as short as a
 						label: a name plus a brief marker, like the badge here. Teaser prose, prices, and other
-						detail belong in the panel.
+						detail belong in <code>meta</code> or the panel.
 					</Alert>
-					<Example code={richTitlesCode}>
-						<Accordion
-							items={[
-								{ id: 'free', title: planTitle },
-								{ id: 'pro', title: planTitle }
-							]}
-						>
-							{#snippet panel(aItem)}
-								<div class="panel-content">
-									<p>Panel for the {aItem.id} plan.</p>
-								</div>
-							{/snippet}
-						</Accordion>
-					</Example>
+					<Tabs items={richTabs} ariaLabel="Summary content demos" defaultTab="title">
+						{#snippet panel(rItem)}
+							<div class="inner-tab">
+								{#if rItem.id === 'title'}
+									<Example code={richTitlesCode}>
+										<Accordion
+											items={[
+												{ id: 'free', title: planTitle },
+												{ id: 'pro', title: planTitle }
+											]}
+										>
+											{#snippet panel(aItem)}
+												<div class="panel-content">
+													<p>Panel for the {aItem.id} plan.</p>
+												</div>
+											{/snippet}
+										</Accordion>
+									</Example>
+								{:else}
+									<Alert intent="warning" title="Repeat essential detail in the panel">
+										A screen reader announces the trigger by its heading text alone, so someone
+										moving from row to row by name never hears the <code>meta</code> content. That
+										content is still there to read, but it is never part of the trigger's name. So
+										put anything a person needs in order to decide whether to expand a row, a price
+										for example, in the panel or the heading as well. <code>meta</code> then carries the
+										visual-forward version of it.
+									</Alert>
+									<Example code={metaCode}>
+										<Accordion items={services} meta={serviceMeta}>
+											{#snippet panel(sItem)}
+												<div class="panel-content">
+													<p>{serviceInfo[sItem.id].description}</p>
+												</div>
+											{/snippet}
+										</Accordion>
+									</Example>
+								{/if}
+							</div>
+						{/snippet}
+					</Tabs>
 				{:else if item.id === 'icon'}
 					<Example code={iconCode}>
 						<Accordion {items}>
@@ -213,6 +288,22 @@
 	.panel-content p {
 		margin: 0;
 		font-size: var(--hz-font-size-sm, 0.875rem);
+	}
+	.service-meta {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.25rem;
+		max-width: 12rem;
+		text-align: right;
+	}
+	.service-price {
+		font-weight: var(--hz-font-weight-semibold, 600);
+	}
+	.service-teaser {
+		margin: 0;
+		font-size: var(--hz-font-size-sm, 0.875rem);
+		color: var(--hz-color-text-muted, #6b7280);
 	}
 	.badge {
 		display: inline-block;
