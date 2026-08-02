@@ -22,3 +22,6 @@ bun.lockb
 /src/lib/theme/examples/ocean.css
 /src/lib/theme/examples/terminal/terminal.tokens.css
 /src/lib/theme/utilities.css
+
+# Separate package with its own toolchain (see sv-addon/package.json)
+/sv-addon/

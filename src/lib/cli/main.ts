@@ -30,7 +30,7 @@ import {
 	type HyzerConfig,
 	type ResolvedConfig
 } from '../config/index.js';
-import { CONFIG_TEMPLATE } from './config-template.js';
+import { CONFIG_TEMPLATE, INIT_HEADER } from './config-template.js';
 
 const CONFIG_FILENAMES = ['hyzer.config.ts', 'hyzer.config.js', 'hyzer.config.mjs'];
 const DEFAULT_OUTPUT = 'hyzer-tokens.css';
@@ -58,14 +58,6 @@ Options (generate):
 
 TypeScript configs need Node ≥ 22.18 (native type stripping); on older
 runtimes use hyzer.config.mjs.`;
-
-const INIT_HEADER = `// hyzer.config.ts — every option shown, commented out; valid exactly as written.
-// Uncomment what you need, then:
-//   hyzer generate                   write the token sheet
-//   hyzer generate --check --strict  validate without writing (for CI)
-// Docs: https://design.hyzer.sh/docs/foundation/config
-
-`;
 
 /** Injectable environment so tests run the CLI without spawning processes. */
 export interface RunOptions {

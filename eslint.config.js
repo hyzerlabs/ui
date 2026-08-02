@@ -10,6 +10,8 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
+	// Separate package with its own toolchain (see sv-addon/package.json)
+	{ ignores: ['sv-addon/'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,

@@ -3,9 +3,17 @@
  * (src/lib/config/schema.ts) with every group commented out, so it is a
  * valid, empty config exactly as written (`defineConfig({})`); uncommenting
  * any one line, or all of them, stays valid too (verified against
- * resolveConfig). One source of truth for `hyzer init` and the docs
- * Config & CLI page.
+ * resolveConfig). One source of truth for `hyzer init`, the docs
+ * Config & CLI page, and the `@hyzer-labs/sv` community add-on.
  */
+export const INIT_HEADER = `// hyzer.config.ts — every option shown, commented out; valid exactly as written.
+// Uncomment what you need, then:
+//   hyzer generate                   write the token sheet
+//   hyzer generate --check --strict  validate without writing (for CI)
+// Docs: https://design.hyzer.sh/docs/foundation/config
+
+`;
+
 export const CONFIG_TEMPLATE = `import { defineConfig } from '@hyzer-labs/ui/config';
 
 export default defineConfig({
