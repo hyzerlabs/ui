@@ -50,14 +50,17 @@
 
 	const horizontalScrollingCode = [
 		'<HorizontalScroll style="--hz-horizontal-scroll-height: 20rem">',
-		'\t<!-- panel one: two circles start far apart, near the top and bottom,',
+		// '<' + '!--' keeps the multi-line comment opener out of the vite
+		// dependency scanner's lexer (rolldown misparses a comment that opens
+		// and closes in different strings — the '</' + 'style>' precedent).
+		'\t<' + '!-- panel one: two circles start far apart, near the top and bottom,',
 		'\t     and opposing y (cross-axis) travel brings them together as you',
 		'\t     scroll right -->',
 		'\t<Parallax axis="x" style="min-height: 100%">',
 		'\t\t<ParallaxLayer y="16rem">…top, drifts down…</ParallaxLayer>',
 		'\t\t<ParallaxLayer y="-16rem">…bottom, drifts up…</ParallaxLayer>',
 		'\t</Parallax>',
-		'\t<!-- panel two: classic speed-difference drift — staggered layers,',
+		'\t<' + '!-- panel two: classic speed-difference drift — staggered layers,',
 		'\t     same-axis x travel at different magnitudes -->',
 		'\t<Parallax axis="x" style="min-height: 100%">',
 		'\t\t<ParallaxLayer x="4rem">…</ParallaxLayer>',
@@ -86,7 +89,7 @@
 	].join('\n');
 
 	const stickyCode = [
-		'<!-- the sticky wrapper is your own CSS, OUTSIDE Parallax — the band',
+		'<' + '!-- the sticky wrapper is your own CSS, OUTSIDE Parallax — the band',
 		'     clips, so a sticky element placed INSIDE it would only stick',
 		"     within its own bounds, not the page's -->",
 		'<div class="sticky-section">',
