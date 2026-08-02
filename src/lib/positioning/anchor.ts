@@ -111,13 +111,25 @@ export function applyAnchorPosition(
 	}
 
 	return () => {
+		// Freeze the rendered coordinates BEFORE tearing the anchor down.
+		// Consumers run theme exit fades after stop() (display/overlay
+		// allow-discrete transitions keep the box visible briefly), and
+		// removing every side would let the UA `[popover] { inset: 0 }`
+		// default (with the inline `margin: 0` above) pin the still-visible
+		// box to the viewport's top-left corner mid-fade. A hidden box
+		// measures 0×0 and pins offscreen-invisible, which is fine; the next
+		// show re-runs this function, which resets `inset` before anchoring.
+		const rect = floating.getBoundingClientRect();
 		triggerEl.style.removeProperty('anchor-name');
 		floating.style.removeProperty('position-anchor');
 		floating.style.removeProperty('position-try-fallbacks');
 		floating.style.removeProperty('justify-self');
 		floating.style.removeProperty('align-self');
-		for (const prop of ['top', 'bottom', 'left', 'right']) {
-			floating.style.removeProperty(prop);
-		}
+		// `auto`, not removeProperty: the UA inset: 0 must not win the far
+		// sides (under RTL an over-constrained box keeps `right`, not `left`).
+		floating.style.bottom = 'auto';
+		floating.style.right = 'auto';
+		floating.style.top = `${rect.top}px`;
+		floating.style.left = `${rect.left}px`;
 	};
 }

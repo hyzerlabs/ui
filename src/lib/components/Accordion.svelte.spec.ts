@@ -11,7 +11,7 @@ import Accordion from './Accordion.svelte';
 
 interface AccordionItem {
 	id: string;
-	title: string | Snippet;
+	title: string | Snippet<[AccordionItem]>;
 	disabled?: boolean;
 }
 
@@ -156,6 +156,21 @@ describe('Accordion-R3 — heading element', () => {
 		const heading = container.querySelector('.hz-accordion-heading') as HTMLElement;
 		expect(heading.querySelector('[data-testid="rich-title"]')).not.toBeNull();
 		expect(heading.querySelector('em')).not.toBeNull();
+	});
+
+	it('a title Snippet receives its item, so one shared snippet renders per-item content', () => {
+		const sharedTitle = createRawSnippet<[AccordionItem]>((getItem) => ({
+			render: () => `<span data-testid="title-${getItem().id}">${getItem().id.toUpperCase()}</span>`
+		}));
+		const { container } = render(Accordion, {
+			items: [
+				{ id: 'one', title: sharedTitle },
+				{ id: 'two', title: sharedTitle }
+			],
+			panel: panelSnippet
+		});
+		expect(container.querySelector('[data-testid="title-one"]')?.textContent).toBe('ONE');
+		expect(container.querySelector('[data-testid="title-two"]')?.textContent).toBe('TWO');
 	});
 
 	it('icon span is a sibling of the heading, not a child', () => {

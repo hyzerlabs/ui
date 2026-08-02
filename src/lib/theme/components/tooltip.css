@@ -4,7 +4,7 @@
  * The tooltip node is created by the `tooltip` attachment (not a Svelte
  * component), so its structural correctness (hidden-by-default, position:
  * fixed) is inline-JS-owned (src/lib/attachments/tooltip.ts) — this sheet is
- * chrome only: surface, elevation, and the entrance keyframe.
+ * chrome only: surface, elevation, and the entrance/exit motion.
  *
  * NO ARROW ships here (user-directed 2026-07-27): a caret is a visual
  * decision the consumer owns. To draw your own, style `.hz-tooltip::after`
@@ -32,16 +32,33 @@
 		box-shadow: var(--hz-shadow-sm, 0 4px 6px -1px rgb(0 0 0 / 0.1));
 		font-size: var(--hz-font-size-sm, 0.875rem);
 		line-height: var(--hz-line-height-tight, 1.2);
+		/* Exit path — `display`/`overlay` with allow-discrete defer the
+		 * attachment's inline display: none and the top-layer removal until
+		 * the fade below has painted (the platform's popover exit-animation
+		 * pattern). A browser without allow-discrete simply hides instantly.
+		 * Entry never transitions (the element comes from display: none) —
+		 * the entrance keyframe below owns that direction. */
+		transition:
+			opacity var(--hz-duration-fast, 250ms) var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1)),
+			translate var(--hz-duration-fast, 250ms) var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1)),
+			display var(--hz-duration-fast, 250ms) allow-discrete,
+			overlay var(--hz-duration-fast, 250ms) allow-discrete;
 	}
 
 	/* Entrance — fade + small rise, the Dropdown menu-entrance precedent.
-	 * Entry only: hiding is immediate (inline display: none), matching a
-	 * tooltip's snappy dismiss. JS is the primary reduced-motion gate
-	 * (inline `animation: none`, src/lib/attachments/tooltip.ts); this media
+	 * JS is the primary reduced-motion gate (inline `animation: none` /
+	 * `transition-duration: 0s`, src/lib/attachments/tooltip.ts); this media
 	 * query is the belt-and-braces backup. */
 	.hz-tooltip[data-state='open'] {
 		animation: hz-tooltip-in var(--hz-duration-fast, 250ms)
 			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
+	}
+
+	/* Exit — reverse the entrance. The attachment sets pointer-events: none
+	 * while closed, so the fading tooltip never intercepts the pointer. */
+	.hz-tooltip[data-state='closed'] {
+		opacity: 0;
+		translate: 0 0.25rem;
 	}
 
 	@keyframes hz-tooltip-in {
@@ -54,6 +71,10 @@
 	@media (prefers-reduced-motion: reduce) {
 		.hz-tooltip[data-state='open'] {
 			animation: none;
+		}
+
+		.hz-tooltip {
+			transition: none;
 		}
 	}
 }

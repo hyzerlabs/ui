@@ -211,6 +211,20 @@ them would replace good native behavior with worse JS. The gesture reuses spec
   hands off to the corresponding real, focusable, non-`aria-hidden` slide the moment
   the scroll settles onto it (immediately, since the teleport itself is instantaneous
   — R7's "Teleport" bullet below). A future audit should not flag this as a defect.
+  **Amended 2026-08-01 — `interactiveClones` opt-in.** Consumer feedback (logo-card
+  rails with hover tooltips): `inert` removes the clone subtree from hit-testing
+  entirely, so hover-driven UI is silently dead on the clone copies a user can rest
+  on near the seam — and no CSS can restore it. The default stays exactly as above.
+  The new `interactiveClones` prop (default `false`) drops `inert` from the rail's
+  loop clones while keeping `aria-hidden="true"`; setting it is the consumer's
+  assertion that the slide content contains **no focusable elements** — a focusable
+  descendant of an `aria-hidden` subtree without `inert` would be Tab-reachable
+  while invisible to AT, the exact WCAG 4.1.2 failure `inert` prevents. A dev-only
+  warning scans the mounted clones for focusables (`a[href]`, `button`, form
+  controls, `iframe`, `[tabindex]`, `[contenteditable]`) and names the offender.
+  A creation-time dev warning fires when `interactiveClones` is set outside
+  `layout="rail"` + `loop` (no clones exist there; single/seamless wrap clones —
+  43 R6 — are transient mid-animation devices and stay unconditionally `inert`).
 - **Client-only.** Clones mount **after hydration** only (a `mounted` flag set in an
   effect). The server frame and the pre-hydration frame render the plain rail
   starting at the first real item; mounting clones before the scroll offset could be
@@ -271,7 +285,10 @@ drag, keys) is direct manipulation, not vestibular motion, and is untouched — 
 - **Everything is exposed.** No slide is `inert`, so all item content is in the
   accessibility tree and in the tab order in DOM order = visual order. Tabbing to a
   partly-off-screen item scrolls it into view natively. Clones are `inert` +
-  `aria-hidden` so they add no duplicate tab stops or duplicate readings (R7).
+  `aria-hidden` so they add no duplicate tab stops or duplicate readings (R7; under
+  R7's 2026-08-01 `interactiveClones` amendment, `aria-hidden` alone carries the
+  no-duplicate-readings invariant and the consumer asserts there are no tab stops
+  to duplicate).
 - **No live region in rail.** The viewport does **not** carry `aria-live` in rail
   mode. There is no slide swap to announce (nothing appears or disappears), the
   position is continuous rather than discrete, and — decisively — mounting the R7

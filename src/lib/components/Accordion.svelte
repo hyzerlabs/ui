@@ -11,8 +11,10 @@
 
 	interface AccordionItem {
 		id: string;
-		/** Plain string for the common case; a Snippet when inner markup is needed. */
-		title: string | Snippet;
+		/** Plain string for the common case; a Snippet when inner markup is
+		 * needed. The snippet receives the item, so one shared snippet can
+		 * render per-item content in data-driven accordions. */
+		title: string | Snippet<[AccordionItem]>;
 		disabled?: boolean;
 	}
 
@@ -266,7 +268,7 @@
 					heading element via svelte:element; icon is a sibling.
 				-->
 				<svelte:element this={'h' + headingLevel} class="hz-accordion-heading">
-					{#if typeof item.title === 'string'}{item.title}{:else}{@render item.title()}{/if}
+					{#if typeof item.title === 'string'}{item.title}{:else}{@render item.title(item)}{/if}
 				</svelte:element>
 
 				<!--

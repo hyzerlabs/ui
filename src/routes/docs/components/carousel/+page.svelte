@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Carousel, Card, Blockquote, Image, Tabs } from '$lib';
+	import { Alert, Carousel, Card, Blockquote, Image, Tabs } from '$lib';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { carouselDoc } from '../../../../docs/data/carousel.js';
 	import Example from '../../../../docs/Example.svelte';
@@ -410,8 +410,9 @@
 						<code>loop</code> in a rail wraps the row in either direction: scroll or drag past either
 						end and it carries on rather than stopping. A looping row also hides its scrollbar, since
 						there's no real start or end for it to point to. The row still scrolls with touch, trackpad,
-						wheel, the keyboard, and a mouse drag, exactly as before. The cards that briefly appear wrapped
-						around at either edge become clickable again as soon as the row finishes scrolling onto them.
+						wheel, the keyboard, and a mouse drag, exactly as before. The cards that appear wrapped around
+						at either edge are hidden copies: they become the real, clickable cards once the row settles
+						onto them. See the note below for how those copies treat the mouse.
 					</p>
 					<Example code={railLoopCode}>
 						<Carousel
@@ -427,6 +428,15 @@
 							{/snippet}
 						</Carousel>
 					</Example>
+					<Alert intent="info" title="Hover effects near the wrap seam">
+						A looping rail draws hidden copies of the cards at each end so the wrap feels
+						continuous. Those copies ignore the mouse, so tooltips and hover styles do not fire on
+						them. Set
+						<code>interactiveClones</code> if your cards rely on hover. Either way, the copies stay hidden
+						from screen readers. Setting the prop is your promise that the cards contain no links, buttons,
+						or other focusable elements. One inside a hidden copy would be reachable by keyboard while
+						invisible to screen readers, so development builds warn if they find one.
+					</Alert>
 				{/if}
 			</div>
 		{/snippet}

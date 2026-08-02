@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Accordion, Tabs } from '$lib';
+	import { Accordion, Alert, Tabs } from '$lib';
 	import IconPlus from '$lib/icons/generated/plus.svelte';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { accordionDoc } from '../../../../docs/data/accordion.js';
@@ -61,13 +61,16 @@
 		].join('\n');
 	}
 
+	const planNames: Record<string, string> = { free: 'Free plan', pro: 'Pro plan' };
+
 	const richTitlesCode = [
-		'<!-- title accepts string | Snippet: use a snippet for inner markup -->',
-		'{#snippet proTitle()}',
-		'\tPro plan <span class="badge">new</span>',
+		'<!-- A title snippet receives its item, so one snippet can render every row -->',
+		'{#snippet planTitle(item)}',
+		'\t{planNames[item.id]}',
+		'\t{#if item.id === \'pro\'}<span class="badge">new</span>{/if}',
 		'{/snippet}',
 		'',
-		"<Accordion items={[{ id: 'free', title: 'Free plan' }, { id: 'pro', title: proTitle }]}>",
+		"<Accordion items={[{ id: 'free', title: planTitle }, { id: 'pro', title: planTitle }]}>",
 		'\t{#snippet panel(item)}…{/snippet}',
 		'</Accordion>'
 	].join('\n');
@@ -138,14 +141,21 @@
 						{/snippet}
 					</Tabs>
 				{:else if item.id === 'rich-titles'}
-					{#snippet proTitle()}
-						Pro plan <span class="badge">new</span>
+					{#snippet planTitle(aItem: { id: string })}
+						{planNames[aItem.id]}
+						{#if aItem.id === 'pro'}<span class="badge">new</span>{/if}
 					{/snippet}
+					<Alert intent="info" title="Titles become the accessible name">
+						Everything a title renders sits inside the summary's heading. That heading is the row's
+						accessible name, so it is what a screen reader announces. Keep titles as short as a
+						label: a name plus a brief marker, like the badge here. Teaser prose, prices, and other
+						detail belong in the panel.
+					</Alert>
 					<Example code={richTitlesCode}>
 						<Accordion
 							items={[
-								{ id: 'free', title: 'Free plan' },
-								{ id: 'pro', title: proTitle }
+								{ id: 'free', title: planTitle },
+								{ id: 'pro', title: planTitle }
 							]}
 						>
 							{#snippet panel(aItem)}

@@ -36,9 +36,9 @@ export const accordionDoc: ComponentDoc = {
 				{ name: 'id', type: 'string', default: '—', note: 'Required. Must be unique.' },
 				{
 					name: 'title',
-					type: 'string | Snippet',
+					type: 'string | Snippet<[AccordionItem]>',
 					default: '—',
-					note: 'Required. String for plain text; snippet for inner markup.'
+					note: 'Required. Use a string for plain text, or a snippet for inner markup — the snippet receives the item, so one shared snippet can render every row. The title becomes the row’s accessible name: see the note in the Rich titles example.'
 				},
 				{ name: 'disabled', type: 'boolean', default: 'false' }
 			]

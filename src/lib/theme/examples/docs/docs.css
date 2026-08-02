@@ -75,6 +75,15 @@
 	margin-top: 1rem;
 }
 
+/* Alert callouts in demo tabs follow the same convention: the component
+ * ships no outer margin, so the scaffolding spaces whatever sits against
+ * one. Direct children only — an Alert rendered INSIDE a demo (the Alert
+ * page's own examples) must keep its in-demo layout untouched. */
+.tab-content > .hz-alert + *,
+.tab-content > * + .hz-alert {
+	margin-top: 1rem;
+}
+
 /* A supporting note that owns no space of its own: the same muted, small
  * treatment as .tab-note, with the margin left to the Stack it sits in.
  * Pages used to hand-roll this one per file. */

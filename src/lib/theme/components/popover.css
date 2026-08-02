@@ -20,6 +20,28 @@
 			color-mix(in srgb, var(--hz-color-border, #6b7280) 45%, transparent);
 		border-radius: var(--hz-radius-md, 0.5rem);
 		box-shadow: var(--hz-shadow-md, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+		/* Exit path — `display`/`overlay` with allow-discrete defer the
+		 * structural display: none (Popover.svelte) and the top-layer removal
+		 * until the fade below has painted (the platform's popover
+		 * exit-animation pattern). A browser without allow-discrete simply
+		 * hides instantly. Entry never transitions (the panel comes from
+		 * display: none) — the entrance keyframe below owns that direction. */
+		transition:
+			opacity var(--hz-duration-fast, 250ms) var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1)),
+			translate var(--hz-duration-fast, 250ms) var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1)),
+			display var(--hz-duration-fast, 250ms) allow-discrete,
+			overlay var(--hz-duration-fast, 250ms) allow-discrete;
+	}
+
+	/* Exit — reverse the entrance. pointer-events: none so a fading panel
+	 * never intercepts a click meant for what's behind it. (Focus has
+	 * already returned to the trigger; the sub-250ms window in which the
+	 * closing panel is still technically in the tree is an accepted
+	 * platform-pattern tradeoff.) */
+	.hz-popover-panel[data-state='closed'] {
+		opacity: 0;
+		translate: 0 -0.25rem;
+		pointer-events: none;
 	}
 
 	/* Scrolling lives on the inner content wrapper (Popover.svelte), NOT the
@@ -52,6 +74,10 @@
 	@media (prefers-reduced-motion: reduce) {
 		.hz-popover-panel[data-state='open'] {
 			animation: none;
+		}
+
+		.hz-popover-panel {
+			transition: none;
 		}
 	}
 }
