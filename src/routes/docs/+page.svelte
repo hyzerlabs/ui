@@ -112,8 +112,8 @@
 		</ul>
 		<Alert intent="info" title="Starting a SvelteKit project?">
 			{#snippet icon()}<IconInfo />{/snippet}
-			<code>npx sv add @hyzer-labs</code> does all of this in one command. It installs the package,
-			adds the stylesheet imports from step 1, and can scaffold the config file from step 3.
+			<code>npx sv add @hyzer-labs</code> does all of this in one command. It installs the package, adds
+			the stylesheet imports from step 1, and can scaffold the config file from step 3.
 		</Alert>
 	</Stack>
 
