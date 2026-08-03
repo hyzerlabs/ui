@@ -43,12 +43,14 @@
 }
 
 /*
- * Intent → accent. The reference theme maps four; Terminal maps everything
- * the vocabulary has, INCLUDING two intents the library never shipped.
- * `phosphor` and `amber` are defined in terminal.config.ts and typed in
- * ../intents.d.ts — from here they are ordinary intents, and that is the
- * whole point: the component only stamps data-intent, so the set of intents
- * is the theme's to decide, not the library's.
+ * Intent → accent. Terminal never imports the reference theme, so nothing
+ * wires this for it automatically — a theme that replaces the reference
+ * theme maps its own intents, and this is what that looks like: every rule
+ * below is hand-written, built-ins and extensions alike. `phosphor` and
+ * `amber` are defined in terminal.config.ts and typed in ../intents.d.ts —
+ * from here they are ordinary intents, and that is the whole point: the
+ * component only stamps data-intent, so the set of intents is the theme's
+ * to decide, not the library's.
  */
 .hz-theme-terminal .hz-button[data-intent='secondary'] {
 	--hz-button-accent: var(--hz-intent-secondary, #00e5ff);

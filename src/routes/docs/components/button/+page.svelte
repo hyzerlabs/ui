@@ -11,12 +11,12 @@
 	// action. The rest follow the registry order.
 	const intents = [
 		'primary',
-		'neutral',
 		'secondary',
 		'danger',
 		'warning',
 		'success',
-		'info'
+		'info',
+		'neutral'
 	] as const;
 	const variants = ['solid', 'outline', 'ghost', 'soft'] as const;
 	const sizes = ['sm', 'md', 'lg'] as const;

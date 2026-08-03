@@ -74,7 +74,7 @@
 		class="doc-section"
 		aria-labelledby="named-heading"
 	>
-		<h2 id="named-heading">Naming a theme</h2>
+		<h2 id="named-heading">Name a theme</h2>
 		<p>
 			<code>theme('dark')</code> puts <code>data-theme="dark"</code> on the element. Each band below carries
 			a different theme, on the same page, at the same time.
@@ -118,7 +118,7 @@
 		class="doc-section"
 		aria-labelledby="config-heading"
 	>
-		<h2 id="config-heading">Defining themes</h2>
+		<h2 id="config-heading">Define your themes</h2>
 		<p>
 			Named themes come from the <code>themes</code> map in your config. Each entry becomes one
 			<code>[data-theme="…"]</code> block in the generated sheet, graded for contrast the same way the
@@ -127,7 +127,7 @@
 		<CodeBlock code={configCode} />
 		<p>
 			<code>dark</code> is an entry like any other. It merges over what the library already authors
-			rather than replacing it. <code>light</code> is reserved as a name: the default theme is the
+			rather than replacing it. <code>light</code> is a reserved name. The default theme is the
 			<code>:root</code> block you author through <code>tokens</code>, and
 			<code>[data-theme='light']</code> re-asserts that default for a reader whose system prefers dark.
 		</p>
@@ -144,19 +144,19 @@
 		class="doc-section"
 		aria-labelledby="inline-heading"
 	>
-		<h2 id="inline-heading">Themes without a config entry</h2>
+		<h2 id="inline-heading">Theme a section without a config entry</h2>
 		<p>
-			Pass an override object instead of a name and it is resolved in the browser, then written to
-			the element as inline custom properties. Reach for this when the theme comes from data, like a
-			per-tenant accent or a color the user picked, where a build-time entry is not an option.
+			Pass an override object instead of a name. The library resolves it in the browser, then writes
+			it to the element as inline custom properties. Reach for this when the theme comes from data:
+			a per-tenant accent, or a color the user picked. A build-time entry is not an option there.
 		</p>
 		<CodeBlock code={inlineCode} />
 		<Alert intent="warning" title="Two trade-offs worth knowing">
 			{#snippet icon()}<IconTriangleAlert />{/snippet}
 			The resolver loads on demand, so an inline section paints unthemed for one frame. That is invisible
-			below the fold and noticeable at the top of a page. An inline object is not contrast-graded either:
-			named themes are checked against WCAG AA when the sheet is generated, and an inline object never
-			passes through that step.
+			below the fold and noticeable at the top of a page. An inline object is not contrast-graded either.
+			The generator checks named themes against WCAG AA when it writes the sheet, and an inline object
+			never passes through that step.
 		</Alert>
 	</Stack>
 
@@ -169,8 +169,8 @@
 	>
 		<h2 id="class-heading">When to use a class instead</h2>
 		<p>
-			Scoping a generated sheet under a class is the other way to do this, and for one case it is
-			the better way. A class composes with <code>data-theme</code>, so a themed region still has a
+			Scoping a generated sheet under a class is the other way to do this. For one case it is the
+			better way. A class composes with <code>data-theme</code>, so a themed region still has a
 			light and a dark form. A <code>themes</code> entry cannot, because it occupies the same attribute
 			dark does.
 		</p>

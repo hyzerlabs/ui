@@ -41,8 +41,14 @@
  */
 @layer hz-theme {
 	.hz-loading {
+		/* --_c is the single private switch every reference-theme component
+		 * shares (Badge/Alert/Blockquote/Button/Banner do the same) —
+		 * data-intent below switches this one hook, and --hz-loading-fill
+		 * aliases it so every existing consumer rule that sets the public hook
+		 * still wins at the same specificity. */
+		--_c: var(--hz-intent-primary, #2563eb);
 		/* documented hook */
-		--hz-loading-fill: var(--hz-intent-primary, #2563eb);
+		--hz-loading-fill: var(--_c);
 		/* documented hook */
 		--hz-loading-track: color-mix(
 			in srgb,
@@ -87,22 +93,22 @@
 	 * of the registry Button covers gets its own override, the same 1:1
 	 * mapping button.css uses. */
 	.hz-loading:where([data-intent='neutral']) {
-		--hz-loading-fill: var(--hz-intent-neutral, #6b7280);
+		--_c: var(--hz-intent-neutral, #6b7280);
 	}
 	.hz-loading:where([data-intent='secondary']) {
-		--hz-loading-fill: var(--hz-intent-secondary, #7c3aed);
+		--_c: var(--hz-intent-secondary, #7c3aed);
 	}
 	.hz-loading:where([data-intent='danger']) {
-		--hz-loading-fill: var(--hz-intent-danger, #b91c1c);
+		--_c: var(--hz-intent-danger, #b91c1c);
 	}
 	.hz-loading:where([data-intent='warning']) {
-		--hz-loading-fill: var(--hz-intent-warning, #b45309);
+		--_c: var(--hz-intent-warning, #b45309);
 	}
 	.hz-loading:where([data-intent='success']) {
-		--hz-loading-fill: var(--hz-intent-success, #15803d);
+		--_c: var(--hz-intent-success, #15803d);
 	}
 	.hz-loading:where([data-intent='info']) {
-		--hz-loading-fill: var(--hz-intent-info, #0e7490);
+		--_c: var(--hz-intent-info, #0e7490);
 	}
 
 	/* -------------------------------------------------------------------- */

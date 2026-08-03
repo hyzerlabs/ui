@@ -98,6 +98,8 @@
 
 	.hz-banner-actions {
 		display: inline-flex;
+		align-items: center;
+		gap: var(--hz-space-xs, 0.5rem);
 		flex-shrink: 0;
 	}
 

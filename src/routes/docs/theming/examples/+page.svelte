@@ -74,7 +74,7 @@
 				'Not one class hook. Every difference below comes from redefining --hz-* tokens; the reference theme does the rest of the work, unchanged.',
 			imports: [
 				"import '@hyzer-labs/ui/tokens.css';",
-				"import '@hyzer-labs/ui/theme';            // optional",
+				"import '@hyzer-labs/ui/theme';",
 				"import '@hyzer-labs/ui/theme/examples/ocean.css';"
 			],
 			hasConfig: true,
@@ -86,7 +86,7 @@
 			label: 'Docs: layered on the reference theme',
 			themeClass: '',
 			blurb:
-				'Adds no palette at all. Every rule below resolves through the reference theme’s own role and intent tokens, unchanged. What it layers on top instead: page-rhythm scaffold classes and one class-hook override, imported like any theme sheet and needing no class anywhere.',
+				'Adds no palette at all. Every rule below resolves through the reference theme’s own role and intent tokens, unchanged. On top it layers page-rhythm scaffold classes and one class-hook override. You import it like any other theme sheet, and it needs no class anywhere.',
 			imports: docsImports,
 			hasConfig: false,
 			source: '',
@@ -137,7 +137,7 @@
 	].join('\n');
 
 	const registryStyleCode = [
-		'/* your theme sheet: one rule per intent, same shape as the built-ins */',
+		'/* a standalone theme sheet: one rule per intent, same shape as the built-ins */',
 		".hz-button[data-intent='amber'] {",
 		'\t--hz-button-accent: var(--hz-intent-amber);',
 		'}'
@@ -245,8 +245,8 @@
 			Three example themes, sorted by how much of the reference theme each one keeps. Ocean keeps
 			all of it and only redefines <code>--hz-*</code> tokens. Docs keeps all of it too and layers
 			one class-hook override on top, with no palette of its own. Terminal keeps none of it. Ocean
-			and Terminal are generated from a <code>hyzer.config.ts</code> beside them, and like the base
-			tokens they meet <a href="/docs/foundation/contrast">WCAG AA on every graded pairing</a>, in
+			and Terminal are generated from a <code>hyzer.config.ts</code> beside them. Like the base
+			tokens, they meet <a href="/docs/foundation/contrast">WCAG AA on every graded pairing</a>, in
 			the default theme and in dark. All three, compared:
 		{/snippet}
 	</DocIntro>
@@ -296,12 +296,12 @@
 		</table>
 	</div>
 	<p class="intro-follow">
-		Ocean is one end: it shows how far tokens alone get you. Terminal is the other. It never imports
-		the reference theme, so every rule in it is its own. It also grows the system rather than only
-		recoloring it: two intents the library has never heard of, type-checked and contrast-graded like
-		any built-in. Docs sits between them: the same class-hook contract every component ships is
-		enough to extend the reference theme without forking it. If you only read one file, read
-		Terminal's <code>button.css</code>: that is what "headless" actually buys you.
+		Ocean is one end: it shows how far tokens alone get you. Terminal is the other end: it never
+		imports the reference theme, so every rule in it is its own. It also grows the system rather
+		than only recoloring it, with two intents the library has never heard of, type-checked and
+		contrast-graded like any built-in. Docs sits between them: the same class-hook contract every
+		component ships is enough to extend the reference theme without forking it. If you only read one
+		file, read Terminal's <code>button.css</code>: that is what "headless" actually buys you.
 	</p>
 
 	{#each examples as example (example.id)}
@@ -316,10 +316,9 @@
 			<p>{example.blurb}</p>
 			{#if example.id === 'docs'}
 				<p class="tab-note">
-					The full <code>.docs-table</code> lesson lives on
-					<a href="/docs/theming/components#cascade-heading">Styling Components</a>: the
-					unlayered-beats-layered walkthrough, its demo, and its source. This is, verbatim, the
-					sheet
+					The full <code>.docs-table</code> walkthrough lives on
+					<a href="/docs/theming/components#cascade-heading">Styling Components</a>: why unlayered
+					beats layered, with a demo and the source. This is, verbatim, the sheet
 					<code>design.hyzer.sh</code> imports for its own chrome. You're reading it right now.
 				</p>
 			{/if}
@@ -349,14 +348,14 @@
 		class="doc-section"
 		aria-labelledby="instance-heading"
 	>
-		<h2 id="instance-heading">One instance, styled by hand</h2>
+		<h2 id="instance-heading">Style one instance by hand</h2>
 		<p>
 			Every demo above uses the same markup for the "Go pro" button:
 			<code>&lt;Button class="cta"&gt;</code>. The <code>class</code> prop is merged after the
-			component's <code>hz-button</code> root class, so it lands on the element ready for you to style,
-			and sheet-level and instance-level overrides compose. Ocean and Terminal each add one, below. Docs
-			adds none: its "Go pro" button renders exactly as the reference theme paints it, because an unscoped
-			sheet has no class to hang a demo-only rule on without leaking globally.
+			component's <code>hz-button</code> root class, so it lands on the element ready for you to style.
+			Sheet-level and instance-level overrides compose. Ocean and Terminal each add one, below. Docs adds
+			none: an unscoped sheet has no class to hang a demo-only rule on, so its "Go pro" button renders
+			exactly as the reference theme paints it.
 		</p>
 		<CodeBlock code={ctaCode} />
 		<p class="tab-note">
@@ -373,23 +372,23 @@
 		class="doc-section"
 		aria-labelledby="intents-heading"
 	>
-		<h2 id="intents-heading">Growing the vocabulary</h2>
+		<h2 id="intents-heading">Grow the intent vocabulary</h2>
 		<p>
-			The intents the library ships are a starting set, not a ceiling. A component only stamps <code
+			The intents the library ships are a starting set. A component only stamps <code
 				>data-intent="&lt;name&gt;"</code
 			>
-			and lets the theme decide what that name looks like, so the set of intents belongs to your theme.
+			and lets the theme decide what that name looks like. So the set of intents belongs to your theme.
 			Terminal adds two:
 			<code>phosphor</code> and <code>amber</code>, the two tubes every real terminal shipped with.
 			They are the last two buttons in its demo above.
 		</p>
-		<p>Three steps, and none of them is a fork:</p>
+		<p>Three steps. With the reference theme, the last one is nothing at all:</p>
 		<ol>
 			<li>
-				<strong>Define the token</strong> in your config. It is emitted as
-				<code>--hz-intent-amber</code> and
-				<a href="/docs/foundation/contrast">graded by the contrast report</a> exactly like
-				<code>primary</code>. A custom intent is held to the same AA bar as a built-in one.
+				<strong>Define the token</strong> in your config. The generator emits it as
+				<code>--hz-intent-amber</code>, and
+				<a href="/docs/foundation/contrast">the contrast report grades it</a> exactly like
+				<code>primary</code>. A custom intent meets the same AA bar as a built-in one.
 			</li>
 			<li>
 				<strong>Register the type</strong> by augmenting <code>IntentRegistry</code>. Now
@@ -397,15 +396,25 @@
 				<code>intent="ambr"</code> is a compile error. See the
 				<code>intents.d.ts</code> tab above.
 			</li>
-			<li><strong>Style it</strong> with one rule, the same shape the built-in intents use.</li>
+			<li>
+				<strong>Nothing to style.</strong> With the reference theme, running
+				<code>hyzer generate</code> wires the intent into every component that takes one (<code
+					>Button</code
+				>, <code>Badge</code>, <code>Alert</code>, and the rest) the moment the token exists.
+			</li>
 		</ol>
 		<CodeBlock code={registryCode} />
-		<CodeBlock code={registryStyleCode} />
 		<p class="tab-note">
 			Augment the module that <em>declares</em> the interface (<code>@hyzer-labs/ui/types</code>),
 			not the barrel that re-exports it. TypeScript merges an interface only into its declaring
 			module, so <code>declare module '@hyzer-labs/ui'</code> would silently do nothing.
 		</p>
+		<p>
+			A theme that replaces the reference theme outright, like Terminal, owns its intent vocabulary
+			and maps it by hand. That means one rule per intent, per component, which is what a built-in
+			intent needs there too:
+		</p>
+		<CodeBlock code={registryStyleCode} />
 	</Stack>
 
 	<Stack
@@ -421,12 +430,12 @@
 				{#if item.id === 'why-class'}
 					<p>
 						Every rule in Terminal is rooted at a class: <code>.hz-theme-terminal .hz-button</code>
-						rather than <code>.hz-button</code>. Its token block is generated with the engine's
+						rather than <code>.hz-button</code>. The engine generates its token block with the
 						<code>selector</code>
 						option instead of <code>:root</code>. So the theme travels with the class: put it on
 						<code>&lt;html&gt;</code> to own a document, or on one element to own a panel. That is why
-						this page can render an Ocean panel and a Terminal panel side by side without them fighting,
-						and why importing this sheet does not disturb the docs site's own theme.
+						this page can render an Ocean panel and a Terminal panel side by side without them fighting.
+						It is also why importing this sheet does not disturb the docs site's own theme.
 					</p>
 				{/if}
 			{/snippet}
@@ -445,17 +454,17 @@
 			Copy a config into your project as <code>hyzer.config.ts</code>, run
 			<code>hyzer generate</code>, and iterate. The contrast report grades every change. To go
 			further than color, copy the theme's <code>components/</code> folder too and edit the hooks
-			directly;
-			<a href="/docs/theming/components">Styling Components</a> is the reference for what each one
-			exposes. The token workflow is documented on
-			<a href="/docs/theming/tokens">Tokens &amp; Overrides</a>.
+			directly.
+			<a href="/docs/theming/components">Styling Components</a> is the reference for what each hook
+			exposes, and
+			<a href="/docs/theming/tokens">Tokens &amp; Overrides</a> covers the token workflow.
 		</p>
 		<p class="tab-note">
 			Coverage: Terminal restyles Button, Badge, Alert, Card, the Field scaffold, TextInput, Toggle,
 			Tabs, and Accordion. It imports no theme, so anything else falls back to bare headless
 			structure. Docs takes the opposite approach: it restyles no <em>bare</em> component hook, so a
-			Table with no <code>.docs-table</code> wrapper is left exactly as the reference theme paints it.
-			Over that theme it adds only scaffold classes, content chrome, and that one opt-in wrapper.
+			Table with no <code>.docs-table</code> wrapper looks exactly as the reference theme paints it. Over
+			that theme it adds only scaffold classes, content chrome, and that one opt-in wrapper.
 		</p>
 	</Stack>
 </Stack>

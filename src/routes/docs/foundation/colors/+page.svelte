@@ -291,9 +291,12 @@
 			<code>--hz-intent-&lt;name&gt;</code> in your config and it gets
 			<a href="/docs/foundation/contrast">contrast-graded</a> like any built-in. Augment the
 			<code>IntentRegistry</code> interface and <code>intent="yours"</code> type-checks and
-			autocompletes on every component, while a typo still fails to compile. The
+			autocompletes on every component, while a typo still fails to compile. With the reference
+			theme, that's it — running <code>hyzer generate</code> wires the intent into every component
+			that takes one, so there is no CSS of your own to write. The
 			<a href="/docs/theming/examples#intents-heading">Terminal example theme</a> adds two,
-			<code>phosphor</code> and <code>amber</code>, and shows all three steps.
+			<code>phosphor</code> and <code>amber</code>, and shows all three steps, including what a
+			standalone theme does instead of relying on that generated wiring.
 		</Alert>
 		<div class="token-table-wrapper">
 			<table class="token-table">

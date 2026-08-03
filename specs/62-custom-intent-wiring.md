@@ -195,6 +195,19 @@ numbers, no R-numbers, no test-gate or process language.
 - `src/lib/theme/examples/terminal/intents.d.ts` needs no change — it already
   describes only the type half.
 
+**R5 — Banner's nested-Button retarget actually applies.** `banner.css`'s
+`.hz-banner :where(.hz-button)` rule (the fg/bg retarget that keeps action
+buttons legible on the intent fill) never wins today: `banner.css` imports
+before `button.css`, so the Button root's equal-specificity (0,1,0)
+declarations beat it on source order — the same trap the adjacent link rule
+documents and dodges with `:is()`. Fix it the same way: `:where(.hz-button)`
+becomes `:is(.hz-button)` (0,2,0). Post-R1 the retarget still sets the
+**public** hooks (`--hz-button-accent`, `--hz-button-on-accent`), which
+outrank Button's own `--hz-button-accent: var(--_c)` alias — so it also beats
+a nested Button's explicit `intent=` switch, which is the rule's stated
+purpose. This is a deliberate visual change: a Button inside a Banner now
+paints in the banner's fg/bg pair as the comment always claimed.
+
 ---
 
 ### Edge cases
@@ -214,7 +227,7 @@ numbers, no R-numbers, no test-gate or process language.
 | `<Blockquote intent="fairway" intentScope="full">` | Accent line **and** quote text take the custom color — `--_tc: var(--_c)` picks it up with no extra emission. |
 | `<div data-intent="fairway">` wrapping a plain `<Badge>` | Badge stays neutral. The wrapper's `--_c` inherits, but Badge's own base declaration wins on the Badge element (R1's no-leak invariant). |
 | Custom intent under the Terminal (standalone) theme | Terminal's own rules win; where Terminal maps nothing, its base color holds. Unchanged from today. |
-| `<Button intent="fairway">` inside a `<Banner>` | Whatever happens today for a built-in intent happens here — this spec changes which variable carries the color, not which rule wins. |
+| `<Button intent="fairway">` inside a `<Banner>` | The banner's retarget wins (R5): the button paints in the banner's fg/bg pair, custom and built-in intents alike. |
 | Icon with a custom intent | Already worked (component-side inline color); the emitted `--_c` on the `<svg>` is inert. |
 | A consumer rule `.hz-button[data-intent='fairway'] { --hz-button-accent: … }` | Wins — the emitted rule is zero-specificity and unlayered. |
 
@@ -279,6 +292,11 @@ property is identical:
 Plus one negative: a `.hz-badge` (no `data-intent`) inside a
 `<div data-intent="fairway">` computes the neutral background, not the custom one.
 
+For R5: a solid Button mounted inside a Banner computes
+`background-color` equal to the banner's `--hz-banner-fg` resolution (and a
+Button mounted alone does not) — importing both sheets in banner-then-button
+order, matching `theme.css`.
+
 **Not covered here:** no e2e. The behavior is entirely CSS resolution, which the
 computed-style test measures directly in a real browser.
 
@@ -305,13 +323,6 @@ computed-style test measures directly in a real browser.
 - **Validating intent key characters.** A key that is not a safe CSS identifier
   now also lands in a selector, not just a property name. Pre-existing exposure
   across the whole engine (`toKebab` assumes sane keys); not addressed here.
-- **Fixing `banner.css`'s nested-Button retarget.** While reading this code the
-  author noticed `.hz-banner :where(.hz-button) { --hz-button-accent: … }` appears
-  never to apply — `banner.css` imports *before* `button.css`, so `.hz-button`'s
-  own equal-specificity declaration wins on source order (the same trap the
-  adjacent `:is()` link rule documents and dodges). This spec deliberately
-  preserves that behavior rather than changing it: it is a separate bug with its
-  own before/after screenshots. Raise it on its own.
 
 ### Write scope
 

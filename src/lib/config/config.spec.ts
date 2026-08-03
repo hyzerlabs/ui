@@ -372,6 +372,87 @@ describe('generateCss — overrides mode', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Custom intent wiring — a config-registered intent switches the reference
+// theme's --_c hook, so it works everywhere the built-ins do with no CSS of
+// the consumer's own.
+// ---------------------------------------------------------------------------
+
+describe('generateCss — custom intent wiring', () => {
+	const CUSTOM_INTENT_RULE =
+		"\n:where([data-intent='fairway']) {\n\t--_c: var(--hz-intent-fairway);\n}\n";
+
+	it('a custom intent in full mode emits exactly one :where([data-intent=]) rule', () => {
+		const resolved = resolveConfig({
+			tokens: { intent: { fairway: 'var(--hz-palette-primary)' } }
+		});
+		const css = generateCss(resolved);
+		expect(css.endsWith(CUSTOM_INTENT_RULE)).toBe(true);
+	});
+
+	it('the same config in overrides mode emits the same rule', () => {
+		const resolved = resolveConfig({
+			tokens: { intent: { fairway: 'var(--hz-palette-primary)' } }
+		});
+		const css = generateCss(resolved, { mode: 'overrides' });
+		expect(css.endsWith(CUSTOM_INTENT_RULE)).toBe(true);
+	});
+
+	it('no config emits no [data-intent=] rule at all', () => {
+		expect(generateCss(resolveConfig())).not.toContain('[data-intent=');
+		expect(generateCss(resolveConfig(), { mode: 'overrides' })).not.toContain('[data-intent=');
+	});
+
+	it('a built-in re-value (intent.neutral) emits no rule — the theme already wires it', () => {
+		const resolved = resolveConfig({
+			tokens: { intent: { neutral: 'var(--hz-color-text-muted)' } }
+		});
+		expect(generateCss(resolved)).not.toContain('[data-intent=');
+		expect(generateCss(resolved, { mode: 'overrides' })).not.toContain('[data-intent=');
+	});
+
+	it('a camelCase key emits both attribute forms and the kebab custom property', () => {
+		const resolved = resolveConfig({ tokens: { intent: { brandRed: '#b91c1c' } } });
+		const css = generateCss(resolved);
+		expect(css).toContain(
+			":where([data-intent='brandRed']),\n:where([data-intent='brand-red']) {\n\t--_c: var(--hz-intent-brand-red);\n}"
+		);
+	});
+
+	it('an intent declared only under themes.x.intent emits one rule', () => {
+		const resolved = resolveConfig({ themes: { ocean: { intent: { fairway: '#a3e635' } } } });
+		const css = generateCss(resolved);
+		expect(css.match(/\[data-intent='fairway'\]/g)).toHaveLength(1);
+	});
+
+	it('the same intent in root and a theme still emits exactly one rule', () => {
+		const resolved = resolveConfig({
+			tokens: { intent: { fairway: 'var(--hz-palette-primary)' } },
+			themes: { ocean: { intent: { fairway: '#a3e635' } } }
+		});
+		const css = generateCss(resolved);
+		expect(css.match(/\[data-intent='fairway'\]/g)).toHaveLength(1);
+	});
+
+	it('a scoped overrides sheet emits the two-line scoped compound + descendant pair', () => {
+		const resolved = resolveConfig({
+			tokens: { intent: { fairway: 'var(--hz-palette-primary)' } }
+		});
+		const css = generateCss(resolved, { mode: 'overrides', selector: '.hz-theme-terminal' });
+		expect(css).toContain(
+			"\n:where(.hz-theme-terminal [data-intent='fairway']),\n:where(.hz-theme-terminal[data-intent='fairway']) {\n\t--_c: var(--hz-intent-fairway);\n}\n"
+		);
+	});
+
+	it('the rule is the last thing in the sheet, and the output is stable across two calls', () => {
+		const config = { tokens: { intent: { fairway: 'var(--hz-palette-primary)' } } };
+		const first = generateCss(resolveConfig(config));
+		const second = generateCss(resolveConfig(config));
+		expect(first).toBe(second);
+		expect(first.endsWith(CUSTOM_INTENT_RULE)).toBe(true);
+	});
+});
+
+// ---------------------------------------------------------------------------
 // contrastReport (R5)
 // ---------------------------------------------------------------------------
 

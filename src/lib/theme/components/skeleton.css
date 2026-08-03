@@ -22,7 +22,7 @@
 			var(--hz-color-surface, #fff)
 		);
 		/* documented hook */
-		--hz-skeleton-speed: 1.4s;
+		--hz-skeleton-speed: 1.8s;
 	}
 
 	/* Dark mode strengthens the tint — the Badge --hz-badge-tint precedent
@@ -84,12 +84,12 @@
 				var(--hz-skeleton-color) 75%
 			);
 			background-size: 200% 100%;
-			animation: hz-skeleton-shimmer var(--hz-skeleton-speed, 1.4s) ease-in-out infinite;
+			animation: hz-skeleton-shimmer var(--hz-skeleton-speed, 1.8s) ease-in-out infinite;
 		}
 
 		.hz-skeleton:where([data-animation='pulse']):not(:has(.hz-skeleton-line)),
 		.hz-skeleton:where([data-animation='pulse']) .hz-skeleton-line {
-			animation: hz-skeleton-pulse var(--hz-skeleton-speed, 1.4s) ease-in-out infinite;
+			animation: hz-skeleton-pulse var(--hz-skeleton-speed, 1.8s) ease-in-out infinite;
 		}
 	}
 
