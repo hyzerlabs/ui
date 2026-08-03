@@ -25,7 +25,7 @@ export default defineConfig({
 	// 		brandRed: { 500: '#ef4444', 900: '#7f1d1d' }
 	// 	},
 	// 	color: { border: '#94a3b8' },       // structural role tokens (--hz-color-*)
-	// 	intent: { fairway: 'var(--hz-palette-primary)' }, // remap or add intents (--hz-intent-*)
+	// 	intent: { fairway: 'var(--hz-palette-primary)' }, // remap or add intents (--hz-intent-*); an added one is wired into every component that takes one
 	// 	space: { xs: '0.375rem' },          // the fixed margin/gap scale (--hz-space-*)
 	// 	width: { md: '960px' },             // layout max-widths (--hz-width-*)
 	// 	typography: {

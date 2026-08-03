@@ -2164,7 +2164,7 @@ export const hooks: Record<string, ComponentHooks> = {
 			},
 			{
 				name: '--hz-skeleton-speed',
-				values: '<time> — default 1.4s',
+				values: '<time> — default 1.8s',
 				note: 'The shimmer/pulse animation cycle.'
 			}
 		],

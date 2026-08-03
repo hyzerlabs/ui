@@ -7,11 +7,17 @@
  */
 @layer hz-theme {
 	.hz-button {
+		/* --_c is the single private switch every reference-theme component
+		 * shares (Badge/Alert/Blockquote/Banner/Loading do the same) — data-intent
+		 * below switches this one hook, and --hz-button-accent aliases it so
+		 * every existing consumer rule that sets the public hook still wins at
+		 * the same specificity. */
+		--_c: var(--hz-intent-primary, #2563eb);
 		/* Per-intent hooks — override these two to restyle every variant.
 		 * On-accent is the surface role, not white: dark mode retargets the
 		 * intents to light companions, and the flipped surface (black) keeps
 		 * solid text ≥ 4.5:1 in both modes. */
-		--hz-button-accent: var(--hz-intent-primary, #2563eb);
+		--hz-button-accent: var(--_c);
 		--hz-button-on-accent: var(--hz-color-surface, #ffffff);
 
 		box-sizing: border-box;
@@ -34,32 +40,33 @@
 	}
 
 	.hz-button:where([data-intent='secondary']) {
-		--hz-button-accent: var(--hz-intent-secondary, #7c3aed);
+		--_c: var(--hz-intent-secondary, #7c3aed);
 	}
 
 	.hz-button:where([data-intent='danger']) {
-		--hz-button-accent: var(--hz-intent-danger, #b91c1c);
+		--_c: var(--hz-intent-danger, #b91c1c);
 	}
 
 	.hz-button:where([data-intent='neutral']) {
-		--hz-button-accent: var(--hz-intent-neutral, #6b7280);
+		--_c: var(--hz-intent-neutral, #6b7280);
 	}
 
 	/* The rest of the intent vocabulary. Button's `intent` prop spans the whole
 	 * IntentRegistry (it stamps data-intent and lets the theme decide), so the
 	 * reference theme maps every intent it ships. A consumer-registered intent
-	 * lands here too — define --hz-intent-<name> and add the one rule:
-	 *   .hz-button[data-intent='phosphor'] { --hz-button-accent: var(--hz-intent-phosphor); } */
+	 * needs no rule here at all: `hyzer generate` emits the matching
+	 * `--_c` switch straight from the config, for every component that reads
+	 * it. */
 	.hz-button:where([data-intent='warning']) {
-		--hz-button-accent: var(--hz-intent-warning, #b45309);
+		--_c: var(--hz-intent-warning, #b45309);
 	}
 
 	.hz-button:where([data-intent='success']) {
-		--hz-button-accent: var(--hz-intent-success, #15803d);
+		--_c: var(--hz-intent-success, #15803d);
 	}
 
 	.hz-button:where([data-intent='info']) {
-		--hz-button-accent: var(--hz-intent-info, #0e7490);
+		--_c: var(--hz-intent-info, #0e7490);
 	}
 
 	/* Sizes */

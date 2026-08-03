@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { Alert, Banner, Container, Tabs, Stack, Link, CodeBlock } from '$lib';
+	import { Alert, Banner, Button, Container, Tabs, Stack, Link, CodeBlock } from '$lib';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { bannerDoc } from '../../../../docs/data/banner.js';
 	import Example from '../../../../docs/Example.svelte';
 	import IconInfo from '$lib/icons/generated/info.svelte';
+	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 
 	const intents = [
 		'neutral',
@@ -54,7 +55,10 @@
 	const actionsCode = [
 		'<Banner intent="primary">',
 		'\tNew season pricing is live.',
-		'\t{#snippet actions()}<Link href="#">Learn more</Link>{/snippet}',
+		'\t{#snippet actions()}',
+		'\t\t<Link href="#">Learn more</Link>',
+		'\t\t<Button size="sm">See plans</Button>',
+		'\t{/snippet}',
 		'</Banner>'
 	].join('\n');
 
@@ -107,6 +111,15 @@
 		Use <code>Banner</code> for a solid, full-width announcement at page level: maintenance notices,
 		promos, outage bars. You can pin it to an edge. When the message is inline and sits next to the
 		thing it describes, use <a href="/docs/components/alert">Alert</a> instead.
+	</Alert>
+	<Alert intent="warning" title="There is deliberately no Toast component">
+		{#snippet icon()}<IconTriangleAlert />{/snippet}
+		A message that dismisses itself on a timer is hard to make accessible. The timing has to be adjustable
+		or pausable, and a message that vanishes often goes unannounced. If you do need one,
+		<a href="/docs/foundation/observers">announce</a> handles the announcement half. The library
+		prefers a dismissal the reader chooses, so content never disappears out from under them. For a
+		pinned or site-wide message, that is a Banner with
+		<code>role="status"</code> and a dismiss you own.
 	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Banner demos" defaultTab="intents">
 		{#snippet panel(item)}
@@ -164,6 +177,7 @@
 								New season pricing is live.
 								{#snippet actions()}
 									<Link href="#">Learn more</Link>
+									<Button size="sm">See plans</Button>
 								{/snippet}
 							</Banner>
 						</Example>

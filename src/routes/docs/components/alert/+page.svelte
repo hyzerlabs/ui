@@ -107,6 +107,14 @@
 		solid, full-width announcement at page level, one you can pin to the top or bottom, use
 		<a href="/docs/components/banner">Banner</a> instead.
 	</Alert>
+	<Alert intent="warning" title="There is deliberately no Toast component">
+		{#snippet icon()}<IconTriangleAlert />{/snippet}
+		A message that dismisses itself on a timer is hard to make accessible. The timing has to be adjustable
+		or pausable, and a message that vanishes often goes unannounced. If you do need one,
+		<a href="/docs/foundation/observers">announce</a> handles the announcement half. The library
+		prefers a dismissal the reader chooses, so content never disappears out from under them. For an
+		inline message, that is an Alert with <code>role="status"</code> and a dismiss you own.
+	</Alert>
 	<Tabs items={demoTabs} ariaLabel="Alert demos" defaultTab="intents">
 		{#snippet panel(item)}
 			<div class="tab-content">

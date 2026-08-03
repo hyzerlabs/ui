@@ -17,6 +17,7 @@ import {
 	type SectionId,
 	type TokenEntry
 } from './schema.js';
+import { intent as baseIntent } from '../tokens/index.js';
 
 export interface GenerateOptions {
 	/**
@@ -225,6 +226,99 @@ function themeSelector(selector: string, name: string): string {
 	return `${selector}[data-theme='${name}'],\n[data-theme='${name}'] ${selector}`;
 }
 
+// ---------------------------------------------------------------------------
+// Custom intent wiring — one switch rule per config-added intent, wiring the
+// reference theme's private --_c hook (the single switch button/banner/
+// loading now alias, and badge/alert/blockquote already used).
+// ---------------------------------------------------------------------------
+
+/** The intent keys the base library ships — what R2 subtracts to find what a config ADDED rather than re-valued. */
+const BASE_INTENT_KEYS = new Set(Object.keys(baseIntent));
+
+/**
+ * Every intent key a resolved config adds beyond the base vocabulary,
+ * deduplicated by key, discovery order: the root `intent` section first,
+ * then each theme's own `intent` list (dark, then every named theme, in
+ * declaration order) — the same `[resolved.dark, ...resolved.themes]` scan
+ * order used throughout this file. A built-in key a theme merely re-values
+ * (Ocean's `neutral` remap) is excluded: the reference theme already wires
+ * every built-in, in every theme, for free (the switch reads
+ * `var(--hz-intent-<name>)`, which each `[data-theme=…]` block retargets).
+ */
+function customIntentKeys(resolved: ResolvedConfig): string[] {
+	const seen = new Set<string>();
+	const keys: string[] = [];
+	const sources = [
+		resolved.sections.find((s) => s.id === 'intent')!.entries,
+		resolved.dark.intent,
+		...resolved.themes.map((theme) => theme.intent)
+	];
+	for (const entries of sources) {
+		for (const entry of entries) {
+			if (BASE_INTENT_KEYS.has(entry.key) || seen.has(entry.key)) continue;
+			seen.add(entry.key);
+			keys.push(entry.key);
+		}
+	}
+	return keys;
+}
+
+/**
+ * Selector(s) for one custom-intent switch rule — themeSelector()'s sibling,
+ * not a copy: the pieces differ enough (an attribute selector rather than
+ * `[data-theme=…]`, and the scope class is the ANCESTOR of the switching
+ * attribute here, rather than a possible descendant of it — the
+ * intent-bearing component always lives inside the scoped subtree, unlike
+ * `data-theme`, which may sit on `<html>` above it) that sharing one
+ * function would need as much branching as two. Adds the axis
+ * `themeSelector()` never needs: a camelCase key selects on both
+ * attribute-value spellings (the raw config key and its kebab form), since
+ * either is a plausible thing to pass to `intent=`.
+ *
+ * Each line is independently wrapped in its own `:where()` (specificity
+ * 0,0,0), matching the sheet-level cascade posture below: unlayered and
+ * zero-specificity beats every layered reference-theme declaration and
+ * loses to any consumer rule, layered or not — the same posture
+ * `generateUtilitiesCss` uses (specs/44, "a deliberately-applied utility
+ * beats the layered reference theme").
+ */
+function intentSelectors(selector: string, key: string): string[] {
+	const attrValues = key === toKebab(key) ? [key] : [key, toKebab(key)];
+	return attrValues.flatMap((value) => {
+		const attr = `[data-intent='${value}']`;
+		if (selector === ':root') return [`:where(${attr})`];
+		return [`:where(${selector} ${attr})`, `:where(${selector}${attr})`];
+	});
+}
+
+const CUSTOM_INTENT_BANNER = [
+	'Custom intent wiring',
+	'One rule per intent your config adds beyond the seven the library ships —',
+	'switches the same private --_c hook every reference-theme component reads,',
+	'so a registered intent paints everywhere with no CSS of your own to write.',
+	'No literal fallback: the token this points at is declared by this same',
+	'sheet, so a name that resolves nowhere fails loudly rather than painting a',
+	'plausible wrong color.'
+];
+
+function customIntentRule(selector: string, key: string): string {
+	const lines = [
+		`${intentSelectors(selector, key).join(',\n')} {`,
+		`\t--_c: var(--hz-intent-${toKebab(key)});`,
+		'}'
+	];
+	return lines.join('\n');
+}
+
+/** Appended at the end of the sheet, in both full and overrides mode. Empty when the config adds no custom intent. */
+function customIntentSection(resolved: ResolvedConfig, selector: string): string[] {
+	const keys = customIntentKeys(resolved);
+	if (keys.length === 0) return [];
+	const parts: string[] = ['', banner(CUSTOM_INTENT_BANNER, '')];
+	for (const key of keys) parts.push('', customIntentRule(selector, key));
+	return parts;
+}
+
 /** Custom-property names referenced by var() inside a token value. */
 function varRefs(value: string): string[] {
 	return [...value.matchAll(/var\(\s*(--[a-z0-9-]+)/gi)].map((m) => m[1]);
@@ -398,6 +492,8 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 		parts.push('}');
 	}
 
+	parts.push(...customIntentSection(resolved, selector));
+
 	return parts.join('\n') + '\n';
 }
 
@@ -552,9 +648,13 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 		emitted = true;
 	}
 
+	const intentSection = customIntentSection(resolved, selector);
+	if (intentSection.length > 0) emitted = true;
+
 	if (!emitted) {
 		parts.push('/* No overrides configured. */');
 	}
+	parts.push(...intentSection);
 	return parts.join('\n') + '\n';
 }
 

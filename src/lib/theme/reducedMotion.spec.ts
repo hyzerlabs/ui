@@ -134,7 +134,12 @@ describe('Loading-R8/R9 — indeterminate animations are unconditional, and slow
 	});
 
 	it('--hz-loading-fill/--hz-loading-track/--hz-loading-size/--hz-loading-speed/--hz-loading-ease are declared unconditionally (not gated)', () => {
-		expectUngated(css, '--hz-loading-fill: var(--hz-intent-primary, #2563eb);', NO_PREFERENCE);
+		// --hz-loading-fill's value now comes from --_c (the single private
+		// switch every reference-theme component shares), aliased in the same
+		// base rule — both declarations still sit outside any
+		// prefers-reduced-motion block.
+		expectUngated(css, '--_c: var(--hz-intent-primary, #2563eb);', NO_PREFERENCE);
+		expectUngated(css, '--hz-loading-fill: var(--_c);', NO_PREFERENCE);
 		expectUngated(css, '--hz-loading-speed: calc(var(--hz-duration-base', NO_PREFERENCE);
 	});
 });
@@ -145,7 +150,7 @@ describe('Skeleton-R12/R14 — animations HALT under reduced motion (the standar
 	it('the shimmer animation is gated behind no-preference', () => {
 		expectGated(
 			css,
-			'animation: hz-skeleton-shimmer var(--hz-skeleton-speed, 1.4s) ease-in-out infinite;',
+			'animation: hz-skeleton-shimmer var(--hz-skeleton-speed, 1.8s) ease-in-out infinite;',
 			NO_PREFERENCE
 		);
 	});
@@ -153,7 +158,7 @@ describe('Skeleton-R12/R14 — animations HALT under reduced motion (the standar
 	it('the pulse animation is gated behind no-preference', () => {
 		expectGated(
 			css,
-			'animation: hz-skeleton-pulse var(--hz-skeleton-speed, 1.4s) ease-in-out infinite;',
+			'animation: hz-skeleton-pulse var(--hz-skeleton-speed, 1.8s) ease-in-out infinite;',
 			NO_PREFERENCE
 		);
 	});
