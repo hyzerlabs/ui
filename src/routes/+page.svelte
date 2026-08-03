@@ -5,6 +5,7 @@
 	 * full-bleed, with its own header and skip link.
 	 */
 	import {
+		Alert,
 		Hero,
 		Container,
 		Stack,
@@ -16,6 +17,7 @@
 		Split,
 		Metatags
 	} from '$lib';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 	import SiteChrome from '../docs/SiteChrome.svelte';
 	import SizeTable from '../docs/SizeTable.svelte';
 	import WhereNext from '../docs/WhereNext.svelte';
@@ -181,6 +183,11 @@
 					<li><strong>TypeScript</strong> is optional. Types ship with the package.</li>
 					<li><strong>SvelteKit</strong> is optional. The library imports nothing from Kit.</li>
 				</ul>
+				<Alert intent="info" title="Starting a SvelteKit project?">
+					{#snippet icon()}<IconInfo />{/snippet}
+					<code>npx sv add @hyzer-labs</code> does all of this in one command. It installs the package,
+					adds the stylesheet imports, and can scaffold the optional config file.
+				</Alert>
 
 				<p class="band-lead">
 					Then import a component and render it. The code below is a whole file. Beside it is that
