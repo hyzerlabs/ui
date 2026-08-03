@@ -60,10 +60,10 @@
 <Stack gap="away">
 	<DocIntro>
 		{#snippet lead()}
-			The library and Tailwind coexist cleanly: settle on one reset, order the cascade layers so
+			The library and Tailwind coexist cleanly. Settle on one reset, order the cascade layers so
 			Tailwind utilities win when you want them to, and pass utility classes to components through
-			their <code>class</code> prop. None of it is Tailwind-specific plumbing: it is the same layer model
-			the rest of the theme uses.
+			their <code>class</code> prop. It is the same layer model the rest of the theme uses, with no plumbing
+			specific to Tailwind.
 		{/snippet}
 	</DocIntro>
 
@@ -81,7 +81,7 @@
 		</p>
 		<CodeBlock code={resetCode} />
 		<p>
-			Either choice is fine. The reference theme does not depend on the library reset. The reset
+			Either choice is fine. The reference theme does not depend on the library reset. That reset
 			only sets structure (box-sizing, media defaults), with no colors or fonts, so dropping it for
 			Preflight changes nothing about how the components look.
 		</p>
@@ -103,15 +103,20 @@
 		<CodeBlock code={layerOrderCode} />
 		<Alert intent="info">
 			{#snippet icon()}<IconInfo />{/snippet}
-			A layered rule always loses to an unlayered one, so a Tailwind utility (layered) overrides the reference
-			theme but <strong>not</strong> a bare class or ID you write yourself. Your own unlayered CSS
-			stays the final word. See
+			Among layers, the one declared later wins, so a Tailwind utility overrides the reference theme.
+			Unlayered CSS beats every layer, so a bare class or ID you write yourself stays the final word.
+			See
 			<a href="/docs/theming/overview">Theming Overview</a> for the tier model.
 		</Alert>
 		<p>
 			On Tailwind v3 the utilities are emitted unlayered, so they already beat the theme without
 			this declaration. Pinning the order is harmless, and it keeps a later Tailwind upgrade from
 			shifting the cascade under you.
+		</p>
+		<p>
+			Setting up with the Svelte CLI? The <code>npx sv add @hyzer-labs</code> add-on writes this declaration
+			for you when Tailwind's import is already in your stylesheet. Its reset prompt covers the pick-one-reset
+			choice above.
 		</p>
 	</Stack>
 

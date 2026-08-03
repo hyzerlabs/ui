@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { Stack, Split, Card, Badge, Button, Image, CodeBlock } from '$lib';
+	import { Stack, Split, Card, Badge, Button, Image, CodeBlock, Alert } from '$lib';
 	import DocIntro from '../../docs/DocIntro.svelte';
 	import WhereNext from '../../docs/WhereNext.svelte';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 	import { nextSteps } from '../../docs/nextSteps';
 
 	const installCode = 'pnpm add @hyzer-labs/ui';
@@ -109,6 +110,11 @@
 			<li><strong>TypeScript</strong> is optional. Types ship with the package.</li>
 			<li><strong>SvelteKit</strong> is optional. The library imports nothing from Kit.</li>
 		</ul>
+		<Alert intent="info" title="Starting a SvelteKit project?">
+			{#snippet icon()}<IconInfo />{/snippet}
+			<code>npx sv add @hyzer-labs</code> does all of this in one command. It installs the package, adds
+			the stylesheet imports from step 1, and can scaffold the config file from step 3.
+		</Alert>
 	</Stack>
 
 	<Stack
@@ -120,9 +126,9 @@
 	>
 		<h2 id="tier-one-heading">1. Import the styles and use a component</h2>
 		<p>
-			Import the token sheet that ships with the package, and the reference theme. Do this once, in
-			your global stylesheet. Then use the components. Every page on this site runs this exact
-			setup.
+			Import the token sheet that ships with the package, then the reference theme. Do this once, in
+			your global stylesheet. Now you can use the components. Every page on this site runs this
+			exact setup.
 		</p>
 		<CodeBlock code={tierOneCss} title="app.css" language="css" />
 		<Split fraction="2/3" gap="md" stackBelow="md">
@@ -165,10 +171,10 @@
 		</p>
 		<p>
 			Dark mode runs on the same hook the library uses internally: the <code>data-theme</code>
-			attribute. The tokens you set in <code>:root</code> are the default, which is what a page gets
-			when nothing sets that attribute. A named theme like <code>dark</code> then overrides the default.
-			The attribute works on any element, so one section can carry its own theme. Set it nowhere and the
-			page follows the reader's system preference, with no script involved.
+			attribute. The tokens you set in <code>:root</code> are the default. A page gets them when
+			nothing sets that attribute. A named theme like <code>dark</code> then overrides the default. The
+			attribute works on any element, so one section can carry its own theme. Set it nowhere and the page
+			follows the reader's system preference, with no script involved.
 		</p>
 		<CodeBlock code={tierTwoCss} title="app.css" language="css" />
 		<p class="doc-note">

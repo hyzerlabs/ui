@@ -1,19 +1,21 @@
 /**
- * @hyzer-labs/ui — `hyzer` CLI implementation.
+ * The `hyzer` CLI for @hyzer-labs/ui.
  *
- * `hyzer init` — scaffold a starter hyzer.config.ts (the commented
- * full-reference template; refuses to overwrite an existing config).
+ * `hyzer init` scaffolds a starter hyzer.config.ts: the full-reference
+ * template, with every option commented out. It will not overwrite an
+ * existing config.
  *
  * `hyzer generate [--config <path>] [--out <path>] [--mode full|overrides]
  *                 [--utilities] [--check] [--strict]`
  *
- * Loads an optional hyzer.config.{ts,js,mjs} (TypeScript via Node's native
- * type stripping, ≥ 22.18), merges it over the base token schema, writes the
- * generated sheet, and always prints a WCAG contrast report — warnings by
- * default, `--strict` turns AA failures into a non-zero exit.
+ * Generate loads an optional hyzer.config.{ts,js,mjs} (TypeScript needs Node
+ * 22.18 or newer, which strips types natively), merges it over the base token
+ * schema, writes the generated sheet, and always prints a WCAG contrast
+ * report. Failures are warnings by default. `--strict` turns any AA failure
+ * into a non-zero exit.
  *
- * The utilities sheet is opt-in only — absent `--utilities`
- * and `config.utilities`, no utilities file is written.
+ * The utilities sheet is opt-in. Without `--utilities` and without
+ * `config.utilities`, no utilities file is written.
  */
 
 import { parseArgs } from 'node:util';
@@ -30,17 +32,17 @@ import {
 	type HyzerConfig,
 	type ResolvedConfig
 } from '../config/index.js';
-import { CONFIG_TEMPLATE } from './config-template.js';
+import { CONFIG_TEMPLATE, INIT_HEADER } from './config-template.js';
 
 const CONFIG_FILENAMES = ['hyzer.config.ts', 'hyzer.config.js', 'hyzer.config.mjs'];
 const DEFAULT_OUTPUT = 'hyzer-tokens.css';
 const DEFAULT_UTILITIES_OUTPUT = 'hyzer-utilities.css';
 
-const USAGE = `hyzer — @hyzer-labs/ui token generator
+const USAGE = `hyzer: the @hyzer-labs/ui token generator
 
 Usage:
   hyzer init                Scaffold a starter hyzer.config.ts (every option,
-                            commented out — valid as written)
+                            commented out, valid as written)
   hyzer generate [options]
 
 Options (generate):
@@ -50,22 +52,14 @@ Options (generate):
                     "overrides" (patch sheet, import after tokens.css)
   --utilities       Also write the opt-in utilities sheet, next to the tokens
                     sheet (default: ./${DEFAULT_UTILITIES_OUTPUT}, or
-                    config.utilities.output). Overrides config.utilities when
-                    present; absent both, no utilities file is written.
+                    config.utilities.output). Wins over config.utilities when
+                    present. Without either, no utilities file is written.
   --check           Validate and report only, write nothing
   --strict          Exit 1 when any pairing fails WCAG AA (default: warn)
   --help            Show this help
 
-TypeScript configs need Node ≥ 22.18 (native type stripping); on older
-runtimes use hyzer.config.mjs.`;
-
-const INIT_HEADER = `// hyzer.config.ts — every option shown, commented out; valid exactly as written.
-// Uncomment what you need, then:
-//   hyzer generate                   write the token sheet
-//   hyzer generate --check --strict  validate without writing (for CI)
-// Docs: https://design.hyzer.sh/docs/foundation/config
-
-`;
+TypeScript configs need Node 22.18 or newer, which strips types natively. On
+older versions, use hyzer.config.mjs.`;
 
 /** Injectable environment so tests run the CLI without spawning processes. */
 export interface RunOptions {
@@ -152,7 +146,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 			if (isTypeStrippingError(e) && configPath.endsWith('.ts')) {
 				error(
 					`Could not load ${configPath}: this Node runtime cannot import TypeScript directly.\n` +
-						'Use Node ≥ 22.18 (native type stripping) or rename the config to hyzer.config.mjs.'
+						'Use Node 22.18 or newer, or rename the config to hyzer.config.mjs.'
 				);
 			} else {
 				error(`Could not load ${configPath}: ${e instanceof Error ? e.message : String(e)}`);
@@ -201,8 +195,8 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 			log(`wrote ${iconsPath} (${iconsResult.names.length} icons)`);
 		}
 
-		// --utilities overrides config.utilities when present;
-		// absent both, no utilities file is written — non-users pay nothing.
+		// --utilities wins over config.utilities when present.
+		// With neither set, no utilities file is written.
 		const utilitiesEnabled = parsed.utilities === true || resolved.utilities.enabled;
 		if (utilitiesEnabled) {
 			const utilitiesRelOutput = resolved.utilities.output;
@@ -222,7 +216,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 		error(`  ✗ ${row.mode} ${row.id}: ${row.ratio.toFixed(2)}:1 (${row.level})`);
 	}
 	for (const name of report.unresolved) {
-		log(`  ? ${name} could not be statically resolved, pairing skipped`);
+		log(`  ? ${name} could not be resolved statically, pairing skipped`);
 	}
 	if (failures.length === 0) {
 		log(`contrast: ${report.rows.length} pairings checked, all pass WCAG AA`);

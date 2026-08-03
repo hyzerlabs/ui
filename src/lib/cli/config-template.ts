@@ -1,18 +1,26 @@
 /**
- * The full-reference `hyzer.config.ts` — the complete option surface
- * (src/lib/config/schema.ts) with every group commented out, so it is a
- * valid, empty config exactly as written (`defineConfig({})`); uncommenting
- * any one line, or all of them, stays valid too (verified against
- * resolveConfig). One source of truth for `hyzer init` and the docs
- * Config & CLI page.
+ * The full-reference `hyzer.config.ts`. It shows every option in the schema
+ * (src/lib/config/schema.ts) with each group commented out, so as written it
+ * is a valid, empty config (`defineConfig({})`). Uncomment one line, or all of
+ * them, and it stays valid (checked against resolveConfig). This is the one
+ * source of truth for `hyzer init`, the docs Config & CLI page, and the
+ * `@hyzer-labs/sv` community add-on.
  */
+export const INIT_HEADER = `// hyzer.config.ts: every option, commented out. Valid exactly as written.
+// Uncomment what you need, then run:
+//   hyzer generate                   write the token sheet
+//   hyzer generate --check --strict  validate without writing (for CI)
+// Docs: https://design.hyzer.sh/docs/foundation/config
+
+`;
+
 export const CONFIG_TEMPLATE = `import { defineConfig } from '@hyzer-labs/ui/config';
 
 export default defineConfig({
 	// output: 'src/styles/tokens.css', // where \`hyzer generate\` writes the sheet
 
 	// tokens: {                            // the DEFAULT theme (the :root block)
-	// 	palette: {                          // raw hues (--hz-palette-*); ramps welcome
+	// 	palette: {                          // raw hues (--hz-palette-*); single values or ramps
 	// 		primary: '#0f766e',
 	// 		brandRed: { 500: '#ef4444', 900: '#7f1d1d' }
 	// 	},
@@ -38,7 +46,7 @@ export default defineConfig({
 	// },
 
 	// themes: {                            // variants that override the default,
-	//                                     // one block per data-theme="<name>"
+	//                                      // one block per data-theme="<name>"
 	// 	dark: {                            // [data-theme="dark"]
 	// 		palette: { primary: '#2dd4bf' },  // hue overrides for dark
 	// 		color: { surface: '#020617' },    // role overrides for dark
