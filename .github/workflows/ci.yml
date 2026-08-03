@@ -61,3 +61,33 @@ jobs:
 
       - name: attw — are the types wrong? (hard gate)
         run: pnpm exec attw --pack .
+
+  addon:
+    name: Build and test sv-addon
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sv-addon
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Tests
+        run: pnpm test

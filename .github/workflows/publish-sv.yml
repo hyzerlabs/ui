@@ -1,0 +1,50 @@
+name: Publish sv-addon
+
+# Publishes @hyzer-labs/sv to npm via trusted publishing (OIDC) when an
+# sv-v* tag is pushed. Same model as publish.yml; requires the trusted
+# publisher to be configured on npmjs.com for @hyzer-labs/sv (repo
+# hyzerlabs/ui, workflow publish-sv.yml). The first release was published
+# manually — trusted publishing can only be configured on an existing
+# package — and this workflow covers every release after it.
+on:
+  push:
+    tags: ['sv-v*']
+
+permissions:
+  contents: read
+  id-token: write # the OIDC token npm exchanges for publish access
+
+jobs:
+  publish:
+    name: Publish @hyzer-labs/sv to npm
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sv-addon
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      # Trusted publishing needs npm >= 11.5.1; Node's bundled npm is older.
+      # Pinned to 11 for the same node-floor reason as publish.yml.
+      - name: Update npm for OIDC support
+        run: npm install -g npm@11
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # prepublishOnly runs the tsdown build as the final gate.
+      - name: Publish
+        run: npm publish
