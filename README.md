@@ -120,6 +120,7 @@ CLI turns it into a token sheet, a trimmed icon barrel, and an optional utility
 sheet. Every run also prints a WCAG contrast report.
 
 ```sh
+npx hyzer init                   # scaffold hyzer.config.ts — every option, commented out
 hyzer generate                   # write a complete token sheet
 hyzer generate --mode overrides  # or a patch sheet with only your changes
 hyzer generate --check --strict  # validate without writing; fail CI on any AA miss
