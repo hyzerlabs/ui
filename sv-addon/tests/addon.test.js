@@ -8,10 +8,10 @@ const { test, testCases } = setupTest(
 	{ addon },
 	{
 		kinds: [
-			{ type: 'default', options: { [addon.id]: { config: true, utilities: false } } },
+			{ type: 'default', options: { [addon.id]: { config: true, utilities: false, reset: true } } },
 			{
 				type: 'no-config-with-utilities',
-				options: { [addon.id]: { config: false, utilities: true } }
+				options: { [addon.id]: { config: false, utilities: true, reset: false } }
 			}
 		],
 		filter: (testCase) => testCase.variant.includes('kit'),
@@ -26,6 +26,12 @@ test.concurrent.for(testCases)('@hyzer-labs/sv $kind.type $variant', async (test
 
 	const pkg = JSON.parse(read('package.json'));
 	expect(pkg.dependencies['@hyzer-labs/ui']).toBeDefined();
+	if (withConfig) {
+		// config: true — the check script gains the config's own CI gate
+		expect(pkg.scripts.check).toContain('hyzer generate --check');
+	} else {
+		expect(pkg.scripts.check ?? '').not.toContain('hyzer generate');
+	}
 
 	const stylesheetPath = fs.existsSync(path.resolve(cwd, 'src/app.css'))
 		? 'src/app.css'
@@ -36,8 +42,13 @@ test.concurrent.for(testCases)('@hyzer-labs/sv $kind.type $variant', async (test
 	expect(tokensAt).toBeGreaterThanOrEqual(0);
 	expect(themeAt).toBeGreaterThan(tokensAt);
 	if (withConfig) {
+		// reset: true — imported before everything else
+		const resetAt = stylesheet.indexOf(`@import '@hyzer-labs/ui/reset.css'`);
+		expect(resetAt).toBeGreaterThanOrEqual(0);
+		expect(tokensAt).toBeGreaterThan(resetAt);
 		expect(stylesheet).not.toContain('utilities.css');
 	} else {
+		expect(stylesheet).not.toContain('reset.css');
 		expect(stylesheet.indexOf(`@import '@hyzer-labs/ui/utilities.css'`)).toBeGreaterThan(themeAt);
 	}
 

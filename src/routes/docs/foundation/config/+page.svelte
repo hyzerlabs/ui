@@ -207,8 +207,8 @@
 			{#snippet icon()}<IconTriangleAlert />{/snippet}
 			Ramps are free to define. The report grades text and intent tokens against your surfaces, not raw
 			palette hues, so extra rungs add no pairings on their own. The cost comes when you point an intent
-			at a ramp's end rung. Those rungs are very pale and very dark by design, so neither clears 4.5:1
-			as text, and the report fails that pairing.
+			at a ramp's end rung. Those rungs are very pale and very dark by design. Neither clears 4.5:1 as
+			text, so the report fails that pairing.
 			<code>--strict</code> then fails the whole run: it is all-or-nothing and cannot be narrowed to
 			certain tokens. Point intents at the middle of a ramp, as <code>brand</code> does above, or run
 			without the flag and read the warnings yourself.
@@ -274,10 +274,10 @@
 			The config reaches <a href="/docs/components/icons">icons</a> too: an optional
 			<code>icons: string[]</code>
 			list of kebab-case Lucide names. <code>hyzer generate</code> emits an <code>icons.ts</code>
-			module next to the tokens sheet, with named re-exports from the
+			module next to the tokens sheet. It re-exports each icon by name from the
 			<code>@hyzer-labs/ui/icons/&lt;name&gt;</code>
-			deep paths. It covers your list plus the library's always-shipped core set (the chevrons, close,
-			menu, and friends its own components depend on). So your app's autocomplete offers your own icon
+			deep paths, covering your list plus the library's always-shipped core set (the chevrons, close,
+			menu, and the rest its own components depend on). Your app's autocomplete then offers your own icon
 			vocabulary rather than the full 1,700-plus Lucide names.
 		</p>
 		<CodeBlock code={iconsConfigCode} title="hyzer.config.ts" language="ts" />
@@ -287,7 +287,7 @@
 			run. Either way the icon is left out of the emitted barrel. Omit the <code>icons</code> key
 			and
 			<code>hyzer generate</code>
-			writes no <code>icons.ts</code> at all, and skips that report section.
+			writes no <code>icons.ts</code> at all and skips that report section.
 			<code>icons: []</code> behaves differently: the empty array is a valid, minimal config that does
 			write the file, holding the core set on its own.
 		</p>
@@ -328,7 +328,9 @@
 		<p>
 			Every group <code>hyzer.config.ts</code> accepts, in one file and commented out. Uncomment
 			what you need and delete the rest. Each line's comment names the tokens it drives.
-			<code>npx hyzer init</code> writes this file into your project to start from.
+			<code>npx hyzer init</code> writes this file into your project to start from. On SvelteKit,
+			the
+			<code>npx sv add @hyzer-labs</code> add-on offers it during setup.
 		</p>
 		<CodeBlock code={fullReferenceConfigCode} title="hyzer.config.ts" language="ts" />
 	</Stack>
