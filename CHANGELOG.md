@@ -5,6 +5,36 @@ All notable changes to `@hyzer-labs/ui` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-08-03
+
+### Added
+
+- **Custom intents work everywhere** — an intent your `hyzer.config.ts` adds
+  under `tokens.intent` is now wired into every component that takes an
+  intent. `hyzer generate` emits the reference-theme rules for it, so
+  `<Badge intent="fairway">` paints with no CSS on your side. camelCase
+  names, scoped sheets, and intents added under a named theme are all
+  covered. Standalone themes keep authoring their own intent rules, and any
+  rule you write yourself still wins over the generated wiring.
+
+### Changed
+
+- **Skeleton animation is calmer** — the default `--hz-skeleton-speed` moved
+  from 1.4s to 1.8s. Override the hook to restore the old pace.
+- Button, Banner, and Loading now share the same internal intent switch as
+  Badge, Alert, and Blockquote. Their public hooks (`--hz-button-accent`,
+  `--hz-banner-bg`, `--hz-loading-fill`) are unchanged and still win exactly
+  as before.
+
+### Fixed
+
+- **Banner action buttons are legible again** — a `<Button>` in a Banner's
+  `actions` snippet now takes the bar's own foreground/background pair, as
+  documented. Previously the rule lost to Button's own styles and a solid
+  button could sit illegibly on the intent fill.
+- Multiple items in a Banner's `actions` snippet now align vertically and
+  get a gap between them.
+
 ## [0.4.0] — 2026-08-02
 
 ### Added
