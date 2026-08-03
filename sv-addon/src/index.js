@@ -1,6 +1,6 @@
 import { defineAddon, defineAddonOptions } from 'sv';
 import { transforms } from './sv-utils.js';
-import { CONFIG_TEMPLATE, INIT_HEADER } from '../../src/lib/cli/config-template.ts';
+import { CONFIG_TEMPLATE, INIT_HEADER } from '../../src/lib/cli/config-template.js';
 
 const UI_VERSION = '^0.3.0';
 

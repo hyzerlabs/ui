@@ -1,7 +1,7 @@
 {
 	"name": "@hyzer-labs/sv",
 	"description": "Svelte CLI add-on for @hyzer-labs/ui — install, wire the stylesheets, scaffold hyzer.config.ts",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"type": "module",
 	"license": "MIT",
 	"scripts": {

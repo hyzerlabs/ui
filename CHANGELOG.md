@@ -5,6 +5,26 @@ All notable changes to `@hyzer-labs/ui` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-08-02
+
+### Added
+
+- **`hyzer init`** — scaffolds a starter `hyzer.config.ts`. Every config
+  option sits in that one file, commented out, and valid exactly as written.
+  Uncomment what you need and run `hyzer generate`. The command refuses to
+  overwrite an existing config. The file it writes is the same full reference
+  the Config & CLI docs page shows.
+- **Svelte CLI add-on** — a new companion package, `@hyzer-labs/sv`, sets up
+  a SvelteKit project in one command: `npx sv add @hyzer-labs`. SvelteKit
+  projects only. It installs
+  `@hyzer-labs/ui`, imports the token and theme stylesheets, and wires them
+  into the root layout. It can also scaffold `hyzer.config.ts` and add a
+  `hyzer generate --check` gate to your project's `check` script. The add-on
+  is Tailwind-aware. Run it alongside or after the `tailwindcss` add-on, and
+  it keeps its own imports above Tailwind's. It pins the cascade order with a
+  single `@layer` declaration. Options: `config`, `utilities`, and `reset`.
+  Skip the reset if you keep Tailwind Preflight.
+
 ## [0.3.0] — 2026-08-01
 
 ### Added
@@ -69,6 +89,7 @@ Initial public release: the full component set, headless core with the
 layered reference theme, design tokens, and the docs site at
 [design.hyzer.sh](https://design.hyzer.sh).
 
+[0.4.0]: https://github.com/hyzerlabs/ui/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/hyzerlabs/ui/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/hyzerlabs/ui/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/hyzerlabs/ui/releases/tag/v0.1.0
