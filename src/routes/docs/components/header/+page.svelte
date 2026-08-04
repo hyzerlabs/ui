@@ -6,8 +6,8 @@
 	import Example from '../../../../docs/Example.svelte';
 	import ResizableDemo from '../../../../docs/ResizableDemo.svelte';
 
+	// No 'Home' item — the logo is the link home.
 	const demoItems: NavItem[] = [
-		{ label: 'Home', href: '#' },
 		{
 			label: 'Components',
 			href: '#',
@@ -41,8 +41,8 @@
 	// below), not just `items={navItems}` — a label/href per entry, a
 	// children sub-menu on one.
 	const basicCode = [
+		'// No need for a Home item — the logo is the link home.',
 		'const navItems: NavItem[] = [',
-		"\t{ label: 'Home', href: '#' },",
 		'\t{',
 		"\t\tlabel: 'Components',",
 		"\t\thref: '#',",

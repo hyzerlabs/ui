@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { Nav, Tabs } from '$lib';
+	import { IconArrowDown } from '$lib/icons';
 	import type { NavItem } from '$lib/types';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { navDoc } from '../../../../docs/data/nav.js';
 	import Example from '../../../../docs/Example.svelte';
 
 	// Demo links are '#' so readers can't navigate away from the docs.
+	// No 'Home' item — in a top bar, the logo is the link home.
 	const demoItems: NavItem[] = [
-		{ label: 'Home', href: '#' },
 		{
 			label: 'Components',
 			href: '#',
@@ -52,13 +53,14 @@
 
 	const demoTabs = [
 		{ id: 'dropdowns', label: 'Dropdowns' },
-		{ id: 'vertical', label: 'Vertical' }
+		{ id: 'vertical', label: 'Vertical' },
+		{ id: 'icon', label: 'Custom icon' }
 	];
 
 	const dropdownCode = [
 		'<Nav',
 		'\titems={[',
-		"\t\t{ label: 'Home', href: '/docs' },",
+		"\t\t{ label: 'Docs', href: '/docs' },",
 		"\t\t{ label: 'Components', href: '/components', children: [",
 		"\t\t\t{ label: 'Button', href: '/docs/components/button' }",
 		'\t\t] }',
@@ -72,6 +74,14 @@
 		'',
 		'<!-- children can nest, and carry { heading } group labels between links;',
 		'     defaultOpen starts a section open. -->'
+	].join('\n');
+
+	const iconCode = [
+		'<Nav items={sidebarItems} orientation="vertical" ariaLabel="Docs navigation">',
+		'\t{#snippet chevronIcon()}',
+		'\t\t<IconArrowDown size={14} strokeWidth={1.5} />',
+		'\t{/snippet}',
+		'</Nav>'
 	].join('\n');
 </script>
 
@@ -93,7 +103,7 @@
 							<Nav items={demoItems} ariaLabel="Demo navigation (dropdowns)" />
 						</div>
 					</Example>
-				{:else}
+				{:else if item.id === 'vertical'}
 					<p class="tab-note">
 						<code>orientation="vertical"</code> renders a sidebar column. Submenus become inline disclosure
 						sections that nest and collapse independently, so you can have several open at once. The docs
@@ -106,6 +116,27 @@
 								orientation="vertical"
 								ariaLabel="Demo sidebar navigation"
 							/>
+						</div>
+					</Example>
+				{:else}
+					<p class="tab-note">
+						The <code>chevronIcon</code> snippet replaces the default chevron on every submenu
+						trigger, in both orientations. Any of the shared
+						<a href="/docs/components/icons">icons</a>
+						works — size and stroke are the icon's own props — as does any inline SVG. The theme rotates
+						the icon 180° while a section is open, so pick one that reads both ways, like an arrow.
+					</p>
+					<Example code={iconCode}>
+						<div class="nav-demo-wrap sidebar-demo">
+							<Nav
+								items={sidebarItems}
+								orientation="vertical"
+								ariaLabel="Demo sidebar navigation (custom icon)"
+							>
+								{#snippet chevronIcon()}
+									<IconArrowDown size={14} strokeWidth={1.5} />
+								{/snippet}
+							</Nav>
 						</div>
 					</Example>
 				{/if}

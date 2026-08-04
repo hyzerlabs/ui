@@ -42,16 +42,24 @@
 				links: [
 					{ label: 'Getting Started', href: '/docs' },
 					{ label: 'Philosophy', href: '/docs/philosophy' },
-					{ label: 'Agents', href: '/docs/agents' },
+					{ label: 'Components', href: '/docs/components/button' },
 					{ label: 'Theming', href: '/docs/theming/overview' }
+				]
+			},
+			{
+				title: 'Agents',
+				links: [
+					{ label: 'Agents.md', href: '/agents.md' },
+					{ label: 'llms.txt', href: '/llms.txt' },
+					{ label: 'llms-full.txt', href: '/llms-full.txt' },
+					{ label: 'llms-full.json', href: '/llms-full.json' }
 				]
 			},
 			{
 				title: 'Project',
 				links: [
 					{ label: 'GitHub', href: 'https://github.com/hyzerlabs/ui' },
-					{ label: 'npm', href: 'https://www.npmjs.com/package/@hyzer-labs/ui' },
-					{ label: 'llms.txt', href: '/llms.txt' }
+					{ label: 'npm', href: 'https://www.npmjs.com/package/@hyzer-labs/ui' }
 				]
 			}
 		]}
