@@ -5,6 +5,64 @@ All notable changes to `@hyzer-labs/ui` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-08-04
+
+A large round of fixes and additions, found while migrating a real site to
+the library. Everything is additive, with no breaking changes.
+
+### Added
+
+- **Every form control hands you its element** — `bind:element` on
+  TextInput, Textarea, Select, Checkbox, Toggle, Combobox, Slider,
+  ColorInput, FileUpload, and Form; `bind:elementMin` / `bind:elementMax`
+  on RangeSlider's two thumbs; `bind:elements` on RadioGroup. Focus a
+  field from a keyboard shortcut without reaching into the DOM yourself.
+- **Drive the Header drawer from your own code** — `bind:open` reads and
+  writes the mobile drawer state, so a router hook can close it on
+  navigation. Activating a drawer link closes it on its own.
+- **Style nav links in one place** — `itemClass` on Nav puts one class on
+  every rendered nav link, and `navItemClass` on Header forwards the same
+  class to both of its Navs. An item's own `class` still handles
+  exceptions. Footer links read `class` from their items too.
+- **Collapse thresholds take a number** — Header's `mobileBreakpoint` and
+  Toc's `breakpoint` accept a px number, for sites that have retuned the
+  `--hz-width-*` scale. The named tiers stay CSS-only and unchanged. A
+  number measures at runtime and falls back to the nearest named tier
+  before hydration; an invalid number does nothing and warns in
+  development.
+- **Toc entries take a snippet** — `entry` replaces a link's content, so
+  you can relabel the first entry or mark the current one. Toc keeps the
+  `aria-current`, scroll, and URL-hash wiring either way.
+- **Two more Split layouts** — `stackBelow="none"` never stacks, and
+  `fraction="auto-end"` sizes the last column to its content while the
+  first grows, without reversing visual order.
+- **Alias the density scale to your own** — four public custom properties
+  (`--hz-density-ladder-depth-1` through `-4`) back the `near` and `away`
+  distances at each `data-density-shift` level. Override one anywhere and
+  every distance built from it follows. The defaults are unchanged, so
+  nothing moves until you set a rung. The Spacing docs page has the full
+  table.
+- Development-only warnings for three silent misuses: a Footer link
+  carrying `children` (footer links are a flat list), a blank Footer
+  column title, and a Metatags `url`/`canonical`/`image` that looks like a
+  host without a scheme (it resolves as a relative path, which makes a
+  broken `og:` URL).
+- Component docs now say where unlisted props go, on every props table and
+  in the `llms-full` endpoints.
+
+### Changed
+
+- **The reference theme fades the Header drawer out** — the same
+  `allow-discrete` exit pattern Dropdown and Popover use. Browsers without
+  support hide it instantly, as before.
+
+### Fixed
+
+- **A blank Footer column title no longer creates a nameless landmark** —
+  the column renders as a plain block (links intact, no empty heading)
+  instead of a `<nav aria-label="">`.
+- Footer with `columns={[]}` renders no empty grid node.
+
 ## [0.5.0] — 2026-08-03
 
 ### Added
@@ -119,6 +177,8 @@ Initial public release: the full component set, headless core with the
 layered reference theme, design tokens, and the docs site at
 [design.hyzer.sh](https://design.hyzer.sh).
 
+[0.6.0]: https://github.com/hyzerlabs/ui/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/hyzerlabs/ui/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/hyzerlabs/ui/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/hyzerlabs/ui/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/hyzerlabs/ui/compare/v0.1.0...v0.2.0
