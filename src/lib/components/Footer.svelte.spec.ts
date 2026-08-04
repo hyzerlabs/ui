@@ -1,5 +1,5 @@
 import { page } from 'vitest/browser';
-import { describe, expect, it, afterEach } from 'vitest';
+import { describe, expect, it, afterEach, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
 import Footer from './Footer.svelte';
@@ -344,6 +344,104 @@ describe('R6 — children ignored', () => {
 		const { container } = render(Footer, { columns: withChildren });
 		expect(container.querySelector('button')).toBeNull();
 		expect(container.querySelector('[aria-expanded]')).toBeNull();
+	});
+
+	it('children carries one dev warning per render naming the first offender (specs/63 R2)', () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { container } = render(Footer, {
+			columns: [
+				{
+					title: 'A',
+					links: [{ label: 'Products', href: '/p', children: [{ label: 'S', href: '/s' }] }]
+				},
+				{
+					title: 'B',
+					links: [{ label: 'More', href: '/m', children: [{ label: 'T', href: '/t' }] }]
+				}
+			]
+		});
+		expect(warnSpy).toHaveBeenCalledOnce();
+		expect(warnSpy.mock.calls[0][0]).toContain('[hz-footer]');
+		expect(warnSpy.mock.calls[0][0]).toContain('Products');
+		// specs/63 R1 — Footer never composes Nav, even for children-carrying items.
+		expect(container.querySelector('.hz-nav')).toBeNull();
+		warnSpy.mockRestore();
+	});
+
+	it('children: [] (present but empty) still warns (specs/63 R2)', () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		render(Footer, {
+			columns: [{ title: 'A', links: [{ label: 'Products', href: '/p', children: [] }] }]
+		});
+		expect(warnSpy).toHaveBeenCalledOnce();
+		warnSpy.mockRestore();
+	});
+
+	it('defaultOpen without children does not warn (specs/63 R2)', () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		render(Footer, {
+			columns: [{ title: 'A', links: [{ label: 'Products', href: '/p', defaultOpen: true }] }]
+		});
+		expect(warnSpy).not.toHaveBeenCalled();
+		warnSpy.mockRestore();
+	});
+
+	it('a clean footer does not warn (specs/63 R2)', () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		render(Footer, { columns: threeColumns });
+		expect(warnSpy).not.toHaveBeenCalled();
+		warnSpy.mockRestore();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/63 R3 — blank column title degrades the landmark
+// ---------------------------------------------------------------------------
+
+describe('specs/63 R3 — blank column title', () => {
+	const links = [{ label: 'About', href: '/about' }];
+
+	function expectDegraded(container: HTMLElement) {
+		const column = container.querySelector('.hz-footer-column') as HTMLElement;
+		expect(column.tagName).toBe('DIV');
+		expect(column.hasAttribute('aria-label')).toBe(false);
+		expect(column.querySelector('.hz-footer-heading')).toBeNull();
+		expect(column.querySelectorAll('ul[role="list"] li').length).toBe(1);
+	}
+
+	it("title: '' renders a div column — no nav, no heading, links intact — and warns", () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { container } = render(Footer, { columns: [{ title: '', links }] });
+		expectDegraded(container as HTMLElement);
+		expect(warnSpy).toHaveBeenCalledOnce();
+		expect(warnSpy.mock.calls[0][0]).toContain('[hz-footer]');
+		expect(warnSpy.mock.calls[0][0]).toContain('Column 0');
+		warnSpy.mockRestore();
+	});
+
+	it("title: '   ' behaves identically to ''", () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { container } = render(Footer, { columns: [{ title: '   ', links }] });
+		expectDegraded(container as HTMLElement);
+		expect(warnSpy).toHaveBeenCalledOnce();
+		warnSpy.mockRestore();
+	});
+
+	it('mixed blank + non-blank: only the blank column degrades', () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { container } = render(Footer, {
+			columns: [
+				{ title: 'Company', links },
+				{ title: '', links }
+			]
+		});
+		const columns = container.querySelectorAll('.hz-footer-column');
+		expect(columns.length).toBe(2);
+		expect(columns[0].tagName).toBe('NAV');
+		expect(columns[0].getAttribute('aria-label')).toBe('Company');
+		expect(columns[1].tagName).toBe('DIV');
+		expect(warnSpy.mock.calls[0][0]).toContain('Column 1');
+		warnSpy.mockRestore();
 	});
 });
 

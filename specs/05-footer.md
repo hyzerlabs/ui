@@ -279,3 +279,18 @@ responsive styles are asserted with viewport resize + `getComputedStyle(el)`.
 - The reference theme's visual styling of the footer — later sprint.
 - Docs demo routes and Playwright e2e — later sprint.
 - New shared types in `src/lib/types/index.ts` — the prop unions stay local.
+
+### Amendments
+
+**2026-08-03 — dev warnings and blank-title degrade (specs/63, user decision).**
+The composition question — should Footer compose Nav? — is settled in
+`specs/63-footer-nav-composition.md`: it does not. Two behavior notes land
+there and amend this spec:
+
+- R6's `children` handling is unchanged (still ignored, flat `<Link>` only),
+  but ignoring it now raises a dev-only `[hz-footer]` warning, once per render,
+  naming the first offending item.
+- R4 gains a blank-title exception: a column whose `title` is empty or
+  whitespace-only renders as `<div class="hz-footer-column">` — no `<nav>`, no
+  heading — because `aria-label=""` is a nameless `navigation` landmark. Links
+  render unchanged, and a dev-only warning names the column index.
