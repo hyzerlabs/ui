@@ -1,5 +1,5 @@
 import { page } from 'vitest/browser';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { createRawSnippet } from 'svelte';
 import Header from './Header.svelte';
@@ -20,8 +20,15 @@ const items: NavItem[] = [
 	{ label: 'Products', children: [{ label: 'A', href: '/a' }] }
 ];
 
-function tick(): Promise<void> {
-	return new Promise((r) => setTimeout(r, 0));
+function tick(ms = 0): Promise<void> {
+	return new Promise((r) => setTimeout(r, ms));
+}
+
+// ResizeObserver delivers on its own schedule (a queued step tied to layout,
+// not a microtask) — a generous wait, not a bare tick(), is what the
+// measured-mode tests below need after mutating an observed width.
+function settle(): Promise<void> {
+	return tick(50);
 }
 
 function parts(container: HTMLElement) {
@@ -153,6 +160,120 @@ describe('Header — mobile drawer', () => {
 		const { toggle, drawer } = parts(container);
 		expect(getComputedStyle(toggle).display).toBe('none');
 		expect(getComputedStyle(drawer).display).toBe('none');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/64 R1-R4 — measured mode: a number `mobileBreakpoint` collapses off
+// the header's own measured content-box width via the `resize` attachment,
+// instead of the literal-px container queries.
+// ---------------------------------------------------------------------------
+
+describe('Header — measured mode', () => {
+	it('collapses/expands based on the measured width, atomically', async () => {
+		const { container } = render(Header, {
+			items,
+			mobileBreakpoint: 668,
+			style: 'width: 500px'
+		});
+		await settle();
+		let p = parts(container);
+		expect(p.header.getAttribute('data-mobile-breakpoint')).toBe('custom');
+		expect(p.header.hasAttribute('data-collapsed')).toBe(true);
+		expect(getComputedStyle(p.navs[0]).display).toBe('none');
+		expect(getComputedStyle(p.toggle).display).toBe('flex');
+
+		p.header.style.width = '800px';
+		await settle();
+		p = parts(container);
+		expect(p.header.hasAttribute('data-collapsed')).toBe(false);
+		expect(getComputedStyle(p.navs[0]).display).not.toBe('none');
+		expect(getComputedStyle(p.toggle).display).toBe('none');
+	});
+
+	it('exactly 668px wide is expanded (>= is expanded)', async () => {
+		const { container } = render(Header, {
+			items,
+			mobileBreakpoint: 668,
+			style: 'width: 668px'
+		});
+		await settle();
+		expect(parts(container).header.hasAttribute('data-collapsed')).toBe(false);
+	});
+
+	it('widening past the number closes an open drawer, without stealing focus', async () => {
+		const { container } = render(Header, {
+			items,
+			mobileBreakpoint: 668,
+			style: 'width: 500px'
+		});
+		await settle();
+		parts(container).toggle.click();
+		await tick();
+		expect(parts(container).drawer.getAttribute('data-state')).toBe('open');
+
+		parts(container).header.style.width = '800px';
+		await settle();
+		const p = parts(container);
+		expect(p.drawer.getAttribute('data-state')).toBe('closed');
+		expect(p.toggle.getAttribute('aria-expanded')).toBe('false');
+	});
+
+	it('changing the number at runtime re-evaluates from the last measured width, no new observer', async () => {
+		const props = $state<{ items: NavItem[]; mobileBreakpoint: number; style: string }>({
+			items,
+			mobileBreakpoint: 500,
+			style: 'width: 700px'
+		});
+		const { container } = render(Header, props);
+		await settle();
+		expect(parts(container).header.hasAttribute('data-collapsed')).toBe(false);
+
+		props.mobileBreakpoint = 900;
+		await tick();
+		expect(parts(container).header.hasAttribute('data-collapsed')).toBe(true);
+	});
+
+	it("640 (number) and 'sm' (string) give the same visibility at 600px and at 700px", async () => {
+		const numeric = render(Header, { items, mobileBreakpoint: 640, style: 'width: 600px' });
+		const stringMode = render(Header, { items, mobileBreakpoint: 'sm', style: 'width: 600px' });
+		await settle();
+		expect(getComputedStyle(parts(numeric.container).navs[0]).display).toBe(
+			getComputedStyle(parts(stringMode.container).navs[0]).display
+		);
+
+		parts(numeric.container).header.style.width = '700px';
+		parts(stringMode.container).header.style.width = '700px';
+		await settle();
+		expect(getComputedStyle(parts(numeric.container).navs[0]).display).toBe(
+			getComputedStyle(parts(stringMode.container).navs[0]).display
+		);
+	});
+
+	it("0 / -5 / NaN behave as 'none': no data-collapsed ever, toggle hidden, exactly one DEV warn", async () => {
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { container } = render(Header, {
+			items,
+			mobileBreakpoint: 0,
+			style: 'width: 300px'
+		});
+		await settle();
+		const p = parts(container);
+		expect(p.header.getAttribute('data-mobile-breakpoint')).toBe('none');
+		expect(p.header.hasAttribute('data-collapsed')).toBe(false);
+		expect(getComputedStyle(p.toggle).display).toBe('none');
+		expect(warnSpy).toHaveBeenCalledTimes(1);
+		expect(warnSpy.mock.calls[0][0]).toContain('mobileBreakpoint');
+		warnSpy.mockRestore();
+	});
+
+	it('string mode never performs the data-mobile-breakpoint="custom" swap', async () => {
+		const { container } = render(Header, { items, mobileBreakpoint: 'md', style: 'width: 500px' });
+		await settle();
+		expect(parts(container).header.getAttribute('data-mobile-breakpoint')).toBe('md');
+		parts(container).header.style.width = '2000px';
+		await settle();
+		expect(parts(container).header.getAttribute('data-mobile-breakpoint')).toBe('md');
 	});
 });
 

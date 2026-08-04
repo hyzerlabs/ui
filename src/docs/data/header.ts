@@ -32,9 +32,9 @@ export const headerDoc: ComponentDoc = {
 		},
 		{
 			name: 'mobileBreakpoint',
-			type: "'sm' | 'md' | 'lg' | 'none'",
+			type: "'sm' | 'md' | 'lg' | 'none' | number",
 			default: "'md'",
-			note: 'Collapse threshold (640/968/1200px), a container query against the header width. none never collapses.'
+			note: 'Collapse threshold (640/968/1200px), a container query against the header width. none never collapses. …or a px number, measured at runtime, for a retuned width scale.'
 		},
 		{
 			name: 'ariaLabel',

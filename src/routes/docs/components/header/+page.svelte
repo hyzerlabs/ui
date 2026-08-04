@@ -76,6 +76,14 @@
 </script>
 
 <DocPage name="Header" {...headerDoc}>
+	<p class="tab-note">
+		<code>mobileBreakpoint</code> takes the named tiers (<code>'sm' | 'md' | 'lg'</code>) —
+		CSS-only, free — or a px number, which measures the header's own width at runtime instead. Reach
+		for a number once you've retuned <code>--hz-width-*</code>: a literal tier can't follow that
+		override, since CSS can't read a custom property inside a container query. Before hydration a
+		number renders as its nearest named tier, so there's no worse-than-today fallback for a no-JS
+		page.
+	</p>
 	<Tabs items={demoTabs} ariaLabel="Header demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">

@@ -34,4 +34,4 @@ export interface ComponentDoc {
 
 /** The standard rest-forwarding sentence — DocPage and the llms endpoints share it. */
 export const REST_NOTE_DEFAULT =
-	'Anything not listed above is forwarded as an attribute — to the native control in form components, the root element otherwise. So id, data-*, aria-*, and event handlers just work.';
+	'Anything not listed above is forwarded as an attribute to the root element (or the native control in form components). So id, data-*, aria-*, and event handlers just work.';

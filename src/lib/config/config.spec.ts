@@ -216,7 +216,9 @@ describe('generateCss — full mode', () => {
 	it('a density unit override rewrites --hz-density and keeps the derived cascade', () => {
 		const css = generateCss(resolveConfig({ tokens: { density: { unit: '0.5rem' } } }));
 		expect(css).toContain('--hz-density: 0.5rem;');
-		expect(css).toContain('--hz-space-near: calc(var(--hz-density) * 10);');
+		expect(css).toContain(
+			'--hz-space-near: var(--hz-density-ladder-depth-1, calc(var(--hz-density) * 10));'
+		);
 	});
 
 	it('config dark palette additions land in the dark block', () => {
@@ -368,6 +370,105 @@ describe('generateCss — overrides mode', () => {
 		});
 		expect(css).toContain(':root {');
 		expect(css).toContain('--hz-density: 0.5rem;');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// R11 (specs/64) — density ladder rungs: near/away are var() lookups against
+// four depth-keyed public rungs, never a bare calc(), so a rung can be
+// overridden from anywhere with no cascade fight against this sheet.
+// ---------------------------------------------------------------------------
+
+describe('R11 — density ladder rungs', () => {
+	it('depth 2 near/away are var() lookups against the depth-2 and depth-1 rungs', () => {
+		const css = generateCss(resolveConfig(), { mode: 'full' });
+		expect(css).toContain(
+			'--hz-space-near: var(--hz-density-ladder-depth-2, calc(var(--hz-density) * 5));'
+		);
+		expect(css).toContain(
+			'--hz-space-away: var(--hz-density-ladder-depth-1, calc(var(--hz-density) * 10));'
+		);
+	});
+
+	it('depth 1 (body) has no shallower rung, so its away is its own rung doubled', () => {
+		const css = generateCss(resolveConfig(), { mode: 'full' });
+		expect(css).toContain(
+			'--hz-space-away: calc(var(--hz-density-ladder-depth-1, calc(var(--hz-density) * 10)) * 2);'
+		);
+	});
+
+	it('every emitted near/away references exactly one rung name, and the set used is exactly depth-1|2|3|4', () => {
+		const css = generateCss(resolveConfig(), { mode: 'full' });
+		const values = [...css.matchAll(/--hz-space-(?:near|away): (.+);/g)].map((m) => m[1]);
+		// 4 density.levels rows × (near + away).
+		expect(values.length).toBe(8);
+		const usedRungs = new Set<string>();
+		for (const value of values) {
+			const rungMatches = [...value.matchAll(/--hz-density-ladder-depth-\d/g)];
+			expect(rungMatches, value).toHaveLength(1);
+			usedRungs.add(rungMatches[0][0]);
+		}
+		expect(usedRungs).toEqual(
+			new Set([
+				'--hz-density-ladder-depth-1',
+				'--hz-density-ladder-depth-2',
+				'--hz-density-ladder-depth-3',
+				'--hz-density-ladder-depth-4'
+			])
+		);
+	});
+
+	it("each depth's near references its own depth's rung, and each away the next-shallower one", () => {
+		const css = generateCss(resolveConfig(), { mode: 'full' });
+		const selectors = [
+			'body {',
+			'body [data-density-shift] {',
+			'body [data-density-shift] [data-density-shift] {',
+			'body [data-density-shift] [data-density-shift] [data-density-shift] {'
+		];
+		selectors.forEach((selector, index) => {
+			const depth = index + 1;
+			const start = css.indexOf(selector);
+			expect(start, selector).toBeGreaterThan(-1);
+			const block = css.slice(start, css.indexOf('}', start));
+			expect(block).toContain(`--hz-space-near: var(--hz-density-ladder-depth-${depth},`);
+			const awayDepth = depth === 1 ? depth : depth - 1;
+			expect(block).toContain(`--hz-density-ladder-depth-${awayDepth},`);
+		});
+	});
+
+	it('overrides mode emits no density block and no rung reference', () => {
+		const css = generateCss(resolveConfig({ tokens: { palette: { primary: '#0f766e' } } }), {
+			mode: 'overrides'
+		});
+		expect(css).not.toContain('--hz-density-ladder-depth-');
+		expect(css).not.toContain('[data-density-shift]');
+	});
+
+	it('a config value may reference a rung', () => {
+		expect(() =>
+			resolveConfig({ tokens: { space: { gap: 'var(--hz-density-ladder-depth-3)' } } })
+		).not.toThrow();
+	});
+
+	it("a top-level (depth 1) row whose away isn't its own near doubled is a generator error naming the level", () => {
+		const resolved = resolveConfig();
+		const broken = {
+			...resolved,
+			density: {
+				...resolved.density,
+				levels: [{ near: 10, away: 999 }, ...resolved.density.levels.slice(1)]
+			}
+		};
+		expect(() => generateCss(broken)).toThrow(/density\.levels\[0\]\.away/);
+	});
+
+	it("a non-top row whose away isn't the next-shallower row's near is a generator error naming the level", () => {
+		const resolved = resolveConfig();
+		const levels = [...resolved.density.levels];
+		levels[2] = { ...levels[2], away: 999 };
+		const broken = { ...resolved, density: { ...resolved.density, levels } };
+		expect(() => generateCss(broken)).toThrow(/density\.levels\[2\]\.away/);
 	});
 });
 

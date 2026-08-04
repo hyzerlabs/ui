@@ -164,25 +164,30 @@
  * regions read denser without new spacing values. The near multipliers walk
  * the 1-2-5-10 ladder, and a shifted region's away always equals its
  * parent's near. Coexists with the fixed --hz-space-* scale above.
+ * Each near/away below is a var() lookup against one of four public rungs
+ * (--hz-density-ladder-depth-1…4, unshifted body through three
+ * data-density-shift ancestors deep) — override a rung anywhere to alias
+ * both distances it backs to your own scale, with no rung declared here
+ * to outrank it.
  * ========================================================================== */
 body {
-	--hz-space-near: calc(var(--hz-density) * 10);
-	--hz-space-away: calc(var(--hz-density) * 20);
+	--hz-space-near: var(--hz-density-ladder-depth-1, calc(var(--hz-density) * 10));
+	--hz-space-away: calc(var(--hz-density-ladder-depth-1, calc(var(--hz-density) * 10)) * 2);
 }
 
 body [data-density-shift] {
-	--hz-space-near: calc(var(--hz-density) * 5);
-	--hz-space-away: calc(var(--hz-density) * 10);
+	--hz-space-near: var(--hz-density-ladder-depth-2, calc(var(--hz-density) * 5));
+	--hz-space-away: var(--hz-density-ladder-depth-1, calc(var(--hz-density) * 10));
 }
 
 body [data-density-shift] [data-density-shift] {
-	--hz-space-near: calc(var(--hz-density) * 2);
-	--hz-space-away: calc(var(--hz-density) * 5);
+	--hz-space-near: var(--hz-density-ladder-depth-3, calc(var(--hz-density) * 2));
+	--hz-space-away: var(--hz-density-ladder-depth-2, calc(var(--hz-density) * 5));
 }
 
 body [data-density-shift] [data-density-shift] [data-density-shift] {
-	--hz-space-near: calc(var(--hz-density) * 1);
-	--hz-space-away: calc(var(--hz-density) * 2);
+	--hz-space-near: var(--hz-density-ladder-depth-4, calc(var(--hz-density) * 1));
+	--hz-space-away: var(--hz-density-ladder-depth-3, calc(var(--hz-density) * 2));
 }
 
 /* ==========================================================================

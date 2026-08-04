@@ -115,6 +115,11 @@ const DENSITY_COMMENT = [
 	' * regions read denser without new spacing values. The near multipliers walk',
 	" * the 1-2-5-10 ladder, and a shifted region's away always equals its",
 	" * parent's near. Coexists with the fixed --hz-space-* scale above.",
+	' * Each near/away below is a var() lookup against one of four public rungs',
+	' * (--hz-density-ladder-depth-1…4, unshifted body through three',
+	' * data-density-shift ancestors deep) — override a rung anywhere to alias',
+	' * both distances it backs to your own scale, with no rung declared here',
+	' * to outrank it.',
 	' * ========================================================================== */'
 ].join('\n');
 
@@ -198,13 +203,71 @@ function declarations(entries: TokenEntry[], indent: string, withNotes: boolean)
 	return out;
 }
 
+type DensityLevel = { near: number; away: number };
+
+/** `--hz-density-ladder-depth-<n>` — the 1-based public rung name for a level. */
+function densityRungName(depth: number): string {
+	return `--hz-density-ladder-depth-${depth}`;
+}
+
+/** The rung's own literal fallback: `levels[depth - 1]`'s near multiplier. */
+function densityRungFallback(levels: readonly DensityLevel[], depth: number): string {
+	return `calc(var(--hz-density) * ${levels[depth - 1].near})`;
+}
+
+/** `var(--hz-density-ladder-depth-<n>, <its own literal fallback>)`. */
+function densityRungRef(levels: readonly DensityLevel[], depth: number): string {
+	return `var(${densityRungName(depth)}, ${densityRungFallback(levels, depth)})`;
+}
+
+/**
+ * Four rules — one per `density.levels` depth — each declaring
+ * `--hz-space-near`/`--hz-space-away` as a `var()` lookup against a public
+ * rung, never a bare `calc()`. No rung is ever declared here (R11): the
+ * lookup form is what lets a consumer override a rung from ANYWHERE —
+ * `:root`, a section, inside a `@layer` — with no cascade fight against an
+ * unlayered declaration in this sheet.
+ *
+ * A level's `near` references its own depth's rung. Its `away` references
+ * the next-shallower depth's rung — the ladder rule ("a level's away equals
+ * the next-shallower level's near") — except at depth 1 (`body`), which has
+ * no shallower rung: its away is its own rung, doubled. Both are asserted
+ * against `density.levels` rather than assumed, so a metadata row that
+ * breaks the ladder rule is a generator error naming the level, not a
+ * silently unhooked declaration.
+ */
 function densityBlock(resolved: ResolvedConfig): string {
-	const rules = resolved.density.levels.map((level, depth) => {
-		const selector = depth === 0 ? 'body' : `body ${'[data-density-shift] '.repeat(depth).trim()}`;
+	const levels = resolved.density.levels;
+	const rules = levels.map((level, index) => {
+		const depth = index + 1;
+		const selector = index === 0 ? 'body' : `body ${'[data-density-shift] '.repeat(index).trim()}`;
+		const near = densityRungRef(levels, depth);
+
+		let away: string;
+		if (index === 0) {
+			if (level.away !== level.near * 2) {
+				throw new HyzerConfigError(
+					`density.levels[0].away (${level.away}) must equal density.levels[0].near × 2 ` +
+						`(${level.near * 2}) — the top rung has no shallower rung to point at, so its away ` +
+						'must be its own rung, doubled.'
+				);
+			}
+			away = `calc(${near} * 2)`;
+		} else {
+			const prevNear = levels[index - 1].near;
+			if (level.away !== prevNear) {
+				throw new HyzerConfigError(
+					`density.levels[${index}].away (${level.away}) must equal density.levels[${index - 1}].near ` +
+						`(${prevNear}) — a level's away must equal the next-shallower level's near.`
+				);
+			}
+			away = densityRungRef(levels, depth - 1);
+		}
+
 		return [
 			`${selector} {`,
-			`\t--hz-space-near: calc(var(--hz-density) * ${level.near});`,
-			`\t--hz-space-away: calc(var(--hz-density) * ${level.away});`,
+			`\t--hz-space-near: ${near};`,
+			`\t--hz-space-away: ${away};`,
 			'}'
 		].join('\n');
 	});

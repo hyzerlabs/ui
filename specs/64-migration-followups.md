@@ -501,3 +501,4 @@ source-scan spec in `src/lib/components/`; `src/lib/config/generate.ts`;
 API: two prop-type widenings, one snippet prop, four custom-property names.
 `Header`'s `navItemClass` / `Nav`'s `itemClass` are out of scope — they land on
 the punch-list branch and must not be touched here.
+

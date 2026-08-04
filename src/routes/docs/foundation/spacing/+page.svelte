@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Blockquote, Cluster, Stack } from '$lib';
+	import { Blockquote, Cluster, CodeBlock, Stack } from '$lib';
 	import { space, width, density } from '$lib/tokens';
 	import Example from '../../../../docs/Example.svelte';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
@@ -21,9 +21,19 @@
 	const densityUnit = parseFloat(density.unit);
 	const densityLevels = density.levels.map((level, depth) => ({
 		depth,
+		rung: `--hz-density-ladder-depth-${depth + 1}`,
 		near: `${level.near} × = ${(densityUnit * level.near).toFixed(1).replace(/\.0$/, '')}rem`,
 		away: `${level.away} × = ${(densityUnit * level.away).toFixed(1).replace(/\.0$/, '')}rem`
 	}));
+
+	const rungAliasCode = [
+		':root {',
+		'\t--hz-density-ladder-depth-1: var(--space-10); /* body level */',
+		'\t--hz-density-ladder-depth-2: var(--space-6); /* 1 × data-density-shift */',
+		'\t--hz-density-ladder-depth-3: var(--space-3); /* 2 × */',
+		'\t--hz-density-ladder-depth-4: var(--space-2); /* 3 × */',
+		'}'
+	].join('\n');
 
 	// Mirrors the live demo below — every distance is gap/padding="near" or
 	// "away"; only the data-density-shift nesting changes.
@@ -135,6 +145,7 @@
 				<thead>
 					<tr>
 						<th scope="col">Shift depth</th>
+						<th scope="col">Rung</th>
 						<th scope="col"><code>--hz-space-near</code></th>
 						<th scope="col"><code>--hz-space-away</code></th>
 					</tr>
@@ -143,6 +154,7 @@
 					{#each densityLevels as level (level.depth)}
 						<tr>
 							<td>{level.depth === 0 ? 'none (body)' : `${level.depth} × data-density-shift`}</td>
+							<td><code>{level.rung}</code></td>
 							<td><code>{level.near}</code></td>
 							<td><code>{level.away}</code></td>
 						</tr>
@@ -193,6 +205,25 @@
 			the 8rem section spacing, which the tightest level caps at 2rem here. Three levels is as tight as
 			the scale goes: a fourth nested shift keeps the third level's values.
 		</p>
+
+		<h3 id="density-byo-heading">Bring your own scale</h3>
+		<p>Two ways to retune the density system, depending on how far you want to go.</p>
+		<p>
+			<strong>1. Proportional retune</strong> — set <code>--hz-density</code> (or
+			<code>tokens.density.unit</code> in the config). Same rhythm, a different unit: every distance above
+			scales together.
+		</p>
+		<p>
+			<strong>2. Alias the rungs to your own scale</strong> — one block, at <code>:root</code> or on any
+			subtree, one line per nesting depth:
+		</p>
+		<CodeBlock code={rungAliasCode} />
+		<p class="tab-note">
+			Every rung you leave alone stays on the built-in ladder, and each rung serves two places —
+			depth 2's rung is depth 2's <code>near</code> <strong>and</strong> depth 3's <code>away</code>
+			— which is what keeps the walk consistent. The body level's <code>away</code> is its own rung doubled,
+			so the top of the scale follows depth 1 automatically.
+		</p>
 	</Stack>
 
 	<Stack
@@ -206,11 +237,12 @@
 		<p>
 			Overriding these tokens retunes <code>Container</code> max-widths, <code>Split</code>'s
 			<code>stackBelow</code> threshold, and <code>Grid</code>'s fluid
-			<code>{'{ min }'}</code> mode, because they all resolve via <code>var()</code>. The one
-			exception is
-			<code>Grid</code>'s band breakpoints (base/sm/md/lg): they mirror these values but remain
-			literal system constants, because CSS cannot read custom properties inside media or container
-			queries.
+			<code>{'{ min }'}</code> mode, because they all resolve via <code>var()</code>. The exceptions
+			are <code>Grid</code>'s band breakpoints (base/sm/md/lg) and
+			<code>Header</code>/<code>Toc</code>'s named collapse tiers: all of them mirror these values
+			but stay literal system constants, because CSS cannot read custom properties inside media or
+			container queries. On <code>Header</code>/<code>Toc</code> specifically, pass a px number instead
+			of a named tier to measure the retuned value at runtime.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
