@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Container, Grid, Stack, Tabs } from '$lib';
+	import { Container, Grid, RadioGroup, Stack, Tabs } from '$lib';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { gridDoc } from '../../../../docs/data/grid.js';
 	import Example from '../../../../docs/Example.svelte';
@@ -8,6 +8,12 @@
 	const gapValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
 	const alignValues = ['start', 'center', 'end', 'stretch', 'baseline'] as const;
 	const fixedValues = [2, 3, 4, 6] as const;
+	type GapValue = (typeof gapValues)[number];
+	type AlignValue = (typeof alignValues)[number];
+	type FixedValue = `${(typeof fixedValues)[number]}`;
+	let gap = $state<GapValue>('md');
+	let align = $state<AlignValue>('stretch');
+	let fixedColumns = $state<FixedValue>('4');
 
 	// Active column band for the resizable demo's readout — thresholds match
 	// the component's container queries.
@@ -28,10 +34,12 @@
 		return [`<Grid columns={${n}}>`, '\t<div>Cell</div>', '\t<!-- … -->', '</Grid>'].join('\n');
 	}
 
-	function gapCode(gap: string): string {
-		return [`<Grid columns={3} gap="${gap}">`, '\t<div>Cell</div>', '\t<!-- … -->', '</Grid>'].join(
-			'\n'
-		);
+	function spacingCode(gap: string, padding: string): string {
+		return [
+			`<Grid columns={3} gap="${gap}" padding="${padding}">…</Grid>`,
+			`<Grid columns={3} gap="${gap}" paddingInline="${padding}">…</Grid>`,
+			`<Grid columns={3} gap="${gap}" paddingBlock="${padding}">…</Grid>`
+		].join('\n');
 	}
 
 	function alignCode(align: string): string {
@@ -45,14 +53,8 @@
 	}
 
 	const paddingValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
-
-	function paddingCode(padding: string): string {
-		return [
-			`<Grid columns={3} padding="${padding}">…</Grid>`,
-			`<Grid columns={3} paddingInline="${padding}">…</Grid>`,
-			`<Grid columns={3} paddingBlock="${padding}">…</Grid>`
-		].join('\n');
-	}
+	type PaddingValue = (typeof paddingValues)[number];
+	let padding = $state<PaddingValue>('md');
 
 	const fluidCode = [
 		"<Grid columns={{ min: '12rem' }}>",
@@ -72,9 +74,8 @@
 		{ id: 'responsive', label: 'Responsive' },
 		{ id: 'fluid', label: 'Fluid' },
 		{ id: 'fixed', label: 'Fixed columns' },
-		{ id: 'gap', label: 'Gap' },
-		{ id: 'align', label: 'Align' },
-		{ id: 'padding', label: 'Padding' }
+		{ id: 'spacing', label: 'Spacing' },
+		{ id: 'align', label: 'Align' }
 	];
 </script>
 
@@ -125,113 +126,94 @@
 					<p class="tab-note">
 						A number gives the same column count at every width, with no responsive behavior.
 					</p>
-					<Tabs
-						items={fixedValues.map((v) => ({ id: String(v), label: String(v) }))}
-						ariaLabel="Column count"
-						defaultTab="4"
-					>
-						{#snippet panel(colItem)}
-							{@const n = Number(colItem.id)}
-							<div class="inner-tab">
-								<Example code={fixedCode(n)}>
-									<Grid columns={n} gap="sm">
-										{#each Array.from({ length: n * 2 }, (_, k) => k) as i (i)}
-											<div class="demo-cell">Cell {i + 1}</div>
-										{/each}
-									</Grid>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
-				{:else if item.id === 'gap'}
+					<Stack gap="sm">
+						<RadioGroup
+							name="grid-fixed-columns"
+							label="columns"
+							orientation="horizontal"
+							options={fixedValues.map((v) => ({ value: String(v), label: String(v) }))}
+							bind:value={fixedColumns}
+						/>
+						<Example code={fixedCode(Number(fixedColumns))}>
+							<Grid columns={Number(fixedColumns)} gap="sm">
+								{#each Array.from({ length: Number(fixedColumns) * 2 }, (_, k) => k) as i (i)}
+									<div class="demo-cell">Cell {i + 1}</div>
+								{/each}
+							</Grid>
+						</Example>
+					</Stack>
+				{:else if item.id === 'spacing'}
 					<p class="tab-note">
-						<code>near</code> and <code>away</code> are the
+						<code>gap</code> is the space between cells, on both axes. The tinted zone is the Grid;
+						the space between its edge and the cells is the <code>padding</code>.
+						<code>padding</code> applies on both axes; <code>paddingInline</code> and
+						<code>paddingBlock</code> override one axis and win where set. Both stay correct in RTL
+						and vertical writing modes. The padding sits on the grid root, so the column breakpoints
+						measure the padded-down width. <code>near</code> and <code>away</code> are the
 						<a href="/docs/foundation/spacing">density distances</a>: context-aware values that
 						tighten inside <code>data-density-shift</code> regions.
 					</p>
-					<Tabs
-						items={gapValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Gap value"
-						defaultTab="md"
-					>
-						{#snippet panel(gapItem)}
-							<div class="inner-tab">
-								<Example code={gapCode(gapItem.id)}>
-									<Grid columns={3} gap={gapItem.id as (typeof gapValues)[number]}>
-										{#each Array.from({ length: 6 }, (_, k) => k) as i (i)}
-											<div class="demo-cell">Cell {i + 1}</div>
-										{/each}
-									</Grid>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="grid-gap"
+							label="gap"
+							orientation="horizontal"
+							options={gapValues.map((v) => ({ value: v, label: v }))}
+							bind:value={gap}
+						/>
+						<RadioGroup
+							name="grid-padding"
+							label="padding"
+							orientation="horizontal"
+							options={paddingValues.map((v) => ({ value: v, label: v }))}
+							bind:value={padding}
+						/>
+						<Example code={spacingCode(gap, padding)}>
+							<Stack gap="sm">
+								<Grid columns={3} {gap} {padding} class="pad-frame">
+									<div class="demo-cell">padding="{padding}"</div>
+									<div class="demo-cell">gap="{gap}"</div>
+									<div class="demo-cell">Cell 3</div>
+								</Grid>
+								<Grid columns={3} {gap} paddingInline={padding} class="pad-frame">
+									<div class="demo-cell">paddingInline="{padding}"</div>
+									<div class="demo-cell">gap="{gap}"</div>
+									<div class="demo-cell">Cell 3</div>
+								</Grid>
+								<Grid columns={3} {gap} paddingBlock={padding} class="pad-frame">
+									<div class="demo-cell">paddingBlock="{padding}"</div>
+									<div class="demo-cell">gap="{gap}"</div>
+									<div class="demo-cell">Cell 3</div>
+								</Grid>
+							</Stack>
+						</Example>
+					</Stack>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
 						<code>align</code> maps to <code>align-items</code>. You see it when cells in the same
 						row have different heights; the default <code>stretch</code> makes them equal.
 					</p>
-					<Tabs
-						items={alignValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Align value"
-						defaultTab="stretch"
-					>
-						{#snippet panel(aItem)}
-							<div class="inner-tab">
-								<Example code={alignCode(aItem.id)}>
-									<Grid columns={3} gap="sm" align={aItem.id as (typeof alignValues)[number]}>
-										<div class="demo-cell">Short</div>
-										<div class="demo-cell">
-											Taller cell with a second line of content to change its height.
-										</div>
-										<div class="demo-cell">
-											Tallest cell: three lines of content, so the cross-axis difference between
-											align values shows clearly in the row.
-										</div>
-									</Grid>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
-				{:else}
-					<p class="tab-note">
-						The tinted zone is the Grid; the space between its edge and the cells is the padding. It
-						sits on the grid root, so the column breakpoints measure the padded-down width.
-						<code>padding</code> applies on both axes; <code>paddingInline</code> /
-						<code>paddingBlock</code> override one axis and win where set. The axis names are the
-						CSS logical properties, so they stay correct in RTL and vertical writing modes. See
-						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
-					</p>
-					<Tabs
-						items={paddingValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Padding value"
-						defaultTab="md"
-					>
-						{#snippet panel(padItem)}
-							{@const v = padItem.id as (typeof paddingValues)[number]}
-							<div class="inner-tab">
-								<Example code={paddingCode(padItem.id)}>
-									<Stack gap="sm">
-										<Grid columns={3} gap="sm" padding={v} class="pad-frame">
-											<div class="demo-cell">padding="{v}"</div>
-											<div class="demo-cell">Cell 2</div>
-											<div class="demo-cell">Cell 3</div>
-										</Grid>
-										<Grid columns={3} gap="sm" paddingInline={v} class="pad-frame">
-											<div class="demo-cell">paddingInline="{v}"</div>
-											<div class="demo-cell">Cell 2</div>
-											<div class="demo-cell">Cell 3</div>
-										</Grid>
-										<Grid columns={3} gap="sm" paddingBlock={v} class="pad-frame">
-											<div class="demo-cell">paddingBlock="{v}"</div>
-											<div class="demo-cell">Cell 2</div>
-											<div class="demo-cell">Cell 3</div>
-										</Grid>
-									</Stack>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="grid-align"
+							label="align"
+							orientation="horizontal"
+							options={alignValues.map((v) => ({ value: v, label: v }))}
+							bind:value={align}
+						/>
+						<Example code={alignCode(align)}>
+							<Grid columns={3} gap="sm" {align}>
+								<div class="demo-cell">Short</div>
+								<div class="demo-cell">
+									Taller cell with a second line of content to change its height.
+								</div>
+								<div class="demo-cell">
+									Tallest cell: three lines of content, so the cross-axis difference between align
+									values shows clearly in the row.
+								</div>
+							</Grid>
+						</Example>
+					</Stack>
 				{/if}
 			</div>
 		{/snippet}

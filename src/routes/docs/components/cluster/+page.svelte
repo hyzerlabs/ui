@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Cluster, Stack, Tabs } from '$lib';
+	import { Cluster, RadioGroup, Stack, Tabs } from '$lib';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { clusterDoc } from '../../../../docs/data/cluster.js';
 	import Example from '../../../../docs/Example.svelte';
@@ -7,6 +7,12 @@
 	const gapValues = ['none', 'xs', 'sm', 'md', 'lg', 'near', 'away'] as const;
 	const justifyValues = ['start', 'center', 'end', 'between', 'around'] as const;
 	const alignValues = ['start', 'center', 'end', 'stretch', 'baseline'] as const;
+	type GapValue = (typeof gapValues)[number];
+	type JustifyValue = (typeof justifyValues)[number];
+	type AlignValue = (typeof alignValues)[number];
+	let gap = $state<GapValue>('sm');
+	let justify = $state<JustifyValue>('start');
+	let align = $state<AlignValue>('center');
 
 	const tags = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'];
 
@@ -24,11 +30,11 @@
 		'Epsilon II'
 	];
 
-	function gapCode(gap: string): string {
+	function spacingCode(gap: string, padding: string): string {
 		return [
-			`<Cluster gap="${gap}">`,
-			...tags.slice(0, 5).map((t) => `\t<span class="chip">${t}</span>`),
-			'</Cluster>'
+			`<Cluster gap="${gap}" padding="${padding}">…</Cluster>`,
+			`<Cluster gap="${gap}" paddingInline="${padding}">…</Cluster>`,
+			`<Cluster gap="${gap}" paddingBlock="${padding}">…</Cluster>`
 		].join('\n');
 	}
 
@@ -53,14 +59,8 @@
 	}
 
 	const paddingValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
-
-	function paddingCode(padding: string): string {
-		return [
-			`<Cluster padding="${padding}">…</Cluster>`,
-			`<Cluster paddingInline="${padding}">…</Cluster>`,
-			`<Cluster paddingBlock="${padding}">…</Cluster>`
-		].join('\n');
-	}
+	type PaddingValue = (typeof paddingValues)[number];
+	let padding = $state<PaddingValue>('md');
 
 	const wrapCode = [
 		'<Cluster>…sixteen chips…</Cluster>',
@@ -70,123 +70,104 @@
 	].join('\n');
 
 	const demoTabs = [
-		{ id: 'gap', label: 'Gap' },
+		{ id: 'spacing', label: 'Spacing' },
 		{ id: 'justify', label: 'Justify' },
 		{ id: 'align', label: 'Align' },
-		{ id: 'padding', label: 'Padding' },
 		{ id: 'wrap', label: 'Wrap' }
 	];
 </script>
 
 <DocPage name="Cluster" {...clusterDoc}>
-	<Tabs items={demoTabs} ariaLabel="Cluster demos" defaultTab="gap">
+	<Tabs items={demoTabs} ariaLabel="Cluster demos" defaultTab="spacing">
 		{#snippet panel(item)}
 			<div class="tab-content">
-				{#if item.id === 'gap'}
+				{#if item.id === 'spacing'}
 					<p class="tab-note">
-						<code>near</code> and <code>away</code> are the
-						<a href="/docs/foundation/spacing">density distances</a>: context-aware values that
-						tighten inside <code>data-density-shift</code> regions.
+						<code>gap</code> is the space between chips, on both axes when the row wraps. The tinted
+						zone is the Cluster; the space between its edge and the chips is the
+						<code>padding</code>. <code>padding</code> applies on both axes;
+						<code>paddingInline</code> and <code>paddingBlock</code> override one axis and win where
+						set. Both stay correct in RTL and vertical writing modes. <code>near</code> and
+						<code>away</code> are the <a href="/docs/foundation/spacing">density distances</a>:
+						context-aware values that tighten inside <code>data-density-shift</code> regions.
 					</p>
-					<Tabs
-						items={gapValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Gap value"
-						defaultTab="sm"
-					>
-						{#snippet panel(gapItem)}
-							<div class="inner-tab">
-								<Example code={gapCode(gapItem.id)}>
-									<Cluster gap={gapItem.id as (typeof gapValues)[number]}>
-										{#each tags.slice(0, 5) as tag (tag)}
-											<span class="chip">{tag}</span>
-										{/each}
-									</Cluster>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="cluster-gap"
+							label="gap"
+							orientation="horizontal"
+							options={gapValues.map((v) => ({ value: v, label: v }))}
+							bind:value={gap}
+						/>
+						<RadioGroup
+							name="cluster-padding"
+							label="padding"
+							orientation="horizontal"
+							options={paddingValues.map((v) => ({ value: v, label: v }))}
+							bind:value={padding}
+						/>
+						<Example code={spacingCode(gap, padding)}>
+							<Stack gap="sm">
+								<Cluster {gap} {padding} class="pad-frame">
+									<span class="chip">padding="{padding}"</span>
+									<span class="chip">gap="{gap}"</span>
+									<span class="chip">Three</span>
+								</Cluster>
+								<Cluster {gap} paddingInline={padding} class="pad-frame">
+									<span class="chip">paddingInline="{padding}"</span>
+									<span class="chip">gap="{gap}"</span>
+									<span class="chip">Three</span>
+								</Cluster>
+								<Cluster {gap} paddingBlock={padding} class="pad-frame">
+									<span class="chip">paddingBlock="{padding}"</span>
+									<span class="chip">gap="{gap}"</span>
+									<span class="chip">Three</span>
+								</Cluster>
+							</Stack>
+						</Example>
+					</Stack>
 				{:else if item.id === 'justify'}
 					<p class="tab-note">
 						<code>justify</code> distributes the row's leftover inline space.
 						<code>between</code> pushes the first and last children to the edges.
 					</p>
-					<Tabs
-						items={justifyValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Justify value"
-						defaultTab="start"
-					>
-						{#snippet panel(jItem)}
-							<div class="inner-tab">
-								<Example code={justifyCode(jItem.id)}>
-									<Cluster justify={jItem.id as (typeof justifyValues)[number]} class="demo-frame">
-										<span class="chip">One</span>
-										<span class="chip">Two</span>
-										<span class="chip">Three</span>
-									</Cluster>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="cluster-justify"
+							label="justify"
+							orientation="horizontal"
+							options={justifyValues.map((v) => ({ value: v, label: v }))}
+							bind:value={justify}
+						/>
+						<Example code={justifyCode(justify)}>
+							<Cluster {justify} class="demo-frame">
+								<span class="chip">One</span>
+								<span class="chip">Two</span>
+								<span class="chip">Three</span>
+							</Cluster>
+						</Example>
+					</Stack>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
 						<code>align</code> positions children of different heights on the cross axis.
 						<code>baseline</code> lines up their text baselines regardless of box size.
 					</p>
-					<Tabs
-						items={alignValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Align value"
-						defaultTab="center"
-					>
-						{#snippet panel(aItem)}
-							<div class="inner-tab">
-								<Example code={alignCode(aItem.id)}>
-									<Cluster align={aItem.id as (typeof alignValues)[number]} class="demo-frame">
-										<span class="chip">small</span>
-										<span class="chip chip--lg">large type</span>
-										<span class="chip chip--tall">tall box</span>
-									</Cluster>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
-				{:else if item.id === 'padding'}
-					<p class="tab-note">
-						The tinted zone is the Cluster; the space between its edge and the chips is the padding.
-						<code>padding</code> applies on both axes; <code>paddingInline</code> /
-						<code>paddingBlock</code> override one axis and win where set. The axis names are the
-						CSS logical properties, so they stay correct in RTL and vertical writing modes. See
-						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
-					</p>
-					<Tabs
-						items={paddingValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Padding value"
-						defaultTab="md"
-					>
-						{#snippet panel(padItem)}
-							{@const v = padItem.id as (typeof paddingValues)[number]}
-							<div class="inner-tab">
-								<Example code={paddingCode(padItem.id)}>
-									<Stack gap="sm">
-										<Cluster padding={v} class="pad-frame">
-											<span class="chip">padding="{v}"</span>
-											<span class="chip">Two</span>
-											<span class="chip">Three</span>
-										</Cluster>
-										<Cluster paddingInline={v} class="pad-frame">
-											<span class="chip">paddingInline="{v}"</span>
-											<span class="chip">Two</span>
-											<span class="chip">Three</span>
-										</Cluster>
-										<Cluster paddingBlock={v} class="pad-frame">
-											<span class="chip">paddingBlock="{v}"</span>
-											<span class="chip">Two</span>
-											<span class="chip">Three</span>
-										</Cluster>
-									</Stack>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="cluster-align"
+							label="align"
+							orientation="horizontal"
+							options={alignValues.map((v) => ({ value: v, label: v }))}
+							bind:value={align}
+						/>
+						<Example code={alignCode(align)}>
+							<Cluster {align} class="demo-frame">
+								<span class="chip">small</span>
+								<span class="chip chip--lg">large type</span>
+								<span class="chip chip--tall">tall box</span>
+							</Cluster>
+						</Example>
+					</Stack>
 				{:else}
 					<p class="tab-note">
 						The default wraps onto new lines as space runs out. <code>wrap={'{false}'}</code> keeps a
