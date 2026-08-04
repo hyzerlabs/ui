@@ -49,6 +49,10 @@ export const breadcrumbsDoc: ComponentDoc = {
 		'Breadcrumbs renders a `<nav aria-label="Breadcrumb">` landmark wrapping an ordered list. The last item is the current page: it gets `aria-current="page"` automatically, and renders as plain text when it has no `href`. Separators are decorative and `aria-hidden`.',
 	a11yLinks: [
 		{
+			label: 'MDN: <nav>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/nav'
+		},
+		{
 			label: 'APG Breadcrumb pattern',
 			href: 'https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/'
 		}
