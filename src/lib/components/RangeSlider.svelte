@@ -17,6 +17,10 @@
 		orientation?: 'horizontal' | 'vertical';
 		/** Logical, both axes; default 'end' (today's trailing layout). */
 		inputPosition?: 'start' | 'end';
+		/** The min-thumb range `<input>` element — `bind:elementMin` for focus/shortcuts. */
+		elementMin?: HTMLInputElement;
+		/** The max-thumb range `<input>` element — `bind:elementMax` for focus/shortcuts. */
+		elementMax?: HTMLInputElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -41,6 +45,8 @@
 		maxThumbLabel = `${label} (maximum)`,
 		orientation = 'horizontal',
 		inputPosition = 'end',
+		elementMin = $bindable(),
+		elementMax = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -156,6 +162,7 @@
 	>
 		<div class="hz-slider-track">
 			<input
+				bind:this={elementMin}
 				type="range"
 				class="hz-slider hz-slider-min"
 				name="{name}-min"
@@ -171,6 +178,7 @@
 				aria-orientation={orientation === 'vertical' ? 'vertical' : undefined}
 			/>
 			<input
+				bind:this={elementMax}
 				type="range"
 				class="hz-slider hz-slider-max"
 				name="{name}-max"

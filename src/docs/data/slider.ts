@@ -67,6 +67,12 @@ export const sliderDoc: ComponentDoc = {
 		{ name: 'disabled', type: 'boolean', default: 'false', note: 'Disables both inputs.' },
 		{ name: 'hideLabel', type: 'boolean', default: 'false' },
 		{
+			name: 'element',
+			type: 'HTMLInputElement',
+			default: '—',
+			note: 'Bindable. The underlying range input element, for focus and keyboard shortcuts.'
+		},
+		{
 			name: 'class',
 			type: 'string',
 			default: '—',

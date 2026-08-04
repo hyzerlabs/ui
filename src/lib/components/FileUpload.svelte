@@ -16,6 +16,8 @@
 		dropzoneText?: string;
 		onchange?: (files: File[]) => void;
 		onreject?: (rejections: FileRejection[]) => void;
+		/** The underlying file `<input>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLInputElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -38,6 +40,8 @@
 		dropzoneText = 'Drag and drop files here, or',
 		onchange,
 		onreject,
+		// eslint-disable-next-line no-useless-assignment -- write-only bindable; mirrored from the private ref
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -59,9 +63,16 @@
 	// ------------------------------------------------------------------
 	// Element refs.
 	// ------------------------------------------------------------------
+	// Internal logic reads this private ref, not `element` — an unbound
+	// bindable prop can go stale when the parent swaps its props object;
+	// the effect mirrors it out.
 	let inputEl = $state<HTMLInputElement | null>(null);
 	let buttonEl = $state<HTMLButtonElement | null>(null);
 	let listEl = $state<HTMLUListElement | null>(null);
+
+	$effect(() => {
+		element = inputEl ?? undefined;
+	});
 
 	// dragover depth counter (survives enter/leave on children).
 	let dragCounter = $state(0);

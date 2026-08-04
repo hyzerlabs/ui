@@ -35,6 +35,12 @@ export const radioGroupDoc: ComponentDoc = {
 		{ name: 'disabled', type: 'boolean', default: 'false', note: 'Disables the whole group.' },
 		{ name: 'hideLabel', type: 'boolean', default: 'false' },
 		{
+			name: 'elements',
+			type: '(HTMLInputElement | null)[]',
+			default: '[]',
+			note: 'Bindable. The radio input elements in options order, for focus and keyboard shortcuts. Entries for removed options become null.'
+		},
+		{
 			name: 'class',
 			type: 'string',
 			default: '—',

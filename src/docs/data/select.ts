@@ -45,6 +45,12 @@ export const selectDoc: ComponentDoc = {
 		{ name: 'required', type: 'boolean', default: 'false' },
 		{ name: 'disabled', type: 'boolean', default: 'false' },
 		{ name: 'hideLabel', type: 'boolean', default: 'false' },
+		{
+			name: 'element',
+			type: 'HTMLSelectElement',
+			default: '—',
+			note: 'Bindable. The underlying select element, for focus and keyboard shortcuts.'
+		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-field class.' }
 	],
 	types: [

@@ -40,6 +40,12 @@ export const colorInputDoc: ComponentDoc = {
 		{ name: 'disabled', type: 'boolean', default: 'false' },
 		{ name: 'hideLabel', type: 'boolean', default: 'false' },
 		{
+			name: 'element',
+			type: 'HTMLInputElement',
+			default: '—',
+			note: 'Bindable. The underlying color input element, for focus and keyboard shortcuts.'
+		},
+		{
 			name: 'class',
 			type: 'string',
 			default: '—',

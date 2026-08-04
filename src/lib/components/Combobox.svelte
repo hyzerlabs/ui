@@ -14,6 +14,8 @@
 		toggleLabel?: string;
 		chipProps?: ComboboxChipProps;
 		onchange?: (value: string[]) => void;
+		/** The underlying `<input>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLInputElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -34,6 +36,8 @@
 		toggleLabel = 'Show options',
 		chipProps = {},
 		onchange,
+		// eslint-disable-next-line no-useless-assignment -- write-only bindable; mirrored from the private ref
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -67,7 +71,14 @@
 	let open = $state(false);
 	let query = $state('');
 	let activeIndex = $state<number | null>(null);
+	// Internal logic reads this private ref, not `element` — an unbound
+	// bindable prop can go stale when the parent swaps its props object;
+	// the effect mirrors it out.
 	let inputEl = $state<HTMLInputElement | null>(null);
+
+	$effect(() => {
+		element = inputEl ?? undefined;
+	});
 
 	// the options (if any) matching the strict committed values,
 	// in selection order. An entry with no matching option contributes no

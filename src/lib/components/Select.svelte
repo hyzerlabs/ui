@@ -6,6 +6,8 @@
 	interface SelectPropsBase extends FieldBase {
 		options: SelectOption[];
 		placeholder?: string;
+		/** The underlying `<select>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLSelectElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -41,6 +43,7 @@
 		multiple = false,
 		value = $bindable(multiple ? [] : ''),
 		placeholder = 'Select...',
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -88,6 +91,7 @@
 		<!-- multiple mode — no placeholder option; size flows via ...rest. -->
 		<select
 			{...rest}
+			bind:this={element}
 			id={inputId}
 			{name}
 			multiple
@@ -103,6 +107,7 @@
 		<!-- leading placeholder <option value="" disabled selected>. -->
 		<select
 			{...rest}
+			bind:this={element}
 			id={inputId}
 			{name}
 			bind:value

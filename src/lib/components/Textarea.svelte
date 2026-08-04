@@ -8,6 +8,8 @@
 		rows?: number;
 		resize?: 'none' | 'vertical' | 'both' | 'auto';
 		maxlength?: number;
+		/** The underlying `<textarea>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLTextAreaElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -24,6 +26,8 @@
 		rows = 3,
 		resize = 'vertical',
 		maxlength,
+		// eslint-disable-next-line no-useless-assignment -- write-only bindable; mirrored from the private ref
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -39,8 +43,14 @@
 		[description ? descId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 
-	// bind:this for the auto-resize JS fallback.
+	// bind:this for the auto-resize JS fallback. Internal logic reads this
+	// private ref, not `element` — an unbound bindable prop can go stale when
+	// the parent swaps its props object; the effect mirrors it out.
 	let textareaEl: HTMLTextAreaElement | null = $state(null);
+
+	$effect(() => {
+		element = textareaEl ?? undefined;
+	});
 
 	// 'vertical' (default) and 'auto' both grow with content —
 	// field-sizing: content is the primary mechanism ('vertical' keeps the

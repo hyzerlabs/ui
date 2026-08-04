@@ -55,6 +55,12 @@ export const textInputDoc: ComponentDoc = {
 			default: '—',
 			note: 'Decorative trailing content (unit, icon); rendered aria-hidden.'
 		},
+		{
+			name: 'element',
+			type: 'HTMLInputElement',
+			default: '—',
+			note: 'Bindable. The underlying input element, for focus and keyboard shortcuts.'
+		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-field class.' }
 	],
 	a11yNote:

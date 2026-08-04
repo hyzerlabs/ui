@@ -6,6 +6,8 @@
 		checked?: boolean;
 		indeterminate?: boolean;
 		value?: string;
+		/** The underlying `<input>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLInputElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -21,6 +23,8 @@
 		checked = $bindable(false),
 		indeterminate = false,
 		value,
+		// eslint-disable-next-line no-useless-assignment -- write-only bindable; mirrored from the private ref
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -39,8 +43,14 @@
 	// error wins over disabled wins over default.
 	const dataState = $derived(error ? 'error' : disabled ? 'disabled' : 'default');
 
-	// bind:this ref to set .indeterminate DOM property.
+	// bind:this ref to set .indeterminate DOM property. Internal logic reads
+	// this private ref, not `element` — an unbound bindable prop can go stale
+	// when the parent swaps its props object; the effect mirrors it out.
 	let inputEl: HTMLInputElement | null = $state(null);
+
+	$effect(() => {
+		element = inputEl ?? undefined;
+	});
 
 	$effect(() => {
 		if (inputEl) inputEl.indeterminate = indeterminate;
