@@ -45,6 +45,16 @@
 	}
 
 	/**
+	 * A scheme-less host ("localhost:5173/og.png", "example.com/og.png") —
+	 * fails the absolute check above and then resolves as a relative PATH
+	 * under siteUrl, producing a well-formed but garbage URL. First segment
+	 * with a port, or with a dot followed by more path, is host-shaped.
+	 */
+	function looksLikeSchemelessHost(value: string): boolean {
+		return /^([^/]*:\d+(\/|$)|[^/]*\.[^/]+\/)/.test(value);
+	}
+
+	/**
 	 * Resolves a root-relative value against `siteUrl` — a missing leading `/`
 	 * is added first, so "pricing" and "/pricing" land on the same URL.
 	 * `undefined` when `siteUrl` is absent or malformed; never throws.
@@ -103,7 +113,14 @@
 				['canonical', canonical],
 				['image', image]
 			] as const) {
-				if (!raw || isAbsoluteLike(raw) || resolveAgainstSite(raw) !== undefined) continue;
+				if (!raw || isAbsoluteLike(raw)) continue;
+				if (looksLikeSchemelessHost(raw)) {
+					console.warn(
+						`[hyzer-ui] <Metatags>: \`${propName}\` ("${raw}") looks like a host without a scheme, so it resolves as a relative path${siteUrl ? ` ("${resolveAgainstSite(raw)}")` : ''}. Add "https://" (or "//") if a full URL was meant.`
+					);
+					continue;
+				}
+				if (resolveAgainstSite(raw) !== undefined) continue;
 				const reason = siteUrl
 					? `\`siteUrl\` ("${siteUrl}") is not a valid URL`
 					: 'no `siteUrl` was given';

@@ -77,6 +77,7 @@ export const metatagsDoc: ComponentDoc = {
 			note: 'Rendered last, inside the same head block — for tags this component does not manage (twitter:site, robots, JSON-LD, and the rest), not for overriding the ones it does.'
 		}
 	],
+	restNote: false,
 	a11yNote:
 		"This component has no ARIA, no roles, and no focus behavior. Nothing here is interactive, but two accessibility duties still apply. `<title>` is the page's accessible name, both in the browser tab and in a screen reader's window list, so this component never emits an empty or invented one: give it a `title`, a `siteName`, or both. `og:image:alt` and `twitter:image:alt` give the preview image a text alternative in every client that shows one, so setting `image` without `imageAlt` prints a development-only warning.\n\nSet a page's title once, either through this component or through the page's own `<svelte:head>`, never both.",
 	a11yLinks: [

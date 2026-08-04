@@ -55,9 +55,9 @@ export const tocDoc: ComponentDoc = {
 		},
 		{
 			name: 'breakpoint',
-			type: "'sm' | 'md' | 'lg' | 'none'",
+			type: "'sm' | 'md' | 'lg' | 'none' | number",
 			default: "'none'",
-			note: 'Collapses into a disclosure below this width (640/968/1200px). none never collapses.'
+			note: "Collapses into a disclosure below this width. The named tiers are CSS-only media queries against the viewport (640/968/1200px); 'none' never collapses. A px number is matched at runtime instead, for a width scale you have retuned."
 		},
 		{
 			name: 'active',
@@ -70,6 +70,12 @@ export const tocDoc: ComponentDoc = {
 			type: '(id: string) => void',
 			default: '—',
 			note: 'Fires when the active heading changes — not on every scroll frame.'
+		},
+		{
+			name: 'entry',
+			type: 'Snippet<[TocEntry, boolean]>',
+			default: '—',
+			note: "Renders once per entry in place of the label — the entry (id/label/level) and whether it's the active one. Applies at every nesting depth. href, data-level, aria-current, and the click-to-scroll handler stay the component's."
 		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-toc class.' }
 	],

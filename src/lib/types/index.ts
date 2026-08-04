@@ -14,6 +14,11 @@ export interface NavItem {
 	 * items array is rebuilt (additive — never closes user-opened sections).
 	 */
 	defaultOpen?: boolean;
+	/**
+	 * Extra class on the rendered link (or the label trigger, for an
+	 * href-less item with children) — the per-item styling hook.
+	 */
+	class?: string;
 }
 
 /**

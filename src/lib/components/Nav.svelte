@@ -19,6 +19,12 @@
 		orientation?: NavOrientation;
 		ariaLabel?: string;
 		chevronIcon?: Snippet;
+		/**
+		 * Extra class on every rendered item link (and label trigger) —
+		 * combines with each item's own `class`. The hook for attaching a
+		 * site's existing link styling to the whole nav at once.
+		 */
+		itemClass?: string;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -28,6 +34,7 @@
 		orientation = 'horizontal',
 		ariaLabel = 'Main navigation',
 		chevronIcon,
+		itemClass,
 		class: className,
 		...rest
 	}: Props = $props();
@@ -209,6 +216,7 @@
 				<Link
 					href={item.href}
 					variant="nav"
+					class={cx(itemClass, item.class)}
 					external={item.external}
 					ariaCurrent={item.ariaCurrent}
 				>
@@ -225,7 +233,7 @@
 				</button>
 			{:else}
 				<button
-					class="hz-nav-trigger"
+					class={cx('hz-nav-trigger', itemClass, item.class)}
 					aria-expanded={isOpenPath(path) ? 'true' : 'false'}
 					aria-controls={getPanelId(item)}
 					onclick={() => togglePath(path)}
@@ -249,6 +257,7 @@
 							<Link
 								href={child.href ?? '#'}
 								variant="nav"
+								class={cx(itemClass, child.class)}
 								external={child.external}
 								ariaCurrent={child.ariaCurrent}
 							>
@@ -272,6 +281,7 @@
 						<Link
 							href={item.href}
 							variant="nav"
+							class={cx(itemClass, item.class)}
 							external={item.external}
 							ariaCurrent={item.ariaCurrent}
 						>
@@ -293,6 +303,7 @@
 						<Link
 							href={item.href}
 							variant="nav"
+							class={cx(itemClass, item.class)}
 							external={item.external}
 							ariaCurrent={item.ariaCurrent}
 						>
@@ -329,6 +340,7 @@
 										<Link
 											href={child.href ?? '#'}
 											variant="nav"
+											class={cx(itemClass, child.class)}
 											external={child.external}
 											ariaCurrent={child.ariaCurrent}
 											role="menuitem"
@@ -345,7 +357,7 @@
 					<li class="hz-nav-dropdown" data-has-children>
 						<button
 							bind:this={triggerEls[i]}
-							class="hz-nav-trigger"
+							class={cx('hz-nav-trigger', itemClass, item.class)}
 							aria-expanded={isOpen(i) ? 'true' : 'false'}
 							aria-haspopup="true"
 							aria-controls={panelIds[i]}
@@ -372,6 +384,7 @@
 										<Link
 											href={child.href ?? '#'}
 											variant="nav"
+											class={cx(itemClass, child.class)}
 											external={child.external}
 											ariaCurrent={child.ariaCurrent}
 											role="menuitem"
@@ -389,6 +402,7 @@
 						<Link
 							href={item.href}
 							variant="nav"
+							class={cx(itemClass, item.class)}
 							external={item.external}
 							ariaCurrent={item.ariaCurrent}
 						>

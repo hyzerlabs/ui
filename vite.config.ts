@@ -25,6 +25,14 @@ export default defineConfig({
 	],
 	test: {
 		expect: { requireAssertions: true },
+		// The browser fires this when an observation cycle re-triggers within
+		// itself — Header's measured-mode tests do exactly that (measure, then
+		// hide the bar nav). It is benign and self-settling, but the browser
+		// logs it as a window error, which vitest-browser would surface as
+		// unhandled noise on every full-suite run.
+		onUnhandledError(error) {
+			if (String(error.message).includes('ResizeObserver loop')) return false;
+		},
 		projects: [
 			{
 				extends: './vite.config.ts',

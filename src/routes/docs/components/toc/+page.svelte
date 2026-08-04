@@ -49,6 +49,15 @@
 		'<p>Active: {active}</p>'
 	].join('\n');
 
+	const entryCode = [
+		'<Toc container=".content">',
+		'\t{#snippet entry(item, active)}',
+		"\t\t{item.id === 'overview' ? 'Start here' : item.label}",
+		'\t\t{#if active} (current){/if}',
+		'\t{/snippet}',
+		'</Toc>'
+	].join('\n');
+
 	const excludeCode = [
 		'<article class="content">',
 		'\t<h2>Course overview</h2>',
@@ -76,6 +85,7 @@
 		{ id: 'nested', label: 'Nested levels' },
 		{ id: 'exclude', label: 'Excluded regions' },
 		{ id: 'collapse', label: 'Collapse mode' },
+		{ id: 'entry', label: 'Entry snippet' },
 		{ id: 'active', label: 'Callback / bindable active' }
 	];
 
@@ -295,6 +305,14 @@
 						page width, so it is not a usable "mobile" signal by itself. Resize your browser to see the
 						title swap for a trigger button.
 					</p>
+					<p class="tab-note">
+						<code>breakpoint</code> takes the named tiers (<code>'sm' | 'md' | 'lg'</code>), which
+						are <code>@media</code> queries against the viewport and need no JavaScript. A px number
+						matches the viewport at runtime instead. Reach for a number once you have retuned
+						<code>--hz-width-*</code>: a named tier cannot follow that override, because CSS cannot
+						read a custom property inside a media query. Before hydration a number renders as its
+						nearest named tier.
+					</p>
 					<Example code={collapseCode}>
 						<div class="toc-demo-row">
 							<article class="toc-demo-article toc-demo-article--collapse">
@@ -344,6 +362,44 @@
 								breakpoint="md"
 								title="On this article"
 							/>
+						</div>
+					</Example>
+				{:else if item.id === 'entry'}
+					<p class="tab-note">
+						<code>entry</code> replaces what the link says. The component still owns
+						<code>href</code>, <code>aria-current</code>, and the click-to-scroll handler. Relabel
+						one entry by branching on its <code>id</code>, and append a marker with the second
+						argument (whether it is the active one). The snippet becomes the link's accessible name,
+						so it must render text, or something with a text alternative.
+					</p>
+					<Example code={entryCode}>
+						<div class="toc-demo-row">
+							<article class="toc-demo-article toc-demo-article--entry">
+								<h2>Overview</h2>
+								<p>
+									A quick orientation before the detail sections — start here if this is your first
+									pass through the material.
+								</p>
+								<h2>Details</h2>
+								<p>
+									The specifics that only matter once the overview has already set the shape of the
+									thing.
+								</p>
+								<h2>Summary</h2>
+								<p>
+									A short recap for anyone skimming back through after reading the whole page once.
+								</p>
+							</article>
+							<Toc
+								bind:this={tocInstances.entry}
+								container=".toc-demo-article--entry"
+								title="On this article"
+							>
+								{#snippet entry(entryItem, active)}
+									{entryItem.id === 'overview' ? 'Start here' : entryItem.label}{#if active}
+										(current){/if}
+								{/snippet}
+							</Toc>
 						</div>
 					</Example>
 				{:else}

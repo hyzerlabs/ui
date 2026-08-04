@@ -9,10 +9,16 @@ export const navDoc: ComponentDoc = {
 			name: 'orientation',
 			type: "'horizontal' | 'vertical'",
 			default: "'horizontal'",
-			note: 'horizontal: a row of links with dropdown menus. vertical: a sidebar column with inline, nested, multi-open disclosure sections.'
+			note: 'horizontal: a row of links with dropdown menus. vertical: a sidebar column of inline disclosure sections that nest, and open independently of each other.'
 		},
 		{ name: 'ariaLabel', type: 'string', default: "'Main navigation'" },
 		{ name: 'chevronIcon', type: 'Snippet', default: '—', note: 'Replaces the dropdown chevron.' },
+		{
+			name: 'itemClass',
+			type: 'string',
+			default: '—',
+			note: "Extra class on every rendered item link and label trigger — attach a site's existing link styling in one place. Combines with each item's own class."
+		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-nav class.' }
 	],
 	types: [
@@ -49,6 +55,12 @@ export const navDoc: ComponentDoc = {
 					type: 'boolean',
 					default: '—',
 					note: 'Vertical only: the section starts open, and re-opens when items is rebuilt (e.g. on navigation).'
+				},
+				{
+					name: 'class',
+					type: 'string',
+					default: '—',
+					note: 'Extra class on the rendered link (or the label trigger, for an href-less item with children) — the per-item styling hook.'
 				}
 			]
 		}

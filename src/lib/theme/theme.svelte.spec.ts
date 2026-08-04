@@ -7,6 +7,7 @@ import './components/blockquote.css';
 import './components/button.css';
 import './components/loading.css';
 import { softTints, generateCss, resolveConfig } from '../config/index.js';
+import { density } from '../tokens/index.js';
 
 /**
  * Pins the reference theme's soft-tint CSS to the engine's softTints model
@@ -86,6 +87,112 @@ describe.each(['light', 'dark'] as const)('soft tints match the softTints model 
 				`color-mix(in srgb, var(--hz-intent-warning) ${pct(softTints.badgeText)}, var(--hz-color-text))`
 			)
 		);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// R11 (specs/64) — density ladder rungs: near/away resolve identically to the
+// pre-refactor calc()s with nothing overridden, a rung override retunes the
+// two places it backs (its own depth's near, the next-deeper depth's away),
+// and the existing scoped --hz-density behavior survives the refactor.
+// ---------------------------------------------------------------------------
+
+/**
+ * Builds a `[data-density-shift]` chain matching `densityBlock()`'s selector
+ * for `depth` (1-based) under `root` (default `document.body`, matching the
+ * literal `body` depth-1 selector — a non-body root only makes sense for
+ * depth >= 2, since depth 1's own selector is `body` itself). Returns the
+ * deepest element: `depth` 1 returns `root` unchanged (zero
+ * `[data-density-shift]` ancestors).
+ */
+function shiftChain(depth: number, root: HTMLElement = document.body): HTMLElement {
+	let target = root;
+	for (let i = 0; i < depth - 1; i++) {
+		const el = document.createElement('div');
+		el.setAttribute('data-density-shift', '');
+		target.appendChild(el);
+		target = el;
+	}
+	return target;
+}
+
+/**
+ * Resolves a CSS length expression against `parent`'s own cascade — a probe
+ * CHILD, so an inherited custom property declared on `parent` itself
+ * resolves the same way a real descendant's would (the `resolveColor`
+ * precedent above, for lengths instead of colors — custom properties compute
+ * to their unsubstituted text, so `width: var(...)` is what actually forces
+ * substitution).
+ */
+function resolveLength(varExpression: string, parent: HTMLElement): number {
+	const probe = document.createElement('div');
+	probe.style.cssText = `width: ${varExpression}`;
+	parent.appendChild(probe);
+	const px = parseFloat(getComputedStyle(probe).width);
+	parent.removeChild(probe);
+	return px;
+}
+
+describe('R11 — density ladder rungs', () => {
+	afterEach(() => {
+		document.body.replaceChildren();
+	});
+
+	it('nothing overridden: near/away match the pre-refactor calc() at every depth', () => {
+		density.levels.forEach((level, i) => {
+			const depth = i + 1;
+			const target = shiftChain(depth);
+			const near = resolveLength('var(--hz-space-near)', target);
+			const away = resolveLength('var(--hz-space-away)', target);
+			const expectedNear = resolveLength(`calc(var(--hz-density) * ${level.near})`, target);
+			const expectedAway = resolveLength(`calc(var(--hz-density) * ${level.away})`, target);
+			expect(near, `depth ${depth} near`).toBeCloseTo(expectedNear, 1);
+			expect(away, `depth ${depth} away`).toBeCloseTo(expectedAway, 1);
+		});
+	});
+
+	it("a depth-2 rung override on a wrapper retunes depth 2's near AND depth 3's away, and leaves an identical tree outside it untouched", () => {
+		const wrapper = document.createElement('div');
+		document.body.appendChild(wrapper);
+		wrapper.style.setProperty('--hz-density-ladder-depth-2', '3px');
+
+		const depth2Inside = shiftChain(2, wrapper);
+		const depth3Inside = shiftChain(3, wrapper);
+		expect(resolveLength('var(--hz-space-near)', depth2Inside)).toBeCloseTo(3, 1);
+		expect(resolveLength('var(--hz-space-away)', depth3Inside)).toBeCloseTo(3, 1);
+
+		// Every other distance inside the wrapper is untouched.
+		expect(resolveLength('var(--hz-space-away)', depth2Inside)).toBeCloseTo(
+			resolveLength('calc(var(--hz-density) * 10)', depth2Inside),
+			1
+		);
+		expect(resolveLength('var(--hz-space-near)', depth3Inside)).toBeCloseTo(
+			resolveLength('calc(var(--hz-density) * 2)', depth3Inside),
+			1
+		);
+
+		// Outside the wrapper, an identical chain is untouched.
+		const depth2Outside = shiftChain(2);
+		expect(resolveLength('var(--hz-space-near)', depth2Outside)).toBeCloseTo(
+			resolveLength('calc(var(--hz-density) * 5)', depth2Outside),
+			1
+		);
+	});
+
+	it('--hz-density: 1px on a wrapper still retunes every shift level inside it (the scoped-unit behavior the fallback form preserves)', () => {
+		const wrapper = document.createElement('div');
+		document.body.appendChild(wrapper);
+		wrapper.style.setProperty('--hz-density', '1px');
+
+		density.levels.forEach((level, i) => {
+			const depth = i + 1;
+			// Depth 1's selector is the literal `body`, unreachable from a wrapper.
+			if (depth === 1) return;
+			const target = shiftChain(depth, wrapper);
+			const near = resolveLength('var(--hz-space-near)', target);
+			const expectedNear = resolveLength(`calc(var(--hz-density) * ${level.near})`, target);
+			expect(near, `depth ${depth} near`).toBeCloseTo(expectedNear, 1);
+		});
 	});
 });
 

@@ -16,6 +16,7 @@
  * set of components from one another.
  */
 import { componentDocs, type ComponentDoc } from './data/index.js';
+import { REST_NOTE_DEFAULT } from './data/types.js';
 import type { PropRow } from './PropsTable.svelte';
 import type { TypeTable } from './DocPage.svelte';
 import { hooks, type ComponentHooks, type HookRow } from './hooks';
@@ -135,6 +136,7 @@ function componentSection(page: ManifestPage, doc: ComponentDoc): string[] {
 
 	if (doc.props && doc.props.length > 0) {
 		out.push('#### Props', '', ...propsTable(doc.props), '');
+		if (doc.restNote !== false) out.push(doc.restNote ?? REST_NOTE_DEFAULT, '');
 		for (const type of doc.types ?? []) {
 			out.push(`#### ${type.name}`, '', ...propsTable(type.props), '');
 		}
@@ -226,6 +228,8 @@ export interface LlmsFullJsonComponent {
 	description: string;
 	importLine: string;
 	props: PropRow[];
+	/** How unlisted props behave; absent for a component with no rest spread. */
+	restNote?: string;
 	/** Supporting item/option types (empty when the component has none). */
 	types: TypeTable[];
 	/** Absent for a component with no styling contract (e.g. Metatags). */
@@ -259,6 +263,7 @@ export function buildLlmsFullJson(): LlmsFullJson {
 				description: page.description,
 				importLine: doc.importLine,
 				props: doc.props ?? [],
+				restNote: doc.restNote === false ? undefined : (doc.restNote ?? REST_NOTE_DEFAULT),
 				types: doc.types ?? [],
 				hooks: hooks[page.label],
 				a11yNote: doc.a11yNote

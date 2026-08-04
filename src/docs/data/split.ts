@@ -4,7 +4,12 @@ import type { ComponentDoc } from './types.js';
 export const splitDoc: ComponentDoc = {
 	importLine: 'import { Split } from "@hyzer-labs/ui"',
 	props: [
-		{ name: 'fraction', type: "'1/4' | '1/3' | '1/2' | '2/3' | '3/4' | 'auto'", default: "'1/2'" },
+		{
+			name: 'fraction',
+			type: "'1/4' | '1/3' | '1/2' | '2/3' | '3/4' | 'auto' | 'auto-end'",
+			default: "'1/2'",
+			note: "'auto' sizes the first column to its content; 'auto-end' the last (the other column grows)."
+		},
 		{
 			name: 'gap',
 			type: "'none' | 'sm' | 'md' | 'lg' | 'near' | 'away'",
@@ -14,9 +19,9 @@ export const splitDoc: ComponentDoc = {
 		{ name: 'reverse', type: 'boolean', default: 'false' },
 		{
 			name: 'stackBelow',
-			type: "'sm' | 'md' | 'lg'",
+			type: "'sm' | 'md' | 'lg' | 'none'",
 			default: "'sm'",
-			note: "Stacks under the --hz-width-sm/md/lg token (640/968/1200px) of the Split's own width. Resolves via var() — overriding the token retunes the threshold."
+			note: "Stacks once the Split's own width falls under the --hz-width-sm/md/lg token (640/968/1200px). The threshold resolves via var(), so overriding the token retunes it. 'none' never stacks."
 		},
 		{
 			name: 'padding',

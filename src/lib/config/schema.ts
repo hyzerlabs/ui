@@ -642,10 +642,13 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 /**
  * Every `--hz-*` reference inside a token value must resolve to a defined
  * token. `--hz-space-near`/`--hz-space-away` are derived by
- * the density block and count as defined.
+ * the density block and count as defined, and so are the depth-keyed rungs
+ * (`--hz-density-ladder-depth-1|2|3|4`) that back them (specs/64 R11) — a
+ * config value may reference a rung.
  */
 function validateReferences(resolved: ResolvedConfig): void {
 	const defined = new Set<string>(['--hz-density', '--hz-space-near', '--hz-space-away']);
+	resolved.density.levels.forEach((_, i) => defined.add(`--hz-density-ladder-depth-${i + 1}`));
 	const all: TokenEntry[] = [
 		...resolved.sections.flatMap((s) => s.entries),
 		...[resolved.dark, ...resolved.themes].flatMap((t) => [...t.palette, ...t.color, ...t.intent])

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+	import { MediaQuery } from 'svelte/reactivity';
 	import { prefersReducedMotion } from 'svelte/motion';
 	import { DEV } from 'esm-env';
 	import type { TocEntry } from '$lib/types';
@@ -20,6 +22,40 @@
 		children: TocNode[];
 	}
 
+	type TocBreakpoint = 'sm' | 'md' | 'lg' | 'none' | number;
+
+	/**
+	 * The three built-in tiers, matching the literal `min-width` values in
+	 * this file's own @media rules below — a source-scan spec pins the two
+	 * together so they cannot drift (specs/64 R6). Header.svelte keeps its
+	 * own, separate copy: same numbers today, but two separate contracts
+	 * (specs/64 Non-goals — no shared breakpoint helper module).
+	 */
+	const TIERS = { sm: 640, md: 968, lg: 1200 } as const;
+
+	/** The built-in tier whose literal threshold is closest to `n` — ties go
+	 *  to the smaller tier. */
+	function nearestTier(n: number): 'sm' | 'md' | 'lg' {
+		let best: 'sm' | 'md' | 'lg' = 'sm';
+		let bestDelta = Math.abs(TIERS.sm - n);
+		for (const tier of ['md', 'lg'] as const) {
+			const delta = Math.abs(TIERS[tier] - n);
+			if (delta < bestDelta) {
+				best = tier;
+				bestDelta = delta;
+			}
+		}
+		return best;
+	}
+
+	// Whether this module is running client-side — MediaQuery answers
+	// synchronously from `window.matchMedia` in the browser, and from its own
+	// SSR-safe fallback value on the server (svelte/reactivity's server
+	// build), so there is no measurement frame to wait out; this flag alone
+	// decides whether the rendered attribute is the fallback tier (SSR) or
+	// 'custom' (client) — see R5's attribute contract.
+	const isBrowser = typeof window !== 'undefined';
+
 	interface Props {
 		/** Selector or element to collect headings from. Default 'main'. */
 		container?: string | HTMLElement;
@@ -40,12 +76,30 @@
 		watch?: boolean;
 		/** Smooth scroll on link click; instant under reduced motion. Default true. */
 		smoothScroll?: boolean;
-		/** Collapse into a disclosure below this width. Default 'none' (never). */
-		breakpoint?: 'sm' | 'md' | 'lg' | 'none';
+		/**
+		 * Collapse into a disclosure below this width. Default 'none' (never).
+		 * The named tiers ('sm' | 'md' | 'lg') are real @media queries against
+		 * the viewport — CSS-only, zero JS (the rail's own box is narrow at
+		 * every page width, so its own inline-size is no usable "mobile"
+		 * signal). A number opts into measured mode instead: a reactive
+		 * `MediaQuery` against the viewport, for a retuned `--hz-width-*`
+		 * scale a literal tier can't follow. Before hydration a number renders
+		 * as its nearest built-in tier.
+		 */
+		breakpoint?: TocBreakpoint;
 		/** Bindable id of the current heading. */
 		active?: string;
 		/** Fires when the active heading changes (not per scroll frame). */
 		onActive?: (id: string) => void;
+		/**
+		 * Rendered inside each entry's link in place of the label — the entry
+		 * receives a fresh flat `{ id, label, level }` (never the internal tree
+		 * node), and the second argument is whether it is the active entry.
+		 * The component still owns `href`, `data-level`, `aria-current`, and
+		 * the click-to-scroll handler; the snippet only changes what the link
+		 * says. Absent, rendering is exactly `{node.label}`.
+		 */
+		entry?: Snippet<[TocEntry, boolean]>;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -63,6 +117,7 @@
 		breakpoint = 'none',
 		active = $bindable(''),
 		onActive,
+		entry,
 		class: className,
 		...rest
 	}: Props = $props();
@@ -76,6 +131,51 @@
 
 	let rootEl = $state<HTMLElement | null>(null);
 	let triggerEl = $state<HTMLButtonElement | null>(null);
+
+	// ---------------------------------------------------------------------------
+	// Measured mode (specs/64 R5) — a number `breakpoint` opts into a
+	// reactive `MediaQuery` against the viewport instead of the literal-px
+	// @media queries below.
+	// ---------------------------------------------------------------------------
+
+	let warnedInvalidBreakpoint = false;
+
+	/** `breakpoint`, with a non-finite or <= 0 number folded to 'none' — a
+	 *  DEV-only warn, once, naming the prop and the received value. */
+	const effectiveBreakpoint = $derived.by((): TocBreakpoint => {
+		if (typeof breakpoint !== 'number') return breakpoint;
+		if (Number.isFinite(breakpoint) && breakpoint > 0) return breakpoint;
+		if (DEV && !warnedInvalidBreakpoint) {
+			warnedInvalidBreakpoint = true;
+			console.warn(
+				`[hyzer-ui] <Toc>: breakpoint must be a finite number > 0 (or 'sm' | 'md' | 'lg' | 'none') — received ${breakpoint}. Falling back to 'none'.`
+			);
+		}
+		return 'none';
+	});
+
+	const breakpointNumber = $derived(
+		typeof effectiveBreakpoint === 'number' ? effectiveBreakpoint : null
+	);
+	// Re-constructed whenever the prop changes, so a changed number re-queries.
+	const mediaQuery = $derived(
+		breakpointNumber !== null ? new MediaQuery(`min-width: ${breakpointNumber}px`, false) : null
+	);
+
+	const breakpointAttr = $derived(
+		breakpointNumber === null
+			? effectiveBreakpoint
+			: isBrowser
+				? 'custom'
+				: nearestTier(breakpointNumber)
+	);
+	// Absent (never `false`) pre-hydration — SSR has no correct answer for a
+	// viewport query, so the attribute is entirely omitted rather than
+	// guessing, mirroring Header's data-collapsed contract.
+	const narrow = $derived(isBrowser && mediaQuery !== null && !mediaQuery.current);
+
+	// Whether this Toc can collapse at all — a tier, or a valid number.
+	const collapsible = $derived(effectiveBreakpoint !== 'none');
 
 	// ---------------------------------------------------------------------------
 	// Collection
@@ -239,8 +339,8 @@
 	function buildTree(list: TocEntry[]): TocNode[] {
 		const root: TocNode[] = [];
 		const stack: TocNode[] = [];
-		for (const entry of list) {
-			const node: TocNode = { ...entry, children: [] };
+		for (const item of list) {
+			const node: TocNode = { ...item, children: [] };
 			while (stack.length && stack[stack.length - 1].level >= node.level) stack.pop();
 			(stack.length ? stack[stack.length - 1].children : root).push(node);
 			stack.push(node);
@@ -429,7 +529,14 @@
 					aria-current={active === node.id ? 'location' : undefined}
 					onclick={(e) => onLinkClick(e, node.id)}
 				>
-					{node.label}
+					{#if entry}
+						{@render entry(
+							{ id: node.id, label: node.label, level: node.level },
+							active === node.id
+						)}
+					{:else}
+						{node.label}
+					{/if}
 				</a>
 				{#if node.children.length > 0}
 					{@render entryList(node.children)}
@@ -445,8 +552,9 @@
 		bind:this={rootEl}
 		class={cx('hz-toc', className)}
 		aria-label={effectiveAriaLabel}
-		data-breakpoint={breakpoint}
-		data-collapsed={breakpoint !== 'none' && !open ? '' : undefined}
+		data-breakpoint={breakpointAttr}
+		data-narrow={narrow ? '' : undefined}
+		data-collapsed={collapsible && !open ? '' : undefined}
 	>
 		{#if title}
 			<!-- A plain element, never a heading — the Toc must not add to the
@@ -479,8 +587,8 @@
 	 * Structural collapse mechanics only (which of title/trigger shows,
 	 * whether the panel is visible); colors, spacing, and typography are
 	 * theme/toc.css. Breakpoints are literal px mirroring --hz-width-sm/md/lg
-	 * (640/968/1200) — the Grid BAND / Table stacked precedent (,
-	 *): CSS cannot read custom properties in a media query. This is a
+	 * (640/968/1200) — the Grid BAND / Table stacked precedent: CSS cannot
+	 * read custom properties in a media query. This is a
 	 * real @media query against the viewport, not a container query — the
 	 * rail's own box is typically narrow regardless of page width, so its own
 	 * inline-size is not a usable "mobile" signal (Header's container-query
@@ -492,19 +600,22 @@
 
 	.hz-toc[data-breakpoint='sm'] .hz-toc-trigger,
 	.hz-toc[data-breakpoint='md'] .hz-toc-trigger,
-	.hz-toc[data-breakpoint='lg'] .hz-toc-trigger {
+	.hz-toc[data-breakpoint='lg'] .hz-toc-trigger,
+	.hz-toc[data-narrow] .hz-toc-trigger {
 		display: flex;
 	}
 
 	.hz-toc[data-breakpoint='sm'] .hz-toc-title,
 	.hz-toc[data-breakpoint='md'] .hz-toc-title,
-	.hz-toc[data-breakpoint='lg'] .hz-toc-title {
+	.hz-toc[data-breakpoint='lg'] .hz-toc-title,
+	.hz-toc[data-narrow] .hz-toc-title {
 		display: none;
 	}
 
 	.hz-toc[data-breakpoint='sm'][data-collapsed] .hz-toc-panel,
 	.hz-toc[data-breakpoint='md'][data-collapsed] .hz-toc-panel,
-	.hz-toc[data-breakpoint='lg'][data-collapsed] .hz-toc-panel {
+	.hz-toc[data-breakpoint='lg'][data-collapsed] .hz-toc-panel,
+	.hz-toc[data-narrow][data-collapsed] .hz-toc-panel {
 		display: none;
 	}
 

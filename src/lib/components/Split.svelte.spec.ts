@@ -165,6 +165,32 @@ describe('R15 — fraction prop', () => {
 		expect(getComputedStyle(c1).flexBasis).toBe('auto');
 		expect(getComputedStyle(c2).flexGrow).toBe('1');
 	});
+
+	it('fraction="auto-end" → last column is content-sized, first fills', () => {
+		const { container } = render(Split, { fraction: 'auto-end' });
+		const el = container.querySelector('.hz-split') as HTMLElement;
+		expect(el.getAttribute('data-fraction')).toBe('auto-end');
+		const [c1, c2] = appendTwoChildren(el);
+		expect(getComputedStyle(c1).flexGrow).toBe('1');
+		expect(getComputedStyle(c2).flexGrow).toBe('0');
+		expect(getComputedStyle(c2).flexBasis).toBe('auto');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// R15a — stackBelow="none"
+// ---------------------------------------------------------------------------
+
+describe('R15a — stackBelow="none"', () => {
+	it('never stacks: columns share the line even at a tiny width', () => {
+		const { container } = render(Split, { stackBelow: 'none', gap: 'none' });
+		const el = container.querySelector('.hz-split') as HTMLElement;
+		expect(el.getAttribute('data-stack-below')).toBe('none');
+		const [c1, c2] = appendTwoChildren(el);
+		el.style.width = '200px';
+		// Side by side — the two columns sit on one row.
+		expect(c1.getBoundingClientRect().top).toBeCloseTo(c2.getBoundingClientRect().top, 0);
+	});
 });
 
 // ---------------------------------------------------------------------------

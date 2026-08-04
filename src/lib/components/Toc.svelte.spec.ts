@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-svelte';
 import { prefersReducedMotion } from 'svelte/motion';
+import { createRawSnippet } from 'svelte';
+import type { TocEntry } from '$lib/types';
 import Toc from './Toc.svelte';
 
 // ---------------------------------------------------------------------------
@@ -69,6 +71,25 @@ function parts(container: HTMLElement) {
 		trigger: container.querySelector('.hz-toc-trigger') as HTMLButtonElement | null,
 		panel: container.querySelector('.hz-toc-panel') as HTMLElement | null,
 		links: Array.from(container.querySelectorAll('.hz-toc-link')) as HTMLAnchorElement[]
+	};
+}
+
+/** Substitutes `window.matchMedia` at the global (the Video.svelte.spec.ts
+ *  mock shape) — returns a restore function. */
+function mockMatchMedia(matches: boolean): () => void {
+	const original = window.matchMedia;
+	window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+		matches,
+		media: query,
+		onchange: null,
+		addListener: vi.fn(),
+		removeListener: vi.fn(),
+		addEventListener: vi.fn(),
+		removeEventListener: vi.fn(),
+		dispatchEvent: vi.fn()
+	}));
+	return () => {
+		window.matchMedia = original;
 	};
 }
 
@@ -677,6 +698,133 @@ describe('R5 — markup', () => {
 		const { links } = parts(container);
 		expect(links[0].getAttribute('data-level')).toBe('2');
 		expect(links[1].getAttribute('data-level')).toBe('3');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/64 R5 — measured mode: a number `breakpoint` collapses off a
+// reactive `MediaQuery` against the viewport instead of the literal-px
+// @media queries.
+// ---------------------------------------------------------------------------
+
+describe('R5 — measured mode (breakpoint as a number)', () => {
+	it('a non-matching query gives data-breakpoint="custom" + data-narrow; trigger visible, title hidden', async () => {
+		const restore = mockMatchMedia(false);
+		const art = article(heading('h2', 'One'), heading('h2', 'Two'));
+		const { container } = render(T, { container: art, breakpoint: 668 });
+		await tick();
+		const { nav, trigger, title } = parts(container);
+		expect(nav!.getAttribute('data-breakpoint')).toBe('custom');
+		expect(nav!.hasAttribute('data-narrow')).toBe(true);
+		expect(getComputedStyle(trigger!).display).toBe('flex');
+		expect(getComputedStyle(title!).display).toBe('none');
+		restore();
+	});
+
+	it('a matching query drops data-narrow', async () => {
+		const restore = mockMatchMedia(true);
+		const art = article(heading('h2', 'One'), heading('h2', 'Two'));
+		const { container } = render(T, { container: art, breakpoint: 668 });
+		await tick();
+		expect(parts(container).nav!.hasAttribute('data-narrow')).toBe(false);
+		restore();
+	});
+
+	it("an invalid number (0) behaves as 'none': no data-narrow, no data-collapsed, one DEV warn", async () => {
+		const restore = mockMatchMedia(false);
+		const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const art = article(heading('h2', 'One'), heading('h2', 'Two'));
+		const { container } = render(T, { container: art, breakpoint: 0 });
+		await tick();
+		const { nav } = parts(container);
+		expect(nav!.getAttribute('data-breakpoint')).toBe('none');
+		expect(nav!.hasAttribute('data-narrow')).toBe(false);
+		expect(nav!.hasAttribute('data-collapsed')).toBe(false);
+		expect(warnSpy).toHaveBeenCalledTimes(1);
+		expect(warnSpy.mock.calls[0][0]).toContain('breakpoint');
+		warnSpy.mockRestore();
+		restore();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/64 R8/R9 — the `entry` snippet: replaces link content only, at every
+// nesting depth; every wire the component owns (href, data-level,
+// aria-current, click-to-scroll) stays untouched.
+// ---------------------------------------------------------------------------
+
+describe('R8/R9 — entry snippet', () => {
+	it('replaces link content at the top level and one level down; href/data-level are unaffected', async () => {
+		const entrySnippet = createRawSnippet<[TocEntry, boolean]>((getEntry) => ({
+			render: () =>
+				`<span data-testid="entry-${getEntry().id}">${getEntry().label.toUpperCase()}</span>`
+		}));
+		const art = article(heading('h2', 'One'), heading('h3', 'Sub'));
+		const { container } = render(T, { container: art, levels: [2, 3], entry: entrySnippet });
+		await tick();
+		const { links } = parts(container);
+		expect(links[0].querySelector('[data-testid="entry-one"]')?.textContent).toBe('ONE');
+		expect(links[1].querySelector('[data-testid="entry-sub"]')?.textContent).toBe('SUB');
+		expect(links[0].getAttribute('href')).toBe('#one');
+		expect(links[1].getAttribute('data-level')).toBe('3');
+	});
+
+	it('aria-current is still set by the component; click still scrolls and updates active', async () => {
+		const scrollSpy = vi
+			.spyOn(HTMLElement.prototype, 'scrollIntoView')
+			.mockImplementation(() => {});
+		const entrySnippet = createRawSnippet<[TocEntry, boolean]>((getEntry) => ({
+			render: () => `<span>${getEntry().label}</span>`
+		}));
+		const art = article(heading('h2', 'One'), heading('h2', 'Two'));
+		const { container } = render(T, { container: art, entry: entrySnippet });
+		await tick();
+		const { links } = parts(container);
+		links[1].click();
+		await tick();
+		expect(links[1].getAttribute('aria-current')).toBe('location');
+		expect(links[0].hasAttribute('aria-current')).toBe(false);
+		expect(scrollSpy).toHaveBeenCalled();
+		scrollSpy.mockRestore();
+	});
+
+	it('the second argument is true only for the active entry', async () => {
+		const scrollSpy = vi
+			.spyOn(HTMLElement.prototype, 'scrollIntoView')
+			.mockImplementation(() => {});
+		const entrySnippet = createRawSnippet<[TocEntry, boolean]>((getEntry, getActive) => ({
+			render: () => `<span data-active="${getActive()}">${getEntry().label}</span>`
+		}));
+		const art = article(heading('h2', 'One'), heading('h2', 'Two'));
+		const { container } = render(T, { container: art, entry: entrySnippet });
+		await tick();
+		const { links } = parts(container);
+		links[1].click();
+		await tick();
+		expect(links[0].querySelector('span')?.getAttribute('data-active')).toBe('false');
+		expect(links[1].querySelector('span')?.getAttribute('data-active')).toBe('true');
+		scrollSpy.mockRestore();
+	});
+
+	it('the first argument is a flat entry — no `children` key', async () => {
+		let keys: string[] = [];
+		const entrySnippet = createRawSnippet<[TocEntry, boolean]>((getEntry) => ({
+			render: () => {
+				keys = Object.keys(getEntry());
+				return `<span>x</span>`;
+			}
+		}));
+		const art = article(heading('h2', 'One'), heading('h2', 'Two'));
+		render(T, { container: art, entry: entrySnippet });
+		await tick();
+		expect(keys).toEqual(['id', 'label', 'level']);
+	});
+
+	it('absent: link content is exactly the label, DOM identical to today', async () => {
+		const art = article(heading('h2', 'One'), heading('h2', 'Two'));
+		const { container } = render(T, { container: art });
+		await tick();
+		expect(parts(container).links.map((a) => a.textContent?.trim())).toEqual(['One', 'Two']);
 	});
 });
 

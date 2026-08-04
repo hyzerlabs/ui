@@ -3,9 +3,9 @@
 	import type { LayoutPadding } from '$lib/types';
 	import { cx } from '$lib/utils';
 
-	type SplitFraction = '1/4' | '1/3' | '1/2' | '2/3' | '3/4' | 'auto';
+	type SplitFraction = '1/4' | '1/3' | '1/2' | '2/3' | '3/4' | 'auto' | 'auto-end';
 	type SplitGap = 'none' | 'sm' | 'md' | 'lg' | 'near' | 'away';
-	type SplitStackBelow = 'sm' | 'md' | 'lg';
+	type SplitStackBelow = 'sm' | 'md' | 'lg' | 'none';
 
 	interface Props {
 		fraction?: SplitFraction;
@@ -85,6 +85,10 @@
 	.hz-split[data-stack-below='lg'] {
 		--_threshold: var(--hz-width-lg, 1200px);
 	}
+	/* 'none' — never stacks: a 0 threshold keeps every basis at 0. */
+	.hz-split[data-stack-below='none'] {
+		--_threshold: 0px;
+	}
 
 	.hz-split-layout {
 		display: flex;
@@ -104,7 +108,8 @@
 	/*
 	 * fraction → flex-grow ratio of the two columns (basis floors to 0 when
 	 * side by side, so grow ratios become width ratios, subject to
-	 * min-content). 'auto' sizes the first column to its content.
+	 * min-content). 'auto' sizes the first column to its content;
+	 * 'auto-end' the last (the other column grows).
 	 */
 	.hz-split[data-fraction='1/4'] > .hz-split-layout > :global(:first-child) {
 		flex-grow: 1;
@@ -131,6 +136,9 @@
 		flex-grow: 1;
 	}
 	.hz-split[data-fraction='auto'] > .hz-split-layout > :global(:first-child) {
+		flex: 0 1 auto;
+	}
+	.hz-split[data-fraction='auto-end'] > .hz-split-layout > :global(:last-child) {
 		flex: 0 1 auto;
 	}
 

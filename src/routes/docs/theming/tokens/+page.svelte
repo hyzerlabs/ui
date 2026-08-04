@@ -137,6 +137,13 @@
 				</div>
 			{/snippet}
 		</Tabs>
+		<p class="detail-note">
+			<code>--hz-density</code> above rescales the whole density rhythm from one unit. To point each
+			nesting depth at your own spacing values instead, see
+			<a href="/docs/foundation/spacing#density-byo-heading"
+				>Spacing &amp; Sizing → Bring your own scale</a
+			>.
+		</p>
 	</Stack>
 
 	<Stack

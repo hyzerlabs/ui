@@ -7,6 +7,7 @@
 	import type { PropRow } from './PropsTable.svelte';
 	import ThemeHooks from './ThemeHooks.svelte';
 	import { hooks } from './hooks';
+	import { REST_NOTE_DEFAULT } from './data/types.js';
 
 	/** A named supporting type (e.g. AccordionItem) shown as its own table under Props. */
 	export interface TypeTable {
@@ -27,6 +28,8 @@
 		/** Supporting item/option types rendered as sub-tables in the Props section. */
 		types?: TypeTable[];
 		/** Backtick-wrapped segments render as inline <code>, e.g. "sets `aria-busy`". */
+		/** Rest-forwarding note; string replaces the default, false hides it. */
+		restNote?: string | false;
 		a11yNote?: string;
 		/** APG pattern / MDN reference links rendered after the a11y note. */
 		a11yLinks?: A11yLink[];
@@ -38,6 +41,7 @@
 		importLine,
 		props = [],
 		types = [],
+		restNote,
 		a11yNote,
 		a11yLinks = [],
 		children
@@ -98,6 +102,9 @@
 		>
 			<h2 id="props-heading">Props</h2>
 			<PropsTable {props} label="{name} props" />
+			{#if restNote !== false}
+				<p class="rest-note">{restNote ?? REST_NOTE_DEFAULT}</p>
+			{/if}
 			{#each types as t (t.name)}
 				<h3 class="type-heading"><code>{t.name}</code></h3>
 				<PropsTable props={t.props} label="{t.name} properties" />
