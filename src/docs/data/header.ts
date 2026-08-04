@@ -34,7 +34,7 @@ export const headerDoc: ComponentDoc = {
 			name: 'mobileBreakpoint',
 			type: "'sm' | 'md' | 'lg' | 'none' | number",
 			default: "'md'",
-			note: 'Collapse threshold (640/968/1200px), a container query against the header width. none never collapses. …or a px number, measured at runtime, for a retuned width scale.'
+			note: "Below this width the bar collapses into a hamburger and drawer. The named tiers are CSS-only container queries against the header's own width (640/968/1200px); 'none' never collapses. A px number measures the header at runtime instead, for a width scale you have retuned."
 		},
 		{
 			name: 'ariaLabel',

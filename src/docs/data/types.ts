@@ -16,17 +16,17 @@ export interface ComponentDoc {
 	/** Supporting item/option types rendered as sub-tables in the Props section. */
 	types?: TypeTable[];
 	/**
-	 * Backtick-wrapped segments render as inline <code>, e.g. "sets `aria-busy`",
-	 * and a blank line starts a new paragraph. That is the whole vocabulary:
-	 * anything else, `**bold**` included, reaches the page as literal
-	 * punctuation. Use a short sentence instead of emphasis.
-	 */
-	/**
 	 * Rest-forwarding note under the props table. Omit for
 	 * REST_NOTE_DEFAULT; a string replaces it; `false` hides it (a component
 	 * with no rest spread, e.g. Metatags).
 	 */
 	restNote?: string | false;
+	/**
+	 * Backtick-wrapped segments render as inline <code>, e.g. "sets `aria-busy`",
+	 * and a blank line starts a new paragraph. That is the whole vocabulary:
+	 * anything else, `**bold**` included, reaches the page as literal
+	 * punctuation. Use a short sentence instead of emphasis.
+	 */
 	a11yNote?: string;
 	/** APG pattern / MDN reference links rendered after the a11y note. */
 	a11yLinks?: A11yLink[];

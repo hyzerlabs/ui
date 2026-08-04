@@ -9,7 +9,7 @@ export const navDoc: ComponentDoc = {
 			name: 'orientation',
 			type: "'horizontal' | 'vertical'",
 			default: "'horizontal'",
-			note: 'horizontal: a row of links with dropdown menus. vertical: a sidebar column with inline, nested, multi-open disclosure sections.'
+			note: 'horizontal: a row of links with dropdown menus. vertical: a sidebar column of inline disclosure sections that nest, and open independently of each other.'
 		},
 		{ name: 'ariaLabel', type: 'string', default: "'Main navigation'" },
 		{ name: 'chevronIcon', type: 'Snippet', default: '—', note: 'Replaces the dropdown chevron.' },

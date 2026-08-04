@@ -138,8 +138,8 @@
 			{/snippet}
 		</Tabs>
 		<p class="detail-note">
-			<code>--hz-density</code> above retunes the density rhythm proportionally. To alias its two
-			distances to your own scale instead — not just rescale the shared unit — see
+			<code>--hz-density</code> above rescales the whole density rhythm from one unit. To point each
+			nesting depth at your own spacing values instead, see
 			<a href="/docs/foundation/spacing#density-byo-heading"
 				>Spacing &amp; Sizing → Bring your own scale</a
 			>.

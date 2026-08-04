@@ -109,13 +109,6 @@
 </script>
 
 <DocPage name="Toc" {...tocDoc}>
-	<p class="tab-note">
-		<code>breakpoint</code> takes the named tiers (<code>'sm' | 'md' | 'lg'</code>) — real
-		<code>@media</code> queries, free — or a px number, which measures the viewport at runtime
-		instead. Reach for a number once you've retuned <code>--hz-width-*</code>: a literal tier can't
-		follow that override, since CSS can't read a custom property inside a media query. Before
-		hydration a number renders as its nearest named tier.
-	</p>
 	<Tabs items={demoTabs} ariaLabel="Toc demos" defaultTab="basic" onChange={onTabChange}>
 		{#snippet panel(item)}
 			<div class="tab-content">
@@ -312,6 +305,14 @@
 						page width, so it is not a usable "mobile" signal by itself. Resize your browser to see the
 						title swap for a trigger button.
 					</p>
+					<p class="tab-note">
+						<code>breakpoint</code> takes the named tiers (<code>'sm' | 'md' | 'lg'</code>), which
+						are <code>@media</code> queries against the viewport and need no JavaScript. A px number
+						matches the viewport at runtime instead. Reach for a number once you have retuned
+						<code>--hz-width-*</code>: a named tier cannot follow that override, because CSS cannot
+						read a custom property inside a media query. Before hydration a number renders as its
+						nearest named tier.
+					</p>
 					<Example code={collapseCode}>
 						<div class="toc-demo-row">
 							<article class="toc-demo-article toc-demo-article--collapse">
@@ -365,11 +366,11 @@
 					</Example>
 				{:else if item.id === 'entry'}
 					<p class="tab-note">
-						<code>entry</code> replaces what the link says — the component still owns
+						<code>entry</code> replaces what the link says. The component still owns
 						<code>href</code>, <code>aria-current</code>, and the click-to-scroll handler. Relabel
 						one entry by branching on its <code>id</code>, and append a marker with the second
-						argument (whether it's the active one). The snippet becomes the link's accessible name,
-						so it must render text — or something with a text alternative.
+						argument (whether it is the active one). The snippet becomes the link's accessible name,
+						so it must render text, or something with a text alternative.
 					</p>
 					<Example code={entryCode}>
 						<div class="toc-demo-row">

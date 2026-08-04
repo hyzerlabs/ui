@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Nav, Tabs } from '$lib';
-	import { IconArrowDown } from '$lib/icons';
+	import IconArrowDown from '$lib/icons/generated/arrow-down.svelte';
 	import type { NavItem } from '$lib/types';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { navDoc } from '../../../../docs/data/nav.js';
@@ -122,9 +122,9 @@
 					<p class="tab-note">
 						The <code>chevronIcon</code> snippet replaces the default chevron on every submenu
 						trigger, in both orientations. Any of the shared
-						<a href="/docs/components/icons">icons</a>
-						works — size and stroke are the icon's own props — as does any inline SVG. The theme rotates
-						the icon 180° while a section is open, so pick one that reads both ways, like an arrow.
+						<a href="/docs/components/icons">icons</a> works, as does any inline SVG; size and stroke
+						are the icon's own props. The theme rotates the icon 180° while a section is open, so pick
+						one that reads both ways, like an arrow.
 					</p>
 					<Example code={iconCode}>
 						<div class="nav-demo-wrap sidebar-demo">

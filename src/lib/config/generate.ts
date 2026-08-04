@@ -117,9 +117,9 @@ const DENSITY_COMMENT = [
 	" * parent's near. Coexists with the fixed --hz-space-* scale above.",
 	' * Each near/away below is a var() lookup against one of four public rungs',
 	' * (--hz-density-ladder-depth-1…4, unshifted body through three',
-	' * data-density-shift ancestors deep) — override a rung anywhere to alias',
-	' * both distances it backs to your own scale, with no rung declared here',
-	' * to outrank it.',
+	' * data-density-shift ancestors deep). Override a rung anywhere to alias',
+	' * both distances it backs to your own scale. This sheet declares no rung',
+	' * of its own, so nothing here outranks that override.',
 	' * ========================================================================== */'
 ].join('\n');
 

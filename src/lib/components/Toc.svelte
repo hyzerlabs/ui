@@ -339,8 +339,8 @@
 	function buildTree(list: TocEntry[]): TocNode[] {
 		const root: TocNode[] = [];
 		const stack: TocNode[] = [];
-		for (const entry of list) {
-			const node: TocNode = { ...entry, children: [] };
+		for (const item of list) {
+			const node: TocNode = { ...item, children: [] };
 			while (stack.length && stack[stack.length - 1].level >= node.level) stack.pop();
 			(stack.length ? stack[stack.length - 1].children : root).push(node);
 			stack.push(node);
@@ -587,8 +587,8 @@
 	 * Structural collapse mechanics only (which of title/trigger shows,
 	 * whether the panel is visible); colors, spacing, and typography are
 	 * theme/toc.css. Breakpoints are literal px mirroring --hz-width-sm/md/lg
-	 * (640/968/1200) — the Grid BAND / Table stacked precedent (,
-	 *): CSS cannot read custom properties in a media query. This is a
+	 * (640/968/1200) — the Grid BAND / Table stacked precedent: CSS cannot
+	 * read custom properties in a media query. This is a
 	 * real @media query against the viewport, not a container query — the
 	 * rail's own box is typically narrow regardless of page width, so its own
 	 * inline-size is not a usable "mobile" signal (Header's container-query

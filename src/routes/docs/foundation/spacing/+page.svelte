@@ -145,7 +145,7 @@
 				<thead>
 					<tr>
 						<th scope="col">Shift depth</th>
-						<th scope="col">Rung</th>
+						<th scope="col">Rung (custom property)</th>
 						<th scope="col"><code>--hz-space-near</code></th>
 						<th scope="col"><code>--hz-space-away</code></th>
 					</tr>
@@ -209,20 +209,23 @@
 		<h3 id="density-byo-heading">Bring your own scale</h3>
 		<p>Two ways to retune the density system, depending on how far you want to go.</p>
 		<p>
-			<strong>1. Proportional retune</strong> — set <code>--hz-density</code> (or
+			<strong>1. Proportional retune.</strong> Set <code>--hz-density</code> (or
 			<code>tokens.density.unit</code> in the config). Same rhythm, a different unit: every distance above
 			scales together.
 		</p>
 		<p>
-			<strong>2. Alias the rungs to your own scale</strong> — one block, at <code>:root</code> or on any
-			subtree, one line per nesting depth:
+			<strong>2. Alias the rungs to your own scale.</strong> A rung is the custom property behind
+			one shift depth, named in the Rung column above. <code>--hz-density-ladder-depth-1</code>
+			holds the unshifted body's distance, <code>-depth-2</code> the first
+			<code>data-density-shift</code>, and so on to <code>-depth-4</code>. Write one block, at
+			<code>:root</code> or on any subtree, with one line per depth you want to change:
 		</p>
 		<CodeBlock code={rungAliasCode} />
 		<p class="tab-note">
-			Every rung you leave alone stays on the built-in ladder, and each rung serves two places —
-			depth 2's rung is depth 2's <code>near</code> <strong>and</strong> depth 3's <code>away</code>
-			— which is what keeps the walk consistent. The body level's <code>away</code> is its own rung doubled,
-			so the top of the scale follows depth 1 automatically.
+			Every rung you leave alone stays on the built-in ladder. Each rung does two jobs: depth 2's
+			rung is depth 2's <code>near</code> <strong>and</strong> depth 3's <code>away</code>, which is
+			what keeps the ladder consistent. The body level's <code>away</code> is its own rung doubled, so
+			the top of the scale follows depth 1 automatically.
 		</p>
 	</Stack>
 
@@ -242,7 +245,7 @@
 			<code>Header</code>/<code>Toc</code>'s named collapse tiers: all of them mirror these values
 			but stay literal system constants, because CSS cannot read custom properties inside media or
 			container queries. On <code>Header</code>/<code>Toc</code> specifically, pass a px number instead
-			of a named tier to measure the retuned value at runtime.
+			of a named tier: a number is resolved at runtime, so it follows your retuned scale.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">

@@ -9,8 +9,8 @@
 	// No 'Home' item — the logo is the link home.
 	const demoItems: NavItem[] = [
 		{
+			// No href — the whole label is the dropdown trigger.
 			label: 'Components',
-			href: '#',
 			children: [
 				{ label: 'Button', href: '#' },
 				{ label: 'Card', href: '#' }
@@ -44,8 +44,8 @@
 		'// No need for a Home item — the logo is the link home.',
 		'const navItems: NavItem[] = [',
 		'\t{',
+		'\t\t// No href — the whole label is the dropdown trigger.',
 		"\t\tlabel: 'Components',",
-		"\t\thref: '#',",
 		'\t\tchildren: [',
 		"\t\t\t{ label: 'Button', href: '#' },",
 		"\t\t\t{ label: 'Card', href: '#' }",
@@ -76,14 +76,6 @@
 </script>
 
 <DocPage name="Header" {...headerDoc}>
-	<p class="tab-note">
-		<code>mobileBreakpoint</code> takes the named tiers (<code>'sm' | 'md' | 'lg'</code>) —
-		CSS-only, free — or a px number, which measures the header's own width at runtime instead. Reach
-		for a number once you've retuned <code>--hz-width-*</code>: a literal tier can't follow that
-		override, since CSS can't read a custom property inside a container query. Before hydration a
-		number renders as its nearest named tier, so there's no worse-than-today fallback for a no-JS
-		page.
-	</p>
 	<Tabs items={demoTabs} ariaLabel="Header demos" defaultTab="basic">
 		{#snippet panel(item)}
 			<div class="tab-content">
@@ -142,7 +134,16 @@
 						the collapsed bar, pinned to the end next to the hamburger; override
 						<code>margin-inline-start</code> on <code>.hz-header-actions</code> to move it somewhere else.
 						Open the drawer to see the vertical Nav with the actions repeated below it. The drawer traps
-						focus, and Esc closes it.
+						focus, and Escape closes it.
+					</p>
+					<p class="tab-note">
+						<code>mobileBreakpoint</code> takes the named tiers (<code>'sm' | 'md' | 'lg'</code>),
+						which are container queries against the header's own width and need no JavaScript. A px
+						number measures that same width at runtime instead. Reach for a number once you have
+						retuned <code>--hz-width-*</code>: a named tier cannot follow that override, because CSS
+						cannot read a custom property inside a container query. Before hydration a number
+						renders as its nearest named tier, so a page without JavaScript still collapses at a
+						sensible width.
 					</p>
 					<Container breakout padding="none">
 						<Example code={mobileCode}>

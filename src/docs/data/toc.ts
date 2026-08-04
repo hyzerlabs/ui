@@ -57,7 +57,7 @@ export const tocDoc: ComponentDoc = {
 			name: 'breakpoint',
 			type: "'sm' | 'md' | 'lg' | 'none' | number",
 			default: "'none'",
-			note: 'Collapses into a disclosure below this width (640/968/1200px). none never collapses. …or a px number, measured at runtime, for a retuned width scale.'
+			note: "Collapses into a disclosure below this width. The named tiers are CSS-only media queries against the viewport (640/968/1200px); 'none' never collapses. A px number is matched at runtime instead, for a width scale you have retuned."
 		},
 		{
 			name: 'active',
