@@ -3,12 +3,14 @@
 	 * A command palette composed from library primitives.
 	 *
 	 * The overlay, backdrop, focus trap, and Escape-to-close come from `Modal`,
-	 * so this pattern only adds the search field, the filtered results, and the
-	 * keyboard wiring. It imports only public exports and reads like consumer
-	 * code: choosing a result navigates to a real route through SvelteKit's
-	 * `goto`, not to a placeholder `#` link.
+	 * and the field is a `TextInput`: `bind:element` hands back the native
+	 * input for focus-on-open, and the combobox wiring (role, aria-expanded,
+	 * aria-activedescendant, onkeydown) passes through to it. This pattern
+	 * only adds the filtered results and the keyboard wiring. It imports only
+	 * public exports and reads like consumer code: choosing a result navigates
+	 * to a real route through SvelteKit's `goto`, not to a placeholder `#` link.
 	 */
-	import { Modal } from '$lib';
+	import { Modal, TextInput } from '$lib';
 	import { IconSearch } from '$lib/icons';
 	import { uid } from '$lib/utils';
 	import { goto } from '$app/navigation';
@@ -33,6 +35,7 @@
 	let open = $state(false);
 	let query = $state('');
 	let activeIndex = $state(0);
+	// TextInput's bind:element — the native input, for focus-on-open.
 	let inputEl = $state<HTMLInputElement>();
 
 	const listId = uid('cmdk');
@@ -100,22 +103,25 @@
 
 <Modal bind:open title="Search" showClose={false} size="md">
 	<div class="cmdk">
-		<div class="cmdk-field">
-			<IconSearch />
-			<input
-				bind:this={inputEl}
-				bind:value={query}
-				type="text"
-				role="combobox"
-				aria-expanded="true"
-				aria-controls={listId}
-				aria-activedescendant={results.length ? optionId(activeIndex) : undefined}
-				aria-label="Search"
-				placeholder="Jump to…"
-				autocomplete="off"
-				onkeydown={onFieldKeydown}
-			/>
-		</div>
+		<TextInput
+			name="cmdk-query"
+			label="Search"
+			hideLabel
+			bind:value={query}
+			bind:element={inputEl}
+			placeholder="Jump to…"
+			autocomplete="off"
+			class="cmdk-field"
+			role="combobox"
+			aria-expanded="true"
+			aria-controls={listId}
+			aria-activedescendant={results.length ? optionId(activeIndex) : undefined}
+			onkeydown={onFieldKeydown}
+		>
+			{#snippet prefix()}
+				<IconSearch />
+			{/snippet}
+		</TextInput>
 
 		<ul id={listId} role="listbox" aria-label="Results" class="cmdk-results">
 			<!--
@@ -178,32 +184,11 @@
 		padding: 0.05rem 0.3rem;
 	}
 
-	.cmdk-field {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		padding: 0.5rem 0.75rem;
-		border: 1px solid var(--hz-color-border, #6b7280);
-		border-radius: var(--hz-radius-md, 0.5rem);
-		color: var(--hz-color-text-muted, #6b7280);
-	}
-
-	.cmdk-field :global(.hz-icon) {
+	/* The field is a TextInput — the theme owns its look; the sample only
+	 * sizes the prefix icon. */
+	.cmdk :global(.cmdk-field .hz-icon) {
 		width: 1.1rem;
 		height: 1.1rem;
-	}
-
-	.cmdk-field input {
-		flex: 1;
-		min-width: 0;
-		border: none;
-		background: none;
-		font: inherit;
-		color: var(--hz-color-text, #000);
-	}
-
-	.cmdk-field input:focus {
-		outline: none;
 	}
 
 	.cmdk-results {
