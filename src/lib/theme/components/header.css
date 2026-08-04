@@ -63,6 +63,25 @@
 			var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1));
 	}
 
+	/* Drawer exit — Dropdown/Popover's pattern: `display` with allow-discrete
+	 * defers the closed drawer's structural display: none (Header.svelte)
+	 * until the fade has painted. A browser without allow-discrete hides
+	 * instantly, the prior behavior. Entry never transitions (the drawer
+	 * comes from display: none) — the keyframe above owns that direction.
+	 * pointer-events: none so a fading drawer never swallows a click. */
+	.hz-header-drawer {
+		transition:
+			opacity var(--hz-duration-fast, 250ms) var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1)),
+			translate var(--hz-duration-fast, 250ms) var(--hz-ease-out, cubic-bezier(0, 0, 0.2, 1)),
+			display var(--hz-duration-fast, 250ms) allow-discrete;
+	}
+
+	.hz-header-drawer:where([data-state='closed']) {
+		opacity: 0;
+		translate: 0 -0.25rem;
+		pointer-events: none;
+	}
+
 	@keyframes hz-header-drawer-in {
 		from {
 			opacity: 0;

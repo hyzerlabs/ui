@@ -89,6 +89,7 @@
 						<Link
 							href={item.href}
 							variant={linkVariant}
+							class={item.class}
 							external={item.external}
 							ariaCurrent={item.ariaCurrent}>{item.label}</Link
 						>
@@ -100,24 +101,27 @@
 		</ul>
 	{/snippet}
 
-	<Grid class="hz-footer-columns">
-		{#each columns as column, ci (ci)}
-			{#if blankTitle(column.title)}
-				<!-- no <nav>, no heading — a nameless landmark and an empty
-				     heading are both worse than neither. Links stay intact. -->
-				<div class="hz-footer-column">
-					{@render columnLinks(column)}
-				</div>
-			{:else}
-				<nav class="hz-footer-column" aria-label={column.title}>
-					<svelte:element this={`h${headingLevel}`} class="hz-footer-heading">
-						{column.title}
-					</svelte:element>
-					{@render columnLinks(column)}
-				</nav>
-			{/if}
-		{/each}
-	</Grid>
+	<!-- No columns → no Grid node at all (a social-only footer stays clean). -->
+	{#if columns.length > 0}
+		<Grid class="hz-footer-columns">
+			{#each columns as column, ci (ci)}
+				{#if blankTitle(column.title)}
+					<!-- no <nav>, no heading — a nameless landmark and an empty
+					     heading are both worse than neither. Links stay intact. -->
+					<div class="hz-footer-column">
+						{@render columnLinks(column)}
+					</div>
+				{:else}
+					<nav class="hz-footer-column" aria-label={column.title}>
+						<svelte:element this={`h${headingLevel}`} class="hz-footer-heading">
+							{column.title}
+						</svelte:element>
+						{@render columnLinks(column)}
+					</nav>
+				{/if}
+			{/each}
+		</Grid>
+	{/if}
 
 	{#if social}
 		<div class="hz-footer-social">{@render social()}</div>

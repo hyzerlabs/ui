@@ -110,6 +110,37 @@ describe('Header — mobile drawer', () => {
 		expect(document.activeElement).toBe(parts(container).toggle);
 	});
 
+	it('activating a drawer link closes the drawer', async () => {
+		const { container } = render(Header, { items });
+		const { toggle, drawer } = parts(container);
+		toggle.click();
+		await tick();
+		const link = drawer.querySelector('a[href]') as HTMLAnchorElement;
+		// Cancel the navigation itself — only the close behavior is under test.
+		link.addEventListener('click', (e) => e.preventDefault(), { once: true });
+		link.click();
+		await tick();
+		expect(parts(container).drawer.getAttribute('data-state')).toBe('closed');
+	});
+
+	it('open is bindable: toggle writes it back, external writes drive the drawer', async () => {
+		const props = $state({ items, open: false });
+		const { container } = render(Header, props);
+		parts(container).toggle.click();
+		await tick();
+		expect(props.open).toBe(true);
+		props.open = false;
+		await tick();
+		expect(parts(container).drawer.getAttribute('data-state')).toBe('closed');
+	});
+
+	it('navItemClass reaches the links of both the bar and drawer Navs', () => {
+		const { container } = render(Header, { items, navItemClass: 'site-link' });
+		const { inner, drawer } = parts(container);
+		expect(inner.querySelector('a.hz-link.site-link')).not.toBeNull();
+		expect(drawer.querySelector('a.hz-link.site-link')).not.toBeNull();
+	});
+
 	it('menuIcon replaces the default hamburger icon', () => {
 		const { container } = render(Header, { items, menuIcon });
 		const { toggle } = parts(container);

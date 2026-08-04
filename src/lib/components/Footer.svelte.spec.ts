@@ -91,6 +91,19 @@ describe('R2 — columns=[] smoke render', () => {
 		expect(container.querySelector('.hz-footer-column')).toBeNull();
 	});
 
+	it('columns=[] renders no Grid node at all', () => {
+		const { container } = render(Footer, { columns: [] });
+		expect(container.querySelector('.hz-footer-columns')).toBeNull();
+		expect(container.querySelector('.hz-grid')).toBeNull();
+	});
+
+	it('link class lands on the rendered footer link', () => {
+		const { container } = render(Footer, {
+			columns: [{ title: 'Docs', links: [{ label: 'A', href: '/a', class: 'site-link' }] }]
+		});
+		expect(container.querySelector('.hz-footer-column a.site-link')).not.toBeNull();
+	});
+
 	it('renders logo/social/bottom snippets even when columns is empty', () => {
 		const { container } = render(Footer, {
 			columns: [],

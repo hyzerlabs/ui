@@ -42,8 +42,20 @@ export const headerDoc: ComponentDoc = {
 			default: "'Main navigation'",
 			note: 'Names the navigation.'
 		},
+		{
+			name: 'open',
+			type: 'boolean',
+			default: 'false',
+			note: 'Bindable. The mobile drawer state — close it on navigation, or drive it externally. Activating a drawer link closes the drawer on its own.'
+		},
 		{ name: 'menuIcon', type: 'Snippet', default: '—', note: 'Replaces the hamburger icon.' },
 		{ name: 'chevronIcon', type: 'Snippet', default: '—', note: 'Forwarded to the Nav.' },
+		{
+			name: 'navItemClass',
+			type: 'string',
+			default: '—',
+			note: 'Forwarded to both Navs as their itemClass — one class on every rendered nav link, bar and drawer. class stays the root header hook.'
+		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-header class.' }
 	],
 	a11yNote:

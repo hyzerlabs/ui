@@ -221,6 +221,7 @@ describe('buildLlmsFullJson', () => {
 			'description',
 			'importLine',
 			'props',
+			'restNote',
 			'types',
 			'hooks',
 			'a11yNote'

@@ -138,6 +138,44 @@ describe('R5 — link-only item (href, no children)', () => {
 		const li = container.querySelector('.hz-nav-links li') as HTMLElement;
 		expect(li.hasAttribute('data-has-children')).toBe(false);
 	});
+
+	it('item.class lands on the rendered link, in both orientations', () => {
+		const items = [{ label: 'Home', href: '/', class: 'site-link' }];
+		const { container } = render(Nav, { items });
+		expect(container.querySelector('a.hz-link.site-link')).not.toBeNull();
+		const { container: c2 } = render(Nav, { items, orientation: 'vertical' as const });
+		expect(c2.querySelector('a.hz-link.site-link')).not.toBeNull();
+	});
+
+	it('item.class lands on the label trigger for an href-less dropdown item', () => {
+		const { container } = render(Nav, {
+			items: [{ label: 'More', class: 'site-link', children: [{ label: 'A', href: '/a' }] }]
+		});
+		const btn = container.querySelector('.hz-nav-trigger') as HTMLButtonElement;
+		expect(btn.classList.contains('site-link')).toBe(true);
+	});
+
+	it('itemClass lands on every link and combines with item.class', () => {
+		const { container } = render(Nav, {
+			itemClass: 'site-link',
+			items: [
+				{ label: 'Home', href: '/' },
+				{ label: 'Docs', href: '/docs', class: 'docs-link' }
+			]
+		});
+		const links = container.querySelectorAll('a.hz-link');
+		expect(links.length).toBe(2);
+		expect(links[0].classList.contains('site-link')).toBe(true);
+		expect(links[1].classList.contains('site-link')).toBe(true);
+		expect(links[1].classList.contains('docs-link')).toBe(true);
+	});
+
+	it('child.class lands on dropdown menu links', () => {
+		const { container } = render(Nav, {
+			items: [{ label: 'More', children: [{ label: 'A', href: '/a', class: 'menu-link' }] }]
+		});
+		expect(container.querySelector('.hz-nav-panel a.menu-link')).not.toBeNull();
+	});
 });
 
 // ---------------------------------------------------------------------------

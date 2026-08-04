@@ -23,9 +23,21 @@
 		mobileBreakpoint?: HeaderBreakpoint;
 		/** Accessible name for the navigation. Required for meaningful landmarks. */
 		ariaLabel?: string;
+		/**
+		 * Bindable. The mobile drawer's open state — drive it externally (e.g.
+		 * close on SPA navigation) or read it. Activating a drawer link closes
+		 * the drawer on its own.
+		 */
+		open?: boolean;
 		menuIcon?: Snippet;
 		/** Forwarded to both Navs. */
 		chevronIcon?: Snippet;
+		/**
+		 * Forwarded to both Navs as their itemClass — one class on every
+		 * rendered nav link (bar and drawer), for attaching a site's existing
+		 * link styling. `class` stays the root header's hook.
+		 */
+		navItemClass?: string;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -39,24 +51,32 @@
 		bordered = false,
 		mobileBreakpoint = 'md',
 		ariaLabel = 'Main navigation',
+		open = $bindable(false),
 		menuIcon,
 		chevronIcon,
+		navItemClass,
 		class: className,
 		...rest
 	}: Props = $props();
 
 	const drawerId = uid('hz-header-drawer');
 
-	let mobileOpen = $state(false);
 	let toggleEl = $state<HTMLButtonElement | null>(null);
 
 	function toggleMobile() {
-		mobileOpen = !mobileOpen;
+		open = !open;
 	}
 
 	function closeMobile() {
-		mobileOpen = false;
+		open = false;
 		toggleEl?.focus();
+	}
+
+	// A drawer link was activated: the page is navigating (SPA routers swap
+	// the page under an open drawer), so close it. No focus move — the
+	// navigation owns where focus lands next.
+	function onDrawerClick(e: MouseEvent) {
+		if ((e.target as HTMLElement).closest('a[href]')) open = false;
 	}
 
 	// Focus trap + Escape for the open drawer (moved from Nav, spec 35 R4).
@@ -110,7 +130,7 @@
 			<div class="hz-header-logo">{@render logo()}</div>
 		{/if}
 
-		<Nav {items} orientation="horizontal" {ariaLabel} {chevronIcon} />
+		<Nav {items} orientation="horizontal" {ariaLabel} {chevronIcon} itemClass={navItemClass} />
 
 		{#if actions}
 			<div class="hz-header-actions">{@render actions()}</div>
@@ -119,7 +139,7 @@
 		<button
 			bind:this={toggleEl}
 			class="hz-header-toggle"
-			aria-expanded={mobileOpen ? 'true' : 'false'}
+			aria-expanded={open ? 'true' : 'false'}
 			aria-controls={drawerId}
 			aria-label="Toggle navigation menu"
 			onclick={toggleMobile}
@@ -134,10 +154,17 @@
 	<div
 		id={drawerId}
 		class="hz-header-drawer"
-		data-state={mobileOpen ? 'open' : 'closed'}
+		data-state={open ? 'open' : 'closed'}
 		onkeydown={onDrawerKeydown}
+		onclick={onDrawerClick}
 	>
-		<Nav {items} orientation="vertical" ariaLabel="{ariaLabel} (menu)" {chevronIcon} />
+		<Nav
+			{items}
+			orientation="vertical"
+			ariaLabel="{ariaLabel} (menu)"
+			{chevronIcon}
+			itemClass={navItemClass}
+		/>
 		{#if actions}
 			<div class="hz-header-drawer-actions">{@render actions()}</div>
 		{/if}

@@ -21,7 +21,17 @@ export interface ComponentDoc {
 	 * anything else, `**bold**` included, reaches the page as literal
 	 * punctuation. Use a short sentence instead of emphasis.
 	 */
+	/**
+	 * Rest-forwarding note under the props table. Omit for
+	 * REST_NOTE_DEFAULT; a string replaces it; `false` hides it (a component
+	 * with no rest spread, e.g. Metatags).
+	 */
+	restNote?: string | false;
 	a11yNote?: string;
 	/** APG pattern / MDN reference links rendered after the a11y note. */
 	a11yLinks?: A11yLink[];
 }
+
+/** The standard rest-forwarding sentence — DocPage and the llms endpoints share it. */
+export const REST_NOTE_DEFAULT =
+	'Anything not listed above is forwarded as an attribute — to the native control in form components, the root element otherwise. So id, data-*, aria-*, and event handlers just work.';

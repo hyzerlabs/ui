@@ -259,6 +259,39 @@ describe('Metatags — R6: dev warnings', () => {
 		expect(warn).toHaveBeenCalledWith(expect.stringContaining('title'));
 	});
 
+	it('a scheme-less host warns instead of silently resolving as a path', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { head } = render(Metatags, {
+			props: {
+				siteUrl: 'https://example.com',
+				title: 'Pricing',
+				image: 'localhost:5173/api/og.png',
+				imageAlt: 'card'
+			}
+		});
+		expect(head.length).toBeGreaterThan(0);
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('host without a scheme'));
+	});
+
+	it('a scheme-less domain path warns too; plain relative paths do not', () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const { head } = render(Metatags, {
+			props: {
+				siteUrl: 'https://example.com',
+				title: 'Pricing',
+				url: 'example.com/pricing'
+			}
+		});
+		expect(head.length).toBeGreaterThan(0);
+		expect(warn).toHaveBeenCalledWith(expect.stringContaining('host without a scheme'));
+		warn.mockClear();
+		const { head: h2 } = render(Metatags, {
+			props: { siteUrl: 'https://example.com', title: 'P', url: 'pricing/og.png' }
+		});
+		expect(h2.length).toBeGreaterThan(0);
+		expect(warn).not.toHaveBeenCalled();
+	});
+
 	it('a fully-specified render warns zero times', () => {
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
 		const { head } = render(Metatags, {
