@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Button, Container, Header, Tabs } from '$lib';
+	import IconArrowDown from '$lib/icons/generated/arrow-down.svelte';
+	import IconGrip from '$lib/icons/generated/grip.svelte';
 	import type { NavItem } from '$lib/types';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { headerDoc } from '../../../../docs/data/header.js';
@@ -34,7 +36,8 @@
 	const demoTabs = [
 		{ id: 'basic', label: 'Basic' },
 		{ id: 'surface', label: 'Surface' },
-		{ id: 'mobile', label: 'Mobile' }
+		{ id: 'mobile', label: 'Mobile' },
+		{ id: 'icons', label: 'Custom icons' }
 	];
 
 	// Shows the navItems data shape (the same demoItems used by the live demo
@@ -71,6 +74,14 @@
 		'<Header items={navItems} mobileBreakpoint="md">',
 		'\t{#snippet logo()}<Logo />{/snippet}',
 		'\t{#snippet actions()}<Button size="sm">Sign in</Button>{/snippet}',
+		'</Header>'
+	].join('\n');
+
+	const iconsCode = [
+		'<Header items={navItems}>',
+		'\t{#snippet logo()}<Logo />{/snippet}',
+		'\t{#snippet menuIcon()}<IconGrip size={20} />{/snippet}',
+		'\t{#snippet chevronIcon()}<IconArrowDown size={14} strokeWidth={1.5} />{/snippet}',
 		'</Header>'
 	].join('\n');
 </script>
@@ -128,7 +139,7 @@
 							</div>
 						{/snippet}
 					</Tabs>
-				{:else}
+				{:else if item.id === 'mobile'}
 					<p class="tab-note">
 						Drag under 968px and the bar collapses to the hamburger. <code>actions</code> stays in
 						the collapsed bar, pinned to the end next to the hamburger; override
@@ -158,6 +169,41 @@
 									{/snippet}
 									{#snippet actions()}
 										<Button size="sm">Sign in</Button>
+									{/snippet}
+								</Header>
+							</ResizableDemo>
+						</Example>
+					</Container>
+				{:else}
+					<p class="tab-note">
+						Two snippets restyle the header's icons. <code>menuIcon</code> replaces the hamburger in
+						the collapsed bar. <code>chevronIcon</code> is forwarded to both Navs, so it replaces
+						the dropdown chevron in the bar and the drawer alike. The theme rotates that chevron
+						180° while a menu is open, so pick one that reads both ways, like an arrow. Any of the
+						shared
+						<a href="/docs/components/icons">icons</a> works, as does any inline SVG; size and stroke
+						are the icon's own props.
+					</p>
+					<p class="tab-note">
+						Drag under 968px to see the custom hamburger; widen for the bar chevron.
+					</p>
+					<Container breakout padding="none">
+						<Example code={iconsCode}>
+							<ResizableDemo
+								initial={600}
+								describe={(w) =>
+									w >= 968 ? 'full bar, custom chevron' : 'collapsed, custom hamburger'}
+							>
+								<Header items={demoItems} bordered ariaLabel="Demo header (custom icons)">
+									{#snippet logo()}
+										<!-- svelte-ignore a11y_invalid_attribute -->
+										<a href="#" class="demo-logo">Hyzer Labs</a>
+									{/snippet}
+									{#snippet menuIcon()}
+										<IconGrip size={20} />
+									{/snippet}
+									{#snippet chevronIcon()}
+										<IconArrowDown size={14} strokeWidth={1.5} />
 									{/snippet}
 								</Header>
 							</ResizableDemo>

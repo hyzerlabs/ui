@@ -1,19 +1,21 @@
 <script lang="ts">
-	import { Stack, Tabs } from '$lib';
+	import { RadioGroup, Stack, Tabs } from '$lib';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { stackDoc } from '../../../../docs/data/stack.js';
 	import Example from '../../../../docs/Example.svelte';
 
 	const gapValues = ['none', 'xs', 'sm', 'md', 'lg', 'xl', 'near', 'away'] as const;
 	const alignValues = ['start', 'center', 'end', 'stretch', 'baseline'] as const;
+	type GapValue = (typeof gapValues)[number];
+	type AlignValue = (typeof alignValues)[number];
+	let gap = $state<GapValue>('md');
+	let align = $state<AlignValue>('stretch');
 
-	function gapCode(gap: string): string {
+	function spacingCode(gap: string, padding: string): string {
 		return [
-			`<Stack gap="${gap}">`,
-			'\t<div>Item 1</div>',
-			'\t<div>Item 2</div>',
-			'\t<div>Item 3</div>',
-			'</Stack>'
+			`<Stack gap="${gap}" padding="${padding}">…</Stack>`,
+			`<Stack gap="${gap}" paddingInline="${padding}">…</Stack>`,
+			`<Stack gap="${gap}" paddingBlock="${padding}">…</Stack>`
 		].join('\n');
 	}
 
@@ -27,137 +29,117 @@
 	}
 
 	const paddingValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
-
-	function paddingCode(padding: string): string {
-		return [
-			`<Stack padding="${padding}">…</Stack>`,
-			`<Stack paddingInline="${padding}">…</Stack>`,
-			`<Stack paddingBlock="${padding}">…</Stack>`
-		].join('\n');
-	}
+	type PaddingValue = (typeof paddingValues)[number];
+	let padding = $state<PaddingValue>('md');
 
 	const densityCode = [
-		'<Stack gap="near">',
-		'\t<div>Top-level: near = 4rem</div>',
-		'\t<Stack gap="near" data-density-shift>',
-		'\t\t<div>One shift: near = 2rem</div>',
-		'\t\t<Stack gap="near" data-density-shift>',
-		'\t\t\t<div>Two shifts: near = 0.8rem</div>',
-		'\t\t</Stack>',
+		'<Stack gap="away">',
+		'\t<div>Top-level: away = 8rem</div>',
+		'\t<Stack gap="away" data-density-shift>',
+		'\t\t<div>One shift: away = 4rem</div>',
+		'\t\t<!-- nest another data-density-shift here and away drops again, to 2rem -->',
 		'\t</Stack>',
 		'</Stack>'
 	].join('\n');
 
 	const demoTabs = [
-		{ id: 'gap', label: 'Gap' },
+		{ id: 'spacing', label: 'Spacing' },
 		{ id: 'align', label: 'Align' },
-		{ id: 'padding', label: 'Padding' },
 		{ id: 'density', label: 'Density' }
 	];
 </script>
 
 <DocPage name="Stack" {...stackDoc}>
-	<Tabs items={demoTabs} ariaLabel="Stack demos" defaultTab="gap">
+	<Tabs items={demoTabs} ariaLabel="Stack demos" defaultTab="spacing">
 		{#snippet panel(item)}
 			<div class="tab-content">
-				{#if item.id === 'gap'}
+				{#if item.id === 'spacing'}
 					<p class="tab-note">
-						Gap values map to the <code>--hz-space-*</code> tokens (<code>xs</code> 0.5rem →
-						<code>xl</code> 8rem). <code>near</code> and <code>away</code> are the
-						<a href="/docs/foundation/spacing">density distances</a>: context-aware values that
-						tighten inside <code>data-density-shift</code> regions (see the Density tab). The dashed outline
-						marks the Stack itself.
+						<code>gap</code> is the space between items; its values map to the
+						<code>--hz-space-*</code> tokens (<code>xs</code> 0.5rem → <code>xl</code> 8rem). The
+						tinted zone is the Stack; the space between its edge and the items is the
+						<code>padding</code>. <code>padding</code> applies on both axes;
+						<code>paddingInline</code> and <code>paddingBlock</code> override one axis and win where
+						set. Both stay correct in RTL and vertical writing modes. <code>near</code> and
+						<code>away</code> are the <a href="/docs/foundation/spacing">density distances</a>:
+						context-aware values that tighten inside <code>data-density-shift</code> regions (see the
+						Density tab).
 					</p>
-					<Tabs
-						items={gapValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Gap value"
-						defaultTab="md"
-					>
-						{#snippet panel(gapItem)}
-							<div class="inner-tab">
-								<Example code={gapCode(gapItem.id)}>
-									<Stack gap={gapItem.id as (typeof gapValues)[number]} class="demo-stack">
-										<div class="demo-box">Item 1</div>
-										<div class="demo-box">Item 2</div>
-										<div class="demo-box">Item 3</div>
-									</Stack>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="stack-gap"
+							label="gap"
+							orientation="horizontal"
+							options={gapValues.map((v) => ({ value: v, label: v }))}
+							bind:value={gap}
+						/>
+						<RadioGroup
+							name="stack-padding"
+							label="padding"
+							orientation="horizontal"
+							options={paddingValues.map((v) => ({ value: v, label: v }))}
+							bind:value={padding}
+						/>
+						<Example code={spacingCode(gap, padding)}>
+							<Stack gap="sm">
+								<Stack {gap} {padding} class="pad-frame">
+									<div class="demo-box">padding="{padding}"</div>
+									<div class="demo-box">gap="{gap}" between items</div>
+								</Stack>
+								<Stack {gap} paddingInline={padding} class="pad-frame">
+									<div class="demo-box">paddingInline="{padding}"</div>
+									<div class="demo-box">gap="{gap}" between items</div>
+								</Stack>
+								<Stack {gap} paddingBlock={padding} class="pad-frame">
+									<div class="demo-box">paddingBlock="{padding}"</div>
+									<div class="demo-box">gap="{gap}" between items</div>
+								</Stack>
+							</Stack>
+						</Example>
+					</Stack>
 				{:else if item.id === 'align'}
 					<p class="tab-note">
 						<code>align</code> maps to <code>align-items</code>. The effect shows when children have
 						different natural widths. The default <code>stretch</code> makes every child fill the Stack's
 						width.
 					</p>
-					<Tabs
-						items={alignValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Align value"
-						defaultTab="stretch"
-					>
-						{#snippet panel(alignItem)}
-							<div class="inner-tab">
-								<Example code={alignCode(alignItem.id)}>
-									<Stack align={alignItem.id as (typeof alignValues)[number]} class="demo-stack">
-										<div class="demo-box">Short</div>
-										<div class="demo-box">Medium width item</div>
-									</Stack>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
-				{:else if item.id === 'padding'}
-					<p class="tab-note">
-						The tinted zone is the Stack; the space between its edge and the items is the padding.
-						<code>padding</code> applies on both axes; <code>paddingInline</code> /
-						<code>paddingBlock</code> override one axis and win where set. The axis names are the
-						CSS logical properties, so they stay correct in RTL and vertical writing modes. See
-						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
-					</p>
-					<Tabs
-						items={paddingValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Padding value"
-						defaultTab="md"
-					>
-						{#snippet panel(padItem)}
-							{@const v = padItem.id as (typeof paddingValues)[number]}
-							<div class="inner-tab">
-								<Example code={paddingCode(padItem.id)}>
-									<Stack gap="sm">
-										<Stack gap="sm" padding={v} class="pad-frame">
-											<div class="demo-box">padding="{v}"</div>
-										</Stack>
-										<Stack gap="sm" paddingInline={v} class="pad-frame">
-											<div class="demo-box">paddingInline="{v}"</div>
-										</Stack>
-										<Stack gap="sm" paddingBlock={v} class="pad-frame">
-											<div class="demo-box">paddingBlock="{v}"</div>
-										</Stack>
-									</Stack>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="stack-align"
+							label="align"
+							orientation="horizontal"
+							options={alignValues.map((v) => ({ value: v, label: v }))}
+							bind:value={align}
+						/>
+						<Example code={alignCode(align)}>
+							<Stack {align} class="demo-stack">
+								<div class="demo-box">Short</div>
+								<div class="demo-box">Medium width item</div>
+							</Stack>
+						</Example>
+					</Stack>
 				{:else}
 					<p class="tab-note">
-						With <code>gap="near"</code> every Stack below uses the <em>same</em> prop; the spacing
-						tightens purely from nesting. <code>data-density-shift</code> goes directly on the Stack
-						(extra attributes forward to the root element), and the shift applies to that Stack's
-						own gap and everything inside it. See
-						<a href="/docs/foundation/spacing">density spacing</a> for the model.
+						Every Stack below uses the <em>same</em> <code>gap="away"</code>. The spacing tightens
+						from nesting alone. <code>data-density-shift</code> goes directly on the Stack (extra
+						attributes forward to the root element). The shift applies to that Stack's own gap and
+						to everything inside it. See <a href="/docs/foundation/spacing">density spacing</a> for the
+						model.
 					</p>
 					<Example code={densityCode}>
-						<Stack gap="near" class="demo-stack">
-							<div class="demo-box">Top-level: near = 4rem</div>
+						<!-- The docs chrome is already TWO data-density-shift levels deep
+						     (the docs layout wrapper + this page's Demo section), which
+						     leaves room for exactly one more rung of the ladder. So the
+						     live demo shows one nesting step and the code sample's comment
+						     carries the rest of the walk. The density-demo class re-anchors
+						     the visible values to what the sample produces at the top level
+						     of a page (see the style block). -->
+						<Stack gap="away" class="demo-stack density-demo">
+							<div class="demo-box">Top-level: away = 8rem</div>
 							<div class="demo-box">Top-level sibling</div>
-							<Stack gap="near" data-density-shift class="shift-region">
-								<div class="demo-box">One shift: near = 2rem</div>
+							<Stack gap="away" data-density-shift class="shift-region">
+								<div class="demo-box">One shift: away = 4rem</div>
 								<div class="demo-box">Sibling</div>
-								<Stack gap="near" data-density-shift class="shift-region">
-									<div class="demo-box">Two shifts: near = 0.8rem</div>
-									<div class="demo-box">Sibling</div>
-								</Stack>
 							</Stack>
 						</Stack>
 					</Example>
@@ -177,6 +159,20 @@
 		background: color-mix(in srgb, var(--hz-intent-secondary, #7c3aed) 12%, transparent);
 		border: 1px dashed var(--hz-intent-secondary, #7c3aed);
 		border-radius: var(--hz-radius-sm, 0.25rem);
+	}
+	/* Undo the docs chrome's TWO density shifts (layout wrapper + Demo
+	 * section) for the demo subtree, so the values shown match what the code
+	 * sample produces at the top level of a page. It takes two mechanisms
+	 * because custom properties inherit as COMPUTED values. The wrapper's own
+	 * away must be declared here, or it would inherit the chrome's
+	 * already-resolved value. The nested shift re-resolves its rung lookup per
+	 * element: at three shifts deep it reads rung depth-3, which is overridden
+	 * one step up. All of this is coupled to the chrome depth, and the demo
+	 * shows ONE nesting step because a second would sit past the ladder's
+	 * deepest selector and stop stepping. */
+	:global(.density-demo) {
+		--hz-space-away: calc(var(--hz-density) * 20);
+		--hz-density-ladder-depth-3: calc(var(--hz-density) * 10);
 	}
 	:global(.shift-region) {
 		border: 1px dashed var(--hz-intent-secondary, #7c3aed);

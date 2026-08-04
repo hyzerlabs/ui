@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { Container, Stack, Tabs, CodeBlock } from '$lib';
+	import { Container, RadioGroup, Stack, Tabs, CodeBlock } from '$lib';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { containerDoc } from '../../../../docs/data/container.js';
 	import Example from '../../../../docs/Example.svelte';
 
 	const maxValues = ['sm', 'md', 'lg', 'xl', 'full'] as const;
 	const paddingValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
+	type PaddingValue = (typeof paddingValues)[number];
+	let padding = $state<PaddingValue>('md');
 
 	const widthPx: Record<(typeof maxValues)[number], string> = {
 		sm: '640px',
@@ -74,32 +76,35 @@
 						they stay correct in RTL and vertical writing modes. See
 						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
 					</p>
-					<Tabs
-						items={paddingValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Padding value"
-						defaultTab="md"
-					>
-						{#snippet panel(padItem)}
-							{@const v = padItem.id as (typeof paddingValues)[number]}
-							<div class="inner-tab">
-								<Container breakout padding="none">
-									<Example code={paddingCode(padItem.id)}>
-										<Stack gap="sm">
-											<Container max="full" padding={v} class="pad-container">
-												<div class="pad-content">padding="{v}"</div>
-											</Container>
-											<Container max="full" padding="none" paddingInline={v} class="pad-container">
-												<div class="pad-content">paddingInline="{v}"</div>
-											</Container>
-											<Container max="full" padding="none" paddingBlock={v} class="pad-container">
-												<div class="pad-content">paddingBlock="{v}"</div>
-											</Container>
-										</Stack>
-									</Example>
-								</Container>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="container-padding"
+							label="padding"
+							orientation="horizontal"
+							options={paddingValues.map((v) => ({ value: v, label: v }))}
+							bind:value={padding}
+						/>
+						<Container breakout padding="none">
+							<Example code={paddingCode(padding)}>
+								<Stack gap="sm">
+									<Container max="full" {padding} class="pad-container">
+										<div class="pad-content">padding="{padding}"</div>
+									</Container>
+									<Container
+										max="full"
+										padding="none"
+										paddingInline={padding}
+										class="pad-container"
+									>
+										<div class="pad-content">paddingInline="{padding}"</div>
+									</Container>
+									<Container max="full" padding="none" paddingBlock={padding} class="pad-container">
+										<div class="pad-content">paddingBlock="{padding}"</div>
+									</Container>
+								</Stack>
+							</Example>
+						</Container>
+					</Stack>
 				{:else if item.id === 'center'}
 					<p class="tab-note">
 						<code>center</code> only matters when the container is narrower than its parent. The

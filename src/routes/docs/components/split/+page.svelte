@@ -1,14 +1,27 @@
 <script lang="ts">
-	import { Container, Split, Stack, Tabs } from '$lib';
+	import { Container, RadioGroup, Split, Stack, Tabs } from '$lib';
 	import DocPage from '../../../../docs/DocPage.svelte';
 	import { splitDoc } from '../../../../docs/data/split.js';
 	import Example from '../../../../docs/Example.svelte';
 	import ResizableDemo from '../../../../docs/ResizableDemo.svelte';
 
-	const fractionValues = ['1/4', '1/3', '1/2', '2/3', '3/4', 'auto'] as const;
-	const stackValues = ['sm', 'md', 'lg'] as const;
+	const fractionValues = ['1/4', '1/3', '1/2', '2/3', '3/4', 'auto', 'auto-end'] as const;
+	const stackValues = ['sm', 'md', 'lg', 'none'] as const;
 
-	const stackPx: Record<(typeof stackValues)[number], number> = { sm: 640, md: 968, lg: 1200 };
+	type FractionValue = (typeof fractionValues)[number];
+	type StackValue = (typeof stackValues)[number];
+
+	// One interactive demo per tab: a RadioGroup picks the value, and the
+	// Example's code and preview follow it.
+	let fraction = $state<FractionValue>('1/2');
+	let stackValue = $state<StackValue>('sm');
+
+	const stackPx: Record<StackValue, number> = {
+		sm: 640,
+		md: 968,
+		lg: 1200,
+		none: 0
+	};
 
 	// Readout annotation factory for the resizable stacking demo.
 	function stackBand(threshold: number): (w: number) => string {
@@ -42,12 +55,18 @@
 	}
 
 	const paddingValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
+	type PaddingValue = (typeof paddingValues)[number];
+	let padding = $state<PaddingValue>('md');
 
-	function paddingCode(padding: string): string {
+	const gapValues = ['none', 'sm', 'md', 'lg', 'near', 'away'] as const;
+	type GapValue = (typeof gapValues)[number];
+	let gap = $state<GapValue>('md');
+
+	function spacingCode(gap: string, padding: string): string {
 		return [
-			`<Split padding="${padding}">…</Split>`,
-			`<Split paddingInline="${padding}">…</Split>`,
-			`<Split paddingBlock="${padding}">…</Split>`
+			`<Split gap="${gap}" padding="${padding}">…</Split>`,
+			`<Split gap="${gap}" paddingInline="${padding}">…</Split>`,
+			`<Split gap="${gap}" paddingBlock="${padding}">…</Split>`
 		].join('\n');
 	}
 
@@ -55,7 +74,7 @@
 		{ id: 'fraction', label: 'Fractions' },
 		{ id: 'reverse', label: 'Reverse' },
 		{ id: 'stack', label: 'Stacking' },
-		{ id: 'padding', label: 'Padding' }
+		{ id: 'spacing', label: 'Spacing' }
 	];
 </script>
 
@@ -66,29 +85,30 @@
 				{#if item.id === 'fraction'}
 					<p class="tab-note">
 						<code>fraction</code> is the first column's share. <code>auto</code> sizes the first
-						column to its content and gives the rest to the second. Below the
-						<code>stackBelow</code> width (default <code>sm</code>, 640px of the Split's own width)
-						the columns stack.
+						column to its content and gives the rest to the second. <code>auto-end</code> mirrors
+						that: the last column sizes to its content while the first takes the rest. Below the
+						<code>stackBelow</code> width the columns stack. The default <code>sm</code> is 640px of the
+						Split's own width.
 					</p>
-					<Tabs
-						items={fractionValues.map((f) => ({ id: f.replace('/', '-'), label: f }))}
-						ariaLabel="Fraction value"
-						defaultTab="1-2"
-					>
-						{#snippet panel(fItem)}
-							{@const fraction = fItem.id.replace('-', '/') as (typeof fractionValues)[number]}
-							<div class="inner-tab">
-								<Example code={fractionCode(fraction)}>
-									<Split {fraction} gap="md">
-										<div class="demo-pane demo-pane--a">
-											{fraction === 'auto' ? 'Sized to content' : 'First'}
-										</div>
-										<div class="demo-pane demo-pane--b">Second</div>
-									</Split>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="split-fraction"
+							label="fraction"
+							orientation="horizontal"
+							options={fractionValues.map((f) => ({ value: f, label: f }))}
+							bind:value={fraction}
+						/>
+						<Example code={fractionCode(fraction)}>
+							<Split {fraction} gap="md">
+								<div class="demo-pane demo-pane--a">
+									{fraction === 'auto' ? 'Sized to content' : 'First'}
+								</div>
+								<div class="demo-pane demo-pane--b">
+									{fraction === 'auto-end' ? 'Sized to content' : 'Second'}
+								</div>
+							</Split>
+						</Example>
+					</Stack>
 				{:else if item.id === 'reverse'}
 					<p class="tab-note">
 						<code>reverse</code> swaps the columns with CSS <code>order</code>. The DOM is
@@ -103,71 +123,75 @@
 					</Example>
 				{:else if item.id === 'stack'}
 					<p class="tab-note">
-						The Split stacks when its own width drops under the chosen width token (sm 640px, md
-						968px, lg 1200px). The threshold resolves through
+						The Split stacks when its own width drops under the chosen width token (<code>sm</code>
+						640px, <code>md</code> 968px, <code>lg</code> 1200px). The threshold resolves through
 						<code>var(--hz-width-*)</code>, so overriding those tokens (globally or on any ancestor)
-						retunes when it stacks. Use the slider to cross the threshold.
+						changes when it stacks. <code>none</code> never stacks, no matter how narrow the Split gets.
+						Use the slider to cross the threshold.
 					</p>
-					<Tabs
-						items={stackValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="stackBelow value"
-						defaultTab="sm"
-					>
-						{#snippet panel(sItem)}
-							{@const value = sItem.id as (typeof stackValues)[number]}
-							<div class="inner-tab">
-								<Container breakout padding="none">
-									<Example code={stackCode(value)}>
-										<ResizableDemo
-											initial={value === 'sm' ? 720 : stackPx[value] + 100}
-											describe={stackBand(stackPx[value])}
-										>
-											<Split stackBelow={value} gap="md">
-												<div class="demo-pane demo-pane--a">First</div>
-												<div class="demo-pane demo-pane--b">Second</div>
-											</Split>
-										</ResizableDemo>
-									</Example>
-								</Container>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="split-stack-below"
+							label="stackBelow"
+							orientation="horizontal"
+							options={stackValues.map((v) => ({ value: v, label: v }))}
+							bind:value={stackValue}
+						/>
+						<Container breakout padding="none">
+							<Example code={stackCode(stackValue)}>
+								<ResizableDemo initial={720} describe={stackBand(stackPx[stackValue])}>
+									<Split stackBelow={stackValue} gap="md">
+										<div class="demo-pane demo-pane--a">First</div>
+										<div class="demo-pane demo-pane--b">Second</div>
+									</Split>
+								</ResizableDemo>
+							</Example>
+						</Container>
+					</Stack>
 				{:else}
 					<p class="tab-note">
-						The tinted zone is the Split; the space between its edge and the panes is the padding.
-						It sits on the split root, so <code>stackBelow</code> measures the padded-down width.
-						<code>padding</code> applies on both axes; <code>paddingInline</code> /
-						<code>paddingBlock</code> override one axis and win where set. The axis names are the
-						CSS logical properties, so they stay correct in RTL and vertical writing modes. See
-						<a href="/docs/foundation/spacing#axes-heading">Spacing &amp; Sizing</a>.
+						<code>gap</code> is the space between the two columns, and between the stacked rows
+						below the <code>stackBelow</code> width. The tinted zone is the Split; the space between
+						its edge and the panes is the <code>padding</code>. <code>padding</code>
+						applies on both axes; <code>paddingInline</code> and <code>paddingBlock</code>
+						override one axis and win where set. Both stay correct in RTL and vertical writing modes.
+						The padding sits on the split root, so <code>stackBelow</code> measures the padded-down
+						width. <code>near</code> and <code>away</code> are the
+						<a href="/docs/foundation/spacing">density distances</a>: context-aware values that
+						tighten inside <code>data-density-shift</code> regions.
 					</p>
-					<Tabs
-						items={paddingValues.map((v) => ({ id: v, label: v }))}
-						ariaLabel="Padding value"
-						defaultTab="md"
-					>
-						{#snippet panel(padItem)}
-							{@const v = padItem.id as (typeof paddingValues)[number]}
-							<div class="inner-tab">
-								<Example code={paddingCode(padItem.id)}>
-									<Stack gap="sm">
-										<Split gap="md" padding={v} class="pad-frame">
-											<div class="demo-pane demo-pane--a">padding="{v}"</div>
-											<div class="demo-pane demo-pane--b">Second</div>
-										</Split>
-										<Split gap="md" paddingInline={v} class="pad-frame">
-											<div class="demo-pane demo-pane--a">paddingInline="{v}"</div>
-											<div class="demo-pane demo-pane--b">Second</div>
-										</Split>
-										<Split gap="md" paddingBlock={v} class="pad-frame">
-											<div class="demo-pane demo-pane--a">paddingBlock="{v}"</div>
-											<div class="demo-pane demo-pane--b">Second</div>
-										</Split>
-									</Stack>
-								</Example>
-							</div>
-						{/snippet}
-					</Tabs>
+					<Stack gap="sm">
+						<RadioGroup
+							name="split-gap"
+							label="gap"
+							orientation="horizontal"
+							options={gapValues.map((v) => ({ value: v, label: v }))}
+							bind:value={gap}
+						/>
+						<RadioGroup
+							name="split-padding"
+							label="padding"
+							orientation="horizontal"
+							options={paddingValues.map((v) => ({ value: v, label: v }))}
+							bind:value={padding}
+						/>
+						<Example code={spacingCode(gap, padding)}>
+							<Stack gap="sm">
+								<Split {gap} {padding} class="pad-frame">
+									<div class="demo-pane demo-pane--a">padding="{padding}"</div>
+									<div class="demo-pane demo-pane--b">Second</div>
+								</Split>
+								<Split {gap} paddingInline={padding} class="pad-frame">
+									<div class="demo-pane demo-pane--a">paddingInline="{padding}"</div>
+									<div class="demo-pane demo-pane--b">Second</div>
+								</Split>
+								<Split {gap} paddingBlock={padding} class="pad-frame">
+									<div class="demo-pane demo-pane--a">paddingBlock="{padding}"</div>
+									<div class="demo-pane demo-pane--b">Second</div>
+								</Split>
+							</Stack>
+						</Example>
+					</Stack>
 				{/if}
 			</div>
 		{/snippet}
