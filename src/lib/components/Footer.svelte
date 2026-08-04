@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { DEV } from 'esm-env';
 	import type { FooterColumn } from '$lib/types';
 	import { cx } from '$lib/utils';
 	import Link from './Link.svelte';
@@ -35,6 +36,34 @@
 		class: className,
 		...rest
 	}: Props = $props();
+
+	// a blank title degrades the column below: the title is the landmark's
+	// accessible name, and aria-label="" is a nameless `navigation` landmark.
+	function blankTitle(title: string): boolean {
+		return title.trim() === '';
+	}
+
+	$effect(() => {
+		if (!DEV) return;
+
+		// footer links are a flat list — `children` is ignored, and silence
+		// would hide the misuse. One warning per render pass, first offender.
+		const offender = columns.flatMap((c) => c.links).find((l) => l.children !== undefined);
+		if (offender) {
+			console.warn(
+				`[hz-footer] Footer links are a flat list — \`children\` on "${offender.label}" was ` +
+					'ignored. For navigation with expandable sections, use <Nav orientation="vertical"> instead.'
+			);
+		}
+
+		const blankIdx = columns.findIndex((c) => blankTitle(c.title));
+		if (blankIdx !== -1) {
+			console.warn(
+				`[hz-footer] Column ${blankIdx} has a blank title. The title names the column's ` +
+					'navigation landmark, so the column rendered without one — give every column a title.'
+			);
+		}
+	});
 </script>
 
 <!--
@@ -52,29 +81,41 @@
 		<div class="hz-footer-logo">{@render logo()}</div>
 	{/if}
 
+	{#snippet columnLinks(column: FooterColumn)}
+		<ul role="list">
+			{#each column.links as item, li (li)}
+				{#if item.href}
+					<li>
+						<Link
+							href={item.href}
+							variant={linkVariant}
+							external={item.external}
+							ariaCurrent={item.ariaCurrent}>{item.label}</Link
+						>
+					</li>
+				{:else}
+					<li>{item.label}</li>
+				{/if}
+			{/each}
+		</ul>
+	{/snippet}
+
 	<Grid class="hz-footer-columns">
 		{#each columns as column, ci (ci)}
-			<nav class="hz-footer-column" aria-label={column.title}>
-				<svelte:element this={`h${headingLevel}`} class="hz-footer-heading">
-					{column.title}
-				</svelte:element>
-				<ul role="list">
-					{#each column.links as item, li (li)}
-						{#if item.href}
-							<li>
-								<Link
-									href={item.href}
-									variant={linkVariant}
-									external={item.external}
-									ariaCurrent={item.ariaCurrent}>{item.label}</Link
-								>
-							</li>
-						{:else}
-							<li>{item.label}</li>
-						{/if}
-					{/each}
-				</ul>
-			</nav>
+			{#if blankTitle(column.title)}
+				<!-- no <nav>, no heading — a nameless landmark and an empty
+				     heading are both worse than neither. Links stay intact. -->
+				<div class="hz-footer-column">
+					{@render columnLinks(column)}
+				</div>
+			{:else}
+				<nav class="hz-footer-column" aria-label={column.title}>
+					<svelte:element this={`h${headingLevel}`} class="hz-footer-heading">
+						{column.title}
+					</svelte:element>
+					{@render columnLinks(column)}
+				</nav>
+			{/if}
 		{/each}
 	</Grid>
 

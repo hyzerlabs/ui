@@ -58,11 +58,11 @@ export const footerDoc: ComponentDoc = {
 					name: 'links',
 					type: 'NavItem[]',
 					default: '—',
-					note: 'Required. label/href/external/ariaCurrent apply — see NavItem on the Nav page.'
+					note: 'Required. Footer links are a flat list: label/href/external/ariaCurrent apply and children is ignored — see NavItem on the Nav page. For navigation with expandable sections, use a vertical Nav instead.'
 				}
 			]
 		}
 	],
 	a11yNote:
-		'Each column is a `<nav>` landmark whose `aria-label` is its title. The visible heading repeats that text, but the heading is not what names the landmark. Set `headingLevel` to match your page hierarchy. Links use the Link component, and icon-only social links need an `ariaLabel`.'
+		"Each column is a `<nav>` landmark whose `aria-label` is its title. The visible heading repeats that text, but the heading is not what names the landmark — the title is, so give every column one and keep those titles distinct from the site's main navigation label. A column with a blank title renders without a landmark or heading. Set `headingLevel` to match your page hierarchy. Links use the Link component, and icon-only social links need an `ariaLabel`."
 };
