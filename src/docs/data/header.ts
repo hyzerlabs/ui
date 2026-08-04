@@ -47,5 +47,11 @@ export const headerDoc: ComponentDoc = {
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-header class.' }
 	],
 	a11yNote:
-		'The header is a `banner` landmark. Its bar and drawer each render a `Nav` landmark with distinct accessible names (`ariaLabel` and `ariaLabel (menu)`), so they do not collide.\n\nThe hamburger carries `aria-expanded` and `aria-controls`. The open drawer traps focus. `Escape` closes it and returns focus to the toggle.\n\nAt narrow widths, the drawer keeps every link reachable.'
+		'The header is a `banner` landmark. Its bar and drawer each render a `Nav` landmark with distinct accessible names (`ariaLabel` and `ariaLabel (menu)`), so they do not collide.\n\nThe hamburger carries `aria-expanded` and `aria-controls`. The open drawer traps focus. `Escape` closes it and returns focus to the toggle.\n\nAt narrow widths, the drawer keeps every link reachable.',
+	a11yLinks: [
+		{
+			label: 'MDN: <nav>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/nav'
+		}
+	]
 };
