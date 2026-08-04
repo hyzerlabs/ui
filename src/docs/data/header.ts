@@ -50,6 +50,10 @@ export const headerDoc: ComponentDoc = {
 		'The header is a `banner` landmark. Its bar and drawer each render a `Nav` landmark with distinct accessible names (`ariaLabel` and `ariaLabel (menu)`), so they do not collide.\n\nThe hamburger carries `aria-expanded` and `aria-controls`. The open drawer traps focus. `Escape` closes it and returns focus to the toggle.\n\nAt narrow widths, the drawer keeps every link reachable.',
 	a11yLinks: [
 		{
+			label: 'MDN: <header>',
+			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/header'
+		},
+		{
 			label: 'MDN: <nav>',
 			href: 'https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/nav'
 		}
