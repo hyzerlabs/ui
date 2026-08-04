@@ -275,6 +275,37 @@ describe('Forms-R1 — class composition', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Forms-R4 — element exposure
+// ---------------------------------------------------------------------------
+
+describe('Forms-R4 — element exposure', () => {
+	it('element bindable receives the underlying <input>', () => {
+		const props = $state({
+			name: 'x',
+			label: 'X',
+			element: undefined as HTMLInputElement | undefined
+		});
+		const { container } = render(Checkbox, props);
+		expect(props.element).toBe(container.querySelector('input'));
+	});
+
+	it('internal element logic survives a wholesale props swap (mirror-ref pattern)', async () => {
+		// Regression: internal logic must read the private ref, not the bindable —
+		// an unbound bindable read goes stale when the parent replaces its whole
+		// props object, which is exactly what rerender does.
+		const { container, rerender } = render(Checkbox, {
+			name: 'x',
+			label: 'X',
+			indeterminate: false
+		});
+		const input = container.querySelector('input') as HTMLInputElement;
+		expect(input.indeterminate).toBe(false);
+		await rerender({ indeterminate: true });
+		expect(input.indeterminate).toBe(true);
+	});
+});
+
+// ---------------------------------------------------------------------------
 // Forms-R3 — Barrel export
 // ---------------------------------------------------------------------------
 

@@ -5,6 +5,8 @@
 	interface Props extends FieldBase {
 		checked?: boolean;
 		value?: string;
+		/** The underlying `<input>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLInputElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -19,6 +21,7 @@
 		hideLabel = false,
 		checked = $bindable(false),
 		value,
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -51,6 +54,7 @@
 <div class={cx('hz-field', 'hz-field--toggle', className)} data-state={dataState}>
 	<input
 		{...rest}
+		bind:this={element}
 		type="checkbox"
 		role="switch"
 		class="hz-toggle"

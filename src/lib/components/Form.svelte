@@ -13,6 +13,8 @@
 		novalidate?: boolean;
 		ariaLabel?: string;
 		children: Snippet;
+		/** The underlying `<form>` element — `bind:element` for form.elements/requestSubmit. */
+		element?: HTMLFormElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -26,6 +28,8 @@
 		novalidate = false,
 		ariaLabel,
 		children,
+		// eslint-disable-next-line no-useless-assignment -- write-only bindable; mirrored from the private ref
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -45,8 +49,14 @@
 			: (summaryTitle ?? defaultSummaryTitle(errors.length))
 	);
 
-	// bind:this on the form element for form.elements access.
+	// bind:this on the form element for form.elements access. Internal logic
+	// reads this private ref, not `element` — an unbound bindable prop can go
+	// stale when the parent swaps its props object; the effect mirrors it out.
 	let formEl: HTMLFormElement | null = $state(null);
+
+	$effect(() => {
+		element = formEl ?? undefined;
+	});
 
 	// internal flag — set true on every submit, consumed by the focus
 	// effect on the first `errors` reassignment after the submit (sync from

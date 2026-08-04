@@ -77,6 +77,12 @@ export const fileUploadDoc: ComponentDoc = {
 		{ name: 'disabled', type: 'boolean', default: 'false' },
 		{ name: 'hideLabel', type: 'boolean', default: 'false' },
 		{
+			name: 'element',
+			type: 'HTMLInputElement',
+			default: '—',
+			note: 'Bindable. The underlying file input element, for focus and keyboard shortcuts.'
+		},
+		{
 			name: 'class',
 			type: 'string',
 			default: '—',

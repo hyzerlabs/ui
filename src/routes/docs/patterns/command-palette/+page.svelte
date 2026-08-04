@@ -15,7 +15,8 @@
 	<DocIntro />
 
 	<p class="composed">
-		Composes <a href="/docs/components/modal">Modal</a>, the shared
+		Composes <a href="/docs/components/modal">Modal</a>,
+		<a href="/docs/components/text-input">TextInput</a> (via <code>bind:element</code>), the shared
 		<a href="/docs/components/icons">icons</a>, and the design tokens.
 	</p>
 

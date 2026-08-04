@@ -25,6 +25,8 @@
 		inputmode?: HTMLInputAttributes['inputmode'];
 		prefix?: Snippet;
 		suffix?: Snippet;
+		/** The underlying `<input>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLInputElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -46,6 +48,7 @@
 		inputmode,
 		prefix,
 		suffix,
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -79,6 +82,7 @@
 
 		<input
 			{...rest}
+			bind:this={element}
 			id={inputId}
 			{name}
 			{type}
