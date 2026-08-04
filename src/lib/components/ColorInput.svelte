@@ -7,6 +7,8 @@
 		value?: string;
 		showInput?: boolean;
 		inputLabel?: string;
+		/** The underlying color `<input>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLInputElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -22,6 +24,7 @@
 		value = $bindable('#000000'),
 		showInput = true,
 		inputLabel = `${label} (hex value)`,
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -69,6 +72,7 @@
 	<div class="hz-color-row">
 		<input
 			{...rest}
+			bind:this={element}
 			type="color"
 			class="hz-color"
 			id={inputId}

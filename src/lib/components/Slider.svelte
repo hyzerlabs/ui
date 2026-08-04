@@ -16,6 +16,8 @@
 		orientation?: 'horizontal' | 'vertical';
 		/** Logical, both axes; default 'end' (today's trailing layout). */
 		inputPosition?: 'start' | 'end';
+		/** The underlying range `<input>` element — `bind:element` for focus/shortcuts. */
+		element?: HTMLInputElement;
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -38,6 +40,7 @@
 		inputLabel = `${label} (exact value)`,
 		orientation = 'horizontal',
 		inputPosition = 'end',
+		element = $bindable(),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -108,6 +111,7 @@
 		<div class="hz-slider-track">
 			<input
 				{...rest}
+				bind:this={element}
 				type="range"
 				class="hz-slider"
 				id={inputId}

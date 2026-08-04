@@ -6,6 +6,12 @@
 		options: FormOption[];
 		value?: string;
 		orientation?: 'horizontal' | 'vertical';
+		/**
+		 * The radio `<input>` elements in options order — `bind:elements` for
+		 * focus/shortcuts. When options shrink, removed entries become null
+		 * (the array does not compact).
+		 */
+		elements?: (HTMLInputElement | null)[];
 		class?: string;
 		[key: string]: unknown;
 	}
@@ -21,6 +27,7 @@
 		options,
 		value = $bindable(''),
 		orientation = 'vertical',
+		elements = $bindable([]),
 		class: className,
 		...rest
 	}: Props = $props();
@@ -88,6 +95,7 @@
 					arrow-key navigation is native (shared name).
 				-->
 				<input
+					bind:this={elements[i]}
 					type="radio"
 					id={radioId(i)}
 					{name}

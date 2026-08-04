@@ -498,6 +498,23 @@ describe('Forms-R2 — rest forwarding', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Forms-R4 — element exposure
+// ---------------------------------------------------------------------------
+
+describe('Forms-R4 — element exposure', () => {
+	it('element bindable receives the underlying <input>', () => {
+		// reactive props object — Svelte writes bindable props back into it.
+		const props = $state({
+			name: 'x',
+			label: 'X',
+			element: undefined as HTMLInputElement | undefined
+		});
+		const { container } = render(TextInput, props);
+		expect(props.element).toBe(container.querySelector('input'));
+	});
+});
+
+// ---------------------------------------------------------------------------
 // Forms-R3 — Barrel export
 // ---------------------------------------------------------------------------
 

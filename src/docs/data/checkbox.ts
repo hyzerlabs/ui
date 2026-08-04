@@ -30,6 +30,12 @@ export const checkboxDoc: ComponentDoc = {
 		{ name: 'disabled', type: 'boolean', default: 'false' },
 		{ name: 'hideLabel', type: 'boolean', default: 'false' },
 		{
+			name: 'element',
+			type: 'HTMLInputElement',
+			default: '—',
+			note: 'Bindable. The underlying input element, for focus and keyboard shortcuts.'
+		},
+		{
 			name: 'class',
 			type: 'string',
 			default: '—',

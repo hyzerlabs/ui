@@ -74,6 +74,18 @@ export const rangeSliderDoc: ComponentDoc = {
 		{ name: 'disabled', type: 'boolean', default: 'false', note: 'Disables all four inputs.' },
 		{ name: 'hideLabel', type: 'boolean', default: 'false' },
 		{
+			name: 'elementMin',
+			type: 'HTMLInputElement',
+			default: '—',
+			note: 'Bindable. The underlying min-thumb range input element, for focus and keyboard shortcuts.'
+		},
+		{
+			name: 'elementMax',
+			type: 'HTMLInputElement',
+			default: '—',
+			note: 'Bindable. The underlying max-thumb range input element, for focus and keyboard shortcuts.'
+		},
+		{
 			name: 'class',
 			type: 'string',
 			default: '—',

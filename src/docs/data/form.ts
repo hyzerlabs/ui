@@ -37,6 +37,12 @@ export const formDoc: ComponentDoc = {
 		{ name: 'novalidate', type: 'boolean', default: 'false' },
 		{ name: 'ariaLabel', type: 'string', default: '—', note: 'Names the form landmark.' },
 		{ name: 'children', type: 'Snippet', default: '—', note: 'Required. The form content.' },
+		{
+			name: 'element',
+			type: 'HTMLFormElement',
+			default: '—',
+			note: 'Bindable. The underlying form element, for requestSubmit() or form.elements.'
+		},
 		{ name: 'class', type: 'string', default: '—', note: 'Merged after the hz-form class.' }
 	],
 	types: [
