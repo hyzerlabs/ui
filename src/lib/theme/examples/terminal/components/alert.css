@@ -22,7 +22,6 @@
 	/* The cell glows in its own intent rather than casting a shadow — there
 	 * is no light in here except the tube. */
 	box-shadow: 0 0 16px -4px color-mix(in srgb, var(--_c) 50%, transparent);
-	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
 }
 
 /* Square, whatever data-rounded says. */

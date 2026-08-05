@@ -186,7 +186,8 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 			1 + // --hz-density
 			resolved.dark.palette.length +
 			resolved.dark.color.length +
-			resolved.dark.intent.length;
+			resolved.dark.intent.length +
+			resolved.dark.rest.length;
 		log(`wrote ${outPath} (${mode}, ${tokenCount} tokens)`);
 
 		if (iconsResult) {

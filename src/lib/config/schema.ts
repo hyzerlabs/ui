@@ -22,6 +22,7 @@ import {
 	zIndex,
 	motion
 } from '../tokens/index.js';
+import { componentHooks } from '../tokens/hooks.js';
 
 // ---------------------------------------------------------------------------
 // Public config types
@@ -65,22 +66,24 @@ export interface HyzerTokensOverride {
 	motion?: { duration?: TokenGroupOverride; ease?: TokenGroupOverride };
 	/** The density grid unit (`--hz-density`); the near/away cascade derives from it. */
 	density?: { unit?: string };
+	/**
+	 * Per-component theme hooks (`--hz-button-accent`, `--hz-badge-tint`, …),
+	 * flat and keyed by the hook name minus its `--hz-` prefix
+	 * (`buttonAccent`, `badgeTint`). Root-only: a theme entry that sets this
+	 * is a `HyzerConfigError`, because a hook is emitted as its own rule on
+	 * the component's element, not as a declaration inside a theme block —
+	 * point a hook at a token instead, and the token flips per theme on its
+	 * own. See the component-hooks docs page for the full vocabulary.
+	 */
+	components?: TokenGroupOverride;
 }
 
 /**
- * One named theme — a `[data-theme="<name>"]` block. Both color layers are
- * open: override/add hues (ramps supported) in `palette`, override roles in
- * `color`, and remap or add intents in `intent`.
- *
- * `dark` is one of these, merged over the base dark authoring (the base
- * authors dark entirely at the palette layer — the two-tier rule). Every
- * other name starts from nothing and is entirely the consumer's.
+ * One named theme — a `[data-theme="<name>"]` block. A theme is a token
+ * override, exactly like `tokens`: it accepts every group `tokens` accepts,
+ * not only color.
  */
-export interface HyzerThemeOverride {
-	palette?: RampGroupOverride;
-	color?: TokenGroupOverride;
-	intent?: TokenGroupOverride;
-}
+export type HyzerThemeOverride = HyzerTokensOverride;
 
 export interface HyzerConfig {
 	/** Where `hyzer generate` writes the sheet, relative to the config file. */
@@ -94,10 +97,14 @@ export interface HyzerConfig {
 	tokens?: HyzerTokensOverride;
 	/**
 	 * Named themes, keyed by the `data-theme` attribute value that activates
-	 * them. `dark` is a theme like any other (it merges over the base dark
-	 * authoring); `light` is reserved, because the default theme is the `:root`
-	 * block authored via `tokens`, and `[data-theme='light']` re-asserts that
-	 * default for a reader whose system prefers dark.
+	 * them. A theme is a token override — the same shape as `tokens`, and it
+	 * takes any group `tokens` takes, not only color. `dark` is a theme like
+	 * any other, except that it merges over the base dark authoring (the base
+	 * authors dark entirely at the palette layer — the two-tier rule); every
+	 * other name starts from nothing and is entirely the consumer's. `light`
+	 * is reserved, because the default theme is the `:root` block authored via
+	 * `tokens`, and `[data-theme='light']` re-asserts that default for a
+	 * reader whose system prefers dark.
 	 *
 	 * One attribute holds one value, so themes are mutually exclusive: a dark
 	 * variant of a named theme is its own entry (`'ocean-dark'`), not a
@@ -179,6 +186,8 @@ export interface ResolvedTheme {
 	palette: TokenEntry[];
 	color: TokenEntry[];
 	intent: TokenEntry[];
+	/** Every non-color group the theme touches, in :root section order. */
+	rest: TokenEntry[];
 }
 
 export interface ResolvedConfig {
@@ -199,6 +208,15 @@ export interface ResolvedConfig {
 	dark: ResolvedTheme;
 	/** Every other named theme, in config declaration order. */
 	themes: ResolvedTheme[];
+	/**
+	 * Resolved `tokens.components` — per-component theme hooks
+	 * (`--hz-button-accent`, `--hz-badge-tint`, …), config order. A top-level
+	 * field rather than a `ResolvedSection`: sections are `:root`
+	 * declarations, and these are emitted as their own rule on the owning
+	 * component element instead (see `componentHooks` in
+	 * `src/lib/tokens/hooks.ts` and `generate.ts`'s emission).
+	 */
+	components: TokenEntry[];
 	output?: string;
 	/**
 	 * Deduplicated, order-preserved raw `icons` config —
@@ -256,6 +274,55 @@ function assertStringValues(group: TokenGroupOverride | undefined, where: string
 		if (typeof value !== 'string' || value.trim() === '') {
 			throw new HyzerConfigError(`${where}.${key} must be a non-empty string.`);
 		}
+	}
+}
+
+/**
+ * Every check a `HyzerTokensOverride` shape must pass, shared by
+ * `config.tokens` and every `config.themes.<name>` entry — one shared group
+ * validator (R3) rather than two lists that can drift apart. `where` is the
+ * object's own path (`config.tokens` or `config.themes.x`); nested errors
+ * name their own sub-path off of it. `isTheme` gates the members that are
+ * root-only (R1): `components` today, because a hook is emitted as its own
+ * rule on the component's element, not as a declaration inside a theme
+ * block, so a theme-block copy of it would be inherited-and-ignored there.
+ */
+function assertTokenGroups(
+	obj: Record<string, unknown> | undefined,
+	where: string,
+	isTheme = false
+): void {
+	assertKnownKeys(obj, TOKEN_GROUP_KEYS, where);
+	const tokens = obj as HyzerTokensOverride | undefined;
+	if (isTheme && tokens?.components !== undefined) {
+		throw new HyzerConfigError(
+			`${where}.components is not allowed in a theme. Set hooks under config.tokens.components, ` +
+				'which applies under every theme. To vary one per theme, point the hook at a token and ' +
+				'override that token here.'
+		);
+	}
+	assertKnownKeys(
+		tokens?.typography as Record<string, unknown> | undefined,
+		['fontSize', 'fontFamily', 'fontWeight', 'lineHeight'],
+		`${where}.typography`
+	);
+	assertKnownKeys(
+		tokens?.border as Record<string, unknown> | undefined,
+		['width'],
+		`${where}.border`
+	);
+	assertKnownKeys(
+		tokens?.motion as Record<string, unknown> | undefined,
+		['duration', 'ease'],
+		`${where}.motion`
+	);
+	assertKnownKeys(
+		tokens?.density as Record<string, unknown> | undefined,
+		['unit'],
+		`${where}.density`
+	);
+	if (tokens?.density?.unit !== undefined && typeof tokens.density.unit !== 'string') {
+		throw new HyzerConfigError(`${where}.density.unit must be a string.`);
 	}
 }
 
@@ -383,11 +450,7 @@ function validateThemes(
 				`config.themes["${name}"] is not a valid theme name: use lower-case letters, digits and hyphens, starting with a letter (the name becomes a data-theme attribute value).`
 			);
 		}
-		assertKnownKeys(
-			theme as Record<string, unknown> | undefined,
-			['palette', 'color', 'intent'],
-			`config.themes.${name}`
-		);
+		assertTokenGroups(theme as Record<string, unknown> | undefined, `config.themes.${name}`, true);
 	}
 	return themes;
 }
@@ -402,6 +465,59 @@ function resolveTheme(
 	seed: { palette: [string, string][]; color: [string, string][] }
 ): ResolvedTheme {
 	const where = `config.themes.${name}`;
+	const rest: TokenEntry[] = [
+		...mergeGroup(
+			[],
+			override?.typography?.fontSize,
+			'--hz-font-size-',
+			`${where}.typography.fontSize`
+		),
+		...mergeGroup(
+			[],
+			override?.typography?.fontFamily,
+			'--hz-font-family-',
+			`${where}.typography.fontFamily`
+		),
+		...mergeGroup(
+			[],
+			override?.typography?.fontWeight,
+			'--hz-font-weight-',
+			`${where}.typography.fontWeight`
+		),
+		...mergeGroup(
+			[],
+			override?.typography?.lineHeight,
+			'--hz-line-height-',
+			`${where}.typography.lineHeight`
+		),
+		...mergeGroup([], override?.space, '--hz-space-', `${where}.space`),
+		...mergeGroup([], override?.width, '--hz-width-', `${where}.width`),
+		...mergeGroup([], override?.radius, '--hz-radius-', `${where}.radius`),
+		...mergeGroup([], override?.border?.width, '--hz-border-width-', `${where}.border.width`),
+		...mergeGroup([], override?.shadow, '--hz-shadow-', `${where}.shadow`),
+		...mergeGroup([], override?.zIndex, '--hz-z-', `${where}.zIndex`),
+		...mergeGroup([], override?.motion?.duration, '--hz-duration-', `${where}.motion.duration`),
+		...mergeGroup([], override?.motion?.ease, '--hz-ease-', `${where}.motion.ease`)
+	];
+	// `--hz-density` is a single entry, not a merged group. It is also the one
+	// group that needs the whole page: the ladder's `body` rule resolves the
+	// unit on body, so a theme below body leaves the section's own near/away
+	// as the fixed lengths they already computed to. The `body
+	// [data-density-shift]` rules apply to the shift element itself, though,
+	// so a shifted region inside a themed section does resolve against the
+	// theme's unit — a section theme half applies rather than no-ops. A
+	// theme-scoped ladder rule would have to guess how many
+	// data-density-shift ancestors sit between the themed element and body,
+	// which is unknowable at generate time, so this stays a page-level
+	// override rather than an attempted fix.
+	if (override?.density?.unit !== undefined) {
+		rest.push({
+			cssName: '--hz-density',
+			key: 'density',
+			value: override.density.unit,
+			fromConfig: true
+		});
+	}
 	return {
 		name,
 		palette: mergeGroup(
@@ -411,7 +527,8 @@ function resolveTheme(
 			`${where}.palette`
 		),
 		color: mergeGroup(seed.color, override?.color, '--hz-color-', `${where}.color`),
-		intent: mergeGroup([], override?.intent, '--hz-intent-', `${where}.intent`)
+		intent: mergeGroup([], override?.intent, '--hz-intent-', `${where}.intent`),
+		rest
 	};
 }
 
@@ -427,7 +544,8 @@ const TOKEN_GROUP_KEYS = [
 	'shadow',
 	'zIndex',
 	'motion',
-	'density'
+	'density',
+	'components'
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -450,27 +568,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		'config'
 	);
 	const tokens = config.tokens;
-	assertKnownKeys(tokens as Record<string, unknown> | undefined, TOKEN_GROUP_KEYS, 'config.tokens');
-	assertKnownKeys(
-		tokens?.typography as Record<string, unknown> | undefined,
-		['fontSize', 'fontFamily', 'fontWeight', 'lineHeight'],
-		'config.tokens.typography'
-	);
-	assertKnownKeys(
-		tokens?.border as Record<string, unknown> | undefined,
-		['width'],
-		'config.tokens.border'
-	);
-	assertKnownKeys(
-		tokens?.motion as Record<string, unknown> | undefined,
-		['duration', 'ease'],
-		'config.tokens.motion'
-	);
-	assertKnownKeys(
-		tokens?.density as Record<string, unknown> | undefined,
-		['unit'],
-		'config.tokens.density'
-	);
+	assertTokenGroups(tokens as Record<string, unknown> | undefined, 'config.tokens');
 	const themesConfig = validateThemes(config.themes);
 	if (config.output !== undefined && typeof config.output !== 'string') {
 		throw new HyzerConfigError('config.output must be a string path.');
@@ -486,9 +584,6 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		}
 	}
 	const resolvedUtilities = resolveUtilities(config.utilities);
-	if (tokens?.density?.unit !== undefined && typeof tokens.density.unit !== 'string') {
-		throw new HyzerConfigError('config.tokens.density.unit must be a string.');
-	}
 
 	// --- palette + roles: two independent groups, split by config shape,
 	// not value inference (.2 — "clarity is kindness"). ------------
@@ -607,6 +702,22 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		}
 	];
 
+	// --- component hooks -------------------------------------------------------
+	// Flat, camelCase, keyed by the hook name minus its --hz- prefix; seeded
+	// from [] like intent, so only what the config sets is emitted. Every
+	// resulting cssName must be a known hook — a typo must never emit a dead
+	// declaration on some component's own rule.
+	const components = mergeGroup([], tokens?.components, '--hz-', 'config.tokens.components');
+	const knownHooks = new Set(componentHooks.map((h) => h.name));
+	for (const entry of components) {
+		if (!knownHooks.has(entry.cssName)) {
+			throw new HyzerConfigError(
+				`config.tokens.components.${entry.key} kebab-cases to "${entry.cssName}", which is not a ` +
+					'known component hook. The full list is at /docs/theming/components.'
+			);
+		}
+	}
+
 	// --- themes ---------------------------------------------------------------
 	// `dark` is seeded from the base metadata: dark is authored entirely at the
 	// palette/role layer (the two-tier rule), so the base contributes NO dark
@@ -630,6 +741,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		},
 		dark,
 		themes,
+		components,
 		output: config.output,
 		icons: config.icons !== undefined ? [...new Set(config.icons)] : undefined,
 		utilities: resolvedUtilities
@@ -651,7 +763,13 @@ function validateReferences(resolved: ResolvedConfig): void {
 	resolved.density.levels.forEach((_, i) => defined.add(`--hz-density-ladder-depth-${i + 1}`));
 	const all: TokenEntry[] = [
 		...resolved.sections.flatMap((s) => s.entries),
-		...[resolved.dark, ...resolved.themes].flatMap((t) => [...t.palette, ...t.color, ...t.intent])
+		...[resolved.dark, ...resolved.themes].flatMap((t) => [
+			...t.palette,
+			...t.color,
+			...t.intent,
+			...t.rest
+		]),
+		...resolved.components
 	];
 	for (const entry of all) defined.add(entry.cssName);
 	for (const entry of all) {

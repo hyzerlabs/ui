@@ -20,7 +20,12 @@ import type { ResolvedConfig } from './schema.js';
  * `--hz-badge-tint`/`--hz-alert-tint` values in
  * theme/components/{badge,alert}.css; a computed-style test pins the two
  * together, and the properties are documented consumer hooks for retuning
- * the strength.
+ * the strength. The `badgeBg`/`alertBg` fractions below are the DEFAULTS
+ * only — `tokens.components` is config-reachable, so `contrastReport`
+ * substitutes a configured `--hz-badge-tint`/`--hz-alert-tint` in their
+ * place (in every mode; the hooks are root-only) whenever it can parse the
+ * value as a plain percentage. `badgeText`/`alertTitle` are text mixes with
+ * no hook of their own and always stay at the values below.
  */
 export const softTints = {
 	badgeText: 0.65,
@@ -60,7 +65,13 @@ type DeclMap = Map<string, string>;
 /**
  * One declaration map per theme — the `:root` defaults ("light"), then each
  * named theme layered over them. Every theme is graded, so a theme a consumer
- * adds gets exactly the AA gate the built-in dark theme gets.
+ * adds gets exactly the AA gate the built-in dark theme gets — except a named
+ * theme carrying no color of its own (only type, spacing, …), which is
+ * skipped: its color declarations would be byte-identical to `light`, so
+ * grading it would double every row under a mode with nothing new to say.
+ * `dark` is always graded — it is seeded from the base authoring, so it is
+ * never color-empty. `rest` (the non-color groups) plays no part in this
+ * check: grading is about color.
  */
 function declarationMaps(resolved: ResolvedConfig): { mode: string; map: DeclMap }[] {
 	const light: DeclMap = new Map();
@@ -69,13 +80,21 @@ function declarationMaps(resolved: ResolvedConfig): { mode: string; map: DeclMap
 	}
 	return [
 		{ mode: 'light', map: light },
-		...[resolved.dark, ...resolved.themes].map((theme) => {
-			const map: DeclMap = new Map(light);
-			for (const e of [...theme.palette, ...theme.color, ...theme.intent]) {
-				map.set(e.cssName, e.value);
-			}
-			return { mode: theme.name, map };
-		})
+		...[resolved.dark, ...resolved.themes]
+			.filter(
+				(theme) =>
+					theme.name === 'dark' ||
+					theme.palette.length > 0 ||
+					theme.color.length > 0 ||
+					theme.intent.length > 0
+			)
+			.map((theme) => {
+				const map: DeclMap = new Map(light);
+				for (const e of [...theme.palette, ...theme.color, ...theme.intent]) {
+					map.set(e.cssName, e.value);
+				}
+				return { mode: theme.name, map };
+			})
 	];
 }
 
@@ -154,6 +173,12 @@ export function resolveHex(
 	return null;
 }
 
+/** A plain `<percentage>` literal (`20%`), parsed to a fraction. Anything else is `null`. */
+function parsePercentage(value: string): number | null {
+	const m = /^(-?[\d.]+)%$/.exec(value.trim());
+	return m ? parseFloat(m[1]) / 100 : null;
+}
+
 // ---------------------------------------------------------------------------
 // contrastReport
 // ---------------------------------------------------------------------------
@@ -162,6 +187,18 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 	const maps = declarationMaps(resolved);
 	const rows: ContrastReportRow[] = [];
 	const unresolved = new Set<string>();
+
+	// A configured --hz-badge-tint/--hz-alert-tint (specs/65 R15) — root-only,
+	// so one value applies in every mode. Only a plain percentage can replace
+	// the built-in fraction; anything else (a var() chain, a calc()) keeps the
+	// default recipe and is reported as unresolved, so an override the engine
+	// cannot grade is never silently graded as the default anyway.
+	const badgeTintEntry = resolved.components.find((e) => e.cssName === '--hz-badge-tint');
+	const alertTintEntry = resolved.components.find((e) => e.cssName === '--hz-alert-tint');
+	const badgeTintOverride = badgeTintEntry ? parsePercentage(badgeTintEntry.value) : null;
+	const alertTintOverride = alertTintEntry ? parsePercentage(alertTintEntry.value) : null;
+	if (badgeTintEntry && badgeTintOverride === null) unresolved.add('--hz-badge-tint');
+	if (alertTintEntry && alertTintOverride === null) unresolved.add('--hz-alert-tint');
 
 	for (const { mode, map } of maps) {
 		const get = (name: string): string | null => {
@@ -233,8 +270,13 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 			// the light recipe in the browser, so it gets it here too: the
 			// report's job is to model the CSS, not to second-guess it.
 			const tints = mode === 'dark' ? softTints.dark : softTints.light;
-			const badgeBg = { name: `${short} badge-soft bg`, hex: mixSrgb(hex, surface, tints.badgeBg) };
-			const alertBg = { name: `${short} alert bg`, hex: mixSrgb(hex, surface, tints.alertBg) };
+			const badgeBgFraction = badgeTintOverride ?? tints.badgeBg;
+			const alertBgFraction = alertTintOverride ?? tints.alertBg;
+			const badgeBg = {
+				name: `${short} badge-soft bg`,
+				hex: mixSrgb(hex, surface, badgeBgFraction)
+			};
+			const alertBg = { name: `${short} alert bg`, hex: mixSrgb(hex, surface, alertBgFraction) };
 			push(
 				`soft-badge:${short}`,
 				`soft Badge text on soft ${short}`,

@@ -18,6 +18,7 @@ import {
 	type TokenEntry
 } from './schema.js';
 import { intent as baseIntent } from '../tokens/index.js';
+import { componentHooks, ROOT } from '../tokens/hooks.js';
 
 export interface GenerateOptions {
 	/**
@@ -327,31 +328,36 @@ function customIntentKeys(resolved: ResolvedConfig): string[] {
 }
 
 /**
- * Selector(s) for one custom-intent switch rule — themeSelector()'s sibling,
- * not a copy: the pieces differ enough (an attribute selector rather than
- * `[data-theme=…]`, and the scope class is the ANCESTOR of the switching
- * attribute here, rather than a possible descendant of it — the
- * intent-bearing component always lives inside the scoped subtree, unlike
- * `data-theme`, which may sit on `<html>` above it) that sharing one
- * function would need as much branching as two. Adds the axis
- * `themeSelector()` never needs: a camelCase key selects on both
- * attribute-value spellings (the raw config key and its kebab form), since
- * either is a plausible thing to pass to `intent=`.
+ * Selector(s) for one end-of-sheet, unlayered, zero-specificity rule whose
+ * target is `target` (an attribute selector, a component class, …) —
+ * themeSelector()'s sibling, not a copy: the pieces differ enough (the scope
+ * class is the ANCESTOR of the switching attribute/class here, rather than a
+ * possible descendant of it — the target always lives inside the scoped
+ * subtree, unlike `data-theme`, which may sit on `<html>` above it) that
+ * sharing one function would need as much branching as two.
  *
  * Each line is independently wrapped in its own `:where()` (specificity
  * 0,0,0), matching the sheet-level cascade posture below: unlayered and
  * zero-specificity beats every layered reference-theme declaration and
  * loses to any consumer rule, layered or not — the same posture
  * `generateUtilitiesCss` uses (specs/44, "a deliberately-applied utility
- * beats the layered reference theme").
+ * beats the layered reference theme"). Serves both the custom-intent section
+ * and the component-hooks section (specs/65 R14).
+ */
+function targetSelectors(selector: string, target: string): string[] {
+	if (selector === ':root') return [`:where(${target})`];
+	return [`:where(${selector} ${target})`, `:where(${selector}${target})`];
+}
+
+/**
+ * Selector(s) for one custom-intent switch rule. Adds the one axis
+ * `targetSelectors()` itself never needs: a camelCase key selects on both
+ * attribute-value spellings (the raw config key and its kebab form), since
+ * either is a plausible thing to pass to `intent=`.
  */
 function intentSelectors(selector: string, key: string): string[] {
 	const attrValues = key === toKebab(key) ? [key] : [key, toKebab(key)];
-	return attrValues.flatMap((value) => {
-		const attr = `[data-intent='${value}']`;
-		if (selector === ':root') return [`:where(${attr})`];
-		return [`:where(${selector} ${attr})`, `:where(${selector}${attr})`];
-	});
+	return attrValues.flatMap((value) => targetSelectors(selector, `[data-intent='${value}']`));
 }
 
 const CUSTOM_INTENT_BANNER = [
@@ -379,6 +385,77 @@ function customIntentSection(resolved: ResolvedConfig, selector: string): string
 	if (keys.length === 0) return [];
 	const parts: string[] = ['', banner(CUSTOM_INTENT_BANNER, '')];
 	for (const key of keys) parts.push('', customIntentRule(selector, key));
+	return parts;
+}
+
+// ---------------------------------------------------------------------------
+// Component hooks (specs/65 R14) — one rule per owning class (or, for a ROOT
+// hook, the sheet's own root) for every tokens.components entry, at the very
+// end of the sheet, in both modes.
+// ---------------------------------------------------------------------------
+
+const COMPONENT_HOOKS_BANNER = [
+	'Component hooks',
+	'One rule per component your config sets a hook value for. A hook the',
+	'reference theme declares on the component itself lands there too, so the',
+	'value set here reaches it directly rather than through an inherited root',
+	'value the component’s own declaration would just ignore. A hook the',
+	'theme declares at :root instead — or never declares at all — lands at',
+	'this sheet’s own root, the same place the theme puts it (or would): an',
+	'ancestor’s own override of the same property still reaches every',
+	'instance below it, which a declaration on the component itself could',
+	'never be beaten by.',
+	'Unlayered and zero specificity, same posture as the custom intent section',
+	'above: any consumer rule for the same property still wins.'
+];
+
+/**
+ * Selector for a ROOT-targeted hook group: the sheet's own scope selector,
+ * :where-wrapped for the same zero-specificity reason as targetSelectors()
+ * below — a consumer rule for the property still wins regardless of source
+ * order. No compound/descendant pair to emit here: targetSelectors() needs
+ * one because a class can sit either inside the scope or ON it; a ROOT hook
+ * has no class of its own to be ambiguous with — the scope selector itself
+ * is the target.
+ */
+function rootTargetSelectors(selector: string): string[] {
+	return [`:where(${selector})`];
+}
+
+/** One rule for every hook the config set on `on` — `.${on}`, or the sheet's root for a ROOT group. */
+function componentHookRule(selector: string, on: string, entries: TokenEntry[]): string {
+	const selectors =
+		on === ROOT ? rootTargetSelectors(selector) : targetSelectors(selector, `.${on}`);
+	const lines = [
+		`${selectors.join(',\n')} {`,
+		...entries.map((e) => `\t${e.cssName}: ${e.value};`),
+		'}'
+	];
+	return lines.join('\n');
+}
+
+/**
+ * Appended at the very end of the sheet, after the custom-intent section, in
+ * both full and overrides mode. Empty when the config sets no hook. Grouped
+ * by `on` (an owning class, or the ROOT sentinel — every ROOT hook shares one
+ * rule), in `componentHooks` order; within a rule, the config's own key order
+ * (`resolved.components` is already in that order, seeded from `[]`) — same
+ * resolved config, same bytes.
+ */
+function componentHookSection(resolved: ResolvedConfig, selector: string): string[] {
+	if (resolved.components.length === 0) return [];
+	const byOn = new Map<string, TokenEntry[]>();
+	for (const entry of resolved.components) {
+		const hook = componentHooks.find((h) => h.name === entry.cssName)!;
+		if (!byOn.has(hook.on)) byOn.set(hook.on, []);
+		byOn.get(hook.on)!.push(entry);
+	}
+	const onOrder: string[] = [];
+	for (const hook of componentHooks) {
+		if (byOn.has(hook.on) && !onOrder.includes(hook.on)) onOrder.push(hook.on);
+	}
+	const parts: string[] = ['', banner(COMPONENT_HOOKS_BANNER, '')];
+	for (const on of onOrder) parts.push('', componentHookRule(selector, on, byOn.get(on)!));
 	return parts;
 }
 
@@ -437,9 +514,9 @@ function scopedClosure(resolved: ResolvedConfig): Set<string> {
 	return closureFrom(resolved, seed);
 }
 
-/** A theme's own declarations, in emission order (roles, hues, intents). */
+/** A theme's own declarations, in emission order (roles, hues, intents, rest). */
 function themeOwn(theme: ResolvedTheme): TokenEntry[] {
-	return [...theme.color, ...theme.palette, ...theme.intent];
+	return [...theme.color, ...theme.palette, ...theme.intent, ...theme.rest];
 }
 
 /**
@@ -524,7 +601,7 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 		// Roles, then hues, then intents — sourced directly from the three
 		// resolved lists (.3); no value-shape inference.
 		parts.push(...declarations(theme.color, '\t', false));
-		for (const group of [theme.palette, theme.intent]) {
+		for (const group of [theme.palette, theme.intent, theme.rest]) {
 			if (group.length === 0) continue;
 			parts.push('');
 			parts.push(...declarations(group, '\t', false));
@@ -556,6 +633,7 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 	}
 
 	parts.push(...customIntentSection(resolved, selector));
+	parts.push(...componentHookSection(resolved, selector));
 
 	return parts.join('\n') + '\n';
 }
@@ -568,6 +646,13 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
  * dark-only intent, say) restores to `initial` — the guaranteed-invalid
  * value, which is what "not declared here" means for a custom property, so
  * `var()` falls back exactly as it does outside the theme.
+ *
+ * `--hz-density` is the one exception: it lives outside `resolved.sections`
+ * (emitted by hand inside the `space` section), so it is never "not declared
+ * here" — a theme that sets `density.unit` must restore to the root unit,
+ * never `initial`, or every `calc(var(--hz-density) * N)` in the ladder goes
+ * invalid at computed-value time. Spliced into root order right after the
+ * space section's entries, where the full sheet emits it.
  */
 function lightRestore(
 	resolved: ResolvedConfig,
@@ -577,9 +662,17 @@ function lightRestore(
 	for (const block of blocks) {
 		for (const e of [...block.own, ...block.dependents]) changed.add(e.cssName);
 	}
+	const densityEntry: TokenEntry = {
+		cssName: '--hz-density',
+		key: 'density',
+		value: resolved.density.unit,
+		fromConfig: false
+	};
 	// :root order, so the block reads like the sheet it restores; tokens no
 	// :root section defines follow at the end.
-	const rootEntries = resolved.sections.flatMap((s) => s.entries);
+	const rootEntries = resolved.sections.flatMap((s) =>
+		s.id === 'space' ? [...s.entries, densityEntry] : s.entries
+	);
 	const defined = new Set(rootEntries.map((e) => e.cssName));
 	return [
 		...rootEntries.filter((e) => changed.has(e.cssName)),
@@ -655,10 +748,15 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 			...resolved.themes.map((theme) => themeBlock(resolved, theme))
 		]).map((e) => e.cssName)
 	);
+	// A theme block declaring --hz-density forces mergeLight off too — same
+	// reason as unitFromConfig above (R5): the merged root+light rule would
+	// declare the default unit at the scope selector and clobber a consumer's
+	// own --hz-density override inside that scope.
 	const mergeLight =
 		hasRoot &&
 		rootEntries.some((e) => restorableNames.has(e.cssName)) &&
-		!resolved.density.unitFromConfig;
+		!resolved.density.unitFromConfig &&
+		!restorableNames.has('--hz-density');
 
 	if (hasRoot) {
 		parts.push(
@@ -703,6 +801,17 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 		)
 	);
 	const restore = mergeLight ? [] : rootEntries.filter((e) => restorable.has(e.cssName));
+	// --hz-density never lives in rootEntries (it's outside resolved.sections),
+	// so a theme block that declares it is spliced in here, last — mirroring
+	// where the root block puts it — rather than picked up by the filter above.
+	if (restorable.has('--hz-density')) {
+		restore.push({
+			cssName: '--hz-density',
+			key: 'density',
+			value: resolved.density.unit,
+			fromConfig: false
+		});
+	}
 	if (restore.length > 0) {
 		if (emitted) parts.push('');
 		parts.push(`${themeSelector(selector, 'light')} {`);
@@ -713,11 +822,13 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 
 	const intentSection = customIntentSection(resolved, selector);
 	if (intentSection.length > 0) emitted = true;
+	const hookSection = componentHookSection(resolved, selector);
+	if (hookSection.length > 0) emitted = true;
 
 	if (!emitted) {
 		parts.push('/* No overrides configured. */');
 	}
-	parts.push(...intentSection);
+	parts.push(...intentSection, ...hookSection);
 	return parts.join('\n') + '\n';
 }
 

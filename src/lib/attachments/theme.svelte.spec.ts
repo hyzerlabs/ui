@@ -64,6 +64,15 @@ describe('theme() — inline form', () => {
 		await new Promise((r) => setTimeout(r, 20));
 		expect(node.getAttribute('style')).toBeFalsy();
 	});
+
+	it('writes a non-color group too — a theme is a token override, not only color', async () => {
+		const { node, cleanup } = attach({ radius: { md: '0' } });
+		await vi.waitFor(() => {
+			expect(node.style.getPropertyValue('--hz-radius-md')).toBe('0');
+		});
+		cleanup();
+		expect(node.getAttribute('style')).toBeFalsy();
+	});
 });
 
 describe('themeVars', () => {

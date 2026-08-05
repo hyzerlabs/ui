@@ -6,10 +6,14 @@
 	import IconInfo from '$lib/icons/generated/info.svelte';
 
 	// The inline form's override object, kept in one place so the demo and the
-	// code sample below it can never disagree.
+	// code sample below it can never disagree. Radius and weight are here too,
+	// not just color: a theme is a token override, so the square corners and
+	// bolder labels below come out of the same object as the hues.
 	const inlineTheme = {
 		palette: { primary: '#b45309', gray: '#78716c' },
-		color: { surface: '#fffbeb', text: '#1c1917' }
+		color: { surface: '#fffbeb', text: '#1c1917' },
+		radius: { md: '0', full: '0' },
+		typography: { fontWeight: { medium: '700' } }
 	};
 
 	const namedCode = [
@@ -30,7 +34,9 @@
 		'',
 		'const warm = {',
 		"\tpalette: { primary: '#b45309', gray: '#78716c' },",
-		"\tcolor: { surface: '#fffbeb', text: '#1c1917' }",
+		"\tcolor: { surface: '#fffbeb', text: '#1c1917' },",
+		"\tradius: { md: '0', full: '0' },     // square corners, not just new colors",
+		"\ttypography: { fontWeight: { medium: '700' } }",
 		'};',
 		'',
 		'<section {@attach theme(warm)}>…</section>'
@@ -96,7 +102,11 @@
 
 				<div class="demo-band" {@attach theme(inlineTheme)}>
 					<Badge intent="primary">inline</Badge>
-					<p>An override object, resolved at runtime, with no config entry needed.</p>
+					<p>
+						An override object, resolved at runtime, with no config entry needed. The square corners
+						and bolder label come from that object too: a theme can carry type and radii, not only
+						color.
+					</p>
 					<Button intent="primary">Primary</Button>
 				</div>
 			</Stack>
@@ -121,8 +131,14 @@
 		<h2 id="config-heading">Define your themes</h2>
 		<p>
 			Named themes come from the <code>themes</code> map in your config. Each entry becomes one
-			<code>[data-theme="…"]</code> block in the generated sheet, graded for contrast the same way the
-			built-in dark theme is.
+			<code>[data-theme="…"]</code> block in the generated sheet, and a themed section with color of its
+			own is graded for contrast the same way the built-in dark theme is — a theme with no color has nothing
+			to grade.
+		</p>
+		<p>
+			A theme entry takes any group <code>tokens</code> takes: type, spacing, radii, motion, not only
+			color. The inline override object in the section above is the same shape. A theme is a token override,
+			named or inline.
 		</p>
 		<CodeBlock code={configCode} />
 		<p>
@@ -134,6 +150,15 @@
 		<p>
 			One attribute holds one value, so themes are <strong>mutually exclusive</strong>. There is no
 			“ocean, but dark” unless you define it. The <code>'ocean-dark'</code> entry above is that definition.
+		</p>
+		<p>
+			Density is the one group that needs the whole page. On <code>&lt;html&gt;</code> a theme
+			retunes it completely. On a section it only half applies: the near and away distances are
+			computed on
+			<code>body</code>, above where the section sits, so the section's own spacing keeps the page's
+			density. Any <code>data-density-shift</code> region inside the section does pick up the new
+			value, which is why the result looks inconsistent rather than ignored. Put a theme that
+			changes density on <code>&lt;html&gt;</code>.
 		</p>
 	</Stack>
 
@@ -172,7 +197,8 @@
 			Scoping a generated sheet under a class is the other way to do this. For one case it is the
 			better way. A class composes with <code>data-theme</code>, so a themed region still has a
 			light and a dark form. A <code>themes</code> entry cannot, because it occupies the same attribute
-			dark does.
+			dark does. An entry that sets type, spacing and radii as well as color gives up more to that limit
+			than a color-only one does.
 		</p>
 		<CodeBlock code={classCode} />
 		<p>

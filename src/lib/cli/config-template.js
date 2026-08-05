@@ -42,17 +42,24 @@ export default defineConfig({
 	// 		duration: { base: '350ms' },      // --hz-duration-*
 	// 		ease: { standard: 'ease-out' }    // --hz-ease-*
 	// 	},
-	// 	density: { unit: '0.5rem' }         // the --hz-density grid unit (near/away cascade)
+	// 	density: { unit: '0.5rem' },        // the --hz-density grid unit (near/away cascade)
+	// 	components: {                       // per-component theme hooks, camelCased, no --hz- prefix
+	// 		buttonAccent: 'var(--hz-intent-secondary)', // each hook becomes a rule on that component
+	// 		badgeTint: '20%'                  // set here only; point a hook at a token to vary it per theme
+	// 	}
 	// },
 
-	// themes: {                            // variants that override the default,
-	//                                      // one block per data-theme="<name>"
+	// themes: {                            // named overrides of the default above,
+	//                                      // one block per data-theme="<name>".
+	//                                      // Each takes any group \`tokens\` takes,
+	//                                      // not only color.
 	// 	dark: {                            // [data-theme="dark"]
 	// 		palette: { primary: '#2dd4bf' },  // hue overrides for dark
 	// 		color: { surface: '#020617' },    // role overrides for dark
 	// 		intent: { fairway: '#a3e635' }    // intent remaps for dark only
 	// 	},
-	// 	ocean: { palette: { primary: '#0ea5e9' } } // any name you like
+	// 	ocean: { palette: { primary: '#0ea5e9' } }, // any name you like
+	// 	print: { typography: { fontSize: { base: '0.9rem' } }, radius: { md: '0' } } // type and radii too
 	// },
 
 	// icons: ['plus', 'trash-2', 'settings'], // trims the generated icons.ts barrel

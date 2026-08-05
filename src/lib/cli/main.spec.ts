@@ -2,8 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { run } from './main.js';
 import { resolveConfig, generateCss, generateUtilitiesCss } from '../config/index.js';
+import { CONFIG_TEMPLATE } from './config-template.js';
 
 /** Fresh sandbox per test — unique paths keep ESM config imports uncached. */
 function sandbox(): {
@@ -308,5 +310,25 @@ describe('hyzer init', () => {
 		expect(await run(['init'], io)).toBe(1);
 		expect(errors.join('\n')).toContain('already exists');
 		expect(existsSync(join(cwd, 'hyzer.config.ts'))).toBe(false);
+	});
+
+	it('the full-reference template resolves without throwing, every line uncommented', async () => {
+		// Live gate for the template itself: uncomment every `// ` line (the
+		// template's own convention — a leading tab, then `// `, then the
+		// property at its real indentation), swap the published import for a
+		// local identity function so the sandbox needs no package resolution,
+		// and resolveConfig() the result.
+		const { cwd } = sandbox();
+		const source = CONFIG_TEMPLATE.replace(
+			"import { defineConfig } from '@hyzer-labs/ui/config';",
+			'const defineConfig = (c) => c;'
+		)
+			.split('\n')
+			.map((line) => line.replace(/^\t\/\/ /, '\t'))
+			.join('\n');
+		const configPath = join(cwd, 'full-reference.mjs');
+		writeFileSync(configPath, source);
+		const mod = (await import(pathToFileURL(configPath).href)) as { default: unknown };
+		expect(() => resolveConfig(mod.default as never)).not.toThrow();
 	});
 });

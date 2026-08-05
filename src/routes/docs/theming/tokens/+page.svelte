@@ -105,7 +105,8 @@
 	</Blockquote>
 	<Blockquote class="doctrine-note" intent="primary">
 		Dark is not a special case in the config, either: it is one entry in a
-		<code>themes</code> map, and you can add as many more as you like.
+		<code>themes</code> map, and you can add as many more as you like. A theme entry may carry any
+		token group (type, spacing, radii, motion), not only color.
 		<a href="/docs/theming/sections">Section themes</a> covers naming them and scoping one to part of
 		a page.
 	</Blockquote>

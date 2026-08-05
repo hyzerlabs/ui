@@ -34,6 +34,17 @@ export default defineConfig({
 	// :root block, which is what a page gets with no data-theme attribute.
 	// Named variants (dark, and any of your own) go under `themes`.
 	tokens: {
+		typography: {
+			// The theme's own stack, and a real difference from the default: it
+			// leads with the boxy grotesques a terminal emulator ships with
+			// rather than the system UI mono. System faces only, so it resolves
+			// wherever it runs and the example never depends on a font it does
+			// not ship. Name your own face here if you load one.
+			fontFamily: {
+				mono: "Menlo, Monaco, Consolas, 'DejaVu Sans Mono', 'Courier New', monospace"
+			},
+			fontSize: { xs: '0.75rem' }
+		},
 		palette: {
 			// Saturated signal colors, all bright enough to read on black.
 			secondary: '#00e5ff',

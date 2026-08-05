@@ -8,10 +8,11 @@ import {
 	generateCss,
 	generateUtilitiesCss,
 	contrastReport,
+	themeVars,
 	HyzerConfigError
 } from './index.js';
 import { toKebab } from './schema.js';
-import { palette, color, intent, space, typography } from '../tokens/index.js';
+import { palette, color, intent, space, typography, density, radius } from '../tokens/index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -159,15 +160,27 @@ describe('resolveConfig — validation errors', () => {
 		expect(() => resolveConfig({ tokens: { typography: { fontStretch: {} } } } as never)).toThrow(
 			/config.tokens.typography/
 		);
-		expect(() => resolveConfig({ themes: { dark: { shadow: {} } } } as never)).toThrow(
-			/config.themes.dark/
+		expect(() =>
+			resolveConfig({ themes: { dark: { typography: { fontStretch: {} } } } } as never)
+		).toThrow(/config.themes.dark.typography/);
+	});
+
+	it('rejects an unknown group in a theme, listing the thirteen group names', () => {
+		expect(() => resolveConfig({ themes: { dark: { colours: {} } } } as never)).toThrow(
+			/Unknown key "colours"/
+		);
+		expect(() => resolveConfig({ themes: { dark: { colours: {} } } } as never)).toThrow(
+			/palette, color, intent, space, width, typography, radius, border, shadow, zIndex, motion, density, components/
 		);
 	});
 
-	it('rejects unknown keys in a theme, listing palette/color/intent', () => {
-		expect(() => resolveConfig({ themes: { dark: { shadow: {} } } } as never)).toThrow(
-			/Valid keys: palette, color, intent/
-		);
+	it('rejects a typo in a theme’s nested typography keys, naming the four valid keys', () => {
+		expect(() =>
+			resolveConfig({ themes: { ocean: { typography: { fontSizes: {} } } } } as never)
+		).toThrow(/config.themes.ocean.typography/);
+		expect(() =>
+			resolveConfig({ themes: { ocean: { typography: { fontSizes: {} } } } } as never)
+		).toThrow(/fontSize, fontFamily, fontWeight, lineHeight/);
 	});
 
 	it('rejects non-string token values', () => {
@@ -866,5 +879,432 @@ describe('generateUtilitiesCss — AA cross-check (specs/44 R7)', () => {
 				}
 			}
 		}
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/65 Stage 1 — a theme is a token override (R1-R6)
+// ---------------------------------------------------------------------------
+
+describe('specs/65 R2 — ResolvedTheme.rest, one row per non-color group', () => {
+	it.each([
+		[
+			'typography.fontSize',
+			{ typography: { fontSize: { base: '1.1rem' } } },
+			'--hz-font-size-base',
+			'1.1rem'
+		],
+		[
+			'typography.fontFamily',
+			{ typography: { fontFamily: { mono: 'Menlo, monospace' } } },
+			'--hz-font-family-mono',
+			'Menlo, monospace'
+		],
+		[
+			'typography.fontWeight',
+			{ typography: { fontWeight: { bold: '800' } } },
+			'--hz-font-weight-bold',
+			'800'
+		],
+		[
+			'typography.lineHeight',
+			{ typography: { lineHeight: { base: '1.6' } } },
+			'--hz-line-height-base',
+			'1.6'
+		],
+		['space', { space: { md: '3rem' } }, '--hz-space-md', '3rem'],
+		['width', { width: { md: '50rem' } }, '--hz-width-md', '50rem'],
+		['radius', { radius: { md: '0' } }, '--hz-radius-md', '0'],
+		['border.width', { border: { width: { thin: '2px' } } }, '--hz-border-width-thin', '2px'],
+		['shadow', { shadow: { md: 'none' } }, '--hz-shadow-md', 'none'],
+		['zIndex', { zIndex: { sticky: '5' } }, '--hz-z-sticky', '5'],
+		['motion.duration', { motion: { duration: { base: '900ms' } } }, '--hz-duration-base', '900ms'],
+		['motion.ease', { motion: { ease: { standard: 'linear' } } }, '--hz-ease-standard', 'linear'],
+		['density.unit', { density: { unit: '0.5rem' } }, '--hz-density', '0.5rem']
+	] as const)(
+		'%s resolves into theme.rest, and the full-mode block declares it',
+		(_path, override, cssName, value) => {
+			const resolved = resolveConfig({ themes: { ocean: override } });
+			const theme = resolved.themes.find((t) => t.name === 'ocean')!;
+			expect(theme.rest.find((e) => e.cssName === cssName)).toMatchObject({
+				cssName,
+				value,
+				fromConfig: true
+			});
+			const css = generateCss(resolved);
+			const start = css.indexOf("[data-theme='ocean']");
+			const block = css.slice(start, css.indexOf('\n}', start));
+			expect(block).toContain(`${cssName}: ${value};`);
+		}
+	);
+
+	it('emission order inside a theme block is roles, hues, intents, rest, then the derived chain', () => {
+		const resolved = resolveConfig({
+			themes: {
+				ocean: {
+					color: { border: '#334155' },
+					palette: { primary: '#0f766e' },
+					intent: { primary: '#93c5fd' },
+					radius: { md: '0' }
+				}
+			}
+		});
+		const css = generateCss(resolved);
+		const start = css.indexOf("[data-theme='ocean']");
+		const block = css.slice(start, css.indexOf('\n}', start));
+		const roleIdx = block.indexOf('--hz-color-border');
+		const paletteIdx = block.indexOf('--hz-palette-primary');
+		const intentIdx = block.indexOf('--hz-intent-primary');
+		const restIdx = block.indexOf('--hz-radius-md');
+		expect(roleIdx).toBeGreaterThan(-1);
+		expect(roleIdx).toBeLessThan(paletteIdx);
+		expect(paletteIdx).toBeLessThan(intentIdx);
+		expect(intentIdx).toBeLessThan(restIdx);
+	});
+
+	it('derived-chain closure fires for a non-color reference', () => {
+		const resolved = resolveConfig({
+			tokens: { typography: { fontSize: { lg: 'calc(var(--hz-font-size-base) * 1.4)' } } },
+			themes: { ocean: { typography: { fontSize: { base: '1.2rem' } } } }
+		});
+		const css = generateCss(resolved);
+		const start = css.indexOf("[data-theme='ocean']");
+		const block = css.slice(start, css.indexOf('\n}', start));
+		expect(block).toContain('--hz-font-size-base: 1.2rem;');
+		expect(block).toContain('Derived chain');
+		expect(block).toContain('--hz-font-size-lg: calc(var(--hz-font-size-base) * 1.4);');
+	});
+});
+
+describe('specs/65 R5 — --hz-density restores to the root unit, never initial', () => {
+	it('light block restores a non-color token a theme touches, to the root value', () => {
+		const resolved = resolveConfig({ themes: { ocean: { radius: { md: '0' } } } });
+		const css = generateCss(resolved);
+		const lightBlock = css.slice(css.indexOf("[data-theme='light']"));
+		expect(lightBlock).toContain(`--hz-radius-md: ${radius.md};`);
+	});
+
+	it('light block restores a theme-only rest key :root never defines, to initial', () => {
+		const resolved = resolveConfig({ themes: { ocean: { space: { xxl: '10rem' } } } });
+		const css = generateCss(resolved);
+		const lightBlock = css.slice(css.indexOf("[data-theme='light']"));
+		expect(lightBlock).toContain('--hz-space-xxl: initial;');
+	});
+
+	it('a theme density.unit declares --hz-density inside its own block', () => {
+		const resolved = resolveConfig({ themes: { ocean: { density: { unit: '0.5rem' } } } });
+		const css = generateCss(resolved);
+		const start = css.indexOf("[data-theme='ocean']");
+		const block = css.slice(start, css.indexOf('\n}', start));
+		expect(block).toContain('--hz-density: 0.5rem;');
+	});
+
+	it('full mode restores --hz-density to the root unit, never initial', () => {
+		const resolved = resolveConfig({ themes: { ocean: { density: { unit: '0.5rem' } } } });
+		const css = generateCss(resolved);
+		const lightBlock = css.slice(css.indexOf("[data-theme='light']"));
+		expect(lightBlock).toContain(`--hz-density: ${density.unit};`);
+		expect(lightBlock).not.toContain('--hz-density: initial;');
+	});
+
+	it('positions the restored --hz-density right after the space section entries', () => {
+		const resolved = resolveConfig({
+			themes: { ocean: { space: { md: '3rem' }, radius: { md: '0' }, density: { unit: '0.5rem' } } }
+		});
+		const css = generateCss(resolved);
+		const start = css.indexOf("[data-theme='light']");
+		const lightBlock = css.slice(start, css.indexOf('}', start));
+		const spaceIdx = lightBlock.indexOf('--hz-space-md');
+		const densityIdx = lightBlock.indexOf('--hz-density:');
+		const radiusIdx = lightBlock.indexOf('--hz-radius-md');
+		expect(spaceIdx).toBeGreaterThan(-1);
+		expect(spaceIdx).toBeLessThan(densityIdx);
+		expect(densityIdx).toBeLessThan(radiusIdx);
+	});
+
+	it('overrides mode appends --hz-density as the last declaration of the light block', () => {
+		const resolved = resolveConfig({ themes: { ocean: { density: { unit: '0.5rem' } } } });
+		const css = generateCss(resolved, { mode: 'overrides' });
+		const start = css.indexOf("[data-theme='light']");
+		const lightBlock = css.slice(start, css.indexOf('}', start));
+		const lines = lightBlock
+			.split('\n')
+			.map((l) => l.trim())
+			.filter((l) => l.startsWith('--hz'));
+		expect(lines.at(-1)).toBe(`--hz-density: ${density.unit};`);
+	});
+
+	it('overrides mode does not merge root and light into one rule when a theme sets density', () => {
+		const resolved = resolveConfig({
+			tokens: { palette: { primary: '#0f766e' } },
+			themes: { ocean: { density: { unit: '0.5rem' } } }
+		});
+		const css = generateCss(resolved, { mode: 'overrides' });
+		expect(css).not.toMatch(/^:root,\n\[data-theme='light'\] \{/m);
+	});
+});
+
+describe('specs/65 R6 — a color-empty named theme is not graded', () => {
+	it('a theme with only typography adds no rows and no mode', () => {
+		const resolved = resolveConfig({
+			themes: { print: { typography: { fontSize: { base: '0.9rem' } } } }
+		});
+		const report = contrastReport(resolved);
+		expect(report.rows.some((r) => r.mode === 'print')).toBe(false);
+	});
+
+	it('a theme with a color entry still grades', () => {
+		const resolved = resolveConfig({ themes: { ocean: { color: { surface: '#001122' } } } });
+		const report = contrastReport(resolved);
+		expect(report.rows.some((r) => r.mode === 'ocean')).toBe(true);
+	});
+
+	it('dark is always graded, even color-empty', () => {
+		const report = contrastReport(resolveConfig());
+		expect(report.rows.some((r) => r.mode === 'dark')).toBe(true);
+	});
+});
+
+describe('specs/65 — themeVars() with a non-color group', () => {
+	it('themeVars({ radius: { md: "0" } }) returns the flat map', () => {
+		expect(themeVars({ radius: { md: '0' } })).toEqual({ '--hz-radius-md': '0' });
+	});
+});
+
+describe('specs/65 R1/R3 — themes.light stays reserved', () => {
+	it('rejects themes.light, unchanged message', () => {
+		expect(() => resolveConfig({ themes: { light: {} } } as never)).toThrow(
+			/config.themes.light is reserved/
+		);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Stage 3 — tokens.components: the per-component theme hooks (R10-R16)
+// ---------------------------------------------------------------------------
+
+describe('specs/65 R13 — the tokens.components vocabulary', () => {
+	it('a known hook resolves into resolved.components with the right cssName', () => {
+		const resolved = resolveConfig({
+			tokens: { components: { buttonAccent: 'var(--hz-intent-secondary)' } }
+		});
+		expect(resolved.components).toEqual([
+			{
+				cssName: '--hz-button-accent',
+				key: 'buttonAccent',
+				value: 'var(--hz-intent-secondary)',
+				fromConfig: true
+			}
+		]);
+	});
+
+	it('an unknown hook name errors, naming the key, the kebab property, and the docs page', () => {
+		expect(() =>
+			resolveConfig({ tokens: { components: { buttonAcent: '#000' } } } as never)
+		).toThrow(/config.tokens.components.buttonAcent/);
+		expect(() =>
+			resolveConfig({ tokens: { components: { buttonAcent: '#000' } } } as never)
+		).toThrow(/--hz-button-acent/);
+		expect(() =>
+			resolveConfig({ tokens: { components: { buttonAcent: '#000' } } } as never)
+		).toThrow(/theming\/components/);
+	});
+
+	it('a real hook that is not in the vocabulary (per-instance plumbing) is rejected the same way', () => {
+		expect(() => resolveConfig({ tokens: { components: { parallaxX: '10px' } } } as never)).toThrow(
+			/--hz-parallax-x/
+		);
+	});
+
+	it('a value may reference another token, and a hook value may itself be referenced', () => {
+		expect(() =>
+			resolveConfig({
+				tokens: {
+					intent: { fairway: '#3f6212' },
+					components: { buttonAccent: 'var(--hz-intent-fairway)' }
+				}
+			})
+		).not.toThrow();
+		expect(() =>
+			resolveConfig({
+				tokens: {
+					components: { buttonAccent: '#0f766e' },
+					space: { gap: 'var(--hz-button-accent)' }
+				}
+			})
+		).not.toThrow();
+	});
+
+	it('an empty config resolves resolved.components to []', () => {
+		expect(resolveConfig().components).toEqual([]);
+	});
+
+	it('a theme entry that sets components is rejected, naming the key and config.tokens.components', () => {
+		expect(() =>
+			resolveConfig({ themes: { ocean: { components: { buttonAccent: '#000' } } } } as never)
+		).toThrow(/config.themes.ocean.components/);
+		expect(() =>
+			resolveConfig({ themes: { ocean: { components: { buttonAccent: '#000' } } } } as never)
+		).toThrow(/config.tokens.components/);
+	});
+});
+
+describe('specs/65 R14 — component-hook emission', () => {
+	it('full mode emits one :where(<on>) rule at the end of the sheet, after the derived chain', () => {
+		const resolved = resolveConfig({
+			tokens: { components: { buttonAccent: 'var(--hz-intent-secondary)' } }
+		});
+		const css = generateCss(resolved);
+		expect(css).toContain(
+			'\n:where(.hz-button) {\n\t--hz-button-accent: var(--hz-intent-secondary);\n}\n'
+		);
+		expect(css.trimEnd().endsWith('--hz-button-accent: var(--hz-intent-secondary);\n}')).toBe(true);
+	});
+
+	it('overrides mode emits the same rule, same place', () => {
+		const resolved = resolveConfig({
+			tokens: { components: { buttonAccent: 'var(--hz-intent-secondary)' } }
+		});
+		const css = generateCss(resolved, { mode: 'overrides' });
+		expect(css).toContain(
+			'\n:where(.hz-button) {\n\t--hz-button-accent: var(--hz-intent-secondary);\n}\n'
+		);
+	});
+
+	it('appears after the custom-intent section, when both are present', () => {
+		const resolved = resolveConfig({
+			tokens: {
+				intent: { fairway: 'var(--hz-palette-primary)' },
+				components: { buttonAccent: '#0f766e' }
+			}
+		});
+		const css = generateCss(resolved);
+		const intentIndex = css.indexOf("[data-intent='fairway']");
+		const hookIndex = css.indexOf('Component hooks');
+		expect(intentIndex).toBeGreaterThan(-1);
+		expect(hookIndex).toBeGreaterThan(intentIndex);
+	});
+
+	it('groups by owning class, in componentHooks order, and keeps config key order within a rule', () => {
+		const resolved = resolveConfig({
+			tokens: {
+				components: {
+					// Config order deliberately reversed vs. componentHooks order and
+					// vs. within-rule declaration order.
+					buttonTint: '20%',
+					badgeTint: '18%',
+					buttonAccent: '#0f766e'
+				}
+			}
+		});
+		const css = generateCss(resolved);
+		// Badge (declared earlier in componentHooks than Button) comes first...
+		expect(css.indexOf(':where(.hz-badge)')).toBeLessThan(css.indexOf(':where(.hz-button)'));
+		// ...and within the Button rule, tint precedes accent — the config's own
+		// key order, even though componentHooks lists accent first.
+		const buttonRule = css.slice(css.indexOf(':where(.hz-button)'));
+		expect(buttonRule.indexOf('--hz-button-tint')).toBeLessThan(
+			buttonRule.indexOf('--hz-button-accent')
+		);
+	});
+
+	it('a scoped overrides sheet emits the descendant + compound pair, one selector per line', () => {
+		const resolved = resolveConfig({ tokens: { components: { buttonAccent: '#0f766e' } } });
+		const css = generateCss(resolved, { mode: 'overrides', selector: '.hz-theme-terminal' });
+		expect(css).toContain(
+			'\n:where(.hz-theme-terminal .hz-button),\n:where(.hz-theme-terminal.hz-button) {\n\t--hz-button-accent: #0f766e;\n}\n'
+		);
+	});
+
+	it('same resolved config produces identical bytes across two calls', () => {
+		const config = { tokens: { components: { buttonAccent: '#0f766e', badgeTint: '18%' } } };
+		expect(generateCss(resolveConfig(config))).toBe(generateCss(resolveConfig(config)));
+	});
+
+	it('no tokens.components set emits zero extra bytes', () => {
+		expect(generateCss(resolveConfig())).not.toContain('Component hooks');
+		expect(generateCss(resolveConfig(), { mode: 'overrides' })).not.toContain('Component hooks');
+		expect(generateCss(resolveConfig())).toBe(
+			readFileSync(join(here, '../tokens/tokens.css'), 'utf8')
+		);
+	});
+
+	// Defect fix: --hz-logo-size is a ROOT hook (the reference theme declares
+	// it at :root, not on .hz-logo) — see src/lib/tokens/hooks.ts's ROOT. A
+	// rule emitted directly on .hz-logo would out-rank the inherited value an
+	// ancestor wall container relies on to override every logo inside it, so
+	// a configured logoSize must land at the sheet's own root instead.
+	it('a configured logoSize emits at the sheet root, never on .hz-logo, in full mode', () => {
+		const resolved = resolveConfig({ tokens: { components: { logoSize: '5rem' } } });
+		const css = generateCss(resolved);
+		expect(css).toContain('\n:where(:root) {\n\t--hz-logo-size: 5rem;\n}\n');
+		expect(css).not.toContain('.hz-logo');
+	});
+
+	it('a configured logoSize emits at the sheet root, never on .hz-logo, in overrides mode', () => {
+		const resolved = resolveConfig({ tokens: { components: { logoSize: '5rem' } } });
+		const css = generateCss(resolved, { mode: 'overrides' });
+		expect(css).toContain('\n:where(:root) {\n\t--hz-logo-size: 5rem;\n}\n');
+		expect(css).not.toContain('.hz-logo');
+	});
+
+	it('a scoped sheet emits the ROOT rule at :where(<scope>) alone, never a compound/descendant pair or .hz-logo', () => {
+		const resolved = resolveConfig({ tokens: { components: { logoSize: '5rem' } } });
+		const css = generateCss(resolved, { mode: 'overrides', selector: '.hz-theme-terminal' });
+		expect(css).toContain('\n:where(.hz-theme-terminal) {\n\t--hz-logo-size: 5rem;\n}\n');
+		expect(css).not.toContain('.hz-logo');
+	});
+});
+
+describe('specs/65 R15 — the contrast report reads a configured soft tint', () => {
+	it('a percentage badgeTint moves the graded mix in both modes', () => {
+		const base = contrastReport(resolveConfig());
+		const configured = contrastReport(
+			resolveConfig({ tokens: { components: { badgeTint: '40%' } } })
+		);
+		const baseRow = base.rows.find(
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'light'
+		)!;
+		const configuredRow = configured.rows.find(
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'light'
+		)!;
+		expect(configuredRow.bg.hex).not.toBe(baseRow.bg.hex);
+		const darkBase = base.rows.find(
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'dark'
+		)!;
+		const darkConfigured = configured.rows.find(
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'dark'
+		)!;
+		expect(darkConfigured.bg.hex).not.toBe(darkBase.bg.hex);
+		expect(configured.unresolved).not.toContain('--hz-badge-tint');
+	});
+
+	it('a percentage alertTint moves the graded mix', () => {
+		const configured = contrastReport(
+			resolveConfig({ tokens: { components: { alertTint: '30%' } } })
+		);
+		const base = contrastReport(resolveConfig());
+		const baseRow = base.rows.find(
+			(r) => r.id === 'soft-alert-body:intent-primary' && r.mode === 'light'
+		)!;
+		const configuredRow = configured.rows.find(
+			(r) => r.id === 'soft-alert-body:intent-primary' && r.mode === 'light'
+		)!;
+		expect(configuredRow.bg.hex).not.toBe(baseRow.bg.hex);
+	});
+
+	it('a var() tint keeps the built-in recipe and lists the hook in unresolved', () => {
+		const base = contrastReport(resolveConfig());
+		const configured = contrastReport(
+			resolveConfig({ tokens: { components: { badgeTint: 'var(--hz-space-sm)' } } })
+		);
+		const baseRow = base.rows.find(
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'light'
+		)!;
+		const configuredRow = configured.rows.find(
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'light'
+		)!;
+		expect(configuredRow.bg.hex).toBe(baseRow.bg.hex);
+		expect(configured.unresolved).toContain('--hz-badge-tint');
 	});
 });

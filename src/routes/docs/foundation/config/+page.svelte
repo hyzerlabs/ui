@@ -83,14 +83,19 @@
 		"\t\t\tbrand: 'var(--hz-palette-brand-red-500)'",
 		'\t\t},',
 		'\t\ttypography: { fontFamily: { sans: "\'Inter\', system-ui, sans-serif" } },',
-		"\t\tdensity: { unit: '0.5rem' }",
+		"\t\tdensity: { unit: '0.5rem' },",
+		'\t\t// Per-component theme hooks, camelCased, no --hz- prefix. These are',
+		'\t\t// the custom properties each component page lists under Theme hooks.',
+		"\t\tcomponents: { buttonAccent: 'var(--hz-intent-secondary)', badgeTint: '20%' }",
 		'\t},',
 		'',
 		'\t// Named variants that override the default, keyed by data-theme.',
+		'\t// A theme takes any group `tokens` takes, not only color.',
 		'\tthemes: {',
 		'\t\tdark: {',
 		"\t\t\tpalette: { primary: '#2dd4bf', fairway: '#a3e635' }",
-		'\t\t}',
+		'\t\t},',
+		"\t\tprint: { typography: { fontSize: { base: '0.9rem' } }, radius: { md: '0' } }",
 		'\t}',
 		'});'
 	].join('\n');
@@ -197,6 +202,16 @@
 			(<code>--hz-palette-brand-red-900</code>) even though the base palette ships none.
 		</p>
 		<CodeBlock code={configCode} title="hyzer.config.ts" language="ts" />
+		<p>
+			<code>components</code> reaches the per-component custom properties too: the same knobs each
+			component page lists under <strong>Theme hooks</strong>, such as a button's accent color or a
+			badge's tint strength. Set one here and the generator writes the rule on that component's own
+			class, once, for the whole system. You maintain no CSS override of your own.
+		</p>
+		<p>
+			Hooks belong under <code>tokens</code> only. A named theme cannot carry them, so point a hook at
+			a token when you want its value to change per theme.
+		</p>
 		<p>
 			Every run prints a WCAG contrast report over the resolved tokens. It uses the same math and
 			the same pairings that validate this library's own token set. It covers your custom intents
