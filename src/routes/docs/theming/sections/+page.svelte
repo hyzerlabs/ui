@@ -1,9 +1,24 @@
 <script lang="ts">
 	import { Alert, Badge, Button, CodeBlock, Stack, theme } from '$lib';
+	import { resolveConfig, generateCss } from '$lib/config';
+	import oceanConfig from '$lib/theme/examples/ocean.config';
 	import Example from '../../../../docs/Example.svelte';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 	import IconTriangleAlert from '$lib/icons/generated/triangle-alert.svelte';
 	import IconInfo from '$lib/icons/generated/info.svelte';
+
+	// Terminal ships class-rooted: every rule in it is under
+	// .hz-theme-terminal, so importing the real sheet here themes the demo
+	// band and nothing else. The docs app's own theme is untouched. Ocean
+	// cannot do that — it is a :root sheet by design — so it gets regenerated
+	// under a class below instead. Same pair, same trick, as the Example
+	// themes page.
+	import '$lib/theme/examples/terminal/terminal.css';
+
+	const scopedOceanCss = generateCss(resolveConfig(oceanConfig), {
+		mode: 'overrides',
+		selector: '.theme-ocean'
+	});
 
 	// The inline form's override object, kept in one place so the demo and the
 	// code sample below it can never disagree. Radius and weight are here too,
@@ -68,6 +83,9 @@
 
 <svelte:head>
 	<title>Section Themes — @hyzer-labs/ui</title>
+	<!-- Engine-generated CSS from our own committed config — no user input. -->
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+	{@html `<style>${scopedOceanCss}</style>`}
 </svelte:head>
 
 <Stack gap="away">
@@ -152,13 +170,12 @@
 			“ocean, but dark” unless you define it. The <code>'ocean-dark'</code> entry above is that definition.
 		</p>
 		<p>
-			Density is the one group that needs the whole page. On <code>&lt;html&gt;</code> a theme
-			retunes it completely. On a section it only half applies: the near and away distances are
-			computed on
-			<code>body</code>, above where the section sits, so the section's own spacing keeps the page's
-			density. Any <code>data-density-shift</code> region inside the section does pick up the new
-			value, which is why the result looks inconsistent rather than ignored. Put a theme that
-			changes density on <code>&lt;html&gt;</code>.
+			Density is the one group that needs the whole page. On a section a theme only half applies.
+			The near and away distances are computed on <code>body</code>, above where the section sits,
+			so the section's own spacing keeps the page's density. A <code>data-density-shift</code>
+			region inside the section does pick up the theme's value, so the result looks inconsistent rather
+			than ignored. Put a theme that changes density on <code>&lt;html&gt;</code>, where it retunes
+			everything.
 		</p>
 	</Stack>
 
@@ -193,18 +210,43 @@
 		aria-labelledby="class-heading"
 	>
 		<h2 id="class-heading">When to use a class instead</h2>
+		<Alert intent="info" title="Most projects never need this">
+			{#snippet icon()}<IconInfo />{/snippet}
+			A named theme is the simpler tool, and it covers almost every case. Reach past it only when a region
+			has to keep its own palette <em>and</em> still follow the page between light and dark. An
+			entry in
+			<code>themes</code> cannot do both.
+		</Alert>
 		<p>
-			Scoping a generated sheet under a class is the other way to do this. For one case it is the
-			better way. A class composes with <code>data-theme</code>, so a themed region still has a
-			light and a dark form. A <code>themes</code> entry cannot, because it occupies the same attribute
-			dark does. An entry that sets type, spacing and radii as well as color gives up more to that limit
-			than a color-only one does.
+			The other way is to generate the sheet under a class of your own instead of <code>:root</code
+			>. A class and <code>data-theme</code> are separate hooks, so a class-scoped region can keep its
+			own palette in whichever mode the page is in.
 		</p>
-		<CodeBlock code={classCode} />
 		<p>
-			Reach for a <code>themes</code> entry when a section should look one specific way. Reach for a
-			class when a whole region needs its own palette <em>and</em> still has to answer to the page's light/dark
-			state.
+			Both bands below carry only a class. Neither sets <code>data-theme</code>, so both follow the
+			page. Flip this site's light/dark toggle and watch each band change into its own dark form.
+		</p>
+
+		<Example code={classCode}>
+			<Stack gap="near">
+				<div class="demo-band theme-ocean">
+					<Badge intent="primary">ocean</Badge>
+					<p>Teal on slate. Tokens only, and the reference theme does the rest.</p>
+					<Button intent="primary">Primary</Button>
+				</div>
+
+				<div class="demo-band hz-theme-terminal">
+					<Badge intent="primary">terminal</Badge>
+					<p>Phosphor on black, in its own mono. No reference theme underneath it.</p>
+					<Button intent="primary">Primary</Button>
+				</div>
+			</Stack>
+		</Example>
+
+		<p>
+			Each of those sheets names a <code>dark</code> theme of its own. That is what gives it a
+			second form to switch into. Put the same theme in <code>themes</code> instead and the attribute
+			is spent on the name. The region then looks the way you defined it, in both modes.
 		</p>
 	</Stack>
 </Stack>

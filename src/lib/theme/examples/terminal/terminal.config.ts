@@ -4,14 +4,6 @@
  * This is a working config, the kind you would write yourself. Running the
  * `hyzer` CLI over it produces `terminal.tokens.css` beside it, so edit this
  * file and regenerate rather than editing the sheet by hand.
- *
- * Two things make it worth reading. It is STANDALONE: the sheets in
- * ./components style the headless hooks from scratch, and the reference theme is
- * never imported. It is also an EXTENSION: `phosphor` and `amber`, two hues the
- * library does not ship, become intents of their own here, typed in
- * ./intents.d.ts and styled in ./components/button.css. Nothing about them is
- * second class. The contrast report grades them like any other intent, and
- * `<Button intent="amber">` type-checks and autocompletes.
  */
 import { defineConfig } from '../../../config/index.js';
 
@@ -20,13 +12,29 @@ export const intro = [
 	'Example theme: Terminal (tokens)',
 	'A phosphor-on-black palette for the standalone CRT sheet. It is scoped to',
 	'the .hz-theme-terminal class rather than :root, so the theme travels with',
-	'the class and can share a page with anything else.',
+	'the class. That lets it share a page with anything else.',
 	'',
 	'Both looks here are dark. The default is a tube at rest, and the dark',
 	'theme is lights-out: brighter phosphor on true black.',
 	'',
-	'This file is only the palette. terminal.css imports it along with the',
-	'component sheets, and documents how to use them.'
+	'It is an EXTENSION as well. `phosphor` and `amber` are new intents, not',
+	'remaps: two hues the library does not ship, given intent names of their',
+	'own. They are typed in intents.d.ts, and the contrast report grades them',
+	'like any other intent. <Button intent="amber"> type-checks and',
+	'autocompletes.',
+	'',
+	'The theme decides its own TYPE too, not only its color. The mono stack',
+	"here is the theme's, and it adds an xs step to a scale that ships six.",
+	'Setting them here lets every component sheet inherit both from the theme',
+	'root instead of repeating a font-family.',
+	'',
+	'This file is the palette and the type. terminal.css imports it along with',
+	'the component sheets, and documents how to use them.',
+	'',
+	'Import order matters: these rules win by coming last.',
+	"  import '@hyzer-labs/ui/tokens.css';",
+	"  // NO '@hyzer-labs/ui/theme': that is the point.",
+	"  import '@hyzer-labs/ui/theme/examples/terminal/terminal.css';"
 ];
 
 export default defineConfig({
@@ -74,17 +82,17 @@ export default defineConfig({
 			// Neutral takes the dim phosphor, since a gray would be invisible here.
 			neutral: 'var(--hz-color-text-muted)',
 
-			// Intents the library does not ship. It comes with six; nothing stops
-			// a theme adding more. Each points at a hue defined above, so these
-			// are new categories all the way down rather than second names for
-			// colors that already existed. Both are graded by the contrast
-			// report and typed in ./intents.d.ts, so they behave exactly like
-			// the built-in intents.
 			// The stock intent, remapped onto this theme's own hue. A consumer
 			// writing <Button intent="primary"> gets the tube green, with no
 			// second near-identical color in the palette to wonder about.
 			primary: 'var(--hz-palette-phosphor)',
 
+			// Two intents the library does not ship. It comes with seven, and
+			// nothing stops a theme adding more. Each points at a hue defined
+			// above, so these are new categories all the way down rather than
+			// second names for colors that already existed. Both are graded by
+			// the contrast report and typed in ./intents.d.ts, so they behave
+			// exactly like the built-in intents.
 			phosphor: 'var(--hz-palette-phosphor)',
 			amber: 'var(--hz-palette-amber)'
 		}

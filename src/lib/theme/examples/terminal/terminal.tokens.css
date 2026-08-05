@@ -2,13 +2,29 @@
  * Example theme: Terminal (tokens)
  * A phosphor-on-black palette for the standalone CRT sheet. It is scoped to
  * the .hz-theme-terminal class rather than :root, so the theme travels with
- * the class and can share a page with anything else.
+ * the class. That lets it share a page with anything else.
  *
  * Both looks here are dark. The default is a tube at rest, and the dark
  * theme is lights-out: brighter phosphor on true black.
  *
- * This file is only the palette. terminal.css imports it along with the
- * component sheets, and documents how to use them.
+ * It is an EXTENSION as well. `phosphor` and `amber` are new intents, not
+ * remaps: two hues the library does not ship, given intent names of their
+ * own. They are typed in intents.d.ts, and the contrast report grades them
+ * like any other intent. <Button intent="amber"> type-checks and
+ * autocompletes.
+ *
+ * The theme decides its own TYPE too, not only its color. The mono stack
+ * here is the theme's, and it adds an xs step to a scale that ships six.
+ * Setting them here lets every component sheet inherit both from the theme
+ * root instead of repeating a font-family.
+ *
+ * This file is the palette and the type. terminal.css imports it along with
+ * the component sheets, and documents how to use them.
+ *
+ * Import order matters: these rules win by coming last.
+ *   import '@hyzer-labs/ui/tokens.css';
+ *   // NO '@hyzer-labs/ui/theme': that is the point.
+ *   import '@hyzer-labs/ui/theme/examples/terminal/terminal.css';
  *
  * @hyzer-labs/ui token overrides
  *

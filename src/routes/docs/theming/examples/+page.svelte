@@ -97,7 +97,7 @@
 			label: 'Terminal: standalone',
 			themeClass: 'hz-theme-terminal',
 			blurb:
-				'No reference theme at all. Every rule below is the example’s own, written against the raw headless hooks. The components ship structure, behavior, and ARIA; nothing here inherits a single visual decision from the library.',
+				'Every rule below is the example’s own, written against the raw headless hooks. The components ship structure, behavior and ARIA. Nothing here inherits a visual decision from the reference theme.',
 			imports: [
 				"import '@hyzer-labs/ui/tokens.css';",
 				"// NO '@hyzer-labs/ui/theme': that is the point.",
