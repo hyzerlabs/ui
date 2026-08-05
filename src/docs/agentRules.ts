@@ -43,7 +43,7 @@ export const agentRules: AgentRule[] = [
 	},
 	{
 		title: 'Generate tokens; never hand-edit them',
-		body: "The token sheet is build output. Change `hyzer.config.ts` and run `hyzer generate`. A hand edit is overwritten on the next run, and it skips the contrast grading that would have caught an inaccessible pairing. Per-component custom properties (a button's accent color, a badge's tint) are settable from the config too, under `tokens.components`. Reach for that before writing a CSS override."
+		body: "The token sheet is build output. Change `hyzer.config.ts` and run `hyzer generate`. A hand edit is overwritten on the next run, and it skips the contrast grading that would have caught an inaccessible pairing. Per-component custom properties (a button's accent color, a badge's tint) are settable from the config too, under `tokens.components`. Reach for that before writing a CSS override. Run `hyzer generate --check` in CI to catch a committed sheet that has fallen behind the config before it ships."
 	},
 	{
 		title: 'Resolve through roles and intents, never the palette',

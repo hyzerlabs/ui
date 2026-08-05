@@ -64,8 +64,21 @@ export interface HyzerTokensOverride {
 	shadow?: TokenGroupOverride;
 	zIndex?: TokenGroupOverride;
 	motion?: { duration?: TokenGroupOverride; ease?: TokenGroupOverride };
-	/** The density grid unit (`--hz-density`); the near/away cascade derives from it. */
-	density?: { unit?: string };
+	density?: {
+		/** The density grid unit (`--hz-density`); the near/away cascade derives from it. */
+		unit?: string;
+		/**
+		 * The four rung values the near/away cascade looks up
+		 * (`--hz-density-ladder-depth-1`…`-4`), keyed `depth1`…`depthN`. Declares
+		 * no rung of its own — it substitutes the value into the existing
+		 * `var()` fallback, so a CSS-side rung override still wins from
+		 * anywhere, and a scoped `--hz-density` still retunes every depth the
+		 * config left alone. Root-only: a theme entry that sets this is a
+		 * `HyzerConfigError`, because the ladder is `body`-anchored element
+		 * rules, and there is no element in a theme block to put a rung on.
+		 */
+		ladder?: TokenGroupOverride;
+	};
 	/**
 	 * Per-component theme hooks (`--hz-button-accent`, `--hz-badge-tint`, …),
 	 * flat and keyed by the hook name minus its `--hz-` prefix
@@ -131,6 +144,22 @@ export interface HyzerConfig {
 	 * when present.
 	 */
 	utilities?: boolean | { output?: string };
+	/**
+	 * The contrast bar the report grades against — `'AA'` (4.5:1, the
+	 * default) or `'AAA'` (7:1). The library's own hues are tuned to AA, so
+	 * turning AAA on reports failures against the shipped palette until you
+	 * retune your own.
+	 */
+	contrast?: { level?: 'AA' | 'AAA' };
+	/**
+	 * Fail the run when any pairing misses the contrast bar, or any icon name
+	 * is unknown — the same thing the CLI's `--strict` flag does. The flag
+	 * turns strictness on even when this is left `false`; there is no way to
+	 * turn it off from the command line. Top-level rather than nested under
+	 * `contrast`, because it also covers icon names, which are not a contrast
+	 * setting.
+	 */
+	strict?: boolean;
 }
 
 /** Identity helper — gives `hyzer.config.ts` full typing and autocomplete. */
@@ -197,6 +226,14 @@ export interface ResolvedConfig {
 		unit: string;
 		unitFromConfig: boolean;
 		levels: readonly { near: number; away: number }[];
+		/**
+		 * `config.tokens.density.ladder`, resolved to depth (1-based) → the
+		 * configured literal fallback — empty when the config sets no rung.
+		 * `generateCss` substitutes it into the rung's `var()` fallback in
+		 * place of the default `calc(var(--hz-density) * N)`; it never
+		 * declares a rung of its own.
+		 */
+		ladder: Readonly<Record<number, string>>;
 	};
 	/**
 	 * The `dark` theme, kept as its own field rather than folded into
@@ -234,6 +271,10 @@ export interface ResolvedConfig {
 	 * this field — it isn't part of what gets rendered into a sheet.
 	 */
 	utilities: { enabled: boolean; output?: string };
+	/** The resolved contrast bar — `level` defaults to `'AA'`. */
+	contrast: { level: 'AA' | 'AAA' };
+	/** `config.strict`, defaulted `false`. The CLI's `--strict` flag ORs over this, never replaces it. */
+	strict: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -283,9 +324,12 @@ function assertStringValues(group: TokenGroupOverride | undefined, where: string
  * validator (R3) rather than two lists that can drift apart. `where` is the
  * object's own path (`config.tokens` or `config.themes.x`); nested errors
  * name their own sub-path off of it. `isTheme` gates the members that are
- * root-only (R1): `components` today, because a hook is emitted as its own
- * rule on the component's element, not as a declaration inside a theme
- * block, so a theme-block copy of it would be inherited-and-ignored there.
+ * root-only (R1): `components` and `density.ladder`, because a hook is
+ * emitted as its own rule on the component's element rather than as a
+ * declaration inside a theme block, and the ladder is `body`-anchored
+ * element rules with no element in a theme block to put a rung on — a
+ * theme-block copy of either would be inherited-and-ignored or have nowhere
+ * to land.
  */
 function assertTokenGroups(
 	obj: Record<string, unknown> | undefined,
@@ -299,6 +343,13 @@ function assertTokenGroups(
 			`${where}.components is not allowed in a theme. Set hooks under config.tokens.components, ` +
 				'which applies under every theme. To vary one per theme, point the hook at a token and ' +
 				'override that token here.'
+		);
+	}
+	if (isTheme && tokens?.density?.ladder !== undefined) {
+		throw new HyzerConfigError(
+			`${where}.density.ladder is not allowed in a theme. Set it under config.tokens.density.ladder ` +
+				'— the ladder is body-anchored element rules, and there is no element in a theme block to ' +
+				'put a rung on.'
 		);
 	}
 	assertKnownKeys(
@@ -318,11 +369,35 @@ function assertTokenGroups(
 	);
 	assertKnownKeys(
 		tokens?.density as Record<string, unknown> | undefined,
-		['unit'],
+		['unit', 'ladder'],
 		`${where}.density`
 	);
 	if (tokens?.density?.unit !== undefined && typeof tokens.density.unit !== 'string') {
 		throw new HyzerConfigError(`${where}.density.unit must be a string.`);
+	}
+	assertDensityLadder(tokens?.density?.ladder, `${where}.density.ladder`);
+}
+
+/**
+ * Every key of `density.ladder` must be `depth1`…`depth<N>`, one per
+ * `density.levels` depth (N is 4 today, derived rather than hardcoded so a
+ * future rung count needs no change here). Anything else is a
+ * `HyzerConfigError` naming the valid range.
+ */
+const DENSITY_LADDER_KEY = /^depth(\d+)$/;
+
+function assertDensityLadder(ladder: TokenGroupOverride | undefined, where: string): void {
+	if (!ladder) return;
+	assertStringValues(ladder, where);
+	const max = density.levels.length;
+	for (const key of Object.keys(ladder)) {
+		const match = DENSITY_LADDER_KEY.exec(key);
+		const depth = match ? parseInt(match[1], 10) : NaN;
+		if (!match || depth < 1 || depth > max) {
+			throw new HyzerConfigError(
+				`${where}.${key} is not a valid density ladder depth. Use depth1 through depth${max}.`
+			);
+		}
 	}
 }
 
@@ -418,6 +493,35 @@ function resolveUtilities(utilities: HyzerConfig['utilities']): {
 		throw new HyzerConfigError('config.utilities.output must be a string path.');
 	}
 	return { enabled: true, output: utilities.output };
+}
+
+/**
+ * Normalizes `config.contrast` — absent means `'AA'`, the report's long-
+ * standing default. `level` is the only key; anything else is a
+ * `HyzerConfigError` naming it.
+ */
+function resolveContrast(contrast: HyzerConfig['contrast']): { level: 'AA' | 'AAA' } {
+	if (contrast === undefined) return { level: 'AA' };
+	assertKnownKeys(contrast as Record<string, unknown>, ['level'], 'config.contrast');
+	if (contrast.level !== undefined && contrast.level !== 'AA' && contrast.level !== 'AAA') {
+		throw new HyzerConfigError(
+			`config.contrast.level must be "AA" or "AAA", got "${contrast.level}".`
+		);
+	}
+	return { level: contrast.level ?? 'AA' };
+}
+
+/**
+ * `depth1`…`depthN` → depth (1-based) → its configured literal fallback.
+ * Already validated (`assertDensityLadder`) by the time this runs.
+ */
+function resolveDensityLadder(ladder: TokenGroupOverride | undefined): Record<number, string> {
+	const map: Record<number, string> = {};
+	if (!ladder) return map;
+	for (const [key, value] of Object.entries(ladder)) {
+		map[parseInt(key.slice('depth'.length), 10)] = value;
+	}
+	return map;
 }
 
 /**
@@ -564,7 +668,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	}
 	assertKnownKeys(
 		config as Record<string, unknown>,
-		['output', 'tokens', 'themes', 'icons', 'utilities'],
+		['output', 'tokens', 'themes', 'icons', 'utilities', 'contrast', 'strict'],
 		'config'
 	);
 	const tokens = config.tokens;
@@ -584,6 +688,10 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		}
 	}
 	const resolvedUtilities = resolveUtilities(config.utilities);
+	const resolvedContrast = resolveContrast(config.contrast);
+	if (config.strict !== undefined && typeof config.strict !== 'boolean') {
+		throw new HyzerConfigError('config.strict must be a boolean.');
+	}
 
 	// --- palette + roles: two independent groups, split by config shape,
 	// not value inference (.2 — "clarity is kindness"). ------------
@@ -737,14 +845,17 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		density: {
 			unit: tokens?.density?.unit ?? density.unit,
 			unitFromConfig: tokens?.density?.unit !== undefined,
-			levels: density.levels
+			levels: density.levels,
+			ladder: resolveDensityLadder(tokens?.density?.ladder)
 		},
 		dark,
 		themes,
 		components,
 		output: config.output,
 		icons: config.icons !== undefined ? [...new Set(config.icons)] : undefined,
-		utilities: resolvedUtilities
+		utilities: resolvedUtilities,
+		contrast: resolvedContrast,
+		strict: config.strict === true
 	};
 
 	validateReferences(resolved);

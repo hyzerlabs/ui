@@ -52,12 +52,12 @@
 		{
 			name: '--check',
 			key: null,
-			note: 'Resolve and report without writing any files: no token sheet, no utilities sheet, no icons.ts. Pairs with --strict for a CI check that touches nothing.'
+			note: 'Resolve and report without writing any files: no token sheet, no utilities sheet, no icons.ts. It also compares the files already on disk to what this run would write. A committed sheet that has fallen behind your config is reported. Pairs with --strict for a CI check that touches nothing.'
 		},
 		{
 			name: '--strict',
-			key: null,
-			note: 'Exit non-zero if any pairing misses WCAG AA or any icon name is unknown. Without it, both are warnings and the run succeeds. All-or-nothing: it cannot be narrowed to one pairing.'
+			key: 'strict',
+			note: 'Exit non-zero if any pairing misses the contrast bar, any icon name is unknown, or a checked file is out of date. A file that was never generated is reported but does not fail the build. Without --strict, all three are warnings and the run succeeds. The strict config key does the same; the flag turns it on even when the config does not.'
 		},
 		{ name: '--help', key: null, note: 'Print the usage summary this table is drawn from.' }
 	];
@@ -120,7 +120,8 @@
 		'# Flags compose: a patch sheet AND the utilities sheet, one run:',
 		'hyzer generate --mode overrides --utilities',
 		'',
-		'# Validate without writing; fail CI on any AA miss (and any unknown icon):',
+		'# Validate without writing; fail CI on a contrast miss, an unknown icon,',
+		"# or a committed sheet that's fallen behind the config:",
 		'hyzer generate --check --strict'
 	].join('\n');
 
@@ -230,6 +231,17 @@
 		</Alert>
 		<p>You choose what it writes. The flags compose:</p>
 		<CodeBlock code={modesCode} language="bash" />
+		<p>
+			"Out of date" means the file on disk is not what your config would produce right now. A
+			library upgrade counts too: new token values or comment text leave a committed sheet stale
+			until you regenerate it.
+		</p>
+		<p>
+			<code>--check</code> expects the sheet to have been written with the same
+			<code>--mode</code> you are checking with, so a mode mismatch is reported by name instead of as
+			a wall of differences. A file you never committed is reported as not generated. It does not fail
+			the build, so generating the sheet at build time instead of committing it stays a supported workflow.
+		</p>
 		<Alert intent="info" title="TypeScript configs need Node 22.18">
 			{#snippet icon()}<IconInfo />{/snippet}
 			They load through Node's native type stripping. On older runtimes, name the file
@@ -248,10 +260,12 @@
 	>
 		<h2 id="flags-heading">Command-line flags</h2>
 		<p>
-			The flags and the config file cover different ground, on purpose. Three flags have no config
-			equivalent at all, because they describe a single run rather than your design system. Most of
-			the config (<code>tokens</code>, <code>themes</code>, <code>icons</code>) has no flag, because
-			none of it belongs on a command line.
+			The flags and the config file cover different ground, on purpose. Four flags stay flag-only:
+			<code>--config</code>, <code>--mode</code>, <code>--check</code> and <code>--help</code> each
+			describe a single run, not part of your design system. Everything that does describe the
+			system, such as <code>tokens</code>, <code>themes</code>, <code>icons</code> and
+			<code>contrast</code>, lives in the config instead. Three flags also have a config key:
+			<code>--out</code>, <code>--utilities</code> and <code>--strict</code>.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">

@@ -1308,3 +1308,151 @@ describe('specs/65 R15 — the contrast report reads a configured soft tint', ()
 		expect(configured.unresolved).toContain('--hz-badge-tint');
 	});
 });
+
+// ---------------------------------------------------------------------------
+// specs/65 Stage 4 (R17–R20) — the contrast bar and strict are config keys
+// ---------------------------------------------------------------------------
+
+describe('specs/65 R17 — contrast.level and strict resolve with defaults', () => {
+	it('defaults to AA and non-strict with no config', () => {
+		const resolved = resolveConfig();
+		expect(resolved.contrast.level).toBe('AA');
+		expect(resolved.strict).toBe(false);
+	});
+
+	it('resolves contrast.level and strict from the config', () => {
+		const resolved = resolveConfig({ contrast: { level: 'AAA' }, strict: true });
+		expect(resolved.contrast.level).toBe('AAA');
+		expect(resolved.strict).toBe(true);
+	});
+
+	it('rejects an unknown key under contrast', () => {
+		expect(() => resolveConfig({ contrast: { threshold: 'AAA' } as never })).toThrow(
+			/Unknown key "threshold" in config\.contrast/
+		);
+	});
+
+	it('rejects a contrast.level that is neither AA nor AAA', () => {
+		expect(() => resolveConfig({ contrast: { level: 'AA+' as never } })).toThrow(
+			/config\.contrast\.level must be "AA" or "AAA"/
+		);
+	});
+
+	it('rejects a non-boolean strict', () => {
+		expect(() => resolveConfig({ strict: 'yes' as never })).toThrow(
+			/config\.strict must be a boolean/
+		);
+	});
+
+	it('rejects an unknown top-level config key alongside contrast/strict', () => {
+		expect(() => resolveConfig({ level: 'AAA' } as never)).toThrow(/Unknown key "level" in config/);
+	});
+});
+
+describe('specs/65 R18 — the contrast bar is a threshold swap', () => {
+	it("AAA makes every row's pass the 7:1 answer and the report says which bar was applied", () => {
+		const resolved = resolveConfig({ contrast: { level: 'AAA' } });
+		const report = contrastReport(resolved);
+		expect(report.level).toBe('AAA');
+		for (const row of report.rows) {
+			expect(row.pass).toBe(row.ratio >= 7);
+		}
+		// The library's own hues are tuned to AA — AAA on the shipped palette
+		// reports failures. That is expected, not a regression.
+		expect(report.pass).toBe(false);
+	});
+
+	it('the default AA report is unchanged: pass is still the 4.5:1 answer', () => {
+		const report = contrastReport(resolveConfig());
+		expect(report.level).toBe('AA');
+		for (const row of report.rows) {
+			expect(row.pass).toBe(row.ratio >= 4.5);
+		}
+	});
+});
+
+describe('specs/65 R20 — Stage 4 emits no CSS changes', () => {
+	it('contrast and strict are pure report/CLI metadata: the generated sheet is unaffected', () => {
+		const committed = readFileSync(join(here, '../tokens/tokens.css'), 'utf8');
+		expect(generateCss(resolveConfig({ contrast: { level: 'AAA' }, strict: true }))).toBe(
+			committed
+		);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/65 Stage 5 (R21) — density.ladder sets the rung fallback values
+// ---------------------------------------------------------------------------
+
+describe('specs/65 R21 — density.ladder substitutes into the rung var() fallback', () => {
+	it("a set rung changes only that depth's fallback; the var() lookup itself is unchanged", () => {
+		const css = generateCss(
+			resolveConfig({ tokens: { density: { ladder: { depth3: '0.5rem' } } } })
+		);
+		expect(css).toContain('--hz-space-near: var(--hz-density-ladder-depth-3, 0.5rem);');
+	});
+
+	it('unset depths keep calc(var(--hz-density) * N) verbatim', () => {
+		const css = generateCss(
+			resolveConfig({ tokens: { density: { ladder: { depth3: '0.5rem' } } } })
+		);
+		expect(css).toContain(
+			'--hz-space-near: var(--hz-density-ladder-depth-1, calc(var(--hz-density) * 10));'
+		);
+		expect(css).toContain(
+			'--hz-space-near: var(--hz-density-ladder-depth-2, calc(var(--hz-density) * 5));'
+		);
+		expect(css).toContain(
+			'--hz-space-near: var(--hz-density-ladder-depth-4, calc(var(--hz-density) * 1));'
+		);
+	});
+
+	it("an away reference picks up a depth its near shares: depth3 set moves depth 4's away fallback too", () => {
+		const css = generateCss(
+			resolveConfig({ tokens: { density: { ladder: { depth3: '0.5rem' } } } })
+		);
+		expect(css).toContain('--hz-space-away: var(--hz-density-ladder-depth-3, 0.5rem);');
+	});
+
+	it('depth1 substitutes into the doubled away calc too (it references its own rung)', () => {
+		const css = generateCss(
+			resolveConfig({ tokens: { density: { ladder: { depth1: 'var(--space-10)' } } } })
+		);
+		expect(css).toContain('--hz-space-near: var(--hz-density-ladder-depth-1, var(--space-10));');
+		expect(css).toContain(
+			'--hz-space-away: calc(var(--hz-density-ladder-depth-1, var(--space-10)) * 2);'
+		);
+	});
+
+	it('an out-of-range depth is a config error naming the valid range', () => {
+		expect(() => resolveConfig({ tokens: { density: { ladder: { depth5: '0.5rem' } } } })).toThrow(
+			/depth5 is not a valid density ladder depth. Use depth1 through depth4/
+		);
+	});
+
+	it('a key that is not depth<N> at all is the same error', () => {
+		expect(() => resolveConfig({ tokens: { density: { ladder: { deep3: '0.5rem' } } } })).toThrow(
+			/deep3 is not a valid density ladder depth/
+		);
+	});
+
+	it('rejects the ladder on a theme, naming the root path', () => {
+		expect(() =>
+			resolveConfig({ themes: { ocean: { density: { ladder: { depth1: '0.5rem' } } } } })
+		).toThrow(
+			/config\.themes\.ocean\.density\.ladder is not allowed in a theme.*config\.tokens\.density\.ladder/s
+		);
+	});
+
+	it('resolved.density.ladder maps depth to the configured value', () => {
+		const resolved = resolveConfig({
+			tokens: { density: { ladder: { depth1: 'var(--space-10)', depth3: '0.5rem' } } }
+		});
+		expect(resolved.density.ladder).toEqual({ 1: 'var(--space-10)', 3: '0.5rem' });
+	});
+
+	it('tokens.css is byte-identical with no ladder set', () => {
+		const committed = readFileSync(join(here, '../tokens/tokens.css'), 'utf8');
+		expect(generateCss(resolveConfig())).toBe(committed);
+	});
+});

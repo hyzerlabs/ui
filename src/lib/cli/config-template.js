@@ -42,7 +42,10 @@ export default defineConfig({
 	// 		duration: { base: '350ms' },      // --hz-duration-*
 	// 		ease: { standard: 'ease-out' }    // --hz-ease-*
 	// 	},
-	// 	density: { unit: '0.5rem' },        // the --hz-density grid unit (near/away cascade)
+	// 	density: {
+	// 		unit: '0.5rem',                    // the --hz-density grid unit (near/away cascade)
+	// 		ladder: { depth1: 'var(--space-10)' } // the value each rung falls back to (depth1..depth4); a rung you declare in CSS still wins
+	// 	},
 	// 	components: {                       // per-component theme hooks, camelCased, no --hz- prefix
 	// 		buttonAccent: 'var(--hz-intent-secondary)', // each hook becomes a rule on that component
 	// 		badgeTint: '20%'                  // set here only; point a hook at a token to vary it per theme
@@ -64,6 +67,9 @@ export default defineConfig({
 
 	// icons: ['plus', 'trash-2', 'settings'], // trims the generated icons.ts barrel
 
-	// utilities: true // opt in to hyzer-utilities.css (or { output: 'styles/hyzer-utilities.css' })
+	// utilities: true, // opt in to hyzer-utilities.css (or { output: 'styles/hyzer-utilities.css' })
+
+	// contrast: { level: 'AAA' }, // the WCAG bar the report grades against; default 'AA'
+	// strict: true                // fail the run on a contrast miss, an unknown icon or an out-of-date file; --strict does the same
 });
 `;

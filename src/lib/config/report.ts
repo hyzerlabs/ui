@@ -44,7 +44,7 @@ export interface ContrastReportRow {
 	bg: { name: string; hex: string };
 	ratio: number;
 	level: ContrastLevel;
-	/** WCAG AA for normal text (≥ 4.5:1) — also the Section 508 bar. */
+	/** Passes the configured bar (`resolved.contrast.level`): ≥ 4.5:1 for AA, ≥ 7:1 for AAA. */
 	pass: boolean;
 }
 
@@ -52,8 +52,10 @@ export interface ContrastReport {
 	rows: ContrastReportRow[];
 	/** Tokens whose values could not be resolved to a hex; their pairings are skipped. */
 	unresolved: string[];
-	/** True when every graded pairing passes AA. */
+	/** True when every graded pairing passes the configured bar. */
 	pass: boolean;
+	/** The bar every row's `pass` was graded against — `resolved.contrast.level`. */
+	level: 'AA' | 'AAA';
 }
 
 // ---------------------------------------------------------------------------
@@ -187,6 +189,8 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 	const maps = declarationMaps(resolved);
 	const rows: ContrastReportRow[] = [];
 	const unresolved = new Set<string>();
+	const level = resolved.contrast.level;
+	const threshold = level === 'AAA' ? 7 : 4.5;
 
 	// A configured --hz-badge-tint/--hz-alert-tint (specs/65 R15) — root-only,
 	// so one value applies in every mode. Only a plain percentage can replace
@@ -232,7 +236,7 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 				bg,
 				ratio,
 				level: bestLevel(ratio),
-				pass: ratio >= 4.5
+				pass: ratio >= threshold
 			});
 		};
 
@@ -301,6 +305,7 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 	return {
 		rows,
 		unresolved: [...unresolved].sort(),
-		pass: rows.every((row) => row.pass)
+		pass: rows.every((row) => row.pass),
+		level
 	};
 }

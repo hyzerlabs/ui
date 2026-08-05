@@ -211,14 +211,27 @@ function densityRungName(depth: number): string {
 	return `--hz-density-ladder-depth-${depth}`;
 }
 
-/** The rung's own literal fallback: `levels[depth - 1]`'s near multiplier. */
-function densityRungFallback(levels: readonly DensityLevel[], depth: number): string {
-	return `calc(var(--hz-density) * ${levels[depth - 1].near})`;
+/**
+ * The rung's own literal fallback: `config.tokens.density.ladder`'s value for
+ * this depth when the config set one (specs/65 R21 — substituted verbatim,
+ * not wrapped in another `calc()`), else `levels[depth - 1]`'s near
+ * multiplier, exactly as before the config could touch this.
+ */
+function densityRungFallback(
+	levels: readonly DensityLevel[],
+	ladder: Readonly<Record<number, string>>,
+	depth: number
+): string {
+	return ladder[depth] ?? `calc(var(--hz-density) * ${levels[depth - 1].near})`;
 }
 
 /** `var(--hz-density-ladder-depth-<n>, <its own literal fallback>)`. */
-function densityRungRef(levels: readonly DensityLevel[], depth: number): string {
-	return `var(${densityRungName(depth)}, ${densityRungFallback(levels, depth)})`;
+function densityRungRef(
+	levels: readonly DensityLevel[],
+	ladder: Readonly<Record<number, string>>,
+	depth: number
+): string {
+	return `var(${densityRungName(depth)}, ${densityRungFallback(levels, ladder, depth)})`;
 }
 
 /**
@@ -239,10 +252,11 @@ function densityRungRef(levels: readonly DensityLevel[], depth: number): string 
  */
 function densityBlock(resolved: ResolvedConfig): string {
 	const levels = resolved.density.levels;
+	const ladder = resolved.density.ladder;
 	const rules = levels.map((level, index) => {
 		const depth = index + 1;
 		const selector = index === 0 ? 'body' : `body ${'[data-density-shift] '.repeat(index).trim()}`;
-		const near = densityRungRef(levels, depth);
+		const near = densityRungRef(levels, ladder, depth);
 
 		let away: string;
 		if (index === 0) {
@@ -262,7 +276,7 @@ function densityBlock(resolved: ResolvedConfig): string {
 						`(${prevNear}) — a level's away must equal the next-shallower level's near.`
 				);
 			}
-			away = densityRungRef(levels, depth - 1);
+			away = densityRungRef(levels, ladder, depth - 1);
 		}
 
 		return [
@@ -396,17 +410,17 @@ function customIntentSection(resolved: ResolvedConfig, selector: string): string
 
 const COMPONENT_HOOKS_BANNER = [
 	'Component hooks',
-	'One rule per component your config sets a hook value for. A hook the',
-	'reference theme declares on the component itself lands there too, so the',
-	'value set here reaches it directly rather than through an inherited root',
-	'value the component’s own declaration would just ignore. A hook the',
-	'theme declares at :root instead — or never declares at all — lands at',
-	'this sheet’s own root, the same place the theme puts it (or would): an',
-	'ancestor’s own override of the same property still reaches every',
-	'instance below it, which a declaration on the component itself could',
-	'never be beaten by.',
-	'Unlayered and zero specificity, same posture as the custom intent section',
-	'above: any consumer rule for the same property still wins.'
+	'One rule per component your config sets a hook value for.',
+	'A hook the reference theme declares on the component itself lands there',
+	'too, so the value you set reaches that component directly. Otherwise it',
+	"would inherit from the root, and the component's own declaration would",
+	'ignore it.',
+	'A hook the theme declares at :root, or never declares at all, lands at',
+	"this sheet's own root: the same place the theme puts it, or would. An",
+	'override you write on an ancestor then still reaches every instance',
+	'below it, which a declaration on the component itself would beat.',
+	'Unlayered and zero specificity, the same posture as the custom intent',
+	'section above: any rule you write for the same property still wins.'
 ];
 
 /**

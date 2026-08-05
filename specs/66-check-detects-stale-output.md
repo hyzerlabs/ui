@@ -281,7 +281,9 @@ build their expectations.
   names `--mode overrides`; not the byte-diff wording.
 - No `icons` key, with a stale `icons.ts` sitting in the output directory → no
   icons finding, and `files:` counts one file.
-- `icons: ['settings']` with no `icons.ts` → one finding.
+- `icons: ['settings']` with no `icons.ts` → one `?` note, not a finding, and
+  no effect on the exit code. Same rule as the absent sheet above (R3): the file
+  is not there, so there is nothing to disagree with.
 - Utilities absent from config and flag → no utilities finding even though no
   file exists; with `--utilities` → the sheet is checked; with
   `utilities: { output: 'styles/u.css' }` → checked at that path.
