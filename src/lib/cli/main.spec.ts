@@ -1,11 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { run } from './main.js';
 import { resolveConfig, generateCss, generateUtilitiesCss } from '../config/index.js';
+import { TOP_LEVEL_KEYS } from '../config/schema.js';
 import { CONFIG_TEMPLATE } from './config-template.js';
+import { CONFIG_TOKEN_DEFAULTS, CONFIG_DARK_DEFAULTS } from './config-defaults.js';
+import { renderConfigDefaults } from '../../../scripts/gen-config-defaults.js';
+
+/** main.spec.ts:720's own uncommenter, reused by every specs/69 R8 case below. */
+function uncomment(source: string): string {
+	return source
+		.split('\n')
+		.map((line) => line.replace(/^\t\/\/ /, '\t'))
+		.join('\n');
+}
 
 /** Fresh sandbox per test — unique paths keep ESM config imports uncached. */
 function sandbox(): {
@@ -687,6 +698,99 @@ describe('hyzer generate --check — staleness', () => {
 	});
 });
 
+// ---------------------------------------------------------------------------
+// specs/69 R11 — `output` has one anchor: config-supplied paths resolve
+// against the config, flag-supplied paths resolve against the shell, and
+// the DEFAULT filename follows the config too, not only a path you wrote.
+// ---------------------------------------------------------------------------
+
+describe('specs/69 R11 — output resolves against the config file, everywhere', () => {
+	it('a config in a subdirectory with no output and no --out lands beside the config, not beside the shell', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default {};`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/hyzer-tokens.css'))).toBe(true);
+		expect(existsSync(join(cwd, 'hyzer-tokens.css'))).toBe(false);
+	});
+
+	it('icons.ts lands beside the same config-relative default', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default { icons: [] };`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/icons.ts'))).toBe(true);
+	});
+
+	it('the default utilities sheet lands beside the same config-relative default', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default { utilities: true };`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/hyzer-utilities.css'))).toBe(true);
+	});
+
+	it('--out stays relative to the shell even with a subdirectory config', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default {};`);
+		expect(
+			await run(['generate', '--config', 'conf/hyzer.config.mjs', '--out', 'out/tokens.css'], io)
+		).toBe(0);
+		expect(existsSync(join(cwd, 'out/tokens.css'))).toBe(true);
+		expect(existsSync(join(cwd, 'conf/hyzer-tokens.css'))).toBe(false);
+		expect(existsSync(join(cwd, 'conf/out/tokens.css'))).toBe(false);
+	});
+
+	it('an explicit config.output in a subdirectory is unchanged from today', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default { output: 'styles/x.css' };`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/styles/x.css'))).toBe(true);
+	});
+
+	it('no config anywhere still writes beside the shell, unchanged', async () => {
+		const { cwd, io } = sandbox();
+		expect(await run(['generate'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'hyzer-tokens.css'))).toBe(true);
+	});
+
+	it('--check against a sheet left at the old (pre-fix) cwd location reports it absent, not stale, and exits 0 under --strict', async () => {
+		const { cwd, logs, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default {};`);
+		// The old, cwd-relative location a pre-fix run would have written.
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		expect(
+			await run(['generate', '--config', 'conf/hyzer.config.mjs', '--check', '--strict'], io)
+		).toBe(0);
+		expect(logs.join('\n')).toContain(
+			`? ${join(cwd, 'conf/hyzer-tokens.css')} has not been generated, not checked`
+		);
+	});
+
+	it('--check immediately after a subdirectory-config write reports all up to date', async () => {
+		const { cwd, logs, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default {};`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain('files: 1 checked, all up to date');
+	});
+
+	it('utilities.output with a subdirectory config resolves through the shared base, unchanged from today', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(
+			join(cwd, 'conf/hyzer.config.mjs'),
+			`export default { utilities: { output: 'styles/u.css' } };`
+		);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/styles/u.css'))).toBe(true);
+	});
+});
+
 describe('hyzer init', () => {
 	it('writes the commented full-reference hyzer.config.ts', async () => {
 		const { cwd, logs, io } = sandbox();
@@ -723,5 +827,104 @@ describe('hyzer init', () => {
 		writeFileSync(configPath, source);
 		const mod = (await import(pathToFileURL(configPath).href)) as { default: unknown };
 		expect(() => resolveConfig(mod.default as never)).not.toThrow();
+	});
+
+	it("writes a file that contains both defaults constants' first lines (the splice happened)", async () => {
+		const { cwd, io } = sandbox();
+		expect(await run(['init'], io)).toBe(0);
+		const scaffold = readFileSync(join(cwd, 'hyzer.config.ts'), 'utf8');
+		expect(scaffold).toContain(CONFIG_TOKEN_DEFAULTS.split('\n')[0]);
+		expect(scaffold).toContain(CONFIG_DARK_DEFAULTS.split('\n')[0]);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/69 R6–R8 — the config template's defaults are generated, and stay
+// 1:1 with tokens.css by construction rather than by eye
+// ---------------------------------------------------------------------------
+
+describe('specs/69 — src/lib/cli/config-defaults.js', () => {
+	it('R6: the committed file is exactly renderConfigDefaults() — drift, the same gate tokens.css gets', () => {
+		const committedPath = join(dirname(fileURLToPath(import.meta.url)), 'config-defaults.js');
+		const committed = readFileSync(committedPath, 'utf8');
+		expect(committed).toBe(renderConfigDefaults());
+	});
+
+	it('R7: every line is one tab, "// ", then content — no trailing whitespace, either constant', () => {
+		for (const constant of [CONFIG_TOKEN_DEFAULTS, CONFIG_DARK_DEFAULTS]) {
+			for (const line of constant.split('\n')) {
+				expect(line).toMatch(/^\t\/\/ /);
+				expect(line).not.toMatch(/[ \t]$/);
+			}
+		}
+	});
+
+	it('R7: no components group — the 41 component hooks have no defaults to show', () => {
+		expect(CONFIG_TOKEN_DEFAULTS).not.toContain('components:');
+	});
+
+	it('R7: no theme but dark in the generated defaults — ocean/print stay hand-written illustrations', () => {
+		expect(CONFIG_DARK_DEFAULTS).not.toContain('ocean:');
+		expect(CONFIG_DARK_DEFAULTS).not.toContain('print:');
+	});
+
+	it("R7: density.ladder round-trips densityRungFallback's own expression, one rung per depth", () => {
+		expect(CONFIG_TOKEN_DEFAULTS).toContain("depth1: 'calc(var(--hz-density) * 10)'");
+		expect(CONFIG_TOKEN_DEFAULTS).toContain("depth2: 'calc(var(--hz-density) * 5)'");
+		expect(CONFIG_TOKEN_DEFAULTS).toContain("depth3: 'calc(var(--hz-density) * 2)'");
+		expect(CONFIG_TOKEN_DEFAULTS).toContain("depth4: 'calc(var(--hz-density) * 1)'");
+	});
+
+	it('R7: a value containing a single quote is double-quoted (typography.fontFamily.sans)', () => {
+		expect(CONFIG_TOKEN_DEFAULTS).toContain(
+			'sans: "system-ui, -apple-system, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif"'
+		);
+	});
+
+	it('R8: uncommenting both constants and resolving them reproduces tokens.css byte for byte', () => {
+		const source =
+			'export default {\n' +
+			`${uncomment(CONFIG_TOKEN_DEFAULTS)}\n` +
+			`${uncomment(CONFIG_DARK_DEFAULTS)}\n` +
+			'};\n';
+		const { cwd } = sandbox();
+		const configPath = join(cwd, 'defaults-round-trip.mjs');
+		writeFileSync(configPath, source);
+		return import(pathToFileURL(configPath).href).then(async (mod) => {
+			const resolved = resolveConfig((mod as { default: unknown }).default as never);
+			const css = generateCss(resolved);
+			const committed = readFileSync(
+				join(dirname(fileURLToPath(import.meta.url)), '../tokens/tokens.css'),
+				'utf8'
+			);
+			expect(css).toBe(committed);
+		});
+	});
+
+	it('R8: every TOP_LEVEL_KEYS entry appears in CONFIG_TEMPLATE — the anti-rot gate for what stays hand-written', () => {
+		for (const key of TOP_LEVEL_KEYS) {
+			expect(CONFIG_TEMPLATE).toContain(`${key}:`);
+		}
+	});
+
+	// The round-trip above proves every default it carries is the RIGHT value,
+	// but it cannot fail on a MISSING one: a default the config does not
+	// re-declare is supplied by the base seed anyway, so the CSS matches either
+	// way. Counting closes that direction, and it is also the only gate that
+	// notices a new NESTED subgroup (typography.letterSpacing, border.style),
+	// which the top-level TOKEN_GROUP_KEYS guard cannot see.
+	it('R8: the defaults carry one line per :root token — 1:1 is enforced, not just asserted', () => {
+		const LADDER_RUNGS = 4; // --hz-density-ladder-depth-1…4, derived, not declared at :root
+		// Every token value is a quoted string; every group opener ends in `: {`.
+		const valueLines = CONFIG_TOKEN_DEFAULTS.split('\n').filter((l) =>
+			/^\s*\/\/\s+[\w'"-]+: ['"]/.test(l)
+		).length;
+		const tokensCss = readFileSync(
+			join(dirname(fileURLToPath(import.meta.url)), '../tokens/tokens.css'),
+			'utf8'
+		);
+		const root = tokensCss.slice(tokensCss.indexOf(':root {'), tokensCss.indexOf('\n}'));
+		const declared = (root.match(/^\t--hz-[a-z0-9-]+:/gm) ?? []).length;
+		expect(valueLines - LADDER_RUNGS).toBe(declared);
 	});
 });

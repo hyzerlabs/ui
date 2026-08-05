@@ -99,7 +99,12 @@ export interface HyzerTokensOverride {
 export type HyzerThemeOverride = HyzerTokensOverride;
 
 export interface HyzerConfig {
-	/** Where `hyzer generate` writes the sheet, relative to the config file. */
+	/**
+	 * Where `hyzer generate` writes the sheet, relative to this config file's
+	 * directory. `--out` overrides it, and is relative to the directory you
+	 * run the command in instead. Unset, the sheet lands at
+	 * `hyzer-tokens.css` beside this file.
+	 */
 	output?: string;
 	/**
 	 * Scope the whole generated sheet under a class or id instead of `:root`,
@@ -703,7 +708,14 @@ function resolveTheme(
 	};
 }
 
-const TOKEN_GROUP_KEYS = [
+/**
+ * Every key `config.tokens` (and, `components` and `density.ladder` aside,
+ * every `config.themes.<name>`) accepts. Internal, not re-exported from the
+ * package barrel, the same treatment `assertSelector` gets, but exported
+ * from this module so `scripts/gen-config-defaults.ts` can assert its
+ * emission table stays 1:1 with the schema (specs/69 R7).
+ */
+export const TOKEN_GROUP_KEYS = [
 	'palette',
 	'color',
 	'intent',
@@ -717,6 +729,24 @@ const TOKEN_GROUP_KEYS = [
 	'motion',
 	'density',
 	'components'
+] as const;
+
+/**
+ * Every top-level `HyzerConfig` key. Internal, exported for the same reason
+ * as `TOKEN_GROUP_KEYS`: `config-template.js`'s illustrative top-level keys
+ * are hand-written prose, not generated, so a coverage test asserts each one
+ * still appears rather than the renderer emitting them (specs/69 R6, R8).
+ */
+export const TOP_LEVEL_KEYS = [
+	'output',
+	'selector',
+	'defaultThemeName',
+	'tokens',
+	'themes',
+	'icons',
+	'utilities',
+	'contrast',
+	'strict'
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -733,21 +763,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 			'The hyzer config must be an object (the defineConfig default export).'
 		);
 	}
-	assertKnownKeys(
-		config as Record<string, unknown>,
-		[
-			'output',
-			'selector',
-			'defaultThemeName',
-			'tokens',
-			'themes',
-			'icons',
-			'utilities',
-			'contrast',
-			'strict'
-		],
-		'config'
-	);
+	assertKnownKeys(config as Record<string, unknown>, TOP_LEVEL_KEYS, 'config');
 	// Resolves eagerly to its default (unlike `selector`) — nothing downstream
 	// needs to distinguish "unset" from "explicitly the default". Validated
 	// and checked against the one name every sheet always emits before

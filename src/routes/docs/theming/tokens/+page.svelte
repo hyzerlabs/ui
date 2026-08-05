@@ -169,6 +169,19 @@
 			The two routes reach the same place. A config resolves to the same two-layer model this page
 			describes, so nothing you learn here is wasted if you adopt one later.
 		</p>
+		<p>
+			A hue you set under <code>tokens</code> changes the default theme only. The library's own dark
+			theme is a complete, contrast-tuned set, and it keeps its value for anything it already
+			covers. To carry a change into dark, set it again under <code>themes.dark</code>, the way the
+			sample on <a href="/docs/foundation/config">Config &amp; CLI</a> does for
+			<code>primary</code>.
+		</p>
+		<p>
+			The plain-CSS route above works differently. A <code>:root</code> rule of your own comes after
+			<code>tokens.css</code>, so it lands in dark at the page level too. That is why the Dark mode
+			recipe writes a <code>[data-theme='dark']</code> rule instead. Generate a sheet and it writes that
+			rule for you.
+		</p>
 	</Stack>
 
 	<Stack

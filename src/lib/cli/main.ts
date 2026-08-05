@@ -59,7 +59,9 @@ Usage:
 
 Options (generate):
   --config <path>   Config file (default: hyzer.config.{ts,js,mjs} in cwd)
-  --out <path>      Output path (default: config "output", else ./${DEFAULT_OUTPUT})
+  --out <path>      Output path, relative to where you run the command. Default:
+                    config "output" (relative to the config file), else
+                    ${DEFAULT_OUTPUT} beside the config.
   --mode <mode>     "full" (complete sheet, replaces tokens.css) or
                     "overrides" (patch sheet, import after tokens.css)
   --selector <selector>
@@ -216,20 +218,19 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 	// are then provably the same thing, not two copies that can drift apart.
 	const mode = parsed.mode ?? 'full';
 	const selector = parsed.selector ?? resolved.selector ?? ':root';
+	// Anything the config decides is relative to the config; anything a flag
+	// decides is relative to where you ran the command.
+	const base = configPath ? dirname(configPath) : cwd;
 	const outPath = parsed.out
 		? resolve(cwd, parsed.out)
-		: resolved.output && configPath
-			? resolve(dirname(configPath), resolved.output)
-			: resolve(cwd, resolved.output ?? DEFAULT_OUTPUT);
+		: resolve(base, resolved.output ?? DEFAULT_OUTPUT);
 	const iconsPath = join(dirname(outPath), 'icons.ts');
 	// --utilities wins over config.utilities when present. With neither set,
 	// no utilities file is written (and none is checked, ever — R2).
 	const utilitiesEnabled = parsed.utilities === true || resolved.utilities.enabled;
 	const utilitiesRelOutput = resolved.utilities.output;
 	const utilitiesPath = utilitiesRelOutput
-		? configPath
-			? resolve(dirname(configPath), utilitiesRelOutput)
-			: resolve(cwd, utilitiesRelOutput)
+		? resolve(base, utilitiesRelOutput)
 		: join(dirname(outPath), DEFAULT_UTILITIES_OUTPUT);
 
 	let staleCount = 0;

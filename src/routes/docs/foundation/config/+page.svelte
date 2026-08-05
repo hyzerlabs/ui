@@ -37,7 +37,7 @@
 		{
 			name: '--out <path>',
 			key: 'output',
-			note: 'Where the token sheet is written. The flag wins over the config key. Set neither and it goes to ./hyzer-tokens.css. The utilities sheet follows it, unless utilities.output names a path of its own.'
+			note: 'Where the token sheet is written. The config key is relative to the config file. The flag is relative to where you run the command, and wins when both are set. With neither set, the sheet lands beside your config, or in the directory you ran from if no config is found. The utilities sheet follows it, unless utilities.output names a path of its own.'
 		},
 		{
 			name: '--mode <mode>',
@@ -468,12 +468,19 @@
 		<h2 id="full-reference-heading">Full config reference</h2>
 		<p>
 			Every group <code>hyzer.config.ts</code> accepts, in one file and commented out. Uncomment
-			what you need and delete the rest. Each line's comment names the tokens it drives.
+			what you need and delete the rest. Each line's comment names the tokens it drives. The values
+			shown are the current defaults, so uncommenting a line changes nothing until you edit it.
 			<code>npx hyzer init</code> writes this file into your project to start from. On SvelteKit,
 			the
 			<code>npx sv add @hyzer-labs</code> add-on offers it during setup.
 		</p>
-		<CodeBlock code={fullReferenceConfigCode} title="hyzer.config.ts" language="ts" />
+		<CodeBlock
+			code={fullReferenceConfigCode}
+			title="hyzer.config.ts"
+			language="ts"
+			collapsible
+			collapsedLines={19}
+		/>
 	</Stack>
 
 	<WhereNext items={nextSteps} />

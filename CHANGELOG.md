@@ -20,6 +20,26 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
   `data-theme="light"` no longer selects anything. To keep the old name, add
   `defaultThemeName: 'light'` to `hyzer.config.ts` and regenerate.
 
+### Fixed
+
+- **An overrides-mode sheet now carries the dark theme's own value for every
+  token it overrides**, matching what a full sheet and the contrast report
+  have always said. Before, a hue you changed under `tokens` with no
+  `themes.dark` entry could paint your override on some elements in dark
+  mode and the library's default on others. Which one you got depended on
+  the element carrying `data-theme="dark"`. To use your own hue in dark,
+  name it under `themes.dark`. Regenerating an existing overrides sheet may
+  add declarations to its dark block.
+- **`hyzer generate` now writes beside your config file whether or not you
+  set `output`.** With the key absent it used to write into the directory
+  you ran the command from, even when it found a config elsewhere.
+  `output`'s own docs always said "relative to the config file", which was
+  only true once you set it. `icons.ts` and the default utilities sheet
+  follow the tokens sheet, as before. `--out` is unchanged: it is still
+  relative to where you run the command. A sheet written by an earlier run
+  stays where it was: delete it, or pass `--out` to keep writing to that
+  path.
+
 ## [0.6.0] — 2026-08-04
 
 A large round of fixes and additions, found while migrating a real site to

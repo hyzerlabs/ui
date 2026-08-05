@@ -774,10 +774,21 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 	 */
 	const darkDerives = (e: TokenEntry) =>
 		emit !== null && varRefs(e.value).some((ref) => emit.has(ref));
+	/**
+	 * R1 — the sheet emits the dark theme's own value for every token the
+	 * sheet declares at its root, not only what the consumer authored under
+	 * `themes.dark`. Otherwise the cascade disagrees with full mode: a root
+	 * override with no dark counterpart falls through to the base sheet's dark
+	 * block on whatever element carries data-theme="dark", while the contrast
+	 * report grades resolved.dark — which always has the seeded companion.
+	 */
+	const rootNames = new Set(rootEntries.map((e) => e.cssName));
+	const keepDark = (e: TokenEntry) => e.fromConfig || rootNames.has(e.cssName) || darkDerives(e);
 	const darkEntries = [
-		...resolved.dark.color.filter((e) => e.fromConfig || darkDerives(e)),
-		...resolved.dark.palette.filter((e) => e.fromConfig || darkDerives(e)),
-		...resolved.dark.intent.filter((e) => e.fromConfig || darkDerives(e))
+		...resolved.dark.color.filter(keepDark),
+		...resolved.dark.palette.filter(keepDark),
+		...resolved.dark.intent.filter(keepDark),
+		...resolved.dark.rest.filter(keepDark)
 	];
 
 	const parts: string[] = [header];

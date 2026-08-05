@@ -103,6 +103,21 @@ export default defineConfig({
 	},
 	themes: {
 		dark: {
+			// Most of the signal hues were picked for a black tube already, so
+			// lights-out reuses them rather than inventing a second set. Naming
+			// them here keeps the library's own dark companions out of this
+			// theme.
+			//
+			// `danger` is the deliberate exception. This theme's red clears AA on
+			// the true-black surface, but on the muted one it lands at 4.11:1. So
+			// it stays unpinned, and the library's lighter companion applies in
+			// lights-out. Readable text wins over one shade of the palette.
+			palette: {
+				secondary: '#00e5ff',
+				warning: '#ffd166',
+				success: '#00ff41',
+				info: '#00e5ff'
+			},
 			color: {
 				// Lights-out: true black, with the phosphor pushed hotter.
 				surface: '#000000',

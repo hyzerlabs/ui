@@ -72,6 +72,11 @@
 	--hz-color-text: #4dff80;
 	--hz-color-text-muted: #00c853;
 	--hz-color-border: #33ff66;
+	--hz-palette-secondary: #00e5ff;
+	--hz-palette-danger: #f87171;
+	--hz-palette-warning: #ffd166;
+	--hz-palette-success: #00ff41;
+	--hz-palette-info: #00e5ff;
 }
 
 /* =====================================================================

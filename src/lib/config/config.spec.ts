@@ -292,7 +292,6 @@ describe('generateCss — overrides mode', () => {
 		expect(css).toContain('--hz-palette-fairway: #3f6212;');
 		expect(css).not.toContain('--hz-palette-gray');
 		expect(css).not.toContain('--hz-space-md');
-		expect(css).not.toContain("[data-theme='dark']");
 	});
 
 	it('scopes under a custom selector, dark block composing with it', () => {
@@ -383,6 +382,137 @@ describe('generateCss — overrides mode', () => {
 		});
 		expect(css).toContain(':root {');
 		expect(css).toContain('--hz-density: 0.5rem;');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/69 R1/R2/R4 — overrides mode agrees with full mode about dark
+//
+// New fixtures rather than extensions of existing ones: every fixture the
+// repo already owned generated in overrides mode also set themes.dark, so
+// nothing exercised "a root override with no themes.dark counterpart".
+// ---------------------------------------------------------------------------
+
+/** Slice a `[data-theme='dark'] { … }` block's body — no nesting inside it. */
+function darkBlockBody(css: string): string {
+	const start = css.indexOf("[data-theme='dark'] {");
+	const open = css.indexOf('{', start) + 1;
+	return css.slice(open, css.indexOf('}', open));
+}
+
+describe('specs/69 R1 — a root-touched token carries the dark theme’s own value', () => {
+	it('a root palette override with no themes.dark counterpart still emits the dark companion', () => {
+		const css = generateCss(resolveConfig({ tokens: { palette: { primary: '#0f766e' } } }), {
+			mode: 'overrides'
+		});
+		expect(darkBlockBody(css)).toContain('--hz-palette-primary: #60a5fa;');
+		// The merged :root, [data-theme='default'] rule carries the consumer's
+		// value, unchanged by R1.
+		expect(css).toContain(":root,\n[data-theme='default'] {\n\t--hz-palette-primary: #0f766e;\n}");
+	});
+
+	it('the same config plus themes.dark carries the consumer’s own value in dark instead, as today', () => {
+		const css = generateCss(
+			resolveConfig({
+				tokens: { palette: { primary: '#0f766e' } },
+				themes: { dark: { palette: { primary: '#0f766e' } } }
+			}),
+			{ mode: 'overrides' }
+		);
+		expect(darkBlockBody(css)).toContain('--hz-palette-primary: #0f766e;');
+		expect(darkBlockBody(css)).not.toContain('#60a5fa');
+	});
+
+	it('a role override turns dark mode’s surface back on rather than leaving the light one', () => {
+		// This is the case that decided keeping full mode's rule over a
+		// narrower one: dropping the seeded dark surface would silently turn
+		// dark mode off for anyone who sets tokens.color.surface.
+		const css = generateCss(resolveConfig({ tokens: { color: { surface: '#f8fafc' } } }), {
+			mode: 'overrides'
+		});
+		expect(darkBlockBody(css)).toContain('--hz-color-surface: var(--hz-palette-black);');
+	});
+
+	it('a role with no dark seed entry emits no dark block at all', () => {
+		// `border` is not in the dark role seed, so the root value is already
+		// correct in dark — full mode agrees, and there is nothing to re-emit.
+		const css = generateCss(resolveConfig({ tokens: { color: { border: '#94a3b8' } } }), {
+			mode: 'overrides'
+		});
+		expect(css).not.toContain("[data-theme='dark']");
+	});
+
+	it('an added hue the library does not ship emits no dark block', () => {
+		// The negative case: R1 must not become "emit the whole dark theme".
+		// The library declares no dark companion for a hue it does not ship.
+		const css = generateCss(resolveConfig({ tokens: { palette: { fairway: '#3f6212' } } }), {
+			mode: 'overrides'
+		});
+		expect(css).not.toContain("[data-theme='dark']");
+	});
+
+	it('an untouched config still emits no dark block for rootNames that are empty', () => {
+		const css = generateCss(resolveConfig(), { mode: 'overrides' });
+		expect(css).toContain('No overrides configured');
+		expect(css).not.toContain("[data-theme='dark']");
+	});
+
+	it('scoped mode: the counterpart lands in the compound + descendant dark pair, root block unchanged', () => {
+		const css = generateCss(resolveConfig({ tokens: { palette: { primary: '#0f766e' } } }), {
+			mode: 'overrides',
+			selector: '.theme-ocean'
+		});
+		expect(css).toContain(
+			".theme-ocean[data-theme='dark'],\n[data-theme='dark'] .theme-ocean {\n\t--hz-palette-primary: #60a5fa;\n}"
+		);
+		expect(css).toContain(
+			".theme-ocean,\n.theme-ocean[data-theme='default'],\n[data-theme='default'] .theme-ocean {\n\t--hz-palette-primary: #0f766e;\n\t--hz-intent-primary: var(--hz-palette-primary);\n}"
+		);
+	});
+});
+
+describe('specs/69 R2 — the dark block carries the non-color groups too', () => {
+	it('a themes.dark.radius entry is emitted, not silently dropped', () => {
+		const css = generateCss(resolveConfig({ themes: { dark: { radius: { md: '0' } } } }), {
+			mode: 'overrides'
+		});
+		expect(darkBlockBody(css)).toContain('--hz-radius-md: 0;');
+	});
+
+	it('themes.dark.density.unit declares --hz-density in dark and restores the root unit', () => {
+		const resolved = resolveConfig({ themes: { dark: { density: { unit: '0.5rem' } } } });
+		expect(resolved.density.unitFromConfig).toBe(false);
+		const css = generateCss(resolved, { mode: 'overrides' });
+		expect(darkBlockBody(css)).toContain('--hz-density: 0.5rem;');
+		const defaultBlockStart = css.indexOf("[data-theme='default'] {");
+		const defaultBlockOpen = css.indexOf('{', defaultBlockStart) + 1;
+		const defaultBlockBody = css.slice(defaultBlockOpen, css.indexOf('}', defaultBlockOpen));
+		expect(defaultBlockBody).toContain(`--hz-density: ${resolved.density.unit};`);
+	});
+});
+
+describe('specs/69 R4 — the emitted sheet and the graded report agree', () => {
+	it('every declaration in the overrides sheet’s dark block appears verbatim in the full sheet’s dark block', () => {
+		const resolved = resolveConfig({ tokens: { palette: { primary: '#0f766e' } } });
+		const overridesDark = darkBlockBody(generateCss(resolved, { mode: 'overrides' }));
+		const fullDark = darkBlockBody(generateCss(resolved));
+		const declarations = overridesDark
+			.split('\n')
+			.map((l) => l.trim())
+			.filter(Boolean);
+		for (const declaration of declarations) {
+			expect(fullDark).toContain(declaration);
+		}
+	});
+
+	it('the #60a5fa the sheet emits is the value the contrast report grades for dark intent-primary', () => {
+		const resolved = resolveConfig({ tokens: { palette: { primary: '#0f766e' } } });
+		const css = generateCss(resolved, { mode: 'overrides' });
+		expect(darkBlockBody(css)).toContain('--hz-palette-primary: #60a5fa;');
+		const row = contrastReport(resolved).rows.find(
+			(r) => r.id === 'solid:intent-primary' && r.mode === 'dark'
+		);
+		expect(row?.bg.hex).toBe('#60a5fa');
 	});
 });
 
