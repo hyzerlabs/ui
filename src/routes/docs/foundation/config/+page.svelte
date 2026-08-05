@@ -45,6 +45,11 @@
 			note: '"full" (the default) writes a complete sheet that replaces tokens.css. "overrides" writes a patch sheet to import after it.'
 		},
 		{
+			name: '--selector <selector>',
+			key: 'selector',
+			note: 'Where the generated sheet is rooted. Defaults to :root. A class or an id scopes the whole sheet to that element and everything inside it. The flag wins over the config key.'
+		},
+		{
 			name: '--utilities',
 			key: 'utilities',
 			note: 'Also write the utilities sheet. It turns the sheet on even when the config does not. A path set in the config is still used.'
@@ -120,6 +125,9 @@
 		'# Flags compose: a patch sheet AND the utilities sheet, one run:',
 		'hyzer generate --mode overrides --utilities',
 		'',
+		'# A sheet scoped to a class, for a region with its own palette:',
+		'hyzer generate --mode overrides --selector .theme-ocean',
+		'',
 		'# Validate without writing; fail CI on a contrast miss, an unknown icon,',
 		"# or a committed sheet that's fallen behind the config:",
 		'hyzer generate --check --strict'
@@ -159,6 +167,28 @@
 		'wrote hyzer-tokens.css (full, 84 tokens)',
 		'wrote hyzer-utilities.css',
 		'contrast: 92 pairings checked, all pass WCAG AA'
+	].join('\n');
+
+	const scopeCommandCode =
+		'hyzer generate --mode overrides --selector .theme-ocean --out src/styles/ocean.css';
+
+	const scopeConfigCode = [
+		"import { defineConfig } from '@hyzer-labs/ui/config';",
+		'',
+		'export default defineConfig({',
+		"\tselector: '.theme-ocean',",
+		"\toutput: 'src/styles/ocean.css',",
+		'\t// ...tokens, themes, etc.',
+		'});'
+	].join('\n');
+
+	const scopeMarkupCode = [
+		'<div class="theme-ocean">',
+		"\t<!-- Ocean's palette applies here, light by default. -->",
+		'\t<section data-theme="dark">',
+		'\t\t<!-- Same palette, dark now: the class and the attribute compose. -->',
+		'\t</section>',
+		'</div>'
 	].join('\n');
 
 	// The full-reference config (every option commented out, valid as written)
@@ -247,7 +277,7 @@
 			They load through Node's native type stripping. On older runtimes, name the file
 			<code>hyzer.config.mjs</code> instead. You can also import the engine straight from
 			<code>@hyzer-labs/ui/config</code> (<code>resolveConfig</code>, <code>generateCss</code>,
-			<code>contrastReport</code>) for build scripts of your own.
+			<code>contrastReport</code>) if you'd rather drive it from your own script than use the CLI.
 		</Alert>
 	</Stack>
 
@@ -260,12 +290,13 @@
 	>
 		<h2 id="flags-heading">Command-line flags</h2>
 		<p>
-			The flags and the config file cover different ground, on purpose. Four flags stay flag-only:
-			<code>--config</code>, <code>--mode</code>, <code>--check</code> and <code>--help</code> each
-			describe a single run, not part of your design system. Everything that does describe the
-			system, such as <code>tokens</code>, <code>themes</code>, <code>icons</code> and
-			<code>contrast</code>, lives in the config instead. Three flags also have a config key:
-			<code>--out</code>, <code>--utilities</code> and <code>--strict</code>.
+			The flags and the config file cover different ground, on purpose. A flag that describes a
+			single run has no config key: <code>--config</code>, <code>--mode</code>,
+			<code>--check</code> and <code>--help</code>. Everything that describes your design system
+			lives in the config instead, such as <code>tokens</code>, <code>themes</code>,
+			<code>icons</code> and <code>contrast</code>. Four flags have both (<code>--out</code>,
+			<code>--utilities</code>, <code>--strict</code> and <code>--selector</code>), so one run can
+			override the file, with the flag winning.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -344,6 +375,75 @@
 		</p>
 		<CodeBlock code={utilitiesConfigCode} title="hyzer.config.ts" language="ts" />
 		<CodeBlock code={utilitiesReportCode} />
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="scope-heading"
+	>
+		<h2 id="scope-heading">Scope the sheet to a class</h2>
+		<p>
+			By default the generated sheet roots at <code>:root</code>, and the whole page picks it up.
+			Sometimes one region needs its own palette and still has to follow the page between light and
+			dark. A <code>themes</code> entry cannot do that, because one <code>data-theme</code>
+			attribute holds one name at a time. Root the sheet at a class instead, and put that class on the
+			region:
+		</p>
+		<CodeBlock code={scopeCommandCode} language="bash" />
+		<p>
+			The config key does the same, so a plain <code>hyzer generate</code> already produces the scoped
+			sheet:
+		</p>
+		<CodeBlock code={scopeConfigCode} title="hyzer.config.ts" language="ts" />
+		<p>Set both and the flag wins.</p>
+		<p>
+			Put the class on a wrapper, and <code>data-theme</code> keeps working inside it, on its own element:
+		</p>
+		<CodeBlock code={scopeMarkupCode} language="html" />
+		<p>
+			A scoped sheet re-declares more than the tokens you touched. The two-layer color model reads
+			through <code>var()</code>, and a chain like
+			<code>--hz-intent-primary: var(--hz-palette-primary)</code>
+			has already resolved once it reaches <code>:root</code>. Declared only there, it would keep
+			the base color under your scope no matter what you set. The generator re-declares every token
+			that depends on one you changed, under the class, so the whole chain repaints there instead.
+		</p>
+		<p>
+			<code>selector</code> accepts <code>:root</code>, one class (<code>.theme-ocean</code>) or one
+			id (<code>#app</code>): one simple selector, with no combinators, commas or attribute
+			selectors. Anything else is a config error that names <code>selector</code> and the accepted forms.
+		</p>
+		<p>
+			The <a href="/docs/foundation/utilities">utilities sheet</a> is never scoped, even on a scoped
+			run. A utility class reads its value through <code>var()</code>, so it already paints from the
+			region's tokens when it's used inside one. Scoping the class itself would make it stop working
+			everywhere else on the page.
+		</p>
+		<p>
+			Import order does not change. An overrides sheet still imports after
+			<code>tokens.css</code>, scoped or not.
+		</p>
+		<p>
+			<code>--check</code> reads the sheet's own record of what it was scoped to, so a run that
+			disagrees names both sides instead of reporting the whole file as changed. Set
+			<code>selector</code>
+			in the config instead of passing the flag. A check run then reads the same key, so the two can never
+			disagree.
+		</p>
+		<p>
+			A full-mode scoped sheet has no automatic <code>prefers-color-scheme</code> block, because
+			that block is only wired at <code>:root</code>. A scoped region follows light and dark through
+			<code>data-theme</code> instead, on the region itself or on <code>&lt;html&gt;</code>.
+		</p>
+		<Alert intent="info" title="Most projects never need this">
+			{#snippet icon()}<IconInfo />{/snippet}
+			A named theme is simpler and covers almost every case.
+			<a href="/docs/theming/sections#class-heading">Section themes</a> explains when this is the right
+			tool instead.
+		</Alert>
 	</Stack>
 
 	<Stack

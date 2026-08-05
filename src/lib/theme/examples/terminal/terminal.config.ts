@@ -38,6 +38,10 @@ export const intro = [
 ];
 
 export default defineConfig({
+	// Root the sheet at a class instead of :root, so the theme travels with
+	// the class and can share a page with anything else.
+	selector: '.hz-theme-terminal',
+
 	// Everything under `tokens` is the default theme: it is authored into the
 	// :root block, which is what a page gets with no data-theme attribute.
 	// Named variants (dark, and any of your own) go under `themes`.

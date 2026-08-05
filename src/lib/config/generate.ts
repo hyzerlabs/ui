@@ -11,6 +11,7 @@ import {
 	HyzerConfigError,
 	resolveConfig,
 	toKebab,
+	assertSelector,
 	type HyzerThemeOverride,
 	type ResolvedConfig,
 	type ResolvedTheme,
@@ -571,7 +572,11 @@ function themeBlock(
 
 export function generateCss(resolved: ResolvedConfig, options: GenerateOptions = {}): string {
 	const mode = options.mode ?? 'full';
-	const selector = options.selector ?? ':root';
+	const selector = options.selector ?? resolved.selector ?? ':root';
+	// R2's backstop: the only guard a direct engine caller (gen-tokens.ts, a
+	// docs page, a consumer build script) ever gets, since resolveConfig's own
+	// check never sees a value passed straight through the option.
+	assertSelector(selector, 'config.selector');
 	return mode === 'full'
 		? generateFull(resolved, selector, options.intro)
 		: generateOverrides(resolved, selector, options.intro);
@@ -585,8 +590,21 @@ function withIntro(header: string, intro: string[] | undefined): string {
 	return [lines[0], ...intro.map((l) => ` * ${l}`.trimEnd()), ' *', ...lines.slice(1)].join('\n');
 }
 
+/**
+ * R4 — a scoped sheet's header names its scope, one line, immediately after
+ * the identity line (`lines[1]`) and nothing else changes. `:root` gains
+ * nothing, so an unscoped sheet's header is untouched. Applied before
+ * `withIntro`, whose own insertion point (right after the opening `/**`) is
+ * unaffected by a line further down.
+ */
+function withScope(header: string, selector: string): string {
+	if (selector === ':root') return header;
+	const lines = header.split('\n');
+	return [lines[0], lines[1], ` * Scope: ${selector}`, ...lines.slice(2)].join('\n');
+}
+
 function generateFull(resolved: ResolvedConfig, selector: string, intro?: string[]): string {
-	const parts: string[] = [withIntro(FULL_HEADER, intro), `${selector} {`];
+	const parts: string[] = [withIntro(withScope(FULL_HEADER, selector), intro), `${selector} {`];
 
 	resolved.sections.forEach((section, i) => {
 		if (i > 0) parts.push('');
@@ -699,26 +717,29 @@ function lightRestore(
 function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: string[]): string {
 	const scoped = selector !== ':root';
 	const header = withIntro(
-		[
-			'/**',
-			' * @hyzer-labs/ui token overrides',
-			' *',
-			' * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).',
-			...(scoped
-				? [
-						' * Config-touched tokens plus every token that derives from them: a',
-						' * scoped sheet must re-declare the derived Layer-2 chain, because a',
-						' * var() indirection declared at :root already resolved there and',
-						' * inherits down as a fixed value.',
-						' * Import this sheet AFTER @hyzer-labs/ui/tokens.css so the overrides',
-						' * win by source order.'
-					]
-				: [
-						' * Only config-touched tokens are emitted; import this sheet AFTER',
-						' * @hyzer-labs/ui/tokens.css so the overrides win by source order.'
-					]),
-			' */'
-		].join('\n'),
+		withScope(
+			[
+				'/**',
+				' * @hyzer-labs/ui token overrides',
+				' *',
+				' * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).',
+				...(scoped
+					? [
+							' * Config-touched tokens plus every token that derives from them: a',
+							' * scoped sheet must re-declare the derived Layer-2 chain, because a',
+							' * var() indirection declared at :root already resolved there and',
+							' * inherits down as a fixed value.',
+							' * Import this sheet AFTER @hyzer-labs/ui/tokens.css so the overrides',
+							' * win by source order.'
+						]
+					: [
+							' * Only config-touched tokens are emitted; import this sheet AFTER',
+							' * @hyzer-labs/ui/tokens.css so the overrides win by source order.'
+						]),
+				' */'
+			].join('\n'),
+			selector
+		),
 		intro
 	);
 

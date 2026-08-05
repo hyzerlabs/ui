@@ -27,6 +27,7 @@
  *   import '@hyzer-labs/ui/theme/examples/terminal/terminal.css';
  *
  * @hyzer-labs/ui token overrides
+ * Scope: .hz-theme-terminal
  *
  * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).
  * Config-touched tokens plus every token that derives from them: a

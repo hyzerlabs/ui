@@ -71,9 +71,8 @@
 	].join('\n');
 
 	const classCode = [
-		'// A class scope is the other mechanism, and the more expressive one:',
-		'// it COMPOSES with dark mode, which a themes entry cannot.',
-		"generateCss(resolveConfig(oceanConfig), { selector: '.theme-ocean' });",
+		'# A class scope composes with dark mode, which a themes entry cannot:',
+		'hyzer generate --mode overrides --selector .theme-ocean',
 		'',
 		'<div class="theme-ocean">        <!-- ocean, in whichever mode is active -->',
 		'\t<section data-theme="dark">…</section>',
@@ -137,6 +136,10 @@
 		</Alert>
 
 		<CodeBlock code={attributeCode} />
+		<p>
+			Weighing this against a class scope or a plain token override? See
+			<a href="/docs/theming/overview#where-heading">Where to override what</a> on Theming Overview.
+		</p>
 	</Stack>
 
 	<Stack
@@ -218,9 +221,11 @@
 			<code>themes</code> cannot do both.
 		</Alert>
 		<p>
-			The other way is to generate the sheet under a class of your own instead of <code>:root</code
-			>. A class and <code>data-theme</code> are separate hooks, so a class-scoped region can keep its
-			own palette in whichever mode the page is in.
+			The other way is to generate the sheet under a class of your own instead of
+			<code>:root</code>.
+			<a href="/docs/foundation/config#scope-heading">Scope the sheet to a class</a>
+			covers how. A class and <code>data-theme</code> are separate hooks, so a class-scoped region keeps
+			its own palette in whichever mode the page is in.
 		</p>
 		<p>
 			Both bands below carry only a class. Neither sets <code>data-theme</code>, so both follow the

@@ -362,6 +362,143 @@ describe('hyzer generate — contrast bar and strict from the config', () => {
 });
 
 // ---------------------------------------------------------------------------
+// specs/67 — the --selector flag and config key
+// ---------------------------------------------------------------------------
+
+describe('hyzer generate — --selector', () => {
+	it('--selector .theme-ocean writes a sheet rooted at the class, with the Scope: line', async () => {
+		const { cwd, io } = sandbox();
+		expect(await run(['generate', '--selector', '.theme-ocean'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8');
+		expect(written).toContain('.theme-ocean {');
+		expect(written).toContain(' * Scope: .theme-ocean');
+	});
+
+	it('selector: ".theme-ocean" in the config, no flag, writes the same output', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { selector: '.theme-ocean' };`);
+		expect(await run(['generate'], io)).toBe(0);
+		expect(readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8')).toContain('.theme-ocean {');
+	});
+
+	it('the flag wins when both are set', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { selector: '.theme-ocean' };`);
+		expect(await run(['generate', '--selector', '.theme-terminal'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8');
+		expect(written).toContain('.theme-terminal {');
+		expect(written).not.toContain('.theme-ocean');
+	});
+
+	it('an invalid --selector exits 1, names the flag, and dumps no usage', async () => {
+		const { errors, io } = sandbox();
+		expect(await run(['generate', '--selector', '.a, .b'], io)).toBe(1);
+		const out = errors.join('\n');
+		expect(out).toContain('--selector must be ":root"');
+		expect(out).not.toContain('Usage');
+	});
+
+	it('an invalid config.selector exits 1 with "Invalid config:"', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { selector: '.a .b' };`);
+		expect(await run(['generate'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('Invalid config:');
+	});
+
+	it('--check on a sheet generated with the same selector reports up to date', async () => {
+		const first = sandbox();
+		expect(await run(['generate', '--selector', '.theme-ocean'], first.io)).toBe(0);
+		const second = sandbox();
+		writeFileSync(
+			join(second.cwd, 'hyzer-tokens.css'),
+			readFileSync(join(first.cwd, 'hyzer-tokens.css'), 'utf8')
+		);
+		expect(await run(['generate', '--check', '--selector', '.theme-ocean'], second.io)).toBe(0);
+		expect(second.logs.join('\n')).toContain('files: 1 checked, all up to date');
+	});
+
+	it('--check on a scoped sheet with no --selector reports the mismatch, warns, fails under --strict, and never rewrites the file', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig(), { selector: '.theme-ocean' })
+		);
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(errors.join('\n')).toContain('was generated for .theme-ocean; this run checked :root');
+		expect(errors.join('\n')).toContain('files: 1 of 1 out of date');
+
+		const second = sandbox();
+		const before = generateCss(resolveConfig(), { selector: '.theme-ocean' });
+		writeFileSync(join(second.cwd, 'hyzer-tokens.css'), before);
+		expect(await run(['generate', '--check', '--strict'], second.io)).toBe(1);
+		expect(readFileSync(join(second.cwd, 'hyzer-tokens.css'), 'utf8')).toBe(before);
+	});
+
+	it('--check --selector .x on an unscoped sheet reports the reverse mismatch', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		expect(await run(['generate', '--check', '--selector', '.theme-ocean'], io)).toBe(0);
+		expect(errors.join('\n')).toContain('was generated for :root; this run checked .theme-ocean');
+	});
+
+	it('the fix hint names --selector only when the flag supplied it, not when the config key did', async () => {
+		const flagRun = sandbox();
+		writeFileSync(
+			join(flagRun.cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig(), { selector: '.theme-ocean' }) + '/* drift */\n'
+		);
+		expect(await run(['generate', '--check', '--selector', '.theme-ocean'], flagRun.io)).toBe(0);
+		expect(flagRun.errors.join('\n')).toContain(
+			'run "hyzer generate --selector .theme-ocean" to update'
+		);
+
+		const keyRun = sandbox();
+		writeFileSync(
+			join(keyRun.cwd, 'hyzer.config.mjs'),
+			`export default { selector: '.theme-ocean' };`
+		);
+		writeFileSync(
+			join(keyRun.cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig({ selector: '.theme-ocean' })) + '/* drift */\n'
+		);
+		expect(await run(['generate', '--check'], keyRun.io)).toBe(0);
+		const keyHint = keyRun.errors.join('\n');
+		expect(keyHint).toContain('run "hyzer generate" to update');
+		expect(keyHint).not.toContain('--selector');
+
+		const bothRun = sandbox();
+		writeFileSync(
+			join(bothRun.cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig(), { mode: 'overrides', selector: '.theme-ocean' }) +
+				'/* drift */\n'
+		);
+		expect(
+			await run(
+				['generate', '--check', '--mode', 'overrides', '--selector', '.theme-ocean'],
+				bothRun.io
+			)
+		).toBe(0);
+		expect(bothRun.errors.join('\n')).toContain(
+			'run "hyzer generate --mode overrides --selector .theme-ocean" to update'
+		);
+	});
+
+	it("a scoped run with --utilities writes the utilities sheet unscoped, byte-identical to an unscoped run's, and --check reports it up to date", async () => {
+		const unscoped = sandbox();
+		expect(await run(['generate', '--utilities'], unscoped.io)).toBe(0);
+		const unscopedUtilities = readFileSync(join(unscoped.cwd, 'hyzer-utilities.css'), 'utf8');
+
+		const scoped = sandbox();
+		expect(await run(['generate', '--selector', '.theme-ocean', '--utilities'], scoped.io)).toBe(0);
+		expect(readFileSync(join(scoped.cwd, 'hyzer-utilities.css'), 'utf8')).toBe(unscopedUtilities);
+
+		expect(
+			await run(['generate', '--check', '--selector', '.theme-ocean', '--utilities'], scoped.io)
+		).toBe(0);
+	});
+});
+
+// ---------------------------------------------------------------------------
 // specs/66 — `--check` compares what is on disk to what this run would write
 // ---------------------------------------------------------------------------
 

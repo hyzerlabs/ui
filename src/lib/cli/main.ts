@@ -6,14 +6,16 @@
  * existing config.
  *
  * `hyzer generate [--config <path>] [--out <path>] [--mode full|overrides]
- *                 [--utilities] [--check] [--strict]`
+ *                 [--selector <selector>] [--utilities] [--check] [--strict]`
  *
  * Generate loads an optional hyzer.config.{ts,js,mjs} (TypeScript needs Node
  * 22.18 or newer, which strips types natively), merges it over the base token
- * schema, writes the generated sheet, and always prints a contrast report
- * against the configured bar (`contrast.level`, default AA). Failures are
- * warnings by default. `--strict` turns any miss into a non-zero exit, and so
- * does `strict: true` in the config. The flag only ever turns strictness on,
+ * schema, roots the sheet at `:root` unless `--selector` or the config's
+ * `selector` key names another one (the flag wins over the key), writes the
+ * generated sheet, and always prints a contrast report against the
+ * configured bar (`contrast.level`, default AA). Failures are warnings by
+ * default. `--strict` turns any miss into a non-zero exit, and so does
+ * `strict: true` in the config. The flag only ever turns strictness on,
  * never off.
  *
  * The utilities sheet is opt-in. Without `--utilities` and without
@@ -39,6 +41,9 @@ import {
 	type HyzerConfig,
 	type ResolvedConfig
 } from '../config/index.js';
+// Internal, deliberately not re-exported from the package barrel: the public
+// surface for `selector` is the config key and the flag, not the validator.
+import { assertSelector } from '../config/schema.js';
 import { CONFIG_TEMPLATE, INIT_HEADER } from './config-template.js';
 
 const CONFIG_FILENAMES = ['hyzer.config.ts', 'hyzer.config.js', 'hyzer.config.mjs'];
@@ -57,6 +62,11 @@ Options (generate):
   --out <path>      Output path (default: config "output", else ./${DEFAULT_OUTPUT})
   --mode <mode>     "full" (complete sheet, replaces tokens.css) or
                     "overrides" (patch sheet, import after tokens.css)
+  --selector <selector>
+                    Root the sheet at a class ('.theme-ocean') or an id
+                    ('#app') instead of :root. The whole sheet then applies to
+                    that element and everything inside it. Config key:
+                    selector. The flag wins when both are set.
   --utilities       Also write the opt-in utilities sheet, next to the tokens
                     sheet (default: ./${DEFAULT_UTILITIES_OUTPUT}, or
                     config.utilities.output). Wins over config.utilities when
@@ -129,6 +139,16 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 		error(`--mode must be "full" or "overrides", got "${parsed.mode}".`);
 		return 1;
 	}
+	if (parsed.selector !== undefined) {
+		try {
+			assertSelector(parsed.selector, 'config.selector');
+		} catch {
+			error(
+				`--selector must be ":root", a class ('.theme-ocean') or an id ('#app'), got "${parsed.selector}".`
+			);
+			return 1;
+		}
+	}
 
 	// --- config -----------------------------------------------------------
 	let configPath: string | undefined;
@@ -195,6 +215,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 	// expressions: "the path we would have written" and "the path we check"
 	// are then provably the same thing, not two copies that can drift apart.
 	const mode = parsed.mode ?? 'full';
+	const selector = parsed.selector ?? resolved.selector ?? ':root';
 	const outPath = parsed.out
 		? resolve(cwd, parsed.out)
 		: resolved.output && configPath
@@ -216,7 +237,7 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 	// --- write, or check ---------------------------------------------------
 	if (!parsed.check) {
 		mkdirSync(dirname(outPath), { recursive: true });
-		writeFileSync(outPath, generateCss(resolved, { mode }));
+		writeFileSync(outPath, generateCss(resolved, { mode, selector }));
 		const tokenCount =
 			resolved.sections.reduce((n, s) => n + s.entries.length, 0) +
 			1 + // --hz-density
@@ -241,7 +262,9 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 		// written. Exactly the files the write branch above would write,
 		// never more (an artifact the config never opts into is never
 		// checked, so it can never be a false finding).
-		const checks: ArtifactCheck[] = [checkArtifact(outPath, generateCss(resolved, { mode }), mode)];
+		const checks: ArtifactCheck[] = [
+			checkArtifact(outPath, generateCss(resolved, { mode, selector }), mode, selector)
+		];
 		if (iconsResult) checks.push(checkArtifact(iconsPath, iconsResult.module));
 		if (utilitiesEnabled) checks.push(checkArtifact(utilitiesPath, generateUtilitiesCss(resolved)));
 
@@ -262,9 +285,13 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 			log(`files: ${checkedCount} checked, all up to date`);
 		} else {
 			const modeSuffix = mode === 'overrides' ? ' --mode overrides' : '';
+			// The config key never needs repeating here: `hyzer generate` alone
+			// already reads it, so only the flag — which this run's config key
+			// cannot supply — belongs in the hint (R5).
+			const selectorSuffix = parsed.selector !== undefined ? ` --selector ${parsed.selector}` : '';
 			const strictSuffix = strict ? '' : ' (warnings; use --strict to fail the build)';
 			error(
-				`files: ${staleCount} of ${checkedCount} out of date; run "hyzer generate${modeSuffix}" to update${strictSuffix}`
+				`files: ${staleCount} of ${checkedCount} out of date; run "hyzer generate${modeSuffix}${selectorSuffix}" to update${strictSuffix}`
 			);
 		}
 	}
@@ -330,17 +357,35 @@ function detectMode(content: string): 'full' | 'overrides' | undefined {
 }
 
 /**
+ * The tokens sheet's own header names the selector it was generated for
+ * (R4's `Scope:` line); absent means `:root` — exactly what an unscoped
+ * sheet's header writes.
+ */
+function detectScope(content: string): string {
+	const match = /^ \* Scope: (\S+)/m.exec(content);
+	return match ? match[1] : ':root';
+}
+
+/**
  * One artifact, checked against what this run would have written.
  *
- * Three outcomes, in this order (R3): absent is a reported note, never a
+ * Outcomes, in this order (R3, R5): absent is a reported note, never a
  * finding — the normal state of a repo that gitignores its generated sheet
  * and regenerates in CI, and it must never fail `--strict`. A tokens sheet
  * whose header names the OTHER mode reports that instead of a byte diff — the
  * diff would be real but would send the reader hunting for a config change
- * that never happened. Anything else that differs is "out of date". Only the
- * tokens sheet carries a mode; `mode` is passed only for that check.
+ * that never happened. Next, a tokens sheet whose header names a different
+ * scope reports that by name, for the same reason — regenerating on the
+ * mismatch would silently replace a scoped sheet with a `:root` one.
+ * Anything else that differs is "out of date". Only the tokens sheet carries
+ * a mode or a scope; both are passed only for that check.
  */
-function checkArtifact(path: string, expected: string, mode?: 'full' | 'overrides'): ArtifactCheck {
+function checkArtifact(
+	path: string,
+	expected: string,
+	mode?: 'full' | 'overrides',
+	scope?: string
+): ArtifactCheck {
 	if (!existsSync(path)) {
 		return { status: 'absent', line: `  ? ${path} has not been generated, not checked` };
 	}
@@ -351,6 +396,15 @@ function checkArtifact(path: string, expected: string, mode?: 'full' | 'override
 			return {
 				status: 'finding',
 				line: `  ✗ ${path} was generated with --mode ${onDiskMode}; this run checked ${mode}`
+			};
+		}
+	}
+	if (scope !== undefined) {
+		const onDiskScope = detectScope(onDisk);
+		if (onDiskScope !== scope) {
+			return {
+				status: 'finding',
+				line: `  ✗ ${path} was generated for ${onDiskScope}; this run checked ${scope}`
 			};
 		}
 	}
@@ -368,6 +422,7 @@ function parseCliArgs(argv: string[]) {
 			config: { type: 'string' },
 			out: { type: 'string' },
 			mode: { type: 'string' },
+			selector: { type: 'string' },
 			utilities: { type: 'boolean', default: false },
 			check: { type: 'boolean', default: false },
 			strict: { type: 'boolean', default: false },

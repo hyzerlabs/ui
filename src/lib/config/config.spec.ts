@@ -387,6 +387,69 @@ describe('generateCss — overrides mode', () => {
 });
 
 // ---------------------------------------------------------------------------
+// specs/67 — `selector` as a config key and a flag
+// ---------------------------------------------------------------------------
+
+describe('specs/67 — config.selector', () => {
+	it('carries the value through resolveConfig; omitting it leaves selector undefined', () => {
+		expect(resolveConfig({ selector: '.theme-ocean' }).selector).toBe('.theme-ocean');
+		expect(resolveConfig().selector).toBeUndefined();
+	});
+
+	it('generateCss roots the sheet at the config key alone, no option passed', () => {
+		const css = generateCss(resolveConfig({ selector: '.theme-ocean' }));
+		expect(css).toContain('.theme-ocean {');
+		expect(css).not.toMatch(/^:root\s*[,{]/m);
+	});
+
+	it('an explicit option beats the config key', () => {
+		const css = generateCss(resolveConfig({ selector: '.theme-ocean' }), { selector: '#app' });
+		expect(css).toContain('#app {');
+		expect(css).not.toContain('.theme-ocean');
+	});
+
+	it('selector: ":root" in the config produces bytes identical to no key at all', () => {
+		expect(generateCss(resolveConfig({ selector: ':root' }))).toBe(generateCss(resolveConfig()));
+		expect(generateCss(resolveConfig({ selector: ':root' }))).not.toContain('Scope:');
+	});
+
+	it.each([
+		['a combinator', '.a .b'],
+		['a child combinator', '.a > .b'],
+		['a comma list', '.a, .b'],
+		['a compound', '.a.b'],
+		['an attribute selector', "[data-x='y']"],
+		['the universal selector', '*'],
+		['a brace', '.a{'],
+		['a newline', '.a\n.b'],
+		['a non-string', 5],
+		['an empty string', '']
+	])('rejects %s (%j) naming config.selector', (_label, value) => {
+		expect(() => resolveConfig({ selector: value } as never)).toThrow(HyzerConfigError);
+		expect(() => resolveConfig({ selector: value } as never)).toThrow(/config\.selector/);
+	});
+
+	it.each([':root', '.theme-ocean', '.themeOcean', '#app'])('accepts %s', (value) => {
+		expect(() => resolveConfig({ selector: value })).not.toThrow();
+	});
+
+	it('generateCss throws the same error when the bad value arrives as an option instead of a key', () => {
+		expect(() => generateCss(resolveConfig(), { selector: '.a, .b' })).toThrow(/config\.selector/);
+	});
+
+	it('the header: a scoped sheet carries * Scope: <selector> in both modes; an unscoped one carries none', () => {
+		const full = generateCss(resolveConfig({ selector: '.theme-ocean' }));
+		const overrides = generateCss(resolveConfig({ selector: '.theme-ocean' }), {
+			mode: 'overrides'
+		});
+		expect(full).toContain(' * Scope: .theme-ocean');
+		expect(overrides).toContain(' * Scope: .theme-ocean');
+		expect(generateCss(resolveConfig())).not.toContain('Scope:');
+		expect(generateCss(resolveConfig(), { mode: 'overrides' })).not.toContain('Scope:');
+	});
+});
+
+// ---------------------------------------------------------------------------
 // R11 (specs/64) — density ladder rungs: near/away are var() lookups against
 // four depth-keyed public rungs, never a bare calc(), so a rung can be
 // overridden from anywhere with no cascade fight against this sheet.

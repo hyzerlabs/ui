@@ -35,7 +35,6 @@ const sheets = [
 		target: 'src/lib/theme/examples/terminal/terminal.tokens.css',
 		css: generateCss(resolveConfig(terminalConfig), {
 			mode: 'overrides',
-			selector: '.hz-theme-terminal',
 			intro: terminalIntro
 		})
 	},

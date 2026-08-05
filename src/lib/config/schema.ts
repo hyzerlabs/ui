@@ -102,6 +102,14 @@ export interface HyzerConfig {
 	/** Where `hyzer generate` writes the sheet, relative to the config file. */
 	output?: string;
 	/**
+	 * Scope the whole generated sheet under a class or id instead of `:root`,
+	 * so a region can carry its own palette and still follow the page between
+	 * light and dark. `:root`, a class or an id — see
+	 * /docs/foundation/config#scope-heading. Unset stays undefined; `hyzer
+	 * generate` and `generateCss` both fall back to `:root` on their own.
+	 */
+	selector?: string;
+	/**
 	 * The default theme. Everything under `tokens` is authored into the
 	 * `:root` block, which is what a page gets with no `data-theme` attribute
 	 * set. It is not "the light theme": it is the default, and light is simply
@@ -121,9 +129,9 @@ export interface HyzerConfig {
 	 *
 	 * One attribute holds one value, so themes are mutually exclusive: a dark
 	 * variant of a named theme is its own entry (`'ocean-dark'`), not a
-	 * product of two axes. Consumers who want a theme × mode matrix scope a
-	 * sheet under a class instead (`GenerateOptions.selector`), which composes
-	 * with `[data-theme='dark']`.
+	 * product of two axes. Consumers who want a theme × mode matrix scope the
+	 * sheet under a class instead — set `selector` (or pass `--selector`),
+	 * which composes with `[data-theme='dark']`.
 	 */
 	themes?: Record<string, HyzerThemeOverride>;
 	/**
@@ -255,6 +263,13 @@ export interface ResolvedConfig {
 	 */
 	components: TokenEntry[];
 	output?: string;
+	/**
+	 * Verbatim `config.selector` — `undefined` when the key is absent, which
+	 * stays distinguishable from an explicit `':root'`. `generateCss` falls
+	 * back to `':root'` when this and its own `selector` option are both
+	 * unset.
+	 */
+	selector?: string;
 	/**
 	 * Deduplicated, order-preserved raw `icons` config —
 	 * `undefined` when the key is absent, `[]` is a valid "core-only" value.
@@ -531,6 +546,26 @@ function resolveDensityLadder(ladder: TokenGroupOverride | undefined): Record<nu
 const THEME_NAME = /^[a-z][a-z0-9-]*$/;
 
 /**
+ * A selector value is interpolated straight into emitted CSS — `${selector} {`,
+ * `${selector}[data-theme='dark']`, `:where(${selector} .hz-button)` — so,
+ * like `THEME_NAME` above, it is held to an identifier-safe shape rather than
+ * trusted: the literal `:root`, one class, or one id. No combinators, comma
+ * lists, compounds or attribute selectors — a value that survives compounding
+ * and descendant use safely, not merely "looks like CSS".
+ */
+const SELECTOR_SHAPE = /^(:root|[.#][A-Za-z_][A-Za-z0-9_-]*)$/;
+
+/** Shared by `resolveConfig`, `generateCss` and the CLI's own `--selector` check. */
+export function assertSelector(value: unknown, where: string): void {
+	if (typeof value !== 'string' || !SELECTOR_SHAPE.test(value)) {
+		throw new HyzerConfigError(
+			`${where} must be ':root', a class ('.theme-ocean') or an id ('#app') — one simple ` +
+				'selector, with no combinators, commas or attribute selectors.'
+		);
+	}
+}
+
+/**
  * Validate `config.themes` and hand back the map. `light` is rejected rather
  * than accepted-and-ignored: the light theme is the default `:root` block
  * authored via `config.tokens`, and a `themes.light` entry would silently do
@@ -668,7 +703,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	}
 	assertKnownKeys(
 		config as Record<string, unknown>,
-		['output', 'tokens', 'themes', 'icons', 'utilities', 'contrast', 'strict'],
+		['output', 'selector', 'tokens', 'themes', 'icons', 'utilities', 'contrast', 'strict'],
 		'config'
 	);
 	const tokens = config.tokens;
@@ -677,6 +712,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	if (config.output !== undefined && typeof config.output !== 'string') {
 		throw new HyzerConfigError('config.output must be a string path.');
 	}
+	if (config.selector !== undefined) assertSelector(config.selector, 'config.selector');
 	if (config.icons !== undefined) {
 		if (
 			!Array.isArray(config.icons) ||
@@ -852,6 +888,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		themes,
 		components,
 		output: config.output,
+		selector: config.selector,
 		icons: config.icons !== undefined ? [...new Set(config.icons)] : undefined,
 		utilities: resolvedUtilities,
 		contrast: resolvedContrast,

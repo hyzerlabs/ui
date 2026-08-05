@@ -28,9 +28,7 @@ const examples = [
 describe.each(examples)('example theme: $name', ({ name, config, intro, sheet, selector }) => {
 	it('committed css equals the engine output of its config (drift test)', () => {
 		const committed = readFileSync(join(here, sheet), 'utf8');
-		expect(generateCss(resolveConfig(config), { mode: 'overrides', selector, intro })).toBe(
-			committed
-		);
+		expect(generateCss(resolveConfig(config), { mode: 'overrides', intro })).toBe(committed);
 	});
 
 	it('passes WCAG AA on every graded pairing, both modes', () => {

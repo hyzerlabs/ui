@@ -18,6 +18,7 @@ export const CONFIG_TEMPLATE = `import { defineConfig } from '@hyzer-labs/ui/con
 
 export default defineConfig({
 	// output: 'src/styles/tokens.css', // where \`hyzer generate\` writes the sheet
+	// selector: '.theme-ocean', // root the sheet at a class instead of :root, so one region keeps its own palette
 
 	// tokens: {                            // the DEFAULT theme (the :root block)
 	// 	palette: {                          // raw hues (--hz-palette-*); single values or ramps

@@ -51,7 +51,7 @@ export const agentRules: AgentRule[] = [
 	},
 	{
 		title: 'Apply named themes with data-theme',
-		body: 'Define each theme under `themes` in the config, then apply one with a `data-theme` attribute or the `theme` attachment. It works on `<html>` or on any element, which is how a single section carries its own theme. Dark is one named theme, not a special mode. A theme is a token override: it can carry type, spacing, radii or motion as well as color, the same groups `tokens` accepts.',
+		body: 'Define each theme under `themes` in the config, then apply one with a `data-theme` attribute or the `theme` attachment. It works on `<html>` or on any element, which is how a single section carries its own theme. Dark is one named theme, not a special mode. A theme is a token override: it can carry type, spacing, radii or motion as well as color, the same groups `tokens` accepts. When a region needs its own palette and must still follow light and dark, generate a second sheet with `selector` and put that class on the region. One `data-theme` value cannot carry both.',
 		code: {
 			lang: 'ts',
 			source: [
