@@ -230,7 +230,7 @@ body [data-density-shift] [data-density-shift] [data-density-shift] {
 
 /* ==========================================================================
  * System preference — dark by default, until an explicit choice is made.
- * :not([data-theme]) is what makes the choice win: set data-theme="light"
+ * :not([data-theme]) is what makes the choice win: set data-theme="default"
  * (or "dark") anywhere on <html> and this block stops matching, so no
  * script is needed to FOLLOW the system, only to OVERRIDE it. Scoped to
  * :root because it only ever answers "what should the page default to".
@@ -251,13 +251,13 @@ body [data-density-shift] [data-density-shift] [data-density-shift] {
 }
 
 /* ==========================================================================
- * Light theme — the default block, re-declared so it can be RESTORED.
- * :root defaults inherit as computed values, so a light section inside a
- * dark page would otherwise keep the dark values it inherited: there has
- * to be something to switch back TO. Only tokens some theme actually
- * changes are listed — the rest were never at risk.
+ * Default theme "default" — the :root block, re-declared so it can be RESTORED.
+ * :root defaults inherit as computed values, so a section switched back to
+ * the default inside a dark page would otherwise keep the dark values it
+ * inherited: there has to be something to switch back TO. Only tokens some
+ * theme actually changes are listed — the rest were never at risk.
  * ========================================================================== */
-[data-theme='light'] {
+[data-theme='default'] {
 	--hz-palette-primary: #2563eb;
 	--hz-palette-secondary: #7c3aed;
 	--hz-palette-success: #15803d;

@@ -286,7 +286,7 @@ describe('generateCss — overrides mode', () => {
 			{ mode: 'overrides' }
 		);
 		// The rule opens at :root; it may share that rule with
-		// [data-theme='light'] when every restored token is one of these.
+		// [data-theme='default'] when every restored token is one of these.
 		expect(css).toMatch(/^:root\s*[,{]/m);
 		expect(css).toContain('--hz-palette-primary: #0f766e;');
 		expect(css).toContain('--hz-palette-fairway: #3f6212;');
@@ -446,6 +446,138 @@ describe('specs/67 — config.selector', () => {
 		expect(overrides).toContain(' * Scope: .theme-ocean');
 		expect(generateCss(resolveConfig())).not.toContain('Scope:');
 		expect(generateCss(resolveConfig(), { mode: 'overrides' })).not.toContain('Scope:');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/68 — the default theme's name is a config key
+// ---------------------------------------------------------------------------
+
+describe('specs/68 R1/R2 — defaultThemeName resolves and validates', () => {
+	it("defaults to 'default'; the sheet emits [data-theme='default'] and no [data-theme='light']", () => {
+		const resolved = resolveConfig();
+		expect(resolved.defaultThemeName).toBe('default');
+		const css = generateCss(resolved);
+		expect(css).toContain("[data-theme='default']");
+		expect(css).not.toContain("[data-theme='light']");
+	});
+
+	it('set explicitly to "default" is byte-identical to omitting it', () => {
+		expect(generateCss(resolveConfig({ defaultThemeName: 'default' }))).toBe(
+			generateCss(resolveConfig())
+		);
+	});
+
+	it.each([
+		['a non-string', 5],
+		['an empty string', ''],
+		['upper-case', 'Brand'],
+		['starting with a digit', '1x']
+	])('rejects %s (%j), naming config.defaultThemeName', (_label, value) => {
+		expect(() => resolveConfig({ defaultThemeName: value } as never)).toThrow(HyzerConfigError);
+		expect(() => resolveConfig({ defaultThemeName: value } as never)).toThrow(
+			/config\.defaultThemeName/
+		);
+	});
+
+	it('rejects "dark", explaining the collision with the always-emitted dark theme', () => {
+		expect(() => resolveConfig({ defaultThemeName: 'dark' })).toThrow(
+			/config\.defaultThemeName cannot be "dark"/
+		);
+	});
+});
+
+describe("specs/68 R3 — the default block's name, everywhere it is emitted", () => {
+	it('full mode: the restore block and both banners name "brand"; "default" never appears as an attribute value', () => {
+		const css = generateCss(resolveConfig({ defaultThemeName: 'brand' }));
+		expect(css).toContain("[data-theme='brand'] {");
+		expect(css).toContain('data-theme="brand"');
+		expect(css).toContain('Default theme "brand"');
+		expect(css).not.toContain("[data-theme='default']");
+		expect(css).not.toContain('data-theme="default"');
+	});
+
+	it('overrides mode: the merged :root + restore rule uses "brand"', () => {
+		const css = generateCss(
+			resolveConfig({ defaultThemeName: 'brand', tokens: { palette: { primary: '#0f766e' } } }),
+			{ mode: 'overrides' }
+		);
+		expect(css).toContain(":root,\n[data-theme='brand'] {");
+	});
+
+	it('overrides mode: a standalone (non-merged) restore block also uses "brand"', () => {
+		// A theme setting density forces the root+restore rule apart (R5's
+		// mergeLight guard) — see "does not merge root and light" above — so
+		// this exercises the restore block on its own line.
+		const css = generateCss(
+			resolveConfig({
+				defaultThemeName: 'brand',
+				tokens: { palette: { primary: '#0f766e' } },
+				themes: { ocean: { density: { unit: '0.5rem' } } }
+			}),
+			{ mode: 'overrides' }
+		);
+		expect(css).toContain("[data-theme='brand'] {");
+		expect(css).not.toContain(":root,\n[data-theme='brand']");
+		expect(css).not.toContain("[data-theme='default']");
+	});
+
+	it('scoped: the compound + descendant restore pair uses "brand"', () => {
+		const css = generateCss(
+			resolveConfig({ defaultThemeName: 'brand', tokens: { palette: { primary: '#0f766e' } } }),
+			{ mode: 'overrides', selector: '.theme-x' }
+		);
+		expect(css).toContain(".theme-x[data-theme='brand'],\n[data-theme='brand'] .theme-x");
+	});
+
+	it('defaultThemeName "light" reproduces the pre-rename selectors exactly — the migration case', () => {
+		const css = generateCss(resolveConfig({ defaultThemeName: 'light' }));
+		expect(css).toContain("[data-theme='light'] {");
+		expect(css).toContain('data-theme="light"');
+		expect(css).toContain('Default theme "light"');
+	});
+});
+
+describe('specs/68 R7 — dark needs no themes entry to exist', () => {
+	it('a config with no themes key at all still emits the dark block and its prefers-color-scheme companion', () => {
+		const css = generateCss(resolveConfig({ tokens: { palette: { primary: '#0f766e' } } }));
+		expect(css).toContain("[data-theme='dark'] {");
+		expect(css).toContain('@media (prefers-color-scheme: dark) {');
+	});
+
+	it('themes.dark, when set, merges over that same seed rather than replacing it', () => {
+		const resolved = resolveConfig({ themes: { dark: { palette: { primary: '#1e3a8a' } } } });
+		expect(resolved.dark.palette.find((e) => e.key === 'primary')).toMatchObject({
+			value: '#1e3a8a',
+			fromConfig: true
+		});
+		expect(resolved.dark.palette.find((e) => e.key === 'danger')!.fromConfig).toBe(false);
+	});
+});
+
+describe('specs/68 R4 — the contrast report labels the root map with defaultThemeName', () => {
+	it('default config: row modes are "default" and "dark"', () => {
+		const report = contrastReport(resolveConfig());
+		const modes = new Set(report.rows.map((r) => r.mode));
+		expect(modes).toEqual(new Set(['default', 'dark']));
+	});
+
+	it('defaultThemeName "brand": root rows are labelled "brand" and keep the 14% soft-badge mix, not dark\'s 28%', () => {
+		const base = contrastReport(resolveConfig());
+		const branded = contrastReport(resolveConfig({ defaultThemeName: 'brand' }));
+		const baseRow = base.rows.find(
+			(r) => r.mode === 'default' && r.id === 'soft-badge:intent-primary'
+		)!;
+		const brandedRow = branded.rows.find(
+			(r) => r.mode === 'brand' && r.id === 'soft-badge:intent-primary'
+		)!;
+		const brandedDarkRow = branded.rows.find(
+			(r) => r.mode === 'dark' && r.id === 'soft-badge:intent-primary'
+		)!;
+		// Same 14% recipe as the un-renamed default...
+		expect(brandedRow.bg.hex).toBe(baseRow.bg.hex);
+		// ...and not dark's 28% recipe.
+		expect(brandedRow.bg.hex).not.toBe(brandedDarkRow.bg.hex);
 	});
 });
 
@@ -644,11 +776,11 @@ describe('contrastReport', () => {
 	it('covers both modes, solids, and the soft recipes', () => {
 		const report = contrastReport(resolveConfig());
 		const ids = report.rows.map((r) => `${r.mode}:${r.id}`);
-		expect(ids).toContain('light:text:text-muted/surface');
+		expect(ids).toContain('default:text:text-muted/surface');
 		expect(ids).toContain('dark:text:intent-danger/surface-muted');
-		expect(ids).toContain('light:solid:intent-primary');
+		expect(ids).toContain('default:solid:intent-primary');
 		expect(ids).toContain('dark:soft-badge:intent-warning');
-		expect(ids).toContain('light:soft-alert-title:intent-neutral');
+		expect(ids).toContain('default:soft-alert-title:intent-neutral');
 	});
 
 	it('resolves var() chains and color-mix through the dark overlay', () => {
@@ -668,9 +800,9 @@ describe('contrastReport', () => {
 		const report = contrastReport(resolveConfig({ tokens: { palette: { warning: '#d97706' } } }));
 		const failing = report.rows.filter((r) => !r.pass).map((r) => `${r.mode}:${r.id}`);
 		expect(report.pass).toBe(false);
-		expect(failing).toContain('light:text:intent-warning/surface');
+		expect(failing).toContain('default:text:intent-warning/surface');
 		// Dark mode is untouched — the dark palette hue still applies.
-		expect(failing.every((id) => id.startsWith('light:'))).toBe(true);
+		expect(failing.every((id) => id.startsWith('default:'))).toBe(true);
 	});
 
 	it('lists unresolvable values instead of guessing', () => {
@@ -931,7 +1063,7 @@ describe('generateUtilitiesCss — AA cross-check (specs/44 R7)', () => {
 		const report = contrastReport(resolved);
 		const ids = new Set(report.rows.map((r) => `${r.mode}:${r.id}`));
 		for (const key of Object.keys(intent)) {
-			for (const mode of ['light', 'dark'] as const) {
+			for (const mode of ['default', 'dark'] as const) {
 				for (const surface of ['surface', 'surface-muted']) {
 					const id = `${mode}:text:intent-${key}/${surface}`;
 					expect(ids.has(id), id).toBe(true);
@@ -1040,17 +1172,17 @@ describe('specs/65 R2 — ResolvedTheme.rest, one row per non-color group', () =
 });
 
 describe('specs/65 R5 — --hz-density restores to the root unit, never initial', () => {
-	it('light block restores a non-color token a theme touches, to the root value', () => {
+	it('default block restores a non-color token a theme touches, to the root value', () => {
 		const resolved = resolveConfig({ themes: { ocean: { radius: { md: '0' } } } });
 		const css = generateCss(resolved);
-		const lightBlock = css.slice(css.indexOf("[data-theme='light']"));
+		const lightBlock = css.slice(css.indexOf("[data-theme='default']"));
 		expect(lightBlock).toContain(`--hz-radius-md: ${radius.md};`);
 	});
 
-	it('light block restores a theme-only rest key :root never defines, to initial', () => {
+	it('default block restores a theme-only rest key :root never defines, to initial', () => {
 		const resolved = resolveConfig({ themes: { ocean: { space: { xxl: '10rem' } } } });
 		const css = generateCss(resolved);
-		const lightBlock = css.slice(css.indexOf("[data-theme='light']"));
+		const lightBlock = css.slice(css.indexOf("[data-theme='default']"));
 		expect(lightBlock).toContain('--hz-space-xxl: initial;');
 	});
 
@@ -1065,7 +1197,7 @@ describe('specs/65 R5 — --hz-density restores to the root unit, never initial'
 	it('full mode restores --hz-density to the root unit, never initial', () => {
 		const resolved = resolveConfig({ themes: { ocean: { density: { unit: '0.5rem' } } } });
 		const css = generateCss(resolved);
-		const lightBlock = css.slice(css.indexOf("[data-theme='light']"));
+		const lightBlock = css.slice(css.indexOf("[data-theme='default']"));
 		expect(lightBlock).toContain(`--hz-density: ${density.unit};`);
 		expect(lightBlock).not.toContain('--hz-density: initial;');
 	});
@@ -1075,7 +1207,7 @@ describe('specs/65 R5 — --hz-density restores to the root unit, never initial'
 			themes: { ocean: { space: { md: '3rem' }, radius: { md: '0' }, density: { unit: '0.5rem' } } }
 		});
 		const css = generateCss(resolved);
-		const start = css.indexOf("[data-theme='light']");
+		const start = css.indexOf("[data-theme='default']");
 		const lightBlock = css.slice(start, css.indexOf('}', start));
 		const spaceIdx = lightBlock.indexOf('--hz-space-md');
 		const densityIdx = lightBlock.indexOf('--hz-density:');
@@ -1085,10 +1217,10 @@ describe('specs/65 R5 — --hz-density restores to the root unit, never initial'
 		expect(densityIdx).toBeLessThan(radiusIdx);
 	});
 
-	it('overrides mode appends --hz-density as the last declaration of the light block', () => {
+	it('overrides mode appends --hz-density as the last declaration of the default block', () => {
 		const resolved = resolveConfig({ themes: { ocean: { density: { unit: '0.5rem' } } } });
 		const css = generateCss(resolved, { mode: 'overrides' });
-		const start = css.indexOf("[data-theme='light']");
+		const start = css.indexOf("[data-theme='default']");
 		const lightBlock = css.slice(start, css.indexOf('}', start));
 		const lines = lightBlock
 			.split('\n')
@@ -1103,7 +1235,7 @@ describe('specs/65 R5 — --hz-density restores to the root unit, never initial'
 			themes: { ocean: { density: { unit: '0.5rem' } } }
 		});
 		const css = generateCss(resolved, { mode: 'overrides' });
-		expect(css).not.toMatch(/^:root,\n\[data-theme='light'\] \{/m);
+		expect(css).not.toMatch(/^:root,\n\[data-theme='default'\] \{/m);
 	});
 });
 
@@ -1134,10 +1266,17 @@ describe('specs/65 — themeVars() with a non-color group', () => {
 	});
 });
 
-describe('specs/65 R1/R3 — themes.light stays reserved', () => {
-	it('rejects themes.light, unchanged message', () => {
-		expect(() => resolveConfig({ themes: { light: {} } } as never)).toThrow(
-			/config.themes.light is reserved/
+describe('specs/68 R2 — the default theme name is reserved in themes, not "light"', () => {
+	it('themes.light resolves cleanly under the new default', () => {
+		expect(() => resolveConfig({ themes: { light: {} } })).not.toThrow();
+	});
+
+	it('rejects themes[defaultThemeName], naming both config paths', () => {
+		expect(() => resolveConfig({ defaultThemeName: 'brand', themes: { brand: {} } })).toThrow(
+			/config\.themes\.brand is reserved/
+		);
+		expect(() => resolveConfig({ defaultThemeName: 'brand', themes: { brand: {} } })).toThrow(
+			/config\.defaultThemeName/
 		);
 	});
 });
@@ -1326,10 +1465,10 @@ describe('specs/65 R15 — the contrast report reads a configured soft tint', ()
 			resolveConfig({ tokens: { components: { badgeTint: '40%' } } })
 		);
 		const baseRow = base.rows.find(
-			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'light'
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'default'
 		)!;
 		const configuredRow = configured.rows.find(
-			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'light'
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'default'
 		)!;
 		expect(configuredRow.bg.hex).not.toBe(baseRow.bg.hex);
 		const darkBase = base.rows.find(
@@ -1348,10 +1487,10 @@ describe('specs/65 R15 — the contrast report reads a configured soft tint', ()
 		);
 		const base = contrastReport(resolveConfig());
 		const baseRow = base.rows.find(
-			(r) => r.id === 'soft-alert-body:intent-primary' && r.mode === 'light'
+			(r) => r.id === 'soft-alert-body:intent-primary' && r.mode === 'default'
 		)!;
 		const configuredRow = configured.rows.find(
-			(r) => r.id === 'soft-alert-body:intent-primary' && r.mode === 'light'
+			(r) => r.id === 'soft-alert-body:intent-primary' && r.mode === 'default'
 		)!;
 		expect(configuredRow.bg.hex).not.toBe(baseRow.bg.hex);
 	});
@@ -1362,10 +1501,10 @@ describe('specs/65 R15 — the contrast report reads a configured soft tint', ()
 			resolveConfig({ tokens: { components: { badgeTint: 'var(--hz-space-sm)' } } })
 		);
 		const baseRow = base.rows.find(
-			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'light'
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'default'
 		)!;
 		const configuredRow = configured.rows.find(
-			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'light'
+			(r) => r.id === 'soft-badge:intent-primary' && r.mode === 'default'
 		)!;
 		expect(configuredRow.bg.hex).toBe(baseRow.bg.hex);
 		expect(configured.unresolved).toContain('--hz-badge-tint');

@@ -12,17 +12,19 @@
 		"import IconSun from '@hyzer-labs/ui/icons/sun';",
 		"import IconMoon from '@hyzer-labs/ui/icons/moon';",
 		'',
+		"const DEFAULT_THEME = 'default'; // the shipped default theme's name",
+		'',
 		'// Two separate things: whether the reader has made an EXPLICIT choice,',
 		'// and what their system prefers. null = no choice yet, so the attribute',
 		"// stays off and the sheet's prefers-color-scheme block picks the",
 		'// default. Following the system needs no JS at all.',
-		"let choice = $state(null); // 'light' | 'dark' | null",
+		"let choice = $state(null); // typeof DEFAULT_THEME | 'dark' | null",
 		'let systemDark = $state(false);',
 		"const dark = $derived(choice ? choice === 'dark' : systemDark);",
 		'',
 		'$effect(() => {',
 		"\tconst stored = localStorage.getItem('hz-theme');",
-		"\tif (stored === 'light' || stored === 'dark') choice = stored;",
+		"\tif (stored === DEFAULT_THEME || stored === 'dark') choice = stored;",
 		'',
 		'\t// Only so the button can show the right icon while no choice is set.',
 		"\tconst q = window.matchMedia('(prefers-color-scheme: dark)');",
@@ -32,9 +34,9 @@
 		"\treturn () => q.removeEventListener('change', onChange);",
 		'});',
 		'',
-		'// WRITE the choice; never signal light by removing the attribute. The',
-		'// system default is :root:not([data-theme]), so a removed attribute',
-		'// hands a system-dark reader dark mode and the light half of the',
+		'// WRITE the choice; never signal the default by removing the attribute.',
+		'// The system default is :root:not([data-theme]), so a removed attribute',
+		'// hands a system-dark reader dark mode and the default half of the',
 		'// toggle appears to do nothing.',
 		'$effect(() => {',
 		"\tif (choice) document.documentElement.setAttribute('data-theme', choice);",
@@ -42,7 +44,7 @@
 		'});',
 		'',
 		'function toggleTheme() {',
-		"\tchoice = dark ? 'light' : 'dark';",
+		"\tchoice = dark ? DEFAULT_THEME : 'dark';",
 		"\tlocalStorage.setItem('hz-theme', choice);",
 		'}',
 		'',
@@ -357,18 +359,18 @@
 			<code>prefers-color-scheme</code> block that applies only while no
 			<code>data-theme</code> attribute is set, so obeying the system costs you no JavaScript.
 			<strong>Pin one look</strong>
-			by setting <code>data-theme="dark"</code> on <code>&lt;html&gt;</code> once and stopping
-			there, or <code>data-theme="light"</code> to hold the default look even for a reader whose
-			system prefers dark. Or <strong>wire a toggle</strong> that writes the attribute, like this docs
-			site does. Components resolve the same role and intent tokens in every posture, so nothing else
-			in your markup or CSS changes between them.
+			by setting <code>data-theme="dark"</code> or <code>data-theme="default"</code> on
+			<code>&lt;html&gt;</code> once and stopping there, whatever the reader's system prefers. Or
+			<strong>wire a toggle</strong> that writes the attribute, like this docs site does. Components resolve
+			the same role and intent tokens in every posture, so nothing else in your markup or CSS changes
+			between them.
 		</p>
 		<p>
 			The toggle in this site's sidebar is exactly this: an icon-only <code>Button</code> that
-			writes the reader's choice and remembers it. Note what it does <em>not</em> do: it never
-			signals light by removing the attribute. The system default is scoped to
+			writes the reader's choice and remembers it. It always writes a theme name, and it never
+			removes the attribute to mean <em>the default</em>. The system default is scoped to
 			<code>:root:not([data-theme])</code>, so a removed attribute hands a system-dark reader dark
-			mode and makes the light half of the toggle look broken.
+			mode and makes the default half of the toggle look broken.
 		</p>
 		<CodeBlock code={toggleCode} />
 		<h3 id="dark-overrides-heading">Overrides</h3>

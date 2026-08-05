@@ -48,7 +48,7 @@ describe.each(examples)('example theme: $name', ({ name, config, intro, sheet, s
 		// rather than importing the shipped sheet.
 		const committed = readFileSync(join(here, sheet), 'utf8');
 		// The selector opens a rule, which it may share with its own
-		// [data-theme='light'] variant when the two blocks would be identical.
+		// [data-theme='default'] variant when the two blocks would be identical.
 		const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 		expect(committed).toMatch(new RegExp(`^${escaped}\\s*[,{]`, 'm'));
 		if (name !== 'ocean') expect(committed).not.toMatch(/^:root\s*[,{]/m);

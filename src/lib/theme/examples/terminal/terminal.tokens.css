@@ -38,8 +38,8 @@
  * win by source order.
  */
 .hz-theme-terminal,
-.hz-theme-terminal[data-theme='light'],
-[data-theme='light'] .hz-theme-terminal {
+.hz-theme-terminal[data-theme='default'],
+[data-theme='default'] .hz-theme-terminal {
 	--hz-palette-secondary: #00e5ff;
 	--hz-palette-success: #00ff41;
 	--hz-palette-warning: #ffd166;

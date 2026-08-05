@@ -128,7 +128,7 @@ describe('hyzer generate — modes and flags', () => {
 			`export default { tokens: { palette: { warning: '#d97706' } } };`
 		);
 		expect(await run(['generate', '--strict'], second.io)).toBe(1);
-		expect(second.errors.join('\n')).toContain('✗ light text:intent-warning/surface');
+		expect(second.errors.join('\n')).toContain('✗ default text:intent-warning/surface');
 		expect(existsSync(join(second.cwd, 'hyzer-tokens.css'))).toBe(true);
 	});
 
@@ -495,6 +495,38 @@ describe('hyzer generate — --selector', () => {
 		expect(
 			await run(['generate', '--check', '--selector', '.theme-ocean', '--utilities'], scoped.io)
 		).toBe(0);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/68 — defaultThemeName: a config key, no flag
+// ---------------------------------------------------------------------------
+
+describe('hyzer generate — defaultThemeName', () => {
+	it('a config setting the key writes a sheet carrying that name', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { defaultThemeName: 'brand' };`);
+		expect(await run(['generate'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8');
+		expect(written).toContain("[data-theme='brand']");
+		expect(written).not.toContain("[data-theme='default']");
+	});
+
+	it('an invalid value exits 1 with "Invalid config: "', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { defaultThemeName: 'dark' };`);
+		expect(await run(['generate'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('Invalid config: ');
+		expect(errors.join('\n')).toContain('config.defaultThemeName cannot be "dark"');
+	});
+
+	it('--check immediately after a write with the key set reports up to date, with no name-related finding', async () => {
+		const { cwd, logs, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { defaultThemeName: 'brand' };`);
+		expect(await run(['generate'], io)).toBe(0);
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain('files: 1 checked, all up to date');
+		expect(errors.join('\n')).not.toContain('brand');
 	});
 });
 

@@ -105,8 +105,8 @@
 
 		<Example code={namedCode}>
 			<Stack gap="near">
-				<div class="demo-band" {@attach theme('light')}>
-					<Badge intent="primary">light</Badge>
+				<div class="demo-band" {@attach theme('default')}>
+					<Badge intent="primary">default</Badge>
 					<p>The default theme, restored explicitly, even inside a dark page.</p>
 					<Button intent="primary">Primary</Button>
 				</div>
@@ -163,10 +163,36 @@
 		</p>
 		<CodeBlock code={configCode} />
 		<p>
-			<code>dark</code> is an entry like any other. It merges over what the library already authors
-			rather than replacing it. <code>light</code> is a reserved name. The default theme is the
-			<code>:root</code> block you author through <code>tokens</code>, and
-			<code>[data-theme='light']</code> re-asserts that default for a reader whose system prefers dark.
+			<code>dark</code> comes free. You need no <code>themes.dark</code> entry to have it: the
+			library authors a complete dark theme, seeded from its contrast-tuned hues, and the
+			<code>prefers-color-scheme</code> block above follows it. Add a <code>dark</code> entry only when
+			you want to change dark. What you set there merges over what the library already authors rather
+			than replacing it.
+		</p>
+		<p>
+			You cannot rename <code>dark</code>, because the name is not this library's. It is the
+			platform's: it matches <code>prefers-color-scheme: dark</code> and
+			<code>color-scheme: dark</code>, and the reference theme's own rules use the same word.
+		</p>
+		<p>
+			Your default block has no platform name, so you choose one. <code>defaultThemeName</code> sets
+			it, and it is <code>'default'</code> until you change it. That name is reserved as a
+			<code>themes</code> key: the default theme is the <code>:root</code> block you author through
+			<code>tokens</code>, not a <code>themes</code> entry. <code>[data-theme='default']</code>
+			re-asserts it for a reader whose system prefers dark.
+		</p>
+		<p>
+			Want a hook to look different in dark mode? Point it at a token, then override that token
+			under
+			<code>dark</code>. See
+			<a href="/docs/theming/components#hook-props-heading">Component hooks</a> for the pattern.
+		</p>
+		<p>
+			Supporting only one theme? Put <code>data-theme="default"</code> or
+			<code>data-theme="dark"</code> on <code>&lt;html&gt;</code> and leave it there. A named
+			attribute at the root permanently outranks the <code>prefers-color-scheme</code> block, so the page
+			stays on that theme whatever the reader's system prefers. No script needed. This only suppresses
+			the system default at runtime; the dark CSS still ships either way.
 		</p>
 		<p>
 			One attribute holds one value, so themes are <strong>mutually exclusive</strong>. There is no

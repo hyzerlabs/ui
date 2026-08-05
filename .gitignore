@@ -49,3 +49,6 @@ playwright-report
 .pnpm-store/
 tsx-0/
 node-compile-cache/
+
+# Local package tarballs from `pnpm pack` smoke tests
+*.tgz

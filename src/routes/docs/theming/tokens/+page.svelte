@@ -46,8 +46,9 @@
 		'   - the sheet already follows the system preference, so you only need',
 		'     a script to OVERRIDE it, never to obey it;',
 		'   - data-theme works on ANY element, not just <html>. One section can',
-		'     be dark inside a light page, and data-theme="light" puts a section',
-		'     back to the default. See Section themes. */'
+		'     be dark inside a light page, and setting data-theme to your default',
+		'     theme name puts that section back to the default. See Section',
+		'     themes. */'
 	].join('\n');
 
 	const verifyCode = [
@@ -100,8 +101,9 @@
 	</p>
 	<Blockquote class="doctrine-note" intent="primary">
 		Dark may override any tier in <code>[data-theme='dark']</code>, including the palette. Your
-		components and the reference theme never read <code>--hz-palette-*</code> directly, so they keep resolving
-		through roles and intents either way.
+		components and the reference theme never read <code>--hz-palette-*</code> directly, so they keep
+		resolving through roles and intents either way. <code>defaultThemeName</code> renames the default
+		theme's block; dark keeps its name, which is the platform's rather than this library's.
 	</Blockquote>
 	<Blockquote class="doctrine-note" intent="primary">
 		Dark is not a special case in the config, either: it is one entry in a

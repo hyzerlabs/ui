@@ -19,6 +19,7 @@ export const CONFIG_TEMPLATE = `import { defineConfig } from '@hyzer-labs/ui/con
 export default defineConfig({
 	// output: 'src/styles/tokens.css', // where \`hyzer generate\` writes the sheet
 	// selector: '.theme-ocean', // root the sheet at a class instead of :root, so one region keeps its own palette
+	// defaultThemeName: 'brand', // names the tokens block below, and the [data-theme] value that restores it; default 'default'
 
 	// tokens: {                            // the DEFAULT theme (the :root block)
 	// 	palette: {                          // raw hues (--hz-palette-*); single values or ramps
@@ -57,7 +58,7 @@ export default defineConfig({
 	//                                      // one block per data-theme="<name>".
 	//                                      // Each takes any group \`tokens\` takes,
 	//                                      // not only color.
-	// 	dark: {                            // [data-theme="dark"]
+	// 	dark: {                            // [data-theme="dark"]: always emitted, so an entry here changes dark rather than creating it. The name is fixed, because it is the platform's rather than this library's
 	// 		palette: { primary: '#2dd4bf' },  // hue overrides for dark
 	// 		color: { surface: '#020617' },    // role overrides for dark
 	// 		intent: { fairway: '#a3e635' }    // intent remaps for dark only

@@ -25,7 +25,10 @@ import type { ResolvedConfig } from './schema.js';
  * substitutes a configured `--hz-badge-tint`/`--hz-alert-tint` in their
  * place (in every mode; the hooks are root-only) whenever it can parse the
  * value as a plain percentage. `badgeText`/`alertTitle` are text mixes with
- * no hook of their own and always stay at the values below.
+ * no hook of their own and always stay at the values below. The object's own
+ * `light`/`dark` keys are internal names for these two recipes, independent
+ * of `defaultThemeName` — the hand-written CSS they model keys on the
+ * literal `[data-theme='dark']` attribute, never a configured name.
  */
 export const softTints = {
 	badgeText: 0.65,
@@ -37,7 +40,11 @@ export const softTints = {
 export interface ContrastReportRow {
 	/** Stable pairing id, e.g. `text:intent-danger/surface-muted`. */
 	id: string;
-	/** Theme name — `light` for the `:root` defaults, then one per theme. */
+	/**
+	 * The `data-theme` attribute value that selects this map —
+	 * `resolved.defaultThemeName` for the `:root` defaults, which is also
+	 * what the restore block re-asserts, then one per theme.
+	 */
 	mode: string;
 	description: string;
 	fg: { name: string; hex: string };
@@ -65,15 +72,15 @@ export interface ContrastReport {
 type DeclMap = Map<string, string>;
 
 /**
- * One declaration map per theme — the `:root` defaults ("light"), then each
- * named theme layered over them. Every theme is graded, so a theme a consumer
- * adds gets exactly the AA gate the built-in dark theme gets — except a named
- * theme carrying no color of its own (only type, spacing, …), which is
- * skipped: its color declarations would be byte-identical to `light`, so
- * grading it would double every row under a mode with nothing new to say.
- * `dark` is always graded — it is seeded from the base authoring, so it is
- * never color-empty. `rest` (the non-color groups) plays no part in this
- * check: grading is about color.
+ * One declaration map per theme — the `:root` defaults, labelled with
+ * `resolved.defaultThemeName`, then each named theme layered over them.
+ * Every theme is graded, so a theme a consumer adds gets exactly the AA gate
+ * the built-in dark theme gets — except a named theme carrying no color of
+ * its own (only type, spacing, …), which is skipped: its color declarations
+ * would be byte-identical to the default's, so grading it would double every
+ * row under a mode with nothing new to say. `dark` is always graded — it is
+ * seeded from the base authoring, so it is never color-empty. `rest` (the
+ * non-color groups) plays no part in this check: grading is about color.
  */
 function declarationMaps(resolved: ResolvedConfig): { mode: string; map: DeclMap }[] {
 	const light: DeclMap = new Map();
@@ -81,7 +88,7 @@ function declarationMaps(resolved: ResolvedConfig): { mode: string; map: DeclMap
 		for (const e of section.entries) light.set(e.cssName, e.value);
 	}
 	return [
-		{ mode: 'light', map: light },
+		{ mode: resolved.defaultThemeName, map: light },
 		...[resolved.dark, ...resolved.themes]
 			.filter(
 				(theme) =>
@@ -272,7 +279,9 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 			// theme CSS keys them to (`[data-theme='dark'] .hz-badge` bumps
 			// --hz-badge-tint). A named theme with a dark surface still gets
 			// the light recipe in the browser, so it gets it here too: the
-			// report's job is to model the CSS, not to second-guess it.
+			// report's job is to model the CSS, not to second-guess it. That
+			// CSS is hand-written and ships as it is, so this stays the
+			// literal 'dark' no matter what the default block is called.
 			const tints = mode === 'dark' ? softTints.dark : softTints.light;
 			const badgeBgFraction = badgeTintOverride ?? tints.badgeBg;
 			const alertBgFraction = alertTintOverride ?? tints.alertBg;

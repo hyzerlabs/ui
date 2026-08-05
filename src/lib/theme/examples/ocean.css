@@ -15,7 +15,7 @@
  * @hyzer-labs/ui/tokens.css so the overrides win by source order.
  */
 :root,
-[data-theme='light'] {
+[data-theme='default'] {
 	--hz-palette-primary: #0f766e;
 	--hz-palette-secondary: #155e75;
 	--hz-palette-success: #166534;

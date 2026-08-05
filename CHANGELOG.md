@@ -5,6 +5,21 @@ All notable changes to `@hyzer-labs/ui` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Name the default theme whatever suits your system** — `defaultThemeName`
+  in `hyzer.config.ts` renames the `:root` block and the `[data-theme='…']`
+  rule that restores it.
+
+### Changed
+
+- **Breaking: the default theme is now named `default`.**
+  `[data-theme='default']` is the block that re-asserts your default, and
+  `data-theme="light"` no longer selects anything. To keep the old name, add
+  `defaultThemeName: 'light'` to `hyzer.config.ts` and regenerate.
+
 ## [0.6.0] — 2026-08-04
 
 A large round of fixes and additions, found while migrating a real site to

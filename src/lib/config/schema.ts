@@ -110,6 +110,21 @@ export interface HyzerConfig {
 	 */
 	selector?: string;
 	/**
+	 * Names the default theme — the `tokens` block below, and the
+	 * `[data-theme='<name>']` rule that restores it for a section switched
+	 * back to it. Defaults to `'default'`. It is not "the light theme": it
+	 * names whatever `tokens` describes, and light is only what the shipped
+	 * default happens to look like.
+	 *
+	 * `dark` cannot be used here, and it has no key of its own. That name is
+	 * the platform's (`prefers-color-scheme: dark`, `color-scheme: dark`),
+	 * not this library's, so it stays fixed. The default block has no
+	 * platform name — the library invented "light" — so it is the one that
+	 * is renameable. See /docs/theming/sections for the full reasoning and
+	 * how to customize dark through `themes.dark`.
+	 */
+	defaultThemeName?: string;
+	/**
 	 * The default theme. Everything under `tokens` is authored into the
 	 * `:root` block, which is what a page gets with no `data-theme` attribute
 	 * set. It is not "the light theme": it is the default, and light is simply
@@ -119,13 +134,14 @@ export interface HyzerConfig {
 	/**
 	 * Named themes, keyed by the `data-theme` attribute value that activates
 	 * them. A theme is a token override — the same shape as `tokens`, and it
-	 * takes any group `tokens` takes, not only color. `dark` is a theme like
-	 * any other, except that it merges over the base dark authoring (the base
-	 * authors dark entirely at the palette layer — the two-tier rule); every
-	 * other name starts from nothing and is entirely the consumer's. `light`
-	 * is reserved, because the default theme is the `:root` block authored via
-	 * `tokens`, and `[data-theme='light']` re-asserts that default for a
-	 * reader whose system prefers dark.
+	 * takes any group `tokens` takes, not only color. `dark` is the one theme
+	 * name the library keeps: it authors a complete dark theme with no entry
+	 * needed here, so an entry under `dark` merges over that base authoring
+	 * (the base authors dark entirely at the palette layer — the two-tier
+	 * rule) rather than replacing it. Every other name starts
+	 * from nothing and is entirely the consumer's, except the value of
+	 * `defaultThemeName` — that name is reserved, because the default theme
+	 * is the `:root` block authored via `tokens`, not a `themes` entry.
 	 *
 	 * One attribute holds one value, so themes are mutually exclusive: a dark
 	 * variant of a named theme is its own entry (`'ocean-dark'`), not a
@@ -263,6 +279,9 @@ export interface ResolvedConfig {
 	 */
 	components: TokenEntry[];
 	output?: string;
+	/** The name of the default theme — the `tokens` block, and the
+	 *  `[data-theme='<name>']` rule that restores it. Defaults to 'default'. */
+	defaultThemeName: string;
 	/**
 	 * Verbatim `config.selector` — `undefined` when the key is absent, which
 	 * stays distinguishable from an explicit `':root'`. `generateCss` falls
@@ -546,6 +565,20 @@ function resolveDensityLadder(ladder: TokenGroupOverride | undefined): Record<nu
 const THEME_NAME = /^[a-z][a-z0-9-]*$/;
 
 /**
+ * Shared by `validateThemes` (one `themes` key) and `resolveConfig` (the
+ * `defaultThemeName` key itself) — the shape `THEME_NAME` enforces, as one
+ * assert with a `where` that names which config path failed.
+ */
+export function assertThemeName(name: unknown, where: string): void {
+	if (typeof name !== 'string' || !THEME_NAME.test(name)) {
+		throw new HyzerConfigError(
+			`${where} is not a valid theme name: use lower-case letters, digits and hyphens, starting ` +
+				'with a letter (the name becomes a data-theme attribute value).'
+		);
+	}
+}
+
+/**
  * A selector value is interpolated straight into emitted CSS — `${selector} {`,
  * `${selector}[data-theme='dark']`, `:where(${selector} .hz-button)` — so,
  * like `THEME_NAME` above, it is held to an identifier-safe shape rather than
@@ -566,29 +599,28 @@ export function assertSelector(value: unknown, where: string): void {
 }
 
 /**
- * Validate `config.themes` and hand back the map. `light` is rejected rather
- * than accepted-and-ignored: the light theme is the default `:root` block
- * authored via `config.tokens`, and a `themes.light` entry would silently do
- * nothing to it.
+ * Validate `config.themes` and hand back the map. `defaultThemeName` is
+ * rejected rather than accepted-and-ignored: the default theme is the
+ * `:root` block authored via `config.tokens`, and a `themes` entry naming it
+ * would silently do nothing.
  */
 function validateThemes(
-	themes: HyzerConfig['themes']
+	themes: HyzerConfig['themes'],
+	defaultThemeName: string
 ): Record<string, HyzerThemeOverride> | undefined {
 	if (themes === undefined) return undefined;
 	if (themes === null || typeof themes !== 'object' || Array.isArray(themes)) {
 		throw new HyzerConfigError('config.themes must be an object keyed by theme name.');
 	}
 	for (const [name, theme] of Object.entries(themes)) {
-		if (name === 'light') {
+		if (name === defaultThemeName) {
 			throw new HyzerConfigError(
-				'config.themes.light is reserved — the light theme is the default :root block, authored via config.tokens.'
+				`config.themes.${name} is reserved — "${name}" is config.defaultThemeName, and the default ` +
+					'theme is the :root block authored via config.tokens, not a themes entry. Rename one of ' +
+					'the two.'
 			);
 		}
-		if (!THEME_NAME.test(name)) {
-			throw new HyzerConfigError(
-				`config.themes["${name}"] is not a valid theme name: use lower-case letters, digits and hyphens, starting with a letter (the name becomes a data-theme attribute value).`
-			);
-		}
+		assertThemeName(name, `config.themes["${name}"]`);
 		assertTokenGroups(theme as Record<string, unknown> | undefined, `config.themes.${name}`, true);
 	}
 	return themes;
@@ -703,12 +735,35 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 	}
 	assertKnownKeys(
 		config as Record<string, unknown>,
-		['output', 'selector', 'tokens', 'themes', 'icons', 'utilities', 'contrast', 'strict'],
+		[
+			'output',
+			'selector',
+			'defaultThemeName',
+			'tokens',
+			'themes',
+			'icons',
+			'utilities',
+			'contrast',
+			'strict'
+		],
 		'config'
 	);
+	// Resolves eagerly to its default (unlike `selector`) — nothing downstream
+	// needs to distinguish "unset" from "explicitly the default". Validated
+	// and checked against the one name every sheet always emits before
+	// `themes` is validated, since the reserved-name check below needs it.
+	const defaultThemeName = config.defaultThemeName ?? 'default';
+	assertThemeName(defaultThemeName, 'config.defaultThemeName');
+	if (defaultThemeName === 'dark') {
+		throw new HyzerConfigError(
+			'config.defaultThemeName cannot be "dark". Every generated sheet emits a dark theme at ' +
+				"[data-theme='dark'], so the default block would collide with it. Dark is the one theme " +
+				'name the library keeps — see /docs/theming/sections.'
+		);
+	}
 	const tokens = config.tokens;
 	assertTokenGroups(tokens as Record<string, unknown> | undefined, 'config.tokens');
-	const themesConfig = validateThemes(config.themes);
+	const themesConfig = validateThemes(config.themes, defaultThemeName);
 	if (config.output !== undefined && typeof config.output !== 'string') {
 		throw new HyzerConfigError('config.output must be a string path.');
 	}
@@ -888,6 +943,7 @@ export function resolveConfig(config: HyzerConfig = {}): ResolvedConfig {
 		themes,
 		components,
 		output: config.output,
+		defaultThemeName,
 		selector: config.selector,
 		icons: config.icons !== undefined ? [...new Set(config.icons)] : undefined,
 		utilities: resolvedUtilities,

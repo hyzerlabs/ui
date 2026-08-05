@@ -72,6 +72,7 @@
 		'',
 		'export default defineConfig({',
 		"\toutput: 'src/styles/tokens.css',",
+		"\tdefaultThemeName: 'brand', // names the tokens block below; default 'default'",
 		'',
 		'\t// Everything under `tokens` is the DEFAULT theme: it lands in the',
 		'\t// :root block, which is what a page gets with no data-theme set.',
@@ -234,6 +235,16 @@
 		</p>
 		<CodeBlock code={configCode} title="hyzer.config.ts" language="ts" />
 		<p>
+			<code>defaultThemeName</code> names the theme above rather than overriding any of its tokens.
+			It has no command-line flag, because a theme's name describes your system, not one run. Set it
+			to <code>'light'</code> to get back the block earlier versions of this library shipped: that
+			is the one-line migration if you are upgrading. Dark has no matching key, because
+			<code>dark</code> is the platform's own name rather than this library's, so it stays fixed.
+			See
+			<a href="/docs/theming/sections#config-heading">Define your themes</a> for the reasoning, and for
+			how to change dark itself.
+		</p>
+		<p>
 			<code>components</code> reaches the per-component custom properties too: the same knobs each
 			component page lists under <strong>Theme hooks</strong>, such as a button's accent color or a
 			badge's tint strength. Set one here and the generator writes the rule on that component's own
@@ -294,7 +305,8 @@
 			single run has no config key: <code>--config</code>, <code>--mode</code>,
 			<code>--check</code> and <code>--help</code>. Everything that describes your design system
 			lives in the config instead, such as <code>tokens</code>, <code>themes</code>,
-			<code>icons</code> and <code>contrast</code>. Four flags have both (<code>--out</code>,
+			<code>defaultThemeName</code>, <code>icons</code> and <code>contrast</code>. Four flags have
+			both (<code>--out</code>,
 			<code>--utilities</code>, <code>--strict</code> and <code>--selector</code>), so one run can
 			override the file, with the flag winning.
 		</p>

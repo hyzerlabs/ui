@@ -16,8 +16,11 @@ import { prefersReducedMotion } from 'svelte/motion';
 
 const STORAGE_KEY = 'hz-theme';
 
+/** The shipped default theme's name — the one literal every write below reads from. */
+export const DEFAULT_THEME = 'default';
+
 export const themeState = $state({
-	choice: null as 'light' | 'dark' | null,
+	choice: null as typeof DEFAULT_THEME | 'dark' | null,
 	systemDark: false
 });
 
@@ -31,8 +34,11 @@ export function isDark(): boolean {
  * for the media-query listener; call from an `$effect` in the root layout.
  */
 export function initTheme(): () => void {
+	// A stored 'light' from before the rename no longer validates, so a
+	// returning reader with it in storage follows their system preference
+	// again until they press the toggle.
 	const stored = localStorage.getItem(STORAGE_KEY);
-	if (stored === 'light' || stored === 'dark') themeState.choice = stored;
+	if (stored === DEFAULT_THEME || stored === 'dark') themeState.choice = stored;
 
 	const query = window.matchMedia('(prefers-color-scheme: dark)');
 	themeState.systemDark = query.matches;
@@ -46,9 +52,9 @@ let transitionTimer: ReturnType<typeof setTimeout> | undefined;
 /**
  * Flip to the opposite of what is showing, and record it as an explicit
  * choice. Writing the choice matters: the sheet's system default is
- * `:root:not([data-theme])`, so *removing* the attribute to mean "light"
- * would hand a system-dark reader dark mode and make the light half of the
- * toggle do nothing.
+ * `:root:not([data-theme])`, so *removing* the attribute to mean the default
+ * theme would hand a system-dark reader dark mode and make the default half
+ * of the toggle do nothing.
  */
 export function toggleTheme(): void {
 	if (!prefersReducedMotion.current) {
@@ -61,6 +67,6 @@ export function toggleTheme(): void {
 			document.documentElement.classList.remove('theme-transition');
 		}, 500);
 	}
-	themeState.choice = isDark() ? 'light' : 'dark';
+	themeState.choice = isDark() ? DEFAULT_THEME : 'dark';
 	localStorage.setItem(STORAGE_KEY, themeState.choice);
 }

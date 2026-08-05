@@ -146,25 +146,31 @@ const DERIVED_COMMENT = [
 	'which is what makes a themed <section> work and not just a themed <html>.'
 ];
 
-const SYSTEM_COMMENT = [
-	'/* ==========================================================================',
-	' * System preference — dark by default, until an explicit choice is made.',
-	' * :not([data-theme]) is what makes the choice win: set data-theme="light"',
-	' * (or "dark") anywhere on <html> and this block stops matching, so no',
-	' * script is needed to FOLLOW the system, only to OVERRIDE it. Scoped to',
-	' * :root because it only ever answers "what should the page default to".',
-	' * ========================================================================== */'
-].join('\n');
+/** System-preference banner — only the default's `data-theme` value interpolates; "dark" is fixed. */
+function systemComment(name: string): string {
+	return [
+		'/* ==========================================================================',
+		' * System preference — dark by default, until an explicit choice is made.',
+		` * :not([data-theme]) is what makes the choice win: set data-theme="${name}"`,
+		' * (or "dark") anywhere on <html> and this block stops matching, so no',
+		' * script is needed to FOLLOW the system, only to OVERRIDE it. Scoped to',
+		' * :root because it only ever answers "what should the page default to".',
+		' * ========================================================================== */'
+	].join('\n');
+}
 
-const LIGHT_COMMENT = [
-	'/* ==========================================================================',
-	' * Light theme — the default block, re-declared so it can be RESTORED.',
-	' * :root defaults inherit as computed values, so a light section inside a',
-	' * dark page would otherwise keep the dark values it inherited: there has',
-	' * to be something to switch back TO. Only tokens some theme actually',
-	' * changes are listed — the rest were never at risk.',
-	' * ========================================================================== */'
-].join('\n');
+/** Default-theme banner — the block describes itself by name. */
+function defaultComment(name: string): string {
+	return [
+		'/* ==========================================================================',
+		` * Default theme "${name}" — the :root block, re-declared so it can be RESTORED.`,
+		' * :root defaults inherit as computed values, so a section switched back to',
+		' * the default inside a dark page would otherwise keep the dark values it',
+		' * inherited: there has to be something to switch back TO. Only tokens some',
+		' * theme actually changes are listed — the rest were never at risk.',
+		' * ========================================================================== */'
+	].join('\n');
+}
 
 /** Per-theme block banner. */
 function themeComment(name: string): string {
@@ -649,7 +655,11 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 		// applies at :root, where the chain declared above it re-resolves on
 		// the same element, so the derived block would be pure duplication.
 		if (theme.name === 'dark' && selector === ':root') {
-			parts.push('', SYSTEM_COMMENT, '@media (prefers-color-scheme: dark) {');
+			parts.push(
+				'',
+				systemComment(resolved.defaultThemeName),
+				'@media (prefers-color-scheme: dark) {'
+			);
 			parts.push('\t:root:not([data-theme]) {');
 			parts.push(...declarations(own, '\t\t', false));
 			parts.push('\t}');
@@ -657,9 +667,13 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 		}
 	}
 
-	const restore = lightRestore(resolved, blocks);
+	const restore = defaultRestore(resolved, blocks);
 	if (restore.length > 0) {
-		parts.push('', LIGHT_COMMENT, `${themeSelector(selector, 'light')} {`);
+		parts.push(
+			'',
+			defaultComment(resolved.defaultThemeName),
+			`${themeSelector(selector, resolved.defaultThemeName)} {`
+		);
 		parts.push(...declarations(restore, '\t', false));
 		parts.push('}');
 	}
@@ -671,8 +685,8 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
 }
 
 /**
- * The `[data-theme="light"]` block: every token any theme block declares,
- * restored to its default value.
+ * The default block (`[data-theme="<resolved.defaultThemeName>"]`): every
+ * token any theme block declares, restored to its default value.
  *
  * A token a theme introduces but `:root` never defines (a consumer's
  * dark-only intent, say) restores to `initial` — the guaranteed-invalid
@@ -686,7 +700,7 @@ function generateFull(resolved: ResolvedConfig, selector: string, intro?: string
  * invalid at computed-value time. Spliced into root order right after the
  * space section's entries, where the full sheet emits it.
  */
-function lightRestore(
+function defaultRestore(
 	resolved: ResolvedConfig,
 	blocks: { own: TokenEntry[]; dependents: TokenEntry[] }[]
 ): TokenEntry[] {
@@ -778,16 +792,16 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 	 * theme changes, which makes declaring it under light harmless.
 	 */
 	const restorableNames = new Set(
-		lightRestore(resolved, [
+		defaultRestore(resolved, [
 			themeBlock(resolved, resolved.dark),
 			...resolved.themes.map((theme) => themeBlock(resolved, theme))
 		]).map((e) => e.cssName)
 	);
-	// A theme block declaring --hz-density forces mergeLight off too — same
+	// A theme block declaring --hz-density forces mergeDefault off too — same
 	// reason as unitFromConfig above (R5): the merged root+light rule would
 	// declare the default unit at the scope selector and clobber a consumer's
 	// own --hz-density override inside that scope.
-	const mergeLight =
+	const mergeDefault =
 		hasRoot &&
 		rootEntries.some((e) => restorableNames.has(e.cssName)) &&
 		!resolved.density.unitFromConfig &&
@@ -795,7 +809,9 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 
 	if (hasRoot) {
 		parts.push(
-			mergeLight ? `${selector},\n${themeSelector(selector, 'light')} {` : `${selector} {`
+			mergeDefault
+				? `${selector},\n${themeSelector(selector, resolved.defaultThemeName)} {`
+				: `${selector} {`
 		);
 		parts.push(...declarations(rootEntries, '\t', false));
 		if (resolved.density.unitFromConfig) parts.push(`\t--hz-density: ${resolved.density.unit};`);
@@ -831,11 +847,11 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 	// undo this sheet's own :root overrides inside a light-scoped section.
 	// Re-restore the tokens this sheet redeclares, after it in source order.
 	const restorable = new Set(
-		lightRestore(resolved, [themeBlock(resolved, resolved.dark), ...themeBlocks]).map(
+		defaultRestore(resolved, [themeBlock(resolved, resolved.dark), ...themeBlocks]).map(
 			(e) => e.cssName
 		)
 	);
-	const restore = mergeLight ? [] : rootEntries.filter((e) => restorable.has(e.cssName));
+	const restore = mergeDefault ? [] : rootEntries.filter((e) => restorable.has(e.cssName));
 	// --hz-density never lives in rootEntries (it's outside resolved.sections),
 	// so a theme block that declares it is spliced in here, last — mirroring
 	// where the root block puts it — rather than picked up by the filter above.
@@ -849,7 +865,7 @@ function generateOverrides(resolved: ResolvedConfig, selector: string, intro?: s
 	}
 	if (restore.length > 0) {
 		if (emitted) parts.push('');
-		parts.push(`${themeSelector(selector, 'light')} {`);
+		parts.push(`${themeSelector(selector, resolved.defaultThemeName)} {`);
 		parts.push(...declarations(restore, '\t', false));
 		parts.push('}');
 		emitted = true;
