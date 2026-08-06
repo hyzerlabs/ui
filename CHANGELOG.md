@@ -5,40 +5,85 @@ All notable changes to `@hyzer-labs/ui` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.0] — 2026-08-05
+
+The config is now where the whole design system is decided. A theme can
+carry any token group, not only color. The per-component hooks are
+reachable from `hyzer.config.ts`. The contrast bar and the sheet's scope
+are config keys, and `hyzer generate --check` reads what is on disk. One
+breaking change: the default theme is named `default` rather than `light`,
+so `data-theme="light"` no longer selects anything. Add
+`defaultThemeName: 'light'` to your config to keep the old name.
 
 ### Added
 
+- **A theme is a token override** — `themes.<name>` accepts every group
+  `tokens` accepts, so a theme can carry its own type scale, spacing, radii
+  or motion rather than only color. `dark` still works without an entry.
+- **Per-component theme hooks come from the config** — `tokens.components`
+  sets `--hz-button-accent`, `--hz-badge-tint`, `--hz-loading-speed` and the
+  rest, camelCased with no `--hz-` prefix. Each component page lists its own
+  under Theme hooks.
 - **Name the default theme whatever suits your system** — `defaultThemeName`
-  in `hyzer.config.ts` renames the `:root` block and the `[data-theme='…']`
-  rule that restores it.
+  renames the `:root` block and the `[data-theme='…']` rule that restores it.
+- **Scope the sheet to a class** — `selector` in the config, or `--selector`
+  on the command line, roots the whole sheet at a class or id instead of
+  `:root`. A region keeps its own palette and still follows the page between
+  light and dark. Run the generator once per config for as many scoped
+  sheets as you need.
+- **The contrast bar is yours to set** — `contrast: { level: 'AAA' }` grades
+  against 7:1 instead of 4.5:1, and `strict: true` fails the run on a miss
+  without needing the flag. The library's own hues are tuned to AA.
+- **Set the density ladder from the config** — `density.ladder` sets the four
+  rung values the near/away cascade looks up. A rung you declare in CSS still
+  wins.
+- **`hyzer generate --check` reads what is on disk.** It compares the token
+  sheet, `icons.ts` and the utilities sheet against what a run would write,
+  and reports any file that has drifted or was generated for a different mode
+  or scope. A file that was never generated is reported but does not fail the
+  run, so you can still generate at build time instead of committing the sheet.
+- **`hyzer init` writes every option with its real default.** Uncomment any
+  line in the scaffolded config to see the value the library actually uses.
 
 ### Changed
 
 - **Breaking: the default theme is now named `default`.**
-  `[data-theme='default']` is the block that re-asserts your default, and
-  `data-theme="light"` no longer selects anything. To keep the old name, add
-  `defaultThemeName: 'light'` to `hyzer.config.ts` and regenerate.
+  `data-theme="light"` no longer selects anything, and `[data-theme='default']`
+  is the block that re-asserts your default. To keep the old name, add
+  `defaultThemeName: 'light'` to `hyzer.config.ts` and regenerate. `dark`
+  keeps its name: that one is the platform's, not this library's.
+- **Generated files are ASCII-only.** The sheets, `icons.ts` and the
+  scaffolded config used to carry em-dashes and other non-ASCII characters in
+  their comments, which your linter reads like any other content.
 
 ### Fixed
 
+- **`color-scheme` follows the system preference.** On a site that sets no
+  `data-theme`, a visitor whose system preferred dark used to get dark tokens
+  with `color-scheme: light`. Native scrollbars, form controls and autofill
+  stayed light against a dark page.
 - **An overrides-mode sheet now carries the dark theme's own value for every
-  token it overrides**, matching what a full sheet and the contrast report
-  have always said. Before, a hue you changed under `tokens` with no
-  `themes.dark` entry could paint your override on some elements in dark
-  mode and the library's default on others. Which one you got depended on
-  the element carrying `data-theme="dark"`. To use your own hue in dark,
-  name it under `themes.dark`. Regenerating an existing overrides sheet may
-  add declarations to its dark block.
-- **`hyzer generate` now writes beside your config file whether or not you
-  set `output`.** With the key absent it used to write into the directory
-  you ran the command from, even when it found a config elsewhere.
-  `output`'s own docs always said "relative to the config file", which was
-  only true once you set it. `icons.ts` and the default utilities sheet
-  follow the tokens sheet, as before. `--out` is unchanged: it is still
-  relative to where you run the command. A sheet written by an earlier run
-  stays where it was: delete it, or pass `--out` to keep writing to that
+  token it overrides.** Before, a hue you changed under `tokens` with no
+  `themes.dark` entry could paint your override on some elements in dark mode
+  and the library's default on others. To use your own hue in dark, name it
+  under `themes.dark`. Regenerating an existing overrides sheet may add
+  declarations to its dark block.
+- **The Ocean and Terminal example themes each had a dark pairing below WCAG
+  AA** — both are fixed, and the contrast report now grades the color the
+  sheet actually paints, so it can see misses like these.
+- **The contrast report reads your configured tints.** Setting
+  `--hz-badge-tint` or `--hz-alert-tint` used to leave the report grading the
+  built-in recipe instead of your value.
+- **`hyzer generate` writes beside your config file whether or not you set
+  `output`.** With the key absent it used to write into the directory you ran
+  the command from, even when it found a config elsewhere. `icons.ts` and the
+  default utilities sheet follow the tokens sheet, as before, and `--out` is
+  still relative to where you run the command. A sheet written by an earlier
+  run stays where it was: delete it, or pass `--out` to keep writing to that
   path.
+- **The palette banner no longer claims ramps are unsupported.** The library
+  ships none, but a config can nest steps under a hue to generate
+  `--hz-palette-<hue>-<step>`.
 
 ## [0.6.0] — 2026-08-04
 
@@ -212,6 +257,7 @@ Initial public release: the full component set, headless core with the
 layered reference theme, design tokens, and the docs site at
 [design.hyzer.sh](https://design.hyzer.sh).
 
+[0.7.0]: https://github.com/hyzerlabs/ui/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/hyzerlabs/ui/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/hyzerlabs/ui/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/hyzerlabs/ui/compare/v0.3.0...v0.4.0
