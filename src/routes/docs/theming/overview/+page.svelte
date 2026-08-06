@@ -187,19 +187,41 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td>Retheme colors, type, spacing, radius everywhere</td>
+						<td>The whole app to look different</td>
 						<td
-							>Override <code>--hz-*</code> tokens in plain CSS or a generated sheet. See
+							>Override <code>--hz-*</code> tokens: the <code>tokens</code> key in a config, or
+							plain CSS. Nothing goes on an element; the page is the scope. See
 							<a href="/docs/theming/tokens">Tokens &amp; Overrides</a>.</td
 						>
 					</tr>
 					<tr>
-						<td>Dark mode, or any named theme</td>
+						<td>A region, or the whole page, to carry a look you named at build time</td>
 						<td
-							>Use the <code>data-theme</code> hook. Override hues at the palette layer and
-							everything chains through. Dark is one named theme, and you can define as many as you
-							like. The attribute works on any element, not just <code>&lt;html&gt;</code>. See
+							>Define it under <code>themes</code>, then set
+							<code>data-theme="&lt;name&gt;"</code> on any element.
+							<code>theme('&lt;name&gt;')</code> writes that same attribute, so use whichever suits
+							the markup. Dark is one such name. See
 							<a href="/docs/theming/sections">Section themes</a>.</td
+						>
+					</tr>
+					<tr>
+						<td>A look that comes from data: a per-tenant accent, or a color a reader picked</td>
+						<td
+							><code>theme(object)</code>. It resolves in the browser and writes inline custom
+							properties, so no build-time entry is needed. It is not contrast-graded. See
+							<a href="/docs/theming/sections">Section themes</a>.</td
+						>
+					</tr>
+					<tr>
+						<td
+							>A region that needs its own palette and must still follow the page between light and
+							dark</td
+						>
+						<td
+							>Generate a second sheet scoped to a class and put the class on the region.
+							<code>data-theme</code> is then still free to carry light or dark. A
+							<code>themes</code> entry cannot do both: one attribute holds one value. See
+							<a href="/docs/foundation/config#scope-heading">Scope the sheet to a class</a>.</td
 						>
 					</tr>
 					<tr>

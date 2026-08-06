@@ -284,6 +284,16 @@
 			library ships is below; each component's page carries the same rows alongside its
 			<code>data-*</code> and part classes.
 		</p>
+		<p>
+			Every hook in these tables can also be set from <a href="/docs/foundation/config"
+				><code>hyzer.config.ts</code></a
+			>, under <code>tokens.components</code>: camelCase, without the <code>--hz-</code> prefix (<code
+				>--hz-button-accent</code
+			>
+			becomes <code>buttonAccent</code>). The generator writes the rule for you, once, for the whole
+			system, so you need no CSS of your own. Set hooks under <code>tokens</code>, not inside a
+			named theme. To vary one per theme, point the hook at a token.
+		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
 				<thead>

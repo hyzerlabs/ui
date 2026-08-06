@@ -307,6 +307,16 @@ test.describe('R9 — theme toggle', () => {
 		);
 
 		expect(lightSurface).not.toBe(darkSurface);
+
+		// A second click returns to the default theme. The sheet must still
+		// carry a block for it after the rename, or this reader silently loses
+		// light mode (specs/68 R6).
+		await toggleBtn.click();
+		await expect(page.locator('html')).toHaveAttribute('data-theme', 'default');
+		const restoredSurface = await page.evaluate(() =>
+			getComputedStyle(document.documentElement).getPropertyValue('--hz-color-surface').trim()
+		);
+		expect(restoredSurface).toBe(lightSurface);
 	});
 
 	test('--hz-intent-primary lightens to its dark companion after toggle (R9 dogfoods specs/15 R5, specs/42 R1)', async ({

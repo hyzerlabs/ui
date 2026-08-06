@@ -58,11 +58,11 @@ function renderIconsModule(names: string[]): string {
 		'/**',
 		' * @hyzer-labs/ui trimmed icon barrel (hyzer generate).',
 		' *',
-		` * GENERATED FILE — do not edit by hand. Lucide v${LUCIDE_VERSION} (ISC).`,
-		' * Core icons (the chevrons, close, menu, ...) are always included, no',
-		" * matter what your `icons` config says — they back this library's own",
-		' * components. Named re-exports from deep `@hyzer-labs/ui/icons/<name>`',
-		" * paths keep this barrel's own import graph limited to exactly the",
+		` * GENERATED FILE - do not edit by hand. Lucide v${LUCIDE_VERSION} (ISC).`,
+		' * Core icons (the chevrons, close, menu and so on) are always included,',
+		" * whatever your `icons` config says: this library's own components need",
+		' * them. Each icon below is re-exported from its own deep',
+		' * `@hyzer-labs/ui/icons/<name>` path, so this barrel imports only the',
 		' * icons your app uses. Regenerate with `hyzer generate`.',
 		' */'
 	].join('\n');

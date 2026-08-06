@@ -41,8 +41,8 @@
 
 	// An explicit choice is WRITTEN, never inferred by absence: the tokens
 	// sheet's system default is `:root:not([data-theme])`, so removing the
-	// attribute to mean "light" would hand a system-dark reader dark mode and
-	// make the light half of the toggle do nothing.
+	// attribute to mean the default theme would hand a system-dark reader
+	// dark mode and make the default half of the toggle do nothing.
 	$effect(() => {
 		if (themeState.choice) {
 			document.documentElement.setAttribute('data-theme', themeState.choice);

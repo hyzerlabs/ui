@@ -17,8 +17,9 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { hooks, INTERNAL_HOOKS, type ComponentHooks } from './hooks';
+import { hooks, INTERNAL_HOOKS, INSTANCE_HOOKS, type ComponentHooks } from './hooks';
 import { isSection, isGrouped, manifest, sectionPages } from './manifest';
+import { componentHooks, ROOT } from '../lib/tokens/hooks.js';
 
 const LIB = join(process.cwd(), 'src/lib');
 const COMPONENTS = join(LIB, 'components');
@@ -61,21 +62,25 @@ function componentSource(name: string): string {
 	return readFileSync(join(COMPONENTS, `${name}.svelte`), 'utf8');
 }
 
-/** Every reference-theme stylesheet, concatenated. Excludes examples/. */
-const themeCss = (() => {
-	const out: string[] = [];
+/** Every reference-theme stylesheet, per file. Excludes examples/. */
+const themeFiles = (() => {
+	const out: { file: string; css: string }[] = [];
 	const walk = (dir: string) => {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			if (entry.isDirectory()) {
 				if (entry.name !== 'examples') walk(join(dir, entry.name));
 			} else if (entry.name.endsWith('.css')) {
-				out.push(readFileSync(join(dir, entry.name), 'utf8'));
+				const path = join(dir, entry.name);
+				out.push({ file: path.slice(LIB.length + 1), css: readFileSync(path, 'utf8') });
 			}
 		}
 	};
 	walk(THEME);
-	return out.join('\n');
+	return out;
 })();
+
+/** Every reference-theme stylesheet, concatenated. Excludes examples/. */
+const themeCss = themeFiles.map((f) => f.css).join('\n');
 
 /**
  * Every shipped library source file, concatenated — the haystack for hooks the
@@ -291,6 +296,226 @@ describe('hooks.ts — rows are well-formed', () => {
 			if (!h.warning.length) violations.push(`${name}: warning is present but empty`);
 			const backtickCount = (h.warning.match(/`/g) ?? []).length;
 			if (backtickCount % 2 !== 0) violations.push(`${name}: warning has an unpaired backtick`);
+		}
+		expect(violations).toEqual([]);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/65 R12 — src/lib/tokens/hooks.ts's componentHooks, held against this
+// curation. Two gates: every documented --hz-* prop is accounted for exactly
+// once (componentHooks XOR INSTANCE_HOOKS), and every componentHooks entry
+// really is declared where it claims — a class row on that class, a ROOT row
+// at :root or nowhere at all.
+// ---------------------------------------------------------------------------
+
+describe('componentHooks (src/lib/tokens/hooks.ts) — vocabulary held against the docs curation', () => {
+	const documentedProps = new Set(
+		Object.values(hooks).flatMap((h) => (h.props ?? []).map((r) => r.name))
+	);
+	const vocab = new Set(componentHooks.map((h) => h.name));
+
+	it('every documented --hz-* prop is in componentHooks or INSTANCE_HOOKS, never both, never neither', () => {
+		const violations: string[] = [];
+		for (const name of documentedProps) {
+			const inVocab = vocab.has(name);
+			const inInstance = name in INSTANCE_HOOKS;
+			if (inVocab && inInstance) {
+				violations.push(`${name}: listed in both componentHooks and INSTANCE_HOOKS`);
+			}
+			if (!inVocab && !inInstance) {
+				violations.push(`${name}: in neither componentHooks nor INSTANCE_HOOKS`);
+			}
+		}
+		expect(violations).toEqual([]);
+	});
+
+	it('every componentHooks name is a documented props row', () => {
+		const violations = [...vocab].filter((name) => !documentedProps.has(name));
+		expect(violations).toEqual([]);
+	});
+
+	it('componentHooks has no duplicate names', () => {
+		const names = componentHooks.map((h) => h.name);
+		const dupes = names.filter((n, i) => names.indexOf(n) !== i);
+		expect([...new Set(dupes)]).toEqual([]);
+	});
+
+	it('INSTANCE_HOOKS has no stale entries', () => {
+		const stale = Object.keys(INSTANCE_HOOKS).filter((name) => !documentedProps.has(name));
+		expect(stale, 'Listed as an instance hook but no longer a documented props row').toEqual([]);
+	});
+});
+
+// Rule splitter, duplicated from src/lib/theme/examples/examples.spec.ts
+// (R12: no test helper exported from src/lib for this) and adapted to find
+// DECLARED custom properties rather than declared standard properties.
+
+interface HookRule {
+	selectors: string[];
+	customProps: string[];
+}
+
+function splitTopLevelHook(input: string): string[] {
+	const parts: string[] = [];
+	let depth = 0;
+	let current = '';
+	for (const ch of input) {
+		if (ch === '(' || ch === '[') depth++;
+		else if (ch === ')' || ch === ']') depth--;
+		if (ch === ',' && depth === 0) {
+			parts.push(current.trim());
+			current = '';
+		} else current += ch;
+	}
+	if (current.trim()) parts.push(current.trim());
+	return parts;
+}
+
+/** Custom properties DECLARED (not just read) directly in a block. */
+function declaredCustomProps(body: string): string[] {
+	return [...body.matchAll(/(--hz-[a-z0-9-]+)\s*:/g)].map((m) => m[1]);
+}
+
+/** Strip comments, then walk brace-matched blocks collecting style rules. */
+function parseHookRules(css: string): HookRule[] {
+	const rules: HookRule[] = [];
+	const walk = (input: string) => {
+		let i = 0;
+		let prelude = '';
+		while (i < input.length) {
+			const ch = input[i];
+			if (ch === '{') {
+				let depth = 1;
+				let j = i + 1;
+				while (j < input.length && depth > 0) {
+					if (input[j] === '{') depth++;
+					else if (input[j] === '}') depth--;
+					j++;
+				}
+				const body = input.slice(i + 1, j - 1);
+				const head = prelude.trim();
+				if (head.startsWith('@')) {
+					if (!head.startsWith('@keyframes')) walk(body);
+				} else if (head) {
+					rules.push({
+						selectors: splitTopLevelHook(head),
+						customProps: declaredCustomProps(body)
+					});
+				}
+				prelude = '';
+				i = j;
+				continue;
+			}
+			if (ch === '}') {
+				prelude = '';
+				i++;
+				continue;
+			}
+			prelude += ch;
+			i++;
+		}
+	};
+	walk(css.replace(/\/\*[\s\S]*?\*\//g, ''));
+	return rules;
+}
+
+function hasTopLevelCombinatorHook(selector: string): boolean {
+	let depth = 0;
+	for (const ch of selector) {
+		if (ch === '(' || ch === '[') depth++;
+		else if (ch === ')' || ch === ']') depth--;
+		else if (depth === 0 && /[\s>+~]/.test(ch)) return true;
+	}
+	return false;
+}
+
+/** Unwrap single-argument :where()/:is() groups that contain a combinator. */
+function flattenHookGroups(selector: string): string {
+	const re = /:(?:where|is)\(/;
+	let out = selector;
+	for (;;) {
+		const m = re.exec(out);
+		if (!m) return out;
+		const open = m.index + m[0].length - 1;
+		let depth = 1;
+		let close = open + 1;
+		while (close < out.length && depth > 0) {
+			if (out[close] === '(') depth++;
+			else if (out[close] === ')') depth--;
+			close++;
+		}
+		const inner = out.slice(open + 1, close - 1);
+		const flattenable = splitTopLevelHook(inner).length === 1 && hasTopLevelCombinatorHook(inner);
+		if (!flattenable) {
+			const rest = flattenHookGroups(out.slice(close));
+			return out.slice(0, close) + rest;
+		}
+		out = out.slice(0, m.index) + inner + out.slice(close);
+	}
+}
+
+/** The last compound in a selector — the element the rule actually declares onto. */
+function subjectOfHook(selector: string): string {
+	const flat = flattenHookGroups(selector);
+	let depth = 0;
+	let start = 0;
+	for (let i = 0; i < flat.length; i++) {
+		const ch = flat[i];
+		if (ch === '(' || ch === '[') depth++;
+		else if (ch === ')' || ch === ']') depth--;
+		else if (depth === 0 && /[\s>+~]/.test(ch)) start = i + 1;
+	}
+	return flat.slice(start);
+}
+
+/** Whole-token match, so `.hz-carousel` does not match `.hz-carousel-dot`. */
+function hasHookToken(haystack: string, token: string): boolean {
+	const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+	return new RegExp(`${escaped}(?![\\w-])`).test(haystack);
+}
+
+describe('componentHooks (src/lib/tokens/hooks.ts) — `on` really is the declaring element', () => {
+	it('a class-claiming row is declared on that class, never at :root; a ROOT-claiming row is declared at :root or nowhere', () => {
+		const byFile = themeFiles.map((f) => ({ file: f.file, rules: parseHookRules(f.css) }));
+		const violations: string[] = [];
+		for (const hook of componentHooks) {
+			for (const { file, rules } of byFile) {
+				for (const rule of rules) {
+					if (!rule.customProps.includes(hook.name)) continue;
+					for (const selector of rule.selectors) {
+						const atRoot = selector.trim() === ':root';
+						if (hook.on === ROOT) {
+							// ROOT rows may be declared at :root (--hz-logo-size) or
+							// nowhere (every other ROOT row, never matched by this loop
+							// at all). Declared on an actual class instead is the bug
+							// this gate exists to catch: R14 would then emit the config
+							// value ON that class, defeating an ancestor's own override
+							// the way a same-element declaration always does.
+							if (!atRoot) {
+								violations.push(
+									`${hook.name}: claims ROOT but ${file} "${selector}" declares it on a class`
+								);
+							}
+							continue;
+						}
+						// A class-claiming row declared at :root instead means R14
+						// would emit the config value ON the class — out-ranking the
+						// very :root declaration a config value is supposed to reach
+						// through inheritance, same failure as --hz-logo-size's.
+						if (atRoot) {
+							violations.push(`${hook.name}: claims .${hook.on} but ${file} declares it at :root`);
+							continue;
+						}
+						const subject = subjectOfHook(selector);
+						if (!hasHookToken(subject, `.${hook.on}`)) {
+							violations.push(
+								`${hook.name}: ${file} "${selector}" has subject "${subject}", missing .${hook.on}`
+							);
+						}
+					}
+				}
+			}
 		}
 		expect(violations).toEqual([]);
 	});

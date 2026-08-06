@@ -1,9 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { run } from './main.js';
 import { resolveConfig, generateCss, generateUtilitiesCss } from '../config/index.js';
+import { TOP_LEVEL_KEYS } from '../config/schema.js';
+import { CONFIG_TEMPLATE } from './config-template.js';
+import { CONFIG_TOKEN_DEFAULTS, CONFIG_DARK_DEFAULTS } from './config-defaults.js';
+import { renderConfigDefaults } from '../../../scripts/gen-config-defaults.js';
+
+/** main.spec.ts:720's own uncommenter, reused by every specs/69 R8 case below. */
+function uncomment(source: string): string {
+	return source
+		.split('\n')
+		.map((line) => line.replace(/^\t\/\/ /, '\t'))
+		.join('\n');
+}
 
 /** Fresh sandbox per test — unique paths keep ESM config imports uncached. */
 function sandbox(): {
@@ -104,6 +117,9 @@ describe('hyzer generate — modes and flags', () => {
 		expect(await run(['generate', '--check'], io)).toBe(0);
 		expect(existsSync(join(cwd, 'hyzer-tokens.css'))).toBe(false);
 		expect(logs.join('\n')).toContain('pairings checked');
+		// specs/66 — the staleness section: no sheet has ever been generated
+		// here, so it is a note, not a finding, and the exit code is unchanged.
+		expect(logs.join('\n')).toContain('has not been generated, not checked');
 	});
 
 	it('an AA failure warns by default and fails with --strict (file still written)', async () => {
@@ -123,7 +139,7 @@ describe('hyzer generate — modes and flags', () => {
 			`export default { tokens: { palette: { warning: '#d97706' } } };`
 		);
 		expect(await run(['generate', '--strict'], second.io)).toBe(1);
-		expect(second.errors.join('\n')).toContain('✗ light text:intent-warning/surface');
+		expect(second.errors.join('\n')).toContain('✗ default text:intent-warning/surface');
 		expect(existsSync(join(second.cwd, 'hyzer-tokens.css'))).toBe(true);
 	});
 
@@ -207,6 +223,8 @@ describe('hyzer generate — icons config', () => {
 		expect(await run(['generate', '--check'], io)).toBe(0);
 		expect(existsSync(join(cwd, 'icons.ts'))).toBe(false);
 		expect(logs.join('\n')).toContain('icons: 15 included (14 core, 1 configured)');
+		// specs/66 — the staleness section still runs alongside the icons report.
+		expect(logs.join('\n')).toContain('has not been generated, not checked');
 	});
 });
 
@@ -292,6 +310,487 @@ describe('hyzer generate — utilities opt-in', () => {
 	});
 });
 
+// ---------------------------------------------------------------------------
+// specs/65 Stage 4 (R17–R20) — contrast.level and strict from the config
+// ---------------------------------------------------------------------------
+
+describe('hyzer generate — contrast bar and strict from the config', () => {
+	it('the default bar is still named "WCAG AA" in a passing report', async () => {
+		const { logs, io } = sandbox();
+		expect(await run(['generate'], io)).toBe(0);
+		expect(logs.join('\n')).toContain('all pass WCAG AA');
+	});
+
+	it('strict: true alone fails a failing config with no --strict flag, and omits the "use --strict" suffix', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer.config.mjs'),
+			`export default { strict: true, tokens: { palette: { warning: '#d97706' } } };`
+		);
+		expect(await run(['generate'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('fail WCAG AA');
+		expect(errors.join('\n')).not.toContain('use --strict');
+	});
+
+	it('--strict still fails a config with strict left at the default', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer.config.mjs'),
+			`export default { tokens: { palette: { warning: '#d97706' } } };`
+		);
+		expect(await run(['generate', '--strict'], io)).toBe(1);
+	});
+
+	it('contrast: { level: "AAA" } fails the shipped palette and names AAA in the report', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { contrast: { level: 'AAA' } };`);
+		expect(await run(['generate'], io)).toBe(0);
+		expect(errors.join('\n')).toContain('fail WCAG AAA');
+	});
+
+	it('contrast: { level: "AAA" } with strict: true fails the build', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer.config.mjs'),
+			`export default { contrast: { level: 'AAA' }, strict: true };`
+		);
+		expect(await run(['generate'], io)).toBe(1);
+	});
+
+	it('an unknown key under contrast is a config error', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { contrast: { threshold: 7 } };`);
+		expect(await run(['generate'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('Unknown key "threshold" in config.contrast');
+	});
+
+	it('a non-boolean strict is a config error', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { strict: 'yes' };`);
+		expect(await run(['generate'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('config.strict must be a boolean');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/67 — the --selector flag and config key
+// ---------------------------------------------------------------------------
+
+describe('hyzer generate — --selector', () => {
+	it('--selector .theme-ocean writes a sheet rooted at the class, with the Scope: line', async () => {
+		const { cwd, io } = sandbox();
+		expect(await run(['generate', '--selector', '.theme-ocean'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8');
+		expect(written).toContain('.theme-ocean {');
+		expect(written).toContain(' * Scope: .theme-ocean');
+	});
+
+	it('selector: ".theme-ocean" in the config, no flag, writes the same output', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { selector: '.theme-ocean' };`);
+		expect(await run(['generate'], io)).toBe(0);
+		expect(readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8')).toContain('.theme-ocean {');
+	});
+
+	it('the flag wins when both are set', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { selector: '.theme-ocean' };`);
+		expect(await run(['generate', '--selector', '.theme-terminal'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8');
+		expect(written).toContain('.theme-terminal {');
+		expect(written).not.toContain('.theme-ocean');
+	});
+
+	it('an invalid --selector exits 1, names the flag, and dumps no usage', async () => {
+		const { errors, io } = sandbox();
+		expect(await run(['generate', '--selector', '.a, .b'], io)).toBe(1);
+		const out = errors.join('\n');
+		expect(out).toContain('--selector must be ":root"');
+		expect(out).not.toContain('Usage');
+	});
+
+	it('an invalid config.selector exits 1 with "Invalid config:"', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { selector: '.a .b' };`);
+		expect(await run(['generate'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('Invalid config:');
+	});
+
+	it('--check on a sheet generated with the same selector reports up to date', async () => {
+		const first = sandbox();
+		expect(await run(['generate', '--selector', '.theme-ocean'], first.io)).toBe(0);
+		const second = sandbox();
+		writeFileSync(
+			join(second.cwd, 'hyzer-tokens.css'),
+			readFileSync(join(first.cwd, 'hyzer-tokens.css'), 'utf8')
+		);
+		expect(await run(['generate', '--check', '--selector', '.theme-ocean'], second.io)).toBe(0);
+		expect(second.logs.join('\n')).toContain('files: 1 checked, all up to date');
+	});
+
+	it('--check on a scoped sheet with no --selector reports the mismatch, warns, fails under --strict, and never rewrites the file', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig(), { selector: '.theme-ocean' })
+		);
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(errors.join('\n')).toContain('was generated for .theme-ocean; this run checked :root');
+		expect(errors.join('\n')).toContain('files: 1 of 1 out of date');
+
+		const second = sandbox();
+		const before = generateCss(resolveConfig(), { selector: '.theme-ocean' });
+		writeFileSync(join(second.cwd, 'hyzer-tokens.css'), before);
+		expect(await run(['generate', '--check', '--strict'], second.io)).toBe(1);
+		expect(readFileSync(join(second.cwd, 'hyzer-tokens.css'), 'utf8')).toBe(before);
+	});
+
+	it('--check --selector .x on an unscoped sheet reports the reverse mismatch', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		expect(await run(['generate', '--check', '--selector', '.theme-ocean'], io)).toBe(0);
+		expect(errors.join('\n')).toContain('was generated for :root; this run checked .theme-ocean');
+	});
+
+	it('the fix hint names --selector only when the flag supplied it, not when the config key did', async () => {
+		const flagRun = sandbox();
+		writeFileSync(
+			join(flagRun.cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig(), { selector: '.theme-ocean' }) + '/* drift */\n'
+		);
+		expect(await run(['generate', '--check', '--selector', '.theme-ocean'], flagRun.io)).toBe(0);
+		expect(flagRun.errors.join('\n')).toContain(
+			'run "hyzer generate --selector .theme-ocean" to update'
+		);
+
+		const keyRun = sandbox();
+		writeFileSync(
+			join(keyRun.cwd, 'hyzer.config.mjs'),
+			`export default { selector: '.theme-ocean' };`
+		);
+		writeFileSync(
+			join(keyRun.cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig({ selector: '.theme-ocean' })) + '/* drift */\n'
+		);
+		expect(await run(['generate', '--check'], keyRun.io)).toBe(0);
+		const keyHint = keyRun.errors.join('\n');
+		expect(keyHint).toContain('run "hyzer generate" to update');
+		expect(keyHint).not.toContain('--selector');
+
+		const bothRun = sandbox();
+		writeFileSync(
+			join(bothRun.cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig(), { mode: 'overrides', selector: '.theme-ocean' }) +
+				'/* drift */\n'
+		);
+		expect(
+			await run(
+				['generate', '--check', '--mode', 'overrides', '--selector', '.theme-ocean'],
+				bothRun.io
+			)
+		).toBe(0);
+		expect(bothRun.errors.join('\n')).toContain(
+			'run "hyzer generate --mode overrides --selector .theme-ocean" to update'
+		);
+	});
+
+	it("a scoped run with --utilities writes the utilities sheet unscoped, byte-identical to an unscoped run's, and --check reports it up to date", async () => {
+		const unscoped = sandbox();
+		expect(await run(['generate', '--utilities'], unscoped.io)).toBe(0);
+		const unscopedUtilities = readFileSync(join(unscoped.cwd, 'hyzer-utilities.css'), 'utf8');
+
+		const scoped = sandbox();
+		expect(await run(['generate', '--selector', '.theme-ocean', '--utilities'], scoped.io)).toBe(0);
+		expect(readFileSync(join(scoped.cwd, 'hyzer-utilities.css'), 'utf8')).toBe(unscopedUtilities);
+
+		expect(
+			await run(['generate', '--check', '--selector', '.theme-ocean', '--utilities'], scoped.io)
+		).toBe(0);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/68 — defaultThemeName: a config key, no flag
+// ---------------------------------------------------------------------------
+
+describe('hyzer generate — defaultThemeName', () => {
+	it('a config setting the key writes a sheet carrying that name', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { defaultThemeName: 'brand' };`);
+		expect(await run(['generate'], io)).toBe(0);
+		const written = readFileSync(join(cwd, 'hyzer-tokens.css'), 'utf8');
+		expect(written).toContain("[data-theme='brand']");
+		expect(written).not.toContain("[data-theme='default']");
+	});
+
+	it('an invalid value exits 1 with "Invalid config: "', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { defaultThemeName: 'dark' };`);
+		expect(await run(['generate'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('Invalid config: ');
+		expect(errors.join('\n')).toContain('config.defaultThemeName cannot be "dark"');
+	});
+
+	it('--check immediately after a write with the key set reports up to date, with no name-related finding', async () => {
+		const { cwd, logs, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { defaultThemeName: 'brand' };`);
+		expect(await run(['generate'], io)).toBe(0);
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain('files: 1 checked, all up to date');
+		expect(errors.join('\n')).not.toContain('brand');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/66 — `--check` compares what is on disk to what this run would write
+// ---------------------------------------------------------------------------
+
+describe('hyzer generate --check — staleness', () => {
+	it('a current sheet reports "all up to date" and exits 0', async () => {
+		const { cwd, logs, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain('files: 1 checked, all up to date');
+	});
+
+	it('a drifted sheet is reported out of date, warns without --strict, fails with it, and is never rewritten', async () => {
+		const { cwd, errors, io } = sandbox();
+		const current = generateCss(resolveConfig());
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), current + '/* drift */\n');
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(errors.join('\n')).toContain(`✗ ${join(cwd, 'hyzer-tokens.css')} is out of date`);
+		expect(errors.join('\n')).toContain('files: 1 of 1 out of date');
+		expect(errors.join('\n')).toContain('use --strict');
+
+		const second = sandbox();
+		writeFileSync(join(second.cwd, 'hyzer-tokens.css'), current + '/* drift */\n');
+		expect(await run(['generate', '--check', '--strict'], second.io)).toBe(1);
+		// The check writes nothing: the stale file is untouched.
+		expect(readFileSync(join(second.cwd, 'hyzer-tokens.css'), 'utf8')).toBe(
+			current + '/* drift */\n'
+		);
+	});
+
+	it('an absent sheet is a note, not a finding — exit 0 even under --strict, and it is not counted in files:', async () => {
+		const { cwd, logs, io } = sandbox();
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain(
+			`? ${join(cwd, 'hyzer-tokens.css')} has not been generated, not checked`
+		);
+		expect(logs.join('\n')).toContain('files: 0 checked, all up to date');
+
+		// This is the gitignored-sheet workflow, and it must stay green.
+		const strictSandbox = sandbox();
+		expect(await run(['generate', '--check', '--strict'], strictSandbox.io)).toBe(0);
+	});
+
+	it('strict: true in the config fails a --check run on a drifted sheet with no flag', async () => {
+		const { cwd, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { strict: true };`);
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()) + '/* drift */\n');
+		expect(await run(['generate', '--check'], io)).toBe(1);
+	});
+
+	it('a sheet written with --mode overrides, checked without the flag, reports the mode line instead of a byte diff', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig(), { mode: 'overrides' })
+		);
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		const out = errors.join('\n');
+		expect(out).toContain('was generated with --mode overrides; this run checked full');
+		expect(out).not.toContain('is out of date');
+	});
+
+	it('the reverse direction: a full sheet checked with --mode overrides also reports the mode line', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		expect(await run(['generate', '--check', '--mode', 'overrides'], io)).toBe(0);
+		expect(errors.join('\n')).toContain(
+			'was generated with --mode full; this run checked overrides'
+		);
+	});
+
+	it('no icons key: a stale icons.ts on disk is never checked, and files: counts only the tokens sheet', async () => {
+		const { cwd, logs, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		writeFileSync(join(cwd, 'icons.ts'), '// stale, unrelated to any config');
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		const out = logs.join('\n');
+		expect(out).not.toContain('icons.ts');
+		expect(out).toContain('files: 1 checked, all up to date');
+	});
+
+	it("icons: ['settings'] with no icons.ts is a note, not a finding", async () => {
+		const { cwd, logs, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), `export default { icons: ['settings'] };`);
+		writeFileSync(
+			join(cwd, 'hyzer-tokens.css'),
+			generateCss(resolveConfig({ icons: ['settings'] }))
+		);
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain(
+			`? ${join(cwd, 'icons.ts')} has not been generated, not checked`
+		);
+		expect(errors.join('\n')).not.toContain('icons.ts');
+		expect(logs.join('\n')).toContain('files: 1 checked, all up to date');
+	});
+
+	it('utilities absent from config and flag: no utilities finding even though no file exists', async () => {
+		const { cwd, logs, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		const out = logs.join('\n');
+		expect(out).not.toContain('hyzer-utilities.css');
+		expect(out).toContain('files: 1 checked, all up to date');
+	});
+
+	it('--utilities opts the sheet into being checked for this run, even absent from the config', async () => {
+		const { cwd, logs, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		expect(await run(['generate', '--check', '--utilities'], io)).toBe(0);
+		expect(logs.join('\n')).toContain(
+			`? ${join(cwd, 'hyzer-utilities.css')} has not been generated, not checked`
+		);
+	});
+
+	it('utilities: { output } is checked at that path, resolved relative to the config file', async () => {
+		const { cwd, logs, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(
+			join(cwd, 'conf/hyzer.config.mjs'),
+			`export default { utilities: { output: 'styles/u.css' } };`
+		);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain(
+			`? ${join(cwd, 'conf/styles/u.css')} has not been generated, not checked`
+		);
+	});
+
+	it('--out is the path checked', async () => {
+		const { cwd, logs, io } = sandbox();
+		expect(await run(['generate', '--check', '--out', 'out/tokens.css'], io)).toBe(0);
+		expect(logs.join('\n')).toContain(
+			`? ${join(cwd, 'out/tokens.css')} has not been generated, not checked`
+		);
+	});
+
+	it('a current file rewritten with CRLF line endings is still up to date', async () => {
+		const { cwd, logs, io } = sandbox();
+		const current = generateCss(resolveConfig());
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), current.replace(/\n/g, '\r\n'));
+		expect(await run(['generate', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain('files: 1 checked, all up to date');
+	});
+
+	it('a normal (non-check) run prints no files: section', async () => {
+		const { logs, io } = sandbox();
+		expect(await run(['generate'], io)).toBe(0);
+		expect(logs.join('\n')).not.toContain('files:');
+	});
+
+	it('an invalid config still exits 1 before any staleness check runs', async () => {
+		const { cwd, errors, io } = sandbox();
+		writeFileSync(join(cwd, 'hyzer.config.mjs'), 'export default { tokens: { colours: {} } };');
+		expect(await run(['generate', '--check'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('Invalid config');
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/69 R11 — `output` has one anchor: config-supplied paths resolve
+// against the config, flag-supplied paths resolve against the shell, and
+// the DEFAULT filename follows the config too, not only a path you wrote.
+// ---------------------------------------------------------------------------
+
+describe('specs/69 R11 — output resolves against the config file, everywhere', () => {
+	it('a config in a subdirectory with no output and no --out lands beside the config, not beside the shell', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default {};`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/hyzer-tokens.css'))).toBe(true);
+		expect(existsSync(join(cwd, 'hyzer-tokens.css'))).toBe(false);
+	});
+
+	it('icons.ts lands beside the same config-relative default', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default { icons: [] };`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/icons.ts'))).toBe(true);
+	});
+
+	it('the default utilities sheet lands beside the same config-relative default', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default { utilities: true };`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/hyzer-utilities.css'))).toBe(true);
+	});
+
+	it('--out stays relative to the shell even with a subdirectory config', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default {};`);
+		expect(
+			await run(['generate', '--config', 'conf/hyzer.config.mjs', '--out', 'out/tokens.css'], io)
+		).toBe(0);
+		expect(existsSync(join(cwd, 'out/tokens.css'))).toBe(true);
+		expect(existsSync(join(cwd, 'conf/hyzer-tokens.css'))).toBe(false);
+		expect(existsSync(join(cwd, 'conf/out/tokens.css'))).toBe(false);
+	});
+
+	it('an explicit config.output in a subdirectory is unchanged from today', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default { output: 'styles/x.css' };`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/styles/x.css'))).toBe(true);
+	});
+
+	it('no config anywhere still writes beside the shell, unchanged', async () => {
+		const { cwd, io } = sandbox();
+		expect(await run(['generate'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'hyzer-tokens.css'))).toBe(true);
+	});
+
+	it('--check against a sheet left at the old (pre-fix) cwd location reports it absent, not stale, and exits 0 under --strict', async () => {
+		const { cwd, logs, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default {};`);
+		// The old, cwd-relative location a pre-fix run would have written.
+		writeFileSync(join(cwd, 'hyzer-tokens.css'), generateCss(resolveConfig()));
+		expect(
+			await run(['generate', '--config', 'conf/hyzer.config.mjs', '--check', '--strict'], io)
+		).toBe(0);
+		expect(logs.join('\n')).toContain(
+			`? ${join(cwd, 'conf/hyzer-tokens.css')} has not been generated, not checked`
+		);
+	});
+
+	it('--check immediately after a subdirectory-config write reports all up to date', async () => {
+		const { cwd, logs, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(join(cwd, 'conf/hyzer.config.mjs'), `export default {};`);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs', '--check'], io)).toBe(0);
+		expect(logs.join('\n')).toContain('files: 1 checked, all up to date');
+	});
+
+	it('utilities.output with a subdirectory config resolves through the shared base, unchanged from today', async () => {
+		const { cwd, io } = sandbox();
+		mkdirSync(join(cwd, 'conf'));
+		writeFileSync(
+			join(cwd, 'conf/hyzer.config.mjs'),
+			`export default { utilities: { output: 'styles/u.css' } };`
+		);
+		expect(await run(['generate', '--config', 'conf/hyzer.config.mjs'], io)).toBe(0);
+		expect(existsSync(join(cwd, 'conf/styles/u.css'))).toBe(true);
+	});
+});
+
 describe('hyzer init', () => {
 	it('writes the commented full-reference hyzer.config.ts', async () => {
 		const { cwd, logs, io } = sandbox();
@@ -308,5 +807,137 @@ describe('hyzer init', () => {
 		expect(await run(['init'], io)).toBe(1);
 		expect(errors.join('\n')).toContain('already exists');
 		expect(existsSync(join(cwd, 'hyzer.config.ts'))).toBe(false);
+	});
+
+	it('the full-reference template resolves without throwing, every line uncommented', async () => {
+		// Live gate for the template itself: uncomment every `// ` line (the
+		// template's own convention — a leading tab, then `// `, then the
+		// property at its real indentation), swap the published import for a
+		// local identity function so the sandbox needs no package resolution,
+		// and resolveConfig() the result.
+		const { cwd } = sandbox();
+		const source = CONFIG_TEMPLATE.replace(
+			"import { defineConfig } from '@hyzer-labs/ui/config';",
+			'const defineConfig = (c) => c;'
+		)
+			.split('\n')
+			.map((line) => line.replace(/^\t\/\/ /, '\t'))
+			.join('\n');
+		const configPath = join(cwd, 'full-reference.mjs');
+		writeFileSync(configPath, source);
+		const mod = (await import(pathToFileURL(configPath).href)) as { default: unknown };
+		expect(() => resolveConfig(mod.default as never)).not.toThrow();
+	});
+
+	it("writes a file that contains both defaults constants' first lines (the splice happened)", async () => {
+		const { cwd, io } = sandbox();
+		expect(await run(['init'], io)).toBe(0);
+		const scaffold = readFileSync(join(cwd, 'hyzer.config.ts'), 'utf8');
+		expect(scaffold).toContain(CONFIG_TOKEN_DEFAULTS.split('\n')[0]);
+		expect(scaffold).toContain(CONFIG_DARK_DEFAULTS.split('\n')[0]);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// specs/69 R6–R8 — the config template's defaults are generated, and stay
+// 1:1 with tokens.css by construction rather than by eye
+// ---------------------------------------------------------------------------
+
+describe('specs/69 — src/lib/cli/config-defaults.js', () => {
+	it('R6: the committed file is exactly renderConfigDefaults() — drift, the same gate tokens.css gets', () => {
+		const committedPath = join(dirname(fileURLToPath(import.meta.url)), 'config-defaults.js');
+		const committed = readFileSync(committedPath, 'utf8');
+		expect(committed).toBe(renderConfigDefaults());
+	});
+
+	it('R7: every line is one tab, "// ", then content — no trailing whitespace, either constant', () => {
+		for (const constant of [CONFIG_TOKEN_DEFAULTS, CONFIG_DARK_DEFAULTS]) {
+			for (const line of constant.split('\n')) {
+				expect(line).toMatch(/^\t\/\/ /);
+				expect(line).not.toMatch(/[ \t]$/);
+			}
+		}
+	});
+
+	// The hooks have no defaults, so there is nothing to list. The key is still
+	// shown, as itself rather than as prose, but doubly commented: uncommenting
+	// the file must not put two hooks into the sheet, or the round-trip against
+	// tokens.css below stops holding.
+	it('R7: no live components group — the 41 component hooks have no defaults to show', () => {
+		const live = CONFIG_TOKEN_DEFAULTS.split('\n').filter(
+			(l) => /components:/.test(l) && !/^\t\/\/\s*\/\//.test(l)
+		);
+		expect(live).toEqual([]);
+	});
+
+	it('R7: the components key is shown as an illustration, not described in prose', () => {
+		expect(CONFIG_TOKEN_DEFAULTS).toContain(
+			"// components: { buttonAccent: 'var(--hz-intent-secondary)'"
+		);
+	});
+
+	it('R7: no theme but dark in the generated defaults — ocean/print stay hand-written illustrations', () => {
+		expect(CONFIG_DARK_DEFAULTS).not.toContain('ocean:');
+		expect(CONFIG_DARK_DEFAULTS).not.toContain('print:');
+	});
+
+	it("R7: density.ladder round-trips densityRungFallback's own expression, one rung per depth", () => {
+		expect(CONFIG_TOKEN_DEFAULTS).toContain("depth1: 'calc(var(--hz-density) * 10)'");
+		expect(CONFIG_TOKEN_DEFAULTS).toContain("depth2: 'calc(var(--hz-density) * 5)'");
+		expect(CONFIG_TOKEN_DEFAULTS).toContain("depth3: 'calc(var(--hz-density) * 2)'");
+		expect(CONFIG_TOKEN_DEFAULTS).toContain("depth4: 'calc(var(--hz-density) * 1)'");
+	});
+
+	it('R7: a value containing a single quote is double-quoted (typography.fontFamily.sans)', () => {
+		expect(CONFIG_TOKEN_DEFAULTS).toContain(
+			'sans: "system-ui, -apple-system, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif"'
+		);
+	});
+
+	it('R8: uncommenting both constants and resolving them reproduces tokens.css byte for byte', () => {
+		const source =
+			'export default {\n' +
+			`${uncomment(CONFIG_TOKEN_DEFAULTS)}\n` +
+			`${uncomment(CONFIG_DARK_DEFAULTS)}\n` +
+			'};\n';
+		const { cwd } = sandbox();
+		const configPath = join(cwd, 'defaults-round-trip.mjs');
+		writeFileSync(configPath, source);
+		return import(pathToFileURL(configPath).href).then(async (mod) => {
+			const resolved = resolveConfig((mod as { default: unknown }).default as never);
+			const css = generateCss(resolved);
+			const committed = readFileSync(
+				join(dirname(fileURLToPath(import.meta.url)), '../tokens/tokens.css'),
+				'utf8'
+			);
+			expect(css).toBe(committed);
+		});
+	});
+
+	it('R8: every TOP_LEVEL_KEYS entry appears in CONFIG_TEMPLATE — the anti-rot gate for what stays hand-written', () => {
+		for (const key of TOP_LEVEL_KEYS) {
+			expect(CONFIG_TEMPLATE).toContain(`${key}:`);
+		}
+	});
+
+	// The round-trip above proves every default it carries is the RIGHT value,
+	// but it cannot fail on a MISSING one: a default the config does not
+	// re-declare is supplied by the base seed anyway, so the CSS matches either
+	// way. Counting closes that direction, and it is also the only gate that
+	// notices a new NESTED subgroup (typography.letterSpacing, border.style),
+	// which the top-level TOKEN_GROUP_KEYS guard cannot see.
+	it('R8: the defaults carry one line per :root token — 1:1 is enforced, not just asserted', () => {
+		const LADDER_RUNGS = 4; // --hz-density-ladder-depth-1…4, derived, not declared at :root
+		// Every token value is a quoted string; every group opener ends in `: {`.
+		const valueLines = CONFIG_TOKEN_DEFAULTS.split('\n').filter((l) =>
+			/^\s*\/\/\s+[\w'"-]+: ['"]/.test(l)
+		).length;
+		const tokensCss = readFileSync(
+			join(dirname(fileURLToPath(import.meta.url)), '../tokens/tokens.css'),
+			'utf8'
+		);
+		const root = tokensCss.slice(tokensCss.indexOf(':root {'), tokensCss.indexOf('\n}'));
+		const declared = (root.match(/^\t--hz-[a-z0-9-]+:/gm) ?? []).length;
+		expect(valueLines - LADDER_RUNGS).toBe(declared);
 	});
 });

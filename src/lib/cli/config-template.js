@@ -5,11 +5,20 @@
  * them, and it stays valid (checked against resolveConfig). This is the one
  * source of truth for `hyzer init`, the docs Config & CLI page, and the
  * `@hyzer-labs/sv` community add-on.
+ *
+ * The `tokens`/`themes` defaults below (`CONFIG_TOKEN_DEFAULTS` /
+ * `CONFIG_DARK_DEFAULTS`) are generated from `src/lib/tokens/index.ts`; see
+ * `config-defaults.js` and `scripts/gen-config-defaults.ts`, run by
+ * `pnpm gen:tokens`. Edit that pair at the generator. Everything else in this
+ * file is hand-written prose, edited here.
  */
+import { CONFIG_TOKEN_DEFAULTS, CONFIG_DARK_DEFAULTS } from './config-defaults.js';
+
 export const INIT_HEADER = `// hyzer.config.ts: every option, commented out. Valid exactly as written.
 // Uncomment what you need, then run:
 //   hyzer generate                   write the token sheet
 //   hyzer generate --check --strict  validate without writing (for CI)
+// The values shown are the current defaults, so uncommenting a line changes nothing until you edit it.
 // Docs: https://design.hyzer.sh/docs/foundation/config
 
 `;
@@ -17,46 +26,36 @@ export const INIT_HEADER = `// hyzer.config.ts: every option, commented out. Val
 export const CONFIG_TEMPLATE = `import { defineConfig } from '@hyzer-labs/ui/config';
 
 export default defineConfig({
-	// output: 'src/styles/tokens.css', // where \`hyzer generate\` writes the sheet
+	/**
+	 * Where the sheet goes, and what the default theme is called.
+	 */
+	// output: 'src/styles/tokens.css', // path relative to this file; leave it out and the sheet lands here as hyzer-tokens.css
+	// selector: '.theme-ocean', // root the sheet at a class instead of :root, so one region keeps its own palette
+	// defaultThemeName: 'brand', // names the tokens block below, and the [data-theme] value that restores it; default 'default'
 
-	// tokens: {                            // the DEFAULT theme (the :root block)
-	// 	palette: {                          // raw hues (--hz-palette-*); single values or ramps
-	// 		primary: '#0f766e',
-	// 		brandRed: { 500: '#ef4444', 900: '#7f1d1d' }
-	// 	},
-	// 	color: { border: '#94a3b8' },       // structural role tokens (--hz-color-*)
-	// 	intent: { fairway: 'var(--hz-palette-primary)' }, // remap or add intents (--hz-intent-*); an added one is wired into every component that takes one
-	// 	space: { xs: '0.375rem' },          // the fixed margin/gap scale (--hz-space-*)
-	// 	width: { md: '960px' },             // layout max-widths (--hz-width-*)
-	// 	typography: {
-	// 		fontSize: { base: '1.05rem' },    // --hz-font-size-*
-	// 		fontFamily: { sans: "'Inter', system-ui, sans-serif" }, // --hz-font-family-*
-	// 		fontWeight: { semibold: '650' },  // --hz-font-weight-*
-	// 		lineHeight: { base: '1.6' }       // --hz-line-height-*
-	// 	},
-	// 	radius: { md: '0.625rem' },         // corner radii (--hz-radius-*)
-	// 	border: { width: { thin: '1.5px' } }, // border widths (--hz-border-width-*)
-	// 	shadow: { md: '0 10px 15px -3px rgb(0 0 0 / 0.15)' }, // elevation (--hz-shadow-*)
-	// 	zIndex: { modal: '1200' },          // stacking order (--hz-z-*)
-	// 	motion: {
-	// 		duration: { base: '350ms' },      // --hz-duration-*
-	// 		ease: { standard: 'ease-out' }    // --hz-ease-*
-	// 	},
-	// 	density: { unit: '0.5rem' }         // the --hz-density grid unit (near/away cascade)
-	// },
+	/**
+	 * The default theme: every token below, with the value the library ships.
+	 * Uncomment a line and change it to make it yours. Leave the rest alone.
+	 */
+${CONFIG_TOKEN_DEFAULTS}
 
-	// themes: {                            // variants that override the default,
-	//                                      // one block per data-theme="<name>"
-	// 	dark: {                            // [data-theme="dark"]
-	// 		palette: { primary: '#2dd4bf' },  // hue overrides for dark
-	// 		color: { surface: '#020617' },    // role overrides for dark
-	// 		intent: { fairway: '#a3e635' }    // intent remaps for dark only
-	// 	},
-	// 	ocean: { palette: { primary: '#0ea5e9' } } // any name you like
-	// },
+	/**
+	 * Named overrides of the default above, one block per data-theme="<name>".
+	 * Each takes any group \`tokens\` takes, not only color.
+	 *
+	 * \`dark\` is always emitted, so an entry here changes dark rather than
+	 * creating it. Its name is fixed, because the platform defines it. Any
+	 * other name is yours:
+	 *   ocean: { palette: { primary: '#0ea5e9' } }
+	 *   print: { typography: { fontSize: { base: '0.9rem' } }, radius: { md: '0' } }
+	 */
+${CONFIG_DARK_DEFAULTS}
 
 	// icons: ['plus', 'trash-2', 'settings'], // trims the generated icons.ts barrel
 
-	// utilities: true // opt in to hyzer-utilities.css (or { output: 'styles/hyzer-utilities.css' })
+	// utilities: true, // opt in to hyzer-utilities.css (or { output: 'styles/hyzer-utilities.css' })
+
+	// contrast: { level: 'AAA' }, // the WCAG bar the report grades against; default 'AA'
+	// strict: true                // fail the run on a contrast miss, an unknown icon or an out-of-date file; --strict does the same
 });
 `;

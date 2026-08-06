@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Blockquote, Stack, Tabs, CodeBlock } from '$lib';
+	import { Stack, Tabs, CodeBlock } from '$lib';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
 	const recipeTabs = [
@@ -46,8 +46,9 @@
 		'   - the sheet already follows the system preference, so you only need',
 		'     a script to OVERRIDE it, never to obey it;',
 		'   - data-theme works on ANY element, not just <html>. One section can',
-		'     be dark inside a light page, and data-theme="light" puts a section',
-		'     back to the default. See Section themes. */'
+		'     be dark inside a light page, and setting data-theme to your default',
+		'     theme name puts that section back to the default. See Section',
+		'     themes. */'
 	].join('\n');
 
 	const verifyCode = [
@@ -98,18 +99,6 @@
 		<code>@hyzer-labs/ui/motion</code>: script-side helpers built on those tokens, including
 		transitions, a scroll-reveal attachment, and a view-transition wrapper.
 	</p>
-	<Blockquote class="doctrine-note" intent="primary">
-		Dark may override any tier in <code>[data-theme='dark']</code>, including the palette. Your
-		components and the reference theme never read <code>--hz-palette-*</code> directly, so they keep resolving
-		through roles and intents either way.
-	</Blockquote>
-	<Blockquote class="doctrine-note" intent="primary">
-		Dark is not a special case in the config, either: it is one entry in a
-		<code>themes</code> map, and you can add as many more as you like.
-		<a href="/docs/theming/sections">Section themes</a> covers naming them and scoping one to part of
-		a page.
-	</Blockquote>
-
 	<Stack
 		as="section"
 		gap="away"
@@ -131,6 +120,13 @@
 						<CodeBlock code={intentCode} />
 					{:else if item.id === 'dark'}
 						<CodeBlock code={darkCode} />
+						<p class="tab-note">
+							Dark may override any tier here, including the palette. Your components and the
+							reference theme never read <code>--hz-palette-*</code> directly, so they keep
+							resolving through roles and intents either way. What <code>dark</code> lets you
+							change, and what it does not, is on
+							<a href="/docs/theming/sections">Section themes</a>.
+						</p>
 					{:else}
 						<CodeBlock code={shapeCode} />
 					{/if}
@@ -165,6 +161,19 @@
 		<p>
 			The two routes reach the same place. A config resolves to the same two-layer model this page
 			describes, so nothing you learn here is wasted if you adopt one later.
+		</p>
+		<p>
+			A hue you set under <code>tokens</code> changes the default theme only. The library's own dark
+			theme is a complete, contrast-tuned set, and it keeps its value for anything it already
+			covers. To carry a change into dark, set it again under <code>themes.dark</code>, the way the
+			sample on <a href="/docs/foundation/config">Config &amp; CLI</a> does for
+			<code>primary</code>.
+		</p>
+		<p>
+			The plain-CSS route above works differently. A <code>:root</code> rule of your own comes after
+			<code>tokens.css</code>, so it lands in dark at the page level too. That is why the Dark mode
+			recipe writes a <code>[data-theme='dark']</code> rule instead. Generate a sheet and it writes that
+			rule for you.
 		</p>
 	</Stack>
 
@@ -204,8 +213,7 @@
 	/* Margins zeroed below — every <p> and CodeBlock outside .doc-intro is a
 	 * direct child of a .doc-section Stack (gap="away", data-density-shift),
 	 * which owns the space between them. .doc-intro's own p's (doc-description)
-	 * are nested inside that plain div and keep their own margins; doctrine
-	 * notes are Blockquotes now and bring their own reset. */
+	 * are nested inside that plain div and keep their own margins. */
 	p {
 		margin: 0;
 	}

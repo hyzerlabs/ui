@@ -43,7 +43,7 @@ export const agentRules: AgentRule[] = [
 	},
 	{
 		title: 'Generate tokens; never hand-edit them',
-		body: 'The token sheet is build output. Change `hyzer.config.ts` and run `hyzer generate`. A hand edit is overwritten on the next run, and it skips the contrast grading that would have caught an inaccessible pairing.'
+		body: "The token sheet is build output. Change `hyzer.config.ts` and run `hyzer generate`. A hand edit is overwritten on the next run, and it skips the contrast grading that would have caught an inaccessible pairing. Per-component custom properties (a button's accent color, a badge's tint) are settable from the config too, under `tokens.components`. Reach for that before writing a CSS override. Run `hyzer generate --check` in CI to catch a committed sheet that has fallen behind the config before it ships."
 	},
 	{
 		title: 'Resolve through roles and intents, never the palette',
@@ -51,14 +51,15 @@ export const agentRules: AgentRule[] = [
 	},
 	{
 		title: 'Apply named themes with data-theme',
-		body: 'Define each theme under `themes` in the config, then apply one with a `data-theme` attribute or the `theme` attachment. It works on `<html>` or on any element, which is how a single section carries its own theme. Dark is one named theme, not a special mode.',
+		body: "Define each theme under `themes` in the config, then apply one with a `data-theme` attribute or the `theme` attachment. It works on `<html>` or on any element, which is how a single section carries its own theme. Dark needs no entry to exist: the library authors a complete dark theme, and an entry under `dark` changes it rather than creating it. The name `dark` is fixed, because it is the platform's name rather than this library's. The default theme is named `default`, and `defaultThemeName` renames it. A theme is a token override: it can carry type, spacing, radii or motion as well as color, the same groups `tokens` accepts. When a region needs its own palette and must still follow light and dark, generate a second sheet with `selector` and put that class on the region. One `data-theme` value cannot carry both.",
 		code: {
 			lang: 'ts',
 			source: [
 				'export default defineConfig({',
 				'\tthemes: {',
 				"\t\tdark: { palette: { primary: '#60a5fa' } },",
-				"\t\tocean: { palette: { primary: '#0ea5e9' } }",
+				"\t\tocean: { palette: { primary: '#0ea5e9' } },",
+				"\t\tprint: { typography: { fontSize: { base: '0.9rem' } }, radius: { md: '0' } }",
 				'\t}',
 				'});'
 			].join('\n')

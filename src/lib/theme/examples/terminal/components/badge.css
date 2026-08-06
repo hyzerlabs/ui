@@ -22,7 +22,6 @@
 	border-radius: 0;
 	background-color: var(--hz-color-surface, #0b0f0b);
 	color: var(--hz-color-text, #33ff66);
-	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
 	font-size: var(--hz-font-size-xs, 0.75rem);
 	font-weight: var(--hz-font-weight-bold, 700);
 	line-height: var(--hz-line-height-tight, 1.2);

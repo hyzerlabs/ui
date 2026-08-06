@@ -26,6 +26,7 @@ generator runs.
 | `src/lib/tokens/tokens.css`              | `pnpm gen:tokens` (from `src/lib/tokens/index.ts`) |
 | `src/lib/theme/examples/*/**.tokens.css` | `pnpm gen:tokens`                                  |
 | `src/lib/theme/utilities.css`            | `pnpm gen:tokens`                                  |
+| `src/lib/cli/config-defaults.js`         | `pnpm gen:tokens`                                  |
 | `src/lib/icons/generated/`               | `pnpm gen:icons`                                   |
 
 Drift tests compare the committed bytes to the generator's output, so an edit

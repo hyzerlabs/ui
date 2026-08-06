@@ -97,7 +97,7 @@
 			label: 'Terminal: standalone',
 			themeClass: 'hz-theme-terminal',
 			blurb:
-				'No reference theme at all. Every rule below is the example’s own, written against the raw headless hooks. The components ship structure, behavior, and ARIA; nothing here inherits a single visual decision from the library.',
+				'Every rule below is the example’s own, written against the raw headless hooks. The components ship structure, behavior and ARIA. Nothing here inherits a visual decision from the reference theme.',
 			imports: [
 				"import '@hyzer-labs/ui/tokens.css';",
 				"// NO '@hyzer-labs/ui/theme': that is the point.",
@@ -430,12 +430,14 @@
 				{#if item.id === 'why-class'}
 					<p>
 						Every rule in Terminal is rooted at a class: <code>.hz-theme-terminal .hz-button</code>
-						rather than <code>.hz-button</code>. The engine generates its token block with the
-						<code>selector</code>
-						option instead of <code>:root</code>. So the theme travels with the class: put it on
-						<code>&lt;html&gt;</code> to own a document, or on one element to own a panel. That is why
-						this page can render an Ocean panel and a Terminal panel side by side without them fighting.
-						It is also why importing this sheet does not disturb the docs site's own theme.
+						rather than <code>.hz-button</code>. The engine roots its token block at that class
+						instead of <code>:root</code>, through the <code>selector</code> config key (set in
+						Terminal's own <code>hyzer.config</code> tab above) or the <code>--selector</code> flag.
+						<a href="/docs/foundation/config#scope-heading">Scope the sheet to a class</a> covers
+						both. So the theme travels with the class: put it on <code>&lt;html&gt;</code> to own a document,
+						or on one element to own a panel. That is why this page can render an Ocean panel and a Terminal
+						panel side by side without them fighting. It is also why importing this sheet does not disturb
+						the docs site's own theme.
 					</p>
 				{/if}
 			{/snippet}

@@ -72,6 +72,39 @@ export const INTERNAL_HOOKS: Record<string, string> = {
 		'Internal — one focus-ring recipe DRYed across the field controls. Unlabeled at its declaration (field.css), unlike every advertised knob; retune the ring through the focus/primary tokens instead.'
 };
 
+/**
+ * Documented `props` rows that are real CSS knobs but NOT a global config
+ * decision, so they are absent from `src/lib/tokens/hooks.ts`'s
+ * `componentHooks` and would fail that module's own admission test if added.
+ * Held against that list by `hooks.spec.ts`, the same discipline
+ * `INTERNAL_HOOKS` gets against the theme source: every entry here names one
+ * documented hook and the one-line reason it stays per-instance/per-page
+ * rather than system-wide.
+ */
+export const INSTANCE_HOOKS: Record<string, string> = {
+	'--hz-breakout-shift':
+		'Per-instance plumbing — a layout choice (start- vs. centre-aligned) a consumer sets per section, not a system-wide default.',
+	'--hz-parallax-x':
+		'Per-instance plumbing — Parallax writes its geometry per layer from props; a stylesheet declaration would be overridden on every instance.',
+	'--hz-parallax-y': 'Per-instance plumbing — same as --hz-parallax-x.',
+	'--hz-parallax-z': 'Per-instance plumbing — same as --hz-parallax-x.',
+	'--hz-parallax-range': 'Per-instance plumbing — same as --hz-parallax-x.',
+	'--hz-horizontal-scroll-height':
+		'Per-instance plumbing — sized per embed (full-viewport vs. an inset shell), not a system default. Never declared anywhere in the reference theme, only read.',
+	'--hz-horizontal-scroll-panel-width':
+		'Per-instance plumbing — same as --hz-horizontal-scroll-height.',
+	'--hz-horizontal-scroll-gap': 'Per-instance plumbing — same as --hz-horizontal-scroll-height.',
+	'--hz-image-placeholder-blur':
+		'Per-instance plumbing — a per-image tuning knob, not a system-wide default.',
+	'--hz-image-fade-duration': 'Per-instance plumbing — same as --hz-image-placeholder-blur.',
+	'--hz-color-swatch-size':
+		'Per-instance plumbing — declared on input.hz-color itself; the reference theme documents setting it per instance or ancestor, not as a system default.',
+	'--hz-z-tooltip':
+		'Already config-reachable through the zIndex token group (tokens.zIndex.tooltip) — never declared in the reference theme, only read.',
+	'--hz-z-popover':
+		'Already config-reachable through the zIndex token group (tokens.zIndex.popover) — never declared in the reference theme, only read.'
+};
+
 // Not listed here, and deliberately:
 //
 // - `--hz-width-sm/md/lg/xl` are global tokens (tokens/tokens.css), read —

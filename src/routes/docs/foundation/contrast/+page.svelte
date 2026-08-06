@@ -311,6 +311,12 @@
 				</tbody>
 			</table>
 		</div>
+		<p>
+			<code>hyzer generate</code> grades against <strong>AA</strong> by default. Set
+			<code>contrast: {"{ level: 'AAA' }"}</code> in <code>hyzer.config.ts</code> to raise the bar to
+			7:1 for every pairing it checks. The shipped palette is tuned to clear AA, so turning AAA on reports
+			failures against the defaults until you retune your own hues.
+		</p>
 	</Stack>
 
 	<Stack

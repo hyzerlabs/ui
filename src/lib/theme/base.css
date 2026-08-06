@@ -15,6 +15,18 @@
 		color-scheme: dark;
 	}
 
+	/* The generated sheet flips a system-dark visitor's tokens through
+	 * @media (prefers-color-scheme: dark) { :root:not([data-theme]) … } —
+	 * mirror that guard here, or that visitor gets dark tokens with
+	 * color-scheme: light (the white-gutter effect above, in the one setup
+	 * nobody explicitly chose). :not([data-theme]) keeps an explicit choice
+	 * winning: a root that names a theme stops matching. */
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme]) {
+			color-scheme: dark;
+		}
+	}
+
 	body {
 		margin: 0;
 		background-color: var(--hz-color-surface, #ffffff);

@@ -37,12 +37,17 @@
 		{
 			name: '--out <path>',
 			key: 'output',
-			note: 'Where the token sheet is written. The flag wins over the config key. Set neither and it goes to ./hyzer-tokens.css. The utilities sheet follows it, unless utilities.output names a path of its own.'
+			note: 'Where the token sheet is written. The config key is relative to the config file. The flag is relative to where you run the command, and wins when both are set. With neither set, the sheet lands beside your config, or in the directory you ran from if no config is found. The utilities sheet follows it, unless utilities.output names a path of its own.'
 		},
 		{
 			name: '--mode <mode>',
 			key: null,
 			note: '"full" (the default) writes a complete sheet that replaces tokens.css. "overrides" writes a patch sheet to import after it.'
+		},
+		{
+			name: '--selector <selector>',
+			key: 'selector',
+			note: 'Where the generated sheet is rooted. Defaults to :root. A class or an id scopes the whole sheet to that element and everything inside it. The flag wins over the config key.'
 		},
 		{
 			name: '--utilities',
@@ -52,12 +57,12 @@
 		{
 			name: '--check',
 			key: null,
-			note: 'Resolve and report without writing any files: no token sheet, no utilities sheet, no icons.ts. Pairs with --strict for a CI check that touches nothing.'
+			note: 'Resolve and report without writing any files: no token sheet, no utilities sheet, no icons.ts. It also compares the files already on disk to what this run would write. A committed sheet that has fallen behind your config is reported. Pairs with --strict for a CI check that touches nothing.'
 		},
 		{
 			name: '--strict',
-			key: null,
-			note: 'Exit non-zero if any pairing misses WCAG AA or any icon name is unknown. Without it, both are warnings and the run succeeds. All-or-nothing: it cannot be narrowed to one pairing.'
+			key: 'strict',
+			note: 'Exit non-zero if any pairing misses the contrast bar, any icon name is unknown, or a checked file is out of date. A file that was never generated is reported but does not fail the build. Without --strict, all three are warnings and the run succeeds. The strict config key does the same; the flag turns it on even when the config does not.'
 		},
 		{ name: '--help', key: null, note: 'Print the usage summary this table is drawn from.' }
 	];
@@ -67,6 +72,7 @@
 		'',
 		'export default defineConfig({',
 		"\toutput: 'src/styles/tokens.css',",
+		"\tdefaultThemeName: 'brand', // names the tokens block below; default 'default'",
 		'',
 		'\t// Everything under `tokens` is the DEFAULT theme: it lands in the',
 		'\t// :root block, which is what a page gets with no data-theme set.',
@@ -83,14 +89,19 @@
 		"\t\t\tbrand: 'var(--hz-palette-brand-red-500)'",
 		'\t\t},',
 		'\t\ttypography: { fontFamily: { sans: "\'Inter\', system-ui, sans-serif" } },',
-		"\t\tdensity: { unit: '0.5rem' }",
+		"\t\tdensity: { unit: '0.5rem' },",
+		'\t\t// Per-component theme hooks, camelCased, no --hz- prefix. These are',
+		'\t\t// the custom properties each component page lists under Theme hooks.',
+		"\t\tcomponents: { buttonAccent: 'var(--hz-intent-secondary)', badgeTint: '20%' }",
 		'\t},',
 		'',
 		'\t// Named variants that override the default, keyed by data-theme.',
+		'\t// A theme takes any group `tokens` takes, not only color.',
 		'\tthemes: {',
 		'\t\tdark: {',
 		"\t\t\tpalette: { primary: '#2dd4bf', fairway: '#a3e635' }",
-		'\t\t}',
+		'\t\t},',
+		"\t\tprint: { typography: { fontSize: { base: '0.9rem' } }, radius: { md: '0' } }",
 		'\t}',
 		'});'
 	].join('\n');
@@ -115,7 +126,11 @@
 		'# Flags compose: a patch sheet AND the utilities sheet, one run:',
 		'hyzer generate --mode overrides --utilities',
 		'',
-		'# Validate without writing; fail CI on any AA miss (and any unknown icon):',
+		'# A sheet scoped to a class, for a region with its own palette:',
+		'hyzer generate --mode overrides --selector .theme-ocean',
+		'',
+		'# Validate without writing; fail CI on a contrast miss, an unknown icon,',
+		"# or a committed sheet that's fallen behind the config:",
 		'hyzer generate --check --strict'
 	].join('\n');
 
@@ -153,6 +168,28 @@
 		'wrote hyzer-tokens.css (full, 84 tokens)',
 		'wrote hyzer-utilities.css',
 		'contrast: 92 pairings checked, all pass WCAG AA'
+	].join('\n');
+
+	const scopeCommandCode =
+		'hyzer generate --mode overrides --selector .theme-ocean --out src/styles/ocean.css';
+
+	const scopeConfigCode = [
+		"import { defineConfig } from '@hyzer-labs/ui/config';",
+		'',
+		'export default defineConfig({',
+		"\tselector: '.theme-ocean',",
+		"\toutput: 'src/styles/ocean.css',",
+		'\t// ...tokens, themes, etc.',
+		'});'
+	].join('\n');
+
+	const scopeMarkupCode = [
+		'<div class="theme-ocean">',
+		"\t<!-- Ocean's palette applies here, light by default. -->",
+		'\t<section data-theme="dark">',
+		'\t\t<!-- Same palette, dark now: the class and the attribute compose. -->',
+		'\t</section>',
+		'</div>'
 	].join('\n');
 
 	// The full-reference config (every option commented out, valid as written)
@@ -198,6 +235,26 @@
 		</p>
 		<CodeBlock code={configCode} title="hyzer.config.ts" language="ts" />
 		<p>
+			<code>defaultThemeName</code> names the theme above rather than overriding any of its tokens.
+			It has no command-line flag, because a theme's name describes your system, not one run. Set it
+			to <code>'light'</code> to get back the block earlier versions of this library shipped: that
+			is the one-line migration if you are upgrading. Dark has no matching key, because
+			<code>dark</code> is the platform's own name rather than this library's, so it stays fixed.
+			See
+			<a href="/docs/theming/sections#config-heading">Define your themes</a> for the reasoning, and for
+			how to change dark itself.
+		</p>
+		<p>
+			<code>components</code> reaches the per-component custom properties too: the same knobs each
+			component page lists under <strong>Theme hooks</strong>, such as a button's accent color or a
+			badge's tint strength. Set one here and the generator writes the rule on that component's own
+			class, once, for the whole system. You maintain no CSS override of your own.
+		</p>
+		<p>
+			Hooks belong under <code>tokens</code> only. A named theme cannot carry them, so point a hook at
+			a token when you want its value to change per theme.
+		</p>
+		<p>
 			Every run prints a WCAG contrast report over the resolved tokens. It uses the same math and
 			the same pairings that validate this library's own token set. It covers your custom intents
 			too:
@@ -215,12 +272,23 @@
 		</Alert>
 		<p>You choose what it writes. The flags compose:</p>
 		<CodeBlock code={modesCode} language="bash" />
+		<p>
+			"Out of date" means the file on disk is not what your config would produce right now. A
+			library upgrade counts too: new token values or comment text leave a committed sheet stale
+			until you regenerate it.
+		</p>
+		<p>
+			<code>--check</code> expects the sheet to have been written with the same
+			<code>--mode</code> you are checking with, so a mode mismatch is reported by name instead of as
+			a wall of differences. A file you never committed is reported as not generated. It does not fail
+			the build, so generating the sheet at build time instead of committing it stays a supported workflow.
+		</p>
 		<Alert intent="info" title="TypeScript configs need Node 22.18">
 			{#snippet icon()}<IconInfo />{/snippet}
 			They load through Node's native type stripping. On older runtimes, name the file
 			<code>hyzer.config.mjs</code> instead. You can also import the engine straight from
 			<code>@hyzer-labs/ui/config</code> (<code>resolveConfig</code>, <code>generateCss</code>,
-			<code>contrastReport</code>) for build scripts of your own.
+			<code>contrastReport</code>) if you'd rather drive it from your own script than use the CLI.
 		</Alert>
 	</Stack>
 
@@ -233,10 +301,14 @@
 	>
 		<h2 id="flags-heading">Command-line flags</h2>
 		<p>
-			The flags and the config file cover different ground, on purpose. Three flags have no config
-			equivalent at all, because they describe a single run rather than your design system. Most of
-			the config (<code>tokens</code>, <code>themes</code>, <code>icons</code>) has no flag, because
-			none of it belongs on a command line.
+			The flags and the config file cover different ground, on purpose. A flag that describes a
+			single run has no config key: <code>--config</code>, <code>--mode</code>,
+			<code>--check</code> and <code>--help</code>. Everything that describes your design system
+			lives in the config instead, such as <code>tokens</code>, <code>themes</code>,
+			<code>defaultThemeName</code>, <code>icons</code> and <code>contrast</code>. Four flags have
+			both (<code>--out</code>,
+			<code>--utilities</code>, <code>--strict</code> and <code>--selector</code>), so one run can
+			override the file, with the flag winning.
 		</p>
 		<div class="token-table-wrapper">
 			<table class="token-table">
@@ -322,17 +394,99 @@
 		gap="away"
 		data-density-shift
 		class="doc-section"
+		aria-labelledby="scope-heading"
+	>
+		<h2 id="scope-heading">Scope the sheet to a class</h2>
+		<p>
+			By default the generated sheet roots at <code>:root</code>, and the whole page picks it up.
+			Sometimes one region needs its own palette and still has to follow the page between light and
+			dark. A <code>themes</code> entry cannot do that, because one <code>data-theme</code>
+			attribute holds one name at a time. Root the sheet at a class instead, and put that class on the
+			region:
+		</p>
+		<CodeBlock code={scopeCommandCode} language="bash" />
+		<p>
+			The config key does the same, so a plain <code>hyzer generate</code> already produces the scoped
+			sheet:
+		</p>
+		<CodeBlock code={scopeConfigCode} title="hyzer.config.ts" language="ts" />
+		<p>Set both and the flag wins.</p>
+		<p>
+			Put the class on a wrapper, and <code>data-theme</code> keeps working inside it, on its own element:
+		</p>
+		<CodeBlock code={scopeMarkupCode} language="html" />
+		<p>
+			A scoped sheet re-declares more than the tokens you touched. The two-layer color model reads
+			through <code>var()</code>, and a chain like
+			<code>--hz-intent-primary: var(--hz-palette-primary)</code>
+			has already resolved once it reaches <code>:root</code>. Declared only there, it would keep
+			the base color under your scope no matter what you set. The generator re-declares every token
+			that depends on one you changed, under the class, so the whole chain repaints there instead.
+		</p>
+		<p>
+			<code>selector</code> accepts <code>:root</code>, one class (<code>.theme-ocean</code>) or one
+			id (<code>#app</code>): one simple selector, with no combinators, commas or attribute
+			selectors. Anything else is a config error that names <code>selector</code> and the accepted forms.
+		</p>
+		<p>
+			The <a href="/docs/foundation/utilities">utilities sheet</a> is never scoped, even on a scoped
+			run. A utility class reads its value through <code>var()</code>, so it already paints from the
+			region's tokens when it's used inside one. Scoping the class itself would make it stop working
+			everywhere else on the page.
+		</p>
+		<p>
+			Import order does not change. An overrides sheet still imports after
+			<code>tokens.css</code>, scoped or not.
+		</p>
+		<p>
+			<code>--check</code> reads the sheet's own record of what it was scoped to, so a run that
+			disagrees names both sides instead of reporting the whole file as changed. Set
+			<code>selector</code>
+			in the config instead of passing the flag. A check run then reads the same key, so the two can never
+			disagree.
+		</p>
+		<p>
+			A full-mode scoped sheet has no automatic <code>prefers-color-scheme</code> block, because
+			that block is only wired at <code>:root</code>. A scoped region follows light and dark through
+			<code>data-theme</code> instead, on the region itself or on <code>&lt;html&gt;</code>.
+		</p>
+		<p>
+			You can do this more than once. Point <code>--config</code> at a second file with its own
+			<code>selector</code> and <code>output</code>, and you get a second sheet for a second region.
+			A build script that runs <code>hyzer generate</code> once per config covers as many regions as you
+			need.
+		</p>
+		<Alert intent="info" title="Most projects never need this">
+			{#snippet icon()}<IconInfo />{/snippet}
+			A named theme is simpler and covers almost every case.
+			<a href="/docs/theming/sections#class-heading">Section themes</a> explains when this is the right
+			tool instead.
+		</Alert>
+	</Stack>
+
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
 		aria-labelledby="full-reference-heading"
 	>
 		<h2 id="full-reference-heading">Full config reference</h2>
 		<p>
 			Every group <code>hyzer.config.ts</code> accepts, in one file and commented out. Uncomment
-			what you need and delete the rest. Each line's comment names the tokens it drives.
+			what you need and delete the rest. Each line's comment names the tokens it drives. The values
+			shown are the current defaults, so uncommenting a line changes nothing until you edit it.
 			<code>npx hyzer init</code> writes this file into your project to start from. On SvelteKit,
 			the
 			<code>npx sv add @hyzer-labs</code> add-on offers it during setup.
 		</p>
-		<CodeBlock code={fullReferenceConfigCode} title="hyzer.config.ts" language="ts" />
+		<CodeBlock
+			code={fullReferenceConfigCode}
+			title="hyzer.config.ts"
+			language="ts"
+			collapsible
+			collapsedLines={19}
+		/>
 	</Stack>
 
 	<WhereNext items={nextSteps} />

@@ -28,7 +28,7 @@
 	border-radius: 0;
 	background-color: transparent;
 	color: var(--hz-button-accent);
-	font-family: var(--hz-font-family-mono, ui-monospace, monospace);
+	font-family: inherit;
 	font-weight: var(--hz-font-weight-medium, 500);
 	line-height: var(--hz-line-height-tight, 1.2);
 	text-transform: uppercase;
