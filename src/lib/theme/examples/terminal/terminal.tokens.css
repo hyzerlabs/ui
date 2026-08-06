@@ -29,11 +29,11 @@
  * @hyzer-labs/ui token overrides
  * Scope: .hz-theme-terminal
  *
- * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).
- * Config-touched tokens plus every token that derives from them: a
- * scoped sheet must re-declare the derived Layer-2 chain, because a
- * var() indirection declared at :root already resolved there and
- * inherits down as a fixed value.
+ * GENERATED FILE - do not edit by hand (hyzer generate --mode overrides).
+ * Config-touched tokens, plus every token that derives from them. A
+ * scoped sheet must re-declare the derived Layer-2 chain: a var()
+ * indirection declared at :root already resolved there, and inherits
+ * down as a fixed value.
  * Import this sheet AFTER @hyzer-labs/ui/tokens.css so the overrides
  * win by source order.
  */
@@ -81,11 +81,12 @@
 
 /* =====================================================================
  * Custom intent wiring
- * One rule per intent your config adds beyond the seven the library ships —
- * switches the same private --_c hook every reference-theme component reads,
- * so a registered intent paints everywhere with no CSS of your own to write.
- * No literal fallback: the token this points at is declared by this same
- * sheet, so a name that resolves nowhere fails loudly rather than painting a
+ * One rule per intent your config adds beyond the seven the library ships.
+ * Each rule switches the same private --_c hook every reference-theme
+ * component reads, so a registered intent paints everywhere and you write
+ * no CSS of your own.
+ * No literal fallback: this sheet declares the token each rule points at,
+ * so a name that resolves nowhere fails loudly rather than painting a
  * plausible wrong color.
  * ===================================================================== */
 

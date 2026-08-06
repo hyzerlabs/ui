@@ -8,11 +8,14 @@ import {
 	generateCss,
 	generateUtilitiesCss,
 	contrastReport,
+	resolveIcons,
 	themeVars,
 	HyzerConfigError
 } from './index.js';
 import { toKebab } from './schema.js';
 import { palette, color, intent, space, typography, density, radius } from '../tokens/index.js';
+import { CONFIG_TEMPLATE, INIT_HEADER } from '../cli/config-template.js';
+import { renderConfigDefaults } from '../../../scripts/gen-config-defaults.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -24,6 +27,67 @@ describe('R6 — committed tokens.css is generated output', () => {
 	it('generateCss(resolveConfig()) equals src/lib/tokens/tokens.css exactly', () => {
 		const committed = readFileSync(join(here, '../tokens/tokens.css'), 'utf8');
 		expect(generateCss(resolveConfig())).toBe(committed);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Generated output is ASCII-only.
+//
+// Everything below ships into a consumer's repo, where their linters and
+// their build run over it, not ours. Em-dashes, ">=" written as U+2265 and
+// "..." written as U+2026 had all leaked into the sheets through banner
+// prose. This is a test rather than a one-time cleanup because two separate
+// copy passes over this repo reasoned that em-dashes in generated banners
+// were acceptable house convention; nothing but a failing gate keeps them
+// out for good.
+// ---------------------------------------------------------------------------
+
+describe('generated artifacts are ASCII-only', () => {
+	const artifacts = [
+		'../tokens/tokens.css',
+		'../theme/utilities.css',
+		'../theme/examples/ocean.css',
+		'../theme/examples/terminal/terminal.tokens.css',
+		'../cli/config-defaults.js'
+	];
+
+	it.each(artifacts)('%s carries no character above U+007F', (relative) => {
+		const text = readFileSync(join(here, relative), 'utf8');
+		const offenders = [...text]
+			.filter((ch) => ch.codePointAt(0)! > 127)
+			.map((ch) => `${JSON.stringify(ch)} U+${ch.codePointAt(0)!.toString(16).toUpperCase()}`);
+		expect([...new Set(offenders)]).toEqual([]);
+	});
+
+	// The generators, not just today's committed bytes: a new banner string
+	// would otherwise pass the file check until someone regenerated. One entry
+	// point per emission path, because they carry different banners — the
+	// overrides header, the scoped header and the custom-intent section never
+	// appear in a full :root sheet, so checking one output proves very little.
+	const scoped = resolveConfig({
+		selector: '.theme-ocean',
+		tokens: { palette: { primary: '#0ea5e9' }, intent: { fairway: '#3f6212' } },
+		themes: { ocean: { palette: { primary: '#0ea5e9' } } }
+	});
+	const emissions: [string, () => string][] = [
+		['generateCss, full', () => generateCss(resolveConfig())],
+		['generateCss, full + themes', () => generateCss(scoped, { selector: ':root' })],
+		['generateCss, overrides', () => generateCss(scoped, { mode: 'overrides', selector: ':root' })],
+		['generateCss, scoped full', () => generateCss(scoped)],
+		['generateCss, scoped overrides', () => generateCss(scoped, { mode: 'overrides' })],
+		['generateUtilitiesCss', () => generateUtilitiesCss(resolveConfig())],
+		['renderConfigDefaults', () => renderConfigDefaults()],
+		['CONFIG_TEMPLATE', () => INIT_HEADER + CONFIG_TEMPLATE],
+		// icons.ts is the third thing `hyzer generate` writes into a consumer's
+		// repo, and the one the first pass at this missed entirely.
+		['resolveIcons module', () => resolveIcons(resolveConfig({ icons: ['plus'] }))!.module]
+	];
+
+	it.each(emissions)('%s emits ASCII only', (_label, emit) => {
+		const offenders = [...emit()]
+			.filter((ch) => ch.codePointAt(0)! > 127)
+			.map((ch) => `${JSON.stringify(ch)} U+${ch.codePointAt(0)!.toString(16).toUpperCase()}`);
+		expect([...new Set(offenders)]).toEqual([]);
 	});
 });
 
@@ -1174,7 +1238,7 @@ describe('generateUtilitiesCss', () => {
 
 	it('the header carries the generated-file banner, the utility definition, and the anti-goal paragraph', () => {
 		const css = generateUtilitiesCss(resolveConfig());
-		expect(css).toContain('GENERATED FILE — do not edit by hand.');
+		expect(css).toContain('GENERATED FILE - do not edit by hand.');
 		expect(css).toContain('token-derived, single-property');
 		expect(css).toContain('not an alternative layout system');
 		expect(css).toContain('padding is owned by components');

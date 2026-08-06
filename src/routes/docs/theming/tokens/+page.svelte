@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Blockquote, Stack, Tabs, CodeBlock } from '$lib';
+	import { Stack, Tabs, CodeBlock } from '$lib';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
 	const recipeTabs = [
@@ -99,20 +99,6 @@
 		<code>@hyzer-labs/ui/motion</code>: script-side helpers built on those tokens, including
 		transitions, a scroll-reveal attachment, and a view-transition wrapper.
 	</p>
-	<Blockquote class="doctrine-note" intent="primary">
-		Dark may override any tier in <code>[data-theme='dark']</code>, including the palette. Your
-		components and the reference theme never read <code>--hz-palette-*</code> directly, so they keep
-		resolving through roles and intents either way. <code>defaultThemeName</code> renames the default
-		theme's block; dark keeps its name, which is the platform's rather than this library's.
-	</Blockquote>
-	<Blockquote class="doctrine-note" intent="primary">
-		Dark is not a special case in the config, either: it is one entry in a
-		<code>themes</code> map, and you can add as many more as you like. A theme entry may carry any
-		token group (type, spacing, radii, motion), not only color.
-		<a href="/docs/theming/sections">Section themes</a> covers naming them and scoping one to part of
-		a page.
-	</Blockquote>
-
 	<Stack
 		as="section"
 		gap="away"
@@ -134,6 +120,13 @@
 						<CodeBlock code={intentCode} />
 					{:else if item.id === 'dark'}
 						<CodeBlock code={darkCode} />
+						<p class="tab-note">
+							Dark may override any tier here, including the palette. Your components and the
+							reference theme never read <code>--hz-palette-*</code> directly, so they keep
+							resolving through roles and intents either way. What <code>dark</code> lets you
+							change, and what it does not, is on
+							<a href="/docs/theming/sections">Section themes</a>.
+						</p>
 					{:else}
 						<CodeBlock code={shapeCode} />
 					{/if}
@@ -220,8 +213,7 @@
 	/* Margins zeroed below — every <p> and CodeBlock outside .doc-intro is a
 	 * direct child of a .doc-section Stack (gap="away", data-density-shift),
 	 * which owns the space between them. .doc-intro's own p's (doc-description)
-	 * are nested inside that plain div and keep their own margins; doctrine
-	 * notes are Blockquotes now and bring their own reset. */
+	 * are nested inside that plain div and keep their own margins. */
 	p {
 		margin: 0;
 	}

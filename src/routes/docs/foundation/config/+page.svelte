@@ -450,6 +450,12 @@
 			that block is only wired at <code>:root</code>. A scoped region follows light and dark through
 			<code>data-theme</code> instead, on the region itself or on <code>&lt;html&gt;</code>.
 		</p>
+		<p>
+			You can do this more than once. Point <code>--config</code> at a second file with its own
+			<code>selector</code> and <code>output</code>, and you get a second sheet for a second region.
+			A build script that runs <code>hyzer generate</code> once per config covers as many regions as you
+			need.
+		</p>
 		<Alert intent="info" title="Most projects never need this">
 			{#snippet icon()}<IconInfo />{/snippet}
 			A named theme is simpler and covers almost every case.

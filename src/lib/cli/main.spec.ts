@@ -859,8 +859,21 @@ describe('specs/69 — src/lib/cli/config-defaults.js', () => {
 		}
 	});
 
-	it('R7: no components group — the 41 component hooks have no defaults to show', () => {
-		expect(CONFIG_TOKEN_DEFAULTS).not.toContain('components:');
+	// The hooks have no defaults, so there is nothing to list. The key is still
+	// shown, as itself rather than as prose, but doubly commented: uncommenting
+	// the file must not put two hooks into the sheet, or the round-trip against
+	// tokens.css below stops holding.
+	it('R7: no live components group — the 41 component hooks have no defaults to show', () => {
+		const live = CONFIG_TOKEN_DEFAULTS.split('\n').filter(
+			(l) => /components:/.test(l) && !/^\t\/\/\s*\/\//.test(l)
+		);
+		expect(live).toEqual([]);
+	});
+
+	it('R7: the components key is shown as an illustration, not described in prose', () => {
+		expect(CONFIG_TOKEN_DEFAULTS).toContain(
+			"// components: { buttonAccent: 'var(--hz-intent-secondary)'"
+		);
 	});
 
 	it('R7: no theme but dark in the generated defaults — ocean/print stay hand-written illustrations', () => {

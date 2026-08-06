@@ -10,9 +10,9 @@
  *
  * @hyzer-labs/ui token overrides
  *
- * GENERATED FILE — do not edit by hand (hyzer generate --mode overrides).
- * Only config-touched tokens are emitted; import this sheet AFTER
- * @hyzer-labs/ui/tokens.css so the overrides win by source order.
+ * GENERATED FILE - do not edit by hand (hyzer generate --mode overrides).
+ * This sheet carries only the tokens your config touched. Import it
+ * AFTER @hyzer-labs/ui/tokens.css so the overrides win by source order.
  */
 :root,
 [data-theme='default'] {

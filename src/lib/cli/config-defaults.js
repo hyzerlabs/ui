@@ -1,5 +1,5 @@
 /**
- * GENERATED FILE — do not edit by hand. Run `pnpm gen:tokens`
+ * GENERATED FILE - do not edit by hand. Run `pnpm gen:tokens`
  * (scripts/gen-config-defaults.ts renders this from src/lib/tokens/index.ts).
  *
  * The two commented, defaults-only blocks config-template.js splices into
@@ -7,7 +7,7 @@
  * its dark block declare, one group per line comment, no per-token prose.
  */
 
-export const CONFIG_TOKEN_DEFAULTS = `	// tokens: {                            // the DEFAULT theme (the :root block)
+export const CONFIG_TOKEN_DEFAULTS = `	// tokens: {
 	// 	palette: {  // raw hues (--hz-palette-*); single values or ramps
 	// 		primary: '#2563eb',
 	// 		secondary: '#7c3aed',
@@ -71,9 +71,9 @@ export const CONFIG_TOKEN_DEFAULTS = `	// tokens: {                            /
 	// 		lg: '4rem',
 	// 		xl: '8rem'
 	// 	},
-	// 	density: {  // the --hz-density grid unit, and each ladder rung's own var() fallback
+	// 	density: {  // the --hz-density grid unit, plus a fallback for each ladder rung
 	// 		unit: '0.4rem',
-	// 		ladder: {  // --hz-density-ladder-depth-1..4, the fallback each rung uses; a rung you declare in CSS still wins
+	// 		ladder: {  // --hz-density-ladder-depth-1..4; these are fallbacks, so a rung you declare in CSS wins
 	// 			depth1: 'calc(var(--hz-density) * 10)',
 	// 			depth2: 'calc(var(--hz-density) * 5)',
 	// 			depth3: 'calc(var(--hz-density) * 2)',
@@ -127,14 +127,15 @@ export const CONFIG_TOKEN_DEFAULTS = `	// tokens: {                            /
 	// 			in: 'cubic-bezier(0.4, 0, 1, 1)',
 	// 			out: 'cubic-bezier(0, 0, 0.2, 1)'
 	// 		}
-	// 	}
+	// 	},
+	// 	// components: { buttonAccent: 'var(--hz-intent-secondary)', badgeTint: '20%' },
+	// 	// Per-component hooks, camelCased, with no --hz- prefix. They have
+	// 	// no defaults, so none are listed above. Full list:
+	// 	// https://design.hyzer.sh/docs/theming/components
 	// },`;
 
-export const CONFIG_DARK_DEFAULTS = `	// themes: {                            // named overrides of the default above,
-	//                                      // one block per data-theme="<name>".
-	//                                      // Each takes any group \`tokens\` takes,
-	//                                      // not only color.
-	// 	dark: {                            // [data-theme="dark"]: always emitted, so an entry here changes dark rather than creating it. Its name is fixed, since the platform defines it
+export const CONFIG_DARK_DEFAULTS = `	// themes: {
+	// 	dark: {  // [data-theme="dark"]
 	// 		palette: {  // --hz-palette-*
 	// 			primary: '#60a5fa',
 	// 			secondary: '#a78bfa',

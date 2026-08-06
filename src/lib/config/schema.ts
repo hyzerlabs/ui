@@ -387,7 +387,7 @@ function assertTokenGroups(
 	if (isTheme && tokens?.density?.ladder !== undefined) {
 		throw new HyzerConfigError(
 			`${where}.density.ladder is not allowed in a theme. Set it under config.tokens.density.ladder ` +
-				'— the ladder is body-anchored element rules, and there is no element in a theme block to ' +
+				'- the ladder is body-anchored element rules, and there is no element in a theme block to ' +
 				'put a rung on.'
 		);
 	}

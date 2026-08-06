@@ -73,7 +73,7 @@ describe('resolveIcons — trimmed barrel resolution (specs/36 R6)', () => {
 
 	it('renders an icons.ts module with a deep re-export per included icon', () => {
 		const result = resolveIcons(resolveConfig({ icons: ['settings'] }))!;
-		expect(result.module).toContain('GENERATED FILE — do not edit by hand');
+		expect(result.module).toContain('GENERATED FILE - do not edit by hand');
 		expect(result.module).toContain(
 			`export { default as IconSettings } from '@hyzer-labs/ui/icons/settings';`
 		);

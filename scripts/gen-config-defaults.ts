@@ -64,7 +64,7 @@ function stringEntries(obj: Record<string, unknown>): Record<string, string> {
 function quoteValue(value: string, where: string): string {
 	if (value.includes('`') || value.includes('${')) {
 		throw new Error(
-			`gen-config-defaults: ${where} ("${value}") contains a backtick or "\${" — cannot round-trip ` +
+			`gen-config-defaults: ${where} ("${value}") contains a backtick or "\${" - cannot round-trip ` +
 				'through a template literal. Name it in the commit message rather than excluding it silently.'
 		);
 	}
@@ -72,7 +72,7 @@ function quoteValue(value: string, where: string): string {
 	const double = value.includes('"');
 	if (single && double) {
 		throw new Error(
-			`gen-config-defaults: ${where} ("${value}") contains both quote characters — cannot render.`
+			`gen-config-defaults: ${where} ("${value}") contains both quote characters - cannot render.`
 		);
 	}
 	return single ? `"${value}"` : `'${value}'`;
@@ -142,14 +142,14 @@ for (const key of TOKEN_GROUP_KEYS) {
 	if (key === 'components') continue;
 	if (!EMITTED_GROUPS.has(key)) {
 		throw new Error(
-			`gen-config-defaults: TOKEN_GROUP_KEYS has "${key}" with no emission here — update the renderer.`
+			`gen-config-defaults: TOKEN_GROUP_KEYS has "${key}" with no emission here - update the renderer.`
 		);
 	}
 }
 
 function renderTokenDefaults(): string {
 	const lines: string[] = [
-		line(0, 'tokens: {                            // the DEFAULT theme (the :root block)'),
+		line(0, 'tokens: {'),
 		...group(
 			1,
 			'palette',
@@ -195,7 +195,7 @@ function renderTokenDefaults(): string {
 		),
 		line(1, '},'),
 		...group(1, 'space', space, 'the fixed margin/gap scale (--hz-space-*)', 'tokens.space', true),
-		line(1, "density: {  // the --hz-density grid unit, and each ladder rung's own var() fallback"),
+		line(1, 'density: {  // the --hz-density grid unit, plus a fallback for each ladder rung'),
 		line(2, `unit: ${quoteValue(density.unit, 'tokens.density.unit')},`),
 		...group(
 			2,
@@ -206,7 +206,7 @@ function renderTokenDefaults(): string {
 					`calc(var(--hz-density) * ${level.near})`
 				])
 			),
-			'--hz-density-ladder-depth-1..4, the fallback each rung uses; a rung you declare in CSS still wins',
+			'--hz-density-ladder-depth-1..4; these are fallbacks, so a rung you declare in CSS wins',
 			'tokens.density.ladder',
 			false
 		),
@@ -223,7 +223,19 @@ function renderTokenDefaults(): string {
 		line(1, 'motion: {  // duration and easing (--hz-duration-*, --hz-ease-*)'),
 		...group(2, 'duration', motion.duration, '--hz-duration-*', 'tokens.motion.duration', true),
 		...group(2, 'ease', motion.ease, '--hz-ease-*', 'tokens.motion.ease', false),
-		line(1, '}'),
+		// Trailing comma, even though `motion` is the last real group: the
+		// `components` illustration below is a line a reader is invited to
+		// enable, and without this it would be a syntax error the moment they
+		// did. Trailing commas are legal, and the round-trip is unaffected.
+		line(1, '},'),
+		// `components` is shown as the key itself rather than described in
+		// prose, but it stays doubly commented: the hooks have no defaults, so
+		// a live line here would put two of them in the sheet and break the
+		// round-trip that proves this file matches tokens.css.
+		line(1, "// components: { buttonAccent: 'var(--hz-intent-secondary)', badgeTint: '20%' },"),
+		line(1, '// Per-component hooks, camelCased, with no --hz- prefix. They have'),
+		line(1, '// no defaults, so none are listed above. Full list:'),
+		line(1, '// https://design.hyzer.sh/docs/theming/components'),
 		line(0, '},')
 	];
 	return lines.join('\n');
@@ -237,18 +249,11 @@ function renderTokenDefaults(): string {
 
 function renderDarkDefaults(): string {
 	const lines: string[] = [
-		line(0, 'themes: {                            // named overrides of the default above,'),
-		line(0, '                                     // one block per data-theme="<name>".'),
-		// Escaped backtick: this text lands inside another template literal
-		// (config-defaults.js's own CONFIG_DARK_DEFAULTS), where an
-		// unescaped backtick would close it early — config-template.js's own
-		// prose escapes the same backtick the same way.
-		line(0, '                                     // Each takes any group \\`tokens\\` takes,'),
-		line(0, '                                     // not only color.'),
-		line(
-			1,
-			'dark: {                            // [data-theme="dark"]: always emitted, so an entry here changes dark rather than creating it. Its name is fixed, since the platform defines it'
-		),
+		// The prose that used to run down this opener now sits in a block
+		// comment above the constant, in config-template.js, so the generated
+		// lines carry structure and the explanation has room to breathe.
+		line(0, 'themes: {'),
+		line(1, 'dark: {  // [data-theme="dark"]'),
 		...group(2, 'palette', palette.theme.dark, '--hz-palette-*', 'themes.dark.palette', true),
 		...group(2, 'color', color.theme.dark, '--hz-color-*', 'themes.dark.color', false),
 		line(1, '},'),
@@ -267,7 +272,7 @@ export function renderConfigDefaults(): string {
 	const tokenDefaults = renderTokenDefaults();
 	const darkDefaults = renderDarkDefaults();
 	return `/**
- * GENERATED FILE — do not edit by hand. Run \`pnpm gen:tokens\`
+ * GENERATED FILE - do not edit by hand. Run \`pnpm gen:tokens\`
  * (scripts/gen-config-defaults.ts renders this from src/lib/tokens/index.ts).
  *
  * The two commented, defaults-only blocks config-template.js splices into

@@ -26,25 +26,30 @@ export const INIT_HEADER = `// hyzer.config.ts: every option, commented out. Val
 export const CONFIG_TEMPLATE = `import { defineConfig } from '@hyzer-labs/ui/config';
 
 export default defineConfig({
-	// output: 'src/styles/tokens.css', // path relative to this file; unset, the sheet lands here as hyzer-tokens.css
+	/**
+	 * Where the sheet goes, and what the default theme is called.
+	 */
+	// output: 'src/styles/tokens.css', // path relative to this file; leave it out and the sheet lands here as hyzer-tokens.css
 	// selector: '.theme-ocean', // root the sheet at a class instead of :root, so one region keeps its own palette
 	// defaultThemeName: 'brand', // names the tokens block below, and the [data-theme] value that restores it; default 'default'
 
+	/**
+	 * The default theme: every token below, with the value the library ships.
+	 * Uncomment a line and change it to make it yours. Leave the rest alone.
+	 */
 ${CONFIG_TOKEN_DEFAULTS}
 
-	// // Per-component theme hooks have no defaults, so they are not listed
-	// // above. Set them under tokens.components, camelCased, no --hz- prefix:
-	// // tokens: { components: { buttonAccent: 'var(--hz-intent-secondary)', badgeTint: '20%' } }
-	// // Full list: https://design.hyzer.sh/docs/theming/components
-
+	/**
+	 * Named overrides of the default above, one block per data-theme="<name>".
+	 * Each takes any group \`tokens\` takes, not only color.
+	 *
+	 * \`dark\` is always emitted, so an entry here changes dark rather than
+	 * creating it. Its name is fixed, because the platform defines it. Any
+	 * other name is yours:
+	 *   ocean: { palette: { primary: '#0ea5e9' } }
+	 *   print: { typography: { fontSize: { base: '0.9rem' } }, radius: { md: '0' } }
+	 */
 ${CONFIG_DARK_DEFAULTS}
-
-	// // Any other name is a theme too, and it takes any group \`tokens\` takes,
-	// // not only color:
-	// // themes: {
-	// // 	ocean: { palette: { primary: '#0ea5e9' } }, // any name you like
-	// // 	print: { typography: { fontSize: { base: '0.9rem' } }, radius: { md: '0' } } // type and radii too
-	// // }
 
 	// icons: ['plus', 'trash-2', 'settings'], // trims the generated icons.ts barrel
 
