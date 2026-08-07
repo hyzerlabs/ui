@@ -235,6 +235,10 @@
 	}
 
 	function onpointerdown(e: PointerEvent) {
+		// Before every guard below: a touch pan is the case the drag path bows out
+		// of (it returns two lines down), and it still has to end a glide's wrap
+		// hold — the user is scrolling the rail themselves now.
+		endRailGlide();
 		if (!draggable || count <= 1) return;
 		// R6: rail's mouse drag never engages for touch/pen — the browser
 		// already pans and flings them, and capturing them would replace good
@@ -286,8 +290,10 @@
 		if (samples.length > 5) samples.shift();
 		if (layout === 'rail') {
 			// R6: 1:1 by the raw pointer delta, no rubber-band — the container's
-			// own overscroll handles the ends.
-			if (viewportEl) viewportEl.scrollLeft = railStartScrollLeft - dx;
+			// own overscroll handles the ends. scrollTo, not a scrollLeft
+			// assignment: grabbing the rail mid-glide has to cancel the chevron's
+			// smooth scroll, and only an explicit instant scroll does that.
+			viewportEl?.scrollTo({ left: railStartScrollLeft - dx, behavior: 'instant' });
 		} else {
 			dragOffset = resist(dx);
 		}
@@ -515,6 +521,14 @@
 	// clone of items[0], "leadingCloneOfItem0"), measured live each frame.
 	let leadCloneEls = $state<(HTMLDivElement | null)[]>([]);
 
+	// Whether an animated programmatic rail scroll is still running (R5), the
+	// position it was last seen at, and how many frames it has held that
+	// position. The loop wrap (R7) can't be applied while a glide is in flight —
+	// see railFrame().
+	let railGliding = false;
+	let railGlideLastPos = -1;
+	let railGlideStill = 0;
+
 	// R11: clones are client-only. False through SSR and the pre-hydration
 	// frame — the plain rail (real items only) renders and scrolls correctly
 	// with CSS alone before this ever flips.
@@ -600,11 +614,15 @@
 		// or the very next move's `railStartScrollLeft - dx` assignment fights
 		// this correction by a full period and can clamp the drag at the
 		// scroll range's edge for the rest of the gesture.
+		// scrollTo, not a scrollLeft assignment: assigning mid-animation doesn't
+		// cancel a running smooth scroll, so the browser keeps animating to the
+		// destination it committed to and overwrites the teleport on the next
+		// frame. An instant scrollTo aborts the animation first.
 		if (pos < realStart.offsetLeft - TOL) {
-			viewportEl.scrollLeft = pos + period;
+			viewportEl.scrollTo({ left: pos + period, behavior: 'instant' });
 			railStartScrollLeft += period;
 		} else if (pos >= realStart.offsetLeft + period - TOL) {
-			viewportEl.scrollLeft = pos - period;
+			viewportEl.scrollTo({ left: pos - period, behavior: 'instant' });
 			railStartScrollLeft -= period;
 		}
 	}
@@ -619,21 +637,61 @@
 	function onRailScroll() {
 		railInteracted = true;
 		if (railRaf) return;
-		railRaf = requestAnimationFrame(() => {
-			railRaf = 0;
-			if (!viewportEl) return;
+		railRaf = requestAnimationFrame(railFrame);
+	}
+
+	function railFrame() {
+		railRaf = 0;
+		if (!viewportEl) return;
+		const pos = viewportEl.scrollLeft;
+		// A browser-run smooth scroll animates toward a destination it committed
+		// to when it started: repositioning mid-flight is silently overwritten on
+		// the next frame, so a wrap applied then is lost and the rail stalls at
+		// the boundary. While a glide is in flight the wrap waits for it to stop;
+		// the clone buffer is a full period wide on each side, so the glide always
+		// has an identical-looking copy to land in first. The hold covers the glide
+		// alone: any user input on the rail ends it (endRailGlide), so a wheel or a
+		// drag that interrupts one wraps on the spot the way it always has, rather
+		// than riding a stale hold out of the buffer into the scroll edge.
+		//
+		// Two still frames, not one: a composited scroll commits its offset to the
+		// main thread asynchronously, so a janked frame — or the sub-pixel tail of
+		// the ease-out — can read the same position twice mid-animation.
+		if (pos === railGlideLastPos) railGlideStill++;
+		else railGlideStill = 0;
+		railGlideLastPos = pos;
+		if (railGliding && railGlideStill < 2) {
+			// Re-arm off the frame, not the scroll event: the glide's final frame
+			// is also its last scroll event, so nothing else would come back to
+			// apply the wrap once the rail settles.
+			railRaf = requestAnimationFrame(railFrame);
+		} else {
+			railGliding = false;
 			// Teleport correction happens before the index recompute, in the same
 			// frame, so a wrap never shows through as a spurious index change.
 			if (showRailClones) correctTeleport();
-			measureRail();
-			const nearest = nearestRailIndex();
-			if (nearest !== index) go(nearest);
-		});
+		}
+		measureRail();
+		const nearest = nearestRailIndex();
+		if (nearest !== index) go(nearest);
+	}
+
+	// Every animated programmatic rail scroll goes through these two, so the
+	// wrap-holding rule above has one place to be set and one to be released.
+	function startRailGlide() {
+		railGliding = true;
+		railGlideStill = 0;
+		railGlideLastPos = -1;
+	}
+
+	function endRailGlide() {
+		railGliding = false;
 	}
 
 	// R4: the platform primitive for every programmatic rail scroll — no manual
 	// scrollLeft arithmetic, no offset bookkeeping, vertical position untouched.
 	function scrollRailTo(i: number, behavior: ScrollBehavior) {
+		if (behavior === 'smooth') startRailGlide();
 		railSlideEls[i]?.scrollIntoView({ inline: 'start', block: 'nearest', behavior });
 	}
 
@@ -643,9 +701,16 @@
 	function railPage(dir: 1 | -1) {
 		if (!viewportEl) return;
 		railInteracted = true;
+		const smooth = !prefersReducedMotion();
+		// Tell the scroll handler a glide is starting, so it holds any loop wrap
+		// until the animation settles rather than losing it mid-flight (R7). The
+		// instant path (reduced motion, R8) clears it instead of leaving a stale
+		// hold behind for the next scroll.
+		if (smooth) startRailGlide();
+		else endRailGlide();
 		viewportEl.scrollBy({
 			left: dir * viewportEl.clientWidth,
-			behavior: prefersReducedMotion() ? 'auto' : 'smooth'
+			behavior: smooth ? 'smooth' : 'auto'
 		});
 	}
 
@@ -702,9 +767,15 @@
 	// intersecting callback either way.
 	$effect(() => {
 		if (layout !== 'rail' || !viewportEl) return;
+		// The scroll frame re-arms itself while a glide is held, so leaving one
+		// pending on unmount would leave a chain running, not a single frame.
+		const cancelRailFrame = () => {
+			if (railRaf) cancelAnimationFrame(railRaf);
+			railRaf = 0;
+		};
 		if (typeof IntersectionObserver === 'undefined') {
 			untrack(readyMeasureAndMount);
-			return;
+			return cancelRailFrame;
 		}
 		const el = viewportEl;
 		const io = new IntersectionObserver(
@@ -717,7 +788,10 @@
 			{ threshold: 0 }
 		);
 		io.observe(el);
-		return () => io.disconnect();
+		return () => {
+			io.disconnect();
+			cancelRailFrame();
+		};
 	});
 
 	// R4: a consumer's bind:index write (or any external change) scrolls the
@@ -809,6 +883,7 @@
 		aria-live={layout === 'single' ? 'polite' : undefined}
 		tabindex={layout === 'rail' ? 0 : undefined}
 		onscroll={layout === 'rail' ? onRailScroll : undefined}
+		onwheel={layout === 'rail' ? endRailGlide : undefined}
 		style:cursor={layout === 'rail' && draggable && count > 1
 			? dragging
 				? 'grabbing'
