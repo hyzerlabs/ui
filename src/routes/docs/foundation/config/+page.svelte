@@ -260,6 +260,21 @@
 			too:
 		</p>
 		<CodeBlock code={reportCode} />
+		<p>
+			Write your colors in any CSS color space. The report grades <code>oklch()</code>,
+			<code>hsl()</code>, <code>lab()</code>, <code>color(display-p3 …)</code>, a named color and a
+			hex alike. Each one reaches the sheet exactly as you wrote it. WCAG defines contrast on sRGB,
+			so a color outside that gamut is graded against its nearest sRGB neighbor.
+		</p>
+		<p>
+			Some values cannot be graded on their own: a <code>currentColor</code>, a color with alpha, or
+			a <code>var()</code> pointing outside your config. Three more are not read yet either: the
+			relative syntax (<code>oklch(from …)</code>), <code>color()</code> in a space other than the
+			three named above, and <code>color-mix()</code> in anything but <code>srgb</code>. The report
+			names each one and skips its pairings. If the value is a surface or the text role, its whole
+			theme goes ungraded, and that counts as a failure. A palette the gate could not read never
+			reports as passing.
+		</p>
 		<Alert intent="danger" title="Aim intents at the middle of a ramp">
 			{#snippet icon()}<IconTriangleAlert />{/snippet}
 			Ramps are free to define. The report grades text and intent tokens against your surfaces, not raw

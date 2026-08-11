@@ -304,12 +304,29 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 	for (const name of report.unresolved) {
 		log(`  ? ${name} could not be resolved statically, pairing skipped`);
 	}
-	if (failures.length === 0) {
+	// A theme with no gradeable surface or text is a hole in the gate rather
+	// than a miss inside it, so it prints with the failures instead of as a
+	// note.
+	for (const mode of report.skipped) {
+		error(`  ✗ ${mode}: not graded — its surface or text role could not be resolved`);
+	}
+	if (failures.length === 0 && report.skipped.length === 0) {
 		log(`contrast: ${report.rows.length} pairings checked, all pass WCAG ${report.level}`);
+	} else if (failures.length === 0) {
+		const suffix = strict ? '' : ' (warnings; use --strict to fail the build)';
+		const themes = report.skipped.length === 1 ? 'theme' : 'themes';
+		error(
+			`contrast: ${report.skipped.length} ${themes} not graded; ${report.rows.length} pairings checked${suffix}`
+		);
 	} else {
 		const suffix = strict ? '' : ' (warnings; use --strict to fail the build)';
+		// The ungraded themes belong in the headline too, not only in the lines
+		// above it: they are the half a reader is least likely to expect.
+		const ungraded = report.skipped.length
+			? `, ${report.skipped.length} ${report.skipped.length === 1 ? 'theme' : 'themes'} not graded`
+			: '';
 		error(
-			`contrast: ${failures.length} of ${report.rows.length} pairings fail WCAG ${report.level}${suffix}`
+			`contrast: ${failures.length} of ${report.rows.length} pairings fail WCAG ${report.level}${ungraded}${suffix}`
 		);
 	}
 
@@ -329,7 +346,10 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 		);
 	}
 
-	return strict && (failures.length > 0 || iconsFailed || staleCount > 0) ? 1 : 0;
+	return strict &&
+		(failures.length > 0 || report.skipped.length > 0 || iconsFailed || staleCount > 0)
+		? 1
+		: 0;
 }
 
 // ---------------------------------------------------------------------------

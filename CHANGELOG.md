@@ -5,6 +5,41 @@ All notable changes to `@hyzer-labs/ui` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Author your colors in any CSS color space.** `oklch()`, `hsl()`,
+  `hwb()`, `lab()`, `lch()`, `oklab()`, `color(srgb …)`,
+  `color(display-p3 …)`, named colors and hex are all read by the contrast
+  report and by the public contrast utilities. They always reached the sheet
+  exactly as you wrote them. Now they are graded too. WCAG defines contrast
+  on sRGB, so a color outside that gamut grades against its nearest sRGB
+  neighbor.
+- **`parseColor`** resolves any static, opaque CSS color to sRGB channels.
+  It is exported from the package root and `@hyzer-labs/ui/utils`.
+
+### Changed
+
+- **The contrast utilities take any CSS color, and now throw on one they
+  cannot grade.** `contrastRatio`, `relativeLuminance`, `gradeContrast` and
+  `mixSrgb` throw a `TypeError` naming the value when it cannot stand on its
+  own: a `var()`, a `currentColor`, or a color with alpha. They used to
+  return `NaN` and say nothing. `hexToRgb` is unchanged and still hex only.
+
+### Fixed
+
+- **A palette the contrast gate cannot read no longer reports as passing.**
+  When a surface or the text role could not be resolved, its whole theme
+  dropped out of the report. That left no rows to fail, so
+  `hyzer generate --strict` exited 0 and the accessibility gate had quietly
+  stopped running. A palette written in `oklch()` did exactly that. An
+  ungraded theme is now an error line and fails `--strict`, so a run that
+  used to pass may report failures it was hiding. The likeliest one to meet
+  is a role pointed at a `var()` your own stylesheet defines rather than the
+  config: the report cannot follow it, so that theme is no longer graded on
+  a guess.
+
 ## [0.7.0] — 2026-08-05
 
 The config is now where the whole design system is decided. A theme can

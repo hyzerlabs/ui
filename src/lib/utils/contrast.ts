@@ -1,10 +1,16 @@
 /**
- * WCAG 2.x contrast math over sRGB hex colors. Pure functions over hex
- * strings — no DOM or computed styles, so everything is SSR-safe. Pair with
- * the token metadata from `@hyzer-labs/ui/tokens` to verify a palette
- * override still meets your contrast bar; the docs' Contrast & Accessibility
- * page and the library's own token-compliance test suite run on exactly
- * these functions.
+ * WCAG 2.x contrast math. Pure functions over CSS color strings — no DOM or
+ * computed styles, so everything is SSR-safe. Pair with the token metadata
+ * from `@hyzer-labs/ui/tokens` to verify a palette override still meets your
+ * contrast bar; the docs' Contrast & Accessibility page and the library's own
+ * token-compliance test suite run on exactly these functions.
+ *
+ * Every function taking a color accepts any static, opaque CSS color that
+ * `parseColor` reads: `oklch()`, `hsl()`, `lab()`, `color(display-p3 …)`, a
+ * named color, a hex. WCAG defines contrast on sRGB, so a color outside
+ * that gamut grades against its clipped sRGB neighbor. A value that cannot
+ * stand on its own (`var()`, `currentColor`, anything translucent) throws
+ * rather than grading a guess.
  *
  * Thresholds (WCAG 2.1 §1.4.3 / §1.4.6):
  *   normal text — AA ≥ 4.5, AAA ≥ 7
@@ -13,13 +19,27 @@
  * exactly the AA pass for the given text size.
  */
 
+import { parseColor } from './color.js';
+
 export interface Rgb {
 	r: number;
 	g: number;
 	b: number;
 }
 
-/** Parse #rgb or #rrggbb into 0–255 channels. */
+/** Any static, opaque CSS color to channels, or a named error. */
+function toRgb(color: string): Rgb {
+	const rgb = parseColor(color);
+	if (!rgb) {
+		throw new TypeError(
+			`[hyzer-ui] contrast: ${JSON.stringify(color)} is not a static, opaque CSS color. ` +
+				'var(), currentColor, and colors with alpha have no contrast ratio on their own.'
+		);
+	}
+	return rgb;
+}
+
+/** Parse #rgb or #rrggbb into 0–255 channels. Hex only — see `parseColor`. */
 export function hexToRgb(hex: string): Rgb {
 	const h = hex.replace('#', '');
 	const full =
@@ -47,15 +67,15 @@ export function rgbToHex({ r, g, b }: Rgb): string {
  * (gray mixed over surface) to a concrete hex.
  */
 export function mixSrgb(a: string, b: string, weightOfA: number): string {
-	const A = hexToRgb(a);
-	const B = hexToRgb(b);
+	const A = toRgb(a);
+	const B = toRgb(b);
 	const mix = (x: number, y: number) => Math.round(x * weightOfA + y * (1 - weightOfA));
 	return rgbToHex({ r: mix(A.r, B.r), g: mix(A.g, B.g), b: mix(A.b, B.b) });
 }
 
 /** WCAG relative luminance: 0 (black) to 1 (white). */
-export function relativeLuminance(hex: string): number {
-	const { r, g, b } = hexToRgb(hex);
+export function relativeLuminance(color: string): number {
+	const { r, g, b } = toRgb(color);
 	const lin = (c: number) => {
 		const s = c / 255;
 		return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;

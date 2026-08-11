@@ -122,6 +122,33 @@ describe('hyzer generate — modes and flags', () => {
 		expect(logs.join('\n')).toContain('has not been generated, not checked');
 	});
 
+	it('grades a palette written in oklch, and catches a failure in it', async () => {
+		const { cwd, io, errors } = sandbox();
+		// Same hue as the retired warning orange, restated in oklch: the gate
+		// used to skip this config entirely and report a clean pass.
+		writeFileSync(
+			join(cwd, 'hyzer.config.mjs'),
+			`export default { tokens: { palette: { warning: 'oklch(0.7 0.16 60)' } } };`
+		);
+		expect(await run(['generate', '--strict'], io)).toBe(1);
+		expect(errors.join('\n')).toContain('✗ default text:intent-warning/surface');
+		expect(errors.join('\n')).toContain('fail WCAG AA');
+	});
+
+	it('a theme it cannot grade at all fails --strict instead of reporting a clean pass', async () => {
+		const first = sandbox();
+		const config = `export default { tokens: { color: { surface: 'currentColor' } } };`;
+		writeFileSync(join(first.cwd, 'hyzer.config.mjs'), config);
+		expect(await run(['generate'], first.io)).toBe(0);
+		expect(first.errors.join('\n')).toContain('not graded');
+		expect(first.logs.join('\n')).not.toContain('all pass WCAG');
+
+		const second = sandbox();
+		writeFileSync(join(second.cwd, 'hyzer.config.mjs'), config);
+		expect(await run(['generate', '--strict'], second.io)).toBe(1);
+		expect(second.errors.join('\n')).toContain('✗ default: not graded');
+	});
+
 	it('an AA failure warns by default and fails with --strict (file still written)', async () => {
 		const first = sandbox();
 		// The retired 3.19:1 warning orange.

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Stack, Tabs, CodeBlock } from '$lib';
+	import { Alert, Stack, Tabs, CodeBlock } from '$lib';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 	import DocIntro from '../../../../docs/DocIntro.svelte';
 
 	const recipeTabs = [
@@ -187,18 +188,34 @@
 		<h2 id="verify-heading">Verify your palette</h2>
 		<p>
 			The contrast math behind the generate report is public API. <code>contrastRatio</code> gives
-			the raw WCAG ratio for two hex colors. <code>gradeContrast</code> turns a
-			foreground/background pair into pass/fail grades per level and text size.
+			the raw WCAG ratio for two colors. <code>gradeContrast</code> turns a foreground/background
+			pair into pass/fail grades per level and text size.
 			<code>bestLevel</code>
 			and
-			<code>bestLevelLarge</code> name the best level a ratio reaches. <code>mixSrgb</code>,
+			<code>bestLevelLarge</code> name the best level a ratio reaches. <code>parseColor</code>,
+			<code>mixSrgb</code>,
 			<code>relativeLuminance</code>, <code>hexToRgb</code>, and
 			<code>rgbToHex</code> are the conversion pieces.
 		</p>
+		<Alert intent="info" title="Write your colors in whatever space suits you">
+			{#snippet icon()}<IconInfo />{/snippet}
+			These functions read <code>oklch()</code>, <code>hsl()</code>, <code>lab()</code>,
+			<code>color(display-p3 …)</code>, a named color and a hex alike, and so does the config. WCAG
+			defines contrast on sRGB, so a color outside that gamut is graded against its nearest sRGB
+			neighbor.
+		</Alert>
 		<p>
-			All of them are pure functions over hex strings, with no DOM access, so they are safe to run
-			on the server. They are exported from the package root and <code>@hyzer-labs/ui/utils</code>,
-			and the resolved palette is importable from <code>@hyzer-labs/ui/tokens</code>.
+			A color that cannot stand on its own is refused rather than guessed at: a <code>var()</code>,
+			a <code>currentColor</code>, or anything part-transparent. A translucent color has no ratio
+			until it sits on a known backdrop. So are the relative syntax (<code>oklch(from …)</code>) and
+			<code>color()</code> in a space beyond the three above. Refused means a thrown
+			<code>TypeError</code> naming the value, so a test that passes one fails loudly instead of comparing
+			a number that was never a ratio.
+		</p>
+		<p>
+			All of them are pure functions over strings, with no DOM access, so they are safe to run on
+			the server. They are exported from the package root and <code>@hyzer-labs/ui/utils</code>, and
+			the resolved palette is importable from <code>@hyzer-labs/ui/tokens</code>.
 		</p>
 		<p>Assert the pairings your override touches in a unit test:</p>
 		<CodeBlock code={verifyCode} />

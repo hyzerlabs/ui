@@ -4,12 +4,22 @@
  * Grades the resolved token set against WCAG AA exactly like the library's
  * own token-compliance suite: text roles and every intent as text on both
  * surfaces per mode, surface-colored solid text on every intent background,
- * and the Badge (14%/65%) / Alert (10%/70%) soft color-mix recipes. Values
- * that cannot be statically resolved to a hex (arbitrary CSS beyond hex /
- * var() chains / two-color srgb color-mix) are skipped and listed.
+ * and the Badge (14%/65%) / Alert (10%/70%) soft color-mix recipes. Any
+ * static CSS color resolves through `parseColor`, plus the var() chains and
+ * two-color `color-mix(in srgb, …)` this module walks itself. A value that
+ * resolves to nothing is listed in `unresolved` and its pairings are
+ * skipped; a theme that loses a surface or the text role is listed in
+ * `skipped` and fails the report outright.
  */
 
-import { contrastRatio, bestLevel, mixSrgb, type ContrastLevel } from '../utils/contrast.js';
+import {
+	contrastRatio,
+	bestLevel,
+	mixSrgb,
+	rgbToHex,
+	type ContrastLevel
+} from '../utils/contrast.js';
+import { parseColor } from '../utils/color.js';
 import type { ResolvedConfig } from './schema.js';
 
 /**
@@ -59,7 +69,18 @@ export interface ContrastReport {
 	rows: ContrastReportRow[];
 	/** Tokens whose values could not be resolved to a hex; their pairings are skipped. */
 	unresolved: string[];
-	/** True when every graded pairing passes the configured bar. */
+	/**
+	 * Themes that were not graded at all, because a value every pairing needs
+	 * (one of the two surfaces or the text role) did not resolve. A mode
+	 * listed here has no rows, so it is a hole in the gate rather than a miss
+	 * inside it, and it fails the report on its own.
+	 */
+	skipped: string[];
+	/**
+	 * True when every graded pairing passes the configured bar *and* every
+	 * theme was graded. A report that graded nothing is never a pass: an
+	 * unparseable palette must not read as a clean run.
+	 */
 	pass: boolean;
 	/** The bar every row's `pass` was graded against — `resolved.contrast.level`. */
 	level: 'AA' | 'AAA';
@@ -107,12 +128,15 @@ function declarationMaps(resolved: ResolvedConfig): { mode: string; map: DeclMap
 	];
 }
 
-/** Expand #rgb, lowercase. Returns null when not a plain hex color. */
-function normalizeHex(value: string): string | null {
-	const m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(value.trim());
-	if (!m) return null;
-	const h = m[1].toLowerCase();
-	return h.length === 3 ? `#${h[0]}${h[0]}${h[1]}${h[1]}${h[2]}${h[2]}` : `#${h}`;
+/**
+ * Any static, opaque CSS color to a normalized hex — `oklch()`, `hsl()`,
+ * `lab()`, `color(display-p3 …)`, a named color, a hex. Returns null for a
+ * value that cannot stand on its own; `resolveHex` handles the two that can
+ * be resolved from the sheet itself, `var()` and `color-mix()`.
+ */
+function staticHex(value: string): string | null {
+	const rgb = parseColor(value);
+	return rgb ? rgbToHex(rgb) : null;
 }
 
 /** Split a string on top-level commas (parenthesis-aware). */
@@ -147,7 +171,7 @@ export function resolveHex(
 ): string | null {
 	const trimmed = value.trim();
 
-	const hex = normalizeHex(trimmed);
+	const hex = staticHex(trimmed);
 	if (hex) return hex;
 
 	const varMatch = /^var\(\s*(--[a-z0-9-]+)\s*(?:,([\s\S]+))?\)$/i.exec(trimmed);
@@ -196,6 +220,7 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 	const maps = declarationMaps(resolved);
 	const rows: ContrastReportRow[] = [];
 	const unresolved = new Set<string>();
+	const skipped: string[] = [];
 	const level = resolved.contrast.level;
 	const threshold = level === 'AAA' ? 7 : 4.5;
 
@@ -222,7 +247,12 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 		const surface = get('--hz-color-surface');
 		const surfaceMuted = get('--hz-color-surface-muted');
 		const text = get('--hz-color-text');
-		if (!surface || !surfaceMuted || !text) continue;
+		// Every pairing in this mode hangs off these three, so losing one means
+		// the mode goes ungraded — recorded, never passed over in silence.
+		if (!surface || !surfaceMuted || !text) {
+			skipped.push(mode);
+			continue;
+		}
 		const surfaces = [
 			{ name: 'surface', hex: surface },
 			{ name: 'surface-muted', hex: surfaceMuted }
@@ -314,7 +344,8 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 	return {
 		rows,
 		unresolved: [...unresolved].sort(),
-		pass: rows.every((row) => row.pass),
+		skipped,
+		pass: rows.every((row) => row.pass) && skipped.length === 0,
 		level
 	};
 }
