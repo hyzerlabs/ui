@@ -1164,6 +1164,105 @@ describe('rail loop — clone buffer and teleport (R7)', () => {
 		expect(onchange).not.toHaveBeenCalled();
 	});
 
+	it('prev at the real-block start wraps a full page backward once the glide settles', async () => {
+		// Regression: the rail rests exactly on the boundary, so a prev page
+		// crosses it in the first frames of the chevron's smooth scroll. The wrap
+		// was applied mid-glide, the browser overwrote it with the animation it
+		// had already committed to, and prev never looped. The wrap now waits
+		// for the glide to stop.
+		const onchange = vi.fn();
+		const { container, vp } = await renderOverflowingLoop(onchange);
+		const realFirst = railSlides(container)[0];
+		const leadClones = Array.from(container.querySelectorAll<HTMLElement>('[data-clone]')).slice(
+			0,
+			railItems.length
+		);
+		const period = realFirst.offsetLeft - leadClones[0].offsetLeft;
+		await vi.waitFor(() => expect(vp.scrollLeft).toBe(realFirst.offsetLeft));
+		onchange.mockClear();
+
+		const page = vp.clientWidth;
+		// The landing position has to sit outside the range the glide travels, or
+		// a mid-glide reading could satisfy the assertion on its way past.
+		expect(period).toBeGreaterThan(page);
+		parts(container).prev.click();
+		// ±2px: the landing position is a page back from a sub-pixel period.
+		await vi.waitFor(() =>
+			expect(Math.abs(vp.scrollLeft - (realFirst.offsetLeft + period - page))).toBeLessThanOrEqual(
+				2
+			)
+		);
+		// The wrapped landing reports its own item once — not one call per item
+		// the glide crossed, and not the clone-space reading of 0.
+		const landed = railSlides(container)
+			.map((s, i) => ({ i, d: Math.abs(s.offsetLeft - vp.scrollLeft) }))
+			.sort((a, b) => a.d - b.d)[0].i;
+		expect(landed).toBeGreaterThan(0);
+		await vi.waitFor(() => expect(onchange).toHaveBeenCalledTimes(1));
+		expect(onchange).toHaveBeenCalledWith(landed);
+	});
+
+	it('a wheel scroll that interrupts a page glide still wraps immediately', async () => {
+		// The wrap is held while a chevron's glide is in flight. Held on any
+		// movement instead, a trackpad scroll begun during that glide would defer
+		// the wrap for as long as the user kept scrolling and run the rail out of
+		// the clone buffer into the hard scroll edge.
+		const { container, vp } = await renderOverflowingLoop();
+		const realFirst = railSlides(container)[0];
+		const leadClones = Array.from(container.querySelectorAll<HTMLElement>('[data-clone]')).slice(
+			0,
+			railItems.length
+		);
+		const period = realFirst.offsetLeft - leadClones[0].offsetLeft;
+		await vi.waitFor(() => expect(vp.scrollLeft).toBe(realFirst.offsetLeft));
+
+		const step = 60;
+		parts(container).prev.click(); // starts a glide, leaves the wrap held
+		vp.dispatchEvent(new WheelEvent('wheel', { deltaX: -step, bubbles: true }));
+		// Free scrolling backward, one frame at a time, the way a trackpad does.
+		let lowest = vp.scrollLeft;
+		for (let i = 0; i < 8; i++) {
+			vp.scrollLeft = vp.scrollLeft - step;
+			fireScroll(vp);
+			await new Promise((r) => requestAnimationFrame(r));
+			lowest = Math.min(lowest, vp.scrollLeft);
+		}
+		// Each crossing wraps on the frame it happens, so the rail never walks
+		// down through the buffer: it can sit at most a step or two below the real
+		// block's start before being carried back up. Held instead, it would still
+		// be descending — eight steps below the start by now, and on its way to
+		// the scroll edge.
+		expect(lowest).toBeGreaterThan(realFirst.offsetLeft - step * 3);
+		expect(vp.scrollLeft).toBeGreaterThan(realFirst.offsetLeft - period);
+	});
+
+	it('a mouse drag that interrupts a page glide cancels it and still wraps on the spot', async () => {
+		// Two halves of the fix at once. The drag has to cancel the chevron's
+		// animation — a scroll-position assignment would not, so the browser would
+		// keep animating to the destination it committed to and overwrite the
+		// pointer. And a drag never inherits the glide's wrap hold: it crosses the
+		// boundary here and must wrap in the same frame, or its captured origin
+		// drifts a full period and the gesture pins at the scroll edge (R6/R7).
+		const { container, vp } = await renderOverflowingLoop();
+		const { track } = parts(container);
+		const realFirst = railSlides(container)[0];
+		const leadClones = Array.from(container.querySelectorAll<HTMLElement>('[data-clone]')).slice(
+			0,
+			railItems.length
+		);
+		const period = realFirst.offsetLeft - leadClones[0].offsetLeft;
+		await vi.waitFor(() => expect(vp.scrollLeft).toBe(realFirst.offsetLeft));
+
+		parts(container).prev.click(); // glide underway
+		pointer(track, 'pointerdown', 200, 0, 'mouse');
+		pointer(track, 'pointermove', 300, 0, 'mouse'); // dx +100 → 100px backward
+		await new Promise((r) => requestAnimationFrame(r));
+		await new Promise((r) => requestAnimationFrame(r));
+		// 100px below the real block's start, carried back up by one period.
+		expect(Math.abs(vp.scrollLeft - (realFirst.offsetLeft - 100 + period))).toBeLessThanOrEqual(2);
+		pointer(track, 'pointerup', 300, 0, 'mouse');
+	});
+
 	it('a long mouse drag crossing the real-block boundary tracks the pointer delta mod one period, never pinning at the scroll max (amended 2026-07-31 — railStartScrollLeft follows each teleport)', async () => {
 		const { container, vp } = await renderOverflowingLoop();
 		const { track } = parts(container);
