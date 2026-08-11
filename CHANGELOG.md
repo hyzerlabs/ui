@@ -39,6 +39,12 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
   is a role pointed at a `var()` your own stylesheet defines rather than the
   config: the report cannot follow it, so that theme is no longer graded on
   a guess.
+- **`<Carousel layout="rail" loop>`: the prev button now wraps.** A rail sits at
+  the first item, so paging back crosses the loop boundary while the smooth
+  scroll is still animating — and the browser overwrote the wrap on the next
+  frame, leaving the rail stuck at the start. The wrap now waits for the scroll
+  to settle. Grabbing the rail mid-scroll also stops the animation instead of
+  fighting it.
 
 ## [0.7.0] — 2026-08-05
 

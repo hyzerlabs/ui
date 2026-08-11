@@ -246,6 +246,40 @@ them would replace good native behavior with worse JS. The gesture reuses spec
   must shift the gesture's captured scroll origin by the same ±period, so the next
   pointermove's absolute-base assignment stays in the post-teleport coordinate
   space instead of reverting it (amended 2026-07-31).
+  **Amended 2026-08-06 — the teleport waits for a smooth page scroll to stop.**
+  Reported from real use: with `loop`, the prev chevron never wrapped. The rail
+  rests exactly at the real block's start, so a prev page crosses the boundary on
+  the animation's first frames — and a browser-run smooth scroll animates toward a
+  destination it committed to when it started. Repositioning mid-flight is
+  overwritten on the next frame, so the wrap was lost and the rail stalled at the
+  boundary. (Next was unaffected: it only reaches the trailing clones near the end
+  of its animation, where the correction lands at rest.) Two rules now: the
+  reposition is an explicit instant scroll rather than a scroll-position
+  assignment, which aborts any animation still running; and while a chevron's
+  glide (R5) is in flight, the teleport is held until the position stops changing.
+  The held frame re-arms off `requestAnimationFrame`, not the scroll event — the
+  glide's last frame is also its last scroll event, so nothing else would come back
+  to apply the wrap. The glide therefore runs *into* the clone copy and wraps on
+  settling; the copies are identical, so this is still invisible.
+
+  Three bounds on the hold, all load-bearing. It ends on any user input that
+  scrolls the rail — a wheel or a pointer down, the latter before the drag path's
+  own guards, since a touch pan bows out of them and still has to release it.
+  Without that, a trackpad scroll begun mid-glide re-arms the hold for as long as
+  the user keeps scrolling, walks the rail out of the clone buffer, and pins it at
+  the hard scroll edge: the reported symptom in a different sequence. "Stopped" is
+  two still frames rather than one, because a composited scroll commits its offset
+  to the main thread asynchronously and a janked frame can read the same position
+  twice mid-animation. And the hold is set by every *animated* programmatic scroll
+  (paging and a `bind:index` write both), not by paging alone — with the reposition
+  now aborting animations, a mid-flight correction would otherwise strand an index
+  write one period short of its target with `lastRailIndex` already updated, so the
+  effect would never retry.
+
+  Drags stay exempt and cancel a glide outright: deferring them would revive the
+  mid-drag pinning above. The frame re-arms itself, so the rail effect's teardown
+  cancels a pending one — otherwise unmounting mid-glide would leave a chain
+  running rather than a single stray frame.
 - **Snap composes for free.** Since the shift is exactly one period, every
   post-teleport position is the same snap position one copy over; a browser
   re-evaluating snap after the assignment resolves to a no-op. No snap suppression
