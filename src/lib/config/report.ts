@@ -6,10 +6,11 @@
  * surfaces per mode, surface-colored solid text on every intent background,
  * and the Badge (14%/65%) / Alert (10%/70%) soft color-mix recipes. Any
  * static CSS color resolves through `parseColor`, plus the var() chains and
- * two-color `color-mix(in srgb, …)` this module walks itself. A value that
- * resolves to nothing is listed in `unresolved` and its pairings are
- * skipped; a theme that loses a surface or the text role is listed in
- * `skipped` and fails the report outright.
+ * the two-color `color-mix()` in `srgb`, `oklab` and `oklch` this module
+ * evaluates itself. A value that resolves to nothing is listed in
+ * `unresolved` and its pairings are skipped; a theme that loses a surface or
+ * the text role is listed in `skipped` and fails the report outright. A row
+ * whose color had to be clipped into sRGB is marked `clipped`.
  */
 
 import {
@@ -19,7 +20,7 @@ import {
 	rgbToHex,
 	type ContrastLevel
 } from '../utils/contrast.js';
-import { parseColor } from '../utils/color.js';
+import { parseColor, mixColors, type HueMethod } from '../utils/color.js';
 import type { ResolvedConfig } from './schema.js';
 
 /**
@@ -59,6 +60,12 @@ export interface ContrastReportRow {
 	description: string;
 	fg: { name: string; hex: string };
 	bg: { name: string; hex: string };
+	/**
+	 * True when either side came from a color outside sRGB, clipped to fit
+	 * before it could be graded. The grade holds for an sRGB screen;
+	 * a wide-gamut display paints something this ratio does not describe.
+	 */
+	clipped: boolean;
 	ratio: number;
 	level: ContrastLevel;
 	/** Passes the configured bar (`resolved.contrast.level`): ≥ 4.5:1 for AA, ≥ 7:1 for AAA. */
@@ -128,17 +135,6 @@ function declarationMaps(resolved: ResolvedConfig): { mode: string; map: DeclMap
 	];
 }
 
-/**
- * Any static, opaque CSS color to a normalized hex — `oklch()`, `hsl()`,
- * `lab()`, `color(display-p3 …)`, a named color, a hex. Returns null for a
- * value that cannot stand on its own; `resolveHex` handles the two that can
- * be resolved from the sheet itself, `var()` and `color-mix()`.
- */
-function staticHex(value: string): string | null {
-	const rgb = parseColor(value);
-	return rgb ? rgbToHex(rgb) : null;
-}
-
 /** Split a string on top-level commas (parenthesis-aware). */
 function splitTopLevel(input: string): string[] {
 	const parts: string[] = [];
@@ -158,21 +154,27 @@ function splitTopLevel(input: string): string[] {
 	return parts;
 }
 
+/** A resolved color, and whether reaching sRGB cost it accuracy. */
+export interface ResolvedColor {
+	hex: string;
+	/** True when a leaf fell outside sRGB and was clipped to fit. */
+	clipped: boolean;
+}
+
 /**
- * Resolve a token value to a normalized hex: follows var() chains (using the
- * fallback when the reference is missing) and evaluates two-color
- * `color-mix(in srgb, …)` via the same math the theme's tints use.
- * Exported for the fallback-parity test; not part of the `./config` barrel.
+ * Resolve a token value to a hex plus its gamut flag: follows var() chains
+ * (using the fallback when the reference is missing) and evaluates two-color
+ * `color-mix()` in `srgb`, `oklab` and `oklch`.
  */
-export function resolveHex(
+export function resolveColor(
 	value: string,
 	map: Map<string, string>,
 	seen: Set<string> = new Set()
-): string | null {
+): ResolvedColor | null {
 	const trimmed = value.trim();
 
-	const hex = staticHex(trimmed);
-	if (hex) return hex;
+	const parsed = parseColor(trimmed);
+	if (parsed) return { hex: rgbToHex(parsed), clipped: parsed.clipped === true };
 
 	const varMatch = /^var\(\s*(--[a-z0-9-]+)\s*(?:,([\s\S]+))?\)$/i.exec(trimmed);
 	if (varMatch) {
@@ -180,30 +182,127 @@ export function resolveHex(
 		if (seen.has(name)) return null; // cycle guard
 		const target = map.get(name);
 		if (target !== undefined) {
-			return resolveHex(target, map, new Set(seen).add(name));
+			return resolveColor(target, map, new Set(seen).add(name));
 		}
-		return varMatch[2] ? resolveHex(varMatch[2], map, seen) : null;
+		return varMatch[2] ? resolveColor(varMatch[2], map, seen) : null;
 	}
 
-	const mixMatch = /^color-mix\(\s*in srgb\s*,([\s\S]+)\)$/i.exec(trimmed);
+	// `in <space>` plus an optional hue-interpolation method, which only the
+	// polar spaces take: `color-mix(in oklch longer hue, a 30%, b)`.
+	const mixMatch = /^color-mix\(\s*in\s+([a-z-]+)((?:\s+[a-z]+)*)\s*,([\s\S]+)\)$/i.exec(trimmed);
 	if (mixMatch) {
-		const components = splitTopLevel(mixMatch[1]);
+		const space = mixMatch[1].toLowerCase();
+		const method = parseHueMethod(mixMatch[2], space);
+		if (method === null) return null;
+		const components = splitTopLevel(mixMatch[3]);
 		if (components.length !== 2) return null;
-		const parsed = components.map((comp) => {
-			const pct = /^([\s\S]+?)\s+([\d.]+)%$/.exec(comp);
-			return pct
-				? { color: pct[1].trim(), weight: parseFloat(pct[2]) / 100 }
-				: { color: comp, weight: null as number | null };
-		});
-		const [a, b] = parsed;
-		const weightA = a.weight ?? (b.weight !== null ? 1 - b.weight : 0.5);
-		const hexA = resolveHex(a.color, map, seen);
-		const hexB = resolveHex(b.color, map, seen);
-		if (!hexA || !hexB) return null;
-		return mixSrgb(hexA, hexB, weightA);
+		const parts = components.map(splitWeight);
+		if (parts[0] === null || parts[1] === null) return null;
+		const weights = mixWeights([parts[0].weight, parts[1].weight]);
+		if (!weights) return null;
+		const a = resolveColor(parts[0].color, map, seen);
+		const b = resolveColor(parts[1].color, map, seen);
+		if (!a || !b) return null;
+		const clipped = a.clipped || b.clipped;
+
+		// srgb is a channelwise lerp of the encoded values — the same math the
+		// theme's own tint recipes use, and no round trip through a wider space.
+		if (space === 'srgb') {
+			return { hex: mixSrgb(a.hex, b.hex, weights[0]), clipped };
+		}
+		if (space === 'oklab' || space === 'oklch') {
+			const A = parseColor(a.hex);
+			const B = parseColor(b.hex);
+			if (!A || !B) return null;
+			const mixed = mixColors(A, B, weights[0], space, method);
+			return { hex: rgbToHex(mixed), clipped: clipped || mixed.clipped === true };
+		}
+		// Any other interpolation space: unresolved rather than mixed in the
+		// wrong one, which would grade a color the browser never paints.
+		return null;
 	}
 
 	return null;
+}
+
+/** The hex alone, for callers with no use for the gamut flag. */
+export function resolveHex(
+	value: string,
+	map: Map<string, string>,
+	seen: Set<string> = new Set()
+): string | null {
+	return resolveColor(value, map, seen)?.hex ?? null;
+}
+
+/**
+ * The `<hue-interpolation-method>` after the space. Absent means `shorter`,
+ * CSS's default. `null` means the value is not something this understands —
+ * a method on a rectangular space,
+ * or a keyword that is not one of the four.
+ */
+function parseHueMethod(tail: string, space: string): HueMethod | null {
+	const words = tail.trim().toLowerCase().split(/\s+/).filter(Boolean);
+	if (words.length === 0) return 'shorter';
+	if (words.length !== 2 || words[1] !== 'hue') return null;
+	// oklch is the only polar space resolved here, so it is the only one a hue
+	// method can attach to; the rest are refused by the space switch anyway.
+	if (space !== 'oklch') return null;
+	const method = words[0];
+	return method === 'shorter' ||
+		method === 'longer' ||
+		method === 'increasing' ||
+		method === 'decreasing'
+		? method
+		: null;
+}
+
+/**
+ * The `30%` on a `color-mix()` component, as a fraction. CSS pairs the color
+ * and the percentage with `&&`, so either order is valid — `30% red` and
+ * `red 30%` are the same component. Both at once is not, and is refused.
+ */
+const TRAILING_WEIGHT = /\s([\d.]+)%$/;
+const LEADING_WEIGHT = /^([\d.]+)%\s/;
+
+/**
+ * A component split into its color and its weight, or `null` when it is not a
+ * component at all. A weight on both ends is the case that needs the two
+ * outcomes kept apart: reporting it as "no weight given" would quietly mix it
+ * half and half, so it has to say invalid instead.
+ */
+function splitWeight(component: string): { color: string; weight: number | null } | null {
+	const c = component.trim();
+	const trailing = TRAILING_WEIGHT.exec(c);
+	const leading = LEADING_WEIGHT.exec(c);
+	if (trailing && leading) return null;
+	const match = trailing ?? leading;
+	if (!match) return { color: c, weight: null };
+	return {
+		color: c.replace(trailing ? TRAILING_WEIGHT : LEADING_WEIGHT, '').trim(),
+		weight: parseFloat(match[1]) / 100
+	};
+}
+
+/**
+ * CSS Color 5's normalization: one weight given implies the other, neither
+ * means half each, and two that do not sum to 1 are scaled until they do.
+ * A pair summing to less than 1 also multiplies the result's alpha, which
+ * makes it translucent — `null`, since a translucent color has no ratio.
+ */
+function mixWeights(weights: (number | null)[]): [number, number] | null {
+	const [p1, p2] = weights;
+	// A percentage outside 0–100% makes the whole `color-mix()` invalid, and an
+	// invalid declaration is dropped: the browser paints whatever came before
+	// it. Normalizing one instead would grade a color that never reaches a
+	// screen.
+	const outOfRange = (p: number | null) => p !== null && (p < 0 || p > 1);
+	if (outOfRange(p1) || outOfRange(p2)) return null;
+	if (p1 === null && p2 === null) return [0.5, 0.5];
+	if (p1 === null) return [1 - p2!, p2!];
+	if (p2 === null) return [p1, 1 - p1];
+	const sum = p1 + p2;
+	if (sum <= 0 || sum < 1) return null;
+	return [p1 / sum, p2 / sum];
 }
 
 /** A plain `<percentage>` literal (`20%`), parsed to a fraction. Anything else is `null`. */
@@ -237,11 +336,11 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 	if (alertTintEntry && alertTintOverride === null) unresolved.add('--hz-alert-tint');
 
 	for (const { mode, map } of maps) {
-		const get = (name: string): string | null => {
+		const get = (name: string): ResolvedColor | null => {
 			const value = map.get(name);
-			const hex = value === undefined ? null : resolveHex(value, map);
-			if (hex === null) unresolved.add(`${name} (${mode})`);
-			return hex;
+			const color = value === undefined ? null : resolveColor(value, map);
+			if (color === null) unresolved.add(`${name} (${mode})`);
+			return color;
 		};
 
 		const surface = get('--hz-color-surface');
@@ -254,28 +353,35 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 			continue;
 		}
 		const surfaces = [
-			{ name: 'surface', hex: surface },
-			{ name: 'surface-muted', hex: surfaceMuted }
+			{ name: 'surface', ...surface },
+			{ name: 'surface-muted', ...surfaceMuted }
 		];
 
-		const push = (
-			id: string,
-			description: string,
-			fg: { name: string; hex: string },
-			bg: { name: string; hex: string }
-		) => {
+		/** A color as a pairing sees it: what to call it, and how it resolved. */
+		type Swatch = { name: string } & ResolvedColor;
+
+		const push = (id: string, description: string, fg: Swatch, bg: Swatch) => {
 			const ratio = contrastRatio(fg.hex, bg.hex);
 			rows.push({
 				id,
 				mode,
 				description,
-				fg,
-				bg,
+				fg: { name: fg.name, hex: fg.hex },
+				bg: { name: bg.name, hex: bg.hex },
+				// Either side being an approximation makes the ratio one too.
+				clipped: fg.clipped || bg.clipped,
 				ratio,
 				level: bestLevel(ratio),
 				pass: ratio >= threshold
 			});
 		};
+
+		/** A mix of two resolved colors carries their gamut history forward. */
+		const tint = (name: string, a: ResolvedColor, b: ResolvedColor, weightOfA: number): Swatch => ({
+			name,
+			hex: mixSrgb(a.hex, b.hex, weightOfA),
+			clipped: a.clipped || b.clipped
+		});
 
 		// Text tokens on both surfaces.
 		const textTokens = [
@@ -284,25 +390,30 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 			...[...map.keys()].filter((n) => n.startsWith('--hz-intent-'))
 		];
 		for (const name of textTokens) {
-			const hex = get(name);
-			if (!hex) continue;
+			const color = get(name);
+			if (!color) continue;
 			const short = name.replace('--hz-color-', '').replace('--hz-', '');
 			for (const bg of surfaces) {
-				push(`text:${short}/${bg.name}`, `${short} text on ${bg.name}`, { name: short, hex }, bg);
+				push(
+					`text:${short}/${bg.name}`,
+					`${short} text on ${bg.name}`,
+					{ name: short, ...color },
+					bg
+				);
 			}
 		}
 
 		// Solid intent backgrounds: surface-colored text on the intent color.
 		const intents = [...map.keys()].filter((n) => n.startsWith('--hz-intent-'));
 		for (const name of intents) {
-			const hex = get(name);
-			if (!hex) continue;
+			const color = get(name);
+			if (!color) continue;
 			const short = name.replace('--hz-', '');
 			push(
 				`solid:${short}`,
 				`surface-colored text on solid ${short}`,
-				{ name: 'surface', hex: surface },
-				{ name: short, hex }
+				{ name: 'surface', ...surface },
+				{ name: short, ...color }
 			);
 
 			// Soft recipes — keyed to the theme NAME, because that is what the
@@ -315,27 +426,24 @@ export function contrastReport(resolved: ResolvedConfig): ContrastReport {
 			const tints = mode === 'dark' ? softTints.dark : softTints.light;
 			const badgeBgFraction = badgeTintOverride ?? tints.badgeBg;
 			const alertBgFraction = alertTintOverride ?? tints.alertBg;
-			const badgeBg = {
-				name: `${short} badge-soft bg`,
-				hex: mixSrgb(hex, surface, badgeBgFraction)
-			};
-			const alertBg = { name: `${short} alert bg`, hex: mixSrgb(hex, surface, alertBgFraction) };
+			const badgeBg = tint(`${short} badge-soft bg`, color, surface, badgeBgFraction);
+			const alertBg = tint(`${short} alert bg`, color, surface, alertBgFraction);
 			push(
 				`soft-badge:${short}`,
 				`soft Badge text on soft ${short}`,
-				{ name: `${short} badge-soft text`, hex: mixSrgb(hex, text, softTints.badgeText) },
+				tint(`${short} badge-soft text`, color, text, softTints.badgeText),
 				badgeBg
 			);
 			push(
 				`soft-alert-title:${short}`,
 				`Alert title on tinted ${short}`,
-				{ name: `${short} alert title`, hex: mixSrgb(hex, text, softTints.alertTitle) },
+				tint(`${short} alert title`, color, text, softTints.alertTitle),
 				alertBg
 			);
 			push(
 				`soft-alert-body:${short}`,
 				`Alert body text on tinted ${short}`,
-				{ name: 'text', hex: text },
+				{ name: 'text', ...text },
 				alertBg
 			);
 		}

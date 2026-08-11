@@ -135,6 +135,24 @@ describe('hyzer generate — modes and flags', () => {
 		expect(errors.join('\n')).toContain('fail WCAG AA');
 	});
 
+	it('says which pairings were graded on a clipped stand-in for a wider-gamut color', async () => {
+		const { cwd, io, logs } = sandbox();
+		writeFileSync(
+			join(cwd, 'hyzer.config.mjs'),
+			`export default { tokens: { palette: { primary: 'oklch(0.65 0.31 145)' } } };`
+		);
+		await run(['generate'], io);
+		const out = logs.join('\n');
+		expect(out).toContain('outside sRGB, graded on its clipped equivalent');
+		expect(out).toContain('default text:intent-primary/surface');
+	});
+
+	it('says nothing about gamut when every color fits in sRGB', async () => {
+		const { io, logs } = sandbox();
+		await run(['generate'], io);
+		expect(logs.join('\n')).not.toContain('outside sRGB');
+	});
+
 	it('a theme it cannot grade at all fails --strict instead of reporting a clean pass', async () => {
 		const first = sandbox();
 		const config = `export default { tokens: { color: { surface: 'currentColor' } } };`;

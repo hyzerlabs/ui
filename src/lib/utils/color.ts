@@ -1,5 +1,6 @@
 /**
- * Static CSS color parsing, to sRGB.
+ * Static CSS color parsing, to sRGB, plus the interpolation `color-mix()`
+ * needs (`mixColors`).
  *
  * The contrast math in `contrast.ts` is defined on sRGB. The token engine
  * that runs it lives in Node, where there is no CSS parser to borrow, so a
@@ -20,8 +21,8 @@
  * alpha below 1, including `transparent`: a translucent color has no
  * contrast ratio until it is composited over a known backdrop. Anything that
  * needs a resolver: `currentColor`, `inherit`, relative color syntax
- * (`oklch(from … )`) and `var()`, which the engine resolves itself in
- * `config/report.ts`. And anything CSS itself rejects, which a permissive
+ * (`oklch(from … )`), `var()` and `color-mix()` — the last two resolved by
+ * the engine itself in `config/report.ts`. And anything CSS itself rejects, which a permissive
  * parser would wave through — a `0x10` channel, a bare number in a legacy
  * `hsl()`, mixed comma and space syntax.
  *
@@ -33,6 +34,15 @@
  */
 
 import type { Rgb } from './contrast.js';
+
+/**
+ * sRGB channels, plus a marker when the source color did not fit in sRGB and
+ * was clipped to reach it. The field is absent rather than `false` on a color
+ * that fits, so an in-gamut result stays a plain `{ r, g, b }`.
+ */
+export interface ParsedColor extends Rgb {
+	clipped?: true;
+}
 
 /** The 148 CSS named colors, read out of a browser rather than transcribed. */
 const NAMED: Record<string, string> = {
@@ -209,10 +219,22 @@ function decodeSrgb(c: number): number {
 	return abs <= 0.04045 ? c / 12.92 : sign * ((abs + 0.055) / 1.055) ** 2.4;
 }
 
-/** Linear-light sRGB in 0–1 to the 0–255 integer channels the rest of the code uses. */
-function fromLinear(r: number, g: number, b: number): Rgb {
-	const to255 = (c: number) => Math.round(clamp01(encodeSrgb(c)) * 255);
-	return { r: to255(r), g: to255(g), b: to255(b) };
+/**
+ * Linear-light sRGB in 0–1 to the 0–255 integer channels the rest of the code
+ * uses. A channel that had to be clipped means the color was outside sRGB, so
+ * the result is a stand-in: right for a threshold check on an sRGB screen, not
+ * the color a wide-gamut display paints. That is worth reporting rather than
+ * burying, so it rides back on the value — see `ParsedColor.clipped`.
+ */
+function fromLinear(r: number, g: number, b: number): ParsedColor {
+	const encoded = [r, g, b].map(encodeSrgb);
+	// Against a tolerance, not the bare bounds: a round trip through the
+	// matrices leaves white a few 1e-8 outside them, and calling that a gamut
+	// excursion would mark an all-sRGB palette as approximated. Measured noise
+	// tops out around 3e-8; the smallest real excursion is far larger.
+	const clipped = encoded.some((c) => c < -1e-6 || c > 1 + 1e-6);
+	const [R, G, B] = encoded.map((c) => Math.round(clamp01(c) * 255));
+	return clipped ? { r: R, g: G, b: B, clipped: true } : { r: R, g: G, b: B };
 }
 
 // --- component parsing -----------------------------------------------------
@@ -334,7 +356,7 @@ function hwbToRgb(h: number, w: number, b: number): Rgb {
 	return { r: apply(base.r), g: apply(base.g), b: apply(base.b) };
 }
 
-function oklabToRgb(L: number, a: number, b: number): Rgb {
+function oklabToRgb(L: number, a: number, b: number): ParsedColor {
 	const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
 	const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
 	const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
@@ -345,8 +367,21 @@ function oklabToRgb(L: number, a: number, b: number): Rgb {
 	);
 }
 
+/** The inverse, for mixing: 0–255 sRGB back to oklab's L/a/b. */
+function rgbToOklab({ r, g, b }: Rgb): [number, number, number] {
+	const [lr, lg, lb] = [r, g, b].map((c) => decodeSrgb(c / 255));
+	const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb);
+	const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb);
+	const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb);
+	return [
+		0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+		1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+		0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
+	];
+}
+
 /** CIE Lab (D50, as CSS defines it) through Bradford adaptation to linear sRGB. */
-function labToRgb(L: number, a: number, b: number): Rgb {
+function labToRgb(L: number, a: number, b: number): ParsedColor {
 	const fy = (L + 16) / 116;
 	const fx = fy + a / 500;
 	const fz = fy - b / 200;
@@ -368,7 +403,7 @@ function labToRgb(L: number, a: number, b: number): Rgb {
 	);
 }
 
-function p3ToRgb(r: number, g: number, b: number): Rgb {
+function p3ToRgb(r: number, g: number, b: number): ParsedColor {
 	const [lr, lg, lb] = [r, g, b].map(decodeSrgb);
 	const x = 0.4865709486482162 * lr + 0.26566769316909306 * lg + 0.1982172852343625 * lb;
 	const y = 0.2289745640697488 * lr + 0.6917385218365064 * lg + 0.079286914093745 * lb;
@@ -386,6 +421,80 @@ function polar(c: number, hueDeg: number): [number, number] {
 	return [c * Math.cos(rad), c * Math.sin(rad)];
 }
 
+// --- mixing ----------------------------------------------------------------
+
+/** The interpolation spaces `mixColors` understands, beyond plain sRGB. */
+export type MixSpace = 'oklab' | 'oklch';
+
+/** CSS Color 4's four ways around the hue circle; `shorter` is the default. */
+export type HueMethod = 'shorter' | 'longer' | 'increasing' | 'decreasing';
+
+/**
+ * Move `h2` into the arc the method asks for, relative to `h1`, so a plain
+ * lerp between the two lands on the intended side of the circle.
+ */
+function alignHue(h1: number, h2: number, method: HueMethod): number {
+	const d = h2 - h1;
+	switch (method) {
+		case 'longer':
+			// The spec's branch is `-180 < d <= 0`, zero included: two equal hues
+			// under `longer` sweep the whole circle rather than standing still.
+			return Math.abs(d) < 180 ? h2 + (d > 0 ? -360 : 360) : h2;
+		case 'increasing':
+			return d < 0 ? h2 + 360 : h2;
+		case 'decreasing':
+			return d > 0 ? h2 - 360 : h2;
+		default:
+			return d > 180 ? h2 - 360 : d < -180 ? h2 + 360 : h2;
+	}
+}
+
+/**
+ * `color-mix(in <space>, a p%, b)` for the perceptual spaces, as the browser
+ * computes it: convert both ends, interpolate, convert back. sRGB mixing is
+ * `mixSrgb` in `contrast.ts` — a channelwise lerp needs no round trip.
+ *
+ * In `oklch`, a chroma of zero leaves the hue powerless: the endpoint has no
+ * direction on the circle, so CSS takes the other color's hue rather than
+ * interpolating toward an arbitrary one. Skipping that rule sends a mix with
+ * gray at one end around the wheel through hues neither color contains.
+ *
+ * Known ceiling: the endpoints arrive as 8-bit sRGB, so a hue is accurate to
+ * roughly half a degree. Every arc choice below turns on a comparison against
+ * 180°, and at a separation within about a degree of exactly that, rounding
+ * decides the direction — the two arcs are equally long, and CSS picks by the
+ * sign of the difference. Carrying more precision would mean a wider
+ * interchange type than `ParsedColor`, for a case a real palette is unlikely
+ * to hit; the mixes either side of the boundary are unaffected.
+ */
+export function mixColors(
+	a: Rgb,
+	b: Rgb,
+	weightOfA: number,
+	space: MixSpace,
+	hue: HueMethod = 'shorter'
+): ParsedColor {
+	const [L1, a1, b1] = rgbToOklab(a);
+	const [L2, a2, b2] = rgbToOklab(b);
+	const t = 1 - weightOfA;
+	const lerp = (x: number, y: number) => x + (y - x) * t;
+
+	if (space === 'oklab') return oklabToRgb(lerp(L1, L2), lerp(a1, a2), lerp(b1, b2));
+
+	const c1 = Math.hypot(a1, b1);
+	const c2 = Math.hypot(a2, b2);
+	const POWERLESS = 1e-6;
+	const h1 = c1 < POWERLESS ? null : ((Math.atan2(b1, a1) * 180) / Math.PI + 360) % 360;
+	const h2 = c2 < POWERLESS ? null : ((Math.atan2(b2, a2) * 180) / Math.PI + 360) % 360;
+	// The powerless end takes the other's hue first; the arc is chosen after
+	// that, so `longer` still sweeps once the substitution leaves them equal.
+	const from = h1 ?? h2 ?? 0;
+	const to = h2 ?? h1 ?? 0;
+	const mixedHue = from + (alignHue(from, to, hue) - from) * t;
+	const [ma, mb] = polar(lerp(c1, c2), mixedHue);
+	return oklabToRgb(lerp(L1, L2), ma, mb);
+}
+
 // --- the parser ------------------------------------------------------------
 
 /**
@@ -393,7 +502,7 @@ function polar(c: number, hueDeg: number): [number, number] {
  * resolved on its own (see the module comment for what that covers). Out of
  * gamut values are clipped per channel.
  */
-export function parseColor(value: string): Rgb | null {
+export function parseColor(value: string): ParsedColor | null {
 	const input = value.trim();
 	if (input === '') return null;
 

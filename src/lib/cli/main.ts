@@ -304,6 +304,19 @@ export async function run(argv: string[], options: RunOptions = {}): Promise<num
 	for (const name of report.unresolved) {
 		log(`  ? ${name} could not be resolved statically, pairing skipped`);
 	}
+	// WCAG is defined on sRGB, so a wider-gamut color is graded on its clipped
+	// stand-in. The ratio is still the right call for an sRGB screen, but it is
+	// not measuring the color a wide-gamut display paints. A report that hides
+	// that reads more exact than it is.
+	const clippedRows = report.rows.filter((row) => row.clipped);
+	if (clippedRows.length > 0) {
+		const ids = [...new Set(clippedRows.map((row) => `${row.mode} ${row.id}`))];
+		log(
+			`  ~ ${clippedRows.length} of ${report.rows.length} pairings involve a color outside sRGB, graded on its clipped equivalent`
+		);
+		for (const id of ids.slice(0, 5)) log(`    ~ ${id}`);
+		if (ids.length > 5) log(`    ~ …and ${ids.length - 5} more`);
+	}
 	// A theme with no gradeable surface or text is a hole in the gate rather
 	// than a miss inside it, so it prints with the failures instead of as a
 	// note.

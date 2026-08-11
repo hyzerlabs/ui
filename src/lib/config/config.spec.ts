@@ -1050,6 +1050,38 @@ describe('contrastReport', () => {
 		}
 	});
 
+	it('grades an intent built with color-mix in a perceptual space', () => {
+		// The pairing with oklch tokens: someone authoring in oklch reaches for
+		// color-mix in oklab too. Unresolved, this intent's six pairings would
+		// leave the report while `pass` still read true.
+		const report = contrastReport(
+			resolveConfig({
+				tokens: {
+					intent: { brand: 'color-mix(in oklab, var(--hz-palette-primary) 70%, #111827)' }
+				}
+			})
+		);
+		expect(report.unresolved).toEqual([]);
+		expect(report.rows.some((r) => r.id === 'text:intent-brand/surface')).toBe(true);
+		expect(report.rows.every((r) => !r.clipped)).toBe(true);
+	});
+
+	it('marks the pairings that were graded on a clipped stand-in', () => {
+		const report = contrastReport(
+			resolveConfig({ tokens: { palette: { primary: 'oklch(0.65 0.31 145)' } } })
+		);
+		const clipped = report.rows.filter((r) => r.clipped).map((r) => r.id);
+		// The out-of-gamut hue, everything it tints, and nothing else.
+		expect(clipped).toContain('text:intent-primary/surface');
+		expect(clipped).toContain('soft-badge:intent-primary');
+		expect(clipped.every((id) => id.includes('primary'))).toBe(true);
+		expect(report.rows.some((r) => !r.clipped)).toBe(true);
+	});
+
+	it('grades the shipped palette with nothing clipped', () => {
+		expect(contrastReport(resolveConfig()).rows.every((r) => !r.clipped)).toBe(true);
+	});
+
 	it('lists unresolvable values instead of guessing', () => {
 		// Translucent: no contrast ratio until it is composited over a backdrop.
 		const report = contrastReport(

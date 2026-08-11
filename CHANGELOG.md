@@ -13,11 +13,16 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
   `hwb()`, `lab()`, `lch()`, `oklab()`, `color(srgb …)`,
   `color(display-p3 …)`, named colors and hex are all read by the contrast
   report and by the public contrast utilities. They always reached the sheet
-  exactly as you wrote them. Now they are graded too. WCAG defines contrast
-  on sRGB, so a color outside that gamut grades against its nearest sRGB
-  neighbor.
+  exactly as you wrote them. Now they are graded too.
 - **`parseColor`** resolves any static, opaque CSS color to sRGB channels.
   It is exported from the package root and `@hyzer-labs/ui/utils`.
+- **`color-mix()` is read in `oklab` and `oklch` as well as `srgb`**, hue
+  direction included, so a `longer hue` mix is graded as the color it paints.
+- **The report says when a color was outside sRGB.** WCAG is defined on sRGB,
+  so a wider-gamut color is graded on its clipped equivalent. Those pairings
+  are marked in the report, and `hyzer generate` names them. The ratio is
+  still the right call for an sRGB screen. It is not measuring what a
+  wide-gamut display paints.
 
 ### Changed
 
@@ -29,6 +34,12 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- **A `color-mix()` whose percentages sum to under 100% is no longer graded
+  as though it were opaque.** CSS scales the two weights to 100% and drops
+  the result's alpha to match, so `color-mix(in srgb, a 30%, b 30%)` is a
+  half-and-half mix at 60% alpha, not a 30/70 blend. The report graded the
+  30/70 blend. A translucent color has no ratio of its own, so it is now
+  reported as unresolvable.
 - **A palette the contrast gate cannot read no longer reports as passing.**
   When a surface or the text role could not be resolved, its whole theme
   dropped out of the report. That left no rows to fail, so

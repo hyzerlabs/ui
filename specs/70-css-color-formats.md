@@ -31,8 +31,8 @@ a fix before it is a feature.
 ### Requirements
 
 **R1 — `parseColor`.** A new `src/lib/utils/color.ts` exports
-`parseColor(value: string): Rgb | null`, pure and DOM-free. It resolves, to
-sRGB 0–255 channels:
+`parseColor(value: string): ParsedColor | null`, pure and DOM-free — sRGB
+0–255 channels, plus R3's gamut marker. It resolves:
 
 - hex, 3/4/6/8 digits
 - `rgb()` / `rgba()`, `hsl()` / `hsla()`, `hwb()`
@@ -64,9 +64,9 @@ the report:
 below 1 (no contrast ratio exists until it is composited over a known
 backdrop — including `transparent`), `currentColor`, `inherit`, relative
 color syntax (`oklch(from … )`), `var()`, `color-mix()`, and any color space
-not in R1. `var()` and `color-mix()` are resolved a layer up, by `resolveHex`
-in `config/report.ts`, which walks `var()` chains and evaluates
-`color-mix(in srgb, …)` before handing leaves to `parseColor`.
+not in R1. `var()` and `color-mix()` are resolved a layer up, by
+`resolveColor` in `config/report.ts` (R8), which walks `var()` chains and
+evaluates the mixes before handing leaves to `parseColor`.
 
 Refused too: anything CSS itself rejects, which a permissive parser would
 otherwise accept — a JS numeric literal in a channel (`Number('0x10')` is
@@ -76,11 +76,18 @@ the named-color lookup has to be guarded: `constructor` and `__proto__` are
 lowercase keys on `Object.prototype`, and an unguarded lookup returns a
 function where a color string belongs.
 
-**R3 — Gamut.** A color outside sRGB is clipped per channel, not gamut
-mapped. Grading a P3 hue against its nearest sRGB neighbor is close enough
-for a threshold check and wrong for a wide-gamut display; CSS Color 4's
-chroma-reduction mapping is the upgrade if that ever matters. Documented
-where the docs describe the report, not only in source.
+**R3 — Gamut, and saying so.** A color outside sRGB is clipped per channel,
+not gamut mapped. Grading a P3 hue against its clipped equivalent is close
+enough for a threshold check and wrong for a wide-gamut display; CSS Color
+4's chroma-reduction mapping is the upgrade if that ever matters.
+
+An approximation that does not admit to being one reads as exact. So the flag
+travels with the value rather than being inferred later: `parseColor` marks a
+result whose channels had to be clipped, `resolveColor` carries it through
+`var()` chains and `color-mix()`, and every report row says whether either
+side reached its ratio that way. The CLI names the affected pairings. It is a
+note, not a failure — the ratio is still the right answer for an sRGB screen.
+Documented where the docs describe the report, not only in source.
 
 **R4 — The report grades every format.** `config/report.ts` resolves leaves
 through `parseColor` instead of its hex regex. A palette authored in any
@@ -110,6 +117,38 @@ Every in-gamut case must agree within 1/255, and all 148 named colors must
 agree exactly. Numbers transcribed from a spec document are not an
 acceptable substitute for that oracle.
 
+**R8 — `color-mix()` in the perceptual spaces.** `resolveColor` evaluates
+two-color `color-mix()` in `srgb`, `oklab` and `oklch`. srgb stays a
+channelwise lerp of the encoded values (the theme's own recipes); the other
+two convert both ends, interpolate, and convert back. `oklch` interpolates
+hue on the circle, with all four `<hue-interpolation-method>` keywords and
+`shorter` as the default. A zero-chroma end's hue is powerless, so the mix
+takes the other color's hue rather than sweeping through hues neither color
+contains.
+
+Percentages follow CSS Color 5. The percentage may lead or trail its color,
+since the grammar pairs them with `&&`. One given implies the other, neither
+means half each, and a pair that does not sum to 100% is scaled until it
+does. Three forms resolve to `null` instead, each because the browser paints
+nothing a grade could describe: a pair summing to *under* 100%, which CSS
+makes translucent; a weight outside 0–100%, which makes the whole function
+invalid so the declaration is dropped; and a component carrying a percentage
+at both ends, which is not a form CSS has. Any other interpolation space is
+`null` too — mixing in the wrong space would grade a color the browser never
+paints, which is worse than not grading it.
+
+**Known ceiling.** Endpoints reach the mix as 8-bit sRGB, so a hue is good to
+about half a degree, and every arc choice turns on a comparison against 180°.
+A pair separated by within about a degree of exactly 180° can take the other
+arc: both are the same length there, and CSS decides by the sign. Accepted —
+carrying more precision means a wider interchange type than `ParsedColor`,
+and the mixes either side of the boundary are unaffected.
+
+Why this and not the rest of `color-mix()`: a consumer authoring in `oklch()`
+is the same consumer who writes `color-mix(in oklab, …)`. Left unresolved,
+that value's pairings leave the report while `pass` still reads true — the
+gate shrinks without failing, which is the R5 defect in a smaller form.
+
 ### Edge Cases & Error States
 
 | Case | Expected behavior |
@@ -119,7 +158,15 @@ acceptable substitute for that oracle.
 | `--hz-color-surface: currentColor` | Theme reported as not graded; `pass` false; `--strict` exits 1. |
 | A single intent unresolvable | Named in `unresolved`, its pairings skipped, theme still graded. |
 | `rgba(0, 0, 0, 0.5)` as a token | Unresolved — a translucent color has no ratio of its own. |
-| `color-mix(in oklab, …)` as a token value | Unresolved (R2). Only `in srgb` is modeled, matching the theme's own recipes. |
+| `color-mix(in oklab, …)`, `in oklch` | Evaluated (R8), including the hue-interpolation keywords. |
+| `color-mix(in lch, …)`, `in hsl`, `in xyz` | Unresolved — not modeled, and mixing in the wrong space grades a color that is never painted. |
+| `color-mix(in oklab, a 30%, b 30%)` | Unresolved: the sum under 100% makes the result translucent. |
+| `color-mix(in oklab, a 120%, b 30%)` | Unresolved — a weight over 100% makes the whole function invalid CSS. |
+| `color-mix(in srgb, 30% a, b)` | The leading-percentage form; same result as `a 30%`. |
+| `color-mix(in oklch longer hue, a, a)` | Sweeps the whole circle. Equal hues are the `longer` branch's boundary case, not a no-op. |
+| `color-mix(in oklch longer hue, gray, a)` | Powerless hue is substituted first, then the arc is chosen, so this sweeps too. |
+| `lab(100 0 0)` (white through a matrix) | Not marked clipped: float noise at 1e-8 is not a gamut excursion. |
+| `color-mix(in oklch, oklch(0.7 0.35 150), white)` | Mixed on the clipped end, and the row is marked (R3) — the browser mixes the wide-gamut original, so this one is an approximation twice over. |
 | `contrastRatio('var(--x)', '#fff')` | Throws a `TypeError` naming the value. |
 | Legacy vs modern syntax for one color | Identical result. |
 | Mixed syntax (`rgb(1, 2 3)`) | `null`. |
@@ -134,8 +181,9 @@ acceptable substitute for that oracle.
 
 - `src/lib/utils/contrast.ts` — all ratio/level math (specs/29 R5); the
   parser feeds it, never duplicates it.
-- `src/lib/config/report.ts` — `resolveHex` already walks `var()` and
-  `color-mix(in srgb, …)`; only its leaf resolution changes.
+- `src/lib/config/report.ts` — `resolveColor` walks `var()` and evaluates
+  `color-mix()`; `resolveHex` stays as its hex-only wrapper for the two specs
+  that only want the string.
 
 ### Test plan
 
@@ -175,7 +223,16 @@ case moves to a translucent color, since `oklch()` is no longer unresolvable.
 **Server — `src/lib/cli/main.spec.ts`.** An `oklch()` palette that misses AA
 exits 1 under `--strict` and names the pairing. An ungradeable surface warns
 at exit 0 without `--strict`, and exits 1 with it, printing `not graded`
-rather than `all pass`.
+rather than `all pass`. An out-of-gamut hue prints the gamut note and names a
+pairing; a palette that fits in sRGB prints nothing about gamut at all.
+
+**Client — `src/lib/config/report-mix.svelte.spec.ts` (new).** R8 against the
+same canvas oracle, since hue direction and percentage normalization are
+exactly the questions a spec document is easy to misread on. In-gamut mixes
+agree within 1/255; `longer hue` must differ from `shorter hue` by more than
+rounding, or the keyword is not doing anything. The translucent cases assert
+the browser's alpha is 153 alongside our `null`, so the refusal is pinned to
+what the browser actually paints rather than to our reading of the rule.
 
 ### Gate
 
@@ -196,9 +253,10 @@ feature branch, never to `main`.
 
 `src/lib/utils/color.ts` (new), `src/lib/utils/color.svelte.spec.ts` (new),
 `src/lib/utils/contrast.ts`, `src/lib/utils/index.ts`, `src/lib/index.ts`,
-`src/lib/config/report.ts`, `src/lib/cli/main.ts`, and the three spec files
-named in the test plan; `src/routes/docs/foundation/config/+page.svelte`,
-`src/routes/docs/theming/tokens/+page.svelte`, `CHANGELOG.md`.
+`src/lib/config/report.ts`, `src/lib/config/report-mix.svelte.spec.ts` (new),
+`src/lib/cli/main.ts`, and the spec files named in the test plan; `src/routes/docs/foundation/config/+page.svelte`,
+`src/routes/docs/theming/tokens/+page.svelte`,
+`src/routes/docs/foundation/contrast/+page.svelte`, `CHANGELOG.md`.
 
 No new dependencies (Context). No component changes, no CSS changes, and no
 change to any generated file. One new public export (`parseColor`) and one
@@ -206,11 +264,18 @@ behavior change to four existing ones (R6), both in `CHANGELOG.md`.
 
 ### Non-goals
 
-- Mix spaces beyond `in srgb` in `color-mix()`. The theme's own tint recipes
-  are `in srgb`, so nothing in the library needs more; a consumer's
-  `in oklab` value lands in `unresolved`, which R5 now makes loud.
-- Relative color syntax, and `color()` spaces beyond the three in R1.
-- Gamut mapping (R3).
+- Mix spaces beyond the three in R8. `lch`, `hsl`, `hwb`, `xyz` and the rest
+  land in `unresolved`. That is loud only when the value is a surface or the
+  text role, where R5 makes it a failure; anywhere else it stays a note and
+  the pairings quietly leave the report. Adding a space is the fix if one of
+  them starts showing up in real configs — not tightening R5, which would
+  fail builds over a token the gate has never been able to read.
+- Relative color syntax, and `color()` spaces beyond the three in R1. Neither
+  has a useful partial version: relative syntax without a `calc()` evaluator
+  supports only the identity mix, which nobody writes.
+- Gamut *mapping* (R3). Flagging the approximation is the cheap half; CSS
+  Color 4's chroma-reduction search is the expensive half, and it only
+  changes a grade for colors already outside sRGB.
 - Changing the theme's tint recipes to a perceptual space. That is a design
   decision about the shipped theme, with a matching change to the report's
   model, and belongs in its own spec.

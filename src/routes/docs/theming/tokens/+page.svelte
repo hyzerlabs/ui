@@ -200,15 +200,17 @@
 		<Alert intent="info" title="Write your colors in whatever space suits you">
 			{#snippet icon()}<IconInfo />{/snippet}
 			These functions read <code>oklch()</code>, <code>hsl()</code>, <code>lab()</code>,
-			<code>color(display-p3 …)</code>, a named color and a hex alike, and so does the config. WCAG
-			defines contrast on sRGB, so a color outside that gamut is graded against its nearest sRGB
-			neighbor.
+			<code>color(display-p3 …)</code>, a named color and a hex alike, and so does the config, which
+			also reads <code>color-mix()</code> in <code>srgb</code>, <code>oklab</code> and
+			<code>oklch</code>. WCAG defines contrast on sRGB, so a color outside that gamut is graded
+			against its clipped equivalent, and the generate report says which pairings that applied to.
 		</Alert>
 		<p>
 			A color that cannot stand on its own is refused rather than guessed at: a <code>var()</code>,
 			a <code>currentColor</code>, or anything part-transparent. A translucent color has no ratio
 			until it sits on a known backdrop. So are the relative syntax (<code>oklch(from …)</code>) and
-			<code>color()</code> in a space beyond the three above. Refused means a thrown
+			<code>color()</code> in a space beyond <code>srgb</code>, <code>srgb-linear</code> and
+			<code>display-p3</code>. Refused means a thrown
 			<code>TypeError</code> naming the value, so a test that passes one fails loudly instead of comparing
 			a number that was never a ratio.
 		</p>

@@ -645,9 +645,10 @@
 		<Alert intent="info" title="Write your colors in whatever space suits you">
 			{#snippet icon()}<IconInfo />{/snippet}
 			These functions read <code>oklch()</code>, <code>hsl()</code>, <code>lab()</code>,
-			<code>color(display-p3 …)</code>, a named color and a hex alike, and so does the config. WCAG
-			defines contrast on sRGB, so a color outside that gamut is graded against its nearest sRGB
-			neighbor. A color with no ratio of its own — a <code>var()</code>, a
+			<code>color(display-p3 …)</code>, a named color and a hex alike, and so does the config, which
+			also reads <code>color-mix()</code> in <code>srgb</code>, <code>oklab</code> and
+			<code>oklch</code>. WCAG defines contrast on sRGB, so a color outside that gamut is graded
+			against its clipped equivalent. A color with no ratio of its own — a <code>var()</code>, a
 			<code>currentColor</code>, anything part-transparent — throws instead of grading a guess.
 		</Alert>
 		<p>
