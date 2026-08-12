@@ -16,6 +16,7 @@ export { toFormErrors, type FormErrorsInput } from './utils/form.js';
 export { lightboxGroup } from './attachments/lightboxGroup.js';
 export { theme } from './attachments/theme.js';
 export { tooltip } from './attachments/tooltip.js';
+export { parseColor, type ParsedColor } from './utils/color.js';
 export {
 	hexToRgb,
 	rgbToHex,

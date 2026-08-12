@@ -14,6 +14,7 @@ import {
 } from './index.js';
 import { toKebab } from './schema.js';
 import { palette, color, intent, space, typography, density, radius } from '../tokens/index.js';
+import { hexToRgb } from '../utils/contrast.js';
 import { CONFIG_TEMPLATE, INIT_HEADER } from '../cli/config-template.js';
 import { renderConfigDefaults } from '../../../scripts/gen-config-defaults.js';
 
@@ -999,11 +1000,105 @@ describe('contrastReport', () => {
 		expect(failing.every((id) => id.startsWith('default:'))).toBe(true);
 	});
 
-	it('lists unresolvable values instead of guessing', () => {
+	it('grades a palette authored in any CSS color space', () => {
 		const report = contrastReport(
-			resolveConfig({ tokens: { palette: { primary: 'oklch(0.5 0.2 250)' } } })
+			resolveConfig({
+				tokens: {
+					palette: {
+						primary: 'oklch(0.55 0.15 250)',
+						danger: 'hsl(0 70% 40%)',
+						success: 'lab(45% -40 35)',
+						warning: 'color(display-p3 0.55 0.35 0)'
+					}
+				}
+			})
+		);
+		expect(report.unresolved).toEqual([]);
+		expect(report.skipped).toEqual([]);
+		for (const intentKey of ['primary', 'danger', 'success', 'warning']) {
+			expect(report.rows.some((r) => r.id === `text:intent-${intentKey}/surface`)).toBe(true);
+		}
+	});
+
+	it('grades the same colors identically however they are written', () => {
+		// Every default hue restated as color(srgb …). Same colors, so every
+		// pairing has to come back with the same ratio. This is the check that
+		// the conversion math agrees with the hex path it replaced.
+		const asSrgbFn = (hex: string) => {
+			const { r, g, b } = hexToRgb(hex);
+			return `color(srgb ${(r / 255).toFixed(6)} ${(g / 255).toFixed(6)} ${(b / 255).toFixed(6)})`;
+		};
+		const restate = (group: Record<string, unknown>) =>
+			Object.fromEntries(
+				Object.entries(group)
+					.filter(([, v]) => typeof v === 'string')
+					.map(([k, v]) => [k, asSrgbFn(v as string)])
+			);
+
+		const base = contrastReport(resolveConfig());
+		const restated = contrastReport(
+			resolveConfig({
+				tokens: { palette: restate(palette) },
+				themes: { dark: { palette: restate(palette.theme.dark) } }
+			})
+		);
+		expect(restated.rows).toHaveLength(base.rows.length);
+		expect(restated.pass).toBe(base.pass);
+		for (const [i, row] of base.rows.entries()) {
+			expect(restated.rows[i].id).toBe(row.id);
+			expect(restated.rows[i].ratio).toBeCloseTo(row.ratio, 2);
+		}
+	});
+
+	it('grades an intent built with color-mix in a perceptual space', () => {
+		// The pairing with oklch tokens: someone authoring in oklch reaches for
+		// color-mix in oklab too. Unresolved, this intent's six pairings would
+		// leave the report while `pass` still read true.
+		const report = contrastReport(
+			resolveConfig({
+				tokens: {
+					intent: { brand: 'color-mix(in oklab, var(--hz-palette-primary) 70%, #111827)' }
+				}
+			})
+		);
+		expect(report.unresolved).toEqual([]);
+		expect(report.rows.some((r) => r.id === 'text:intent-brand/surface')).toBe(true);
+		expect(report.rows.every((r) => !r.clipped)).toBe(true);
+	});
+
+	it('marks the pairings that were graded on a clipped stand-in', () => {
+		const report = contrastReport(
+			resolveConfig({ tokens: { palette: { primary: 'oklch(0.65 0.31 145)' } } })
+		);
+		const clipped = report.rows.filter((r) => r.clipped).map((r) => r.id);
+		// The out-of-gamut hue, everything it tints, and nothing else.
+		expect(clipped).toContain('text:intent-primary/surface');
+		expect(clipped).toContain('soft-badge:intent-primary');
+		expect(clipped.every((id) => id.includes('primary'))).toBe(true);
+		expect(report.rows.some((r) => !r.clipped)).toBe(true);
+	});
+
+	it('grades the shipped palette with nothing clipped', () => {
+		expect(contrastReport(resolveConfig()).rows.every((r) => !r.clipped)).toBe(true);
+	});
+
+	it('lists unresolvable values instead of guessing', () => {
+		// Translucent: no contrast ratio until it is composited over a backdrop.
+		const report = contrastReport(
+			resolveConfig({ tokens: { palette: { primary: 'oklch(0.5 0.2 250 / 40%)' } } })
 		);
 		expect(report.unresolved.some((u) => u.startsWith('--hz-intent-primary'))).toBe(true);
+	});
+
+	it('a theme it cannot grade at all is a failure, not a clean report', () => {
+		// Before the color parser landed, an unparseable surface or text role
+		// took its whole theme out of the report, and `pass` was true over the
+		// zero rows left behind, so `--strict` waved an ungraded palette through.
+		const report = contrastReport(
+			resolveConfig({ tokens: { color: { surface: 'currentColor' } } })
+		);
+		expect(report.skipped).toContain('default');
+		expect(report.pass).toBe(false);
 	});
 
 	it('report values match the metadata-derived expectations', () => {

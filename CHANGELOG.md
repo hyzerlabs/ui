@@ -7,8 +7,59 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+
+- **Author your colors in any CSS color space.** The contrast report and the
+  public contrast utilities now read `oklch()`, `hsl()`, `hwb()`, `lab()`,
+  `lch()`, `oklab()`, named colors, hex, and all nine spaces `color()`
+  predefines: `srgb`, `srgb-linear`, `display-p3`, `a98-rgb`, `prophoto-rgb`,
+  `rec2020`, `xyz`, `xyz-d50` and `xyz-d65`. Your colors always reached the
+  sheet exactly as you wrote them. Now they are graded too.
+- **`parseColor`** resolves any static, opaque CSS color to sRGB channels.
+  It is exported from the package root and `@hyzer-labs/ui/utils`.
+- **`color-mix()` is read in all fifteen spaces CSS can interpolate in.**
+  That includes the four with a hue (`hsl`, `hwb`, `lch`, `oklch`) and which
+  way round the circle it goes, so a `longer hue` mix is graded as the color
+  it paints.
+- **The report says when a color was outside sRGB.** WCAG is defined on sRGB,
+  so a wider-gamut color is graded on its clipped equivalent. Those pairings
+  are marked in the report, and `hyzer generate` names them. The ratio is
+  still the right call for an sRGB screen. It is not measuring what a
+  wide-gamut display paints.
+- **Relative colors are read, arithmetic and all.**
+  `oklch(from var(--brand) calc(l * 0.8) c h)` is graded as the color it
+  computes to, in every CSS color function that takes the syntax. The origin
+  can be a `var()` chain or a `color-mix()`. It reaches the arithmetic as an
+  8-bit color, so deriving from a hue outside sRGB starts from its clipped
+  equivalent. Those results are marked in the report, like any other clipped
+  color.
+
+### Changed
+
+- **The contrast utilities take any CSS color, and now throw on one they
+  cannot grade.** `contrastRatio`, `relativeLuminance`, `gradeContrast` and
+  `mixSrgb` throw a `TypeError` naming the value when it cannot stand on its
+  own: a `var()`, a `currentColor`, or a color with alpha. They used to
+  return `NaN` and say nothing. `hexToRgb` is unchanged and still hex only.
+
 ### Fixed
 
+- **A `color-mix()` whose percentages sum to under 100% is no longer graded
+  as though it were opaque.** CSS scales the two weights to 100% and drops
+  the result's alpha to match, so `color-mix(in srgb, a 30%, b 30%)` is a
+  half-and-half mix at 60% alpha, not a 30/70 blend. The report graded the
+  30/70 blend. A translucent color has no ratio of its own, so it is now
+  reported as unresolvable.
+- **A palette the contrast gate cannot read no longer reports as passing.**
+  When a surface or the text role could not be resolved, its whole theme
+  dropped out of the report. That left no rows to fail, so
+  `hyzer generate --strict` exited 0 and the accessibility gate had quietly
+  stopped running. A palette written in `oklch()` did exactly that. An
+  ungraded theme is now an error line and fails `--strict`, so a run that
+  used to pass may report failures it was hiding. The likeliest one to meet
+  is a role pointed at a `var()` your own stylesheet defines rather than the
+  config: the report cannot follow it, so that theme is no longer graded on
+  a guess.
 - **`<Carousel layout="rail" loop>`: the prev button now wraps.** A rail sits at
   the first item, so paging back crosses the loop boundary while the smooth
   scroll is still animating — and the browser overwrote the wrap on the next

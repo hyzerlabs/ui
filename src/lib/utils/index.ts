@@ -5,6 +5,8 @@ import type { NavChild, NavHeading } from '../types/index.js';
 
 // WCAG contrast math — check palette overrides against your contrast bar.
 export * from './contrast.js';
+// Static CSS color parsing, the sRGB conversion the math above runs on.
+export { parseColor, type ParsedColor } from './color.js';
 
 /**
  * Narrow a Nav `children` entry to the group-label subtype.

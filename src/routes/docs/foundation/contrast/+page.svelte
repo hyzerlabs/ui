@@ -1,5 +1,6 @@
 <script lang="ts">
 	import {
+		Alert,
 		Stack,
 		Cluster,
 		Grid,
@@ -16,6 +17,7 @@
 		type LargeContrastLevel,
 		CodeBlock
 	} from '$lib';
+	import IconInfo from '$lib/icons/generated/info.svelte';
 	import type { SelectOption } from '$lib/types';
 	import { palette, intent } from '$lib/tokens';
 	import { softTints } from '$lib/config';
@@ -630,15 +632,31 @@
 	>
 		<h2 id="api-heading">Check your own palette</h2>
 		<p>
-			The math behind this page is part of the library: <code>hexToRgb</code>,
+			The math behind this page is part of the library: <code>parseColor</code>,
+			<code>hexToRgb</code>,
 			<code>rgbToHex</code>, <code>mixSrgb</code>, <code>relativeLuminance</code>,
 			<code>contrastRatio</code>, <code>gradeContrast</code>, <code>bestLevel</code>, and
 			<code>bestLevelLarge</code>, exported from the package root and
-			<code>@hyzer-labs/ui/utils</code>. Pure functions over hex strings (no DOM, SSR-safe), with
-			the token metadata importable from <code>@hyzer-labs/ui/tokens</code>. If your theme overrides
-			the palette, assert your pairings in a unit test the same way this library does:
+			<code>@hyzer-labs/ui/utils</code>. Pure functions over strings (no DOM, SSR-safe), with the
+			token metadata importable from <code>@hyzer-labs/ui/tokens</code>. If your theme overrides the
+			palette, assert your pairings in a unit test the same way this library does:
 		</p>
 		<CodeBlock code={apiCode} />
+		<Alert intent="info" title="Write your colors in whatever space suits you">
+			{#snippet icon()}<IconInfo />{/snippet}
+			These functions read <code>oklch()</code>, <code>hsl()</code>, <code>lab()</code>,
+			<code>color(display-p3 …)</code>, a named color and a hex alike. The config reads all of
+			those, plus <code>color-mix()</code> in all fifteen spaces CSS can interpolate in. It also
+			reads relative colors: <code>oklch(from var(--brand) calc(l * 0.8) c h)</code>. WCAG defines
+			contrast on sRGB, so a color outside that gamut is graded on its clipped equivalent, and the
+			generate report names those pairings.
+		</Alert>
+		<p>
+			A color that cannot stand on its own is refused rather than guessed at: a <code>var()</code>,
+			a
+			<code>currentColor</code>, or anything part-transparent. Refused means a thrown
+			<code>TypeError</code> naming the value, not a number that was never a ratio.
+		</p>
 		<p>
 			For the full override workflow, see
 			<a href="/docs/theming/tokens">Theming → Tokens &amp; Overrides</a>: plain-CSS recipes and the
