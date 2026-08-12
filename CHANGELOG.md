@@ -26,6 +26,13 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
   are marked in the report, and `hyzer generate` names them. The ratio is
   still the right call for an sRGB screen. It is not measuring what a
   wide-gamut display paints.
+- **Relative colors are read, arithmetic and all.**
+  `oklch(from var(--brand) calc(l * 0.8) c h)` is graded as the color it
+  computes to, in every CSS color function that takes the syntax. The origin
+  can be a `var()` chain or a `color-mix()`. It reaches the arithmetic as an
+  8-bit color, so deriving from a hue outside sRGB starts from its clipped
+  equivalent. Those results are marked in the report, like any other clipped
+  color.
 
 ### Changed
 

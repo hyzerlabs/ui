@@ -84,6 +84,7 @@ const IN_GAMUT = [
 	'rebeccapurple',
 	'tomato',
 	'WHITE',
+	'rgb(from red r g b)',
 	// Bare numbers where CSS reads them as percentages. Read as fractions
 	// instead, `hsl(210 90 45)` clamps to white — a wrong color, quietly.
 	'hsl(210 90 45)',
@@ -162,8 +163,9 @@ describe('parseColor — refusals', () => {
 		'currentColor',
 		'inherit',
 		'var(--hz-color-surface)',
+		// Relative syntax resolves (see relative.svelte.spec.ts); an origin this
+		// cannot reach on its own does not.
 		'oklch(from var(--x) l c h)',
-		'rgb(from red r g b)',
 		'color-mix(in srgb, red 50%, blue)',
 		'rgba(0, 0, 0, 0.5)',
 		'hsl(210 90% 45% / 50%)',

@@ -201,15 +201,15 @@
 			{#snippet icon()}<IconInfo />{/snippet}
 			These functions read <code>oklch()</code>, <code>hsl()</code>, <code>lab()</code>,
 			<code>color(display-p3 …)</code>, a named color and a hex alike. The config reads all of
-			those, plus <code>color-mix()</code> in all fifteen spaces CSS can interpolate in. WCAG defines
-			contrast on sRGB, so a color outside that gamut is graded on its clipped equivalent, and the generate
-			report names those pairings.
+			those, plus <code>color-mix()</code> in all fifteen spaces CSS can interpolate in. It also
+			reads relative colors: <code>oklch(from var(--brand) calc(l * 0.8) c h)</code>. WCAG defines
+			contrast on sRGB, so a color outside that gamut is graded on its clipped equivalent, and the
+			generate report names those pairings.
 		</Alert>
 		<p>
 			A color that cannot stand on its own is refused rather than guessed at: a <code>var()</code>,
-			a <code>currentColor</code>, anything part-transparent, or the relative syntax (<code
-				>oklch(from …)</code
-			>). A translucent color has no ratio until it sits on a known backdrop. Refused means a thrown
+			a <code>currentColor</code>, or anything part-transparent. A translucent color has no ratio
+			until it sits on a known backdrop. Refused means a thrown
 			<code>TypeError</code>
 			naming the value, so a test that passes one fails loudly instead of comparing a number that was
 			never a ratio. (<code>parseColor</code> is the exception: it reports the same refusal by

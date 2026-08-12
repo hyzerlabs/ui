@@ -270,12 +270,14 @@
 			direction included. A <code>longer hue</code> mix grades as the color it paints.
 		</p>
 		<p>
+			Relative colors work too, arithmetic included:
+			<code>oklch(from var(--brand) calc(l * 0.8) c h)</code> is graded as the color it computes to.
+		</p>
+		<p>
 			Some values cannot be graded on their own: a <code>currentColor</code>, a color with alpha, or
-			a <code>var()</code> pointing outside your config. The relative syntax (<code
-				>oklch(from …)</code
-			>) is not read yet either. The report names each one and skips its pairings. If the value is a
-			surface or the text role, its whole theme goes ungraded, and that counts as a failure. A
-			palette the gate could not read never reports as passing.
+			a <code>var()</code> pointing outside your config. The report names each one and skips its pairings.
+			If the value is a surface or the text role, its whole theme goes ungraded, and that counts as a
+			failure. A palette the gate could not read never reports as passing.
 		</p>
 		<p>
 			WCAG is defined on sRGB, so a color outside that gamut is graded on its clipped equivalent,

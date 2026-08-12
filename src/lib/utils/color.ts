@@ -1,9 +1,10 @@
 /**
- * Static CSS color parsing, to sRGB, plus the interpolation `color-mix()`
- * needs (`mixColors`), in every space CSS can interpolate in.
+ * Static CSS color parsing to sRGB, in every space CSS has: the color
+ * functions, relative color syntax with its `calc()` arithmetic, and the
+ * interpolation `color-mix()` needs (`mixColors`).
  *
  * The contrast math in `contrast.ts` is defined on sRGB. The token engine
- * that runs it lives in Node, where there is no CSS parser to borrow, so a
+ * that runs it lives in Node, where there is no CSS parser to borrow. A
  * config authored in `oklch()` needs this module to be graded at all. Pure
  * functions over strings, no DOM, so the same code grades a sheet at build
  * time and a computed value in the browser.
@@ -12,19 +13,20 @@
  * `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()`, `color()` in all nine
  * spaces it predefines, and the 148 CSS named colors. Both the legacy comma
  * syntax and the modern space syntax, with `none` treated as zero per CSS
- * Color 4. Where CSS clamps a component (alpha, lightness) so does this, and
- * a bare number in a percentage slot means percent, not a fraction.
+ * Color 4. Where CSS clamps a component (alpha, lightness), so does this. A
+ * bare number in a percentage slot means percent, not a fraction.
  * Following those rules exactly is the difference between grading the
  * consumer's color and grading a different one.
  *
  * The refusals, all returning `null` rather than a guess. Anything with
  * alpha below 1, including `transparent`: a translucent color has no
  * contrast ratio until it is composited over a known backdrop. Anything that
- * needs a resolver: `currentColor`, `inherit`, relative color syntax
- * (`oklch(from … )`), `var()` and `color-mix()`. The last two are resolved a
- * layer up, by `config/report.ts`. And anything CSS itself rejects that a
- * permissive parser would wave through: a `0x10` channel, a bare number in a
- * legacy `hsl()`, mixed comma and space syntax.
+ * needs a resolver: `currentColor`, `inherit`, `var()` and `color-mix()`. The
+ * last two are resolved a layer up, by `config/report.ts`, which also
+ * substitutes them when they appear as a relative color's origin. And
+ * anything CSS itself rejects that a permissive parser would wave through: a
+ * `0x10` channel, a bare number in a legacy `hsl()`, mixed comma and space
+ * syntax.
  *
  * Colors outside the sRGB gamut are clipped per channel, not gamut-mapped,
  * so a P3 hue grades against its nearest sRGB neighbor. That is close
@@ -803,6 +805,308 @@ export function mixColors(
 	return rgbFromXyz(model.toXyz(mixed));
 }
 
+// --- relative color syntax --------------------------------------------------
+
+/**
+ * `oklch(from <origin> l c calc(h + 180))`: a color described as a change to
+ * another one. The origin is converted into the destination space, and its
+ * channels are bound to that space's keywords. Each component is then a
+ * keyword, a literal, `none`, or arithmetic over any of them.
+ *
+ * The keywords carry the units that function's own bare numbers use: `s` is
+ * 50 in `hsl()` because a bare 50 there means 50%, and `l` is 0.5 in
+ * `oklch()` because a bare 0.5 there means 0.5. A
+ * percentage inside the arithmetic resolves against the channel's own
+ * reference first, so `calc(r * 50%)` is `r * 127.5`, not `r / 2`.
+ */
+interface ChannelModel {
+	/** Channel keywords, in order. */
+	names: [string, string, string];
+	/** What 100% means for each, or null where CSS allows no percentage. */
+	refs: [number | null, number | null, number | null];
+	/** The origin's channel values, in keyword units. */
+	values: (origin: Rgb) => Vec3;
+}
+
+const KEYWORD_UNITS: Record<string, ChannelModel> = {
+	rgb: {
+		names: ['r', 'g', 'b'],
+		refs: [255, 255, 255],
+		values: ({ r, g, b }) => [r, g, b]
+	},
+	hsl: {
+		names: ['h', 's', 'l'],
+		refs: [null, 100, 100],
+		// A bare number in `hsl()` means percent, so the keywords do too.
+		values: (rgb) => {
+			const [h, sat, l] = SPACES.hsl.fromSrgb!(srgbUnit(rgb));
+			return [h, sat * 100, l * 100];
+		}
+	},
+	hwb: {
+		names: ['h', 'w', 'b'],
+		refs: [null, 100, 100],
+		values: (rgb) => {
+			const [h, w, b] = SPACES.hwb.fromSrgb!(srgbUnit(rgb));
+			return [h, w * 100, b * 100];
+		}
+	},
+	lab: {
+		names: ['l', 'a', 'b'],
+		refs: [100, 125, 125],
+		values: (rgb) => SPACES.lab.fromXyz(xyzFromRgb(rgb))
+	},
+	oklab: {
+		names: ['l', 'a', 'b'],
+		refs: [1, 0.4, 0.4],
+		values: (rgb) => SPACES.oklab.fromXyz(xyzFromRgb(rgb))
+	},
+	lch: {
+		names: ['l', 'c', 'h'],
+		refs: [100, 150, null],
+		values: (rgb) => SPACES.lch.fromXyz(xyzFromRgb(rgb))
+	},
+	oklch: {
+		names: ['l', 'c', 'h'],
+		refs: [1, 0.4, null],
+		values: (rgb) => SPACES.oklch.fromXyz(xyzFromRgb(rgb))
+	}
+};
+
+const srgbUnit = ({ r, g, b }: Rgb): Vec3 => [r / 255, g / 255, b / 255];
+
+/** `color(from … <space> …)`: channels are 0–1, named r/g/b or x/y/z. */
+function colorFnModel(space: string): ChannelModel {
+	const xyz = space.startsWith('xyz');
+	return {
+		names: xyz ? ['x', 'y', 'z'] : ['r', 'g', 'b'],
+		refs: [1, 1, 1],
+		values: (rgb) => SPACES[space].fromXyz(xyzFromRgb(rgb))
+	};
+}
+
+/**
+ * Split on whitespace at the top level, keeping a nested function whole:
+ * `from oklch(0.6 0.15 200) l c h` is five tokens, not seven.
+ */
+function topLevelTokens(input: string): string[] {
+	const out: string[] = [];
+	let depth = 0;
+	let current = '';
+	for (const ch of input) {
+		if (ch === '(') depth++;
+		if (ch === ')') depth--;
+		if (depth === 0 && /\s/.test(ch)) {
+			if (current) out.push(current);
+			current = '';
+		} else {
+			current += ch;
+		}
+	}
+	if (current) out.push(current);
+	return out;
+}
+
+/** The first `char` that is not inside a nested function, or -1. */
+function topLevelIndexOf(input: string, char: string): number {
+	let depth = 0;
+	for (let i = 0; i < input.length; i++) {
+		if (input[i] === '(') depth++;
+		else if (input[i] === ')') depth--;
+		else if (depth === 0 && input[i] === char) return i;
+	}
+	return -1;
+}
+
+/**
+ * One component slot: a keyword, a literal, `none`, or `calc()`.
+ *
+ * A hue slot takes any CSS angle unit, the same as it does outside relative
+ * syntax — `180deg` and `0.5turn` are how a hue is usually written by hand.
+ * Inside `calc()` they are not: the keyword there is a plain number, so CSS
+ * rejects `calc(h + 30deg)` and so does the arithmetic below.
+ */
+function componentValue(
+	token: string,
+	vars: Record<string, number>,
+	ref: number | null
+): number | null {
+	const t = token.trim();
+	const isHue = ref === null;
+	if (t === 'none') return 0;
+	if (Object.hasOwn(vars, t.toLowerCase())) return vars[t.toLowerCase()];
+	const calc = /^calc\(([\s\S]*)\)$/i.exec(t);
+	if (calc) return evalMath(calc[1], vars, ref);
+	if (isHue) return angle(t);
+	return numOrPct(t, ref);
+}
+
+/**
+ * A `calc()` body over channel keywords and literals: `+ - * /`, parentheses,
+ * and nested `calc()`. Percentages resolve against the channel's reference
+ * before any arithmetic: the browser reads `calc(r * 50%)` as `r * 127.5`,
+ * not as half of `r`.
+ *
+ * CSS's own type algebra is not enforced, so this accepts a few expressions
+ * CSS rejects. All of them are arithmetic no palette writes on purpose, and
+ * the worst case is grading a color the browser never paints.
+ */
+function evalMath(src: string, vars: Record<string, number>, ref: number | null): number | null {
+	const tokens = src.match(/calc\(|[a-z_][a-z\d_-]*|[\d.]+%?|[-+*/()]/gi);
+	// The regex returns only what it matched, so anything it does not recognize
+	// would vanish instead of failing: `calc(r%)` would quietly evaluate to `r`.
+	if (!tokens || tokens.join('').length !== src.replace(/\s+/g, '').length) return null;
+	// Recursive descent, so nesting is stack depth. No config carries a value
+	// this deep, and R2 says this returns null rather than throwing.
+	if (tokens.filter((t) => t === '(' || /^calc\($/i.test(t)).length > 32) return null;
+	let i = 0;
+
+	/**
+	 * Values carry whether they came from a percentage, which is the one piece
+	 * of CSS's type algebra that changes an answer rather than only a verdict.
+	 * A number plus a percentage is invalid CSS — the browser drops the whole
+	 * declaration — and `calc(s + 10%)` is exactly how someone writes "10%
+	 * more saturated". Computing it would grade a color that is never painted.
+	 */
+	type Value = { n: number; pct: boolean };
+
+	const primary = (): Value | null => {
+		const t = tokens[i];
+		if (t === undefined) return null;
+		if (t === '(' || /^calc\($/i.test(t)) {
+			i++;
+			const value = expr();
+			if (value === null || tokens[i] !== ')') return null;
+			i++;
+			return value;
+		}
+		if (t === '-' || t === '+') {
+			i++;
+			const value = primary();
+			return value === null ? null : { n: t === '-' ? -value.n : value.n, pct: value.pct };
+		}
+		i++;
+		if (t.endsWith('%')) {
+			// A percentage resolves against the channel's own reference here, so
+			// `calc(r * 50%)` is `r * 127.5`. A hue has no reference to take one.
+			const n = ref === null ? null : numOrPct(t, ref);
+			return n === null ? null : { n, pct: true };
+		}
+		if (Object.hasOwn(vars, t.toLowerCase())) return { n: vars[t.toLowerCase()], pct: false };
+		// `none` is a component-level rule, not an operand: CSS has no value for
+		// it to contribute here, and rejects the whole declaration.
+		if (t.toLowerCase() === 'none') return null;
+		const n = num(t);
+		return n === null ? null : { n, pct: false };
+	};
+
+	const term = (): Value | null => {
+		let left = primary();
+		while (left !== null && (tokens[i] === '*' || tokens[i] === '/')) {
+			const op = tokens[i++];
+			const right = primary();
+			if (right === null) return null;
+			// Two percentages cannot multiply, and nothing divides by one.
+			if (op === '*' && left.pct && right.pct) return null;
+			if (op === '/' && (right.pct || right.n === 0)) return null;
+			left = {
+				n: op === '*' ? left.n * right.n : left.n / right.n,
+				pct: left.pct || right.pct
+			};
+		}
+		return left;
+	};
+
+	const expr = (): Value | null => {
+		let left = term();
+		while (left !== null && (tokens[i] === '+' || tokens[i] === '-')) {
+			const op = tokens[i++];
+			const right = term();
+			if (right === null || right.pct !== left.pct) return null;
+			left = { n: op === '+' ? left.n + right.n : left.n - right.n, pct: left.pct };
+		}
+		return left;
+	};
+
+	const value = expr();
+	return value !== null && i === tokens.length && Number.isFinite(value.n) ? value.n : null;
+}
+
+/** The origin of a relative color, for a caller that can resolve what this module cannot. */
+export function relativeOrigin(value: string): string | null {
+	const fn = /^([a-z-]+)\(([\s\S]*)\)$/i.exec(value.trim());
+	if (!fn || !/^from\s/i.test(fn[2].trim())) return null;
+	return topLevelTokens(fn[2].trim().replace(/^from\s+/i, ''))[0] ?? null;
+}
+
+/**
+ * The same color with its origin replaced by one already resolved. Following
+ * a `var()` is the engine's job, not this module's, so the engine resolves
+ * the origin itself and rebuilds the value with a plain color in its place.
+ */
+export function withRelativeOrigin(value: string, origin: string): string | null {
+	const fn = /^([a-z-]+)\(([\s\S]*)\)$/i.exec(value.trim());
+	if (!fn || !/^from\s/i.test(fn[2].trim())) return null;
+	const rest = topLevelTokens(fn[2].trim().replace(/^from\s+/i, '')).slice(1);
+	return `${fn[1]}(from ${origin} ${rest.join(' ')})`;
+}
+
+/**
+ * Resolve `<fn>(from <origin> …)` by computing each channel and handing the
+ * result back to `parseColor` as a plain color. Re-parsing rather than
+ * building the value here keeps one implementation of every clamp and unit
+ * rule. A second copy of those rules is where a wrong color creeps in.
+ *
+ * The origin has to be a color this can parse on its own. `var()` origins are
+ * substituted a layer up, in `config/report.ts`, which is the only place that
+ * knows what a custom property holds.
+ */
+function parseRelative(fn: string, inner: string): ParsedColor | null {
+	// The alpha slash needs no space around it, so it is split off the string
+	// rather than looked for as a token — `l c h/1` is one token otherwise, and
+	// the non-relative path (`args`) has always split it this way.
+	const source = inner.replace(/^from\s+/i, '');
+	const slash = topLevelIndexOf(source, '/');
+	const alphaToken = slash === -1 ? null : source.slice(slash + 1).trim();
+	const tokens = topLevelTokens(slash === -1 ? source : source.slice(0, slash));
+
+	const isColorFn = fn === 'color';
+	const space = isColorFn ? tokens[1]?.toLowerCase() : fn;
+	if (isColorFn && (space === undefined || !COLOR_FN_SPACES.has(space))) return null;
+
+	const origin = parseColor(tokens[0] ?? '');
+	if (!origin) return null;
+
+	// The legacy spellings name the same model as the modern ones.
+	const alias: Record<string, string> = { rgba: 'rgb', hsla: 'hsl' };
+	const model = isColorFn ? colorFnModel(space!) : KEYWORD_UNITS[alias[fn] ?? fn];
+	if (!model) return null;
+
+	const comps = tokens.slice(isColorFn ? 2 : 1);
+	if (comps.length !== 3 || (slash !== -1 && !alphaToken)) return null;
+
+	const channels = model.values(origin);
+	const vars: Record<string, number> = { alpha: 1 };
+	model.names.forEach((name, index) => (vars[name] = channels[index]));
+
+	// Alpha below 1 has no ratio, the same as anywhere else a color carries it.
+	if (alphaToken !== null) {
+		const alpha = componentValue(alphaToken, vars, 1);
+		if (alpha === null || alpha < 1) return null;
+	}
+
+	const resolved = comps.map((token, index) => componentValue(token, vars, model.refs[index]));
+	if (resolved.some((value) => value === null)) return null;
+	const body = resolved.join(' ');
+	const derived = parseColor(isColorFn ? `color(${space} ${body})` : `${fn}(${body})`);
+	// An origin that did not fit in sRGB was clipped before its channels were
+	// read, so everything derived from it is derived from the stand-in. The
+	// browser keeps the original and lands somewhere else. For a wide-gamut
+	// origin that is a visible difference, not a rounding step, so the flag is
+	// what stops the report presenting it as exact.
+	return derived && origin.clipped ? { ...derived, clipped: true } : derived;
+}
+
 // --- the parser ------------------------------------------------------------
 
 /**
@@ -840,9 +1144,7 @@ export function parseColor(value: string): ParsedColor | null {
 	if (!fn) return null;
 	const name = fn[1].toLowerCase();
 	const inner = fn[2].trim();
-	// Relative color syntax needs the origin color resolved first — that is a
-	// resolver's job, not a parser's.
-	if (/^from\s/i.test(inner)) return null;
+	if (/^from\s/i.test(inner)) return parseRelative(name, inner);
 
 	const parsed = args(inner);
 	if (!parsed) return null;

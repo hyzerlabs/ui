@@ -183,6 +183,58 @@ describe('color-mix — what it will not resolve', () => {
 	});
 });
 
+describe('relative color syntax — origins only the engine can resolve', () => {
+	const MAP = new Map([
+		['--brand', '#3366cc'],
+		['--chain', 'var(--brand)'],
+		['--wide', 'oklch(0.7 0.35 150)']
+	]);
+
+	it('follows a var() chain, a fallback and a mix to the origin', () => {
+		expect(resolveColor('oklch(from var(--brand) l c h)', MAP)!.hex).toBe('#3366cc');
+		expect(resolveColor('oklch(from var(--chain) l c h)', MAP)!.hex).toBe('#3366cc');
+		expect(resolveColor('oklch(from var(--missing, #3366cc) l c h)', MAP)!.hex).toBe('#3366cc');
+		expect(resolveColor('oklch(from color-mix(in oklab, #3366cc, #ffffff) l c h)', MAP)!.hex).toBe(
+			'#96b4e9'
+		);
+	});
+
+	it('applies the arithmetic to a resolved origin', () => {
+		expect(resolveColor('oklch(from var(--brand) calc(l * 0.8) c h)', MAP)!.hex).toBe('#1545a8');
+	});
+
+	it('carries a wide-gamut origin forward as an approximation', () => {
+		expect(resolveColor('oklch(from var(--wide) l c h)', MAP)!.clipped).toBe(true);
+		expect(resolveColor('oklch(from var(--brand) l c h)', MAP)!.clipped).toBe(false);
+	});
+
+	it('is unresolvable when the origin is', () => {
+		expect(resolveColor('oklch(from var(--missing) l c h)', MAP)).toBeNull();
+		expect(resolveColor('oklch(from currentColor l c h)', MAP)).toBeNull();
+		// Translucent, so there is no ratio to derive from.
+		expect(resolveColor('oklch(from rgba(0, 0, 0, 0.5) l c h)', MAP)).toBeNull();
+		expect(
+			resolveColor('oklch(from var(--faded) l c h)', new Map([['--faded', '#00000080']]))
+		).toBeNull();
+	});
+
+	it('does not chase a cycle through the origin', () => {
+		const cyclic = new Map([
+			['--self', 'oklch(from var(--self) l c h)'],
+			['--a', 'oklch(from var(--b) l c h)'],
+			['--b', 'oklch(from var(--a) l c h)']
+		]);
+		expect(resolveColor('var(--self)', cyclic)).toBeNull();
+		expect(resolveColor('var(--a)', cyclic)).toBeNull();
+	});
+
+	it('reads a relative color whose origin is itself one', () => {
+		expect(resolveColor('oklch(from rgb(from var(--brand) r g b) l c h)', MAP)!.hex).toBe(
+			'#3366cc'
+		);
+	});
+});
+
 describe('color-mix — gamut history', () => {
 	it('carries a clipped end through the mix', () => {
 		// Mixing happens on the clipped stand-in, not the wide-gamut original,

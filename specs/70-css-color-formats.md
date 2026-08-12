@@ -64,9 +64,9 @@ the report:
 
 **R2 — What it refuses.** `null`, never a guess, for: any color with alpha
 below 1 (no contrast ratio exists until it is composited over a known
-backdrop — including `transparent`), `currentColor`, `inherit`, relative
-color syntax (`oklch(from … )`), `var()`, `color-mix()`, and any color space
-not in R1. `var()` and `color-mix()` are resolved a layer up, by
+backdrop — including `transparent`), `currentColor`, `inherit`, `var()`,
+`color-mix()`, and any color space not in R1. A relative color is refused
+only when its origin is (R10 owns the rest of that syntax). `var()` and `color-mix()` are resolved a layer up, by
 `resolveColor` in `config/report.ts` (R8), which walks `var()` chains and
 evaluates the mixes before handing leaves to `parseColor`.
 
@@ -186,6 +186,49 @@ load by `invert`. A hand-transcribed inverse is a typo that shows in one
 direction only, which is the kind a review does not catch. Computing it is a
 few multiplications at load, and it cannot be typed wrong.
 
+**R10 — Relative color syntax.** `<fn>(from <origin> …)` resolves for every
+function that takes it: `rgb()`, `hsl()`, `hwb()`, `lab()`, `lch()`,
+`oklab()`, `oklch()` and `color()`. The origin is converted into the
+destination space, and its channels bound to that space's keywords. Each
+component is then a keyword, a literal, `none`, or `calc()` over any of them.
+
+Keywords carry the units that function's own bare numbers use: `s` is 50 in
+`hsl()` because a bare 50 there means 50%, and `l` is 0.5 in `oklch()`
+because a bare 0.5 means 0.5. A percentage inside the arithmetic resolves
+against the channel's own reference *first*, so `calc(r * 50%)` is
+`r * 127.5`, not `r / 2`. Both rules were read off the browser rather than
+off the spec text.
+
+`calc()` covers `+ - * /`, parentheses and nesting. One piece of CSS's type
+algebra is enforced, because it is the only piece that changes an answer
+rather than a verdict: a number and a percentage cannot be added or
+subtracted, two percentages cannot multiply, and nothing divides by one.
+`calc(s + 10%)` is how somebody writes "10% more saturated", CSS rejects it,
+and the browser drops the whole declaration — computing it anyway would grade
+a color that is never painted. The rest of the algebra is not enforced, and
+what that lets through is arithmetic no palette writes on purpose.
+
+A hue slot takes any CSS angle unit, as it does outside relative syntax.
+Inside `calc()` it does not: the keyword there is a plain number, so
+`calc(h + 30deg)` is invalid and refused. The other refusals are a component
+count that is not three, a percentage on a hue, a channel the destination
+space does not have, a division by zero, `none` as an operand rather than a
+component, a math function other than `calc()`, a stray character the
+tokenizer would otherwise drop, and an origin that cannot be resolved.
+
+An origin that is a `var()` chain or a `color-mix()` is substituted by
+`config/report.ts`, the only layer that knows what a custom property holds.
+`parseColor` handles a static origin alone.
+
+**Known ceiling, and it is larger here than elsewhere.** The origin reaches
+the arithmetic as 8-bit sRGB, so a derived color is computed from the
+interchange value rather than the authored one. For an in-gamut origin that
+is a rounding step. For an origin *outside* sRGB it is not: the origin is
+clipped before its channels are read, so `oklch(from oklch(0.6 0.15 200) l c
+calc(h + 180))` derives from a less saturated color than the browser does.
+The result carries R3's `clipped` flag in that case, which is the difference
+between an approximation and a silent one.
+
 ### Edge Cases & Error States
 
 | Case | Expected behavior |
@@ -208,6 +251,19 @@ few multiplications at load, and it cannot be typed wrong.
 | `color-mix(in hsl longer hue, …)` where the arc goes below 0° | Interpolates over the negative hue; the hue is put back on the circle before it is used. |
 | `color-mix(in hwb, white, …)`, `in lch` with a gray | The gray's hue is powerless in every polar space, whatever noise the conversion into it added. |
 | `color-mix(in constructor, …)` | `null`. The space table is an object literal, so membership is checked with `hasOwn`. |
+| `oklch(from #3366cc calc(l * 0.8) c h)` | Resolved (R10). |
+| `oklch(from var(--brand) l c h)` | Resolved: the origin goes through the `var()` chain first. |
+| `oklch(from oklch(0.7 0.35 150) l c h)` | Resolved from the clipped origin, and marked `clipped`. |
+| `oklch(from currentColor l c h)` | Unresolved — the origin is, so the color is. |
+| `rgb(from #3366cc r g h)` | `null`: `h` is not a channel of the destination. |
+| `oklch(from #3366cc l 50% 50%)` | `null`: a hue has no percentage reference. |
+| `oklch(from #3366cc l c min(h, 10))` | `null`: only `calc()` is evaluated. |
+| `oklch(from … l c 180deg)`, `0.5turn`, `3.14rad` | Resolved: a hue slot takes any angle unit. |
+| `oklch(from … l c calc(h + 30deg))` | `null`: the keyword is a number inside the arithmetic. |
+| `hsl(from … h calc(s + 10%) l)` | `null`: CSS cannot add a number and a percentage, and drops the declaration. |
+| `hsla(from …)`, `rgba(from …)` | The legacy spellings resolve like the modern ones. |
+| `rgb(from … r g b/1)` | Resolved: the alpha slash needs no space around it. |
+| `calc()` nested 20,000 deep | `null`, not a thrown `RangeError` (R2). |
 | `color-mix(in oklch, oklch(0.7 0.35 150), white)` | Mixed on the clipped end, and the row is marked (R3) — the browser mixes the wide-gamut original, so this one is an approximation twice over. |
 | `contrastRatio('var(--x)', '#fff')` | Throws a `TypeError` naming the value. |
 | Legacy vs modern syntax for one color | Identical result. |
@@ -278,6 +334,13 @@ at exit 0 without `--strict`, and exits 1 with it, printing `not graded`
 rather than `all pass`. An out-of-gamut hue prints the gamut note and names a
 pairing; a palette that fits in sRGB prints nothing about gamut at all.
 
+**Client — `src/lib/utils/relative.svelte.spec.ts` (new).** R10 against the
+same canvas oracle. The unit each keyword carries and the meaning of a
+percentage inside `calc()` have to be read off a browser, not off a spec
+document. The identity in every space that takes relative syntax, one case
+per keyword unit, the percentage-reference rule, the arithmetic shapes, and
+every refusal.
+
 **Client — `src/lib/config/report-mix.svelte.spec.ts` (new).** R8 against the
 same canvas oracle, since hue direction and percentage normalization are
 exactly the questions a spec document is easy to misread on. In-gamut mixes
@@ -320,11 +383,10 @@ behavior change to four existing ones (R6), both in `CHANGELOG.md`.
 
 ### Non-goals
 
-- Relative color syntax. R9's inverses are the layer it was waiting on, so
-  what remains is the `calc()` evaluator over channel keywords, where a
-  percentage resolves against each channel's own reference range. There is no
-  useful partial version: without the arithmetic it supports only the
-  identity, which nobody writes.
+- Math functions other than `calc()` in a relative color: `min()`, `max()`,
+  `clamp()`. They resolve to `null`, which is loud where it matters (R5) and
+  a note where it does not. Worth adding if one shows up in a real config;
+  the evaluator has the shape for it.
 - Gamut *mapping* (R3). Flagging the approximation is the cheap half; CSS
   Color 4's chroma-reduction search is the expensive half, and it only
   changes a grade for colors already outside sRGB.

@@ -21,7 +21,15 @@ import {
 	rgbToHex,
 	type ContrastLevel
 } from '../utils/contrast.js';
-import { parseColor, mixColors, isMixSpace, isPolarSpace, type HueMethod } from '../utils/color.js';
+import {
+	parseColor,
+	mixColors,
+	isMixSpace,
+	isPolarSpace,
+	relativeOrigin,
+	withRelativeOrigin,
+	type HueMethod
+} from '../utils/color.js';
 import type { ResolvedConfig } from './schema.js';
 
 /**
@@ -186,6 +194,22 @@ export function resolveColor(
 			return resolveColor(target, map, new Set(seen).add(name));
 		}
 		return varMatch[2] ? resolveColor(varMatch[2], map, seen) : null;
+	}
+
+	// A relative color's origin can be a var() chain or a mix, which this
+	// module resolves and `parseColor` cannot. Substitute the resolved origin
+	// as a plain color and let the parser do the rest, including the arithmetic.
+	const origin = relativeOrigin(trimmed);
+	if (origin) {
+		const resolved = resolveColor(origin, map, seen);
+		if (!resolved) return null;
+		const rebuilt = withRelativeOrigin(trimmed, resolved.hex);
+		const derived = rebuilt ? parseColor(rebuilt) : null;
+		if (!derived) return null;
+		return {
+			hex: rgbToHex(derived),
+			clipped: resolved.clipped || derived.clipped === true
+		};
 	}
 
 	// `in <space>` plus an optional hue-interpolation method, which only the
