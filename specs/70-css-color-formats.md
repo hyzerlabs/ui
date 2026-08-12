@@ -369,17 +369,28 @@ feature branch, never to `main`.
 
 ### Write scope
 
-`src/lib/utils/color.ts` (new), `src/lib/utils/color.svelte.spec.ts` (new),
-`src/lib/utils/contrast.ts`, `src/lib/utils/index.ts`, `src/lib/index.ts`,
-`src/lib/config/report.ts` (the resolver, and the space name pattern — those
-names take digits), `src/lib/config/report-mix.svelte.spec.ts` (new),
-`src/lib/cli/main.ts`, and the spec files named in the test plan; `src/routes/docs/foundation/config/+page.svelte`,
+`src/lib/utils/color.ts` (new — the parser, the space table, the mixing and
+the relative-syntax evaluator), `src/lib/utils/contrast.ts`,
+`src/lib/utils/index.ts`, `src/lib/index.ts`, `src/lib/config/report.ts` (the
+resolver, and the space name pattern — those names take digits),
+`src/lib/cli/main.ts`.
+
+Five test files, four of them new: `src/lib/utils/color.svelte.spec.ts`,
+`src/lib/utils/relative.svelte.spec.ts`,
+`src/lib/config/report-mix.svelte.spec.ts`,
+`src/lib/config/report-mix-node.spec.ts`, and additions to
+`src/lib/config/config.spec.ts` and `src/lib/cli/main.spec.ts`.
+
+Prose: `src/routes/docs/foundation/config/+page.svelte`,
 `src/routes/docs/theming/tokens/+page.svelte`,
 `src/routes/docs/foundation/contrast/+page.svelte`, `CHANGELOG.md`.
 
 No new dependencies (Context). No component changes, no CSS changes, and no
-change to any generated file. One new public export (`parseColor`) and one
-behavior change to four existing ones (R6), both in `CHANGELOG.md`.
+change to any generated file. Two new public exports, `parseColor` and its
+`ParsedColor` return type; everything else the module exports
+(`mixColors`, `isMixSpace`, `relativeOrigin`, …) is reached only by
+`config/report.ts` and stays out of both barrels. One behavior change to four
+existing exports (R6). Both are in `CHANGELOG.md`.
 
 ### Non-goals
 
