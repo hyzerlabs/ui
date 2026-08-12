@@ -5,7 +5,16 @@ All notable changes to `@hyzer-labs/ui` are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.8.0] — 2026-08-12
+
+Write your colors however CSS lets you write them. The contrast report and
+the public contrast utilities now read every CSS color space, `color-mix()`
+in all fifteen interpolation spaces, and relative color syntax with its
+arithmetic. WCAG is defined on sRGB, so a color outside sRGB is graded on
+its clipped equivalent and marked as such. Two accessibility gates are
+fixed as well: a theme the report cannot read now fails `--strict` instead
+of dropping out of the report, and the contrast utilities throw on a color
+they cannot grade instead of returning `NaN`.
 
 ### Added
 
@@ -18,8 +27,8 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - **`parseColor`** resolves any static, opaque CSS color to sRGB channels.
   It is exported from the package root and `@hyzer-labs/ui/utils`.
 - **`color-mix()` is read in all fifteen spaces CSS can interpolate in.**
-  That includes the four with a hue (`hsl`, `hwb`, `lch`, `oklch`) and which
-  way round the circle it goes, so a `longer hue` mix is graded as the color
+  That includes the four spaces with a hue (`hsl`, `hwb`, `lch`, `oklch`) and
+  the direction the hue travels, so a `longer hue` mix is graded as the color
   it paints.
 - **The report says when a color was outside sRGB.** WCAG is defined on sRGB,
   so a wider-gamut color is graded on its clipped equivalent. Those pairings
@@ -29,8 +38,8 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - **Relative colors are read, arithmetic and all.**
   `oklch(from var(--brand) calc(l * 0.8) c h)` is graded as the color it
   computes to, in every CSS color function that takes the syntax. The origin
-  can be a `var()` chain or a `color-mix()`. It reaches the arithmetic as an
-  8-bit color, so deriving from a hue outside sRGB starts from its clipped
+  can be a `var()` chain or a `color-mix()`. The origin color reaches the
+  arithmetic as an 8-bit color, so deriving from a hue outside sRGB starts from its clipped
   equivalent. Those results are marked in the report, like any other clipped
   color.
 
@@ -53,18 +62,18 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 - **A palette the contrast gate cannot read no longer reports as passing.**
   When a surface or the text role could not be resolved, its whole theme
   dropped out of the report. That left no rows to fail, so
-  `hyzer generate --strict` exited 0 and the accessibility gate had quietly
+  `hyzer generate --strict` exited 0 and the accessibility gate quietly
   stopped running. A palette written in `oklch()` did exactly that. An
   ungraded theme is now an error line and fails `--strict`, so a run that
-  used to pass may report failures it was hiding. The likeliest one to meet
-  is a role pointed at a `var()` your own stylesheet defines rather than the
-  config: the report cannot follow it, so that theme is no longer graded on
+  used to pass may report failures it was hiding. The most likely one is a
+  role pointed at a `var()` your own stylesheet defines rather than the
+  config. The report cannot follow it, so that theme is no longer graded on
   a guess.
-- **`<Carousel layout="rail" loop>`: the prev button now wraps.** A rail sits at
-  the first item, so paging back crosses the loop boundary while the smooth
-  scroll is still animating — and the browser overwrote the wrap on the next
-  frame, leaving the rail stuck at the start. The wrap now waits for the scroll
-  to settle. Grabbing the rail mid-scroll also stops the animation instead of
+- **`<Carousel layout="rail" loop>`: the prev button now wraps.** Paging back
+  from the first item crosses the loop boundary while the smooth scroll is
+  still animating, and the browser overwrote the wrap on the next frame,
+  leaving the rail stuck at the start. The wrap now waits for the scroll to
+  settle. Grabbing the rail mid-scroll also stops the animation instead of
   fighting it.
 
 ## [0.7.0] — 2026-08-05
@@ -319,6 +328,7 @@ Initial public release: the full component set, headless core with the
 layered reference theme, design tokens, and the docs site at
 [design.hyzer.sh](https://design.hyzer.sh).
 
+[0.8.0]: https://github.com/hyzerlabs/ui/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/hyzerlabs/ui/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/hyzerlabs/ui/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/hyzerlabs/ui/compare/v0.4.0...v0.5.0
