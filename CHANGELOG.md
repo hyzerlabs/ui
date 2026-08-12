@@ -9,15 +9,18 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ### Added
 
-- **Author your colors in any CSS color space.** `oklch()`, `hsl()`,
-  `hwb()`, `lab()`, `lch()`, `oklab()`, `color(srgb …)`,
-  `color(display-p3 …)`, named colors and hex are all read by the contrast
-  report and by the public contrast utilities. They always reached the sheet
-  exactly as you wrote them. Now they are graded too.
+- **Author your colors in any CSS color space.** The contrast report and the
+  public contrast utilities now read `oklch()`, `hsl()`, `hwb()`, `lab()`,
+  `lch()`, `oklab()`, named colors, hex, and all nine spaces `color()`
+  predefines: `srgb`, `srgb-linear`, `display-p3`, `a98-rgb`, `prophoto-rgb`,
+  `rec2020`, `xyz`, `xyz-d50` and `xyz-d65`. Your colors always reached the
+  sheet exactly as you wrote them. Now they are graded too.
 - **`parseColor`** resolves any static, opaque CSS color to sRGB channels.
   It is exported from the package root and `@hyzer-labs/ui/utils`.
-- **`color-mix()` is read in `oklab` and `oklch` as well as `srgb`**, hue
-  direction included, so a `longer hue` mix is graded as the color it paints.
+- **`color-mix()` is read in all fifteen spaces CSS can interpolate in.**
+  That includes the four with a hue (`hsl`, `hwb`, `lch`, `oklch`) and which
+  way round the circle it goes, so a `longer hue` mix is graded as the color
+  it paints.
 - **The report says when a color was outside sRGB.** WCAG is defined on sRGB,
   so a wider-gamut color is graded on its clipped equivalent. Those pairings
   are marked in the report, and `hyzer generate` names them. The ratio is

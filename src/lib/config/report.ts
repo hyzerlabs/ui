@@ -6,11 +6,12 @@
  * surfaces per mode, surface-colored solid text on every intent background,
  * and the Badge (14%/65%) / Alert (10%/70%) soft color-mix recipes. Any
  * static CSS color resolves through `parseColor`, plus the var() chains and
- * the two-color `color-mix()` in `srgb`, `oklab` and `oklch` this module
- * evaluates itself. A value that resolves to nothing is listed in
- * `unresolved` and its pairings are skipped; a theme that loses a surface or
- * the text role is listed in `skipped` and fails the report outright. A row
- * whose color had to be clipped into sRGB is marked `clipped`.
+ * the two-color `color-mix()` this module evaluates itself, in any of the
+ * fifteen spaces CSS can interpolate in. A value that resolves to nothing is
+ * listed in `unresolved` and its pairings are skipped; a theme that loses a
+ * surface or the text role is listed in `skipped` and fails the report
+ * outright. A row whose color had to be clipped into sRGB is marked
+ * `clipped`.
  */
 
 import {
@@ -20,7 +21,7 @@ import {
 	rgbToHex,
 	type ContrastLevel
 } from '../utils/contrast.js';
-import { parseColor, mixColors, type HueMethod } from '../utils/color.js';
+import { parseColor, mixColors, isMixSpace, isPolarSpace, type HueMethod } from '../utils/color.js';
 import type { ResolvedConfig } from './schema.js';
 
 /**
@@ -164,7 +165,7 @@ export interface ResolvedColor {
 /**
  * Resolve a token value to a hex plus its gamut flag: follows var() chains
  * (using the fallback when the reference is missing) and evaluates two-color
- * `color-mix()` in `srgb`, `oklab` and `oklch`.
+ * `color-mix()` in any of the fifteen spaces CSS can interpolate in.
  */
 export function resolveColor(
 	value: string,
@@ -189,7 +190,11 @@ export function resolveColor(
 
 	// `in <space>` plus an optional hue-interpolation method, which only the
 	// polar spaces take: `color-mix(in oklch longer hue, a 30%, b)`.
-	const mixMatch = /^color-mix\(\s*in\s+([a-z-]+)((?:\s+[a-z]+)*)\s*,([\s\S]+)\)$/i.exec(trimmed);
+	// The space name takes digits (`display-p3`, `rec2020`, `xyz-d65`), which is
+	// the difference between reading half the spaces and all of them.
+	const mixMatch = /^color-mix\(\s*in\s+([a-z0-9-]+)((?:\s+[a-z]+)*)\s*,([\s\S]+)\)$/i.exec(
+		trimmed
+	);
 	if (mixMatch) {
 		const space = mixMatch[1].toLowerCase();
 		const method = parseHueMethod(mixMatch[2], space);
@@ -205,21 +210,18 @@ export function resolveColor(
 		if (!a || !b) return null;
 		const clipped = a.clipped || b.clipped;
 
-		// srgb is a channelwise lerp of the encoded values — the same math the
-		// theme's own tint recipes use, and no round trip through a wider space.
+		// srgb keeps its own path: a channelwise lerp of the encoded values is
+		// what the theme's tint recipes do, and routing it through the hub
+		// instead would move existing ratios by a rounding step for no gain.
 		if (space === 'srgb') {
 			return { hex: mixSrgb(a.hex, b.hex, weights[0]), clipped };
 		}
-		if (space === 'oklab' || space === 'oklch') {
-			const A = parseColor(a.hex);
-			const B = parseColor(b.hex);
-			if (!A || !B) return null;
-			const mixed = mixColors(A, B, weights[0], space, method);
-			return { hex: rgbToHex(mixed), clipped: clipped || mixed.clipped === true };
-		}
-		// Any other interpolation space: unresolved rather than mixed in the
-		// wrong one, which would grade a color the browser never paints.
-		return null;
+		if (!isMixSpace(space)) return null;
+		const A = parseColor(a.hex);
+		const B = parseColor(b.hex);
+		if (!A || !B) return null;
+		const mixed = mixColors(A, B, weights[0], space, method);
+		return { hex: rgbToHex(mixed), clipped: clipped || mixed.clipped === true };
 	}
 
 	return null;
@@ -236,17 +238,16 @@ export function resolveHex(
 
 /**
  * The `<hue-interpolation-method>` after the space. Absent means `shorter`,
- * CSS's default. `null` means the value is not something this understands —
- * a method on a rectangular space,
- * or a keyword that is not one of the four.
+ * CSS's default. `null` for what CSS itself rejects: a method on a
+ * rectangular space, which has no hue to take one, or a keyword outside the
+ * four.
  */
 function parseHueMethod(tail: string, space: string): HueMethod | null {
 	const words = tail.trim().toLowerCase().split(/\s+/).filter(Boolean);
 	if (words.length === 0) return 'shorter';
 	if (words.length !== 2 || words[1] !== 'hue') return null;
-	// oklch is the only polar space resolved here, so it is the only one a hue
-	// method can attach to; the rest are refused by the space switch anyway.
-	if (space !== 'oklch') return null;
+	// Only a space with a hue takes one, which is what CSS's grammar says.
+	if (!isPolarSpace(space)) return null;
 	const method = words[0];
 	return method === 'shorter' ||
 		method === 'longer' ||

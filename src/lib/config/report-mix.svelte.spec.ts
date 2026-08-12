@@ -64,7 +64,59 @@ const AGREES = [
 	'color-mix(in srgb, 30% #2563eb, #f59e0b)',
 	'color-mix(in oklab, 30% #2563eb, #f59e0b)',
 	// A mix as an endpoint of a mix.
-	'color-mix(in oklab, color-mix(in oklab, #2563eb, #f59e0b), #ffffff)'
+	'color-mix(in oklab, color-mix(in oklab, #2563eb, #f59e0b), #ffffff)',
+	// One mix per interpolation space CSS names, all fifteen, weighted and not.
+	// A space reached through the wrong primaries or the wrong white point lands
+	// somewhere obvious, so one pair each is enough to pin the conversions.
+	...[
+		'srgb',
+		'srgb-linear',
+		'display-p3',
+		'a98-rgb',
+		'prophoto-rgb',
+		'rec2020',
+		'lab',
+		'oklab',
+		'xyz',
+		'xyz-d50',
+		'xyz-d65',
+		'hsl',
+		'hwb',
+		'lch',
+		'oklch'
+	].flatMap((space) => [
+		`color-mix(in ${space}, #2563eb, #f59e0b)`,
+		`color-mix(in ${space}, #2563eb 30%, #f59e0b)`
+	]),
+	// The hue keywords on every polar space, not just oklch.
+	...['hsl', 'hwb', 'lch', 'oklch'].flatMap((space) =>
+		['shorter', 'longer', 'increasing', 'decreasing'].map(
+			(method) => `color-mix(in ${space} ${method} hue, #2563eb, #f59e0b)`
+		)
+	),
+	// A pair whose aligned hue goes negative. The pair above never does, in any
+	// of the four arcs, so it hides a hue conversion that collapses below zero
+	// and returns a flat color.
+	'color-mix(in hsl longer hue, hsl(20 80% 50%), hsl(120 80% 50%))',
+	'color-mix(in hsl decreasing hue, hsl(10 80% 50%), hsl(190 80% 50%))',
+	'color-mix(in hsl shorter hue, hsl(10 80% 50%), hsl(200 80% 50%))',
+	'color-mix(in hwb longer hue, hwb(20 10% 10%), hwb(120 10% 10%))',
+	// An achromatic endpoint in each polar space. A gray has no hue, and the
+	// test for that has to survive the float noise of reaching the space.
+	'color-mix(in hsl, #808080, #b91c1c)',
+	'color-mix(in hwb, #ffffff, #b91c1c)',
+	'color-mix(in hwb, #fefefe, #b91c1c)',
+	'color-mix(in hwb, #808080, #b91c1c)',
+	'color-mix(in hwb, #ffffff 14%, #b91c1c)',
+	'color-mix(in lch, #808080, #b91c1c)',
+	'color-mix(in lch longer hue, #808080, #b91c1c)',
+	'color-mix(in lch, #ffffff 14%, #b91c1c)',
+	'color-mix(in oklch, #808080, #b91c1c)',
+	// Exactly complementary, where the two arcs are the same length and the
+	// direction turns on the sign alone.
+	'color-mix(in hsl shorter hue, #ff0000, #00ffff)',
+	'color-mix(in hwb shorter hue, #ff0000, #00ffff)',
+	'color-mix(in oklch shorter hue, #ff0000, #00ffff)'
 ];
 
 describe('color-mix — against the browser', () => {
@@ -111,13 +163,16 @@ describe('color-mix — what it will not resolve', () => {
 		'color-mix(in oklab, #2563eb 0%, #f59e0b 0%)',
 		// Both orders of the percentage at once is not a form CSS has.
 		'color-mix(in srgb, 30% #2563eb 40%, #f59e0b)',
-		// Spaces whose interpolation is not modeled: unresolved beats mixing in
-		// the wrong one and grading a color the browser never paints.
-		'color-mix(in lch, #2563eb, #f59e0b)',
-		'color-mix(in hsl, #2563eb, #f59e0b)',
-		'color-mix(in xyz, #2563eb, #f59e0b)',
+		// Not an interpolation space at all.
+		'color-mix(in nonsense, #2563eb, #f59e0b)',
+		'color-mix(in rgb, #2563eb, #f59e0b)',
+		// Lowercase keys on Object.prototype again, one layer up from the
+		// named-color table: answering yes here hands the mixer a function.
+		'color-mix(in constructor, #ffffff, #000000)',
+		'color-mix(in __proto__, #ffffff, #000000)',
 		// A hue method on a space that has no hue.
 		'color-mix(in oklab longer hue, #2563eb, #f59e0b)',
+		'color-mix(in display-p3 shorter hue, #2563eb, #f59e0b)',
 		// Not one of the four methods.
 		'color-mix(in oklch sideways hue, #2563eb, #f59e0b)',
 		// Three colors, and an end that does not resolve.

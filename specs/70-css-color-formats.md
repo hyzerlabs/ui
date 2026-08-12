@@ -37,7 +37,9 @@ a fix before it is a feature.
 - hex, 3/4/6/8 digits
 - `rgb()` / `rgba()`, `hsl()` / `hsla()`, `hwb()`
 - `lab()`, `lch()`, `oklab()`, `oklch()`
-- `color()` in `srgb`, `srgb-linear`, `display-p3`
+- `color()` in every space it predefines: `srgb`, `srgb-linear`,
+  `display-p3`, `a98-rgb`, `prophoto-rgb`, `rec2020`, `xyz`, `xyz-d50`,
+  `xyz-d65`
 - the 148 CSS named colors (`transparent` parses, then R2 refuses it on
   alpha)
 
@@ -81,6 +83,13 @@ not gamut mapped. Grading a P3 hue against its clipped equivalent is close
 enough for a threshold check and wrong for a wide-gamut display; CSS Color
 4's chroma-reduction mapping is the upgrade if that ever matters.
 
+A color counts as clipped when the clamp moved the byte that comes out — not
+when a channel strays past 0–1 by some tolerance. A tolerance would need
+tuning at both ends: a conversion round trip leaves white a few 1e-8 outside
+the cube, and the transfer function multiplies a small negative by 12.92 on
+the way out, so identical noise reads differently either side of zero. Asking
+whether the byte changed needs no constant at all.
+
 An approximation that does not admit to being one reads as exact. So the flag
 travels with the value rather than being inferred later: `parseColor` marks a
 result whose channels had to be clipped, `resolveColor` carries it through
@@ -117,14 +126,27 @@ Every in-gamut case must agree within 1/255, and all 148 named colors must
 agree exactly. Numbers transcribed from a spec document are not an
 acceptable substitute for that oracle.
 
-**R8 — `color-mix()` in the perceptual spaces.** `resolveColor` evaluates
-two-color `color-mix()` in `srgb`, `oklab` and `oklch`. srgb stays a
-channelwise lerp of the encoded values (the theme's own recipes); the other
-two convert both ends, interpolate, and convert back. `oklch` interpolates
-hue on the circle, with all four `<hue-interpolation-method>` keywords and
-`shorter` as the default. A zero-chroma end's hue is powerless, so the mix
-takes the other color's hue rather than sweeping through hues neither color
-contains.
+**R8 — `color-mix()` in every space CSS names.** `resolveColor` evaluates
+two-color `color-mix()` in all fifteen: the rectangular set (`srgb`,
+`srgb-linear`, `display-p3`, `a98-rgb`, `prophoto-rgb`, `rec2020`, `lab`,
+`oklab`, `xyz`, `xyz-d50`, `xyz-d65`) and the polar set (`hsl`, `hwb`, `lch`,
+`oklch`). srgb keeps a channelwise lerp of the encoded values — the theme's
+own recipes take that path, and routing it through the hub instead would move
+existing ratios by a rounding step for nothing. Every other space converts
+both ends, interpolates, and converts back.
+
+Why all of them, rather than the two that were asked for. The spaces split in
+two: `srgb-linear` and the XYZ set need no new conversion at all, and every
+other one needs the reverse direction, XYZ → space. Relative color syntax
+needs those same inverses, so building them once covers both, and covering
+every space closes the question rather than leaving a list to revisit.
+
+A polar space interpolates its hue around the circle, with all four
+`<hue-interpolation-method>` keywords and `shorter` as the default; a method
+on a rectangular space is invalid, as CSS says. A component that carries no
+direction is powerless — the hue of a gray, an `hsl` with no saturation, an
+`hwb` whose white and black cover the channel — and the mix takes the other
+color's hue rather than sweeping through hues neither color contains.
 
 Percentages follow CSS Color 5. The percentage may lead or trail its color,
 since the grammar pairs them with `&&`. One given implies the other, neither
@@ -137,17 +159,32 @@ at both ends, which is not a form CSS has. Any other interpolation space is
 `null` too — mixing in the wrong space would grade a color the browser never
 paints, which is worse than not grading it.
 
-**Known ceiling.** Endpoints reach the mix as 8-bit sRGB, so a hue is good to
-about half a degree, and every arc choice turns on a comparison against 180°.
-A pair separated by within about a degree of exactly 180° can take the other
-arc: both are the same length there, and CSS decides by the sign. Accepted —
-carrying more precision means a wider interchange type than `ParsedColor`,
-and the mixes either side of the boundary are unaffected.
+**Known ceiling.** Endpoints reach the mix as 8-bit sRGB, which costs two
+things. A hue is good to about half a degree, and every arc choice turns on a
+comparison against 180°, so a pair separated by within a degree of 180° can
+take the other arc — both are the same length there, and CSS decides by the
+sign. The second cost: an authored hue the color itself does not carry is
+gone. `color-mix(in hsl, hsl(200 0% 40%), …)` reaches us as
+`rgb(102 102 102)`, which has no hue at all, so the powerless rule substitutes
+the other end's where a browser would have kept 200. Both follow from the interchange
+type; carrying more precision means widening `ParsedColor` itself, and a
+palette is unlikely to author a saturation of zero and expect its hue to
+survive.
 
-Why this and not the rest of `color-mix()`: a consumer authoring in `oklch()`
-is the same consumer who writes `color-mix(in oklab, …)`. Left unresolved,
-that value's pairings leave the report while `pass` still reads true — the
-gate shrinks without failing, which is the R5 defect in a smaller form.
+**R9 — One hub, and no hand-written inverses.** Spaces convert through XYZ
+with a D65 white point rather than to each other, so each is a single pair of
+functions instead of a route to every other; adding a space is adding a row.
+Two spaces sit outside the hub on purpose. `hsl` and `hwb` are defined
+directly on sRGB, and the endpoints are already sRGB, so they read their
+components off the color rather than travelling out to XYZ and back. The
+round trip is lossless in principle and not in practice: it returns cyan's
+hue as 180.0000000004, which flips the arc a mix takes, and it spreads a
+gray's channels far enough apart to invent a hue for it.
+
+Only the forward matrices are written out, and their inverses are computed at
+load by `invert`. A hand-transcribed inverse is a typo that shows in one
+direction only, which is the kind a review does not catch. Computing it is a
+few multiplications at load, and it cannot be typed wrong.
 
 ### Edge Cases & Error States
 
@@ -159,13 +196,18 @@ gate shrinks without failing, which is the R5 defect in a smaller form.
 | A single intent unresolvable | Named in `unresolved`, its pairings skipped, theme still graded. |
 | `rgba(0, 0, 0, 0.5)` as a token | Unresolved — a translucent color has no ratio of its own. |
 | `color-mix(in oklab, …)`, `in oklch` | Evaluated (R8), including the hue-interpolation keywords. |
-| `color-mix(in lch, …)`, `in hsl`, `in xyz` | Unresolved — not modeled, and mixing in the wrong space grades a color that is never painted. |
+| `color-mix(in <any CSS space>, …)` | Evaluated (R8). A name that is not an interpolation space is unresolved. |
+| `color-mix(in display-p3 shorter hue, …)` | Unresolved — a rectangular space takes no hue method. |
 | `color-mix(in oklab, a 30%, b 30%)` | Unresolved: the sum under 100% makes the result translucent. |
 | `color-mix(in oklab, a 120%, b 30%)` | Unresolved — a weight over 100% makes the whole function invalid CSS. |
 | `color-mix(in srgb, 30% a, b)` | The leading-percentage form; same result as `a 30%`. |
 | `color-mix(in oklch longer hue, a, a)` | Sweeps the whole circle. Equal hues are the `longer` branch's boundary case, not a no-op. |
 | `color-mix(in oklch longer hue, gray, a)` | Powerless hue is substituted first, then the arc is chosen, so this sweeps too. |
 | `lab(100 0 0)` (white through a matrix) | Not marked clipped: float noise at 1e-8 is not a gamut excursion. |
+| sRGB green as `oklch(0.86644 0.29483 142.5)` | Not marked clipped either. The noise is larger here — the Oklab coefficients carry ten digits, and the transfer function scales the shortfall by 12.92 — but the byte does not move. |
+| `color-mix(in hsl longer hue, …)` where the arc goes below 0° | Interpolates over the negative hue; the hue is put back on the circle before it is used. |
+| `color-mix(in hwb, white, …)`, `in lch` with a gray | The gray's hue is powerless in every polar space, whatever noise the conversion into it added. |
+| `color-mix(in constructor, …)` | `null`. The space table is an object literal, so membership is checked with `hasOwn`. |
 | `color-mix(in oklch, oklch(0.7 0.35 150), white)` | Mixed on the clipped end, and the row is marked (R3) — the browser mixes the wide-gamut original, so this one is an approximation twice over. |
 | `contrastRatio('var(--x)', '#fff')` | Throws a `TypeError` naming the value. |
 | Legacy vs modern syntax for one color | Identical result. |
@@ -199,7 +241,9 @@ parse must surface as a mismatch, not as agreement.
 - One case per supported format and per syntax variant, in gamut, agreeing
   within 1/255: both `rgb()` syntaxes, percentage channels, every angle unit
   for a hue, negative hues, `lab`/`lch`/`oklab`/`oklch` at several
-  lightnesses, all three `color()` spaces, a named color, mixed case.
+  lightnesses, every `color()` space, a named color, mixed case. Each
+  `color()` space also gets a value near the dark end, where a transfer
+  function's linear segment is what a transcription error hides.
 - Every named color in the table, agreeing exactly. The table is read out of
   a browser, not transcribed, and this is what holds it to that.
 - Each R2 refusal, one case apiece, including all four hex lengths with
@@ -220,6 +264,14 @@ same order, ratios equal to two decimals. An unparseable surface lands in
 `skipped` with `pass` false. The pre-existing "lists unresolvable values"
 case moves to a translucent color, since `oklch()` is no longer unresolvable.
 
+**Server — `src/lib/config/report-mix-node.spec.ts` (new).** A handful of the
+same mixes, pinned to fixed hexes, on the runtime the CLI actually uses. The
+browser oracle is the better test, but it only sees what the browser does: one
+defect here resolved differently in node and in Chromium from identical
+source, so a browser-only suite passed while `hyzer generate` was wrong. The
+values are read off the browser once; node drifting from them is the
+divergence worth failing on.
+
 **Server — `src/lib/cli/main.spec.ts`.** An `oklch()` palette that misses AA
 exits 1 under `--strict` and names the pairing. An ungradeable surface warns
 at exit 0 without `--strict`, and exits 1 with it, printing `not graded`
@@ -229,8 +281,11 @@ pairing; a palette that fits in sRGB prints nothing about gamut at all.
 **Client — `src/lib/config/report-mix.svelte.spec.ts` (new).** R8 against the
 same canvas oracle, since hue direction and percentage normalization are
 exactly the questions a spec document is easy to misread on. In-gamut mixes
-agree within 1/255; `longer hue` must differ from `shorter hue` by more than
-rounding, or the keyword is not doing anything. The translucent cases assert
+agree within 1/255, one weighted and one unweighted pair per interpolation
+space, plus all four keywords on all four polar spaces; `longer hue` must
+differ from `shorter hue` by more than rounding, or the keyword is not doing
+anything. One pair per space is enough because a space reached through the
+wrong primaries or the wrong white point does not land close. The translucent cases assert
 the browser's alpha is 153 alongside our `null`, so the refusal is pinned to
 what the browser actually paints rather than to our reading of the rule.
 
@@ -253,7 +308,8 @@ feature branch, never to `main`.
 
 `src/lib/utils/color.ts` (new), `src/lib/utils/color.svelte.spec.ts` (new),
 `src/lib/utils/contrast.ts`, `src/lib/utils/index.ts`, `src/lib/index.ts`,
-`src/lib/config/report.ts`, `src/lib/config/report-mix.svelte.spec.ts` (new),
+`src/lib/config/report.ts` (the resolver, and the space name pattern — those
+names take digits), `src/lib/config/report-mix.svelte.spec.ts` (new),
 `src/lib/cli/main.ts`, and the spec files named in the test plan; `src/routes/docs/foundation/config/+page.svelte`,
 `src/routes/docs/theming/tokens/+page.svelte`,
 `src/routes/docs/foundation/contrast/+page.svelte`, `CHANGELOG.md`.
@@ -264,15 +320,11 @@ behavior change to four existing ones (R6), both in `CHANGELOG.md`.
 
 ### Non-goals
 
-- Mix spaces beyond the three in R8. `lch`, `hsl`, `hwb`, `xyz` and the rest
-  land in `unresolved`. That is loud only when the value is a surface or the
-  text role, where R5 makes it a failure; anywhere else it stays a note and
-  the pairings quietly leave the report. Adding a space is the fix if one of
-  them starts showing up in real configs — not tightening R5, which would
-  fail builds over a token the gate has never been able to read.
-- Relative color syntax, and `color()` spaces beyond the three in R1. Neither
-  has a useful partial version: relative syntax without a `calc()` evaluator
-  supports only the identity mix, which nobody writes.
+- Relative color syntax. R9's inverses are the layer it was waiting on, so
+  what remains is the `calc()` evaluator over channel keywords, where a
+  percentage resolves against each channel's own reference range. There is no
+  useful partial version: without the arithmetic it supports only the
+  identity, which nobody writes.
 - Gamut *mapping* (R3). Flagging the approximation is the cheap half; CSS
   Color 4's chroma-reduction search is the expensive half, and it only
   changes a grade for colors already outside sRGB.

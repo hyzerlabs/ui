@@ -64,10 +64,23 @@ const IN_GAMUT = [
 	'oklch(0.7 0.1 30)',
 	'oklch(0.95 0.02 90)',
 	'oklch(50% 0.1 180)',
+	// All nine spaces `color()` predefines, which differ in primaries, white
+	// point and transfer function. Dark values too: a transfer function's
+	// linear segment is where a transcription error hides.
 	'color(srgb 0.2 0.4 0.6)',
 	'color(srgb-linear 0.2 0.4 0.6)',
 	'color(srgb-linear 50% 20% 10%)',
 	'color(display-p3 0.3 0.5 0.7)',
+	'color(a98-rgb 0.3 0.5 0.7)',
+	'color(a98-rgb 0.02 0.02 0.02)',
+	'color(prophoto-rgb 0.3 0.5 0.7)',
+	'color(prophoto-rgb 0.9 0.9 0.9)',
+	'color(prophoto-rgb 0.01 0.01 0.01)',
+	'color(rec2020 0.3 0.5 0.7)',
+	'color(rec2020 0.01 0.01 0.01)',
+	'color(xyz 0.2 0.3 0.4)',
+	'color(xyz-d50 0.2 0.3 0.4)',
+	'color(xyz-d65 0.2 0.3 0.4)',
 	'rebeccapurple',
 	'tomato',
 	'WHITE',
@@ -158,7 +171,10 @@ describe('parseColor — refusals', () => {
 		'#0008',
 		'#12345',
 		'oklch(0.5 0.2)',
-		'color(rec2020 0.2 0.4 0.6)',
+		// A space `color()` does not predefine, even though the file knows it.
+		'color(oklch 0.5 0.1 200)',
+		'color(hsl 210 50% 50%)',
+		'color(not-a-space 0.2 0.4 0.6)',
 		'not-a-color',
 		'',
 		// JS number literals CSS has never accepted. Number('0x10') is 16, so

@@ -645,12 +645,19 @@
 		<Alert intent="info" title="Write your colors in whatever space suits you">
 			{#snippet icon()}<IconInfo />{/snippet}
 			These functions read <code>oklch()</code>, <code>hsl()</code>, <code>lab()</code>,
-			<code>color(display-p3 …)</code>, a named color and a hex alike, and so does the config, which
-			also reads <code>color-mix()</code> in <code>srgb</code>, <code>oklab</code> and
-			<code>oklch</code>. WCAG defines contrast on sRGB, so a color outside that gamut is graded
-			against its clipped equivalent. A color with no ratio of its own — a <code>var()</code>, a
-			<code>currentColor</code>, anything part-transparent — throws instead of grading a guess.
+			<code>color(display-p3 …)</code>, a named color and a hex alike. The config reads all of
+			those, plus <code>color-mix()</code> in all fifteen spaces CSS can interpolate in. WCAG defines
+			contrast on sRGB, so a color outside that gamut is graded on its clipped equivalent, and the generate
+			report names those pairings.
 		</Alert>
+		<p>
+			A color that cannot stand on its own is refused rather than guessed at: a <code>var()</code>,
+			a
+			<code>currentColor</code>, anything part-transparent, or the relative syntax (<code
+				>oklch(from …)</code
+			>). Refused means a thrown <code>TypeError</code> naming the value, not a number that was never
+			a ratio.
+		</p>
 		<p>
 			For the full override workflow, see
 			<a href="/docs/theming/tokens">Theming → Tokens &amp; Overrides</a>: plain-CSS recipes and the
