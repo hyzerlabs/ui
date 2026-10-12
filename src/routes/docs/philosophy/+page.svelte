@@ -153,6 +153,21 @@
 		</Alert>
 	</Stack>
 
+	<Stack
+		as="section"
+		gap="away"
+		data-density-shift
+		class="doc-section"
+		aria-labelledby="who-heading"
+	>
+		<h2 id="who-heading">Who builds this</h2>
+		<p>
+			I'm Tanner Heffner. I run <a href="https://hyzer.sh">Hyzer</a>, an independent technical
+			consultancy out of Portland, OR. I built this library for my own work and maintain it in the
+			open.
+		</p>
+	</Stack>
+
 	<WhereNext items={sections} />
 </Stack>
 
