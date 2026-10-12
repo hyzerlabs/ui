@@ -15,6 +15,7 @@
 		{ label: 'Docs', href: '/docs' },
 		{ label: 'Components', href: '/docs/components/button' },
 		{ label: 'Theming', href: '/docs/theming/overview' },
+		{ label: 'Consulting', href: 'https://hyzer.sh' },
 		{ label: 'GitHub', href: 'https://github.com/hyzerlabs/ui' }
 	];
 </script>
